@@ -116,158 +116,163 @@ foreach ($data_skpd as $skpd) {
                 " . $where_jadwal_new . "
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
         // die($wpdb->last_query);
+        $dana_query = $wpdb->prepare("
+            SELECT namadana
+            FROM data_dana_sub_keg
+            WHERE kode_sbl = %s
+                AND tahun_anggaran = %d
+                AND active = 1
+        ", $sub['kode_sbl'], $input['tahun_anggaran']);
+        $dana_result = $wpdb->get_results($dana_query, ARRAY_A);
+        
+        $lokasi_query = $wpdb->prepare("
+            SELECT daerahteks
+            FROM data_lokasi_sub_keg
+            WHERE kode_sbl = %s
+                AND tahun_anggaran = %d
+                AND active = 1
+        ", $sub['kode_sbl'], $input['tahun_anggaran']);
+        $lokasi_result = $wpdb->get_results($lokasi_query, ARRAY_A);
+        // print_r($wpdb->last_query);
+        // die($wpdb->last_query);
         foreach ($rincian_all as $rincian) {
-            $dana_query = $wpdb->prepare("
-                SELECT namadana
-                FROM data_dana_sub_keg
-                WHERE kode_sbl = %s
-                    AND tahun_anggaran = %d
-                    AND active = 1
-            ", $sub['kode_sbl'], $input['tahun_anggaran']);
-
-            $dana_result = $wpdb->get_results($dana_query, ARRAY_A);
-
-            if ($dana_result) {
-                $rincian['namadana'] = $dana_result[0]['namadana'];
+            if (empty($data_all[$sub['id_sub_skpd']])) {
+                $data_all[$sub['id_sub_skpd']] = array(
+                    'id' => $sub['id_sub_skpd'],
+                    'kode' => $sub['kode_sub_skpd'],
+                    'nama' => $sub['nama_sub_skpd'],
+                    'operasi' => 0,
+                    'modal' => 0,
+                    'tak_terduga' => 0,
+                    'transfer' => 0,
+                    'total' => 0,
+                    'operasi_murni' => 0,
+                    'modal_murni' => 0,
+                    'tak_terduga_murni' => 0,
+                    'transfer_murni' => 0,
+                    'total_murni' => 0,
+                    'data' => array()
+                );
             }
-            // die($wpdb->last_query);
-            foreach ($rincian_all as $rincian) {
-                if (empty($data_all[$sub['id_sub_skpd']])) {
-                    $data_all[$sub['id_sub_skpd']] = array(
-                        'id' => $sub['id_sub_skpd'],
-                        'kode' => $sub['kode_sub_skpd'],
-                        'nama' => $sub['nama_sub_skpd'],
-                        'operasi' => 0,
-                        'modal' => 0,
-                        'tak_terduga' => 0,
-                        'transfer' => 0,
-                        'total' => 0,
-                        'operasi_murni' => 0,
-                        'modal_murni' => 0,
-                        'tak_terduga_murni' => 0,
-                        'transfer_murni' => 0,
-                        'total_murni' => 0,
-                        'data' => array()
-                    );
-                }
-                if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']])) {
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']] = array(
-                        'id' => $sub['id_program'],
-                        'kode' => $sub['kode_program'],
-                        'nama' => $sub['nama_program'],
-                        'operasi' => 0,
-                        'modal' => 0,
-                        'tak_terduga' => 0,
-                        'transfer' => 0,
-                        'total' => 0,
-                        'operasi_murni' => 0,
-                        'modal_murni' => 0,
-                        'tak_terduga_murni' => 0,
-                        'transfer_murni' => 0,
-                        'total_murni' => 0,
-                        'data' => array()
-                    );
-                }
-                if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
-                        'id' => $sub['id_giat'],
-                        'kode' => $sub['kode_giat'],
-                        'nama' => $sub['nama_giat'],
-                        'operasi' => 0,
-                        'modal' => 0,
-                        'tak_terduga' => 0,
-                        'transfer' => 0,
-                        'total' => 0,
-                        'operasi_murni' => 0,
-                        'modal_murni' => 0,
-                        'tak_terduga_murni' => 0,
-                        'transfer_murni' => 0,
-                        'total_murni' => 0,
-                        'data' => array()
-                    );
-                }
-                if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-                        'operasi' => 0,
-                        'modal' => 0,
-                        'tak_terduga' => 0,
-                        'transfer' => 0,
-                        'total' => 0,
-                        'operasi_murni' => 0,
-                        'modal_murni' => 0,
-                        'tak_terduga_murni' => 0,
-                        'transfer_murni' => 0,
-                        'total_murni' => 0,
-                        'data' => array(),
-                        'sub' => $sub
-                    );
-                }
+            if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']])) {
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']] = array(
+                    'id' => $sub['id_program'],
+                    'kode' => $sub['kode_program'],
+                    'nama' => $sub['nama_program'],
+                    'operasi' => 0,
+                    'modal' => 0,
+                    'tak_terduga' => 0,
+                    'transfer' => 0,
+                    'total' => 0,
+                    'operasi_murni' => 0,
+                    'modal_murni' => 0,
+                    'tak_terduga_murni' => 0,
+                    'transfer_murni' => 0,
+                    'total_murni' => 0,
+                    'data' => array()
+                );
+            }
+            if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
+                    'id' => $sub['id_giat'],
+                    'kode' => $sub['kode_giat'],
+                    'nama' => $sub['nama_giat'],
+                    'operasi' => 0,
+                    'modal' => 0,
+                    'tak_terduga' => 0,
+                    'transfer' => 0,
+                    'total' => 0,
+                    'operasi_murni' => 0,
+                    'modal_murni' => 0,
+                    'tak_terduga_murni' => 0,
+                    'transfer_murni' => 0,
+                    'total_murni' => 0,
+                    'data' => array()
+                );
+            }
+            if (empty($data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
+                    'operasi' => 0,
+                    'modal' => 0,
+                    'tak_terduga' => 0,
+                    'transfer' => 0,
+                    'total' => 0,
+                    'operasi_murni' => 0,
+                    'modal_murni' => 0,
+                    'tak_terduga_murni' => 0,
+                    'transfer_murni' => 0,
+                    'total_murni' => 0,
+                    'data' => array(),
+                    'sub' => $sub,
+                    'sumber_dana' => $dana_result,
+                    'lokasi' => $lokasi_result
+                );
+            }
 
-                $data_all[$sub['id_sub_skpd']]['total'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['total_murni'] += $rincian['rincian_murni'];
+            $data_all[$sub['id_sub_skpd']]['total'] += $rincian['rincian'];
+            $data_all[$sub['id_sub_skpd']]['total_murni'] += $rincian['rincian_murni'];
 
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total_murni'] += $rincian['rincian_murni'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total'] += $rincian['rincian'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total_murni'] += $rincian['rincian_murni'];
 
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_murni'] += $rincian['rincian_murni'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $rincian['rincian'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_murni'] += $rincian['rincian_murni'];
 
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_murni'] += $rincian['rincian_murni'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $rincian['rincian'];
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_murni'] += $rincian['rincian_murni'];
 
-                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['data'][] = $rincian;
+            $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['data'][] = $rincian;
 
-                $rek = explode('.', $rincian['kode_akun']);
-                $tipe_belanja = $rek[0] . '.' . $rek[1];
-                if ($tipe_belanja == '5.1') {
-                    $data_all[$sub['id_sub_skpd']]['operasi'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['operasi_murni'] += $rincian['rincian_murni'];
+            $rek = explode('.', $rincian['kode_akun']);
+            $tipe_belanja = $rek[0] . '.' . $rek[1];
+            if ($tipe_belanja == '5.1') {
+                $data_all[$sub['id_sub_skpd']]['operasi'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['operasi_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['operasi'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['operasi_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['operasi'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['operasi_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['operasi'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['operasi_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['operasi'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['operasi_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['operasi'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['operasi_murni'] += $rincian['rincian_murni'];
-                } else if ($tipe_belanja == '5.2') {
-                    $data_all[$sub['id_sub_skpd']]['modal'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['modal_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['operasi'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['operasi_murni'] += $rincian['rincian_murni'];
+            } else if ($tipe_belanja == '5.2') {
+                $data_all[$sub['id_sub_skpd']]['modal'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['modal_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['modal'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['modal_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['modal'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['modal_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal_murni'] += $rincian['rincian_murni'];
-                } else if ($tipe_belanja == '5.3') {
-                    $data_all[$sub['id_sub_skpd']]['tak_terduga'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['tak_terduga_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal_murni'] += $rincian['rincian_murni'];
+            } else if ($tipe_belanja == '5.3') {
+                $data_all[$sub['id_sub_skpd']]['tak_terduga'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['tak_terduga_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['tak_terduga'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['tak_terduga_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['tak_terduga'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['tak_terduga_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
-                } else if ($tipe_belanja == '5.4') {
-                    $data_all[$sub['id_sub_skpd']]['transfer'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['transfer_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
+            } else if ($tipe_belanja == '5.4') {
+                $data_all[$sub['id_sub_skpd']]['transfer'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['transfer_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['transfer'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['transfer_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['transfer'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['transfer_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer_murni'] += $rincian['rincian_murni'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer_murni'] += $rincian['rincian_murni'];
 
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer'] += $rincian['rincian'];
-                    $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer_murni'] += $rincian['rincian_murni'];
-                }
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer'] += $rincian['rincian'];
+                $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer_murni'] += $rincian['rincian_murni'];
             }
         }
     }
@@ -379,62 +384,21 @@ foreach ($data_skpd as $skpd) {
                     $total_tak_terduga_murni += $data['tak_terduga_murni'];
                     $total_transfer_murni += $data['transfer_murni'];
                     $parts = explode(' ', $data['sub']['nama_sub_giat'], 2);
-                    $rincian['namadana'] = $dana_result[0]['namadana'];
                     $nama_sub_giat = $parts[1];
-                    if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
-                        $body .= '
-                            <tr data-kode="' . $kode . '">
-                                <td>' . '</td>
-                                <td>' . $data['sub']['kode_sub_giat'] . '</td>
-                                <td>' . $nama_sub_giat . '</td>
-                                <td>' . '</td>
-                                <td>' . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . '</td>
-                                <td>' . $rincian['namadana'] . '</td>
-                            </tr>
-                        ';
-                    } else {
-                        $body .= '
-                            <tr data-kode="' . $kode . '">
-                                <td>' . '</td>
-                                <td>' . $data['sub']['kode_sub_giat'] . '</td>
-                                <td>' . $nama_sub_giat . '</td>
-                                <td>' . '</td>
-                                <td>' . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . '</td>
-                                <td>' . $rincian['namadana'] . '</td>
-                            </tr>
-                        ';
+
+                    $sumber_dana = array();
+                    foreach($data['sumber_dana'] as $sd){
+                        $sumber_dana[] = $sd['namadana'];
                     }
-                }
-                foreach ($kegiatan['data'] as $kode => $data) {
-                    $total_all += $data['total'];
-                    $total_operasi += $data['operasi'];
-                    $total_modal += $data['modal'];
-                    $total_tak_terduga += $data['tak_terduga'];
-                    $total_transfer += $data['transfer'];
-                    $total_all_murni += $data['total_murni'];
-                    $total_operasi_murni += $data['operasi_murni'];
-                    $total_modal_murni += $data['modal_murni'];
-                    $total_tak_terduga_murni += $data['tak_terduga_murni'];
-                    $total_transfer_murni += $data['transfer_murni'];
-                    $parts = explode(' ', $data['sub']['nama_sub_giat'], 2);
-                    $nama_sub_giat = $parts[1];
+                    $sumber_dana = implode('<br>', $sumber_dana);
+                    
+                    $lokasi = array();
+                    foreach($data['lokasi'] as $lks){
+                        $lokasi[] = $lks['daerahteks'];
+                    }
+                    $lokasi = implode('<br>', $lokasi);
+                    print_r($lokasi);
+                    die;
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
                             <tr data-kode="' . $kode . '">
@@ -448,8 +412,8 @@ foreach ($data_skpd as $skpd) {
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . '</td>
-                                <td>' . $rincian['namadana'] . '</td>
+                                <td>' . $lokasi . '</td>
+                                <td>' . $sumber_dana . '</td>
                             </tr>
                         ';
                     } else {
@@ -470,8 +434,8 @@ foreach ($data_skpd as $skpd) {
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . '</td>
-                                <td>' . $rincian['namadana'] . '</td>
+                                <td>' . $lokasi . '</td>
+                                <td>' . $sumber_dana . '</td>
                             </tr>
                         ';
                     }
