@@ -820,16 +820,21 @@ if($total_sumber_dana >= 1){
 
 $tfoot_pergeseran = $status_pergeseran_renja == 'tampil' ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
 $data_per_sumber_dana = array();
-$tBodySumberDana = '';
+$t_body_sumber_dana = '';
+$total_sumber_dana_usulan = 0;
+$total_sumber_dana_penetapan = 0;
 if(!empty($data_rekap_sumber_dana)){
     foreach ($data_rekap_sumber_dana as $v_sumber_dana) {
         foreach ($v_sumber_dana as $v_dana) {
             foreach ($v_dana as $key => $v_sumber) {
-                $tBodySumberDana .= '
+                $total_sumber_dana_usulan += $v_sumber['total_usulan'];
+                $total_sumber_dana_penetapan += $v_sumber['total'];
+
+                $t_body_sumber_dana .= '
                         <tr>
-                            <td class="text-kiri">'.$v_sumber['nama'].'</td>
-                            <td class="text-center">'.$v_sumber['total_usulan'].'</td>
-                            <td class="text-center">'.$v_sumber['total'].'</td>
+                            <td class="text-kiri kanan bawah kiri">'.$v_sumber['nama'].'</td>
+                            <td class="text_kanan kanan bawah kiri">'.number_format($v_sumber['total_usulan'],0,",",".").'</td>
+                            <td class="text_kanan kanan bawah kiri">'.number_format($v_sumber['total'],0,",",".").'</td>
                         </tr>';
             }
         }
@@ -867,14 +872,26 @@ echo '
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th class="text-center">Sumber Dana</th>
-                    <th class="text-center">Total Usulan</th>
-                    <th class="text-center">Total Penetapan</th>
+                    <th class="text-center atas kanan bawah kiri">Sumber Dana</th>
+                    <th class="text-center atas kanan bawah kiri">Total Usulan</th>
+                    <th class="text-center atas kanan bawah kiri">Total Penetapan</th>
                 </tr>
             </thead>
             <tbody>
-                '.$tBodySumberDana.'
+                '.$t_body_sumber_dana.'
             </tbody>
+            <tfoot>
+                <tr>
+                    <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU SUMBER DANA</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_usulan,0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_penetapan,0,",",".").'</td>
+                </tr>
+                <tr>
+                    <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU RENJA</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['total'],0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['pagu_sipd'],0,",",".").'</td>
+                </tr>
+            </tfoot>
         </table>
         <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
         <div id="wrap-table">

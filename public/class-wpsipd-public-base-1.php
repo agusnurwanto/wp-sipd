@@ -3272,6 +3272,16 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 /** mencari id_sub_giat untuk mengisi column id_indikator_sub_giat */
                                 $id_indikator_sub_giat = '';
                                 $set_id_indikator_sub_giat = '';
+
+                                // get kode sub kegiatan dulu
+                                $data_sub_giat = $wpdb->get_row($wpdb->prepare('
+                                    SELECT 
+                                        kode_sub_giat
+                                    FROM data_prog_keg p
+                                    WHERE p.id_sub_giat=%s
+                                        AND p.tahun_anggaran=%d
+                                    ', $v_sub_keg_bl['id_sub_giat'], $tahun_anggaran), ARRAY_A);
+
                                 $data_master_indikator_sub_giat = $wpdb->get_results($wpdb->prepare('
                                     SELECT 
                                         i.*
@@ -3281,7 +3291,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                         AND i.tahun_anggaran=%d
                                         AND i.active=1
                                     GROUP BY p.kode_sub_giat
-                                    ', $v_sub_keg_bl['kode_sub_giat'], $tahun_anggaran), ARRAY_A);
+                                    ', $data_sub_giat['kode_sub_giat'], $tahun_anggaran), ARRAY_A);
 
                                 if(!empty($data_master_indikator_sub_giat)){
                                     $id_indikator_sub_giat = ", ".$data_master_indikator_sub_giat[0]['id_sub_keg'];
