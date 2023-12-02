@@ -27,10 +27,10 @@ foreach($sd as $val){
 <div style="padding: 10px; margin:0 0 3rem 0;">
 	<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 	<h1 class="text-center" style="margin:3rem;">Halaman Setting Batasan Pagu Sumber Dana <?php echo $input['tahun_anggaran']; ?></h1>
-        <div style="margin-bottom: 25px;">
-            <button class="btn btn-primary" onclick="tambah_data_batasan_pagu();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
-        </div>
-	<table id="data_sumberdana_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+    <div style="margin-bottom: 25px;">
+        <button class="btn btn-primary" onclick="tambah_data_batasan_pagu();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
+    </div>
+	<table id="data_sumberdana_table" cellpadding="2" cellspacing="0" class="table table-bordered">
 		<thead id="data_header">
 			<tr>
 				<th class="text-center">Kode Sumber Dana</th>
@@ -38,12 +38,25 @@ foreach($sd as $val){
 				<th class="text-center">Batasan Pagu</th>
 				<th class="text-center">Pagu Terpakai</th>
 				<th class="text-center">Keterangan</th>
-				<th class="text-center" style="width: 250px;">Aksi</th>
+				<th class="text-center" style="width: 150px;">Aksi</th>
 			</tr>
 		</thead>
 		<tbody id="data_body">
 		</tbody>
 	</table>
+    <h2 class="text-center">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
+    <table id="sumberdana_unset" cellpadding="2" cellspacing="0" class="table table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center">Kode Sumber Dana</th>
+                <th class="text-center">Nama Sumber Dana</th>
+                <th class="text-center">Pagu</th>
+                <th class="text-center" style="width: 150px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
 
 <div class="modal fade mt-4" id="modalTambahDataBatasanPagu" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataBatasanPaguLabel" aria-hidden="true">
@@ -85,13 +98,13 @@ jQuery(document).ready(function(){
     	width: '100%',
     	dropdownParent: jQuery('#modalTambahDataBatasanPagu .modal-content')
     });
-	    jQuery('.niai_pagu').on('input', function() {
-	        var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
-	        var formatted = formatRupiah(sanitized);
-	        jQuery(this).val(formatted);
-	    });
+    jQuery('.niai_pagu').on('input', function() {
+        var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+        var formatted = formatRupiah(sanitized);
+        jQuery(this).val(formatted);
+    });
 });
-function get_data_batasan_pagu_sumberdana (){
+function get_data_batasan_pagu_sumberdana(){
     if(typeof databatasanpagu == 'undefined'){
         window.databatasanpagu = jQuery('#data_sumberdana_table').on('preXhr.dt', function(e, settings, data){
             jQuery("#wrap-loading").show();
@@ -111,12 +124,25 @@ function get_data_batasan_pagu_sumberdana (){
             lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
             order: [[0, 'asc']],
             "drawCallback": function( settings ){
+                settings.json.data.map(function(b, i){
+                    var pagu_terpakai = +(b.pagu_terpakai.replace(/\./g, ''));
+                    var nilai_batasan = +(b.nilai_batasan.replace(/\./g, ''));
+                    if(pagu_terpakai > nilai_batasan){
+                        jQuery('#data_sumberdana_table > tbody > tr').eq(i).css('background', '#ffc1c1');
+                    }
+                });
+                jQuery('#sumberdana_unset tbody').html(settings.json.sd_unset);
+                if(settings.json.sd_unset == ""){
+                    jQuery('#sumberdana_unset').hide();
+                }else{
+                    jQuery('#sumberdana_unset').show();
+                }
                 jQuery("#wrap-loading").hide();
             },
             columnDefs: [
-            	{orderable: false, targets: 3},
-            	{orderable: false, targets: 4},
-            	{orderable: false, targets: 5}
+                {orderable: false, targets: 3},
+                {orderable: false, targets: 4},
+                {orderable: false, targets: 5}
             ],
             "columns": [
                 {
@@ -146,7 +172,7 @@ function get_data_batasan_pagu_sumberdana (){
             ]
         });
     }else{
-        databatasanpagu.draw();
+        databatasanpagu.ajax.reload();
     }
 }
 
@@ -207,14 +233,15 @@ function edit_batasan_pagu(_id){
 }
 
 //show tambah data
-function tambah_data_batasan_pagu(){
-    jQuery('#id_data').val('');
-    jQuery('#kode_dana').val('');
-    jQuery('#nama_dana').val('');
-    jQuery('#nilai_batasan').val('').trigger('change');
-    jQuery('#pagu_terpakai').val('');
-    jQuery('#keterangan').val('');
-    jQuery('#modalTambahDataBatasanPagu').modal('show');
+function tambah_data_batasan_pagu(id_dana='', nilai=0){
+    new Promise(function(resolve, reject){
+        jQuery('#id_data').val('');
+        jQuery('#sumber_dana').val(id_dana).trigger('change');
+        jQuery('#nilai_batasan').val(nilai).trigger('input');
+        jQuery('#keterangan').val('');
+        jQuery('#modalTambahDataBatasanPagu').modal('show');
+        resolve();
+    });
 }
 
 function submitTambahDataBatasanPagu(){

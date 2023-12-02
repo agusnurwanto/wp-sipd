@@ -3764,6 +3764,27 @@ public function get_data_batasan_pagu_sumberdana_by_id(){
 					$user_id = um_user( 'ID' );
 					$user_meta = get_userdata($user_id);
 					$js_check_admin = 0;
+
+                    $sd_unset = array();
+                    $dana_lokal = $wpdb->get_results("
+                        SELECT 
+                            s_dana.id_dana, 
+                            s_dana.kode_dana,
+                            s_dana.nama_dana, 
+                            s_dana.tahun_anggaran,
+                            SUM(s_lokal.pagudana) as total
+                        FROM data_sumber_dana as s_dana 
+                        LEFT JOIN data_dana_sub_keg_lokal as s_lokal ON (s_lokal.iddana=s_dana.id_dana) 
+                        WHERE s_dana.active>=1 
+                            AND s_lokal.active>=1 
+                            AND s_dana.tahun_anggaran = ".$wpdb->prepare('%d', $params['tahun_anggaran'])." 
+                        GROUP BY s_dana.id_dana 
+                        ORDER BY s_dana.kode_dana asc;
+                    ", ARRAY_A);
+                    foreach($dana_lokal as $sd){
+                        $sd_unset[$sd['kode_dana']] = $sd;
+                    }
+
 					foreach($queryRecords as $recKey => $recVal){
 						$edit	= '';
 						$delete	= '';
@@ -3773,15 +3794,32 @@ public function get_data_batasan_pagu_sumberdana_by_id(){
 
 						$queryRecords[$recKey]['aksi'] = $edit.$delete;
 						$queryRecords[$recKey]['pagu_terpakai'] = 0;
+                        if($sd_unset[$recVal['kode_dana']]){
+                            $queryRecords[$recKey]['pagu_terpakai'] = $this->_number_format($sd_unset[$recVal['kode_dana']]['total']);
+                            unset($sd_unset[$recVal['kode_dana']]);
+                        }
                         $queryRecords[$recKey]['nilai_batasan'] = $this->_number_format($recVal['nilai_batasan']);
 					}
+
+                    $sd_unset_html = "";
+                    foreach($sd_unset as $sd){
+                        $sd_unset_html .= "
+                            <tr>
+                                <td>$sd[kode_dana]</td>
+                                <td>$sd[nama_dana]</td>
+                                <td class='text-right'>".$this->_number_format($sd[total])."</td>
+                                <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a></td>
+                            </tr>
+                        ";
+                    }
 
 					$json_data = array(
 						"draw"            => intval( $params['draw'] ),  
 						"recordsTotal"    => intval( $totalRecords ), 
 						"recordsFiltered" => intval( $totalRecords ),
 						"data"            => $queryRecords,
-                        "sql"           => $ssst
+                        "sql"             => $ssst,
+                        "sd_unset"        => $sd_unset_html
 					);
 
 					die(json_encode($json_data));

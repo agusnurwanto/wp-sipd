@@ -917,6 +917,7 @@ if (
 	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
 }
 
+$cekbox_set_pptk = '';
 if (
 	current_user_can('administrator') ||
 	current_user_can('PA') ||
