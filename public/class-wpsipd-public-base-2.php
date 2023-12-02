@@ -2445,6 +2445,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
+					$status_batasan_pagu = array();
 					foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
 						$data_sumber_dana = $wpdb->get_row($wpdb->prepare('
 							SELECT 
@@ -2504,7 +2505,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}else{
 							$wpdb->update('data_dana_sub_keg_lokal', $opsi_sumber_dana, array('id' => $cek_ids[$k_sumber_dana]['id']));
 						}
+						
+						// cek batasan pagu sumber sada
+						$batasan_pagu = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												nilai_batasan 
+											FROM `data_batasan_pagu_sd` 
+											WHERE kode_dana=%s
+												AND tahun_anggaran=%d
+												AND active=1", $data_sumber_dana->kode_dana, $tahun_anggaran), ARRAY_A);
+					
+						$get_total_sumber_dana_all = $wpdb->get_row($wpdb->prepare("
+																SELECT 
+																	SUM(pagudana) as total_pagu_all 
+																FROM `data_dana_sub_keg_lokal` 
+																WHERE tahun_anggaran=%d 
+																AND active=1 
+																AND iddana=%d;",$tahun_anggaran, $data_sumber_dana->id_dana), ARRAY_A);
+						
+						if(!empty($batasan_pagu)){
+							if($get_total_sumber_dana_all['total_pagu_all'] > $batasan_pagu['nilai_batasan']){
+								array_push($status_batasan_pagu, '\\n'.$data_sumber_dana->nama_dana.' melebihi batas pagu');
+							}
+						}
 					}
+
+					if(!empty($status_batasan_pagu)){
+						$status_batasan_pagu = implode(" ",$status_batasan_pagu);
+						$ret['message'] .= $status_batasan_pagu;
+					}
+
 
 					// insert indikator sub kegiatan
 					$wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array(

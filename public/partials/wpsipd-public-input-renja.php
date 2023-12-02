@@ -2949,7 +2949,7 @@ echo '
                 },
                 success: function(response){
                     jQuery('#wrap-loading').hide();
-                    alert(response.message);
+                    alert(response.message.replace(/\\n/g,"\n"));
                     if(response.status == 'success'){
                         jQuery('#modalTambahRenja').modal('hide');
                         refresh_page();
