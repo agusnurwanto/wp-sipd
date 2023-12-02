@@ -829,7 +829,6 @@ $data_per_sumber_dana = array();
 $t_body_sumber_dana = '';
 $total_sumber_dana_usulan = 0;
 $total_sumber_dana_penetapan = 0;
-$warning_rekap_sumber_dana = '';
 if(!empty($data_rekap_sumber_dana)){
     foreach ($data_rekap_sumber_dana as $v_sumber_dana) {
         foreach ($v_sumber_dana as $v_dana) {
@@ -837,6 +836,7 @@ if(!empty($data_rekap_sumber_dana)){
                 $total_sumber_dana_usulan += $v_sumber['total_usulan'];
                 $total_sumber_dana_penetapan += $v_sumber['total'];
                 $title_batasan_pagu = 'title="REKAP INPUT SUMBER DANA"';
+                $warning_rekap_sumber_dana = '';
 
                 $batasan_pagu = $wpdb->get_row($wpdb->prepare("
                                         SELECT 
@@ -851,6 +851,9 @@ if(!empty($data_rekap_sumber_dana)){
                         $title_batasan_pagu = 'title="INPUT SUMBER DANA MELEBIHI BATASAN PAGU YANG SUDAH DITETAPKAN!"';
                         $warning_rekap_sumber_dana = 'background-color: #f9d9d9;';
                     }
+                }else{
+                    $title_batasan_pagu = 'title="BATASAN PAGU SUMBER DANA BELUM DITETAPKAN!"';
+                    $warning_rekap_sumber_dana = 'background-color: #f9d9d9;';
                 }
 
                 $t_body_sumber_dana .= '
