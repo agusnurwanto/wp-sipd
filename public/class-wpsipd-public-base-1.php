@@ -3807,7 +3807,7 @@ public function get_data_batasan_pagu_sumberdana_by_id(){
                             <tr>
                                 <td>$sd[kode_dana]</td>
                                 <td>$sd[nama_dana]</td>
-                                <td class='text-right'>".$this->_number_format($sd[total])."</td>
+                                <td class='text-right'>".$this->_number_format($sd['total'])."</td>
                                 <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a></td>
                             </tr>
                         ";

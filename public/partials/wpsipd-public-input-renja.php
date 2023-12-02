@@ -846,8 +846,16 @@ if(!empty($data_rekap_sumber_dana)){
                                             AND tahun_anggaran=%d
                                             AND active=1", $v_sumber['kode_dana'], $tahun_anggaran), ARRAY_A);
                 
+                $get_total_sumber_dana_all = $wpdb->get_row($wpdb->prepare("
+                                                        SELECT 
+                                                            SUM(pagudana) as total_pagu_all 
+                                                        FROM `data_dana_sub_keg_lokal` 
+                                                        WHERE tahun_anggaran=%d 
+                                                        AND active=1 
+                                                        AND iddana=%d;",$tahun_anggaran, $v_sumber['iddana']), ARRAY_A);
+                
                 if(!empty($batasan_pagu)){
-                    if($v_sumber['total'] > $batasan_pagu['nilai_batasan']){
+                    if($get_total_sumber_dana_all['total_pagu_all'] > $batasan_pagu['nilai_batasan']){
                         $title_batasan_pagu = 'title="INPUT SUMBER DANA MELEBIHI BATASAN PAGU YANG SUDAH DITETAPKAN!"';
                         $warning_rekap_sumber_dana = 'background-color: #f9d9d9;';
                     }
