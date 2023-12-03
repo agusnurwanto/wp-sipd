@@ -3574,7 +3574,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
     }
 
 
-public function get_data_batasan_pagu_sumberdana_by_id(){
+    public function get_data_batasan_pagu_sumberdana_by_id(){
         global $wpdb;
         $ret = array(
             'status' => 'success',

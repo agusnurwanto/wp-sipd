@@ -2379,6 +2379,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							from data_sub_keg_bl_lokal 
 							where kode_sbl='$kode_sbl' 
 								and tahun_anggaran=%d
+								order by id desc
 						", $tahun_anggaran), ARRAY_A);
 						if(
 							!empty($cek_sub_keg) 
@@ -2426,6 +2427,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						from data_sub_keg_bl_lokal 
 						where kode_sbl='$kode_sbl' 
 							and tahun_anggaran=%d
+							order by id desc
 					", $tahun_anggaran));
 
 					if(!$cek_id){
