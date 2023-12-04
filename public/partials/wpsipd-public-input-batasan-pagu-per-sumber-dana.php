@@ -125,7 +125,10 @@ function get_data_batasan_pagu_sumberdana(){
             order: [[0, 'asc']],
             "drawCallback": function( settings ){
                 settings.json.data.map(function(b, i){
-                    var pagu_terpakai = +(b.pagu_terpakai.replace(/\./g, ''));
+                    var pagu_terpakai = 0;
+                    if(b.pagu_terpakai){
+                        var pagu_terpakai = +(b.pagu_terpakai.replace(/\./g, ''));
+                    }
                     var nilai_batasan = +(b.nilai_batasan.replace(/\./g, ''));
                     if(pagu_terpakai > nilai_batasan){
                         jQuery('#data_sumberdana_table > tbody > tr').eq(i).css('background', '#ffc1c1');

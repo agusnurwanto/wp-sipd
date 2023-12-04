@@ -15,6 +15,11 @@ if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
     $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
 }
 
+$sumber_sd = 1;
+if(!empty($_GET) && !empty($_GET['sumber_dana'])){
+    $sumber_sd = $_GET['sumber_dana'];
+}
+
 $input = shortcode_atts( array(
 	'id_skpd' => $id_unit,
     'id_jadwal_lokal' => $id_jadwal_lokal,
@@ -91,31 +96,54 @@ foreach($data_skpd as $skpd){
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
     	$where_jadwal_join = '';
-    	if(!empty($where_jadwal)){
-    		$where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
-    		$where_jadwal_join = 'and s.id_jadwal = r.id_jadwal';
-    	}
-    	$rincian_all = $wpdb->get_results($wpdb->prepare("
-            select 
-                sum(r.rincian) as total,
-                s.id_sumber_dana,
-                d.nama_dana,
-                d.kode_dana
-            from data_rka".$_suffix_sipd."".$_suffix." r
-           	left join data_mapping_sumberdana".$_suffix_sipd."".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
-           		and s.active = r.active
-           		and s.tahun_anggaran = r.tahun_anggaran
-           		".$where_jadwal_join."
-           	left join data_sumber_dana d on d.id_dana=s.id_sumber_dana
-           		and d.active = s.active
-           		and d.tahun_anggaran = s.tahun_anggaran
-            where r.tahun_anggaran=%d
-                and r.active=1
-                and r.kode_sbl=%s
-                ".$where_jadwal_new."
-            group by d.kode_dana
-            order by d.kode_dana ASC
-        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        if($sumber_sd == 1){
+        	if(!empty($where_jadwal)){
+        		$where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
+        		$where_jadwal_join = 'and s.id_jadwal = r.id_jadwal';
+        	}
+        	$rincian_all = $wpdb->get_results($wpdb->prepare("
+                select 
+                    sum(r.rincian) as total,
+                    s.id_sumber_dana,
+                    d.nama_dana,
+                    d.kode_dana
+                from data_rka".$_suffix_sipd."".$_suffix." r
+               	left join data_mapping_sumberdana".$_suffix_sipd."".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
+               		and s.active = r.active
+               		and s.tahun_anggaran = r.tahun_anggaran
+               		".$where_jadwal_join."
+               	left join data_sumber_dana d on d.id_dana=s.id_sumber_dana
+               		and d.active = s.active
+               		and d.tahun_anggaran = s.tahun_anggaran
+                where r.tahun_anggaran=%d
+                    and r.active=1
+                    and r.kode_sbl=%s
+                    ".$where_jadwal_new."
+                group by d.kode_dana
+                order by d.kode_dana ASC
+            ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        }else{
+            if(!empty($where_jadwal)){
+                $where_jadwal_new = str_replace('AND id_jadwal', 'AND s_lokal.id_jadwal', $where_jadwal);
+            }
+            $rincian_all = $wpdb->get_results("
+                SELECT 
+                    s_dana.id_dana as id_sumber_dana, 
+                    s_dana.kode_dana,
+                    s_dana.nama_dana, 
+                    SUM(s_lokal.pagudana) as total
+                FROM data_dana_sub_keg".$_suffix_sipd."".$_suffix." as s_lokal
+                LEFT JOIN data_sumber_dana as s_dana ON (s_lokal.iddana=s_dana.id_dana) 
+                    AND s_dana.active = s_lokal.active
+                    AND s_dana.tahun_anggaran = s_lokal.tahun_anggaran
+                WHERE s_lokal.active = 1 
+                    AND s_lokal.tahun_anggaran = ".$wpdb->prepare('%d', $input['tahun_anggaran'])." 
+                    AND s_lokal.kode_sbl = ".$wpdb->prepare('%s', $sub['kode_sbl'])."
+                    ".$where_jadwal_new."
+                GROUP BY s_dana.id_dana 
+                ORDER BY s_dana.kode_dana asc;
+            ", ARRAY_A);
+        }
     	// die($wpdb->last_query);
         foreach($rincian_all as $rincian){
 	    	$body .= '

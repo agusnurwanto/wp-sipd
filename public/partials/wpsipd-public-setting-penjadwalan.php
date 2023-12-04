@@ -724,6 +724,15 @@ $body = '';
 				      			</select>
 					    	</div>
 					    </div></br>
+					    <div class="row" style="display:none" id="opt_jenis_sumber_dana_div">
+					    	<div class="col-md-2">Sumber Data</div>
+					    	<div class="col-md-6">
+					      		<select class="form-control jenis" id="opt_jenis_sumber_dana">
+					      			<option value="1">Sumber Dana dari Rincian Belanja</option>
+					      			<option value="2">Sumber Dana dari Sub Kegiatan</option>
+					      		</select>
+					    	</div>
+					    </div></br>
 					    <div class="row" style="display:none" id="opt_jenis_jadwal_div">
 					    	<div class="col-md-2">Jenis Jadwal</div>
 					    	<div class="col-md-6">
@@ -805,16 +814,16 @@ $body = '';
 				window.open('<?php echo $url_analisis_belanja_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_sumber_dana_per_skpd':
-				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_program':
-				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_sub_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_rekening':
 				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
@@ -1016,6 +1025,12 @@ $body = '';
 
 	function jenis_laporan(that){
 		switch (jQuery(that).val()){
+			case 'rekap_sumber_dana_per_skpd':
+			case 'rekap_sumber_dana_per_program':
+			case 'rekap_sumber_dana_per_kegiatan':
+			case 'rekap_sumber_dana_per_sub_kegiatan':
+				jQuery('#opt_jenis_sumber_dana_div').show();
+				break;
 			case 'laporan_konsistensi_rpjm':
 				jQuery('#wrap-loading').show();
 				let option = '<option value="-">Pilih Jenis Jadwal</option>';
@@ -1044,6 +1059,8 @@ $body = '';
 			default:
 				jQuery("#opt_jenis_jadwal").html(null);
 				jQuery("#opt_jenis_jadwal_div").hide();
+				jQuery('#opt_jenis_sumber_dana_div').show();
+				jQuery('#opt_jenis_sumber_dana').val(1);
 				break;
 		}
 	}
