@@ -69,6 +69,14 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bkk-pilkades.php';
     }
 
+    public function keu_pemdes_bkk_inf($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bkk-infrastruktur.php';
+    }
+
     public function monitor_keu_pemdes($atts)
     {
         if (!empty($_GET) && !empty($_GET['post'])) {
