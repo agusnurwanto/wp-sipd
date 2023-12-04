@@ -246,17 +246,20 @@ foreach ($subkeg as $kk => $sub) {
     $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
         SELECT 
             dsk.*,
-            dsd.kode_dana AS kode_dana_dsd
+            dsd.kode_dana AS kode_dana_dsd,
+            dsd_sipd.pagudana AS pagudana_sipd
         FROM data_dana_sub_keg_lokal AS dsk
-        LEFT JOIN data_sumber_dana AS dsd
-        ON dsd.id_dana=dsk.iddana
+        LEFT JOIN data_dana_sub_keg AS dsd_sipd ON dsd_sipd.kode_sbl = dsk.kode_sbl
+            AND dsd_sipd.active = dsk.active
+            AND dsd_sipd.tahun_anggaran = dsk.tahun_anggaran
+        LEFT JOIN data_sumber_dana AS dsd ON dsd.id_dana=dsk.iddana
+            AND dsd.active = dsk.active
+            AND dsd.tahun_anggaran = dsk.tahun_anggaran
         WHERE dsk.tahun_anggaran=%d
             AND dsk.active=1
             AND dsk.kode_sbl=%s
-            AND dsd.tahun_anggaran=%d
-            AND dsd.active=1
         ORDER BY dsk.id ASC
-    ", $input['tahun_anggaran'], $sub['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
     if(!empty($dana_sub_giat)){
         foreach ($dana_sub_giat as $v_dana) {
@@ -267,12 +270,14 @@ foreach ($subkeg as $kk => $sub) {
                     'kode_dana' => $v_dana['kode_dana_dsd'],
                     'total' => 0,
                     'total_usulan' => 0,
+                    'total_sipd' => 0,
                     'data' => $v_dana
                 );
             }
         
             $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total'] += $v_dana['pagudana'];
             $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_usulan'] += $v_dana['pagu_dana_usulan'];
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_sipd'] += $v_dana['pagudana_sipd'];
         }
     }
     
@@ -829,30 +834,34 @@ $data_per_sumber_dana = array();
 $t_body_sumber_dana = '';
 $total_sumber_dana_usulan = 0;
 $total_sumber_dana_penetapan = 0;
+$total_sumber_dana_sipd = 0;
 if(!empty($data_rekap_sumber_dana)){
     foreach ($data_rekap_sumber_dana as $v_sumber_dana) {
         foreach ($v_sumber_dana as $v_dana) {
             foreach ($v_dana as $key => $v_sumber) {
                 $total_sumber_dana_usulan += $v_sumber['total_usulan'];
                 $total_sumber_dana_penetapan += $v_sumber['total'];
+                $total_sumber_dana_sipd += $v_sumber['total_sipd'];
                 $title_batasan_pagu = 'title="REKAP INPUT SUMBER DANA"';
                 $warning_rekap_sumber_dana = '';
 
                 $batasan_pagu = $wpdb->get_row($wpdb->prepare("
-                                        SELECT 
-                                            nilai_batasan 
-                                        FROM `data_batasan_pagu_sd` 
-                                        WHERE kode_dana=%s
-                                            AND tahun_anggaran=%d
-                                            AND active=1", $v_sumber['kode_dana'], $tahun_anggaran), ARRAY_A);
+                    SELECT 
+                        nilai_batasan 
+                    FROM `data_batasan_pagu_sd` 
+                    WHERE kode_dana=%s
+                        AND tahun_anggaran=%d
+                        AND active=1
+                ", $v_sumber['kode_dana'], $tahun_anggaran), ARRAY_A);
                 
                 $get_total_sumber_dana_all = $wpdb->get_row($wpdb->prepare("
-                                                        SELECT 
-                                                            SUM(pagudana) as total_pagu_all 
-                                                        FROM `data_dana_sub_keg_lokal` 
-                                                        WHERE tahun_anggaran=%d 
-                                                        AND active=1 
-                                                        AND iddana=%d;",$tahun_anggaran, $v_sumber['iddana']), ARRAY_A);
+                    SELECT 
+                        SUM(pagudana) as total_pagu_all 
+                    FROM `data_dana_sub_keg_lokal` 
+                    WHERE tahun_anggaran=%d 
+                    AND active=1 
+                    AND iddana=%d;
+                ",$tahun_anggaran, $v_sumber['iddana']), ARRAY_A);
                 
                 if(!empty($batasan_pagu)){
                     if($get_total_sumber_dana_all['total_pagu_all'] > $batasan_pagu['nilai_batasan']){
@@ -865,11 +874,12 @@ if(!empty($data_rekap_sumber_dana)){
                 }
 
                 $t_body_sumber_dana .= '
-                        <tr '.$title_batasan_pagu.'>
-                            <td class="text-kiri kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.$v_sumber['kode_dana'].' '.$v_sumber['nama'].'</td>
-                            <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'" >'.number_format($v_sumber['total_usulan'],0,",",".").'</td>
-                            <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.number_format($v_sumber['total'],0,",",".").'</td>
-                        </tr>';
+                    <tr '.$title_batasan_pagu.'>
+                        <td class="text-kiri kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.$v_sumber['kode_dana'].' '.$v_sumber['nama'].'</td>
+                        <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'" >'.number_format($v_sumber['total_usulan'],0,",",".").'</td>
+                        <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.number_format($v_sumber['total'],0,",",".").'</td>
+                        <td class="text_kanan kanan bawah kiri">'.number_format($v_sumber['total_sipd'],0,",",".").'</td>
+                    </tr>';
             }
         }
     }
@@ -909,6 +919,7 @@ echo '
                     <th class="text-center atas kanan bawah kiri">Sumber Dana</th>
                     <th class="text-center atas kanan bawah kiri">Total Usulan</th>
                     <th class="text-center atas kanan bawah kiri">Total Penetapan</th>
+                    <th class="text-center atas kanan bawah kiri">Total SIPD</th>
                 </tr>
             </thead>
             <tbody>
@@ -919,9 +930,11 @@ echo '
                     <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU SUMBER DANA</td>
                     <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_usulan,0,",",".").'</td>
                     <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_penetapan,0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_sipd,0,",",".").'</td>
                 </tr>
                 <tr>
                     <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU RENJA</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['total_usulan'],0,",",".").'</td>
                     <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['total'],0,",",".").'</td>
                     <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['pagu_sipd'],0,",",".").'</td>
                 </tr>
