@@ -246,12 +246,8 @@ foreach ($subkeg as $kk => $sub) {
     $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
         SELECT 
             dsk.*,
-            dsd.kode_dana AS kode_dana_dsd,
-            dsd_sipd.pagudana AS pagudana_sipd
+            dsd.kode_dana AS kode_dana_dsd
         FROM data_dana_sub_keg_lokal AS dsk
-        LEFT JOIN data_dana_sub_keg AS dsd_sipd ON dsd_sipd.kode_sbl = dsk.kode_sbl
-            AND dsd_sipd.active = dsk.active
-            AND dsd_sipd.tahun_anggaran = dsk.tahun_anggaran
         LEFT JOIN data_sumber_dana AS dsd ON dsd.id_dana=dsk.iddana
             AND dsd.active = dsk.active
             AND dsd.tahun_anggaran = dsk.tahun_anggaran
@@ -275,9 +271,17 @@ foreach ($subkeg as $kk => $sub) {
                 );
             }
         
+            $pagu_sipd = $wpdb->get_var($wpdb->prepare("
+                SELECT 
+                    pagudana
+                FROM data_dana_sub_keg
+                WHERE active=1
+                    AND tahun_anggaran=%d
+                    AND kode_sbl=%s
+            ", $input['tahun_anggaran'], $sub['kode_sbl']));
             $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total'] += $v_dana['pagudana'];
             $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_usulan'] += $v_dana['pagu_dana_usulan'];
-            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_sipd'] += $v_dana['pagudana_sipd'];
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_sipd'] += $pagu_sipd;
         }
     }
     
