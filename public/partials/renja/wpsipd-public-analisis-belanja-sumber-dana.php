@@ -87,7 +87,7 @@ $sql = "
         AND sub_keg.active=1
         ".$where_jadwal."
         ".$where_skpd."
-    ORDER BY dana.kodedana ASC";
+    ORDER BY dsd.kode_dana ASC";
 $analisis_sumber_dana = $wpdb->get_results($wpdb->prepare($sql,$input['tahun_anggaran']), ARRAY_A);
 // echo('<pre>'.$wpdb->last_query.'</pre>');
 
@@ -141,6 +141,7 @@ foreach($analisis_sumber_dana as $k => $ap){
 
 $body = '';
 $urut = 1;
+ksort($data_all['data']);
 foreach ($data_all['data'] as $k => $all_ap) {
     $skpd = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kodedana'].'\'); return false;" href="#" title="Menampilkan Analisis Sumber Dana">'.$all_ap['skpd'].'</a>';
     $sub_keg = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kodedana'].'\', 1); return false;" href="#" title="Menampilkan Analisis Sumber Dana">'.$all_ap['sub_keg'].'</a>';
