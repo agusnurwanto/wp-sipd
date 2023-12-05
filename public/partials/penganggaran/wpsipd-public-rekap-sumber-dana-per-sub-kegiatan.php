@@ -157,7 +157,7 @@ foreach($data_skpd as $skpd){
             $warning = '';
             if($pagu_sumber_dana != $sub['pagu']){
                 $warning = 'style="background-color: #f9d9d9"';
-                $title = 'title="Total pagu Sumber Dana tidak sama dengan pagu Sub Kegiatan. '.$this->_number_format($pagu_sumber_dana).' != '.$this->_number_format($sub['pagu']).'"';
+                $title = 'title="Total pagu Sumber Dana tidak sama dengan pagu Sub Kegiatan. '.$this->_number_format($pagu_sumber_dana).' != '.$this->_number_format($sub['pagu']).'" class="tidak-sama"';
             }
 	    	$body .= '
 	    		<tr data-kodesbl="'.$sub['kode_sbl'].'" '.$warning.' '.$title.'>
@@ -179,7 +179,7 @@ foreach($data_skpd as $skpd){
 ?>
 <div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
 	<h1 class="text-center"><?php echo $nama_excel; ?></h1>
-	<table class="table table-bordered">
+	<table class="table table-bordered" id="tabel-data">
 		<thead>
 			<tr>
 				<th class="text-center">Sumber Dana</th>
@@ -207,5 +207,16 @@ foreach($data_skpd as $skpd){
 <script type="text/javascript">
     jQuery(document).ready(function(){
         run_download_excel();
+        var action = ''
+            +'<br><label><input type="checkbox" onclick="show_pagu_tidak_sama(this);"/> Tampilkan hanya pagu yang tidak sama antara total sub kegiatan dan total sumber dana</label>'
+        jQuery('#action-sipd').append(action);
     });
+    function show_pagu_tidak_sama(that){
+        if(jQuery(that).is(':checked') == true){
+            jQuery('#tabel-data > tbody > tr').hide();
+            jQuery('#tabel-data > tbody > tr.tidak-sama').show();
+        }else{
+            jQuery('#tabel-data > tbody > tr').show();
+        }
+    }
 </script>
