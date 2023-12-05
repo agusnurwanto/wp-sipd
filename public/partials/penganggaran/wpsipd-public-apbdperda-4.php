@@ -115,7 +115,7 @@ foreach ($data_skpd as $skpd) {
                 AND r.kode_sbl=%s
                 " . $where_jadwal_new . "
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-        // die($wpdb->last_query);
+        
         $dana_query = $wpdb->prepare("
             SELECT namadana
             FROM data_dana_sub_keg
@@ -133,8 +133,23 @@ foreach ($data_skpd as $skpd) {
                 AND active = 1
         ", $sub['kode_sbl'], $input['tahun_anggaran']);
         $lokasi_result = $wpdb->get_results($lokasi_query, ARRAY_A);
-        // print_r($wpdb->last_query);
-        // die($wpdb->last_query);
+
+        $indikator_query = $wpdb->get_results($wpdb->prepare("
+            SELECT hasilteks
+            FROM data_keg_indikator_hasil
+            WHERE tahun_anggaran=%d
+                AND active=1
+                AND kode_sbl=%s
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        
+        $target_query = $wpdb->get_results($wpdb->prepare("
+            SELECT targethasilteks
+            FROM data_keg_indikator_hasil
+            WHERE tahun_anggaran=%d
+                AND active=1
+                AND kode_sbl=%s
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
         foreach ($rincian_all as $rincian) {
             if (empty($data_all[$sub['id_sub_skpd']])) {
                 $data_all[$sub['id_sub_skpd']] = array(
@@ -205,7 +220,9 @@ foreach ($data_skpd as $skpd) {
                     'data' => array(),
                     'sub' => $sub,
                     'sumber_dana' => $dana_result,
-                    'lokasi' => $lokasi_result
+                    'lokasi' => $lokasi_result,
+                    'indikator' => $indikator_query,
+                    'target' => $target_query
                 );
             }
 
@@ -397,16 +414,27 @@ foreach ($data_skpd as $skpd) {
                         $lokasi[] = $lks['daerahteks'];
                     }
                     $lokasi = implode('<br>', $lokasi);
-                    print_r($lokasi);
-                    die;
+
+                    $indikator = array();
+                    foreach($data['indikator'] as $ind){
+                        $indikator[] = $ind['hasilteks'];
+                    }
+                    $indikator = implode('<br>', $indikator);
+                    
+                    $target = array();
+                    foreach($data['target'] as $tg){
+                        $target[] = $tg['targethasilteks'];
+                    }
+                    $target = implode('<br>', $target);
+
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
                             <tr data-kode="' . $kode . '">
                                 <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
-                                <td>' . '</td>
-                                <td>' . '</td>
+                                <td>' . $indikator . '</td>
+                                <td>' . $target . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
@@ -422,7 +450,7 @@ foreach ($data_skpd as $skpd) {
                                 <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
-                                <td>' . '</td>
+                                <td>' .'</td>
                                 <td>' . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
