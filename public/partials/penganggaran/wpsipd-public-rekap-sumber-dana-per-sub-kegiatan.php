@@ -145,9 +145,22 @@ foreach($data_skpd as $skpd){
             ", ARRAY_A);
         }
     	// die($wpdb->last_query);
+        $pagu_sumber_dana = 0;
         foreach($rincian_all as $rincian){
+            if(!empty($rincian['kode_dana'])){
+                $pagu_sumber_dana += $rincian['total'];
+            }
+        }
+
+        foreach($rincian_all as $rincian){
+            $title = '';
+            $warning = '';
+            if($pagu_sumber_dana != $sub['pagu']){
+                $warning = 'style="background-color: #f9d9d9"';
+                $title = 'title="Total pagu Sumber Dana tidak sama dengan pagu Sub Kegiatan. '.$this->_number_format($pagu_sumber_dana).' != '.$this->_number_format($sub['pagu']).'"';
+            }
 	    	$body .= '
-	    		<tr data-kodesbl="'.$sub['kode_sbl'].'">
+	    		<tr data-kodesbl="'.$sub['kode_sbl'].'" '.$warning.' '.$title.'>
 	    			<td>'.$rincian['kode_dana'].' '.$rincian['nama_dana'].'</td>
 	    			<td>'.$sub['kode_urusan'].' '.$sub['nama_urusan'].'</td>
 	    			<td>'.$sub['kode_skpd'].' '.$sub['nama_skpd'].'</td>
