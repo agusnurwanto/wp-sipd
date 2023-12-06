@@ -3920,7 +3920,10 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						$sqlRec .= $where;
 					}
 
-					$sqlRec .=  $wpdb->prepare(" ORDER BY s_dana.". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT %d ,%d ", $params['start'], $params['length']);
+                    $sqlRec .=  " ORDER BY s_dana.". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir'];
+                    if($params['length'] != -1){
+					   $sqlRec .=  $wpdb->prepare(" LIMIT %d ,%d ", $params['start'], $params['length']);
+                    }
 
 					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 					$totalRecords = $queryTot[0]['jml'];
@@ -3968,6 +3971,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 					}
 
                     $sd_unset_html = "";
+                    $sd_unset_total = 0;
                     foreach($sd_unset as $sd){
                         $pindah = '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="pindah_sumber_dana(\''.$sd['id_dana'].'\'); return false;" href="#" title="Pindah Sumber Dana"><i class="dashicons dashicons-controls-repeat"></i></a>';
                         $sd_unset_html .= "
@@ -3978,6 +3982,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a>$pindah</td>
                             </tr>
                         ";
+                        $sd_unset_total += $sd[total];
                     }
 
 					$json_data = array(
@@ -3986,7 +3991,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						"recordsFiltered" => intval( $totalRecords ),
 						"data"            => $queryRecords,
                         "sql"             => $ssst,
-                        "sd_unset"        => $sd_unset_html
+                        "sd_unset"        => $sd_unset_html,
+                        "sd_unset_total"  => $this->_number_format($sd_unset_total)
 					);
 
 					die(json_encode($json_data));
