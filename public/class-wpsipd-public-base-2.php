@@ -652,7 +652,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 															WHERE id=%d',
 															$val_data['id']), ARRAY_A);
 								if(empty($data_tipe_perencanaan)){
-									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
 								}else{
 									$ret['status_update'][] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
 								}

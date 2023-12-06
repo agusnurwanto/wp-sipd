@@ -111,7 +111,9 @@
 		array('id' => 9,'nama_tipe' => 'rpd_sipd','keterangan_tipe' => '','lama_pelaksanaan' => 5),
 		array('id' => 10,'nama_tipe' => 'renstra_sipd','keterangan_tipe' => '','lama_pelaksanaan' => 5),
 		array('id' => 11,'nama_tipe' => 'renja_sipd','keterangan_tipe' => '','lama_pelaksanaan' => 1),
-		array('id' => 12,'nama_tipe' => 'penganggaran','keterangan_tipe' => '','lama_pelaksanaan' => 1)
+		array('id' => 12,'nama_tipe' => 'penganggaran','keterangan_tipe' => '','lama_pelaksanaan' => 1),
+		array('id' => 13,'nama_tipe' => 'verifikasi_rka','keterangan_tipe' => '','lama_pelaksanaan' => 1),
+		array('id' => 14,'nama_tipe' => 'verifikasi_rka_sipd','keterangan_tipe' => '','lama_pelaksanaan' => 1)
 	);
 
 	update_option('data_master_tipe_perencanaan', $data_statis_tipe_perencanaan);

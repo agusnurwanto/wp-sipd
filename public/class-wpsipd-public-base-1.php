@@ -10,6 +10,14 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-input-batasan-pagu-per-sumber-dana.php';
 	}
+    
+    public function jadwal_verifikasi_rka($atts){
+		// untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-setting-jadwal-verifikasi-rka.php';
+	}
 
     public function singkron_rpjpd_sipd_lokal(){
         global $wpdb;

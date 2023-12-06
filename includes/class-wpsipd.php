@@ -606,6 +606,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjpd',  $plugin_public, 'submit_lock_schedule_rpjpd');
 		$this->loader->add_action('wp_ajax_get_data_standar_lama_pelaksanaan',  $plugin_public, 'get_data_standar_lama_pelaksanaan');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_verif_rka',  $plugin_public, 'submit_lock_schedule_verif_rka');
 		
 		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
 		$this->loader->add_action('wp_ajax_simpan_rpd',  $plugin_public, 'simpan_rpd');
@@ -1031,7 +1032,7 @@ class Wpsipd
 		add_shortcode('apbd_perda_lampiran_4', array($plugin_public, 'apbd_perda_lampiran_4'));
 		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
 		add_shortcode('input_batasan_pagu_per_sumber_dana', array($plugin_public, 'input_batasan_pagu_per_sumber_dana'));
-
+		add_shortcode('jadwal_verifikasi_rka', array($plugin_public, 'jadwal_verifikasi_rka'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
