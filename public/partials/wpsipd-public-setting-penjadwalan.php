@@ -1059,7 +1059,7 @@ $body = '';
 			default:
 				jQuery("#opt_jenis_jadwal").html(null);
 				jQuery("#opt_jenis_jadwal_div").hide();
-				jQuery('#opt_jenis_sumber_dana_div').show();
+				jQuery('#opt_jenis_sumber_dana_div').hide();
 				jQuery('#opt_jenis_sumber_dana').val(1);
 				break;
 		}

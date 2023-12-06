@@ -65,9 +65,9 @@ echo '<div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">';
 
 $sql = "
     SELECT 
-        dana.id, 
-        dana.namadana, 
-        dana.kodedana, 
+        dana.iddana, 
+        dsd.nama_dana as namadana, 
+        dsd.kode_dana as kodedana, 
         dana.pagudana, 
         dana.kode_sbl as kode_sbl_dana, 
         sub_keg.kode_sbl, 
@@ -76,17 +76,20 @@ $sql = "
         sub_keg.pagu, 
         sub_keg.id_sub_skpd 
     FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
-    LEFT JOIN data_dana_sub_keg".$_suffix_sipd."".$_suffix." AS dana 
-        ON dana.kode_sbl = sub_keg.kode_sbl 
+    LEFT JOIN data_dana_sub_keg".$_suffix_sipd."".$_suffix." AS dana ON dana.kode_sbl = sub_keg.kode_sbl 
         AND dana.tahun_anggaran=sub_keg.tahun_anggaran 
         AND dana.active=sub_keg.active
         ".$where_jadwal_dana."
+    LEFT JOIN data_sumber_dana AS dsd ON dsd.id_dana=dana.iddana
+        AND dsd.active = dana.active
+        AND dsd.tahun_anggaran = dana.tahun_anggaran
     WHERE sub_keg.tahun_anggaran=%d 
         AND sub_keg.active=1
         ".$where_jadwal."
         ".$where_skpd."
-    ORDER BY dana.kodedana ASC";
+    ORDER BY dsd.kode_dana ASC";
 $analisis_sumber_dana = $wpdb->get_results($wpdb->prepare($sql,$input['tahun_anggaran']), ARRAY_A);
+// echo('<pre>'.$wpdb->last_query.'</pre>');
 
 $data_all = array(
     'total' => 0,
@@ -138,6 +141,7 @@ foreach($analisis_sumber_dana as $k => $ap){
 
 $body = '';
 $urut = 1;
+ksort($data_all['data']);
 foreach ($data_all['data'] as $k => $all_ap) {
     $skpd = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kodedana'].'\'); return false;" href="#" title="Menampilkan Analisis Sumber Dana">'.$all_ap['skpd'].'</a>';
     $sub_keg = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kodedana'].'\', 1); return false;" href="#" title="Menampilkan Analisis Sumber Dana">'.$all_ap['sub_keg'].'</a>';

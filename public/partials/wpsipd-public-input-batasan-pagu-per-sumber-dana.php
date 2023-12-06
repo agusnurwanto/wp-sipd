@@ -44,7 +44,7 @@ foreach($sd as $val){
 		<tbody id="data_body">
 		</tbody>
 	</table>
-    <h2 class="text-center">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
+    <h2 class="text-center" id="sumberdana_unset_title">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
     <table id="sumberdana_unset" cellpadding="2" cellspacing="0" class="table table-bordered">
         <thead>
             <tr>
@@ -91,12 +91,43 @@ foreach($sd as $val){
         </div>
     </div>
 </div>
+
+<div class="modal fade mt-4" id="modalPindahSd" tabindex="-1" role="dialog" aria-labelledby="modalPindahSdLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPindahSdLabel">Pindah Pagu Sumber Dana</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for='nama_dana'>Sumber Dana Awal</label>
+                    <select id='sumber_dana_awal' class="form-control pindah_sd"><?php echo $select_sd; ?></select>
+                </div>
+                <div class="form-group">
+                    <label for='nama_dana'>Sumber Dana Baru</label>
+                    <select id='sumber_dana_baru' class="form-control pindah_sd"><?php echo $select_sd; ?></select>
+                </div>
+            </div> 
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="submitPindahSd()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>    
 jQuery(document).ready(function(){
     get_data_batasan_pagu_sumberdana();
     jQuery('#sumber_dana').select2({
     	width: '100%',
     	dropdownParent: jQuery('#modalTambahDataBatasanPagu .modal-content')
+    });
+    jQuery('#pindah_sd').select2({
+        width: '100%',
+        dropdownParent: jQuery('#modalPindahSd .modal-content')
     });
     jQuery('.niai_pagu').on('input', function() {
         var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
@@ -137,8 +168,10 @@ function get_data_batasan_pagu_sumberdana(){
                 jQuery('#sumberdana_unset tbody').html(settings.json.sd_unset);
                 if(settings.json.sd_unset == ""){
                     jQuery('#sumberdana_unset').hide();
+                    jQuery('#sumberdana_unset_title').hide();
                 }else{
                     jQuery('#sumberdana_unset').show();
+                    jQuery('#sumberdana_unset_title').show();
                 }
                 jQuery("#wrap-loading").hide();
             },
@@ -244,6 +277,45 @@ function tambah_data_batasan_pagu(id_dana='', nilai=0){
         jQuery('#keterangan').val('');
         jQuery('#modalTambahDataBatasanPagu').modal('show');
         resolve();
+    });
+}
+
+function pindah_sumber_dana(id_dana) {
+    jQuery('#sumber_dana_awal').val(id_dana).trigger('change');
+    jQuery('#sumber_dana_baru').val('').trigger('change');
+    jQuery('#modalPindahSd').modal('show');
+}
+
+function submitPindahSd(){
+    var id_dana_awal = jQuery('#sumber_dana_awal').val();
+    if(id_dana_awal == ''){
+        return alert('Sumber Dana Awal tidak boleh kosong!');
+    }
+    var id_dana_baru = jQuery('#sumber_dana_baru').val();
+    if(id_dana_baru == ''){
+        return alert('Sumber Dana Baru tidak boleh kosong!');
+    }
+    jQuery('#wrap-loading').show();
+    jQuery.ajax({
+        method: 'post',
+        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+        dataType: 'json',
+        data:{
+            'action': 'pindah_sumber_dana',
+            'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
+            'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+            'id_dana_awal': id_dana_awal,
+            'id_dana_baru': id_dana_baru
+        },
+        success: function(res){
+            alert(res.message);
+            if(res.status == 'success'){
+                jQuery('#modalPindahSd').modal('hide');
+                get_data_batasan_pagu_sumberdana();
+            }else{
+                jQuery('#wrap-loading').hide();
+            }
+        }
     });
 }
 

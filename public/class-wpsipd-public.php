@@ -13618,7 +13618,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						5 => 'tahun_anggaran',
 						6 => 'relasi_perencanaan',
 						7 => 'lama_pelaksanaan',
-						8 => 'jenis_jadwal'
+						8 => 'jenis_jadwal',
+						9 => 'id_tipe'
 					);
 					$where = $sqlTot = $sqlRec = "";
 
@@ -13740,7 +13741,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 
 							$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $recVal['lama_pelaksanaan'] - 1;
-						
+							if($recVal['id_tipe'] == 13 || $recVal['id_tipe'] == 14){
+								$report = '';
+							}
 							$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 							$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
 							$queryRecords[$recKey]['aksi'] = $report.$lock.$edit.$delete;
@@ -13761,10 +13764,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	
 						die(json_encode($json_data));
 					}else{
-						$return = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!'
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),  
+							"recordsTotal"    => 0 , 
+							"recordsFiltered" => 0 ,
+							"data"            => array(),
+							"checkOpenedSchedule"=> $checkOpenedSchedule,
+							"message"			=> "Data tidak ditemukan!"
 						);
+	
+						die(json_encode($json_data));
 					}
 				}else{
 					$return = array(
@@ -15196,6 +15205,108 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'status' => 'success',
 									'message'	=> 'Berhasil!',
 									'data_input' => $queryRecords1
+								);
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal verifikasi data rka */
+	public function submit_lock_schedule_verif_rka(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= $_POST['id_jadwal_lokal'];
+
+						$data_this_id = $wpdb->get_row($wpdb->prepare('
+							SELECT 
+								j.*,
+								t.nama_tipe 
+							FROM data_jadwal_lokal j
+							INNER JOIN data_tipe_perencanaan t on t.id=j.id_tipe 
+							WHERE j.id_jadwal_lokal = %d
+						',$id_jadwal_lokal), ARRAY_A);
+						if(empty($data_this_id)){
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Jadwal dengan ID $id_jadwal_lokal tidak ditemukan!",
+							);
+							die(json_encode($return));
+						}
+
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id['waktu_awal']){
+							$status_check = array(0,NULL,2);
+							if(in_array($data_this_id['status'],$status_check)){
+								$prefix = '';
+								if(strpos($data_this_id['nama_tipe'], '_sipd') == false){
+									$prefix = '_lokal';
+								}
+
+								//lock data penjadwalan
+								$queryRecords = $wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
+									'id_jadwal_lokal'	=> $id_jadwal_lokal
+								));
+
+								$return = array(
+									'status' => 'success',
+									'message'	=> 'Berhasil!'
 								);
 							}else{
 								$return = array(
