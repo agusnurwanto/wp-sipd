@@ -777,6 +777,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'verifikator_inspektorat' => 'Verifikator Inspektorat', 
 				'verifikator_pupr' => 'Verifikator Pekerjaan Umum (PUPR)'
 			);
+			global $wpdb;
+			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+			$list_data_rka = "";
+			foreach ($tahun as $k => $v) {
+				$title = 'Jadwal Verifikasi RKA | '.$v['tahun_anggaran'];
+				$shortcode = '[jadwal_verifikasi_rka tahun_anggaran="'.$v['tahun_anggaran'].'" sipd="1"]';
+				$update = false;
+				$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+				$list_data_rka .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+			}
 			Container::make( 'theme_options', __( 'Verifikasi RKA' ) )
 				->set_page_menu_position( 5 )
 				->add_fields( array(
@@ -799,7 +809,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					->set_html('
 					<ul>
 						<li><a href="'.$url_user_pptk.'" target="_blank">Halaman User PPTK</a></li>
-					</ul>')
+					</ul>'),
+					Field::make( 'html', 'crb_jadwal_verifikasi_rka' )
+					->set_html( '
+						<ul>'.$list_data_rka.'</ul>
+					' )
 				)
 			);
 		}
@@ -988,6 +1002,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$url_monitor_spd = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_jadwal = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_monitoring_rup = $this->generatePage('Monitoring RUP | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_rup tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_jadwal_verifikasi_rka = $this->generatePage('Jadwal Verifikasi RKA SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_verifikasi_rka_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$html .= '
 				<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
 				<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">
@@ -996,6 +1011,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						<li><a target="_blank" href="'.$url_monitor_spd.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a></li>
 						<li><a target="_blank" href="'.$url_jadwal.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a></li>
 						<li><a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_jadwal_verifikasi_rka.'">Halaman Pengaturan Jadwal Verifikasi RKA SIPD '.$v['tahun_anggaran'].'</a></li>
 					</ul>
 				</div>
 			';
@@ -2466,13 +2482,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		foreach ($tahun as $k => $v) {
 			$title = 'Input Batasan Pagu per-Sumber Dana | '.$v['tahun_anggaran'];
 			$shortcode = '[input_batasan_pagu_per_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'"]';
-			$update = false;
-			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		}
-		foreach ($tahun as $k => $v) {
-			$title = 'Jadwal Verifikasi RKA | '.$v['tahun_anggaran'];
-			$shortcode = '[jadwal_verifikasi_rka tahun_anggaran="'.$v['tahun_anggaran'].'"]';
 			$update = false;
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';

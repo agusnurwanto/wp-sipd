@@ -15304,6 +15304,60 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
+								/** Copy data ke tabel history */
+								$delete_lokal_history = $this->delete_data_lokal_history('data_validasi_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
+
+								$oclumns_1 = array(
+									'id',
+									'id_user',
+									'kode_sbl',
+									'nama_bidang',
+									'tahun_anggaran',
+									'update_at'
+								);
+
+								$sql_backup_data_validasi_verifikasi_rka =  "
+									INSERT INTO data_validasi_verifikasi_rka".$prefix."_history (".implode(', ', $oclumns_1).",id_asli,id_jadwal)
+									SELECT 
+										".implode(', ', $oclumns_1).",
+										id as id_asli,
+										".$data_this_id['id_jadwal_lokal']."
+									FROM data_validasi_verifikasi_rka".$prefix." 
+									WHERE tahun_anggaran='".$data_this_id['tahun_anggaran']."'
+								";
+
+								$queryRecords1 = $wpdb->query($sql_backup_data_validasi_verifikasi_rka);
+
+								/** -- */
+								$delete_lokal_history = $this->delete_data_lokal_history('data_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
+
+								$oclumns_2 = array(
+									'id',
+									'kode_sbl',
+									'tahun_anggaran',
+									'id_user',
+									'nama_verifikator',
+									'fokus_uraian',
+									'catatan_verifikasi',
+									'tanggapan_opd',
+									'update_at_tanggapan',
+									'create_at',
+									'update_at',
+									'active'
+								);
+
+								$sql_backup_data_verifikasi_rka =  "
+									INSERT INTO data_verifikasi_rka".$prefix."_history (".implode(', ', $oclumns_2).",id_asli,id_jadwal)
+									SELECT 
+										".implode(', ', $oclumns_2).",
+										id as id_asli,
+										".$data_this_id['id_jadwal_lokal']."
+									FROM data_verifikasi_rka".$prefix." 
+									WHERE tahun_anggaran='".$data_this_id['tahun_anggaran']."'
+								";
+
+								$queryRecords2 = $wpdb->query($sql_backup_data_verifikasi_rka);
+
 								$return = array(
 									'status' => 'success',
 									'message'	=> 'Berhasil!'
