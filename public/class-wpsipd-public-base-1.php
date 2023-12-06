@@ -3698,6 +3698,80 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         die(json_encode($ret));
     }
 
+    public function pindah_sumber_dana(){
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil pindah sumber dana!',
+            'data' => array()
+        );
+        if(!empty($_POST)){
+            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                if($ret['status'] != 'error' && empty($_POST['tahun_anggaran'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Tahun Anggaran tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['id_dana_awal'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'ID Dana Awal tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['id_dana_baru'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'ID Dana Baru tidak boleh kosong!';
+                }
+                $sd_baru = $wpdb->get_row($wpdb->prepare("
+                    SELECT
+                        id_dana,
+                        kode_dana,
+                        nama_dana
+                    FROM data_sumber_dana
+                    WHERE active=1
+                        AND tahun_anggaran=%d
+                        AND id_dana=%d
+                ", $_POST['tahun_anggaran'], $_POST['id_dana_baru']), ARRAY_A);
+                if(empty($sd_baru)){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Sumber Dana Baru dengan id_dana='.$_POST['id_dana_baru'].' tidak ditemukan!';
+                }else{
+                    // update sumber dana sub kegiatan
+                    $wpdb->update('data_dana_sub_keg_lokal', array(
+                        'id_dana_usulan' => $sd_baru['id_dana'],
+                        'kode_dana_usulan' => $sd_baru['kode_dana'],
+                        'nama_dana_usulan' => $sd_baru['nama_dana'],
+                        'iddana' => $sd_baru['id_dana'],
+                        'kodedana' => $sd_baru['kode_dana'],
+                        'namadana' => $sd_baru['nama_dana']
+                    ), array(
+                        'iddana' => $_POST['id_dana_awal'],
+                        'active' => 1,
+                        'tahun_anggaran' => $_POST['tahun_anggaran']
+                    ));
+
+                    // update sumber dana batasan pagu
+                    $wpdb->update('data_batasan_pagu_sd', array(
+                        'id_dana' => $sd_baru['id_dana'],
+                        'kode_dana' => $sd_baru['kode_dana'],
+                        'nama_dana' => $sd_baru['nama_dana']
+                    ), array(
+                        'id_dana' => $_POST['id_dana_awal'],
+                        'active' => 1,
+                        'tahun_anggaran' => $_POST['tahun_anggaran']
+                    ));
+                    $ret['sql'] = $wpdb->last_query;
+                    $ret['error'] = $wpdb->last_error;
+                }
+            }else{
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
     public function tambah_data_batasan_pagu_by_id(){
         global $wpdb;
         $ret = array(
@@ -3846,11 +3920,12 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             s_dana.nama_dana, 
                             s_dana.tahun_anggaran,
                             SUM(s_lokal.pagudana) as total
-                        FROM data_sumber_dana as s_dana 
-                        LEFT JOIN data_dana_sub_keg_lokal as s_lokal ON (s_lokal.iddana=s_dana.id_dana) 
-                        WHERE s_dana.active>=1 
-                            AND s_lokal.active>=1 
-                            AND s_dana.tahun_anggaran = ".$wpdb->prepare('%d', $params['tahun_anggaran'])." 
+                        FROM data_dana_sub_keg_lokal as s_lokal 
+                        INNER JOIN data_sumber_dana as s_dana ON (s_lokal.iddana=s_dana.id_dana) 
+                            AND s_dana.active = s_lokal.active
+                            AND s_dana.tahun_anggaran = s_lokal.tahun_anggaran
+                        WHERE s_lokal.active = 1 
+                            AND s_lokal.tahun_anggaran = ".$wpdb->prepare('%d', $params['tahun_anggaran'])." 
                         GROUP BY s_dana.id_dana 
                         ORDER BY s_dana.kode_dana asc;
                     ", ARRAY_A);
@@ -3859,29 +3934,29 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }
 
 					foreach($queryRecords as $recKey => $recVal){
-						$edit	= '';
-						$delete	= '';
-
                         $edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Batasan Pagu"><i class="dashicons dashicons-edit"></i></a>';
-                        $delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Hapus Batasan Pagu"><i class="dashicons dashicons-trash"></i></a>';
+                        $delete	= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Hapus Batasan Pagu"><i class="dashicons dashicons-trash"></i></a>';
 
-						$queryRecords[$recKey]['aksi'] = $edit.$delete;
+                        $pindah = '';
 						$queryRecords[$recKey]['pagu_terpakai'] = 0;
                         if($sd_unset[$recVal['kode_dana']]){
+                            $pindah = '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="pindah_sumber_dana(\''.$sd_unset[$recVal['kode_dana']]['id_dana'].'\'); return false;" href="#" title="Pindah Sumber Dana"><i class="dashicons dashicons-controls-repeat"></i></a>';
                             $queryRecords[$recKey]['pagu_terpakai'] = $this->_number_format($sd_unset[$recVal['kode_dana']]['total']);
                             unset($sd_unset[$recVal['kode_dana']]);
                         }
+						$queryRecords[$recKey]['aksi'] = $edit.$delete.$pindah;
                         $queryRecords[$recKey]['nilai_batasan'] = $this->_number_format($recVal['nilai_batasan']);
 					}
 
                     $sd_unset_html = "";
                     foreach($sd_unset as $sd){
+                        $pindah = '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="pindah_sumber_dana(\''.$sd['id_dana'].'\'); return false;" href="#" title="Pindah Sumber Dana"><i class="dashicons dashicons-controls-repeat"></i></a>';
                         $sd_unset_html .= "
                             <tr>
                                 <td>$sd[kode_dana]</td>
                                 <td>$sd[nama_dana]</td>
                                 <td class='text-right'>".$this->_number_format($sd['total'])."</td>
-                                <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a></td>
+                                <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a>$pindah</td>
                             </tr>
                         ";
                     }

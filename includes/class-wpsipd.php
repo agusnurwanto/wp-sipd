@@ -750,6 +750,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_edit_renja',  $plugin_public, 'submit_edit_renja');
 		$this->loader->add_action('wp_ajax_delete_renja',  $plugin_public, 'delete_renja');
 		$this->loader->add_action('wp_ajax_copy_rka_sipd',  $plugin_public, 'copy_rka_sipd');
+		$this->loader->add_action('wp_ajax_pindah_sumber_dana',  $plugin_public, 'pindah_sumber_dana');
 		
 		$this->loader->add_action('wp_ajax_get_indikator_sub_kegiatan_renstra',  $plugin_public, 'get_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_sub_kegiatan_renstra',  $plugin_public, 'submit_indikator_sub_kegiatan_renstra');
