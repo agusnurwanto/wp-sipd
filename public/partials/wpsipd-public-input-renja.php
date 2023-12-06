@@ -1106,7 +1106,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);" onclick="set_anggaran(this);"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);" onblur="set_anggaran(this);" onclick="set_anggaran(this);"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center detail_tambah">
                                                     <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -1213,7 +1213,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]" onkeyup="set_anggaran(this);" onclick="set_anggaran(this);"<?php echo $disabled; ?>/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]" onkeyup="set_anggaran(this);" onblur="set_anggaran(this);" onclick="set_anggaran(this);"<?php echo $disabled; ?>/>
                                                 </td>
                                             </tr>
                                         </table>

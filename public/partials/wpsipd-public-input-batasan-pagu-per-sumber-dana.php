@@ -43,6 +43,14 @@ foreach($sd as $val){
 		</thead>
 		<tbody id="data_body">
 		</tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-center">Total</th>
+                <th id="total_batasan_pagu" class="text-right"></th>
+                <th id="total_pagu_terpakai" class="text-right"></th>
+                <th colspan="2"></th>
+            </tr>
+        </tfoot>
 	</table>
     <h2 class="text-center" id="sumberdana_unset_title">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
     <table id="sumberdana_unset" cellpadding="2" cellspacing="0" class="table table-bordered">
@@ -56,6 +64,13 @@ foreach($sd as $val){
         </thead>
         <tbody>
         </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-center">Total</th>
+                <th id="total_pagu_terpakai_unset" class="text-right"></th>
+                <th></th>
+            </tr>
+        </tfoot>
     </table>
 </div>
 
@@ -153,19 +168,29 @@ function get_data_batasan_pagu_sumberdana(){
                 }
             },
             lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
+            pageLength: -1,
             order: [[0, 'asc']],
             "drawCallback": function( settings ){
+                var total_batasan_pagu = 0;
+                var total_pagu_terpakai = 0;
                 settings.json.data.map(function(b, i){
                     var pagu_terpakai = 0;
                     if(b.pagu_terpakai){
                         var pagu_terpakai = +(b.pagu_terpakai.replace(/\./g, ''));
                     }
                     var nilai_batasan = +(b.nilai_batasan.replace(/\./g, ''));
+                    total_batasan_pagu += nilai_batasan;
+                    total_pagu_terpakai += pagu_terpakai;
                     if(pagu_terpakai > nilai_batasan){
                         jQuery('#data_sumberdana_table > tbody > tr').eq(i).css('background', '#ffc1c1');
                     }
                 });
                 jQuery('#sumberdana_unset tbody').html(settings.json.sd_unset);
+
+                jQuery('#total_batasan_pagu').html(formatRupiah(total_batasan_pagu));
+                jQuery('#total_pagu_terpakai').html(formatRupiah(total_pagu_terpakai));
+                jQuery('#total_pagu_terpakai_unset').html(settings.json.sd_unset_total);
+
                 if(settings.json.sd_unset == ""){
                     jQuery('#sumberdana_unset').hide();
                     jQuery('#sumberdana_unset_title').hide();
@@ -295,28 +320,30 @@ function submitPindahSd(){
     if(id_dana_baru == ''){
         return alert('Sumber Dana Baru tidak boleh kosong!');
     }
-    jQuery('#wrap-loading').show();
-    jQuery.ajax({
-        method: 'post',
-        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-        dataType: 'json',
-        data:{
-            'action': 'pindah_sumber_dana',
-            'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
-            'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
-            'id_dana_awal': id_dana_awal,
-            'id_dana_baru': id_dana_baru
-        },
-        success: function(res){
-            alert(res.message);
-            if(res.status == 'success'){
-                jQuery('#modalPindahSd').modal('hide');
-                get_data_batasan_pagu_sumberdana();
-            }else{
-                jQuery('#wrap-loading').hide();
+    if(confirm('Apakah anda yakin untuk memindahkan sumber dana ini?')){
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data:{
+                'action': 'pindah_sumber_dana',
+                'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_dana_awal': id_dana_awal,
+                'id_dana_baru': id_dana_baru
+            },
+            success: function(res){
+                alert(res.message);
+                if(res.status == 'success'){
+                    jQuery('#modalPindahSd').modal('hide');
+                    get_data_batasan_pagu_sumberdana();
+                }else{
+                    jQuery('#wrap-loading').hide();
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 function submitTambahDataBatasanPagu(){
