@@ -522,21 +522,21 @@ foreach ($data_all['data'] as $sub_skpd) {
     
     $body .= '
         <tr tipe="unit">
-            <td class="kiri kanan bawah text_blok" colspan="'.$thead_pergeseran_unit.'">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            <td class="kiri kanan bawah text_blok data_nama_skpd" colspan="'.$thead_pergeseran_unit.'">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             <td class="kanan bawah hide-print"></td>
             <td class="kanan bawah hide-print"></td>
-            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print data_n1_skpd"></td>
         </tr>
         <tr tipe="sub_unit">
             <td class="kiri kanan bawah text_blok"></td>
-            <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+            <td class="kanan bawah text_blok data_nama_sub_skpd" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
             '.$body_pergeseran1.'
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
-            <td class="kanan bawah" colspan="4"></td>
-            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
+            <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+            <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah hide-print"></td>
             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_unit_sipd,0,",",".").'</td>
-            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print data_prioritas_grup"></td>
         </tr>
     ';
     foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
@@ -552,10 +552,10 @@ foreach ($data_all['data'] as $sub_skpd) {
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
-                <td class="kanan bawah text_blok" colspan="'.$thead_urusan_pergeseran.'">'.$urusan['nama'].'</td>
+                <td class="kanan bawah text_blok data_nama_urusan" colspan="'.$thead_urusan_pergeseran.'">'.$urusan['nama'].'</td>
                 <td class="kanan bawah hide-print"></td>
                 <td class="kanan bawah hide-print"></td>
-                <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                <td colspan="3" class="kanan bawah text_tengah hide-print data_urusan_prioritas"></td>
             </tr>
         ';
         foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -574,14 +574,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
-                    <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
+                    <td class="kanan bawah text_blok data_nama_sub_giat" colspan="8">'.$bidang['nama'].'</td>
                     '.$body_pergeseran2.'
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
-                    <td class="kanan bawah" colspan="4"></td>
-                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                    <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
                     <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_bidang_sipd,0,",",".").'</td>
-                    <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                    <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                 </tr>
             ';
             foreach ($bidang['data'] as $kd_program => $program) {
@@ -608,14 +608,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                         <td class="kanan bawah text_blok">'.$kd_program.'</td>
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
-                        <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
+                        <td class="kanan bawah text_blok data_nama_sub_giat" colspan="8">'.$program['nama'].'</td>
                         '.$body_pergeseran3.'
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
-                        <td class="kanan bawah" colspan="4"></td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                        <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                         <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_prog_sipd,0,",",".").'</td>
-                        <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                        <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                     </tr>
                 ';
                 foreach ($program['data'] as $kd_giat => $giat) {
@@ -641,14 +641,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                             <td class="kanan bawah text_blok">'.$kd_program.'</td>
                             <td class="kanan bawah text_blok">'.$kd_giat.'</td>
                             <td class="kanan bawah"></td>
-                            <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
+                            <td class="kanan bawah data_nama_sub_giat" colspan="8">'.$giat['nama'].'</td>
                             '.$body_pergeseran4.'
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
-                            <td class="kanan bawah" colspan="4"></td>
-                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                            <td class="kanan bawah text_blok text_kanan data_n1_pagu"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
-                            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                            <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                         </tr>
                     ';
                     foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -785,25 +785,25 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_giat.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_sub_giat.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$sub_giat['nama'].'</td>
-                                <td class="kanan bawah">'.$capaian_prog.'</td>
-                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$output_sub_giat.'</td>
-                                <td class="kanan bawah">'.$output_giat.'</td>
-                                <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
-                                <td class="kanan bawah">'.$target_output_giat.'</td>
+                                <td class="kanan bawah data_capaian_program">'.$capaian_prog.'</td>
+                                <td class="kanan bawah data_keluaran_sub '.$warning_pemutakhiran.'">'.$output_sub_giat.'</td>
+                                <td class="kanan bawah data_hasil_keg">'.$output_giat.'</td>
+                                <td class="kanan bawah data_lokasi">'.$lokasi_sub_giat.'</td>
+                                <td class="kanan bawah data_target_prog">'.$target_capaian_prog.'</td>
+                                <td class="kanan bawah data_target_sub_keg '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
+                                <td class="kanan bawah data_target_keg">'.$target_output_giat.'</td>
                                 '.$tbody_pergeseran.'
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah">'.$dana_sub_giat.'</td>
-                                <td class="kanan bawah">'.$catatan.'</td>
-                                <td class="kanan bawah">'.$ind_n_plus.'</td>
-                                <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                                <td class="kanan bawah data_catatan">'.$catatan.'</td>
+                                <td class="kanan bawah data_n1_indikator">'.$ind_n_plus.'</td>
+                                <td class="kanan bawah data_n1_target">'.$target_ind_n_plus.'</td>
+                                <td class="kanan bawah text_kanan data_n1_pagu"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                                 <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_sub_sipd,0,",",".").'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_kokab'].'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_prov'].'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_pusat'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_daerah">'.$sub_giat['data']['label_kokab'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_prov">'.$sub_giat['data']['label_prov'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_pusat">'.$sub_giat['data']['label_pusat'].'</td>
                             </tr>
                         ';
                         $sasaran_text = '';
@@ -955,67 +955,67 @@ echo '
                         <th style="padding: 0; border: 0; width:40px"></th>
                         <th style="padding: 0; border: 0; width:40px"></th>
                         <th style="padding: 0; border: 0;"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:100px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_capaian_program"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_keluaran_sub"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_hasil_keg"></th>
+                        <th style="padding: 0; border: 0; width:100px" class="data_lokasi"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_prog"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_sub_keg"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_keg"></th>
                         '.$thead_pergeseran2.'
                         <th style="padding: 0; border: 0; width:130px"></th>
                         <th style="padding: 0; border: 0; width:150px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:130px"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_catatan"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_n1_indikator"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_n1_target"></th>
+                        <th style="padding: 0; border: 0; width:130px" class="data_n1_pagu"></th>
                         <th style="padding: 0; border: 0; width:60px" class="hide-print"></th>
                         <th style="padding: 0; border: 0; width:140px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_daerah"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_prov"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_pusat"></th>
                     </tr>
                     <tr>
                         <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="'.$thead_pergeseran1.'">Rencana Tahun '.$input['tahun_anggaran'].'</td>
-                        <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_capaian_grup" colspan="3">Indikator Kinerja</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_renja_grup" colspan="'.$thead_pergeseran1.'">Rencana Tahun '.$input['tahun_anggaran'].'</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_catatan" rowspan="3">Catatan Penting</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_n1_grup" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
                         <td class="atas kanan bawah text_tengah text_blok hide-print" rowspan="3">Aksi</td>
                         <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Pagu SIPD</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Daerah</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Provinsi</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Pusat</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_daerah" rowspan="3">Prioritas Daerah</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_prov" rowspan="3">Prioritas Provinsi</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_pusat" rowspan="3">Prioritas Pusat</td>
                     </tr>
                     <tr>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Keluaran Sub Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Hasil Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok data_capaian_program" rowspan="2">Capaian Program</td>
+                        <td class="kanan bawah text_tengah text_blok data_keluaran_sub" rowspan="2">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_hasil_keg" rowspan="2">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_lokasi" rowspan="2">Lokasi Output Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_prog" colspan="3">Target Capaian Kinerja</td>
                         '.$thead_pergeseran.'
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
-                        <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_indikator" colspan="2">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_pagu" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
                     </tr>
                     <tr>
-                        <td class="kanan bawah text_tengah text_blok">Program</td>
-                        <td class="kanan bawah text_tengah text_blok">Keluaran Sub Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok">Hasil Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok">Tolok Ukur</td>
-                        <td class="kanan bawah text_tengah text_blok">Target</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_prog">Program</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_sub_keg">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_keg">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_indikator">Tolok Ukur</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_target">Target</td>
                     </tr>
                 </thead>
                 <tbody>
                     '.$body.'
                     <tr>
-                        <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
+                        <td class="kiri kanan bawah text_blok text_kanan data_total" colspan="13">TOTAL</td>
                         '.$tfoot_pergeseran.'
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
-                        <td class="kanan bawah" colspan="4"></td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                        <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah hide-print"></td>
                         <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($data_all['pagu_sipd'],0,",",".").'</td>
                     </tr>
@@ -1106,7 +1106,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);" onclick="set_anggaran(this);"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center detail_tambah">
                                                     <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -1213,7 +1213,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]"  onkeyup="set_anggaran(this);"<?php echo $disabled; ?>/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]" onkeyup="set_anggaran(this);" onclick="set_anggaran(this);"<?php echo $disabled; ?>/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1402,7 +1402,8 @@ echo '
         var setting = ''
 		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);" '+ceklist_usulan+'> Sembunyikan Data Usulan</label>'
-		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>';
+		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>'
+            +'<label style="margin-left: 20px;"><input type="checkbox" onclick="fokus_sumber_dana(this);"> Fokus Sumber Dana</label>';
             if(is_skpd == 1){
                 setting +='<label style="margin-left: 20px;"><input type="checkbox" id="show_sub_unit" onclick="show_sub_unit(this);" '+ceklist_sub_unit+'> Tampilkan Data Sub Unit</input></label>';
             }
@@ -1977,6 +1978,10 @@ echo '
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.input_sumber_dana_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.input_sumber_dana > tbody').find('tr[data-id="'+id+'"]').remove();
+
+        // ubah pagu sub kegiatan setelah sumber dana dihapus
+        set_anggaran(jQuery('#pagu_sumber_dana_usulan_'+id));
+        set_anggaran(jQuery('#pagu_sumber_dana_'+id));
     }
 
     function get_data_sub_unit(id_skpd){
@@ -3805,7 +3810,7 @@ echo '
 	}
 
     function refresh_page(){
-        if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
+        if(!confirm('Ada data yang berubah, apakah mau tetap di halaman ini? Pilih tidak jika mau merefresh halaman ini.')){
             window.location = "";
         }
 	}
@@ -3881,6 +3886,68 @@ echo '
             location.href = URL_add_parameter(location.href, 'hide_penetapan', '1');
         }else{
             location.href = URL_add_parameter(location.href, 'hide_penetapan', '0');
+        }
+    }
+
+    function fokus_sumber_dana(that){
+        if(jQuery(that).is(':checked') == true){
+            jQuery('.data_capaian_program').hide();
+            jQuery('.data_keluaran_sub').hide();
+            jQuery('.data_hasil_keg').hide();
+            jQuery('.data_lokasi').hide();
+            jQuery('.data_target_prog').hide();
+            jQuery('.data_target_sub_keg').hide();
+            jQuery('.data_target_keg').hide();
+            jQuery('.data_catatan').hide();
+            jQuery('.data_n1_indikator').hide();
+            jQuery('.data_n1_target').hide();
+            jQuery('.data_n1_pagu').hide();
+            jQuery('.data_prioritas_daerah').hide();
+            jQuery('.data_prioritas_prov').hide();
+            jQuery('.data_prioritas_pusat').hide();
+            jQuery('.data_capaian_grup').hide();
+            jQuery('.data_renja_grup').attr('colspan', '2');
+            jQuery('.data_sumber_dana_grup').attr('colspan', '1');
+            jQuery('.data_urusan_prioritas').attr('colspan', '1');
+            jQuery('.data_n1_grup').hide();
+            jQuery('.data_n1_skpd').hide();
+            jQuery('.data_prioritas_grup').hide();
+            jQuery('.data_bidang_prioritas').hide();
+            jQuery('.data_nama_sub_giat').attr('colspan', '1');
+            jQuery('.data_nama_skpd').attr('colspan', '8');
+            jQuery('.data_nama_sub_skpd').attr('colspan', '5');
+            jQuery('.data_nama_urusan').attr('colspan', '2');
+            jQuery('.data_total').attr('colspan', '6');
+            jQuery('#wrap-table > table').css('width', '100%');
+        }else{
+            jQuery('.data_capaian_program').show();
+            jQuery('.data_keluaran_sub').show();
+            jQuery('.data_hasil_keg').show();
+            jQuery('.data_lokasi').show();
+            jQuery('.data_target_prog').show();
+            jQuery('.data_target_sub_keg').show();
+            jQuery('.data_target_keg').show();
+            jQuery('.data_catatan').show();
+            jQuery('.data_n1_indikator').show();
+            jQuery('.data_n1_target').show();
+            jQuery('.data_n1_pagu').show();
+            jQuery('.data_prioritas_daerah').show();
+            jQuery('.data_prioritas_prov').show();
+            jQuery('.data_prioritas_pusat').show();
+            jQuery('.data_capaian_grup').show();
+            jQuery('.data_renja_grup').attr('colspan', '6');
+            jQuery('.data_sumber_dana_grup').attr('colspan', '4');
+            jQuery('.data_urusan_prioritas').attr('colspan', '3');
+            jQuery('.data_n1_grup').show();
+            jQuery('.data_n1_skpd').show();
+            jQuery('.data_prioritas_grup').show();
+            jQuery('.data_bidang_prioritas').show();
+            jQuery('.data_nama_sub_giat').attr('colspan', '8');
+            jQuery('.data_nama_skpd').attr('colspan', '19');
+            jQuery('.data_nama_sub_skpd').attr('colspan', '12');
+            jQuery('.data_nama_urusan').attr('colspan', '14');
+            jQuery('.data_total').attr('colspan', '13');
+            jQuery('#wrap-table > table').css('width', '2900px');
         }
     }
 
