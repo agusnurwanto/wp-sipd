@@ -11711,6 +11711,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$rka[$k]['sumber_dana'] = $sumber_dana_default;
 						}
 					}
+					$rka[$k]['type_aktivitas'] = $type_aktivitas;
 				}
 				$ret['data'] = $rka;
 			} else {
