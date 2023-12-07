@@ -15,6 +15,11 @@ if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
     $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
 }
 
+$sumber_sd = 1;
+if(!empty($_GET) && !empty($_GET['sumber_dana'])){
+    $sumber_sd = $_GET['sumber_dana'];
+}
+
 $input = shortcode_atts( array(
 	'id_skpd' => $id_unit,
     'id_jadwal_lokal' => $id_jadwal_lokal,
@@ -91,35 +96,71 @@ foreach($data_skpd as $skpd){
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
     	$where_jadwal_join = '';
-    	if(!empty($where_jadwal)){
-    		$where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
-    		$where_jadwal_join = 'and s.id_jadwal = r.id_jadwal';
-    	}
-    	$rincian_all = $wpdb->get_results($wpdb->prepare("
-            select 
-                sum(r.rincian) as total,
-                s.id_sumber_dana,
-                d.nama_dana,
-                d.kode_dana
-            from data_rka".$_suffix_sipd."".$_suffix." r
-           	left join data_mapping_sumberdana".$_suffix_sipd."".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
-           		and s.active = r.active
-           		and s.tahun_anggaran = r.tahun_anggaran
-           		".$where_jadwal_join."
-           	left join data_sumber_dana d on d.id_dana=s.id_sumber_dana
-           		and d.active = s.active
-           		and d.tahun_anggaran = s.tahun_anggaran
-            where r.tahun_anggaran=%d
-                and r.active=1
-                and r.kode_sbl=%s
-                ".$where_jadwal_new."
-            group by d.kode_dana
-            order by d.kode_dana ASC
-        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        if($sumber_sd == 1){
+        	if(!empty($where_jadwal)){
+        		$where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
+        		$where_jadwal_join = 'and s.id_jadwal = r.id_jadwal';
+        	}
+        	$rincian_all = $wpdb->get_results($wpdb->prepare("
+                select 
+                    sum(r.rincian) as total,
+                    s.id_sumber_dana,
+                    d.nama_dana,
+                    d.kode_dana
+                from data_rka".$_suffix_sipd."".$_suffix." r
+               	left join data_mapping_sumberdana".$_suffix_sipd."".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
+               		and s.active = r.active
+               		and s.tahun_anggaran = r.tahun_anggaran
+               		".$where_jadwal_join."
+               	left join data_sumber_dana d on d.id_dana=s.id_sumber_dana
+               		and d.active = s.active
+               		and d.tahun_anggaran = s.tahun_anggaran
+                where r.tahun_anggaran=%d
+                    and r.active=1
+                    and r.kode_sbl=%s
+                    ".$where_jadwal_new."
+                group by d.kode_dana
+                order by d.kode_dana ASC
+            ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        }else{
+            if(!empty($where_jadwal)){
+                $where_jadwal_new = str_replace('AND id_jadwal', 'AND s_lokal.id_jadwal', $where_jadwal);
+            }
+            $rincian_all = $wpdb->get_results("
+                SELECT 
+                    s_dana.id_dana as id_sumber_dana, 
+                    s_dana.kode_dana,
+                    s_dana.nama_dana, 
+                    SUM(s_lokal.pagudana) as total
+                FROM data_dana_sub_keg".$_suffix_sipd."".$_suffix." as s_lokal
+                LEFT JOIN data_sumber_dana as s_dana ON (s_lokal.iddana=s_dana.id_dana) 
+                    AND s_dana.active = s_lokal.active
+                    AND s_dana.tahun_anggaran = s_lokal.tahun_anggaran
+                WHERE s_lokal.active = 1 
+                    AND s_lokal.tahun_anggaran = ".$wpdb->prepare('%d', $input['tahun_anggaran'])." 
+                    AND s_lokal.kode_sbl = ".$wpdb->prepare('%s', $sub['kode_sbl'])."
+                    ".$where_jadwal_new."
+                GROUP BY s_dana.id_dana 
+                ORDER BY s_dana.kode_dana asc;
+            ", ARRAY_A);
+        }
     	// die($wpdb->last_query);
+        $pagu_sumber_dana = 0;
         foreach($rincian_all as $rincian){
+            if(!empty($rincian['kode_dana'])){
+                $pagu_sumber_dana += $rincian['total'];
+            }
+        }
+
+        foreach($rincian_all as $rincian){
+            $title = '';
+            $warning = '';
+            if($pagu_sumber_dana != $sub['pagu']){
+                $warning = 'style="background-color: #f9d9d9"';
+                $title = 'title="Total pagu Sumber Dana tidak sama dengan pagu Sub Kegiatan. '.$this->_number_format($pagu_sumber_dana).' != '.$this->_number_format($sub['pagu']).'" class="tidak-sama"';
+            }
 	    	$body .= '
-	    		<tr data-kodesbl="'.$sub['kode_sbl'].'">
+	    		<tr data-kodesbl="'.$sub['kode_sbl'].'" '.$warning.' '.$title.'>
 	    			<td>'.$rincian['kode_dana'].' '.$rincian['nama_dana'].'</td>
 	    			<td>'.$sub['kode_urusan'].' '.$sub['nama_urusan'].'</td>
 	    			<td>'.$sub['kode_skpd'].' '.$sub['nama_skpd'].'</td>
@@ -138,7 +179,7 @@ foreach($data_skpd as $skpd){
 ?>
 <div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
 	<h1 class="text-center"><?php echo $nama_excel; ?></h1>
-	<table class="table table-bordered">
+	<table class="table table-bordered" id="tabel-data">
 		<thead>
 			<tr>
 				<th class="text-center">Sumber Dana</th>
@@ -166,5 +207,16 @@ foreach($data_skpd as $skpd){
 <script type="text/javascript">
     jQuery(document).ready(function(){
         run_download_excel();
+        var action = ''
+            +'<h3 style="margin-top: 20px;">SETTING</h3><label><input type="checkbox" onclick="show_pagu_tidak_sama(this);"/> Tampilkan hanya pagu yang tidak sama antara total sub kegiatan dan total sumber dana</label>'
+        jQuery('#action-sipd').append(action);
     });
+    function show_pagu_tidak_sama(that){
+        if(jQuery(that).is(':checked') == true){
+            jQuery('#tabel-data > tbody > tr').hide();
+            jQuery('#tabel-data > tbody > tr.tidak-sama').show();
+        }else{
+            jQuery('#tabel-data > tbody > tr').show();
+        }
+    }
 </script>

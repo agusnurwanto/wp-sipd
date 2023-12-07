@@ -12,9 +12,18 @@ $api_key = get_option('_crb_api_key_extension');
 $user_id = um_user('ID');
 $user_meta = get_userdata($user_id);
 
+$roles = $this->role_verifikator();
+
 $is_admin = false;
 if (in_array("administrator", $user_meta->roles)) {
 	$is_admin = true;
+}
+
+$is_verifikator = false;
+foreach ($roles as $role) {
+	if (in_array($role, $user_meta->roles)) {
+		$is_verifikator = true;
+	}
 }
 
 $data_rka = $wpdb->get_row($wpdb->prepare('
@@ -53,10 +62,10 @@ if ($data_rka) {
 			d.iddana,
 			d.namadana,
 			m.kode_dana
-		from data_dana_sub_keg d
+		FROM data_dana_sub_keg d
 			left join data_sumber_dana m on d.iddana=m.id_dana
 				and d.tahun_anggaran = m.tahun_anggaran
-		where kode_sbl=%s
+		WHERE kode_sbl=%s
 			AND d.tahun_anggaran=%d
 			AND d.active=1", $kode_sbl, $tahun_anggaran);
 	$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
@@ -71,21 +80,61 @@ if ($data_rka) {
 	die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
+$result_verifikasi = $wpdb->get_results($wpdb->prepare("
+	SELECT 
+		nama_bidang,
+		update_at,
+		id_user
+	FROM data_validasi_verifikasi_rka 
+	WHERE tahun_anggaran =%d
+		AND kode_sbl =%s
+", $tahun_anggaran, $kode_sbl), ARRAY_A); 	
+
+$html_ver = '';
+foreach ($result_verifikasi as $ver) {
+	$nama = get_userdata($ver['id_user']);
+	$html_ver .= "
+		<tr>
+			<td style='text-transform: uppercase;'>$ver[nama_bidang]</td>
+			<td>:</td>
+			<td>Diverifikasi oleh $nama->display_name pada $ver[update_at]</td>
+		</tr>
+	";
+}
 $api_key = get_option('_crb_api_key_extension');
 
 $current_user = wp_get_current_user();
 $fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian', true);
 $fokus_uraian_values = $fokus_uraian ? explode('|', $fokus_uraian) : array();
+$nama_user = $current_user->display_name;
+$id_user = $current_user->ID;
 
-if ($current_user) {
-	$nama_user = $current_user->display_name;
-	$id_user = $current_user->ID;
-	$username = $current_user->user_login;
-	$role_user = $current_user->roles;
-	$nama_bidang = get_user_meta($current_user->ID, 'fokus_uraian');
-	$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian');
+$user_pptk = 'User PPTK belum disetting!';
+$pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
+	SELECT
+		p.*
+	FROM data_pptk_sub_keg p
+	WHERE active=1
+		and tahun_anggaran=%d
+		and kode_sbl=%s
+", $tahun_anggaran, $kode_sbl), ARRAY_A);
+if (!empty($pptk_sub_keg)) {
+	$nama = get_userdata($pptk_sub_keg['id_user']);
+	$user_pptk = $nama->display_name;
 }
 
+$nama_page = $tahun_anggaran . ' | ' . $kode_sub_skpd . ' | ' . $kode_kegiatan . ' | ' . $nama_kegiatan;
+$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+$link_kegiatan = $this->get_link_post($custom_post);
+
+$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
+$url_nilai_dpa = '&pagu_dpa=simda';
+if($sumber_pagu_dpa == 2){
+	$url_nilai_dpa = '&pagu_dpa=fmis';
+}
+$nama_page = 'RFK '.$nama_sub_skpd.' '.$kode_sub_skpd.' | '.$tahun_anggaran;
+$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+$url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 ?>
 <style>
 	#tabel_detail_sub,
@@ -150,49 +199,26 @@ if ($current_user) {
 				<td>:</td>
 				<td><?php echo implode(', ', $sd_sub); ?></td>
 			</tr>
-			<tr>
-				<td>BAPPEDA LITBANG</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BPPKAD</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BAGIAN ADBANG</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>DINAS PUPR</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BAGIAN PBJ</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>INSPEKTORAT</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>PPTK OPD</td>
-				<td>:</td>
-				<td><?php echo "Ditanggapi oleh pada"  ?></td>
-			</tr>
+			<?php echo $html_ver; ?>
 		</tbody>
 	</table>
 
 	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
-		<button class="btn btn-sm btn-warning" onclick="tambah_catatan()"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>
-		<button class="btn btn-sm btn-success"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>
+		<?php
+		if ($is_verifikator) {
+			echo '<button class="btn btn-sm btn-warning" onclick="tambah_catatan()" style="margin-inline: 5px;"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>';
+			echo '<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>';
+		}
+		?>
 		<button class="btn btn-sm btn-info" onclick="jQuery('.aksi').hide(); window.print(); setTimeout(function(){ jQuery('.aksi').show(); }, 10000);"><i class="dashicons dashicons-printer"></i> Print Lembar Verifikasi</button>
+		<a href="<?php echo $url_rfk; ?>" target="_blank" class="btn btn-sm btn-secondary">
+			<span class="dashicons dashicons-media-default"></span>Kembali Ke Halaman RFK
+		</a>
+		<a class="btn btn-sm btn-secondary" href="<?php echo $link_kegiatan; ?>" target="_blank">
+			<span class="dashicons dashicons-media-document"></span> Kembali Ke Halaman RKA
+		</a>
 	</div>
+
 	<table id="tabel_verifikasi">
 		<thead>
 			<tr>
@@ -216,6 +242,8 @@ if ($current_user) {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Catatan Verifikasi</h5>
+				<h5 class="modal-title" id="exampleModalScrollableTitle_pptk">Tambah Tanggapan Verifikasi</h5>
+				<h5 class="modal-title" id="exampleModalScrollableTitle_edit">Edit Catatan Verifikasi</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -225,6 +253,8 @@ if ($current_user) {
 				<input type="hidden" class="form-control" id="id_user">
 				<input type="hidden" class="form-control" id="tahun_anggaran">
 				<input type="hidden" class="form-control" id="id_catatan">
+				<input type="hidden" class="form-control" id="nama_bidang">
+				<input type="hidden" id="user_pptk_status" value="<?php echo $user_pptk; ?>">
 				<div class="form-group">
 					<label>Sub Kegiatan</label>
 					<input type="text" class="form-control" id="sub_kegiatan" value="" disabled>
@@ -251,10 +281,19 @@ if ($current_user) {
 					<label>Catatan Verifikasi</label>
 					<textarea class="form-control" id="catatan_verifikasi" required value=""></textarea>
 				</div>
+				<div class="form-group">
+					<label>Nama PPTK OPD</label>
+					<input type="text" class="form-control" id="nama_pptk" disabled value="<?php echo $user_pptk; ?>">
+				</div>
+				<div class="form-group">
+					<label>Tanggapan terhadap catatan</label>
+					<textarea class="form-control" id="tanggapan_verifikasi" required value=""></textarea>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-				<button type="button" class="btn btn-primary" onclick="submit_data(this)">Simpan</button>
+				<button type="button" class="btn btn-primary" id="submit_data" onclick="submit_data(this)">Simpan</button>
+				<button type="button" class="btn btn-primary" id="submit_data_tanggapan" onclick="submit_tanggapan(this)" <?php echo ($user_pptk == 'User PPTK belum disetting!') ? 'disabled' : ''; ?>>Simpan Tanggapan</button>
 			</div>
 		</div>
 	</div>
@@ -280,6 +319,7 @@ if ($current_user) {
 				const response = JSON.parse(data);
 				if (response.status === 'success') {
 					jQuery('#tabel_verifikasi > tbody').html(response.html);
+					jQuery('#tabel_detail_sub');
 				} else {
 					alert('Error: ' + response.message);
 				}
@@ -288,15 +328,93 @@ if ($current_user) {
 		});
 	}
 
+	function verifikasi_tanpa_catatan() {
+		if (confirm('Apakah anda yakin ingin memverifikasi tanpa catatan?')) {
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				type: 'POST',
+				url: '<?php echo admin_url('admin-ajax.php'); ?>',
+				data: {
+					api_key: '<?php echo $api_key; ?>',
+					kode_sbl: '<?php echo $kode_sbl ?>',
+					tahun_anggaran: '<?php echo $tahun_anggaran ?>',
+					action: 'verifikasi_tanpa_catatan'
+				},
+				success: function(data) {
+					jQuery('#wrap-loading').hide();
+					const response = JSON.parse(data);
+					if (response.status === 'success') {
+						alert(response.message);
+						jQuery('#modal_tambah_catatan').modal('hide');
+						load_data();
+					} else {
+						alert('Error: ' + response.message);
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error('AJAX Error:', status, error);
+				}
+			});
+		}
+
+	}
+
+	function tambah_tanggapan(id) {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			method: 'post',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			dataType: 'json',
+			data: {
+				'action': 'get_catatan_verifikasi_by_id',
+				'api_key': '<?php echo $api_key; ?>',
+				'id': id,
+			},
+			success: function(res) {
+				if (res.status == 'success') {
+					jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
+					jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
+					jQuery('#id_catatan').val(res.data.id).prop('disabled', true);
+
+					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);
+					jQuery('#fokus_uraian').val('').closest('.form-group').hide().prop('disabled', true);
+					jQuery('#nama_verifikator').val('').closest('.form-group').hide().prop('disabled', true);
+					jQuery('#catatan_verifikasi').val('').closest('.form-group').hide().prop('disabled', true);
+					jQuery('#exampleModalScrollableTitle').hide();
+					jQuery('#exampleModalScrollableTitle_edit').hide();
+					jQuery('#submit_data').hide();
+
+					jQuery('#nama_pptk').prop('disabled', true).closest('.form-group').show();
+					jQuery('#tanggapan_verifikasi').val(res.data.tanggapan_opd).prop('disabled', false).closest('.form-group').show();
+					jQuery('#exampleModalScrollableTitle_pptk').show();
+					jQuery('#submit_data_tanggapan').show();
+					jQuery('#modal_tambah_catatan').modal('show');
+				} else {
+					alert(res.message);
+				}
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	}
+
 	function tambah_catatan() {
-		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);;
-		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);;
-		jQuery('#id_catatan').val('').prop('disabled', true);;
-		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);;
-		jQuery('#id_user').val('<?php echo $id_user; ?>').prop('disabled', true);;
-		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true);;
-		jQuery('#fokus_uraian').val('').prop('disabled', false);
-		jQuery('#catatan_verifikasi').val('').prop('disabled', false);
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
+		jQuery('#id_catatan').val('').prop('disabled', true);
+		jQuery('#id_user').val('<?php echo $id_user; ?>').prop('disabled', true);
+
+		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true).closest('.form-group').show();
+		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true).closest('.form-group').show();
+		jQuery('#fokus_uraian').val('').prop('disabled', false).closest('.form-group').show();
+		jQuery('#catatan_verifikasi').val('').prop('disabled', false).closest('.form-group').show();
+		jQuery('#exampleModalScrollableTitle').show();
+		jQuery('#exampleModalScrollableTitle_edit').hide();
+		jQuery('#submit_data').show();
+
+		jQuery('#nama_pptk').prop('disabled', true).closest('.form-group').hide();
+		jQuery('#tanggapan_verifikasi').val('').prop('disabled', true).closest('.form-group').hide();
+		jQuery('#exampleModalScrollableTitle_pptk').hide();
+		jQuery('#submit_data_tanggapan').hide();
 		jQuery('#modal_tambah_catatan').modal('show');
 	}
 
@@ -305,8 +423,6 @@ if ($current_user) {
 		const kode_sbl = jQuery('#kode_sbl').val();
 		const tahun_anggaran = jQuery('#tahun_anggaran').val();
 		const id_catatan = jQuery('#id_catatan').val();
-		const id_user = jQuery('#id_user').val();
-		const nama_verifikator = jQuery('#nama_verifikator').val();
 		const fokus_uraian = jQuery('#fokus_uraian').val();
 		const catatan_verifikasi = jQuery('#catatan_verifikasi').val();
 
@@ -318,11 +434,45 @@ if ($current_user) {
 				kode_sbl: kode_sbl,
 				tahun_anggaran: tahun_anggaran,
 				id_catatan: id_catatan,
-				id_user: id_user,
-				nama_verifikator: nama_verifikator,
 				fokus_uraian: fokus_uraian,
 				catatan_verifikasi: catatan_verifikasi,
-				action: 'tambah_catatan_verifikator'
+				action: 'tambah_catatan_verifikator',
+			},
+			success: function(data) {
+				jQuery('#wrap-loading').hide();
+				const response = JSON.parse(data);
+				if (response.status === 'success') {
+					alert(response.message);
+					jQuery('#modal_tambah_catatan').modal('hide');
+					load_data();
+				} else {
+					alert('Error: ' + response.message);
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('AJAX Error:', status, error);
+			}
+		});
+	}
+
+	function submit_tanggapan(that) {
+		const id_catatan = jQuery('#id_catatan').val();
+		const tanggapan_verifikasi = jQuery('#tanggapan_verifikasi').val();
+		let userPptkStatus = jQuery('#user_pptk_status').val();
+		if (userPptkStatus === 'User PPTK belum disetting!') {
+			return alert('Harap set user PPTK pada halaman set user PPTK');
+		}
+
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			type: 'POST',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			data: {
+				api_key: '<?php echo $api_key; ?>',
+				tanggapan_verifikasi: tanggapan_verifikasi,
+				action: 'tambah_data_tanggapan',
+				'id_catatan': id_catatan,
+				'user_pptk_status': userPptkStatus
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();
@@ -383,11 +533,17 @@ if ($current_user) {
 					jQuery('#kode_sbl').val(res.data.kode_sbl).prop('disabled', true);
 					jQuery('#tahun_anggaran').val(res.data.tahun_anggaran).prop('disabled', true);
 					jQuery('#id_catatan').val(res.data.id).prop('disabled', true);
-					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);
 					jQuery('#id_user').val(res.data.id_user).prop('disabled', true);
-					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', true);
-					jQuery('#fokus_uraian').val('').val(res.data.fokus_uraian);
-					jQuery('#catatan_verifikasi').val(res.data.catatan_verifikasi);
+					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true).closest('.form-group').show();
+					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', true).closest('.form-group').show();
+					jQuery('#fokus_uraian').val('').val(res.data.fokus_uraian).closest('.form-group').show();
+					jQuery('#catatan_verifikasi').val(res.data.catatan_verifikasi).closest('.form-group').show();
+					jQuery('#exampleModalScrollableTitle_edit').show();
+
+					jQuery('#exampleModalScrollableTitle').hide();
+					jQuery('#nama_pptk').prop('disabled', true).closest('.form-group').hide();
+					jQuery('#exampleModalScrollableTitle_pptk').hide();
+					jQuery('#tanggapan_verifikasi').val('').prop('disabled', true).closest('.form-group').hide();
 					jQuery('#modal_tambah_catatan').modal('show');
 				} else {
 					alert(res.message);

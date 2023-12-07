@@ -17,6 +17,7 @@ if($id_lokasi_prov == 0 || empty($id_lokasi_prov)){
 }
 
 $nilai_pergeseran_renja = get_option('_nilai_pergeseran_renja');
+$tombol_copy_data_renja_sipd = get_option('_crb_show_copy_data_renja_settings');
 
 $tahun_anggaran = '2022';
 $namaJadwal = '-';
@@ -126,6 +127,9 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+                if($tombol_copy_data_renja_sipd == true){
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -150,6 +154,9 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+                if($tombol_copy_data_renja_sipd == true){
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -188,6 +195,11 @@ $data_all = array(
     'total_pergeseran' => 0,
     'total_usulan_pergeseran' => 0
 );
+$data_rekap_sumber_dana = array();
+$status_pergeseran_renja = '';
+$thead_pergeseran = '';
+$thead_pergeseran1 = 6;
+$thead_pergeseran2 = '';
 foreach ($subkeg as $kk => $sub) {
     $nama_skpd = $sub['nama_skpd'];
     $kode = explode('.', $sub['kode_sbl']);
@@ -232,14 +244,46 @@ foreach ($subkeg as $kk => $sub) {
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
     $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_dana_sub_keg_lokal
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sbl=%s
-        order by id ASC
+        SELECT 
+            dsk.*,
+            dsd.kode_dana AS kode_dana_dsd
+        FROM data_dana_sub_keg_lokal AS dsk
+        LEFT JOIN data_sumber_dana AS dsd ON dsd.id_dana=dsk.iddana
+            AND dsd.active = dsk.active
+            AND dsd.tahun_anggaran = dsk.tahun_anggaran
+        WHERE dsk.tahun_anggaran=%d
+            AND dsk.active=1
+            AND dsk.kode_sbl=%s
+        ORDER BY dsk.id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+    if(!empty($dana_sub_giat)){
+        foreach ($dana_sub_giat as $v_dana) {
+            if(empty($data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']])){
+                $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']] = array(
+                    'nama' => $v_dana['namadana'],
+                    'iddana' => $v_dana['iddana'],
+                    'kode_dana' => $v_dana['kode_dana_dsd'],
+                    'total' => 0,
+                    'total_usulan' => 0,
+                    'total_sipd' => 0,
+                    'data' => $v_dana
+                );
+            }
+        
+            $pagu_sipd = $wpdb->get_var($wpdb->prepare("
+                SELECT 
+                    pagudana
+                FROM data_dana_sub_keg
+                WHERE active=1
+                    AND tahun_anggaran=%d
+                    AND kode_sbl=%s
+            ", $input['tahun_anggaran'], $sub['kode_sbl']));
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total'] += $v_dana['pagudana'];
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_usulan'] += $v_dana['pagu_dana_usulan'];
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_sipd'] += $pagu_sipd;
+        }
+    }
     
     $status_pergeseran_renja = $jadwal_lokal[0]['status_jadwal_pergeseran'];
     $pagu_pergeseran = 0;
@@ -478,21 +522,21 @@ foreach ($data_all['data'] as $sub_skpd) {
     
     $body .= '
         <tr tipe="unit">
-            <td class="kiri kanan bawah text_blok" colspan="'.$thead_pergeseran_unit.'">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            <td class="kiri kanan bawah text_blok data_nama_skpd" colspan="'.$thead_pergeseran_unit.'">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             <td class="kanan bawah hide-print"></td>
             <td class="kanan bawah hide-print"></td>
-            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print data_n1_skpd"></td>
         </tr>
         <tr tipe="sub_unit">
             <td class="kiri kanan bawah text_blok"></td>
-            <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+            <td class="kanan bawah text_blok data_nama_sub_skpd" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
             '.$body_pergeseran1.'
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
-            <td class="kanan bawah" colspan="4"></td>
-            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
+            <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+            <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah hide-print"></td>
             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_unit_sipd,0,",",".").'</td>
-            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print data_prioritas_grup"></td>
         </tr>
     ';
     foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
@@ -508,10 +552,10 @@ foreach ($data_all['data'] as $sub_skpd) {
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
-                <td class="kanan bawah text_blok" colspan="'.$thead_urusan_pergeseran.'">'.$urusan['nama'].'</td>
+                <td class="kanan bawah text_blok data_nama_urusan" colspan="'.$thead_urusan_pergeseran.'">'.$urusan['nama'].'</td>
                 <td class="kanan bawah hide-print"></td>
                 <td class="kanan bawah hide-print"></td>
-                <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                <td colspan="3" class="kanan bawah text_tengah hide-print data_urusan_prioritas"></td>
             </tr>
         ';
         foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -530,14 +574,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
-                    <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
+                    <td class="kanan bawah text_blok data_nama_sub_giat" colspan="8">'.$bidang['nama'].'</td>
                     '.$body_pergeseran2.'
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
-                    <td class="kanan bawah" colspan="4"></td>
-                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                    <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
                     <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_bidang_sipd,0,",",".").'</td>
-                    <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                    <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                 </tr>
             ';
             foreach ($bidang['data'] as $kd_program => $program) {
@@ -564,14 +608,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                         <td class="kanan bawah text_blok">'.$kd_program.'</td>
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
-                        <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
+                        <td class="kanan bawah text_blok data_nama_sub_giat" colspan="8">'.$program['nama'].'</td>
                         '.$body_pergeseran3.'
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
-                        <td class="kanan bawah" colspan="4"></td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                        <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                         <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_prog_sipd,0,",",".").'</td>
-                        <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                        <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                     </tr>
                 ';
                 foreach ($program['data'] as $kd_giat => $giat) {
@@ -597,14 +641,14 @@ foreach ($data_all['data'] as $sub_skpd) {
                             <td class="kanan bawah text_blok">'.$kd_program.'</td>
                             <td class="kanan bawah text_blok">'.$kd_giat.'</td>
                             <td class="kanan bawah"></td>
-                            <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
+                            <td class="kanan bawah data_nama_sub_giat" colspan="8">'.$giat['nama'].'</td>
                             '.$body_pergeseran4.'
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
-                            <td class="kanan bawah" colspan="4"></td>
-                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                            <td class="kanan bawah text_blok text_kanan data_n1_pagu"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
-                            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
+                            <td colspan="3" class="kanan bawah text_tengah hide-print data_bidang_prioritas"></td>
                         </tr>
                     ';
                     foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -741,25 +785,25 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_giat.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_sub_giat.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$sub_giat['nama'].'</td>
-                                <td class="kanan bawah">'.$capaian_prog.'</td>
-                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$output_sub_giat.'</td>
-                                <td class="kanan bawah">'.$output_giat.'</td>
-                                <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
-                                <td class="kanan bawah">'.$target_output_giat.'</td>
+                                <td class="kanan bawah data_capaian_program">'.$capaian_prog.'</td>
+                                <td class="kanan bawah data_keluaran_sub '.$warning_pemutakhiran.'">'.$output_sub_giat.'</td>
+                                <td class="kanan bawah data_hasil_keg">'.$output_giat.'</td>
+                                <td class="kanan bawah data_lokasi">'.$lokasi_sub_giat.'</td>
+                                <td class="kanan bawah data_target_prog">'.$target_capaian_prog.'</td>
+                                <td class="kanan bawah data_target_sub_keg '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
+                                <td class="kanan bawah data_target_keg">'.$target_output_giat.'</td>
                                 '.$tbody_pergeseran.'
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah">'.$dana_sub_giat.'</td>
-                                <td class="kanan bawah">'.$catatan.'</td>
-                                <td class="kanan bawah">'.$ind_n_plus.'</td>
-                                <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                                <td class="kanan bawah data_catatan">'.$catatan.'</td>
+                                <td class="kanan bawah data_n1_indikator">'.$ind_n_plus.'</td>
+                                <td class="kanan bawah data_n1_target">'.$target_ind_n_plus.'</td>
+                                <td class="kanan bawah text_kanan data_n1_pagu"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                                 <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_sub_sipd,0,",",".").'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_kokab'].'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_prov'].'</td>
-                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_pusat'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_daerah">'.$sub_giat['data']['label_kokab'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_prov">'.$sub_giat['data']['label_prov'].'</td>
+                                <td class="kanan bawah hide-print data_prioritas_pusat">'.$sub_giat['data']['label_pusat'].'</td>
                             </tr>
                         ';
                         $sasaran_text = '';
@@ -790,6 +834,60 @@ if($total_sumber_dana >= 1){
 }
 
 $tfoot_pergeseran = $status_pergeseran_renja == 'tampil' ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
+$data_per_sumber_dana = array();
+$t_body_sumber_dana = '';
+$total_sumber_dana_usulan = 0;
+$total_sumber_dana_penetapan = 0;
+$total_sumber_dana_sipd = 0;
+if(!empty($data_rekap_sumber_dana)){
+    foreach ($data_rekap_sumber_dana as $v_sumber_dana) {
+        foreach ($v_sumber_dana as $v_dana) {
+            foreach ($v_dana as $key => $v_sumber) {
+                $total_sumber_dana_usulan += $v_sumber['total_usulan'];
+                $total_sumber_dana_penetapan += $v_sumber['total'];
+                $total_sumber_dana_sipd += $v_sumber['total_sipd'];
+                $title_batasan_pagu = 'title="REKAP INPUT SUMBER DANA"';
+                $warning_rekap_sumber_dana = '';
+
+                $batasan_pagu = $wpdb->get_row($wpdb->prepare("
+                    SELECT 
+                        nilai_batasan 
+                    FROM `data_batasan_pagu_sd` 
+                    WHERE kode_dana=%s
+                        AND tahun_anggaran=%d
+                        AND active=1
+                ", $v_sumber['kode_dana'], $tahun_anggaran), ARRAY_A);
+                
+                $get_total_sumber_dana_all = $wpdb->get_row($wpdb->prepare("
+                    SELECT 
+                        SUM(pagudana) as total_pagu_all 
+                    FROM `data_dana_sub_keg_lokal` 
+                    WHERE tahun_anggaran=%d 
+                    AND active=1 
+                    AND iddana=%d;
+                ",$tahun_anggaran, $v_sumber['iddana']), ARRAY_A);
+                
+                if(!empty($batasan_pagu)){
+                    if($get_total_sumber_dana_all['total_pagu_all'] > $batasan_pagu['nilai_batasan']){
+                        $title_batasan_pagu = 'title="INPUT SUMBER DANA MELEBIHI BATASAN PAGU YANG SUDAH DITETAPKAN!"';
+                        $warning_rekap_sumber_dana = 'background-color: #f9d9d9;';
+                    }
+                }else{
+                    $title_batasan_pagu = 'title="BATASAN PAGU SUMBER DANA BELUM DITETAPKAN!"';
+                    $warning_rekap_sumber_dana = 'background-color: #f9d9d9;';
+                }
+
+                $t_body_sumber_dana .= '
+                    <tr '.$title_batasan_pagu.'>
+                        <td class="text-kiri kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.$v_sumber['kode_dana'].' '.$v_sumber['nama'].'</td>
+                        <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'" >'.number_format($v_sumber['total_usulan'],0,",",".").'</td>
+                        <td class="text_kanan kanan bawah kiri" style="'.$warning_rekap_sumber_dana.'">'.number_format($v_sumber['total'],0,",",".").'</td>
+                        <td class="text_kanan kanan bawah kiri">'.number_format($v_sumber['total_sipd'],0,",",".").'</td>
+                    </tr>';
+            }
+        }
+    }
+}
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
@@ -818,6 +916,34 @@ echo '
                 </tr>
             </tbody>
         </table>
+        <h4 class="text-center">Informasi Rekap Sumber Dana</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center atas kanan bawah kiri">Sumber Dana</th>
+                    <th class="text-center atas kanan bawah kiri">Total Usulan</th>
+                    <th class="text-center atas kanan bawah kiri">Total Penetapan</th>
+                    <th class="text-center atas kanan bawah kiri">Total SIPD</th>
+                </tr>
+            </thead>
+            <tbody>
+                '.$t_body_sumber_dana.'
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU SUMBER DANA</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_usulan,0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_penetapan,0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($total_sumber_dana_sipd,0,",",".").'</td>
+                </tr>
+                <tr>
+                    <td class="text_blok text_kanan kanan bawah kiri">TOTAL PAGU RENJA</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['total_usulan'],0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['total'],0,",",".").'</td>
+                    <td class="text_blok text_kanan kanan bawah kiri">'.number_format($data_all['pagu_sipd'],0,",",".").'</td>
+                </tr>
+            </tfoot>
+        </table>
         <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
         <div id="wrap-table">
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 2900px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
@@ -829,67 +955,67 @@ echo '
                         <th style="padding: 0; border: 0; width:40px"></th>
                         <th style="padding: 0; border: 0; width:40px"></th>
                         <th style="padding: 0; border: 0;"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:170px"></th>
-                        <th style="padding: 0; border: 0; width:100px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_capaian_program"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_keluaran_sub"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="data_hasil_keg"></th>
+                        <th style="padding: 0; border: 0; width:100px" class="data_lokasi"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_prog"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_sub_keg"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_target_keg"></th>
                         '.$thead_pergeseran2.'
                         <th style="padding: 0; border: 0; width:130px"></th>
                         <th style="padding: 0; border: 0; width:150px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:130px"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_catatan"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_n1_indikator"></th>
+                        <th style="padding: 0; border: 0; width:95px" class="data_n1_target"></th>
+                        <th style="padding: 0; border: 0; width:130px" class="data_n1_pagu"></th>
                         <th style="padding: 0; border: 0; width:60px" class="hide-print"></th>
                         <th style="padding: 0; border: 0; width:140px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
-                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_daerah"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_prov"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print data_prioritas_pusat"></th>
                     </tr>
                     <tr>
                         <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="'.$thead_pergeseran1.'">Rencana Tahun '.$input['tahun_anggaran'].'</td>
-                        <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_capaian_grup" colspan="3">Indikator Kinerja</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_renja_grup" colspan="'.$thead_pergeseran1.'">Rencana Tahun '.$input['tahun_anggaran'].'</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_catatan" rowspan="3">Catatan Penting</td>
+                        <td class="atas kanan bawah text_tengah text_blok data_n1_grup" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
                         <td class="atas kanan bawah text_tengah text_blok hide-print" rowspan="3">Aksi</td>
                         <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Pagu SIPD</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Daerah</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Provinsi</td>
-                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Pusat</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_daerah" rowspan="3">Prioritas Daerah</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_prov" rowspan="3">Prioritas Provinsi</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print data_prioritas_pusat" rowspan="3">Prioritas Pusat</td>
                     </tr>
                     <tr>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Keluaran Sub Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Hasil Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok data_capaian_program" rowspan="2">Capaian Program</td>
+                        <td class="kanan bawah text_tengah text_blok data_keluaran_sub" rowspan="2">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_hasil_keg" rowspan="2">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_lokasi" rowspan="2">Lokasi Output Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_prog" colspan="3">Target Capaian Kinerja</td>
                         '.$thead_pergeseran.'
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
-                        <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_indikator" colspan="2">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_pagu" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
                     </tr>
                     <tr>
-                        <td class="kanan bawah text_tengah text_blok">Program</td>
-                        <td class="kanan bawah text_tengah text_blok">Keluaran Sub Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok">Hasil Kegiatan</td>
-                        <td class="kanan bawah text_tengah text_blok">Tolok Ukur</td>
-                        <td class="kanan bawah text_tengah text_blok">Target</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_prog">Program</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_sub_keg">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_target_keg">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_indikator">Tolok Ukur</td>
+                        <td class="kanan bawah text_tengah text_blok data_n1_target">Target</td>
                     </tr>
                 </thead>
                 <tbody>
                     '.$body.'
                     <tr>
-                        <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
+                        <td class="kiri kanan bawah text_blok text_kanan data_total" colspan="13">TOTAL</td>
                         '.$tfoot_pergeseran.'
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
-                        <td class="kanan bawah" colspan="4"></td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah data_sumber_dana_grup" colspan="4"></td>
+                        <td class="kanan bawah text_kanan text_blok data_n1_pagu"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah hide-print"></td>
                         <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($data_all['pagu_sipd'],0,",",".").'</td>
                     </tr>
@@ -980,7 +1106,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);" onblur="set_anggaran(this);" onclick="set_anggaran(this);"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center detail_tambah">
                                                     <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -1087,7 +1213,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]"  onkeyup="set_anggaran(this);"<?php echo $disabled; ?>/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]" onkeyup="set_anggaran(this);" onblur="set_anggaran(this);" onclick="set_anggaran(this);"<?php echo $disabled; ?>/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1211,6 +1337,30 @@ echo '
     </div>
 </div>
 
+<!-- Modal Copy data renja -->
+<div class="modal fade" id="modal-copy-renja-sipd" data-backdrop="static" role="dialog" aria-labelledby="modal-copy-renja-sipd-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tipe Copy Data RENJA ke Lokal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="checkbox" id="copyDataRka" name="copyDataSipd" value="rincian_rka">
+                <label for="copyDataRka">Copy Data Rincian RKA</label><br>
+                <input type="checkbox" id="copySumberDana" name="copyDataSipd" value="sumber_dana">
+                <label for="copySumberDana">Copy Sumber Dana</label><br>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="copy_renja_sipd_to_lokal()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     let id_skpd = <?php echo $input['id_skpd']; ?>;
     let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
@@ -1252,7 +1402,8 @@ echo '
         var setting = ''
 		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);" '+ceklist_usulan+'> Sembunyikan Data Usulan</label>'
-		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>';
+		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>'
+            +'<label style="margin-left: 20px;"><input type="checkbox" onclick="fokus_sumber_dana(this);"> Fokus Sumber Dana</label>';
             if(is_skpd == 1){
                 setting +='<label style="margin-left: 20px;"><input type="checkbox" id="show_sub_unit" onclick="show_sub_unit(this);" '+ceklist_sub_unit+'> Tampilkan Data Sub Unit</input></label>';
             }
@@ -1827,6 +1978,10 @@ echo '
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.input_sumber_dana_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.input_sumber_dana > tbody').find('tr[data-id="'+id+'"]').remove();
+
+        // ubah pagu sub kegiatan setelah sumber dana dihapus
+        set_anggaran(jQuery('#pagu_sumber_dana_usulan_'+id));
+        set_anggaran(jQuery('#pagu_sumber_dana_'+id));
     }
 
     function get_data_sub_unit(id_skpd){
@@ -2816,7 +2971,7 @@ echo '
                 },
                 success: function(response){
                     jQuery('#wrap-loading').hide();
-                    alert(response.message);
+                    alert(response.message.replace(/\\n/g,"\n"));
                     if(response.status == 'success'){
                         jQuery('#modalTambahRenja').modal('hide');
                         refresh_page();
@@ -3655,7 +3810,7 @@ echo '
 	}
 
     function refresh_page(){
-        if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
+        if(!confirm('Ada data yang berubah, apakah mau tetap di halaman ini? Pilih tidak jika mau merefresh halaman ini.')){
             window.location = "";
         }
 	}
@@ -3731,6 +3886,68 @@ echo '
             location.href = URL_add_parameter(location.href, 'hide_penetapan', '1');
         }else{
             location.href = URL_add_parameter(location.href, 'hide_penetapan', '0');
+        }
+    }
+
+    function fokus_sumber_dana(that){
+        if(jQuery(that).is(':checked') == true){
+            jQuery('.data_capaian_program').hide();
+            jQuery('.data_keluaran_sub').hide();
+            jQuery('.data_hasil_keg').hide();
+            jQuery('.data_lokasi').hide();
+            jQuery('.data_target_prog').hide();
+            jQuery('.data_target_sub_keg').hide();
+            jQuery('.data_target_keg').hide();
+            jQuery('.data_catatan').hide();
+            jQuery('.data_n1_indikator').hide();
+            jQuery('.data_n1_target').hide();
+            jQuery('.data_n1_pagu').hide();
+            jQuery('.data_prioritas_daerah').hide();
+            jQuery('.data_prioritas_prov').hide();
+            jQuery('.data_prioritas_pusat').hide();
+            jQuery('.data_capaian_grup').hide();
+            jQuery('.data_renja_grup').attr('colspan', '2');
+            jQuery('.data_sumber_dana_grup').attr('colspan', '1');
+            jQuery('.data_urusan_prioritas').attr('colspan', '1');
+            jQuery('.data_n1_grup').hide();
+            jQuery('.data_n1_skpd').hide();
+            jQuery('.data_prioritas_grup').hide();
+            jQuery('.data_bidang_prioritas').hide();
+            jQuery('.data_nama_sub_giat').attr('colspan', '1');
+            jQuery('.data_nama_skpd').attr('colspan', '8');
+            jQuery('.data_nama_sub_skpd').attr('colspan', '5');
+            jQuery('.data_nama_urusan').attr('colspan', '2');
+            jQuery('.data_total').attr('colspan', '6');
+            jQuery('#wrap-table > table').css('width', '100%');
+        }else{
+            jQuery('.data_capaian_program').show();
+            jQuery('.data_keluaran_sub').show();
+            jQuery('.data_hasil_keg').show();
+            jQuery('.data_lokasi').show();
+            jQuery('.data_target_prog').show();
+            jQuery('.data_target_sub_keg').show();
+            jQuery('.data_target_keg').show();
+            jQuery('.data_catatan').show();
+            jQuery('.data_n1_indikator').show();
+            jQuery('.data_n1_target').show();
+            jQuery('.data_n1_pagu').show();
+            jQuery('.data_prioritas_daerah').show();
+            jQuery('.data_prioritas_prov').show();
+            jQuery('.data_prioritas_pusat').show();
+            jQuery('.data_capaian_grup').show();
+            jQuery('.data_renja_grup').attr('colspan', '6');
+            jQuery('.data_sumber_dana_grup').attr('colspan', '4');
+            jQuery('.data_urusan_prioritas').attr('colspan', '3');
+            jQuery('.data_n1_grup').show();
+            jQuery('.data_n1_skpd').show();
+            jQuery('.data_prioritas_grup').show();
+            jQuery('.data_bidang_prioritas').show();
+            jQuery('.data_nama_sub_giat').attr('colspan', '8');
+            jQuery('.data_nama_skpd').attr('colspan', '19');
+            jQuery('.data_nama_sub_skpd').attr('colspan', '12');
+            jQuery('.data_nama_urusan').attr('colspan', '14');
+            jQuery('.data_total').attr('colspan', '13');
+            jQuery('#wrap-table > table').css('width', '2900px');
         }
     }
 
@@ -3906,4 +4123,39 @@ echo '
             }
         });
     }
+
+    function copy_renja_sipd_to_lokal(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')){
+            var copy_data_option = [];
+            jQuery('input[name=copyDataSipd]:checked').each(function() {
+                copy_data_option.push(jQuery(this).val());
+            });
+
+            let id_skpd = "<?php echo $input['id_skpd']; ?>";
+            if(id_skpd == ''){
+                alert('Id SKPD Kosong')
+            }else{
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: "json",
+                    data: {
+                        "action": "copy_renja_sipd_to_lokal",
+                        "api_key": jQuery('#api_key').val(),
+                        "id_skpd": id_skpd,
+                        "tahun_anggaran": tahun_anggaran,
+                        "copy_data_option": copy_data_option
+                    },
+                    success: function(res){
+                        jQuery('#wrap-loading').hide();
+                        alert(res.message);
+                        if(res.status == 'success'){
+                            refresh_page();
+                        }
+                    }
+                });
+            }
+		}
+	}
 </script>

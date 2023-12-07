@@ -7,6 +7,12 @@ $roles = array(
 if (empty($roles)) {
     die('<h1 class="text-center" style="margin-top: 50px;">Daftar user pptk belum diset dihalaman dashboard Verifikasi RKA!</h1>');
 }
+
+$id_skpd = 'all';
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $id_skpd = $wpdb->prepare('%d', $_GET['id_skpd']);
+}
+
 $options_role = array();
 foreach ($roles as $val) {
     $role = get_role($val);
@@ -23,6 +29,7 @@ $pptk_role = 'pptk';
 
 $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
 $form_tahun = "";
+$json_tahun_skpd = array();
 foreach ($idtahun as $val) {
     $skpd = $wpdb->get_results($wpdb->prepare("
         SELECT 
@@ -35,8 +42,15 @@ foreach ($idtahun as $val) {
             and tahun_anggaran=%d
         group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
     $opsi_skpd = '<option value="">Pilih SKPD</option>';
+    $json_tahun_skpd[$val['tahun_anggaran']] = array();
     foreach ($skpd as $v) {
-        $opsi_skpd .= '<option value="' . $val['tahun_anggaran'] . '-' . $v['id_skpd'] . '">' . $v['kode_skpd'] . ' ' . $v['nama_skpd'] . '</option>';
+        $json_tahun_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
+        if(
+            $id_skpd == 'all'
+            OR $v['id_skpd'] == $id_skpd
+        ){
+            $opsi_skpd .= '<option value="' . $val['tahun_anggaran'] . '-' . $v['id_skpd'] . '">' . $v['kode_skpd'] . ' ' . $v['nama_skpd'] . '</option>';
+        }
     }
     $form_tahun .= '
     <div class="form-group">
@@ -146,6 +160,7 @@ foreach ($idtahun as $val) {
 <script>
     jQuery(document).ready(function() {
         load_data();
+        window.json_tahun_skpd = <?php echo json_encode($json_tahun_skpd); ?>;
     });
 
     function pass_visibility() {
@@ -334,12 +349,16 @@ foreach ($idtahun as $val) {
                     jQuery('#email').val(res.data.user_email).prop('disabled', false);
                     jQuery('.skpd_tahun_anggaran').val('');
                     let skpdData = res.data.skpd[0]; // fetch the first item from skpd array
-                    // Loop through the years in skpdData
+                    jQuery('.disable-skpd').remove();
                     for (let year in skpdData) {
-                        // Create the formatted value for the dropdown based on the year and its value
                         let formattedValue = year + "-" + skpdData[year];
-                        // Target dropdown based on the year and set its value
-                        jQuery(`.skpd_tahun_anggaran[data-year="${year}"]`).val(formattedValue).prop('disabled', false);
+                        if(jQuery(`.skpd_tahun_anggaran[data-year="${year}"] option[value="${formattedValue}"]`).length >= 1){
+                            jQuery(`.skpd_tahun_anggaran[data-year="${year}"]`).val(formattedValue).prop('disabled', false);
+                            jQuery(`.skpd_tahun_anggaran[data-year="${year}"]`).show();
+                        }else{
+                            jQuery(`.skpd_tahun_anggaran[data-year="${year}"]`).hide();
+                            jQuery(`.skpd_tahun_anggaran[data-year="${year}"]`).after('<input type="text" disabled value="'+json_tahun_skpd[year][skpdData[year]]+'" class="form-control disable-skpd">');
+                        }
                     }
                     jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
                     jQuery('#edit_pass').prop('disabled', false).show();

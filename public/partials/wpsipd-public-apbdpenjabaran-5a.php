@@ -508,10 +508,10 @@ $body_khusus .= '
 
 // print_r($data_hibah_uang_shorted);
 ?>
-<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 5 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 5a Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
-            <td width="80" valign="top">Lampiran V </td>
+            <td width="80" valign="top">Lampiran Va </td>
             <td width="10" valign="top">:</td>
             <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxx   </td>
         </tr>
@@ -530,8 +530,8 @@ $body_khusus .= '
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">1) UMUM</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN</h4>
+    
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN <br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -550,35 +550,6 @@ $body_khusus .= '
         <tbody>
             <?php echo $body_umum; ?>
         </tbody>
-    </table>
-    <hr>
-    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">2) KHUSUS</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN KEUANGAN BERSIFAT KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN</h4>
-    <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
-        <thead>
-            <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok">No</td>
-                <td class="atas kanan bawah text_tengah text_blok">Nama Penerima</td>
-                <td class="atas kanan bawah text_tengah text_blok">Alamat Penerima</td>
-                <?php if($type == 'murni'): ?>
-                    <td class="atas kanan bawah text_tengah text_blok">Jumlah</td>
-                <?php else: ?>
-                    <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
-                    <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
-                    <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
-                <?php endif; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php echo $body_khusus; ?>
-        </tbody>
-    </table>
-    <table width="25%" class="no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
-        <tr><td colspan="3" class="text_tengah" height="20px"></td></tr>
-        <tr><td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX  </td></tr>
-        <tr><td colspan="3" height="80">&nbsp;</td></tr>
-        <tr><td colspan="3" class="text_tengah" contenteditable="true">XXXXXXXXXXX</td></tr>
-        <tr><td colspan="3" class="text_tengah"></td></tr>
     </table>
 </div>
 

@@ -223,475 +223,600 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			->set_page_menu_position( 4 )
 	        ->add_fields( $this->options_basic() );
 
-		Container::make( 'theme_options', __( 'API Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_api_setting() );
-
-	    Container::make( 'theme_options', __( 'SKPD Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_skpd_settings() );
-
-	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_mapping_unit() );
-
-	    Container::make( 'theme_options', __( 'FMIS Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_setting_fmis() );
-
-	    Container::make( 'theme_options', __( 'SIPKD Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_setting_sipkd() );
-
-		Container::make( 'theme_options', __( 'SIRUP Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_sirup_setting() );
-
-	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
-			->set_page_menu_position( 4 )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
-
-	    Container::make( 'theme_options', __( 'RFK' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
-
-		Container::make( 'theme_options', __( 'Indikator RPJM' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rpjm')) );
-
-		Container::make( 'theme_options', __( 'Indikator RENSTRA' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_renstra')) );
-
-	    Container::make( 'theme_options', __( 'Indikator RENJA' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_renja')) );
-
-	    Container::make( 'theme_options', __( 'Label Komponen' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->generate_label_komponen() );
-
-	    Container::make( 'theme_options', __( 'Sumber Dana' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->generate_sumber_dana() );
-
-		Container::make( 'theme_options', __( 'Monev RAK' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
-
-		Container::make( 'theme_options', __( 'Data JSON RKA' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_json_rka')) );
-
-	    $laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
-			->set_page_menu_position( 4 )
-		    ->add_fields( $this->generate_tag_sipd() );
-
-	    Container::make( 'theme_options', __( 'Tag/Label Sub Kegiatan' ) )
-		    ->set_page_parent( $laporan )
-		    ->add_fields( $this->generate_tag_sipd() );
-
-	    Container::make( 'theme_options', __( 'RKPD & RENJA' ) )
-		    ->set_page_parent( $laporan )
-			->add_fields( $this->get_ajax_field(array('type' => 'rkpd_renja')) );
-
-	    Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
-		    ->set_page_parent( $laporan )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'apbdpenjabaran')) );
-
-		Container::make( 'theme_options', __( 'APBD Perda' ) )
-		    ->set_page_parent( $laporan )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'apbdperda')) );
-
-	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
-		    ->set_page_parent( $laporan );
-
-	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan' ) )
-			->set_page_menu_position( 4 )
-		    ->add_fields( $this->generate_jadwal_perencanaan() );
-
-	    Container::make( 'theme_options', __( 'Jadwal & Input Perencanaan' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_jadwal_perencanaan() );
-
-	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_renstra() );
-
-	    Container::make( 'theme_options', __( 'Input RENJA' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_renja() );
-
-		$satuan_harga = Container::make( 'theme_options', __( 'Standar Harga' ) )
-			->set_page_menu_position( 5 )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
-
-	    Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
-		    ->set_page_parent( $satuan_harga )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
-
-	    Container::make( 'theme_options', __( 'Rekap Usulan dan Standar Harga SIPD' ) )
-		    ->set_page_parent( $satuan_harga )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'satuan_harga_sipd')) );
-
-	    Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
-		    ->set_page_parent( $satuan_harga )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
-
-		$monev_fmis = Container::make( 'theme_options', __( 'MONEV FMIS' ) )
-			->set_page_menu_position( 5 )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'register_sp2d_fmis')) );
-
-		$keu_pemdes = Container::make( 'theme_options', __( 'Keuangan PEMDES' ) )
-			->set_page_menu_position( 5 )
-		    ->add_fields( $this->get_setting_keu_pemdes() );
-
-		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		if(empty($tahun_anggaran)){
-			$tahun_anggaran = date('Y');
+		if(get_option('_crb_show_menu_wpsipd_api_settings') != true){
+			Container::make( 'theme_options', __( 'API Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_api_setting() );
 		}
-		$url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
-		$url_bku_add = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD) '.$tahun_anggaran, false, '[keu_pemdes_bku_add tahun_anggaran="'.$tahun_anggaran.'"]');
-		$url_bku_dd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Desa Dana Desa (DD) '.$tahun_anggaran, false, '[keu_pemdes_bku_dd tahun_anggaran="'.$tahun_anggaran.'"]');
-		$url_bhrd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$tahun_anggaran, false, '[keu_pemdes_bhrd tahun_anggaran="'.$tahun_anggaran.'"]');
-		$url_bhpd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$tahun_anggaran, false, '[keu_pemdes_bhpd tahun_anggaran="'.$tahun_anggaran.'"]');
-		$url_bkk_pilkades = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$tahun_anggaran, false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$tahun_anggaran.'"]');
-		$url_bkk_inf = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$tahun_anggaran, false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$tahun_anggaran.'"]');
-	    Container::make( 'theme_options', __( 'Tampilan Beranda' ) )
-			->set_page_parent( $keu_pemdes )
-			->add_tab( __( 'Logo' ), array(
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_dashboard', __( 'Gambar Logo' ) )
-		        	->set_value_type('url')
-	    			->set_default_value('https://via.placeholder.com/135x25'),
-		        Field::make( 'textarea', 'crb_keu_pemdes_judul_header', __( 'Judul' ) )
-		        	->set_default_value('SIDETIK DESA<br>Sistem Deteksi Informasi Keuangan Pemerintah Desa'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_video_loading', __( 'Video Loading' ) )
-	    			->set_default_value(WPSIPD_PLUGIN_URL.'public/images/video-loading.mp4'),
-		        Field::make( 'text', 'crb_keu_pemdes_lama_loading', __( 'Lama Loading' ) )
-	    			->set_default_value('10000')
-	        		->set_attribute('type', 'number')
-	    			->set_help_text('Lama waktu untuk menghilangkan gambar atau video intro. Satuan dalam mili detik.'),
-		    	Field::make( 'complex', 'crb_keu_pemdes_background_beranda', 'Background Beranda' )
-		    		->add_fields( 'beranda', array(
-				        Field::make( 'image', 'gambar', 'Gambar' )
-		        			->set_value_type('url')
-		        			->set_default_value(WPSIPD_PLUGIN_URL.'public/images/bg_video.jpg')
-		        		) ),
-		    ) )
-			->add_tab( __( 'Icon & Menu' ), array(
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_1', __( 'Gambar Menu Penyaluran Keuangan Pemerintah Desa' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/penyaluran-keuangan.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_1', __( 'Text Menu Penyaluran Keuangan Pemerintah Desa' ) )
-	    			->set_default_value('Penyaluran Keuangan Pemerintah Desa'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_1', __( 'URL Menu Penyaluran Keuangan Pemerintah Desa' ) )
-	    			->set_default_value(wp_login_url()),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_2', __( 'Gambar Menu Informasi Keuangan Pemerintah Desa' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/informasi-keuangan.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_2', __( 'Text Menu Informasi Keuangan Pemerintah Desa' ) )
-	    			->set_default_value('Informasi Keuangan Pemerintah Desa'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_2', __( 'URL Menu Informasi Keuangan Pemerintah Desa' ) )
-	    			->set_default_value($url_per_kecamatan),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_3', __( 'Gambar Menu DBHPD' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhpd.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_3', __( 'Text Menu DBHPD' ) )
-	    			->set_default_value('Dana Bagi Hasil Pajak Daerah'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_3', __( 'URL Menu DBHPD' ) )
-	    			->set_default_value($url_bhpd),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_4', __( 'Gambar Menu DBHRD' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhrd.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_4', __( 'Text Menu DBHRD' ) )
-	    			->set_default_value('Dana Bagi Hasil Retribusi Daerah'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_4', __( 'URL Menu DBHRD' ) )
-	    			->set_default_value($url_bhrd),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_5', __( 'Gambar Menu BKU ADD' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-add.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_5', __( 'Text Menu BKU ADD' ) )
-	    			->set_default_value('Bantuan Keuangan Umum Alokasi Dana Desa'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_5', __( 'URL Menu BKU ADD' ) )
-	    			->set_default_value($url_bku_add),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_6', __( 'Gambar Menu BKU DD' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-dd.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_6', __( 'Text Menu BKU DD' ) )
-	    			->set_default_value('Bantuan Keuangan Umum Dana Desa'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_6', __( 'URL Menu BKU DD' ) )
-	    			->set_default_value($url_bku_dd),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_7', __( 'Gambar Menu BKK Infrastruktur' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-infrastruktur.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_7', __( 'Text Menu BKK Infrastruktur' ) )
-	    			->set_default_value('Bantuan Keuangan Khusus Infrastruktur'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_7', __( 'URL Menu BKK Infrastruktur' ) )
-	    			->set_default_value($url_bkk_inf),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_8', __( 'Gambar Menu BKK Pilkades' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-pilkades.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_8', __( 'Text Menu BKK Pilkades' ) )
-	    			->set_default_value('Bantuan Keuangan Khusus Pilkades'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_8', __( 'URL Menu BKK Pilkades' ) )
-	    			->set_default_value($url_bkk_pilkades),
-		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_9', __( 'Gambar Menu Total Keuangan Per Kecamatan' ) )
-		        	->set_value_type('url')
-	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/total-perkecamatan.png'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_text_9', __( 'Text Menu Total Keuangan Per Kecamatan' ) )
-	    			->set_default_value('Total Keuangan Per Kecamatan'),
-		        Field::make( 'text', 'crb_keu_pemdes_menu_url_9', __( 'URL Menu Total Keuangan Per Kecamatan' ) )
-	    			->set_default_value($url_per_kecamatan)
-	    	) );
 
-		$management_data_bkk_infrastruktur = $this->generatePage('Management Data BKK Infrastruktur', false, '[management_data_bkk_infrastruktur]');
-		$management_data_bkk_pilkades = $this->generatePage('Management Data BKK Pilkades', false, '[management_data_bkk_pilkades]');
-		$management_data_bhpd = $this->generatePage('Management Data BHPD', false, '[management_data_bhpd]');
-		$management_data_bhrd = $this->generatePage('Management Data BHRD', false, '[management_data_bhrd]');
-		$management_data_bku_dd = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_dd]');
-		$management_data_bku_add = $this->generatePage('Management Data BKU ADD', false, '[management_data_bku_add]');
-		$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
-		$input_pencairan_bkk_pilkades = $this->generatePage('Halaman Input Pencairan BKK Pilkades', false, '[input_pencairan_bkk_pilkades]');
-		$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
-		$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
-		$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
-		$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
-	    Container::make( 'theme_options', __( 'Import BKK Infrastruktur' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bkk_infrastruktur' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bkk_infrastruktur.'">Management Data BKK Infrastruktur</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bkk.'">Halaman Input Pencairan BKK Infrastruktur</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus Infrastruktur</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
-		        Field::make( 'html', 'crb_bkk_infrastruktur_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
-	            	->set_html( '<a onclick="import_excel_bkk_infrastruktur(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
-
-        Container::make( 'theme_options', __( 'Import BKK Pilkades' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bkk_pilkades' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bkk_pilkades.'">Management Data BKK Pilkades</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bkk_pilkades.'">Halaman Input Pencairan BKK Pilkades</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bkk_pilkades_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus pilkades</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
-		        Field::make( 'html', 'crb_bkk_pilkades_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bkk_pilkades_save_button' )
-	            	->set_html( '<a onclick="import_excel_bkk_pilkades(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
-	    Container::make( 'theme_options', __( 'Import BHPD' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bhpd' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bhpd.'">Management Data BHPD</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bhpd.'">Halaman Input Pencairan BHPD</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bhpd_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Pajak Daerah (BHPD)</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
-		        Field::make( 'html', 'crb_bhpd_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bhpd_save_button' )
-	            	->set_html( '<a onclick="import_excel_bhpd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
-	    Container::make( 'theme_options', __( 'Import BHRD' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bhrd' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bhrd.'">Management Data BHRD</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bhrd.'">Halaman Input Pencairan BHRD</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bhrd_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Retribusi Daerah (BHRD)</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
-		        Field::make( 'html', 'crb_bhrd_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bhrd_save_button' )
-	            	->set_html( '<a onclick="import_excel_bhrd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
-
-		global $wpdb;
-		$akun_hibah_uang = $wpdb->get_results("
-			SELECT DISTINCT
-				kode_akun, 
-				nama_akun 
-			FROM `data_akun` 
-			where is_bankeu_umum=1 
-				and kode_akun='5.4.02.05.01.0001'
-			order by kode_akun ASC
-		", ARRAY_A);
-		$pilih_akun = "<option value=''>Pilih rekening</option>";
-		foreach($akun_hibah_uang as $akun){
-			$pilih_akun .= "<option value='$akun[kode_akun]'>$akun[kode_akun] $akun[nama_akun]</option>";
+		if(get_option('_crb_show_menu_wpsipd_skpd_settings') != true){
+			Container::make( 'theme_options', __( 'SKPD Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_skpd_settings() );
 		}
-	    Container::make( 'theme_options', __( 'Import BKU DD' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bku_dd' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bku_dd.'">Management Data BKU DD</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bku_dd.'">Halaman Input Pencairan BKU DD</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bku_dd_singkron_button' )
-	            	->set_html( '
-	            	<h3>Singkronisasi dari data WP-SIPD</h3>
-	            	<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
-	            	<br>
-	            	<br>
-	            	<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
-	            	<br>
-	            	<br>
-	            	<a onclick="singkron_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
-		        Field::make( 'html', 'crb_bku_dd_upload_html' )
-	            	->set_html( '
-	            		<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.
-	            	' ),
-		        Field::make( 'html', 'crb_bku_dd_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bku_dd_save_button' )
-	            	->set_html( '<a onclick="import_excel_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
-	    Container::make( 'theme_options', __( 'Import BKU ADD' ) )
-		    ->set_page_parent( $keu_pemdes )
-		    ->add_fields( array(
-				Field::make( 'html', 'crb_halaman_terkait_bku_add' )
-		        	->set_html( '
-	        		<style>
-	        			.postbox-container { display: none; }
-	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-	        		</style>
-					<h5>HALAMAN TERKAIT</h5>
-	            	<ol>
-	            		<li><a target="_blank" href="'.$management_data_bku_add.'">Management Data BKU ADD</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bku_add.'">Halaman Input Pencairan BKU ADD</a></li>
-	            	</ol>
-		        	' ),
-		        Field::make( 'html', 'crb_bku_add_singkron_button' )
-	            	->set_html( '
-	            	<h3>Singkronisasi dari data WP-SIPD</h3>
-	            	<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
-	            	<br>
-	            	<br>
-	            	<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
-	            	<br>
-	            	<br>
-	            	<a onclick="singkron_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
-		        Field::make( 'html', 'crb_bku_add_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD)</h3>
-	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
-	            		<br>
-	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
-	            		<br>
-	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
-		        Field::make( 'html', 'crb_bku_add_satset' )
-	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
-		        Field::make( 'html', 'crb_bku_add_save_button' )
-	            	->set_html( '<a onclick="import_excel_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
-	        ) );
 
-		$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
-		$url_user_pptk =$this->generatePage('User PPTK', false, '[user_pptk]');
-		$user_verifikator = array(
-			'verifikator_bappeda' => 'Verifikator Perencanaan', 
-			'verifikator_bppkad' => 'Verifikator Keuangan', 
-			'verifikator_pbj' => 'Verifikator Pengadaan Barang dan Jasa', 
-			'verifikator_adbang' => 'Verifikator Administrasi Pembangunan', 
-			'verifikator_inspektorat' => 'Verifikator Inspektorat', 
-			'verifikator_pupr' => 'Verifikator Pekerjaan Umum (PUPR)'
-		);
-		Container::make( 'theme_options', __( 'Verifikasi RKA' ) )
-			->set_page_menu_position( 5 )
-		    ->add_fields( array(
-	            Field::make( 'multiselect', 'crb_daftar_user_verifikator', 'Daftar grup user verifikator RKA/DPA yang diaktfikan' )
-            	->add_options( $user_verifikator )
-            	->set_default_value(array(
-            		'verifikator_bappeda', 
-            		'verifikator_bppkad', 
-            		'verifikator_pbj', 
-            		'verifikator_adbang', 
-            		'verifikator_inspektorat', 
-            		'verifikator_pupr'
-            	)),
-				Field::make('html','crb_verifikasi_rka_page')
-				->set_html('
-				<ul>
-					<li><a href="'.$url_user_verifikator.'" target="_blank">Halaman User Verifikasi RKA</a></li>
-				</ul>'),
-				Field::make('html','crb_pptk_page')
-				->set_html('
-				<ul>
-					<li><a href="'.$url_user_pptk.'" target="_blank">Halaman User PPTK</a></li>
-				</ul>')
-			)
-		);
+		if(get_option('_crb_show_menu_wpsipd_simda_settings') != true){
+			Container::make( 'theme_options', __( 'SIMDA Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_mapping_unit() );
+		}
+
+		if(get_option('_crb_show_menu_wpsipd_fmis_settings') != true){
+			Container::make( 'theme_options', __( 'FMIS Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_setting_fmis() );
+		}
+
+		if(get_option('_crb_show_menu_wpsipd_sipkd_settings') != true){
+			Container::make( 'theme_options', __( 'SIPKD Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_setting_sipkd() );
+		}
+
+		if(get_option('_crb_show_menu_wpsipd_sirup_settings') != true){
+			Container::make( 'theme_options', __( 'SIRUP Setting' ) )
+				->set_page_parent( $basic_options_container )
+				->add_fields( $this->get_sirup_setting() );
+		}
+
+		Container::make( 'theme_options', __( 'WP-SIPD Menu Setting' ) )
+			->set_page_parent( $basic_options_container )
+			->add_fields( $this->get_wpsipd_menu_setting() );
+		
+		$show_monev_sipd_menu = get_option('_crb_show_menu_monev_monev_sipd_settings');
+
+		if($show_monev_sipd_menu != true){
+			$monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
+				->set_page_menu_position( 4 )
+				->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
+
+			if(get_option('_crb_show_menu_monev_rfk_settings') != true){
+				Container::make( 'theme_options', __( 'RFK' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
+			}
+
+			if(get_option('_crb_show_menu_monev_indi_rpjm_settings') != true){
+				Container::make( 'theme_options', __( 'Indikator RPJM' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_rpjm')) );
+			}
+
+			if(get_option('_crb_show_menu_monev_indi_renstra_settings') != true){
+				Container::make( 'theme_options', __( 'Indikator RENSTRA' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_renstra')) );
+			}
+
+			if(get_option('_crb_show_menu_monev_indi_renja_settings') != true){
+				Container::make( 'theme_options', __( 'Indikator RENJA' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_renja')) );
+			}
+
+			if(get_option('_crb_show_menu_monev_lab_komponen_settings') != true){
+				Container::make( 'theme_options', __( 'Label Komponen' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->generate_label_komponen() );
+			}
+
+			if(get_option('_crb_show_menu_monev_sumber_dana_settings') != true){
+				Container::make( 'theme_options', __( 'Sumber Dana' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->generate_sumber_dana() );
+			}
+
+			if(get_option('_crb_show_menu_monev_monev_rak_settings') != true){
+				Container::make( 'theme_options', __( 'Monev RAK' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
+			}
+
+			if(get_option('_crb_show_menu_monev_json_rka_settings') != true){
+				Container::make( 'theme_options', __( 'Data JSON RKA' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_json_rka')) );
+			}
+		}
+		$show_laporan_sipd_menu = get_option('_crb_show_menu_laporan_sipd_settings');
+
+		if($show_laporan_sipd_menu != true){
+			$laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
+				->set_page_menu_position( 4 )
+				->add_fields( $this->generate_tag_sipd() );
+
+			if(get_option('_crb_show_menu_laporan_label_subkeg_settings') != true){
+				Container::make( 'theme_options', __( 'Tag/Label Sub Kegiatan' ) )
+					->set_page_parent( $laporan )
+					->add_fields( $this->generate_tag_sipd() );
+			}
+
+			if(get_option('_crb_show_menu_laporan_rkpd_settings') != true){
+				Container::make( 'theme_options', __( 'RKPD & RENJA' ) )
+					->set_page_parent( $laporan )
+					->add_fields( $this->get_ajax_field(array('type' => 'rkpd_renja')) );
+			}
+
+			if(get_option('_crb_show_menu_laporan_apbd_penjabaran_settings') != true){
+				Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
+					->set_page_parent( $laporan )
+					->add_fields( $this->get_ajax_field(array('type' => 'apbdpenjabaran')) );
+			}
+
+			if(get_option('_crb_show_menu_laporan_apbd_perda_settings') != true){
+				Container::make( 'theme_options', __( 'APBD Perda' ) )
+					->set_page_parent( $laporan )
+					->add_fields( $this->get_ajax_field(array('type' => 'apbdperda')) );
+			}
+
+			if(get_option('_crb_show_menu_laporan_rpjm_renstra_settings') != true){
+				Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
+					->set_page_parent( $laporan );
+			}	
+		}
+
+		$show_input_perencanaan_sipd_menu = get_option('_crb_show_menu_input_sipd_settings');
+
+		if($show_input_perencanaan_sipd_menu != true){
+			$input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan' ) )
+				->set_page_menu_position( 4 )
+				->add_fields( $this->generate_jadwal_perencanaan() );
+
+			if(get_option('_crb_show_menu_input_jadwal_settings') != true){
+				Container::make( 'theme_options', __( 'Jadwal & Input Perencanaan' ) )
+					->set_page_parent( $input_perencanaan )
+					->add_fields( $this->generate_jadwal_perencanaan() );
+			}
+
+			if(get_option('_crb_show_menu_input_input_renstra_settings') != true){
+				Container::make( 'theme_options', __( 'Input RENSTRA' ) )
+					->set_page_parent( $input_perencanaan )
+					->add_fields( $this->generate_input_renstra() );
+			}
+
+			if(get_option('_crb_show_menu_input_input_renja_settings') != true){
+				Container::make( 'theme_options', __( 'Input RENJA' ) )
+					->set_page_parent( $input_perencanaan )
+					->add_fields(array(
+						Field::make( 'separator', 'crb_show_copy_sipd_button_settings', 'Aktifkan Tombol Copy Data SIPD ke Lokal ( WP-SIPD Settings )' ),
+						Field::make( 'checkbox', 'crb_show_copy_data_renja_settings', 'Tombol Copy Data Renja SIPD' )
+							->set_option_value( 'true' )
+							->set_help_text('Untuk menampilkan tombol copy data RENJA SIPD ke tabel LOKAL.'),
+						Field::make( 'checkbox', 'crb_show_copy_data_rincian_rka_settings', 'Tombol Copy Data Rincin RKA SIPD' )
+							->set_option_value( 'true' )
+							->set_help_text('Untuk menampilkan tombol copy data Rincian RKA SIPD ke tabel LOKAL'),
+					))
+					->add_fields( $this->generate_input_renja() );
+			}
+		}
+
+		$show_standar_harga_sipd_menu = get_option('_crb_show_menu_standar_standar_harga_settings');
+
+		if($show_standar_harga_sipd_menu != true){
+			$satuan_harga = Container::make( 'theme_options', __( 'Standar Harga' ) )
+				->set_page_menu_position( 5 )
+				->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
+
+			if(get_option('_crb_show_menu_standar_usulan_standar_harga_settings') != true){
+				Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
+					->set_page_parent( $satuan_harga )
+					->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+			}
+
+			if(get_option('_crb_show_menu_standar_rekap_usulan_settings') != true){
+				Container::make( 'theme_options', __( 'Rekap Usulan dan Standar Harga SIPD' ) )
+					->set_page_parent( $satuan_harga )
+					->add_fields( $this->get_ajax_field(array('type' => 'satuan_harga_sipd')) );
+			}
+
+			if(get_option('_crb_show_menu_standar_tidak_terpakai_settings') != true){
+				Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
+					->set_page_parent( $satuan_harga )
+					->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
+			}
+		}
+
+		$show_monev_fmis_sipd_menu = get_option('_crb_show_menu_monev_fmis_check_settings');
+
+		if($show_monev_fmis_sipd_menu != true){
+			$monev_fmis = Container::make( 'theme_options', __( 'MONEV FMIS' ) )
+				->set_page_menu_position( 5 )
+				->add_fields( $this->get_ajax_field(array('type' => 'register_sp2d_fmis')) );
+		}
+
+		$show_keuangan_pemdes_menu = get_option('_crb_show_menu_keuangan_keuangan_pemdes_settings');
+
+		if($show_keuangan_pemdes_menu != true){
+			$keu_pemdes = Container::make( 'theme_options', __( 'Keuangan PEMDES' ) )
+				->set_page_menu_position( 5 )
+				->add_fields( $this->get_setting_keu_pemdes() );
+
+			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+			if(empty($tahun_anggaran)){
+				$tahun_anggaran = date('Y');
+			}
+			$url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
+			$url_bku_add = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD) '.$tahun_anggaran, false, '[keu_pemdes_bku_add tahun_anggaran="'.$tahun_anggaran.'"]');
+			$url_bku_dd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Desa Dana Desa (DD) '.$tahun_anggaran, false, '[keu_pemdes_bku_dd tahun_anggaran="'.$tahun_anggaran.'"]');
+			$url_bhrd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$tahun_anggaran, false, '[keu_pemdes_bhrd tahun_anggaran="'.$tahun_anggaran.'"]');
+			$url_bhpd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$tahun_anggaran, false, '[keu_pemdes_bhpd tahun_anggaran="'.$tahun_anggaran.'"]');
+			$url_bkk_pilkades = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$tahun_anggaran, false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$tahun_anggaran.'"]');
+			$url_bkk_inf = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$tahun_anggaran, false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$tahun_anggaran.'"]');
+			
+			if(get_option('_crb_show_menu_keuangan_beranda_settings') != true){
+				Container::make( 'theme_options', __( 'Tampilan Beranda' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_tab( __( 'Logo' ), array(
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_dashboard', __( 'Gambar Logo' ) )
+							->set_value_type('url')
+							->set_default_value('https://via.placeholder.com/135x25'),
+						Field::make( 'textarea', 'crb_keu_pemdes_judul_header', __( 'Judul' ) )
+							->set_default_value('SIDETIK DESA<br>Sistem Deteksi Informasi Keuangan Pemerintah Desa'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_video_loading', __( 'Video Loading' ) )
+							->set_default_value(WPSIPD_PLUGIN_URL.'public/images/video-loading.mp4'),
+						Field::make( 'text', 'crb_keu_pemdes_lama_loading', __( 'Lama Loading' ) )
+							->set_default_value('10000')
+							->set_attribute('type', 'number')
+							->set_help_text('Lama waktu untuk menghilangkan gambar atau video intro. Satuan dalam mili detik.'),
+						Field::make( 'complex', 'crb_keu_pemdes_background_beranda', 'Background Beranda' )
+							->add_fields( 'beranda', array(
+								Field::make( 'image', 'gambar', 'Gambar' )
+									->set_value_type('url')
+									->set_default_value(WPSIPD_PLUGIN_URL.'public/images/bg_video.jpg')
+								) ),
+					) )
+					->add_tab( __( 'Icon & Menu' ), array(
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_1', __( 'Gambar Menu Penyaluran Keuangan Pemerintah Desa' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/penyaluran-keuangan.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_1', __( 'Text Menu Penyaluran Keuangan Pemerintah Desa' ) )
+							->set_default_value('Penyaluran Keuangan Pemerintah Desa'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_1', __( 'URL Menu Penyaluran Keuangan Pemerintah Desa' ) )
+							->set_default_value(wp_login_url()),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_2', __( 'Gambar Menu Informasi Keuangan Pemerintah Desa' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/informasi-keuangan.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_2', __( 'Text Menu Informasi Keuangan Pemerintah Desa' ) )
+							->set_default_value('Informasi Keuangan Pemerintah Desa'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_2', __( 'URL Menu Informasi Keuangan Pemerintah Desa' ) )
+							->set_default_value($url_per_kecamatan),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_3', __( 'Gambar Menu DBHPD' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhpd.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_3', __( 'Text Menu DBHPD' ) )
+							->set_default_value('Dana Bagi Hasil Pajak Daerah'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_3', __( 'URL Menu DBHPD' ) )
+							->set_default_value($url_bhpd),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_4', __( 'Gambar Menu DBHRD' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhrd.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_4', __( 'Text Menu DBHRD' ) )
+							->set_default_value('Dana Bagi Hasil Retribusi Daerah'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_4', __( 'URL Menu DBHRD' ) )
+							->set_default_value($url_bhrd),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_5', __( 'Gambar Menu BKU ADD' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-add.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_5', __( 'Text Menu BKU ADD' ) )
+							->set_default_value('Bantuan Keuangan Umum Alokasi Dana Desa'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_5', __( 'URL Menu BKU ADD' ) )
+							->set_default_value($url_bku_add),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_6', __( 'Gambar Menu BKU DD' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-dd.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_6', __( 'Text Menu BKU DD' ) )
+							->set_default_value('Bantuan Keuangan Umum Dana Desa'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_6', __( 'URL Menu BKU DD' ) )
+							->set_default_value($url_bku_dd),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_7', __( 'Gambar Menu BKK Infrastruktur' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-infrastruktur.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_7', __( 'Text Menu BKK Infrastruktur' ) )
+							->set_default_value('Bantuan Keuangan Khusus Infrastruktur'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_7', __( 'URL Menu BKK Infrastruktur' ) )
+							->set_default_value($url_bkk_inf),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_8', __( 'Gambar Menu BKK Pilkades' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-pilkades.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_8', __( 'Text Menu BKK Pilkades' ) )
+							->set_default_value('Bantuan Keuangan Khusus Pilkades'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_8', __( 'URL Menu BKK Pilkades' ) )
+							->set_default_value($url_bkk_pilkades),
+						Field::make( 'image', 'crb_keu_pemdes_menu_logo_9', __( 'Gambar Menu Total Keuangan Per Kecamatan' ) )
+							->set_value_type('url')
+							->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/total-perkecamatan.png'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_text_9', __( 'Text Menu Total Keuangan Per Kecamatan' ) )
+							->set_default_value('Total Keuangan Per Kecamatan'),
+						Field::make( 'text', 'crb_keu_pemdes_menu_url_9', __( 'URL Menu Total Keuangan Per Kecamatan' ) )
+							->set_default_value($url_per_kecamatan)
+					) );
+			}
+			
+			$management_data_bkk_infrastruktur = $this->generatePage('Management Data BKK Infrastruktur', false, '[management_data_bkk_infrastruktur]');
+			$management_data_bkk_pilkades = $this->generatePage('Management Data BKK Pilkades', false, '[management_data_bkk_pilkades]');
+			$management_data_bhpd = $this->generatePage('Management Data BHPD', false, '[management_data_bhpd]');
+			$management_data_bhrd = $this->generatePage('Management Data BHRD', false, '[management_data_bhrd]');
+			$management_data_bku_dd = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_dd]');
+			$management_data_bku_add = $this->generatePage('Management Data BKU ADD', false, '[management_data_bku_add]');
+			$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
+			$input_pencairan_bkk_pilkades = $this->generatePage('Halaman Input Pencairan BKK Pilkades', false, '[input_pencairan_bkk_pilkades]');
+			$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
+			$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
+			$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
+			$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
+			
+			if(get_option('_crb_show_menu_keuangan_import_bkk_infra_settings') != true){
+				Container::make( 'theme_options', __( 'Import BKK Infrastruktur' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bkk_infrastruktur' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bkk_infrastruktur.'">Management Data BKK Infrastruktur</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bkk.'">Halaman Input Pencairan BKK Infrastruktur</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )
+							->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus Infrastruktur</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+						Field::make( 'html', 'crb_bkk_infrastruktur_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
+							->set_html( '<a onclick="import_excel_bkk_infrastruktur(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+
+			if(get_option('_crb_show_menu_keuangan_import_bkk_pilkades_settings') != true){
+				Container::make( 'theme_options', __( 'Import BKK Pilkades' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bkk_pilkades' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bkk_pilkades.'">Management Data BKK Pilkades</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bkk_pilkades.'">Halaman Input Pencairan BKK Pilkades</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bkk_pilkades_upload_html' )
+							->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus pilkades</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+						Field::make( 'html', 'crb_bkk_pilkades_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bkk_pilkades_save_button' )
+							->set_html( '<a onclick="import_excel_bkk_pilkades(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+
+			if(get_option('_crb_show_menu_keuangan_import_bhpd_settings') != true){
+				Container::make( 'theme_options', __( 'Import BHPD' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bhpd' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bhpd.'">Management Data BHPD</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bhpd.'">Halaman Input Pencairan BHPD</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bhpd_upload_html' )
+							->set_html( '<h3>Import EXCEL data Bagi Hasil Pajak Daerah (BHPD)</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+						Field::make( 'html', 'crb_bhpd_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bhpd_save_button' )
+							->set_html( '<a onclick="import_excel_bhpd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+
+			if(get_option('_crb_show_menu_keuangan_import_bhrd_settings') != true){
+				Container::make( 'theme_options', __( 'Import BHRD' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bhrd' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bhrd.'">Management Data BHRD</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bhrd.'">Halaman Input Pencairan BHRD</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bhrd_upload_html' )
+							->set_html( '<h3>Import EXCEL data Bagi Hasil Retribusi Daerah (BHRD)</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+						Field::make( 'html', 'crb_bhrd_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bhrd_save_button' )
+							->set_html( '<a onclick="import_excel_bhrd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+
+			global $wpdb;
+			$akun_hibah_uang = $wpdb->get_results("
+				SELECT DISTINCT
+					kode_akun, 
+					nama_akun 
+				FROM `data_akun` 
+				where is_bankeu_umum=1 
+					and kode_akun='5.4.02.05.01.0001'
+				order by kode_akun ASC
+			", ARRAY_A);
+			$pilih_akun = "<option value=''>Pilih rekening</option>";
+			foreach($akun_hibah_uang as $akun){
+				$pilih_akun .= "<option value='$akun[kode_akun]'>$akun[kode_akun] $akun[nama_akun]</option>";
+			}
+
+			if(get_option('_crb_show_menu_keuangan_import_bku_dd_settings') != true){
+				Container::make( 'theme_options', __( 'Import BKU DD' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bku_dd' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bku_dd.'">Management Data BKU DD</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bku_dd.'">Halaman Input Pencairan BKU DD</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bku_dd_singkron_button' )
+							->set_html( '
+							<h3>Singkronisasi dari data WP-SIPD</h3>
+							<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
+							<br>
+							<br>
+							<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
+							<br>
+							<br>
+							<a onclick="singkron_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
+						Field::make( 'html', 'crb_bku_dd_upload_html' )
+							->set_html( '
+								<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.
+							' ),
+						Field::make( 'html', 'crb_bku_dd_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bku_dd_save_button' )
+							->set_html( '<a onclick="import_excel_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+			
+			if(get_option('_crb_show_menu_keuangan_import_bku_add_settings') != true){
+				Container::make( 'theme_options', __( 'Import BKU ADD' ) )
+					->set_page_parent( $keu_pemdes )
+					->add_fields( array(
+						Field::make( 'html', 'crb_halaman_terkait_bku_add' )
+							->set_html( '
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$management_data_bku_add.'">Management Data BKU ADD</a></li>
+								<li><a target="_blank" href="'.$input_pencairan_bku_add.'">Halaman Input Pencairan BKU ADD</a></li>
+							</ol>
+							' ),
+						Field::make( 'html', 'crb_bku_add_singkron_button' )
+							->set_html( '
+							<h3>Singkronisasi dari data WP-SIPD</h3>
+							<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
+							<br>
+							<br>
+							<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
+							<br>
+							<br>
+							<a onclick="singkron_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
+						Field::make( 'html', 'crb_bku_add_upload_html' )
+							->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD)</h3>
+								<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+								<br>
+								Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+								<br>
+								Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+						Field::make( 'html', 'crb_bku_add_satset' )
+							->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+						Field::make( 'html', 'crb_bku_add_save_button' )
+							->set_html( '<a onclick="import_excel_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+					) );
+			}
+		}
+
+		
+		$show_verifikasi_rka_sipd_menu = get_option('_crb_show_menu_verifikasi_rka_check_settings');
+
+		if($show_verifikasi_rka_sipd_menu != true){
+			$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
+			$url_user_pptk =$this->generatePage('User PPTK', false, '[user_pptk]');
+			$user_verifikator = array(
+				'verifikator_bappeda' => 'Verifikator Perencanaan', 
+				'verifikator_bppkad' => 'Verifikator Keuangan', 
+				'verifikator_pbj' => 'Verifikator Pengadaan Barang dan Jasa', 
+				'verifikator_adbang' => 'Verifikator Administrasi Pembangunan', 
+				'verifikator_inspektorat' => 'Verifikator Inspektorat', 
+				'verifikator_pupr' => 'Verifikator Pekerjaan Umum (PUPR)'
+			);
+			global $wpdb;
+			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+			$list_data_rka = "";
+			foreach ($tahun as $k => $v) {
+				$title = 'Jadwal Verifikasi RKA | '.$v['tahun_anggaran'];
+				$shortcode = '[jadwal_verifikasi_rka tahun_anggaran="'.$v['tahun_anggaran'].'" sipd="1"]';
+				$update = false;
+				$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+				$list_data_rka .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+			}
+			Container::make( 'theme_options', __( 'Verifikasi RKA' ) )
+				->set_page_menu_position( 5 )
+				->add_fields( array(
+					Field::make( 'multiselect', 'crb_daftar_user_verifikator', 'Daftar grup user verifikator RKA/DPA yang diaktfikan' )
+					->add_options( $user_verifikator )
+					->set_default_value(array(
+						'verifikator_bappeda', 
+						'verifikator_bppkad', 
+						'verifikator_pbj', 
+						'verifikator_adbang', 
+						'verifikator_inspektorat', 
+						'verifikator_pupr'
+					)),
+					Field::make('html','crb_verifikasi_rka_page')
+					->set_html('
+					<ul>
+						<li><a href="'.$url_user_verifikator.'" target="_blank">Halaman User Verifikasi RKA</a></li>
+					</ul>'),
+					Field::make('html','crb_pptk_page')
+					->set_html('
+					<ul>
+						<li><a href="'.$url_user_pptk.'" target="_blank">Halaman User PPTK</a></li>
+					</ul>'),
+					Field::make( 'html', 'crb_jadwal_verifikasi_rka' )
+					->set_html( '
+						<ul>'.$list_data_rka.'</ul>
+					' )
+				)
+			);
+		}
 	}
 
 	public function cek_lisensi_backend(){
@@ -841,21 +966,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			    ) )
             	->set_default_value('1')
             	->set_help_text('Jika dipilih manual maka SKPD perlu melakuan input manual realisasi anggaran.'),
-            Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
-            	->add_options( array(
-			        '1' => __( 'MONEV RFK' ),
-			        '2' => __( 'MONEV SUMBER DANA' ),
-			        '3' => __( 'MONEV LABEL KOMPONEN' ),
-			        '4' => __( 'MONEV INDIKATOR RENJA' ),
-			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
-			        '6' => __( 'MONEV INDIKATOR RPJM' ),
-					'7' => __( 'MENU SSH' ),
-					'8' => __( 'INPUT RENSTRA' ),
-					'9' => __( 'INPUT RENJA' ),
-					'10' => __( 'INPUT REALISASI KEU PEMDES' )
-			    ) )
-            	->set_default_value(array('1','2','3','4','5'))
-            	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
             Field::make( 'select', 'crb_default_sumber_dana', 'Sumber dana default ketika sumber dana di sub kegiatan belum disetting' )
             	->add_options( $sumber_dana_all )
             	->set_default_value(1)
@@ -892,6 +1002,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$url_monitor_spd = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_jadwal = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_monitoring_rup = $this->generatePage('Monitoring RUP | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_rup tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_jadwal_verifikasi_rka = $this->generatePage('Jadwal Verifikasi RKA SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_verifikasi_rka_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$html .= '
 				<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
 				<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">
@@ -900,6 +1011,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						<li><a target="_blank" href="'.$url_monitor_spd.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a></li>
 						<li><a target="_blank" href="'.$url_jadwal.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a></li>
 						<li><a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_jadwal_verifikasi_rka.'">Halaman Pengaturan Jadwal Verifikasi RKA SIPD '.$v['tahun_anggaran'].'</a></li>
 					</ul>
 				</div>
 			';
@@ -913,10 +1025,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$ret = array();
 		$hide_sidebar = Field::make( 'html', 'crb_hide_sidebar' )
         	->set_html( '
-        		<style>
-        			.postbox-container { display: none; }
-        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-        		</style>
         		<div id="load_ajax_carbon" data-type="'.$options['type'].'"></div>
         	' );
 		$ret[] = $hide_sidebar;
@@ -1083,15 +1191,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RPJM Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 			        }else if($_POST['type'] == 'apbdpenjabaran'){
 			        	$url_penjabaran1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
-			        	$url_penjabaran3 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3"]');
-			        	$url_penjabaran4 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4"]');
-			        	$url_penjabaran5 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5"]');
-			        	$url_penjabaran6 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6"]');
+			        	$url_penjabaran2 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2"]');
+			        	$url_penjabaran3a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3a - Hibah Uang', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3a"]');
+			        	$url_penjabaran3b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3b - Hibang Barang / Jasa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3b"]');
+			        	$url_penjabaran4a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4a - Bansos Uang', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4a"]');
+			        	$url_penjabaran4b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4b - Bansos Barang / Jasa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4b"]');
+			        	$url_penjabaran5a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5a - Bankeu', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5a"]');
+			        	$url_penjabaran5b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5b - Bankeu Khusus', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5b"]');
+			        	$url_penjabaran6a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6a  - Bagi Hasil Kab', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6a"]');
+			        	$url_penjabaran6b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6b  - Bagi Hasil Kota', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6b"]');
+			        	$url_penjabaran6c = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6c  - Bagi Hasil Desa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6c"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran1.'">Halaman APBD PENJABARAN Lampiran 1 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3.'">Halaman APBD PENJABARAN Lampiran 3 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4.'">Halaman APBD PENJABARAN Lampiran 4 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran2.'">Halaman APBD PENJABARAN Lampiran 2 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3a.'">Halaman APBD PENJABARAN Lampiran 3a - Hibah Uang Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3b.'">Halaman APBD PENJABARAN Lampiran 3b - Hibang Barang / Jasa Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4a.'">Halaman APBD PENJABARAN Lampiran 4a - Bansos Uang Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4b.'">Halaman APBD PENJABARAN Lampiran 4b - Bansos Barang / Jasa Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5a.'">Halaman APBD PENJABARAN Lampiran 5a - Bankeu Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5b.'">Halaman APBD PENJABARAN Lampiran 5b - Bankeu Khusus Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6a.'">Halaman APBD PENJABARAN Lampiran 6a - Bagi Hasil Kab Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6b.'">Halaman APBD PENJABARAN Lampiran 6b - Bagi Hasil Kota Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6c.'">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'apbdperda'){
 			        	$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
@@ -1526,7 +1646,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$settings = array(
 			Field::make( 'select', 'crb_skpd_admin_ssh', 'Pilih unit kerja penyusun Standar Harga (SSH / SBU / HSPK / ASB)' )
             	->add_options( $pilih_skpd )
-            	->set_help_text('Nama unit kerja ini untuk ditampilkan di surat usulan Standar Harga.')
+            	->set_help_text('Nama unit kerja ini untuk ditampilkan di surat usulan Standar Harga.'),
+			Field::make( 'text', 'crb_lokasi', 'Nama daerah atau lokasi tanda tangan surat' )
         );
 		return array_merge($settings, $sub_unit);
 	}
@@ -1549,13 +1670,26 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		}
 
 		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
-		if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' || empty(get_option('_crb_url_server_modul_migrasi_data')))){
+		if(
+			get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' 
+				|| empty(get_option('_crb_url_server_modul_migrasi_data'))
+			)
+		){
 			$disabled = 'disabled';
 		}
 
+		$title = 'Dokumentasi API WP-SIPD';
+		$shortcode = '[dokumentasi_api_wpsipd]';
+		$url_api = $this->generatePage($title, false, $shortcode);
 		$mapping_unit = array(
 			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
-				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
+				->set_html('
+					<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>
+					<h4>Halaman Terkait:</h4>
+					<ol>
+						<li><a href="'.$url_api.'" target="_blank">'.$title.'</a></li>
+					</ol>
+				'),
             Field::make( 'text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data' )
 				->set_default_value(admin_url('admin-ajax.php')),
             Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
@@ -1624,6 +1758,124 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		}
 
 		return $mapping_unit;
+	}
+
+	public function get_wpsipd_menu_setting(){
+		$field = '';
+		$field = array(
+			Field::make( 'separator', 'crb_show_menu_dashboard_user_settings', 'Menu Dashboard User' ),
+				Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
+				->add_options( array(
+					'1' => __( 'MONEV RFK' ),
+					'2' => __( 'MONEV SUMBER DANA' ),
+					'3' => __( 'MONEV LABEL KOMPONEN' ),
+					'4' => __( 'MONEV INDIKATOR RENJA' ),
+					'5' => __( 'MONEV INDIKATOR RENSTRA' ),
+					'6' => __( 'MONEV INDIKATOR RPJM' ),
+					'7' => __( 'MENU SSH' ),
+					'8' => __( 'INPUT RENSTRA' ),
+					'9' => __( 'INPUT RENJA' ),
+					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
+					'11' => __( 'USER PPTK' )
+				) )
+				->set_default_value(array('1','2','3','4','5'))
+				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
+
+			Field::make( 'separator', 'crb_show_menu_wpsipd_settings', 'Non Aktifkan Menu ( WP-SIPD Settings )' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_api_settings', 'API Settings' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_skpd_settings', 'SKPD Settings' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_simda_settings', 'SIMDA Settings' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_fmis_settings', 'FMIS Settings' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_sipkd_settings', 'SIPKD Settings' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_wpsipd_sirup_settings', 'SIRUP Settings' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_monev_settings', 'Non Aktifkan Menu ( MONEV SIPD )' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_monev_sipd_settings', 'Monev SIPD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_rfk_settings', 'RFK' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_indi_rpjm_settings', 'Indikator RPJM' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_indi_renstra_settings', 'Indikator RENSTRA' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_indi_renja_settings', 'Indikator RENJA' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_lab_komponen_settings', 'Label Komponen' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_sumber_dana_settings', 'Sumber Dana' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_monev_rak_settings', 'Monev RAK' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_laporan_settings', 'Non Aktifkan Menu ( LAPORAN SIPD )' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_sipd_settings', 'Laporan SIPD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_label_subkeg_settings', 'Tag/Label Sub Kegiatan' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_rkpd_settings', 'RKPD & RENJA' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_apbd_penjabaran_settings', 'APBD Penjabaran' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_apbd_perda_settings', 'APBD Perda' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_laporan_rpjm_renstra_settings', 'RPJM & RENSTRA' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_input_perencanaan_settings', 'Non Aktifkan Menu ( Input Perencanaan )' ),
+				Field::make( 'checkbox', 'crb_show_menu_input_sipd_settings', 'Input Perencanaan' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_input_jadwal_settings', 'Jadwal & Input Perencanaan' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_input_input_renstra_settings', 'Input RENSTRA' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_input_input_renja_settings', 'Input RENJA' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_keuangan_pemdes_settings', 'Non Aktifkan Menu ( Keuangan Pemdes )' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_keuangan_pemdes_settings', 'Keuangan Pemdes' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_beranda_settings', 'Tampilan Beranda' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bkk_infra_settings', 'Import BKK Insfrastruktur' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bkk_pilkades_settings', 'Import BKK Pilkades' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bhpd_settings', 'Import BHPD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bhrd_settings', 'Import BHRD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bku_dd_settings', 'Import BKU DD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bku_add_settings', 'Import BKU ADD' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_standar_harga_settings', 'Non Aktifkan Menu ( Standar Harga )' ),
+				Field::make( 'checkbox', 'crb_show_menu_standar_standar_harga_settings', 'Standar Harga' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_standar_usulan_standar_harga_settings', 'Usulan Standar Harga' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_standar_rekap_usulan_settings', 'Rekap Usulan dan Standar Harga SIPD' )
+					->set_option_value( 'true' ),
+				Field::make( 'checkbox', 'crb_show_menu_standar_tidak_terpakai_settings', 'Tidak Terpakai di SIPD' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_verifikasi_rka_settings', 'Non Aktifkan Menu ( Verifikasi RKA )' ),
+				Field::make( 'checkbox', 'crb_show_menu_verifikasi_rka_check_settings', 'Verifikasi RKA' )
+					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_monev_fmis_settings', 'Non Aktifkan Menu ( MONEV FMIS )' ),
+				Field::make( 'checkbox', 'crb_show_menu_monev_fmis_check_settings', 'MONEV FMIS' )
+					->set_option_value( 'true' ),
+		);
+		return $field;
 	}
 
 	// hook filter untuk save field carbon field
@@ -2227,6 +2479,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		}
+		foreach ($tahun as $k => $v) {
+			$title = 'Input Batasan Pagu per-Sumber Dana | '.$v['tahun_anggaran'];
+			$shortcode = '[input_batasan_pagu_per_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		}
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
             	->set_html( '
@@ -2544,7 +2803,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					        'ID'    =>  $wp_query->queried_object->ID,
 					        'post_status'   =>  'publish'
 				        ));
-				        die('<script>window.location =  window.location.href+"&private=1";</script>');
+				        if(!empty($_GET['private'])){
+				        	die('<script>window.location =  window.location.href;</script>');
+				        }else{
+				        	die('<script>window.location =  window.location.href+"&private=1";</script>');
+				        }
 					}else if(!empty($_GET['private'])){
 						wp_update_post(array(
 					        'ID'    =>  $wp_query->queried_object->ID,
@@ -3563,9 +3826,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					);
 					
 					if (empty($cek)) {
-						$cek_insert_skpd = $wpdb->insert('data_skpd_sirup', $opsi);
+						$wpdb->insert('data_skpd_sirup', $opsi);
+						$cek_insert_skpd = $wpdb->insert_id;
 					}else{
-						$cek_insert_skpd = $wpdb->update('data_skpd_sirup',$opsi,array(
+						$cek_insert_skpd = $cek; 
+						$wpdb->update('data_skpd_sirup',$opsi,array(
 							'id_satuan_kerja' => $cek
 						));
 					}

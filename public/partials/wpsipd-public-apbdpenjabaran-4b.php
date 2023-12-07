@@ -9,10 +9,10 @@ if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
 
-$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_uang=1 and tahun_anggaran='.$input['tahun_anggaran'].' order by kode_akun ASC', ARRAY_A);
+$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_uang=1 and tahun_anggaran='.$input['tahun_anggaran'].' order by kode_akun ASC', ARRAY_A);
 $data_hibah_uang = array();
 foreach ($akun_hibah_uang as $k => $v) {
-    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
+    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC, lokus_akun_teks ASC", ARRAY_A);
     if(!empty($data)){
         $data_hibah_uang = array_merge($data, $data_hibah_uang);
     }
@@ -243,10 +243,10 @@ $body_uang .= '
 ';
 
 
-$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_brg=1 and tahun_anggaran='.$input['tahun_anggaran'].' order by kode_akun ASC', ARRAY_A);
+$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_brg=1 and tahun_anggaran='.$input['tahun_anggaran'].' order by kode_akun ASC', ARRAY_A);
 $data_hibah_brg = array();
 foreach ($akun_hibah_brg as $k => $v) {
-    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
+    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC, lokus_akun_teks ASC", ARRAY_A);
     if(!empty($data)){
         $data_hibah_brg = array_merge($data, $data_hibah_brg);
     }
@@ -479,12 +479,12 @@ $body_barang .= '
 
 // print_r($data_hibah_uang_shorted);
 ?>
-<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 3 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 4b Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
-            <td width="80" valign="top">Lampiran III </td>
+            <td width="80" valign="top">Lampiran IVb </td>
             <td width="10" valign="top">:</td>
-            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxxx   </td>
+            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxx   </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -500,31 +500,9 @@ $body_barang .= '
             <td width="10">:</td>
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
-    </table>
-    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">1) UANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI HIBAH BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH</h4>
-    <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
-        <thead>
-            <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok">No</td>
-                <td class="atas kanan bawah text_tengah text_blok">Nama Penerima</td>
-                <td class="atas kanan bawah text_tengah text_blok">Alamat Penerima</td>
-                <?php if($type == 'murni'): ?>
-                    <td class="atas kanan bawah text_tengah text_blok">Jumlah</td>
-                <?php else: ?>
-                    <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
-                    <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
-                    <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
-                <?php endif; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php echo $body_uang; ?>
-        </tbody>
-    </table>
-    <hr>
+    </table>    
     <h4 style="text-align: left; font-size: 13px; font-weight: bold;">2) BARANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI HIBAH BERUPA BARANG/JASA YANG DITERIMA SERTA SKPD PEMBERI HIBAH</h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT, BENTUK DAN BESARAN<br>ALOKASI BANTUAN SOSIAL BERUPA BARANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -561,7 +539,7 @@ $body_barang .= '
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
     var type = url.searchParams.get("type");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 3</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 4</a>';
     }else{
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
     }

@@ -435,6 +435,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg',  $plugin_public, 'get_sub_keg');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg',  $plugin_public, 'get_sub_keg');
 
+		$this->loader->add_action('wp_ajax_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+
+		$this->loader->add_action('wp_ajax_get_sub_keg_rka_sipd',  $plugin_public, 'get_sub_keg_rka_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka_sipd',  $plugin_public, 'get_sub_keg_rka_sipd');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 
@@ -577,6 +583,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_chart_ssh_skpd',  $plugin_public, 'get_data_chart_ssh_skpd');
 		$this->loader->add_action('wp_ajax_submit_edit_usulan_ssh',  $plugin_public, 'submit_edit_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_delete_usulan_ssh',  $plugin_public, 'submit_delete_usulan_ssh');
+		$this->loader->add_action('wp_ajax_submit_ssh_usulan_by_id',  $plugin_public, 'submit_ssh_usulan_by_id');
 		$this->loader->add_action('wp_ajax_submit_delete_akun_usulan_ssh',  $plugin_public, 'submit_delete_akun_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_delete_check_usulan_ssh',  $plugin_public, 'submit_delete_check_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_approve_check_usulan_ssh',  $plugin_public, 'submit_approve_check_usulan_ssh');
@@ -599,6 +606,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjpd',  $plugin_public, 'submit_lock_schedule_rpjpd');
 		$this->loader->add_action('wp_ajax_get_data_standar_lama_pelaksanaan',  $plugin_public, 'get_data_standar_lama_pelaksanaan');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_verif_rka',  $plugin_public, 'submit_lock_schedule_verif_rka');
 		
 		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
 		$this->loader->add_action('wp_ajax_simpan_rpd',  $plugin_public, 'simpan_rpd');
@@ -718,6 +726,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_prioritas_kab_kot',  $plugin_public, 'get_prioritas_kab_kot');
 		$this->loader->add_action('wp_ajax_get_label_sub_keg',  $plugin_public, 'get_label_sub_keg');
 		$this->loader->add_action('wp_ajax_copy_penetapan_renja',  $plugin_public, 'copy_penetapan_renja');
+		$this->loader->add_action('wp_ajax_copy_renja_sipd_to_lokal',  $plugin_public, 'copy_renja_sipd_to_lokal');
+
+		$this->loader->add_action('wp_ajax_get_batasan_pagu_sumberdana',  $plugin_public, 'get_batasan_pagu_sumberdana');
+		$this->loader->add_action('wp_ajax_get_data_batasan_pagu_sumberdana_by_id',  $plugin_public, 'get_data_batasan_pagu_sumberdana_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_batasan_pagu_by_id', $plugin_public, 'tambah_data_batasan_pagu_by_id');
+		$this->loader->add_action('wp_ajax_hapus_data_batasan_pagu_by_id', $plugin_public, 'hapus_data_batasan_pagu_by_id');
 		
 		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_rpd',  $plugin_public, 'view_pagu_akumulasi_rpd');
@@ -737,6 +751,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_edit_renja',  $plugin_public, 'submit_edit_renja');
 		$this->loader->add_action('wp_ajax_delete_renja',  $plugin_public, 'delete_renja');
 		$this->loader->add_action('wp_ajax_copy_rka_sipd',  $plugin_public, 'copy_rka_sipd');
+		$this->loader->add_action('wp_ajax_pindah_sumber_dana',  $plugin_public, 'pindah_sumber_dana');
 		
 		$this->loader->add_action('wp_ajax_get_indikator_sub_kegiatan_renstra',  $plugin_public, 'get_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_sub_kegiatan_renstra',  $plugin_public, 'submit_indikator_sub_kegiatan_renstra');
@@ -744,7 +759,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_sub_kegiatan_renstra',  $plugin_public, 'update_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sub_kegiatan_renstra',  $plugin_public, 'delete_indikator_sub_kegiatan_renstra');
 		
-		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 		
 		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
@@ -904,6 +918,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_tambah_catatan_verifikator',  $plugin_public, 'tambah_catatan_verifikator');
 		$this->loader->add_action('wp_ajax_get_catatan_verifikasi_by_id',  $plugin_public, 'get_catatan_verifikasi_by_id');
 		$this->loader->add_action('wp_ajax_hapus_catatan_verifikasi',  $plugin_public, 'hapus_catatan_verifikasi');
+		$this->loader->add_action('wp_ajax_verifikasi_tanpa_catatan',  $plugin_public, 'verifikasi_tanpa_catatan');
+		$this->loader->add_action('wp_ajax_tambah_data_tanggapan',  $plugin_public, 'tambah_data_tanggapan');
 		
 		$this->loader->add_action('wp_ajax_get_data_verifikasi_rka',  $plugin_public, 'get_data_verifikasi_rka');
 		$this->loader->add_action('wp_ajax_tambah_user_pptk',  $plugin_public, 'tambah_user_pptk');
@@ -911,6 +927,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_user_pptk',  $plugin_public, 'delete_user_pptk');
 		$this->loader->add_action('wp_ajax_get_user_pptk_by_id',  $plugin_public, 'get_user_pptk_by_id');
 		$this->loader->add_action('wp_ajax_tambah_catatan_pptk',  $plugin_public, 'tambah_catatan_pptk');
+		$this->loader->add_action('wp_ajax_get_sub_keg_pptk',  $plugin_public, 'get_sub_keg_pptk');
+		$this->loader->add_action('wp_ajax_simpan_sub_keg_pptk',  $plugin_public, 'simpan_sub_keg_pptk');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
@@ -920,6 +938,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
+
+		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -1007,7 +1027,13 @@ class Wpsipd
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
 		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
 		add_shortcode('user_pptk', array($plugin_public, 'user_pptk'));
-
+		add_shortcode('dokumentasi_api_wpsipd', array($plugin_public, 'dokumentasi_api_wpsipd'));
+		add_shortcode('rekap_longlist_per_jenis_belanja', array($plugin_public, 'rekap_longlist_per_jenis_belanja'));
+		add_shortcode('apbd_perda_lampiran_4', array($plugin_public, 'apbd_perda_lampiran_4'));
+		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
+		add_shortcode('input_batasan_pagu_per_sumber_dana', array($plugin_public, 'input_batasan_pagu_per_sumber_dana'));
+		add_shortcode('jadwal_verifikasi_rka', array($plugin_public, 'jadwal_verifikasi_rka'));
+		add_shortcode('jadwal_verifikasi_rka_sipd', array($plugin_public, 'jadwal_verifikasi_rka_sipd'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));

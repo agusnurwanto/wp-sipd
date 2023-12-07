@@ -652,7 +652,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 															WHERE id=%d',
 															$val_data['id']), ARRAY_A);
 								if(empty($data_tipe_perencanaan)){
-									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
 								}else{
 									$ret['status_update'][] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
 								}
@@ -2379,6 +2379,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							from data_sub_keg_bl_lokal 
 							where kode_sbl='$kode_sbl' 
 								and tahun_anggaran=%d
+								order by id desc
 						", $tahun_anggaran), ARRAY_A);
 						if(
 							!empty($cek_sub_keg) 
@@ -2426,6 +2427,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						from data_sub_keg_bl_lokal 
 						where kode_sbl='$kode_sbl' 
 							and tahun_anggaran=%d
+							order by id desc
 					", $tahun_anggaran));
 
 					if(!$cek_id){
@@ -2445,6 +2447,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
+					$status_batasan_pagu = array();
 					foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
 						$data_sumber_dana = $wpdb->get_row($wpdb->prepare('
 							SELECT 
@@ -2504,7 +2507,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}else{
 							$wpdb->update('data_dana_sub_keg_lokal', $opsi_sumber_dana, array('id' => $cek_ids[$k_sumber_dana]['id']));
 						}
+						
+						// cek batasan pagu sumber sada
+						$batasan_pagu = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												nilai_batasan 
+											FROM `data_batasan_pagu_sd` 
+											WHERE kode_dana=%s
+												AND tahun_anggaran=%d
+												AND active=1", $data_sumber_dana->kode_dana, $tahun_anggaran), ARRAY_A);
+					
+						$get_total_sumber_dana_all = $wpdb->get_row($wpdb->prepare("
+																SELECT 
+																	SUM(pagudana) as total_pagu_all 
+																FROM `data_dana_sub_keg_lokal` 
+																WHERE tahun_anggaran=%d 
+																AND active=1 
+																AND iddana=%d;",$tahun_anggaran, $data_sumber_dana->id_dana), ARRAY_A);
+						
+						if(!empty($batasan_pagu)){
+							if($get_total_sumber_dana_all['total_pagu_all'] > $batasan_pagu['nilai_batasan']){
+								array_push($status_batasan_pagu, '\\n'.$data_sumber_dana->nama_dana.' melebihi batas pagu');
+							}
+						}
 					}
+
+					if(!empty($status_batasan_pagu)){
+						$status_batasan_pagu = implode(" ",$status_batasan_pagu);
+						$ret['message'] .= $status_batasan_pagu;
+					}
+
 
 					// insert indikator sub kegiatan
 					$wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array(
@@ -2922,6 +2954,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data']['data_master_desa'][$v_lokasi->id] = $data_master_desa;
 						}
 						
+						// get kode sub kegiatan dulu
+						$get_data_prog_keg = $wpdb->get_row($wpdb->prepare('
+							SELECT 
+								kode_sub_giat
+							FROM data_prog_keg p
+							WHERE p.id_sub_giat=%s
+								AND p.tahun_anggaran=%d
+						', $data_sub_giat['id_sub_giat'], $tahun_anggaran), ARRAY_A);
+
 						$data_master_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
 							SELECT 
 								i.*
@@ -2931,7 +2972,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND i.tahun_anggaran=%d
 								AND i.active=p.active
 							GROUP BY p.kode_sub_giat
-						', $data_sub_giat['kode_sub_giat'], $tahun_anggaran),ARRAY_A);
+						', $get_data_prog_keg['kode_sub_giat'], $tahun_anggaran),ARRAY_A);
 						$ret['data']['master_sub_keg_indikator'] = array();
 						$ret['data']['master_sub_keg_indikator_sql'] = $wpdb->last_query;
 						if(!empty($data_master_sub_keg_indikator)){

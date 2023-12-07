@@ -22,7 +22,6 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     global $pembiayaan_penerimaan_pergeseran;
     global $pembiayaan_pengeluaran_murni;
     global $pembiayaan_pengeluaran_pergeseran;
-
     $data_pendapatan = array(
         'data' => array(),
         'realisasi' => 0,
@@ -611,10 +610,10 @@ foreach ($unit as $kk => $vv) {
 <style type="text/css">
     .realisasi_simda { display: none; }
 </style>
-<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 1 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran II Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
-            <td width="80" valign="top">Lampiran I </td>
+            <td width="80" valign="top">Lampiran II </td>
             <td width="10" valign="top">:</td>
             <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxxx   </td>
         </tr>
@@ -633,7 +632,7 @@ foreach ($unit as $kk => $vv) {
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>RINGKASAN  PENJABARAN  APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<?php echo $nama_skpd; ?><br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN <br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -759,9 +758,9 @@ foreach ($unit as $kk => $vv) {
     window.dari_simda = url.searchParams.get("dari_simda");
     window.id_skpd = url.searchParams.get("id_skpd");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 1</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran II</a>';
     }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 1</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran II</a>';
     }
     var text = 'Nilai pagu murni dari database SIMDA'
     extend_action += '<div style="margin-top: 15px">';
