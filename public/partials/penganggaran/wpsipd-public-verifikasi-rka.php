@@ -8,6 +8,29 @@ if (!empty($_GET) && !empty($_GET['tahun']) && !empty($_GET['kode_sbl'])) {
 	die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
 }
 
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
+$timezone = get_option('timezone_string');
+$cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka_sipd',$tahun_anggaran);
+
+$jadwal_lokal = $cek_jadwal['data'];
+$setting_waktu = 0;
+if(!empty($jadwal_lokal)){
+	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = $jadwal_lokal[0]['nama'];
+	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+
+	$awal = new DateTime($mulaiJadwal);
+	$akhir = new DateTime($selesaiJadwal);
+	$now = new DateTime(date('Y-m-d H:i:s'));
+	if($now >= $awal && $now <= $akhir){
+		$setting_waktu = 1;
+	}
+
+}
+
 $api_key = get_option('_crb_api_key_extension');
 $user_id = um_user('ID');
 $user_meta = get_userdata($user_id);
@@ -205,7 +228,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 
 	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
 		<?php
-		if ($is_verifikator) {
+		if ($is_verifikator AND $setting_waktu==1) {
 			echo '<button class="btn btn-sm btn-warning" onclick="tambah_catatan()" style="margin-inline: 5px;"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>';
 			echo '<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>';
 		}
@@ -301,6 +324,18 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 <script>
 	jQuery(document).ready(function() {
 		load_data();
+
+		var mySpace = '<div style="padding:3rem;"></div>';
+    	jQuery('body').prepend(mySpace);
+
+        // set_waktu();
+    	var dataHitungMundur = {
+    		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+    		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+    		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+    		'thisTimeZone' : '<?php echo $timezone ?>'
+    	}
+    	penjadwalanHitungMundur(dataHitungMundur);
 	});
 
 	function load_data() {
