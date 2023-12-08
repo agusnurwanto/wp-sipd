@@ -5780,6 +5780,58 @@ CREATE TABLE `data_verifikasi_rka` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_verifikasi_rka_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `nama_verifikator` varchar(100) NOT NULL,
+  `fokus_uraian` text NOT NULL,
+  `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
+  `update_at_tanggapan` datetime DEFAULT current_timestamp(),
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_verifikasi_rka_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `nama_verifikator` varchar(100) NOT NULL,
+  `fokus_uraian` text NOT NULL,
+  `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
+  `update_at_tanggapan` datetime DEFAULT current_timestamp(),
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_verifikasi_rka_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `nama_verifikator` varchar(100) NOT NULL,
+  `fokus_uraian` text NOT NULL,
+  `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
+  `update_at_tanggapan` datetime DEFAULT current_timestamp(),
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_pptk_sub_keg` (
   `id` int(11) NOT NULL auto_increment,
   `id_user` int(11) NOT NULL,
@@ -5797,6 +5849,40 @@ CREATE TABLE `data_validasi_verifikasi_rka` (
   `nama_bidang` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_validasi_verifikasi_rka_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `nama_bidang` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_validasi_verifikasi_rka_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `nama_bidang` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_validasi_verifikasi_rka_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `nama_bidang` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 

@@ -506,6 +506,11 @@ class Wpsipd_Public_RKA
                     }
                 }
 
+                $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka_sipd',$tahun_anggaran);
+                $jadwal_lokal = $cek_jadwal['data'];
+                $dateTime = new DateTime();
+                $time_now = $dateTime->format('Y-m-d H:i:s');
+
                 $ret['html'] = '';
                 foreach ($new_data as $key => $data) {
                     foreach ($data as $val) {
@@ -516,18 +521,22 @@ class Wpsipd_Public_RKA
                                 <td>' . $val['nama_verifikator'] . ' ' . $val['update_at'] . '</td>
                                 <td>' . $val['tanggapan_opd'] . '</td>
                                 <td class="aksi">';
+                        
+                        if(!empty($jadwal_lokal)){
+                            if($time_now > $jadwal_lokal[0]['waktu_awal'] && $time_now <  $jadwal_lokal[0]['waktu_akhir']){
+                                // tampilkan tombol verifikator edit dan hapus
+                                if ($current_user->ID == $val['id_user']) {
+                                    $ret['html'] .= '
+                                        <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                                    $ret['html'] .= '
+                                        <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
+                                }
 
-                        // tampilkan tombol verifikator edit dan hapus
-                        if ($current_user->ID == $val['id_user']) {
-                            $ret['html'] .= '
-                                <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                            $ret['html'] .= '
-                                <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
-                        }
-
-                        // tampilkan tombol tanggapan untuk PA dan PPTK
-                        if ($btn_tanggapan) {
-                            $ret['html'] .= '<a class="btn btn-sm btn-warning" onclick="tambah_tanggapan(\'' . $val['id'] . '\'); return false;" href="#" title="Tanggapi"><i class="dashicons dashicons-editor-quote"></i></a>';
+                                // tampilkan tombol tanggapan untuk PA dan PPTK
+                                if ($btn_tanggapan) {
+                                    $ret['html'] .= '<a class="btn btn-sm btn-warning" onclick="tambah_tanggapan(\'' . $val['id'] . '\'); return false;" href="#" title="Tanggapi"><i class="dashicons dashicons-editor-quote"></i></a>';
+                                }
+                            }
                         }
 
                         $ret['html'] .= '</td></tr>';

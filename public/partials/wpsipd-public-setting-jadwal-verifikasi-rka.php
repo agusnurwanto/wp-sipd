@@ -8,6 +8,19 @@ $input = shortcode_atts(array(
 	'tahun_anggaran' => '2022'
 ), $atts);
 
+if (isset($tipe_jadwal)) {
+	if ($tipe_jadwal == 'sipd') {
+		$judul = 'SIPD';
+		$tipe_perencanaan = 'verifikasi_rka_sipd';
+	} else {
+		$tipe_perencanaan = 'verifikasi_rka';
+		$judul = '';
+	}
+} else {
+	$tipe_perencanaan = 'verifikasi_rka';
+	$judul = '';
+}
+
 $is_admin = false;
 $user_id = um_user('ID');
 $user_meta = get_userdata($user_id);
@@ -33,7 +46,7 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan Verifikasi RKA <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan Verifikasi RKA <?php echo $judul; ?> <?php echo $input['tahun_anggaran']; ?></h1>
 		<?php if ($is_admin) : ?>
 			<div style="margin-bottom: 25px;">
 				<button class="btn btn-primary tambah_jadwal tambah_ssh" onclick="tambah_jadwal();" hidden>Tambah Jadwal</button>
@@ -88,7 +101,7 @@ $body = '';
 <script>
 	jQuery(document).ready(function() {
 		window.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
-		window.tipe_perencanaan = 'verifikasi_rka';
+		window.tipe_perencanaan = '<?php echo $tipe_perencanaan; ?>';
 		window.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
 
 		get_data_penjadwalan();

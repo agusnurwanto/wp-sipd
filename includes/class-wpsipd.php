@@ -1008,6 +1008,7 @@ class Wpsipd
 		add_shortcode('input_pencairan_bhrd', array($plugin_public, 'input_pencairan_bhrd'));
 		add_shortcode('input_pencairan_bku_dd', array($plugin_public, 'input_pencairan_bku_dd'));
 		add_shortcode('input_pencairan_bku_add', array($plugin_public, 'input_pencairan_bku_add'));
+		add_shortcode('desa_per_jenis_keuangan', array($plugin_public, 'desa_per_jenis_keuangan'));
 		add_shortcode('renja_sipd_merah', array($plugin_public, 'renja_sipd_merah'));
 		add_shortcode('renja_sipd_ri', array($plugin_public, 'renja_sipd_ri'));
 		add_shortcode('cetak_usulan_standar_harga', array($plugin_public, 'cetak_usulan_standar_harga'));
