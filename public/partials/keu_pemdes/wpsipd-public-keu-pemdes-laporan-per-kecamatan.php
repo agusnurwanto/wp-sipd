@@ -17,6 +17,9 @@ function generateRandomColor($k){
     $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
     return $color[$k%10];
 }
+$title = 'Jenis Keuangan';
+$shortcode = '[desa_per_jenis_keuangan]';
+$url_per_jenis_keuangan = $this->generatePage($title, false, $shortcode, false);
 
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
@@ -256,13 +259,13 @@ foreach($unit as $i => $kec){
 	if($bku_add['total'] > 0 && $bku_add_r['total'] > 0){
 	    $bku_add_p = round(($bku_add_r['total']/$bku_add['total'])*100, 2);
 	}
-
+	// $url_desa = "onclick='per_jenis_keuangan'";
     $nama_kec_render = $nama_kec;
     if(
         $cek_login
         && !empty($url_all_kec[$nama_kec])
     ){
-        $nama_kec_render = "<a href='".$url_all_kec[$nama_kec]."' target='_blank'>".$nama_kec."</a>";
+        $nama_kec_render = "<a href='".$url_desa."' target='_blank'>".$nama_kec."</a>";
     }
 
 	$total = $bkk_infrastruktur['total'] + $bkk_pilkades['total'] + $bhpd['total'] + $bhrd['total'] + $bku_dd['total'] + $bku_add['total'];
@@ -360,4 +363,10 @@ window.pieChartkec = new Chart(document.getElementById('chart_per_kec'), {
         ]
     }
 });
+
+    function per_jenis_keuangan(){
+        var jenis_keuangan = prompt('Pilih jenis keuangan: 1=BKK Infrastruktur, 2=BKK Pilkades, 3=BHPD, 4=BHRD, 5=BKU ADD, 6=BKU DD', 1);
+        var url = '<?php echo $url_per_jenis_keuangan; ?>'+'&jenis_keuangan='+jenis_keuangan;
+        window.open(url, '_blank').focus();
+    }
 </script>

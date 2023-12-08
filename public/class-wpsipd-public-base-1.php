@@ -3960,10 +3960,12 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         $delete	= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Hapus Batasan Pagu"><i class="dashicons dashicons-trash"></i></a>';
 
                         $pindah = '';
-						$queryRecords[$recKey]['pagu_terpakai'] = 0;
+						$queryRecords[$recKey]['pagu_terpakai'] = '0';
+                        $queryRecords[$recKey]['pagu_selisih'] = '0';
                         if($sd_unset[$recVal['kode_dana']]){
                             $pindah = '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="pindah_sumber_dana(\''.$sd_unset[$recVal['kode_dana']]['id_dana'].'\'); return false;" href="#" title="Pindah Sumber Dana"><i class="dashicons dashicons-controls-repeat"></i></a>';
                             $queryRecords[$recKey]['pagu_terpakai'] = $this->_number_format($sd_unset[$recVal['kode_dana']]['total']);
+                            $queryRecords[$recKey]['pagu_selisih'] = $this->_number_format($recVal['nilai_batasan']-$sd_unset[$recVal['kode_dana']]['total']);
                             unset($sd_unset[$recVal['kode_dana']]);
                         }
 						$queryRecords[$recKey]['aksi'] = $edit.$delete.$pindah;

@@ -65,7 +65,7 @@ foreach ($idtahun as $val) {
                 <input type='hidden' id='id_data' name="id_data" placeholder=''>
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
-                    <select class="form-control" id="tahun_anggaran" onchange="get_kecamatan();">
+                    <select class="form-control" id="tahun" onchange="get_kecamatan();">
                         <?php echo $tahun ?>
                     </select>
                 </div>
@@ -189,10 +189,11 @@ foreach ($idtahun as $val) {
             },
             success: function(res) {
                 if (res.status == 'success') {
-                    jQuery('#id_data').val(res.data.id);
-                    jQuery('#kecamatan').val(res.data.kecamatan);
-                    jQuery('#desa').val(res.data.desa);
-                    jQuery('#total').val(res.data.total);
+                    jQuery('#id_data').val(res.data.id).prop('disabled', false);
+                    jQuery('#tahun').val(res.data.tahun_anggaran).trigger('change').prop('disabled', false);
+                    jQuery('#kecamatan').val(res.data.kecamatan).trigger('change').prop('disabled', false);
+                    jQuery('#desa').val(res.data.desa).prop('disabled', false);
+                    jQuery('#total').val(res.data.total).prop('disabled', false);
                     jQuery('#modalTambahDataBHPD').modal('show');
                 } else {
                     alert(res.message);
@@ -205,12 +206,12 @@ foreach ($idtahun as $val) {
     //show tambah data
     function tambah_data_bhpd() {
         jQuery('#id_data').val('');
-        jQuery('#id_kecamatan').val('');
-        jQuery('#id_desa').val('');
-        jQuery('#kecamatan').val('');
-        jQuery('#desa').val('');
-        jQuery('#total').val('');
-        jQuery('#tahun_anggaran').val('');
+        jQuery('#id_kecamatan').val('').prop('disabled', false);
+        jQuery('#id_desa').val('').prop('disabled', false);
+        jQuery('#kecamatan').val('').prop('disabled', false);
+        jQuery('#desa').val('').prop('disabled', false);
+        jQuery('#total').val('').prop('disabled', false);
+        jQuery('#tahun').val('').prop('disabled', false);
         jQuery('#modalTambahDataBHPD').modal('show');
     }
 
