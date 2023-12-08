@@ -1350,6 +1350,11 @@ class Wpsipd_Simda
 										$no = 0;
 										foreach ($ind_keg as $kk => $ind) {
 											$no++;
+											if(!empty($ind['targetoutput'])){
+												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
+												$target_angka = explode(' ', $target_angka);
+												$target_angka = $target_angka[0];
+											}
 											$options = array(
 					                            'query' => "
 					                            INSERT INTO ta_indikator (
@@ -1379,7 +1384,7 @@ class Wpsipd_Simda
 					                                3,
 					                                ".$no.",
 					                                '".str_replace("'", '`', substr($ind['outputteks'], 0, 255))."',
-					                                ".str_replace(',', '.', str_replace(',', '.', (!empty($ind['targetoutput'])? $ind['targetoutput']:0))).",
+					                                ".$target_angka.",
 					                                '".str_replace("'", '`', $ind['satuanoutput'])."'
 					                            )"
 					                        );
@@ -1398,6 +1403,11 @@ class Wpsipd_Simda
 										$no = 0;
 										foreach ($ind_keg as $kk => $ind) {
 											$no++;
+											if(!empty($ind['targetoutput'])){
+												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
+												$target_angka = explode(' ', $target_angka);
+												$target_angka = $target_angka[0];
+											}
 											$options = array(
 					                            'query' => "
 					                            INSERT INTO ta_indikator (
@@ -1427,7 +1437,7 @@ class Wpsipd_Simda
 					                                4,
 					                                ".$no.",
 					                                '".str_replace("'", '`', substr($ind['hasilteks'], 0, 255))."',
-					                                ".str_replace(',', '.', (!empty($ind['targethasil'])? $ind['targethasil']:0)).",
+					                                ".$target_angka.",
 					                                '".str_replace("'", '`', $ind['satuanhasil'])."'
 					                            )"
 					                        );
@@ -1686,7 +1696,7 @@ class Wpsipd_Simda
 													                ". str_replace(',', '.', $jml_satuan) .",
 													                ". str_replace(',', '.', $harga_satuan) .",
 													                ". str_replace(',', '.', $total_rinci) .",
-													                '".str_replace("'", '`', substr(implode(' | ', $komponen), 0, 255))."'
+													                '".str_replace("'", '`', substr($this->RemoveSpecialChar(implode(' | ', $komponen)), 0, 255))."'
 													            )"
 											            );
 									                    // print_r($options); die();
@@ -1734,6 +1744,11 @@ class Wpsipd_Simda
 			return $ret;
 		}
 	}
+
+	function RemoveSpecialChar($str){
+      	$res = preg_replace('/[^a-zA-Z0-9_ -]/s',' ',$str);
+      	return $res;
+  	}
 
 	public function get_id_sumber_dana_simda($options=array()){
 		global $wpdb;
@@ -2500,7 +2515,7 @@ class Wpsipd_Simda
 					'query' => "
 						SELECT 
 							max(kd_prog) as max
-						from ref_kegiatan_mapping
+						from ref_program
 						where kd_urusan=".$ref_bidang_mapping[0]->kd_urusan
 		                    .' and kd_bidang='.$ref_bidang_mapping[0]->kd_bidang
 				));
