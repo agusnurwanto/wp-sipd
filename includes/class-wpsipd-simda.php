@@ -840,6 +840,10 @@ class Wpsipd_Simda
 								$nama_keg = explode(' ', $sub_giat[0]['nama_sub_giat']);
 			                    unset($nama_keg[0]);
 			                    $nama_keg = implode(' ', $nama_keg);
+			                    if(empty($kd_urusan90)){
+			                    	$kd_urusan90 = $_kd_urusan;
+			                    	$kd_bidang90 = $_kd_bidang;
+			                    }
 								$mapping = $this->cekKegiatanMapping(array(
 									'kd_urusan90' => $kd_urusan90,
 									'kd_bidang90' => $kd_bidang90,
@@ -1073,6 +1077,8 @@ class Wpsipd_Simda
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
 								$tahun_anggaran = $v['tahun_anggaran'];
 								if(!empty($kd_unit_simda) && !empty($kd_unit_simda[3])){
+									$_kd_urusan = $kd_unit_simda[0];
+									$_kd_bidang = $kd_unit_simda[1];
 									$kd = explode('.', $v['kode_sub_giat']);
 									$kd_urusan90 = (int) $kd[0];
 									$kd_bidang90 = (int) $kd[1];
@@ -1082,6 +1088,10 @@ class Wpsipd_Simda
 									$nama_keg = explode(' ', $v['nama_sub_giat']);
 				                    unset($nama_keg[0]);
 				                    $nama_keg = implode(' ', $nama_keg);
+				                    if(empty($kd_urusan90)){
+				                    	$kd_urusan90 = $_kd_urusan;
+				                    	$kd_bidang90 = $_kd_bidang;
+				                    }
 									$mapping = $this->cekKegiatanMapping(array(
 										'kd_urusan90' => $kd_urusan90,
 										'kd_bidang90' => $kd_bidang90,
@@ -1092,8 +1102,6 @@ class Wpsipd_Simda
 										'nama_kegiatan' => $nama_keg,
 									));
 									if(!empty($mapping)){
-										$_kd_urusan = $kd_unit_simda[0];
-										$_kd_bidang = $kd_unit_simda[1];
 										$kd_unit = $kd_unit_simda[2];
 										$kd_sub_unit = $kd_unit_simda[3];
 										
@@ -2474,6 +2482,9 @@ class Wpsipd_Simda
 					where kd_urusan90=".$options['kd_urusan90']
 	                    .' and kd_bidang90='.$options['kd_bidang90']
 			));
+			if(empty(($ref_bidang_mapping))){
+				print_r($options); die();
+			}
 			$mapping_prog = $this->CurlSimda(array(
 				'query' => "
 					SELECT 
@@ -2575,7 +2586,7 @@ class Wpsipd_Simda
 	                    .' and kd_bidang='.$options['kd_bidang90']
 	                    .' and kd_program='.$options['kd_program90']
 	                    .' and kd_kegiatan='.$options['kd_kegiatan90']
-						.' and kd_fungsi='.$kd_fungsi
+						// .' and kd_fungsi='.$kd_fungsi
 						// .' and kd_sub_fungsi='.$kd_sub_fungsi // dimatikan karena bikin error duplikat primary key
 			));
 			if(empty($mapping_keg90)){
