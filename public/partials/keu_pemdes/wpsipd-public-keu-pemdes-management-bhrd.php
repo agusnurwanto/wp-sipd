@@ -65,7 +65,7 @@ foreach ($idtahun as $val) {
                 <input type='hidden' id='id_data' name="id_data" placeholder=''>
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
-                    <select class="form-control" id="tahun_anggaran" onchange="get_kecamatan();">
+                    <select class="form-control" id="tahun" onchange="get_kecamatan();">
                         <?php echo $tahun ?>
                     </select>
                 </div>
@@ -98,8 +98,8 @@ foreach ($idtahun as $val) {
     });
 
     function get_data_bhrd() {
-        if (typeof databhRd == 'undefined') {
-            window.databhRd = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data) {
+        if (typeof databhrd == 'undefined') {
+            window.databhrd = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data) {
                 jQuery("#wrap-loading").show();
             }).DataTable({
                 "processing": true,
@@ -147,7 +147,7 @@ foreach ($idtahun as $val) {
                 ]
             });
         } else {
-            databhRd.draw();
+            databhrd.draw();
         }
     }
 
@@ -190,13 +190,15 @@ foreach ($idtahun as $val) {
             success: function(res) {
                 if (res.status == 'success') {
                     jQuery('#id_data').val(res.data.id);
-                    jQuery('#id_kecamatan').val(res.data.id_kecamatan);
-                    jQuery('#id_desa').val(res.data.id_desa);
-                    jQuery('#kecamatan').val(res.data.kecamatan);
-                    jQuery('#desa').val(res.data.desa);
-                    jQuery('#total').val(res.data.total);
-                    jQuery('#id_dana').val(res.data.id_dana);
-                    jQuery('#modalTambahDataBHRD').modal('show');
+                    jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
+                    get_kecamatan()
+                    .then(function() {
+                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
+                        jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
+                            jQuery('#total').val(res.data.total).prop('disabled', false);
+                            jQuery('#modalTambahDataBHRD .send_data').show();
+                            jQuery('#modalTambahDataBHRD').modal('show');
+                    });
                 } else {
                     alert(res.message);
                 }
@@ -207,14 +209,25 @@ foreach ($idtahun as $val) {
 
     //show tambah data
     function tambah_data_bhrd() {
-        jQuery('#id_data').val('');
-        jQuery('#id_kecamatan').val('');
-        jQuery('#id_desa').val('');
-        jQuery('#kecamatan').val('');
-        jQuery('#desa').val('');
-        jQuery('#total').val('');
-        jQuery('#tahun_anggaran').val('');
-        jQuery('#modalTambahDataBHRD').modal('show');
+        jQuery('#id_data').val('').prop('disabled', false);
+        jQuery('#id_kecamatan').val('').prop('disabled', false);
+        jQuery('#id_desa').val('').prop('disabled', false);
+        jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
+        new Promise(function(resolve, reject) {
+                if ('<?php echo $input['tahun_anggaran']; ?>' != '') {
+                    get_kecamatan().then(function() {
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            })
+        .then(function() {
+            jQuery('#kec').val('').prop('disabled', false);
+            jQuery('#desa').val('').prop('disabled', false);
+            jQuery('#total').val('');
+            jQuery('#modalTambahDataBHRD').modal('show');
+        });
     }
 
     function submitTambahDataFormBHRD() {
@@ -237,8 +250,8 @@ foreach ($idtahun as $val) {
             return alert('Data total tidak boleh kosong!');
         }
 
-        var tahun_anggaran = jQuery('#tahun_anggaran').val();
-        if (tahun_anggaran == '') {
+        var tahun = jQuery('#tahun').val();
+        if (tahun == '') {
             return alert('Data tahun anggaran tidak tidak boleh kosong!');
         }
 
@@ -256,7 +269,7 @@ foreach ($idtahun as $val) {
                 'kecamatan': kecamatan,
                 'desa': desa,
                 'total': total,
-                'tahun_anggaran': tahun_anggaran,
+                'tahun_anggaran': tahun
             },
             success: function(res) {
                 alert(res.message);
@@ -269,48 +282,54 @@ foreach ($idtahun as $val) {
             }
         });
     }
-
+       
     function get_kecamatan() {
-        var tahun = jQuery('#tahun_anggaran').val();
-        if (tahun == '' || tahun == '-1') {
-            return alert('Pilih tahun anggaran dulu!');
-        }
-        new Promise(function(resolve, reject) {
-                if (!alamat_global[tahun]) {
-                    jQuery('#wrap-loading').show();
-                    jQuery.ajax({
-                        url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                        type: "post",
-                        data: {
-                            'action': "get_pemdes_alamat",
-                            'api_key': jQuery("#api_key").val(),
-                            'tahun': tahun
-                        },
-                        dataType: "json",
-                        success: function(response) {
-                            alamat_global[tahun] = response.data;
-                            resolve();
+        return new Promise(function(resolve, reject) {
+            var tahun = jQuery('#tahun').val();
+            if (tahun == '' || tahun == '-1') {
+                alert('Pilih tahun anggaran dulu!');
+                return resolve();
+            }
+            if (typeof alamat_global == 'undefined') {
+                window.alamat_global = {};
+            }
+
+            if (!alamat_global[tahun]) {
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    type: "post",
+                    data: {
+                        'action': "get_pemdes_bkk",
+                        'api_key': jQuery("#api_key").val(),
+                        'tahun_anggaran': tahun
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        alamat_global[tahun] = response.data;
+                        window.kecamatan_all = {};
+                        alamat_global[tahun].map(function(b, i) {
+                            if (!kecamatan_all[b.kecamatan]) {
+                                kecamatan_all[b.kecamatan] = {};
+                            }
+                            if (!kecamatan_all[b.kecamatan][b.desa]) {
+                                kecamatan_all[b.kecamatan][b.desa] = [];
+                            }
+                            kecamatan_all[b.kecamatan][b.desa].push(b);
+                        });
+                        var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
+                        for (var i in kecamatan_all) {
+                            kecamatan += '<option value="' + i + '">' + i + '</option>';
                         }
-                    });
-                } else {
-                    resolve();
-                }
-            })
-            .then(function() {
-                window.kecamatan_all = {};
-                alamat_global[tahun].map(function(b, i) {
-                    kecamatan_all[b.id_kec] = {
-                        nama: b.kecamatan,
-                        data: b.desa
-                    };
+                        jQuery('#kec').html(kecamatan);
+                        jQuery('#wrap-loading').hide();
+                        return resolve();
+                    }
                 });
-                var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
-                for (var i in kecamatan_all) {
-                    kecamatan += '<option value="' + i + '">' + kecamatan_all[i].nama + '</option>';
-                }
-                jQuery('#kec').html(kecamatan);
-                jQuery('#wrap-loading').hide();
-            });
+            } else {
+                return resolve();
+            }
+        })
     }
 
     function get_desa() {
@@ -319,10 +338,8 @@ foreach ($idtahun as $val) {
             return alert('Pilih kecamatan dulu!');
         }
         var desa = '<option value="-1">Pilih Desa</option>';
-        var desaData = kecamatan_all[kec].data;
-
-        for (var i in desaData) {
-            desa += '<option value="' + desaData[i].id_kel + '">' + desaData[i].desa + '</option>';
+        for (var ii in kecamatan_all[kec]) {
+            desa += '<option value="' + ii + '">' + ii + '</option>';
         }
         jQuery('#desa').html(desa);
     }

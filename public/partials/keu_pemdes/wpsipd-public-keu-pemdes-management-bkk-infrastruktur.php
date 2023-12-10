@@ -200,6 +200,44 @@ foreach ($idtahun as $val) {
         }
     }
 
+     function edit_data(_id) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_data_pencairan_bkk_by_id',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'id': _id,
+            },
+            success: function(res) {
+                if (res.status == 'success') {
+                    jQuery('#id_data').val(res.data.id).prop('disabled', false);
+                    jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
+                    get_kecamatan()
+                    .then(function() {
+                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
+                        jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
+                        jQuery('#kegiatan').val(res.data.kegiatan).prop('disabled', false);
+                        jQuery('#alamat').val(res.data.alamat).prop('disabled', false);
+                        get_data_sumber_dana()
+                        .then(function() {
+                            jQuery('#sumber_dana').val(res.data.sumber_dana).trigger('change').prop('disabled', false);
+                            jQuery('#total').val(res.data.total).prop('disabled', false);
+                            jQuery('#modalTambahDataBKK .send_data').show();
+                            jQuery('#modalTambahDataBKK').modal('show');
+                        });
+                    });
+                } else {
+                    alert(res.message);
+                    jQuery('#wrap-loading').hide();
+                }
+            }
+        });
+    }
+
+
     function edit_data(_id) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
@@ -214,15 +252,18 @@ foreach ($idtahun as $val) {
             success: function(res) {
                 if (res.status == 'success') {
                     jQuery('#id_data').val(res.data.id);
-                    jQuery('#tahun').val(res.data.tahun_anggaran).trigger('change').prop('disabled', true);
-                    jQuery('#kec').val(res.data.kecamatan).trigger('change');
-                    jQuery('#desa').val(res.data.desa).trigger('change');
-                    jQuery('#total').val(res.data.total);
-                    jQuery('#id_dana').val(res.data.id_dana);
-                    jQuery('#sumber_dana').val(res.data.sumber_dana);
-                    jQuery('#alamat').val(res.data.alamat);
-                    jQuery('#kegiatan').val(res.data.kegiatan);
-                    jQuery('#modalTambahDataBKK').modal('show');
+                    jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
+                    get_kecamatan()
+                    .then(function() {
+                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
+                        jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
+                        jQuery('#alamat').val(res.data.alamat).prop('disabled', false);
+                        jQuery('#kegiatan').val(res.data.kegiatan).prop('disabled', false);
+                            jQuery('#sumber_dana').val(res.data.sumber_dana).trigger('change').prop('disabled', false);
+                            jQuery('#total').val(res.data.total).prop('disabled', false);
+                            jQuery('#modalTambahDataBKK .send_data').show();
+                            jQuery('#modalTambahDataBKK').modal('show');
+                    });
                 } else {
                     alert(res.message);
                 }
@@ -234,6 +275,8 @@ foreach ($idtahun as $val) {
     //show tambah data
     function tambah_data_bkk() {
         jQuery('#id_data').val('').prop('disabled', false);
+        jQuery('#id_kecamatan').val('').prop('disabled', false);
+        jQuery('#id_desa').val('').prop('disabled', false);
         jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
         new Promise(function(resolve, reject) {
                 if ('<?php echo $input['tahun_anggaran']; ?>' != '') {
@@ -245,13 +288,13 @@ foreach ($idtahun as $val) {
                 }
             })
         .then(function() {
-        jQuery('#kec').val('').trigger('change').prop('disabled', false);
-        jQuery('#desa').val('').prop('disabled', false);
-        jQuery('#sumber_dana').val('');
-        jQuery('#total').val('');
-        jQuery('#kegiatan').val('');
-        jQuery('#alamat').val('');
-        jQuery('#modalTambahDataBKK').modal('show');
+            jQuery('#kec').val('').prop('disabled', false);
+            jQuery('#desa').val('').prop('disabled', false);
+            jQuery('#sumber_dana').val('');
+            jQuery('#total').val('');
+            jQuery('#kegiatan').val('');
+            jQuery('#alamat').val('');
+            jQuery('#modalTambahDataBKK').modal('show');
         });
     }
 
@@ -311,7 +354,8 @@ foreach ($idtahun as $val) {
                 'alamat': alamat,
                 'id_dana': id_dana,
                 'sumber_dana': sumber_dana,
-                'total': total
+                'total': total,
+                'tahun_anggaran': tahun
             },
             success: function(res) {
                 alert(res.message);
