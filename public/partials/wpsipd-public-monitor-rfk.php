@@ -203,8 +203,9 @@ foreach ($units as $k => $unit) :
 			unset($nama_keg[0]);
 			$nama_keg = implode(' ', $nama_keg);
             if(empty($kd_urusan90)){
-            	$kd_urusan90 = $_kd_urusan;
-            	$kd_bidang90 = $_kd_bidang;
+            	$bidang90 = explode('.', $sub['kode_sub_skpd']);
+            	$kd_urusan90 = $bidang90[0];
+            	$kd_bidang90 = $bidang90[1];
             }
 			$mapping = $this->simda->cekKegiatanMapping(array(
 				'kd_urusan90' => $kd_urusan90,

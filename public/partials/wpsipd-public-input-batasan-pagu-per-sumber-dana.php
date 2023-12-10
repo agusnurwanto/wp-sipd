@@ -37,6 +37,7 @@ foreach($sd as $val){
 				<th class="text-center">Nama Sumber Dana</th>
 				<th class="text-center">Batasan Pagu</th>
 				<th class="text-center">Pagu Terpakai</th>
+                <th class="text-center">Selisih</th>
 				<th class="text-center">Keterangan</th>
 				<th class="text-center" style="width: 150px;">Aksi</th>
 			</tr>
@@ -48,6 +49,7 @@ foreach($sd as $val){
                 <th colspan="2" class="text-center">Total</th>
                 <th id="total_batasan_pagu" class="text-right"></th>
                 <th id="total_pagu_terpakai" class="text-right"></th>
+                <th id="total_pagu_selisih" class="text-right"></th>
                 <th colspan="2"></th>
             </tr>
         </tfoot>
@@ -173,6 +175,7 @@ function get_data_batasan_pagu_sumberdana(){
             "drawCallback": function( settings ){
                 var total_batasan_pagu = 0;
                 var total_pagu_terpakai = 0;
+                var total_pagu_selisih = 0;
                 settings.json.data.map(function(b, i){
                     var pagu_terpakai = 0;
                     if(b.pagu_terpakai){
@@ -181,14 +184,18 @@ function get_data_batasan_pagu_sumberdana(){
                     var nilai_batasan = +(b.nilai_batasan.replace(/\./g, ''));
                     total_batasan_pagu += nilai_batasan;
                     total_pagu_terpakai += pagu_terpakai;
+                    total_pagu_selisih += +(b.pagu_selisih.replace(/\./g, ''));
                     if(pagu_terpakai > nilai_batasan){
                         jQuery('#data_sumberdana_table > tbody > tr').eq(i).css('background', '#ffc1c1');
+                        jQuery('#data_sumberdana_table > tbody > tr').eq(i).attr('title', 'Pagu sumber danan terpakai lebih besar dari batasan pagu sumber dana!')
                     }
                 });
                 jQuery('#sumberdana_unset tbody').html(settings.json.sd_unset);
 
                 jQuery('#total_batasan_pagu').html(formatRupiah(total_batasan_pagu));
                 jQuery('#total_pagu_terpakai').html(formatRupiah(total_pagu_terpakai));
+                console.log('total_pagu_selisih', total_pagu_selisih, formatRupiah(total_pagu_selisih));
+                jQuery('#total_pagu_selisih').html(formatRupiah(total_pagu_selisih));
                 jQuery('#total_pagu_terpakai_unset').html(settings.json.sd_unset_total);
 
                 if(settings.json.sd_unset == ""){
@@ -220,6 +227,10 @@ function get_data_batasan_pagu_sumberdana(){
                 },
                 {
                     "data": 'pagu_terpakai',
+                    className: "text-right"
+                },
+                {
+                    "data": 'pagu_selisih',
                     className: "text-right"
                 },
                 {
