@@ -41,7 +41,7 @@ $nama_excel = "Halaman Setting Batasan Pagu Sumber Dana ".$input['tahun_anggaran
 				<th class="text-center">Pagu Terpakai</th>
                 <th class="text-center">Selisih</th>
 				<th class="text-center">Keterangan</th>
-				<th class="text-center" style="width: 150px;">Aksi</th>
+				<th class="text-center hide-excel" style="width: 150px;">Aksi</th>
 			</tr>
 		</thead>
 		<tbody id="data_body">
@@ -63,7 +63,7 @@ $nama_excel = "Halaman Setting Batasan Pagu Sumber Dana ".$input['tahun_anggaran
                 <th class="text-center">Kode Sumber Dana</th>
                 <th class="text-center">Nama Sumber Dana</th>
                 <th class="text-center">Pagu</th>
-                <th class="text-center" style="width: 150px;">Aksi</th>
+                <th class="text-center hide-excel" style="width: 150px;">Aksi</th>
             </tr>
         </thead>
         <tbody>

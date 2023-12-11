@@ -209,6 +209,7 @@ foreach($data_skpd as $skpd){
     jQuery(document).ready(function(){
         run_download_excel();
         var action = ''
+            +'<button class="btn btn-info ml-2" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Print</button>'
             +'<h3 style="margin-top: 20px;">SETTING</h3><label><input type="checkbox" onclick="show_pagu_tidak_sama(this);"/> Tampilkan hanya pagu yang tidak sama antara total sub kegiatan dan total sumber dana</label>'
         jQuery('#action-sipd').append(action);
     });
