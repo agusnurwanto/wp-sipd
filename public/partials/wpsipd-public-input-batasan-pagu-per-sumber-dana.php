@@ -23,11 +23,13 @@ foreach($sd as $val){
 	$select_sd .= "<option value='$val[id_dana]' kode_dana='$val[kode_dana]' nama_dana='$val[nama_dana]'>$val[kode_dana] $val[nama_dana]</option>";
 }
 
+$nama_excel = "Halaman Setting Batasan Pagu Sumber Dana ".$input['tahun_anggaran'];
+
 ?>
-<div style="padding: 10px; margin:0 0 3rem 0;">
+<div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 10px; margin:0 0 3rem 0;">
 	<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-	<h1 class="text-center" style="margin:3rem;">Halaman Setting Batasan Pagu Sumber Dana <?php echo $input['tahun_anggaran']; ?></h1>
-    <div style="margin-bottom: 25px;">
+	<h1 class="text-center" style="margin:3rem;"><?php echo $nama_excel ?></h1>
+    <div style="margin-bottom: 25px;" class="hide-excel">
         <button class="btn btn-primary" onclick="tambah_data_batasan_pagu();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
     </div>
 	<table id="data_sumberdana_table" cellpadding="2" cellspacing="0" class="table table-bordered">
@@ -137,6 +139,7 @@ foreach($sd as $val){
 </div>
 <script>    
 jQuery(document).ready(function(){
+    run_download_excel();
     get_data_batasan_pagu_sumberdana();
     jQuery('#sumber_dana').select2({
     	width: '100%',
@@ -157,7 +160,7 @@ function get_data_batasan_pagu_sumberdana(){
         window.databatasanpagu = jQuery('#data_sumberdana_table').on('preXhr.dt', function(e, settings, data){
             jQuery("#wrap-loading").show();
         }).DataTable({
-            "processing": true,
+            // "processing": true,
             "serverSide": true,
             "ajax": {
                 url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -212,6 +215,9 @@ function get_data_batasan_pagu_sumberdana(){
                 {orderable: false, targets: 4},
                 {orderable: false, targets: 5}
             ],
+            searching: false,
+            paging: false,
+            info: false,
             "columns": [
                 {
                     "data": 'kode_dana',
