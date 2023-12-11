@@ -223,6 +223,9 @@ echo '</div>
 
     jQuery(document).ready(function(){
         run_download_excel();
+        var action = ''
+            +'<button class="btn btn-info ml-2" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Print</button>'
+        jQuery('#action-sipd').append(action);
     });
 
     /** modal menampilkan analisis sumber dana */

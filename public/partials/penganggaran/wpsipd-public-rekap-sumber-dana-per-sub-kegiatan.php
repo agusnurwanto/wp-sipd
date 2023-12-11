@@ -161,7 +161,6 @@ foreach($data_skpd as $skpd){
             }
 	    	$body .= '
 	    		<tr data-kodesbl="'.$sub['kode_sbl'].'" '.$warning.' '.$title.'>
-	    			<td>'.$rincian['kode_dana'].' '.$rincian['nama_dana'].'</td>
 	    			<td>'.$sub['kode_urusan'].' '.$sub['nama_urusan'].'</td>
 	    			<td>'.$sub['kode_skpd'].' '.$sub['nama_skpd'].'</td>
 	    			<td>'.$sub['kode_bidang_urusan'].' '.$sub['nama_bidang_urusan'].'</td>
@@ -170,6 +169,7 @@ foreach($data_skpd as $skpd){
 	    			<td>'.$sub['kode_giat'].' '.$sub['nama_giat'].'</td>
 	    			<td>'.$sub['nama_sub_giat'].'</td>
 	    			<td class="text-right">'.$this->_number_format($rincian['total']).'</td>
+	    			<td>'.$rincian['kode_dana'].' '.$rincian['nama_dana'].'</td>
 	    		</tr>
 	    	';
 	    	$total_all += $rincian['total'];
@@ -182,7 +182,6 @@ foreach($data_skpd as $skpd){
 	<table class="table table-bordered" id="tabel-data">
 		<thead>
 			<tr>
-				<th class="text-center">Sumber Dana</th>
 				<th class="text-center">Urusan</th>
 				<th class="text-center">OPD</th>
 				<th class="text-center">Bidang Urusan</th>
@@ -191,6 +190,7 @@ foreach($data_skpd as $skpd){
 				<th class="text-center">Kegiatan</th>
 				<th class="text-center">Sub Kegiatan</th>
 				<th class="text-center">Rincian </th>
+				<th class="text-center">Sumber Dana</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -198,8 +198,9 @@ foreach($data_skpd as $skpd){
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colspan="8" class="text-center">Total</th>
+				<th colspan="7" class="text-center">Total</th>
 				<th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
+                <th></th>
 			</tr>
 		</tfoot>
 	</table>
@@ -208,6 +209,7 @@ foreach($data_skpd as $skpd){
     jQuery(document).ready(function(){
         run_download_excel();
         var action = ''
+            +'<button class="btn btn-info ml-2" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Print</button>'
             +'<h3 style="margin-top: 20px;">SETTING</h3><label><input type="checkbox" onclick="show_pagu_tidak_sama(this);"/> Tampilkan hanya pagu yang tidak sama antara total sub kegiatan dan total sumber dana</label>'
         jQuery('#action-sipd').append(action);
     });
