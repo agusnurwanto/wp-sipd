@@ -878,6 +878,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_tambah_data_bku_add', $plugin_public, 'tambah_data_bku_add');
 		
 		$this->loader->add_action('wp_ajax_get_pemdes_bkk', $plugin_public, 'get_pemdes_bkk');
+		$this->loader->add_action('wp_ajax_get_pemdes_bkk_pilkades', $plugin_public, 'get_pemdes_bkk_pilkades');
+		$this->loader->add_action('wp_ajax_get_pemdes_bhpd', $plugin_public, 'get_pemdes_bhpd');
+		$this->loader->add_action('wp_ajax_get_pemdes_bhrd', $plugin_public, 'get_pemdes_bhrd');
+		$this->loader->add_action('wp_ajax_get_pemdes_bku_dd', $plugin_public, 'get_pemdes_bku_dd');
+		$this->loader->add_action('wp_ajax_get_pemdes_bku_add', $plugin_public, 'get_pemdes_bku_add');
 		
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bkk', $plugin_public, 'get_pencairan_pemdes_bkk');
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bkk_pilkades', $plugin_public, 'get_pencairan_pemdes_bkk_pilkades');

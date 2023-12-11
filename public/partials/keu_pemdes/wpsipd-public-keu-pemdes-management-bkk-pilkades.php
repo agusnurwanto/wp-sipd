@@ -9,7 +9,7 @@ if (!empty($_GET) && !empty($_GET['tahun_anggaran'])) {
 }
 
 $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
-$tahun = "<option>Pilih Tahun</option>";
+$tahun = "<option value='-1'>Pilih Tahun</option>";
 foreach ($idtahun as $val) {
     $selected = '';
     if (!empty($input['tahun_anggaran']) && $val['tahun_anggaran'] == $input['tahun_anggaran']) {
@@ -81,7 +81,7 @@ foreach ($idtahun as $val) {
                 </div>
                 <div class="form-group">
                     <label for='total' style='display:inline-block'>Total</label>
-                    <input type="text" id='total' name="total" class="form-control" placeholder='' />
+                    <input type="text" id='total' name="total" class="form-control total" placeholder='' />
                 </div>
             </div>
             <div class="modal-footer">
@@ -95,6 +95,12 @@ foreach ($idtahun as $val) {
     jQuery(document).ready(function() {
         get_data_bkk_pilkades();
         window.alamat_global = {};
+
+        jQuery('.total').on('input', function() {
+            var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+            var formatted = formatRupiah(sanitized);
+            jQuery(this).val(formatted);
+        });
     });
 
     function get_data_bkk_pilkades() {
@@ -151,6 +157,13 @@ foreach ($idtahun as $val) {
         }
     }
 
+    function formatRupiah(angka) {
+        var reverse = angka.toString().split('').reverse().join('');
+        var thousands = reverse.match(/\d{1,3}/g);
+        var formatted = thousands.join('.').split('').reverse().join('');
+        return formatted;
+    }
+
     function hapus_data(id) {
         let confirmDelete = confirm("Apakah anda yakin akan menghapus data ini?");
         if (confirmDelete) {
@@ -195,7 +208,7 @@ foreach ($idtahun as $val) {
                     .then(function() {
                         jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
                         jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
-                            jQuery('#total').val(res.data.total).prop('disabled', false);
+                            jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
                             jQuery('#modalTambahDataBKKPilkades .send_data').show();
                             jQuery('#modalTambahDataBKKPilkades').modal('show');
                     });
@@ -225,7 +238,7 @@ foreach ($idtahun as $val) {
         .then(function() {
             jQuery('#kec').val('').prop('disabled', false);
             jQuery('#desa').val('').prop('disabled', false);
-            jQuery('#total').val('');
+            jQuery('#total').val('').trigger('change');
             jQuery('#modalTambahDataBKKPilkades').modal('show');
         });
     }
@@ -245,7 +258,7 @@ foreach ($idtahun as $val) {
         }
         var kecamatan = jQuery("#kec option:selected").text();
 
-        var total = jQuery('#total').val();
+        var total = jQuery('#total').val().replace(/\./g, '');
         if (total == '') {
             return alert('Data total tidak boleh kosong!');
         }
@@ -300,7 +313,7 @@ foreach ($idtahun as $val) {
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     type: "post",
                     data: {
-                        'action': "get_pemdes_bkk",
+                        'action': "get_pemdes_alamat",
                         'api_key': jQuery("#api_key").val(),
                         'tahun_anggaran': tahun
                     },

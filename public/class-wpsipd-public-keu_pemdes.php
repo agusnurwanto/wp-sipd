@@ -632,7 +632,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                         nama as kecamatan 
                     from data_alamat 
                     where tahun=%d 
-                        and is_kec=1 
                         and id_kab=" . $id_kab . "
                 ", $_POST['tahun']), ARRAY_A);
                 $data = $all_kec;
@@ -643,7 +642,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                             nama as desa
                         from data_alamat 
                         where tahun=%d
-                            and is_kel=1 
                             and id_kab=" . $id_kab . " 
                             and id_kec=" . $kec['id_kec'] . "
                     ", $_POST['tahun']), ARRAY_A);
@@ -2459,6 +2457,50 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
+
+    public function get_pemdes_bhpd()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (!empty($_POST['nama_kec'])) {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bhpd_desa
+                        WHERE tahun_anggaran=%d
+                            AND kecamatan=%s
+                    ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+                } else {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bhpd_desa
+                        WHERE tahun_anggaran=%d
+                    ", $_POST['tahun_anggaran']), ARRAY_A);
+                }
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
     public function get_pencairan_pemdes_bhpd($return = false)
     {
         global $wpdb;
@@ -3188,6 +3230,49 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
         die(json_encode($return));
     }
 
+    public function get_pemdes_bhrd()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (!empty($_POST['nama_kec'])) {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bhrd_desa
+                        WHERE tahun_anggaran=%d
+                            AND kecamatan=%s
+                    ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+                } else {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bhrd_desa
+                        WHERE tahun_anggaran=%d
+                    ", $_POST['tahun_anggaran']), ARRAY_A);
+                }
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
     public function get_pencairan_pemdes_bhrd($return = false)
     {
         global $wpdb;
@@ -3900,6 +3985,39 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
         die(json_encode($return));
     }
 
+    public function get_pemdes_bku_dd()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bku_dd_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
     public function get_pencairan_pemdes_bku_dd($return = false)
     {
         global $wpdb;
@@ -4237,6 +4355,49 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
             );
         }
         die(json_encode($return));
+    }
+
+    public function get_pemdes_bku_add()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (!empty($_POST['nama_kec'])) {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bku_add_desa
+                        WHERE tahun_anggaran=%d
+                            AND kecamatan=%s
+                    ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+                } else {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bku_add_desa
+                        WHERE tahun_anggaran=%d
+                    ", $_POST['tahun_anggaran']), ARRAY_A);
+                }
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
     }
 
     public function get_pencairan_pemdes_bku_add($return = false)
@@ -4792,6 +4953,49 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
             );
         }
         die(json_encode($return));
+    }
+
+    public function get_pemdes_bkk_pilkades()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (!empty($_POST['nama_kec'])) {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bkk_pilkades_desa
+                        WHERE tahun_anggaran=%d
+                            AND kecamatan=%s
+                    ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+                } else {
+                    $data = $wpdb->get_results($wpdb->prepare("
+                        SELECT
+                            *
+                        FROM data_bkk_pilkades_desa
+                        WHERE tahun_anggaran=%d
+                    ", $_POST['tahun_anggaran']), ARRAY_A);
+                }
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
     }
 
     public function get_pencairan_pemdes_bkk_pilkades($return = false)

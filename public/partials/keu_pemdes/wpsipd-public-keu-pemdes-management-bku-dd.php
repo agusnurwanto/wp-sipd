@@ -30,7 +30,7 @@ foreach ($idtahun as $val) {
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU DD</h1>
+        <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU ADD</h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -81,7 +81,7 @@ foreach ($idtahun as $val) {
                 </div>
                 <div class="form-group">
                     <label for='total' style='display:inline-block'>Total</label>
-                    <input type="text" id='total' name="total" class="form-control" placeholder='' />
+                    <input type="text" id='total' name="total" class="form-control total" placeholder='' />
                 </div>
             </div>
             <div class="modal-footer">
@@ -95,6 +95,12 @@ foreach ($idtahun as $val) {
     jQuery(document).ready(function() {
         get_data_bku_dd();
         window.alamat_global = {};
+
+        jQuery('.total').on('input', function() {
+            var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+            var formatted = formatRupiah(sanitized);
+            jQuery(this).val(formatted);
+        });
     });
 
     function get_data_bku_dd() {
@@ -151,6 +157,13 @@ foreach ($idtahun as $val) {
         }
     }
 
+    function formatRupiah(angka) {
+        var reverse = angka.toString().split('').reverse().join('');
+        var thousands = reverse.match(/\d{1,3}/g);
+        var formatted = thousands.join('.').split('').reverse().join('');
+        return formatted;
+    }
+
     function hapus_data(id) {
         let confirmDelete = confirm("Apakah anda yakin akan menghapus data ini?");
         if (confirmDelete) {
@@ -195,7 +208,7 @@ foreach ($idtahun as $val) {
                     .then(function() {
                         jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
                         jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
-                            jQuery('#total').val(res.data.total).prop('disabled', false);
+                            jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
                             jQuery('#modalTambahDataBKUDD .send_data').show();
                             jQuery('#modalTambahDataBKUDD').modal('show');
                     });
@@ -225,7 +238,7 @@ foreach ($idtahun as $val) {
         .then(function() {
             jQuery('#kec').val('').prop('disabled', false);
             jQuery('#desa').val('').prop('disabled', false);
-            jQuery('#total').val('');
+            jQuery('#total').val('').trigger('change');
             jQuery('#modalTambahDataBKUDD').modal('show');
         });
     }
@@ -245,7 +258,7 @@ foreach ($idtahun as $val) {
         }
         var kecamatan = jQuery("#kec option:selected").text();
 
-        var total = jQuery('#total').val();
+        var total = jQuery('#total').val().replace(/\./g, '');
         if (total == '') {
             return alert('Data total tidak boleh kosong!');
         }
@@ -300,7 +313,7 @@ foreach ($idtahun as $val) {
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     type: "post",
                     data: {
-                        'action': "get_pemdes_bkk",
+                        'action': "get_pemdes_alamat",
                         'api_key': jQuery("#api_key").val(),
                         'tahun_anggaran': tahun
                     },
