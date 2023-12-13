@@ -594,10 +594,10 @@ body.one-content-column-version .content thead {
                 <a>Get SKPD</a>
             </li>
             <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
-                <a>Get sub keg by id skpd</a>
+                <a>Get SUB KEGIATAN by id skpd</a>
             </li>
             <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
-                <a>Get rka by kode sbl</a>
+                <a>Get RKA by kode sbl</a>
             </li>
             <li class="scroll-to-link" data-target="content-errors">
                 <a>Errors</a>
@@ -615,9 +615,9 @@ body.one-content-column-version .content thead {
     <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
 
     <?php 
-    $key = 'BELUM LOGIN';
+    $key = 'diperlukan';
     if (is_user_logged_in() == 1 ){
-        $key = 'LOGIN';
+        $key = get_option( '_crb_api_key_extension' );
     }?>
     API key = <?php echo $key; ?>
                 </pre>
@@ -642,7 +642,7 @@ body.one-content-column-version .content thead {
 # Here is a curl example
 curl \
 -X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
--F 'api_key=your_api_key' \
+-F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_skpd' \
 -F 'tahun_anggaran=2023' \
                 </code>
@@ -783,7 +783,7 @@ curl \
 # Here is a curl example
 curl \
 -X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
--F 'api_key=your_api_key' \
+-F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_sub_keg_sipd' \
 -F 'tahun_anggaran=2023' \
 -F 'id_skpd=2023' \
@@ -1078,7 +1078,7 @@ curl \
 # Here is a curl example
 curl \
 -X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
--F 'api_key=your_api_key' \
+-F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_sub_keg_rka_sipd' \
 -F 'tahun_anggaran=2023' \
 -F 'id_skpd=2023' \
