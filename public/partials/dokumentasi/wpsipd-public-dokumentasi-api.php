@@ -1172,7 +1172,7 @@ curl \
                                 kode_sbl                                
                             </td>
                             <td>
-                                Angka
+                                String
                             </td>
                             <td>
                                 Bidang spesifik yang akan dilakukan pencarian atau filter berdasarkan kode belanja RKA
