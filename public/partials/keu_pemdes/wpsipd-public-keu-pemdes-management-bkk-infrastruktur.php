@@ -69,7 +69,7 @@ foreach ($idtahun as $val) {
                 <input type='hidden' id='id_data' name="id_data" placeholder=''>
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
-                    <select class="form-control" id="tahun" onchange="get_kecamatan(); get_data_sumber_dana()">
+                    <select class="form-control" id="tahun_anggaran" onchange="get_kecamatan();">
                         <?php echo $tahun_options ?>
                     </select>
                 </div>
@@ -98,7 +98,7 @@ foreach ($idtahun as $val) {
                 </div>
                 <div class="form-group">
                     <label for='total' style='display:inline-block'>Total</label>
-                    <input type="text" id='total' name="total" class="form-control total" placeholder='' />
+                    <input type="text" id='total' name="total" class="form-control" placeholder='' />
                 </div>
             </div>
             <div class="modal-footer">
@@ -112,12 +112,6 @@ foreach ($idtahun as $val) {
     jQuery(document).ready(function() {
         get_data_bkk();
         window.alamat_global = {};
-
-        jQuery('.total').on('input', function() {
-            var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
-            var formatted = formatRupiah(sanitized);
-            jQuery(this).val(formatted);
-        });
     });
 
     function get_data_bkk() {
@@ -181,13 +175,6 @@ foreach ($idtahun as $val) {
         }
     }
 
-    function formatRupiah(angka) {
-        var reverse = angka.toString().split('').reverse().join('');
-        var thousands = reverse.match(/\d{1,3}/g);
-        var formatted = thousands.join('.').split('').reverse().join('');
-        return formatted;
-    }
-
     function hapus_data(id) {
         let confirmDelete = confirm("Apakah anda yakin akan menghapus data ini?");
         if (confirmDelete) {
@@ -227,18 +214,16 @@ foreach ($idtahun as $val) {
             success: function(res) {
                 if (res.status == 'success') {
                     jQuery('#id_data').val(res.data.id);
-                    jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
-                    get_kecamatan()
-                    .then(function() {
-                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
-                        jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
-                        jQuery('#alamat').val(res.data.alamat).prop('disabled', false);
-                        jQuery('#kegiatan').val(res.data.kegiatan).prop('disabled', false);
-                            jQuery('#sumber_dana').val(res.data.sumber_dana).trigger('change').prop('disabled', false);
-                            jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
-                            jQuery('#modalTambahDataBKK .send_data').show();
-                            jQuery('#modalTambahDataBKK').modal('show');
-                    });
+                    jQuery('#id_kecamatan').val(res.data.id_kecamatan);
+                    jQuery('#id_desa').val(res.data.id_desa);
+                    jQuery('#kecamatan').val(res.data.kecamatan);
+                    jQuery('#desa').val(res.data.desa);
+                    jQuery('#total').val(res.data.total);
+                    jQuery('#id_dana').val(res.data.id_dana);
+                    jQuery('#sumber_dana').val(res.data.sumber_dana);
+                    jQuery('#alamat').val(res.data.alamat);
+                    jQuery('#kegiatan').val(res.data.kegiatan);
+                    jQuery('#modalTambahDataBKK').modal('show');
                 } else {
                     alert(res.message);
                 }
@@ -249,28 +234,16 @@ foreach ($idtahun as $val) {
 
     //show tambah data
     function tambah_data_bkk() {
-        jQuery('#id_data').val('').prop('disabled', false);
-        jQuery('#id_kecamatan').val('').prop('disabled', false);
-        jQuery('#id_desa').val('').prop('disabled', false);
-        jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
-        new Promise(function(resolve, reject) {
-                if ('<?php echo $input['tahun_anggaran']; ?>' != '') {
-                    get_kecamatan().then(function() {
-                        resolve();
-                    });
-                } else {
-                    resolve();
-                }
-            })
-        .then(function() {
-            jQuery('#kec').val('').prop('disabled', false);
-            jQuery('#desa').val('').prop('disabled', false);
-            jQuery('#sumber_dana').val('');
-            jQuery('#total').val('').trigger('change');
-            jQuery('#kegiatan').val('');
-            jQuery('#alamat').val('');
-            jQuery('#modalTambahDataBKK').modal('show');
-        });
+        jQuery('#id_data').val('');
+        jQuery('#id_kecamatan').val('');
+        jQuery('#id_desa').val('');
+        jQuery('#id_dana').val('');
+        jQuery('#sumber_dana').val('');
+        jQuery('#kecamatan').val('');
+        jQuery('#desa').val('');
+        jQuery('#total').val('');
+        jQuery('#tahun_anggaran').val('');
+        jQuery('#modalTambahDataBKK').modal('show');
     }
 
     function submitTambahDataFormBKK() {
@@ -302,13 +275,13 @@ foreach ($idtahun as $val) {
         }
         var sumber_dana = jQuery("#sumber_dana option:selected").text();
 
-        var total = jQuery('#total').val().replace(/\./g, '');
+        var total = jQuery('#total').val();
         if (total == '') {
             return alert('Data total tidak boleh kosong!');
         }
 
-        var tahun = jQuery('#tahun').val();
-        if (tahun == '') {
+        var tahun_anggaran = jQuery('#tahun_anggaran').val();
+        if (tahun_anggaran == '') {
             return alert('Data tahun anggaran tidak tidak boleh kosong!');
         }
 
@@ -330,7 +303,7 @@ foreach ($idtahun as $val) {
                 'id_dana': id_dana,
                 'sumber_dana': sumber_dana,
                 'total': total,
-                'tahun_anggaran': tahun
+                'tahun_anggaran': tahun_anggaran,
             },
             success: function(res) {
                 alert(res.message);
@@ -344,17 +317,11 @@ foreach ($idtahun as $val) {
         });
     }
 
-    function get_data_sumber_dana() {
-        return new Promise(function(resolve, reject) {
-            var tahun = jQuery('#tahun').val();
-            if (tahun == '' || tahun == '-1') {
-                alert('Pilih tahun anggaran dulu!');
-                return resolve();
-            }
-            if (typeof sumber_dana_global == 'undefined') {
-                window.sumber_dana_global = {};
-            }
-
+    function get_sumber_dana(tahun){
+        if(typeof window.sumber_dana_global == 'undefined'){
+            window.sumber_dana_global = {};
+        }
+        new Promise(function(resolve, reject) {
             if (!sumber_dana_global[tahun]) {
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
@@ -363,38 +330,34 @@ foreach ($idtahun as $val) {
                     data: {
                         'action': "get_sumber_dana_desa",
                         'api_key': jQuery("#api_key").val(),
-                        'tahun_anggaran': tahun 
+                        'tahun': tahun
                     },
                     dataType: "json",
                     success: function(response) {
-                        window.sumber_dana_global[tahun] = response.data;
-                        jQuery("#wrap-loading").hide();
-                        var html = '<option value="">Pilih Sumber Dana</option>';
-                        sumber_dana_global[tahun].map(function(value, index){
-                            html += '<option value="' + value.id_dana + '">' + value.kode_dana+' ' +value.nama_dana+ '</option>';
-                        })
-                        jQuery('#sumber_dana').html(html);
-                        jQuery('#wrap-loading').hide();
-                        return resolve();
+                        sumber_dana_global[tahun] = response.data;
+                        resolve();
                     }
                 });
             } else {
-                return resolve();
+                resolve();
             }
         })
+        .then(function() {
+            var html = '<option value="-1">Pilih Sumber Dana</option>';
+            sumber_dana_global[tahun].map(function(b, i){
+                html += '<option value="' + b.id_dana + '">' + b.kode_dana+' ' +b.nama_dana+ '</option>';
+            });
+            jQuery('#sumber_dana').html(html);
+        });
     }
 
     function get_kecamatan() {
-        return new Promise(function(resolve, reject) {
-            var tahun = jQuery('#tahun').val();
-            if (tahun == '' || tahun == '-1') {
-                alert('Pilih tahun anggaran dulu!');
-                return resolve();
-            }
-            if (typeof alamat_global == 'undefined') {
-                window.alamat_global = {};
-            }
-
+        var tahun = jQuery('#tahun_anggaran').val();
+        if (tahun == '' || tahun == '-1') {
+            return alert('Pilih tahun anggaran dulu!');
+        }
+        get_sumber_dana(tahun);
+        new Promise(function(resolve, reject) {
             if (!alamat_global[tahun]) {
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
@@ -403,34 +366,33 @@ foreach ($idtahun as $val) {
                     data: {
                         'action': "get_pemdes_alamat",
                         'api_key': jQuery("#api_key").val(),
-                        'tahun_anggaran': tahun
+                        'tahun': tahun
                     },
                     dataType: "json",
                     success: function(response) {
                         alamat_global[tahun] = response.data;
-                        window.kecamatan_all = {};
-                        alamat_global[tahun].map(function(b, i) {
-                            if (!kecamatan_all[b.kecamatan]) {
-                                kecamatan_all[b.kecamatan] = {};
-                            }
-                            if (!kecamatan_all[b.kecamatan][b.desa]) {
-                                kecamatan_all[b.kecamatan][b.desa] = [];
-                            }
-                            kecamatan_all[b.kecamatan][b.desa].push(b);
-                        });
-                        var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
-                        for (var i in kecamatan_all) {
-                            kecamatan += '<option value="' + i + '">' + i + '</option>';
-                        }
-                        jQuery('#kec').html(kecamatan);
-                        jQuery('#wrap-loading').hide();
-                        return resolve();
+                        resolve();
                     }
                 });
             } else {
-                return resolve();
+                resolve();
             }
         })
+        .then(function() {
+            window.kecamatan_all = {};
+            alamat_global[tahun].map(function(b, i) {
+                kecamatan_all[b.id_kec] = {
+                    nama: b.kecamatan,
+                    data: b.desa
+                };
+            });
+            var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
+            for (var i in kecamatan_all) {
+                kecamatan += '<option value="' + i + '">' + kecamatan_all[i].nama + '</option>';
+            }
+            jQuery('#kec').html(kecamatan);
+            jQuery('#wrap-loading').hide();
+        });
     }
 
     function get_desa() {
@@ -439,8 +401,10 @@ foreach ($idtahun as $val) {
             return alert('Pilih kecamatan dulu!');
         }
         var desa = '<option value="-1">Pilih Desa</option>';
-        for (var ii in kecamatan_all[kec]) {
-            desa += '<option value="' + ii + '">' + ii + '</option>';
+        var desaData = kecamatan_all[kec].data;
+
+        for (var i in desaData) {
+            desa += '<option value="' + desaData[i].id_kel + '">' + desaData[i].desa + '</option>';
         }
         jQuery('#desa').html(desa);
     }
