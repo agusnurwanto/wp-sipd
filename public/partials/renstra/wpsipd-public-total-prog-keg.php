@@ -169,7 +169,7 @@ foreach($tujuan as $k => $tuj){
                     where id_unik_indikator IS NULL
                         AND active=1
                         AND kode_kegiatan=%s
-                ", $keg['id_unik']));
+                ", $keg['id_unik']), ARRAY_A);
                 foreach ($sub_keg as $sub) {
                     if(empty($data_all_renstra[$prog['nama_program']]['data'][$keg['nama_giat']]['data'][$sub['nama_sub_giat']])){
                         $data_all_renstra[$prog['nama_program']]['data'][$keg['nama_giat']]['data'][$sub['nama_sub_giat']] = array(
@@ -309,7 +309,7 @@ foreach ($data_all_renstra as $program) {
             <tr>    
                 <th class="atas kiri kanan bawah text_tengah" style="width:40px;">No</th>
                 <th class="atas kiri kanan bawah text_tengah">Nama Program</th>
-                <th class="atas kiri kanan bawah text_tengah" style="width:60px;">Jumlah</th>
+                <th class="atas kiri kanan bawah text_tengah" style="width:70px;">Jumlah</th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+1; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+2; ?></th>
@@ -334,7 +334,7 @@ foreach ($data_all_renstra as $program) {
             <tr>    
                 <th class="atas kiri kanan bawah text_tengah" style="width:40px;">No</th>
                 <th class="atas kiri kanan bawah text_tengah">Nama Kegiatan</th>
-                <th class="atas kiri kanan bawah text_tengah" style="width:60px;">Jumlah</th>
+                <th class="atas kiri kanan bawah text_tengah" style="width:70px;">Jumlah</th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+1; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+2; ?></th>
@@ -359,7 +359,7 @@ foreach ($data_all_renstra as $program) {
             <tr>    
                 <th class="atas kiri kanan bawah text_tengah" style="width:40px;">No</th>
                 <th class="atas kiri kanan bawah text_tengah">Nama Sub Kegiatan</th>
-                <th class="atas kiri kanan bawah text_tengah" style="width:60px;">Jumlah</th>
+                <th class="atas kiri kanan bawah text_tengah" style="width:70px;">Jumlah</th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+1; ?></th>
                 <th class="atas kiri kanan bawah text_tengah" style="width:140px;">Pagu Tahun <?php echo $jadwal_lokal->tahun_anggaran+2; ?></th>
