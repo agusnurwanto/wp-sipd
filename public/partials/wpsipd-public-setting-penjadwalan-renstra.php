@@ -47,6 +47,10 @@ if(!empty($data_rpd_rpjm)){
 	}
 }
 
+$title = 'Rekap Total Program, Kegiatan, Sub Kegiatan RENSTRA';
+$shortcode = '[rekap_total_prog_keg_renstra]';
+$rekap_total_prog_keg_renstra = $this->generatePage($title, false, $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -522,6 +526,7 @@ $body = '';
 					      			<option value="rekap">Format Rekap Renstra</option>
 					      			<option value="tc27">Format TC 27</option>
 					      			<option value="pagu_akumulasi">Format Pagu Akumulasi Per Unit Kerja</option>
+					      			<option value="total_prog_keg">Total Program Kegiatan</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -614,6 +619,10 @@ $body = '';
 
 			case 'pagu_akumulasi':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_akumulasi_renstra', 'Laporan Pagu Akumulasi Per Unit Kerja');
+				break;
+
+			case 'total_prog_keg':
+				window.open('<?php echo $rekap_total_prog_keg_renstra; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case '-':
