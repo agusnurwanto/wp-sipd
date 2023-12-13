@@ -3,6 +3,13 @@ require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-ssh.php";
 
 class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 {
+
+    public function rekap_total_prog_keg_renstra($atts){
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-total-prog-keg.php';
+    }
 	
 	protected function role(){
 		$user_id = um_user( 'ID' );
