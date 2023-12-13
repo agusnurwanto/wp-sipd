@@ -171,15 +171,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
             return '';
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk-pilkades.php';
-    }   
-
-    public function desa_per_jenis_keuangan($atts)
-    {
-        // untuk disable render shortcode di halaman edit page/post
-        if(!empty($_GET) && !empty($_GET['post'])){
-            return '';
-        }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-keu-pemdes-desa-per-jenis-keuangan.php';
     }
 
     public function get_data_bkk_infrastruktur_by_id()
@@ -288,6 +279,9 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                 } else if (empty($_POST['sumber_dana'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
                 } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
                     $total = $_POST['total'];
@@ -652,7 +646,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                     ", $_POST['tahun']), ARRAY_A);
                     $data[$key]['desa'] = $desa;
                 }
-                // print_r($all_kec); die($wpdb->last_query);
                 $ret['data'] = $data;
             } else {
                 $ret = array(
@@ -5474,10 +5467,9 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                         nama_dana
                     FROM data_sumber_dana 
                     WHERE active = 1
-                        AND tahun=%d
+                        AND tahun_anggaran=%d
                         AND set_input='Ya'
-                ", $_POST['tahun_anggaran']), ARRAY_A);
-            // print_r($ret['data']); die($wpdb->last_query);
+                ", $_POST['tahun']), ARRAY_A);
             } else {
                 $ret = array(
                     'status' => 'error',

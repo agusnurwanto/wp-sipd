@@ -3984,7 +3984,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a>$pindah</td>
                             </tr>
                         ";
-                        $sd_unset_total += $sd[total];
+                        $sd_unset_total += $sd['total'];
                     }
 
 					$json_data = array(
