@@ -171,6 +171,15 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
             return '';
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk-pilkades.php';
+    }   
+
+    public function desa_per_jenis_keuangan($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if(!empty($_GET) && !empty($_GET['post'])){
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-keu-pemdes-desa-per-jenis-keuangan.php';
     }
 
     public function get_data_bkk_infrastruktur_by_id()
@@ -279,9 +288,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                 } else if (empty($_POST['sumber_dana'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
-                } else if (empty($_POST['tahun_anggaran'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
                 } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
                     $total = $_POST['total'];
@@ -552,9 +558,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                 } else if (empty($_POST['total'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data total tidak boleh kosong!';
-                } else if (empty($_POST['tahun_anggaran'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
                 } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
                     $total = $_POST['total'];
@@ -631,7 +634,7 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                     where tahun=%d 
                         and is_kec=1 
                         and id_kab=" . $id_kab . "
-                ", $_POST['tahun']), ARRAY_A);
+                ", $_POST['tahun_anggaran']), ARRAY_A);
                 $data = $all_kec;
                 foreach ($all_kec as $key => $kec) {
                     $desa = $wpdb->get_results($wpdb->prepare("
@@ -643,9 +646,11 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                             and is_kel=1 
                             and id_kab=" . $id_kab . " 
                             and id_kec=" . $kec['id_kec'] . "
-                    ", $_POST['tahun']), ARRAY_A);
+                    ", $_POST['tahun_anggaran']), ARRAY_A);
+                $ret['sql'] = $wpdb->last_query;
                     $data[$key]['desa'] = $desa;
                 }
+                // print_r($desa); die($wpdb->last_query);
                 $ret['data'] = $data;
             } else {
                 $ret = array(
@@ -841,9 +846,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                 } else if (empty($_POST['total'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data total tidak boleh kosong!';
-                } else if (empty($_POST['tahun_anggaran'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
                 } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
                     $total = $_POST['total'];
@@ -5467,9 +5469,10 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                         nama_dana
                     FROM data_sumber_dana 
                     WHERE active = 1
-                        AND tahun_anggaran=%d
+                        AND tahun=%d
                         AND set_input='Ya'
-                ", $_POST['tahun']), ARRAY_A);
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+            // print_r($ret['data']); die($wpdb->last_query);
             } else {
                 $ret = array(
                     'status' => 'error',

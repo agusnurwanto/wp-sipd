@@ -2,23 +2,55 @@
 global $wpdb;
 
 $input = shortcode_atts(array(
+    'id_skpd' => '',
     'tahun_anggaran' => ''
 ), $atts);
-if (!empty($_GET) && !empty($_GET['tahun_anggaran'])) {
-    $input['tahun_anggaran'] = $wpdb->prepare('%d', $_GET['tahun_anggaran']);
+
+$tahun_anggaran = isset($_GET['tahun_anggaran']) ? $wpdb->prepare('%d', $_GET['tahun_anggaran']) : '';
+
+if (!empty($tahun_anggaran)) {
+    $input['tahun_anggaran'] = $tahun_anggaran;
+}
+if (!empty($_GET) && !empty($_GET['id_skpd'])) {
+    $input['id_skpd'] = $wpdb->prepare('%d', $_GET['id_skpd']);
 }
 
-$idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
-$tahun = "<option value='-1'>Pilih Tahun</option>";
+$idtahun = $wpdb->get_results("SELECT DISTINCT tahun_anggaran FROM data_unit", ARRAY_A);
+$tahun_options = "<option value='-1'>Pilih Tahun</option>";
+
 foreach ($idtahun as $val) {
-    $selected = '';
-    if (!empty($input['tahun_anggaran']) && $val['tahun_anggaran'] == $input['tahun_anggaran']) {
-        $selected = 'selected';
-    }
-    $tahun .= "<option value='$val[tahun_anggaran]' $selected>$val[tahun_anggaran]</option>";
+    $selected = ($val['tahun_anggaran'] == $tahun_anggaran) ? 'selected' : '';
+    $tahun_options .= "<option value='{$val['tahun_anggaran']}' $selected>{$val['tahun_anggaran']}</option>";
+}
+
+$nama_skpd = '';
+$nama_kec = '';
+$user_id = um_user('ID');
+$user_meta = get_userdata($user_id);
+$disabled = 'disabled';
+if (in_array("administrator", $user_meta->roles)) {
+    $disabled = '';
+} else if (
+    in_array("PA", $user_meta->roles)
+    || in_array("PLT", $user_meta->roles)
+    || in_array("KPA", $user_meta->roles)
+) {
+    $nipkepala = get_user_meta($user_id, '_nip');
+    $skpd = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            nama_skpd, 
+            id_skpd, 
+            kode_skpd,
+            is_skpd
+        from data_unit 
+        where id_skpd=%d
+            and active=1
+            and tahun_anggaran=%d
+        group by id_skpd", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    $nama_skpd = '<br>' . $skpd['nama_skpd'] . '<br>Tahun ' . $input['tahun_anggaran'];
+    $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
 }
 ?>
-
 <style type="text/css">
     .wrap-table {
         overflow: auto;
@@ -38,10 +70,10 @@ foreach ($idtahun as $val) {
             <table id="management_data_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
                 <thead>
                     <tr>
+                        <th class="text-center">Tahun Anggaran</th>
                         <th class="text-center">Kecamatan</th>
                         <th class="text-center">Desa</th>
                         <th class="text-center">Total</th>
-                        <th class="text-center">Tahun Anggaran</th>
                         <th class="text-center" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
@@ -66,7 +98,7 @@ foreach ($idtahun as $val) {
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
                     <select class="form-control" id="tahun" onchange="get_kecamatan();">
-                        <?php echo $tahun ?>
+                        <?php echo $tahun_options ?>
                     </select>
                 </div>
                 <div class="form-group">
@@ -129,7 +161,10 @@ foreach ($idtahun as $val) {
                 "drawCallback": function(settings) {
                     jQuery("#wrap-loading").hide();
                 },
-                "columns": [
+                "columns": [{
+                        "data": 'tahun_anggaran',
+                        className: "text-center"
+                    },
                     {
                         "data": 'kecamatan',
                         className: "text-center"
@@ -141,10 +176,6 @@ foreach ($idtahun as $val) {
                     {
                         "data": 'total',
                         className: "text-right"
-                    },
-                    {
-                        "data": 'tahun_anggaran',
-                        className: "text-center"
                     },
                     {
                         "data": 'aksi',
@@ -206,12 +237,12 @@ foreach ($idtahun as $val) {
                     jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
                     get_kecamatan()
                     .then(function() {
-                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
-                        jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', false);
-                            jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
-                            jQuery('#modalTambahDataBHPD .send_data').show();
-                            jQuery('#modalTambahDataBHPD').modal('show');
-                    });
+                        jQuery('#kec').val(res.data.id_kecamatan).trigger('change').prop('disabled', false);
+                        jQuery('#desa').val(res.data.id_desa).trigger('change').prop('disabled', false);
+                        jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
+                        jQuery('#modalTambahDataBHPD .send_data').show();
+                        jQuery('#modalTambahDataBHPD').modal('show');
+                    })
                 } else {
                     alert(res.message);
                 }
@@ -227,14 +258,14 @@ foreach ($idtahun as $val) {
         jQuery('#id_desa').val('').prop('disabled', false);
         jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
         new Promise(function(resolve, reject) {
-                if ('<?php echo $input['tahun_anggaran']; ?>' != '') {
-                    get_kecamatan().then(function() {
-                        resolve();
-                    });
-                } else {
+            if ('<?php echo $input['tahun_anggaran']; ?>' != '') {
+                get_kecamatan().then(function() {
                     resolve();
-                }
-            })
+                });
+            } else {
+                resolve();
+            }
+        })
         .then(function() {
             jQuery('#kec').val('').prop('disabled', false);
             jQuery('#desa').val('').prop('disabled', false);
@@ -295,65 +326,71 @@ foreach ($idtahun as $val) {
             }
         });
     }
-       
+
     function get_kecamatan() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve2, reject2) {
             var tahun = jQuery('#tahun').val();
             if (tahun == '' || tahun == '-1') {
-                alert('Pilih tahun anggaran dulu!');
-                return resolve();
+                resolve2();
+                return alert('Pilih tahun anggaran dulu!');
             }
-            if (typeof alamat_global == 'undefined') {
-                window.alamat_global = {};
-            }
-
-            if (!alamat_global[tahun]) {
-                jQuery('#wrap-loading').show();
-                jQuery.ajax({
-                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                    type: "post",
-                    data: {
-                        'action': "get_pemdes_alamat",
-                        'api_key': jQuery("#api_key").val(),
-                        'tahun_anggaran': tahun
-                    },
-                    dataType: "json",
-                    success: function(response) {
-                        alamat_global[tahun] = response.data;
-                        window.kecamatan_all = {};
-                        alamat_global[tahun].map(function(b, i) {
-                            if (!kecamatan_all[b.kecamatan]) {
-                                kecamatan_all[b.kecamatan] = {};
+                new Promise(function(resolve, reject) {
+                    if (!alamat_global[tahun]) {
+                        jQuery('#wrap-loading').show();
+                        jQuery.ajax({
+                            url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                            type: "post",
+                            data: {
+                                'action': "get_pemdes_alamat",
+                                'api_key': jQuery("#api_key").val(),
+                                'tahun_anggaran': tahun
+                            },
+                            dataType: "json",
+                            success: function(response) {
+                                alamat_global[tahun] = response.data;
+                                resolve();
                             }
-                            if (!kecamatan_all[b.kecamatan][b.desa]) {
-                                kecamatan_all[b.kecamatan][b.desa] = [];
-                            }
-                            kecamatan_all[b.kecamatan][b.desa].push(b);
                         });
-                        var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
-                        for (var i in kecamatan_all) {
-                            kecamatan += '<option value="' + i + '">' + i + '</option>';
-                        }
-                        jQuery('#kec').html(kecamatan);
-                        jQuery('#wrap-loading').hide();
-                        return resolve();
+                    } else {
+                        resolve();
                     }
-                });
-            } else {
-                return resolve();
-            }
-        })
+                })
+                .then(function() {
+                    window.kecamatan_all = {};
+                    alamat_global[tahun].map(function(b, i) {
+                        kecamatan_all[b.id_kec] = {
+                            nama: b.kecamatan,
+                            data: b.desa
+                        };
+                    });
+                    var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
+                    for (var i in kecamatan_all) {
+                        kecamatan += '<option value="' + i + '">' + kecamatan_all[i].nama + '</option>';
+                    }
+                    jQuery('#kec').html(kecamatan);
+                    jQuery('#wrap-loading').hide();
+                    resolve2();
+            });
+        });
     }
 
     function get_desa() {
         var kec = jQuery('#kec').val();
-        if (kec == '' || kec == '-1') {
+        if (
+            kec == '' 
+            || kec == '-1'
+            || kec == null
+        ) {
             return alert('Pilih kecamatan dulu!');
         }
         var desa = '<option value="-1">Pilih Desa</option>';
-        for (var ii in kecamatan_all[kec]) {
-            desa += '<option value="' + ii + '">' + ii + '</option>';
+        var desaData = kecamatan_all[kec].data;
+
+        for (var i in desaData) {
+            desa += '<option value="' + desaData[i].id_kel + '">' + desaData[i].desa + '</option>';
         }
         jQuery('#desa').html(desa);
     }
+
+
 </script>
