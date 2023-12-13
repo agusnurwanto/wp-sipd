@@ -588,10 +588,16 @@ body.one-content-column-version .content thead {
         </div>
         <ul>
             <li class="scroll-to-link active" data-target="content-get-started">
-                <a>GET STARTED</a>
+                <a>Pendahuluan</a>
             </li>
-            <li class="scroll-to-link" data-target="content-get-characters">
-                <a>Get Characters</a>
+            <li class="scroll-to-link" data-target="content-get-skpd">
+                <a>Get SKPD</a>
+            </li>
+            <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
+                <a>Get sub keg by id skpd</a>
+            </li>
+            <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
+                <a>Get rka by kode sbl</a>
             </li>
             <li class="scroll-to-link" data-target="content-errors">
                 <a>Errors</a>
@@ -606,10 +612,10 @@ body.one-content-column-version .content thead {
             <h1>Get started</h1>
             <pre>
     API Endpoint
-    <?php echo get_site_url(); ?>
-    <?php if (is_user_logged_in() ==1 ){
+    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+    <!-- <?php if (is_user_logged_in() == 1 ){
         echo 'API key = API key';
-    }?>
+    }?> -->
     API key = diperlukan
                 </pre>
             <p>
@@ -618,152 +624,155 @@ body.one-content-column-version .content thead {
             <p>
                 Anda tidak perlu lagi memikirkan hal-hal rumit yang membebani pekerjaan Anda. Seluruh permintaan API akan melalui proses otorisasi dan pengecekan hak akses, termasuk pada validasi yang telah Anda tentukan pada tiap modul yang telah atau akan Anda bangun.
 
-                Semudah itukah? Ya, karena ini <strong>WP-SIPD!</strong>
-                To use this API, you need an <strong>API key</strong>. Please contact us at <a href="mailto:jon.snow@nightswatch.wes">jon.snow@nightswatch.wes</a> to get your own API key.
+                Semudah itukah? Ya, karena ini <strong>WP-SIPD!</strong>.                
             </p>
-            <h2> Mulai Dari Mana? </h2>
+            <h2><b> Mulai Dari Mana? </b></h2>
             <p>Untuk dapat menggunakan fitur permintaan API, Anda perlu menambahkan <strong>API key</strong> terlebih dahulu.
 
             Sematkan <strong>API key</strong> yang telah dibuat yang dikhususkan untuk klien tertentu pada property HEADER saat melakukan permintaan.
             </p>
         </div>
-        <div class="overflow-hidden content-section" id="content-get-characters">
-            <h2>get characters</h2>
-            <pre><code class="bash">
+        <div class="overflow-hidden content-section" id="content-get-skpd">
+            <h2>GET SKPD</h2>
+            <pre>
+                <code class="bash">
 # Here is a curl example
 curl \
--X POST http://api.westeros.com/character/get \
--F 'secret_key=your_api_key' \
--F 'house=Stark,Bolton' \
--F 'offset=0' \
--F 'limit=50'
-                </code></pre>
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=your_api_key' \
+-F 'action=get_skpd' \
+-F 'tahun_anggaran=2023' \
+                </code>
+            </pre>
             <p>
-                To get characters you need to make a POST call to the following url :<br>
-                <code class="higlighted break-word"><?php echo get_site_url(); ?></code>
+                Untuk menampilkan SKPD berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url();?>/wp-admin/admin-ajax.php
+                </code>
+                <h4>QUERY PARAMETERS</h4>
+                <table class="central-overflow-x">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Keterangan</th>
+                            <th>Dibutuhkan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span style="font-family:Consolas">
+                                    api_key
+                                </span>
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Kunci API yang telah ditambahkan dan diaktifkan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                action                                
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                tahun_anggaran                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </p>
-            <br>
-            <pre><code class="json">
-Result example :
+            <pre>
+                <code class="json">
+                    Result :
+                    {
+                        "action": "get_skpd",
+                        "run": null,
+                        "status": "success",
+                        "message": "Berhasil get SKPD!",
+                        "data": [
+                            {
+                                "id": "215",
+                                "id_setup_unit": "0",
+                                "id_unit": "529",
+                                "is_skpd": "0",
+                                "kode_skpd": "7.01.0.00.0.00.06.0006",
+                                "kunci_skpd": "0",
+                                "nama_skpd": "Kelurahan Siring",
+                                "posisi": "",
+                                "status": "Unit SKPD",
+                                "id_skpd": "7052",
+                                "bidur_1": "47",
+                                "bidur_2": "0",
+                                "bidur_3": "0",
+                                "idinduk": "529",
+                                "ispendapatan": "0",
+                                "isskpd": "0",
+                                "kode_skpd_1": "06",
+                                "kode_skpd_2": "0006",
+                                "kodeunit": "7.01.0.00.0.00.06.0006",
+                                "komisi": "0",
+                                "namabendahara": "",
+                                "namakepala": "MUNIR NANANG SETYOWANDI, SH",
+                                "namaunit": "Kelurahan Siring",
+                                "nipbendahara": "",
+                                "nipkepala": "196702131992031007",
+                                "pangkatkepala": "Penata",
+                                "setupunit": "0",
+                                "statuskepala": "PLT",
+                                "update_at": "2023-11-28 11:11:21",
+                                "tahun_anggaran": "2023",
+                                "active": "1",
+                                "mapping": null,
+                                "id_kecamatan": null,
+                                "id_strategi": null,
+                                "is_dpa_khusus": null,
+                                "is_ppkd": null,
+                                "set_input": null,
+                                "id_mapping": false,
+                                "bidur__1": "7.01",
+                                "bidur__2": "0.00",
+                                "bidur__3": "0.00",
+                                "bidur1": "7.01 KECAMATAN",
+                                "bidur2": null,
+                                "bidur3": null
+                            },
+                        ]
+                    }
+                </code>
+            </pre>
 
-{
-  query:{
-    offset: 0,
-    limit: 50,
-    house: [
-      "Stark",
-      "Bolton"
-    ],
-  }
-  result: [
-    {
-      id: 1,
-      first_name: "Jon",
-      last_name: "Snow",
-      alive: true,
-      house: "Stark",
-      gender: "m",
-      age: 14,
-      location: "Winterfell"
-    },
-    {
-      id: 2,
-      first_name: "Eddard",
-      last_name: "Stark",
-      alive: false,
-      house: "Stark",
-      gender: "m",
-      age: 35,
-      location: 'Winterfell'
-    },
-    {
-      id: 3,
-      first_name: "Catelyn",
-      last_name: "Stark",
-      alive: false,
-      house: "Stark",
-      gender: "f",
-      age: 33,
-      location: "Winterfell"
-    },
-    {
-      id: 4,
-      first_name: "Roose",
-      last_name: "Bolton",
-      alive: false,
-      house: "Bolton",
-      gender: "m",
-      age: 40,
-      location: "Dreadfort"
-    },
-    {
-      id: 5,
-      first_name: "Ramsay",
-      last_name: "Snow",
-      alive: false,
-      house: "Bolton",
-      gender: "m",
-      age: 15,
-      location: "Dreadfort"
-    },
-  ]
-}
-                </code></pre>
-            <h4>QUERY PARAMETERS</h4>
-            <table class="central-overflow-x">
-                <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>secret_key</td>
-                    <td>String</td>
-                    <td>Your API key.</td>
-                </tr>
-                <tr>
-                    <td>search</td>
-                    <td>String</td>
-                    <td>(optional) A search word to find character by name.</td>
-                </tr>
-                <tr>
-                    <td>house</td>
-                    <td>String</td>
-                    <td>
-                        (optional) a string array of houses:
-                    </td>
-                </tr>
-                <tr>
-                    <td>alive</td>
-                    <td>Boolean</td>
-                    <td>
-                        (optional) a boolean to filter alived characters
-                    </td>
-                </tr>
-                <tr>
-                    <td>gender</td>
-                    <td>String</td>
-                    <td>
-                        (optional) a string to filter character by gender:<br>
-                        m: male<br>
-                        f: female
-                    </td>
-                </tr>
-                <tr>
-                    <td>offset</td>
-                    <td>Integer</td>
-                    <td>(optional - default: 0) A cursor for use in pagination. Pagination starts offset the specified offset.</td>
-                </tr>
-                <tr>
-                    <td>limit</td>
-                    <td>Integer</td>
-                    <td>(optional - default: 10) A limit on the number of objects to be returned, between 1 and 100.</td>
-                </tr>
-                </tbody>
-            </table>
         </div>
         <div class="overflow-hidden content-section" id="content-errors">
             <h2>Errors</h2>
