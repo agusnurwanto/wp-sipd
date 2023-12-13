@@ -613,10 +613,13 @@ body.one-content-column-version .content thead {
             <pre>
     API Endpoint
     <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
-    <!-- <?php if (is_user_logged_in() == 1 ){
-        echo 'API key = API key';
-    }?> -->
-    API key = diperlukan
+
+    <?php 
+    $key = 'BELUM LOGIN';
+    if (is_user_logged_in() == 1 ){
+        $key = 'LOGIN';
+    }?>
+    API key = <?php echo $key; ?>
                 </pre>
             <p>
                 <strong>WP SIPD</strong> telah dilengkapi dengan kemampuan untuk membuat output API sekaligus tanpa Anda perlu menambahkan backend atau modul khusus untuk pengelolaan API. Konsep pada implementasi API selaras dengan fitur-fitur pada backoffice <strong>WP SIPD</strong> yang sedang Anda buka saat ini.
@@ -629,7 +632,7 @@ body.one-content-column-version .content thead {
             <h2><b> Mulai Dari Mana? </b></h2>
             <p>Untuk dapat menggunakan fitur permintaan API, Anda perlu menambahkan <strong>API key</strong> terlebih dahulu.
 
-            Sematkan <strong>API key</strong> yang telah dibuat yang dikhususkan untuk klien tertentu pada property HEADER saat melakukan permintaan.
+            Sematkan <strong>API key</strong> yang telah dibuat yang dikhususkan untuk klien tertentu pada property Form-data saat melakukan permintaan.
             </p>
         </div>
         <div class="overflow-hidden content-section" id="content-get-skpd">
@@ -772,12 +775,510 @@ curl \
                     }
                 </code>
             </pre>
-
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-subkeg-by-skpd">
+            <h2>GET SUB KEGIATAN BY SKPD</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=your_api_key' \
+-F 'action=get_sub_keg_sipd' \
+-F 'tahun_anggaran=2023' \
+-F 'id_skpd=2023' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan Sub Kegiatan berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url();?>/wp-admin/admin-ajax.php
+                </code>
+                <h4>QUERY PARAMETERS</h4>
+                <table class="central-overflow-x">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Keterangan</th>
+                            <th>Dibutuhkan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span style="font-family:Consolas">
+                                    api_key
+                                </span>
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Kunci API yang telah ditambahkan dan diaktifkan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                action                                
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                tahun_anggaran                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                id_skpd                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian/Filter
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </p>
+            <pre>
+                <code class="json">
+                    Result :
+                    {
+                        "action": "get_sub_keg_sipd",
+                        "status": "success",
+                        "message": "Berhasil get sub kegiatan!",
+                        "data": [
+                            {
+                                "id": "8156",
+                                "id_sub_skpd": "529",
+                                "id_lokasi": "0",
+                                "id_label_kokab": "0",
+                                "nama_dana": "",
+                                "no_sub_giat": "01 ",
+                                "kode_giat": "7.01.02.2.01",
+                                "id_program": "797",
+                                "nama_lokasi": "",
+                                "waktu_akhir": "12",
+                                "pagu_n_lalu": "0",
+                                "id_urusan": "17",
+                                "id_unik_sub_bl": "62107ff967e05-1223841137-1645248505",
+                                "id_sub_giat": "13480",
+                                "label_prov": "",
+                                "kode_program": "7.01.02",
+                                "kode_sub_giat": "7.01.02.2.01.01",
+                                "no_program": "02 ",
+                                "kode_urusan": "7",
+                                "kode_bidang_urusan": "7.01",
+                                "nama_program": "PROGRAM PENYELENGGARAAN PEMERINTAHAN DAN PELAYANAN PUBLIK",
+                                "target_4": "",
+                                "target_5": "",
+                                "id_bidang_urusan": "97",
+                                "nama_bidang_urusan": "KECAMATAN",
+                                "target_3": "",
+                                "no_giat": "2.01",
+                                "id_label_prov": "0",
+                                "waktu_awal": "1",
+                                "pagumurni": "296187500",
+                                "pagu": "296187500",
+                                "pagu_simda": null,
+                                "output_sub_giat": "",
+                                "sasaran": "Aparatur Kecamatan, Kelurahan, Desa dan Masyarakat",
+                                "indikator": "",
+                                "id_dana": "0",
+                                "nama_sub_giat": "7.01.02.2.01.01 Koordinasi/Sinergi Perencanaan dan Pelaksanaan Kegiatan Pemerintahan dengan Perangkat Daerah dan Instansi Vertikal Terkait",
+                                "pagu_n_depan": "1176533636",
+                                "satuan": "",
+                                "id_rpjmd": "0",
+                                "id_giat": "3705",
+                                "id_label_pusat": "7",
+                                "nama_giat": "Koordinasi Penyelenggaraan Kegiatan\n\nPemerintahan di Tingkat Kecamatan",
+                                "kode_skpd": "7.01.0.00.0.00.06.0000",
+                                "nama_skpd": "Kecamatan Porong",
+                                "kode_sub_skpd": "7.01.0.00.0.00.06.0000",
+                                "id_skpd": "529",
+                                "id_sub_bl": "0",
+                                "nama_sub_skpd": "Kecamatan Porong",
+                                "target_1": "",
+                                "nama_urusan": "UNSUR KEWILAYAHAN",
+                                "target_2": "",
+                                "label_kokab": "",
+                                "label_pusat": "Mengembangkan Wilayah Untuk Mengurangi Kesenjangan Dan Menjamin Pemerataan",
+                                "pagu_keg": "296187500",
+                                "pagu_fmis": null,
+                                "id_bl": "0",
+                                "kode_bl": "529.529.797.3705",
+                                "kode_sbl": "529.529.797.3705.13480",
+                                "active": "1",
+                                "update_at": "2023-11-27 03:19:20",
+                                "tahun_anggaran": "2023",
+                                "nama_skpd_data_unit": "Kecamatan Porong",
+                                "nama_skpd_data_unit_utama": "Kecamatan Porong",
+                                "sub_keg_indikator": [
+                                    {
+                                        "id": "17837",
+                                        "outputteks": "Jumlah Laporan Koordinasi/Sinergi Perencanaan dan Pelaksanaan Kegiatan Pemerintahan dengan Perangkat Daerah dan Instansi Vertikal Terkait",
+                                        "targetoutput": "1",
+                                        "satuanoutput": "Laporan",
+                                        "idoutputbl": "568111",
+                                        "targetoutputteks": "1 Laporan",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:21",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "sub_keg_indikator_hasil": [
+                                    {
+                                        "id": "1504",
+                                        "hasilteks": "Nilai SAKIP Kecamatan Porong",
+                                        "satuanhasil": "Nilai",
+                                        "targethasil": "8.3",
+                                        "targethasilteks": "8.3 Nilai",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:21",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "tag_sub_keg": [
+                                    {
+                                        "id": "6874",
+                                        "idlabelgiat": "0",
+                                        "namalabel": "",
+                                        "idtagbl": "1208338",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:21",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "capaian_prog_sub_keg": [
+                                    {
+                                        "id": "2042",
+                                        "satuancapaian": "%",
+                                        "targetcapaianteks": "100 %",
+                                        "capaianteks": "Persentase desa yang mendapat pembinaan tentang lingkungan hidup,  usaha ekonomi masyarakat, dan PKL",
+                                        "targetcapaian": "100",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:21",
+                                        "tahun_anggaran": "2023"
+                                    },
+                                    {
+                                        "id": "2043",
+                                        "satuancapaian": "%",
+                                        "targetcapaianteks": "0 %",
+                                        "capaianteks": "Persentase izin yang menjadi  kewenangan kecamatan yang  diterbitkan",
+                                        "targetcapaian": "0",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:22",
+                                        "tahun_anggaran": "2023"
+                                    },
+                                    {
+                                        "id": "2044",
+                                        "satuancapaian": "%",
+                                        "targetcapaianteks": "100 %",
+                                        "capaianteks": "Persentase Pelayanan kewenangan kecamatan yang dilaksanakan sesuai standar",
+                                        "targetcapaian": "100",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:22",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "output_giat": [
+                                    {
+                                        "id": "8367",
+                                        "outputteks": "Jumlah laporan hasil koordinasi  bidang kesejahteraan sosial,  agama dan kemasyarakatan;  pembangunan dan lingkungan  hidup; pemerintahan dan  perekonomian yang disusun",
+                                        "satuanoutput": "Laporan",
+                                        "targetoutput": "17",
+                                        "targetoutputteks": "17 Laporan",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:22",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "lokasi_sub_keg": [
+                                    {
+                                        "id": "10952",
+                                        "camatteks": "Porong",
+                                        "daerahteks": "Kab. Sidoarjo",
+                                        "idcamat": "1817",
+                                        "iddetillokasi": "1127624",
+                                        "idkabkota": "101",
+                                        "idlurah": "0",
+                                        "lurahteks": "Semua Kelurahan",
+                                        "kode_sbl": "529.529.797.3705.13480",
+                                        "idsubbl": "0",
+                                        "active": "1",
+                                        "update_at": "2023-11-27 03:19:22",
+                                        "tahun_anggaran": "2023"
+                                    }
+                                ],
+                                "sumber_dana": [
+                                    {
+                                        "id_sumber_dana": "281",
+                                        "kode_dana": "1.1",
+                                        "nama_dana": "[DANA UMUM] - PENDAPATAN ASLI DAERAH (PAD)"
+                                    }
+                                ]
+                            },
+                        ]
+                    }
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-rka-by-kodesbl">
+            <h2>GET RKA by Kode SBL</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=your_api_key' \
+-F 'action=get_sub_keg_rka_sipd' \
+-F 'tahun_anggaran=2023' \
+-F 'id_skpd=2023' \
+-F 'kode_sbl=3276.3276.825.3804.14140' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan Rincian Belanja pada RKA SKPD berdasarkan kode rincian SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url();?>/wp-admin/admin-ajax.php
+                </code>
+                <h4>QUERY PARAMETERS</h4>
+                <table class="central-overflow-x">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Keterangan</th>
+                            <th>Dibutuhkan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span style="font-family:Consolas">
+                                    api_key
+                                </span>
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Kunci API yang telah ditambahkan dan diaktifkan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                action                                
+                            </td>
+                            <td>
+                                String
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                tahun_anggaran                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                id_skpd                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian atau filter SKPD
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                kode_sbl                                
+                            </td>
+                            <td>
+                                Angka
+                            </td>
+                            <td>
+                                Bidang spesifik yang akan dilakukan pencarian atau filter berdasarkan kode belanja RKA
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-danger">
+                                    Dibutuhkan
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </p>
+            <pre>
+                <code class="json">
+                    Result :
+                    {
+                        "action": "get_sub_keg_rka_sipd",
+                        "status": "success",
+                        "message": "Berhasil RKA get sub kegiatan!",
+                        "data": [
+                            {
+                                "id": "1174310",
+                                "created_user": null,
+                                "createddate": null,
+                                "createdtime": null,
+                                "harga_satuan": "30000",
+                                "harga_satuan_murni": "30000",
+                                "id_daerah": "101",
+                                "id_jadwal": null,
+                                "id_rinci_sub_bl": "13055791",
+                                "id_standar_harga": null,
+                                "is_locked": null,
+                                "jenis_bl": "barjas-modal",
+                                "ket_bl_teks": "[-]  ",
+                                "substeks": "-",
+                                "id_dana": "281",
+                                "nama_dana": "PENDAPATAN ASLI DAERAH (PAD)",
+                                "is_paket": "0",
+                                "kode_dana": "1.1",
+                                "subtitle_teks": "-",
+                                "id_akun": null,
+                                "kode_akun": "5.1.02.01.01.0052",
+                                "koefisien": "245 Orang / Kali",
+                                "koefisien_murni": "245 Orang / Kali",
+                                "lokus_akun_teks": "",
+                                "nama_akun": "5.1.02.01.01.0052 Belanja Makanan dan Minuman Rapat ",
+                                "nama_komponen": "Konsumsi Rapat/Kegiatan (Makan)",
+                                "spek_komponen": "Spesifikasi :  ",
+                                "satuan": "Orang/Kali",
+                                "spek": "Spesifikasi :  ",
+                                "sat1": "Orang / Kali",
+                                "sat2": "",
+                                "sat3": "",
+                                "sat4": "",
+                                "volum1": "245",
+                                "volum2": "",
+                                "volum3": "",
+                                "volum4": "",
+                                "volume": "245",
+                                "volume_murni": "245",
+                                "subs_bl_teks": "[#] -",
+                                "total_harga": "7350000",
+                                "rincian": "7350000",
+                                "rincian_murni": "7350000",
+                                "totalpajak": "0",
+                                "pajak": "0",
+                                "pajak_murni": "0",
+                                "updated_user": null,
+                                "updateddate": null,
+                                "updatedtime": null,
+                                "user1": "WAHIB ACHMADI, ST., MT",
+                                "user2": "",
+                                "active": "1",
+                                "update_at": "2023-11-27 03:19:31",
+                                "tahun_anggaran": "2023",
+                                "idbl": "0",
+                                "idsubbl": "0",
+                                "kode_bl": "529.529.797.3705",
+                                "kode_sbl": "529.529.797.3705.13480",
+                                "id_prop_penerima": null,
+                                "id_camat_penerima": null,
+                                "id_kokab_penerima": null,
+                                "id_lurah_penerima": null,
+                                "id_penerima": null,
+                                "idkomponen": "0",
+                                "idketerangan": "0",
+                                "idsubtitle": "2287437",
+                                "id_standar_nfs": "127",
+                                "sumber_dana": [
+                                    {
+                                        "id_sumber_dana": "281",
+                                        "kode_dana": "1.1",
+                                        "nama_dana": "[DANA UMUM] - PENDAPATAN ASLI DAERAH (PAD)"
+                                    }
+                                ]
+                            },
+                        ]
+                    }
+                </code>
+            </pre>
         </div>
         <div class="overflow-hidden content-section" id="content-errors">
             <h2>Errors</h2>
             <p>
-                The Westeros API uses the following error codes:
+                The WP-SIPD API uses error codes:
             </p>
             <table>
                 <thead>
@@ -802,7 +1303,7 @@ curl \
                 <tr>
                     <td>X002</td>
                     <td>
-                        Unvalid <code class="higlighted">secret_key</code> for this domain. This error appears if you use an  API key non specified for your domain. Developper or Universal API keys doesn't have domain checker.
+                        Unvalid <code class="higlighted">secret_key</code> for this domain. APIKEY tidak sesuai!.
                     </td>
                 </tr>
                 <tr>
