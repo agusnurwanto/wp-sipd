@@ -603,7 +603,12 @@ $body = '';
 			return;
 		}
 
-		if(id_unit=='all' && jenis!='pagu_akumulasi' && jenis!='-'){
+		if(
+			id_unit=='all' 
+			&& jenis!='pagu_akumulasi' 
+			&& jenis!='total_prog_keg'
+			&& jenis!='-'
+		){
 			alert('Pilih minimal satu Unit Kerja!');
 			return;
 		}
