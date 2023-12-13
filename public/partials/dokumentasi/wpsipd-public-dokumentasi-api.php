@@ -606,14 +606,25 @@ body.one-content-column-version .content thead {
             <h1>Get started</h1>
             <pre>
     API Endpoint
-
-        https://api.westeros.com/
+    <?php echo get_site_url(); ?>
+    <?php if (is_user_logged_in() ==1 ){
+        echo 'API key = API key';
+    }?>
+    API key = diperlukan
                 </pre>
             <p>
-                The Westeros API provides programmatic access to read Game of Thrones data. Retrieve a character, provide an oauth connexion, retrieve a familly, filter them, etc.
+                <strong>WP SIPD</strong> telah dilengkapi dengan kemampuan untuk membuat output API sekaligus tanpa Anda perlu menambahkan backend atau modul khusus untuk pengelolaan API. Konsep pada implementasi API selaras dengan fitur-fitur pada backoffice <strong>WP SIPD</strong> yang sedang Anda buka saat ini.
             </p>
             <p>
+                Anda tidak perlu lagi memikirkan hal-hal rumit yang membebani pekerjaan Anda. Seluruh permintaan API akan melalui proses otorisasi dan pengecekan hak akses, termasuk pada validasi yang telah Anda tentukan pada tiap modul yang telah atau akan Anda bangun.
+
+                Semudah itukah? Ya, karena ini <strong>WP-SIPD!</strong>
                 To use this API, you need an <strong>API key</strong>. Please contact us at <a href="mailto:jon.snow@nightswatch.wes">jon.snow@nightswatch.wes</a> to get your own API key.
+            </p>
+            <h2> Mulai Dari Mana? </h2>
+            <p>Untuk dapat menggunakan fitur permintaan API, Anda perlu menambahkan <strong>API key</strong> terlebih dahulu.
+
+            Sematkan <strong>API key</strong> yang telah dibuat yang dikhususkan untuk klien tertentu pada property HEADER saat melakukan permintaan.
             </p>
         </div>
         <div class="overflow-hidden content-section" id="content-get-characters">
@@ -629,7 +640,7 @@ curl \
                 </code></pre>
             <p>
                 To get characters you need to make a POST call to the following url :<br>
-                <code class="higlighted break-word">http://api.westeros.com/character/get</code>
+                <code class="higlighted break-word"><?php echo get_site_url(); ?></code>
             </p>
             <br>
             <pre><code class="json">
