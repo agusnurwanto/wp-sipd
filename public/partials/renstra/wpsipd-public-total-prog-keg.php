@@ -230,6 +230,8 @@ foreach($tujuan as $k => $tuj){
     }
 }
 
+ksort($data_all_renstra);
+
 $body_program = '';
 $urut_program = 1;
 $body_kegiatan = '';
@@ -256,6 +258,7 @@ foreach ($data_all_renstra as $program) {
     </tr>';
     $urut_program++;
 
+    ksort($program['data']);
     foreach ($program['data'] as $kegiatan) {
         $jumlah_kegiatan   = '<a style="text-decoration: none;" onclick="show_analisis_keg(\''.$kegiatan['nama'].'\'); return false;" href="#" title="Menampilkan SKPD pengguna Kegiatan">'.number_format($kegiatan['jumlah'],0,",",".").'</a>';
         $body_kegiatan .='
@@ -276,6 +279,7 @@ foreach ($data_all_renstra as $program) {
         </tr>';
         $urut_kegiatan++;
 
+        ksort($kegiatan['data']);
         foreach ($kegiatan['data'] as $sub_kegiatan) {
             $jumlah_sub_kegiatan   = '<a style="text-decoration: none;" onclick="show_analisis_sub_keg(\''.$sub_kegiatan['kode'].'\'); return false;" href="#" title="Menampilkan SKPD pengguna Sub Kegiatan">'.number_format($sub_kegiatan['jumlah'],0,",",".").'</a>';
             $body_sub_kegiatan .='
