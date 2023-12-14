@@ -57,13 +57,21 @@ if (in_array("administrator", $user_meta->roles)) {
 } else {
     die('<h1>Anda tidak punya akses untuk melihat halaman ini!</h1>');
 }
+
+// print_r($total_pencairan); die($wpdb->last_query);
 ?>
+<style type="text/css">
+    .wrap-table {
+        overflow: auto;
+        max-height: 100vh;
+        width: 100%;
+    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Pencairan BKU Dana Desa ( DD )<?php echo $nama_skpd; ?></h1>
+        <h1 class="text-center" style="margin:3rem;">Pencairan BKU Dana Desa<?php echo $nama_skpd; ?></h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_pencairan_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -91,7 +99,7 @@ if (in_array("administrator", $user_meta->roles)) {
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataPencairanBKUDDLabel">Data Pencairan BKU Dana Desa</h5>
+                <h5 class="modal-title" id="modalTambahDataPencairanBKUDDLabel">Data Pencairan BKU Alokasi Dana Desa</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -136,9 +144,46 @@ if (in_array("administrator", $user_meta->roles)) {
                     <label for="">Keterangan Pencairan</label>
                     <textarea class="form-control" id="keterangan"></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="">Nota Dinas Permohonan beserta lampirannya</label>
+                    <input type="file" name="file" class="form-control-file" id="nota_dinas" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_nota_dinas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Pernyataan Tanggung Jawab</label>
+                    <input type="file" name="file" class="form-control-file" id="sptj" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sptj_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Pakta Integritas</label>
+                    <input type="file" name="file" class="form-control-file" id="pakta_integritas" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pakta_integritas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Permohonan Transfer</label>
+                    <input type="file" name="file" class="form-control-file" id="permohonan_transfer" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_permohonan_transfer_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Realisasi Tahap Sebelumnya (hanya bagi Tahap II dan III)</label>
+                    <input type="file" name="file" class="form-control-file" id="realisasi_tahap_sebelumnya" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_realisasi_tahap_sebelumnya_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Dokumen Syarat Umum</label>
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_umum" accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_umum_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Dokumen Syarat Khusus</label>
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_khusus">
+                <div><small>File maksimal berukuran 1 MB, berformat .pdf</small></div accept="application/pdf">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_khusus_existing"></a></div>
+                </div>
+                <div><small>File maksimal berukuran 1 MB, berformat .pdf</small></div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pencairan" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
-                    <label class="form-check-label" for="status_pencairan">Setujui pencairan</label>
+                    <label class="form-check-label" for="status_pencairan">Setujui Pencairan</label>
                 </div>
                 <div class="form-group" style="display:none;">
                     <label>Keterangan status pencairan</label>
@@ -155,6 +200,7 @@ if (in_array("administrator", $user_meta->roles)) {
 <script>
     jQuery(document).ready(function() {
         get_data_pencairan_bku_dd();
+        window.global_file_upload = "<?php echo WPSIPD_PLUGIN_URL . 'public/media/keu_pemdes/'; ?>";
     });
 
     function set_keterangan(that) {
@@ -196,13 +242,13 @@ if (in_array("administrator", $user_meta->roles)) {
 
         function verifikasi_data(_id) {
             detail_data(_id)
-            .then(function(status) {
-                if (status) {
-                    jQuery('#keterangan_status_pencairan').prop('disabled', false).closest('.form-group').show();
-                    jQuery('#status_pencairan').prop('disabled', false);
-                    jQuery('#modalTambahDataPencairanBKUDD .send_data').attr('tipe_verifikasi', 'verikasi_admin').show();
-                }
-            });
+                .then(function(status) {
+                    if (status) {
+                        jQuery('#keterangan_status_pencairan').prop('disabled', false).closest('.form-group').show();
+                        jQuery('#status_pencairan').prop('disabled', false);
+                        jQuery('#modalTambahDataPencairanBKUDD .send_data').attr('tipe_verifikasi', 'verikasi_admin').show();
+                    }
+                });
         }
 
         function submit_verifikasi() {
@@ -215,7 +261,7 @@ if (in_array("administrator", $user_meta->roles)) {
             if (jQuery('#status_pencairan').is(':checked')) {
                 status_pencairan = 1;
             } else if (keterangan_status_pencairan == '') {
-                return alert('Keterangan status pencairan tidak boleh kosong!');
+                return alert('Keterangan status pagu tidak boleh kosong!');
             }
             if (confirm('Apakah anda yakin untuk memverifikasi pencairan ini?')) {
                 jQuery('#wrap-loading').show();
@@ -245,6 +291,7 @@ if (in_array("administrator", $user_meta->roles)) {
             }
         }
     <?php endif; ?>
+
 
     function get_data_pencairan_bku_dd() {
         if (typeof datapencairan_bku_dd == 'undefined') {
@@ -337,7 +384,7 @@ if (in_array("administrator", $user_meta->roles)) {
     function edit_data(_id) {
         jQuery('#wrap-loading').show();
         jQuery('#modalTambahDataPencairanBKUDD .send_data').attr('tipe_verifikasi', '');
-        jQuery('#wrap-loading').show();
+
         jQuery.ajax({
             method: 'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -352,28 +399,44 @@ if (in_array("administrator", $user_meta->roles)) {
                     jQuery('#id_data').val(res.data.id).prop('disabled', false);
                     jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
                     get_bku_dd()
-                    .then(function() {
-                        jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
-                        jQuery('#desa').val(res.data.desa).prop('disabled', false);
-                        jQuery('#id_bku_dd').val(res.data.id_bku_dd).prop('disabled', false);
-                        jQuery('#validasi_pagu').closest('.form-group').show().prop('disabled', false);
-                        get_pagu()
-                        .then(function(){
-                            jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', false);
-                            if (res.data.status_ver_total == 0) {
-                                jQuery('#keterangan_status_pencairan').closest('.form-group').show().prop('disabled', false);
-                                jQuery('#status_pencairan').prop('checked', false);
-                            } else {
-                                jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', false);
-                                jQuery('#status_pencairan').prop('checked', true);
-                            }
-                            jQuery('#keterangan_status_pencairan').val(res.data.ket_ver_total).prop('disabled', false);
-                            jQuery('#keterangan').val(res.data.keterangan).prop('disabled', false);
-                            jQuery('#status_pencairan').closest('.form-check').show().prop('disabled', false);
-                            jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
-                            jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+                        .then(function() {
+                            jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
+                            jQuery('#desa').val(res.data.desa).prop('disabled', false);
+                            jQuery('#id_bku_dd').val(res.data.id_bku_dd).prop('disabled', false);
+                            jQuery('#validasi_pagu').closest('.form-group').show().prop('disabled', false);
+                            get_pagu()
+                                .then(function() {
+                                    jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', false);
+                                    if (res.data.status_ver_total == 0) {
+                                        jQuery('#keterangan_status_pencairan').closest('.form-group').show().prop('disabled', false);
+                                        jQuery('#status_pencairan').prop('checked', false);
+                                    } else {
+                                        jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', false);
+                                        jQuery('#status_pencairan').prop('checked', true);
+                                    }
+
+                                    jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas);
+                                    jQuery('#nota_dinas').val('').show();
+                                    jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj).show();
+                                    jQuery('#sptj').val('').show();
+                                    jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas).show();
+                                    jQuery('#pakta_integritas').val('').show();
+                                    jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer).show();
+                                    jQuery('#permohonan_transfer').val('').show();
+                                    jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya).show();
+                                    jQuery('#realisasi_tahap_sebelumnya').val('').show();
+                                    jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum).show();
+                                    jQuery('#dokumen_syarat_umum').val('').show();
+                                    jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus).show();
+                                    jQuery('#dokumen_syarat_khusus').val('').show();
+
+                                    jQuery('#keterangan').val(res.data.keterangan).prop('disabled', false);
+                                    jQuery('#status_pencairan').closest('.form-check').show().prop('disabled', false);
+                                    jQuery('#keterangan_status_pencairan').val(res.data.ket_ver_total).prop('disabled', false);
+                                    jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
+                                    jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+                                })
                         })
-                    })
                 } else {
                     alert(res.message);
                     jQuery('#wrap-loading').hide();
@@ -386,6 +449,7 @@ if (in_array("administrator", $user_meta->roles)) {
         return new Promise(function(resolve, reject) {
             jQuery('#wrap-loading').show();
             jQuery('#modalTambahDataPencairanBKUDD .send_data').attr('tipe_verifikasi', '');
+
             jQuery.ajax({
                 method: 'post',
                 url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -397,7 +461,7 @@ if (in_array("administrator", $user_meta->roles)) {
                 },
                 success: function(res) {
                     if (res.status == 'success') {
-                        jQuery('#id_data').val(res.data.id).prop('disabled', true);
+                        jQuery('#id_data').val(res.data.id)
                         jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', true);
                         get_bku_dd()
                             .then(function() {
@@ -405,24 +469,38 @@ if (in_array("administrator", $user_meta->roles)) {
                                 jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', true);
                                 jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change').prop('disabled', true);
                                 jQuery('#id_bku_dd').val(res.data.id_bku_dd).prop('disabled', true);
-                                jQuery('#alamat').val(res.data.alamat).prop('disabled', true);
                                 get_pagu()
-                                .then(function(){
-                                    jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', true);
-                                    if (res.data.status_ver_total == 0) {
-                                        jQuery('#keterangan_status_pencairan').closest('.form-group').show().prop('disabled', true);
-                                        jQuery('#status_pencairan').prop('checked', false).prop('disabled', true);
-                                    } else {
-                                        jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', true);
-                                        jQuery('#status_pencairan').prop('checked', true).prop('disabled', true);
-                                    }
-                                    jQuery('#keterangan_status_pencairan').val(res.data.ket_ver_total).prop('disabled', true);
-                                    jQuery('#keterangan').val(res.data.keterangan).prop('disabled', true);
-                                    jQuery('#status_pencairan').closest('.form-check').show().prop('disabled', true);
-                                    jQuery('#modalTambahDataPencairanBKUDD .send_data').hide();
-                                    jQuery('#modalTambahDataPencairanBKUDD').modal('show');
-                                    resolve(true);
-                                })
+                                    .then(function() {
+                                        jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', true);
+                                        if (res.data.status_ver_total == 0) {
+                                            jQuery('#keterangan_status_pencairan').closest('.form-group').show().prop('disabled', true);
+                                            jQuery('#status_pencairan').prop('checked', false).prop('disabled', true);
+                                        } else {
+                                            jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', true);
+                                            jQuery('#status_pencairan').prop('checked', true).prop('disabled', true);
+                                        }
+                                        jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas).show();
+                                        jQuery('#nota_dinas').val('').hide();
+                                        jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj).show();
+                                        jQuery('#sptj').val('').hide();
+                                        jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas).show();
+                                        jQuery('#pakta_integritas').val('').hide();
+                                        jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer).show();
+                                        jQuery('#permohonan_transfer').val('').hide();
+                                        jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya).show();
+                                        jQuery('#realisasi_tahap_sebelumnya').val('').hide();
+                                        jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum).show();
+                                        jQuery('#dokumen_syarat_umum').val('').hide();
+                                        jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus).show();
+                                        jQuery('#dokumen_syarat_khusus').val('').hide();
+
+                                        jQuery('#keterangan').val(res.data.keterangan).prop('disabled', true);
+                                        jQuery('#keterangan_status_pencairan').val(res.data.ket_ver_total).prop('disabled', true);
+                                        jQuery('#status_pencairan').closest('.form-check').show().prop('disabled', true);
+                                        jQuery('#modalTambahDataPencairanBKUDD .send_data').hide();
+                                        jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+                                        resolve(true);
+                                    })
                             })
                     } else {
                         alert(res.message);
@@ -433,7 +511,6 @@ if (in_array("administrator", $user_meta->roles)) {
             });
         });
     }
-
 
     //show tambah data
     function tambah_data_pencairan_bku_dd() {
@@ -449,19 +526,48 @@ if (in_array("administrator", $user_meta->roles)) {
                     resolve();
                 }
             })
-        jQuery('#id_data').val('').prop('disabled', false);
-        jQuery('#tahun').val('').prop('disabled', false);
-        jQuery('#kec').val('').prop('disabled', false);
-        jQuery('#desa').val('').prop('disabled', false);
-        jQuery('#validasi_pagu').html('');
-        jQuery('#pagu_anggaran').val('').prop('disabled', false);
-        jQuery('#keterangan').val('').prop('disabled', false);
-        jQuery('#status_pencairan').closest('.form-check').hide().prop('disabled', false);
-        jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', false);
-        jQuery('#status_pencairan').prop('checked', false);
-        jQuery('#keterangan_status_pencairan').val('').prop('disabled', false);
-        jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
-        jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+            .then(function() {
+                jQuery('#id_data').val('').prop('disabled', false);
+                jQuery('#kec').val('').prop('disabled', false);
+                jQuery('#desa').val('').prop('disabled', false);
+                jQuery('#validasi_pagu').html('');
+                jQuery('#pagu_anggaran').val('').prop('disabled', false);
+                jQuery('#keterangan').val('').prop('disabled', false);
+                jQuery('#status_pencairan').closest('.form-check').hide().prop('disabled', false);
+                jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', false);
+                jQuery('#status_pencairan').prop('checked', false);
+                jQuery('#keterangan_status_pencairan').val('').prop('disabled', false);
+                jQuery('#nota_dinas').html('');
+                jQuery('#sptj').html('');
+                jQuery('#pakta_integritas').html('');
+                jQuery('#permohonan_transfer').html('');
+                jQuery('#realisasi_tahap_sebelumnya').html('');
+                jQuery('#dokumen_syarat_umum').html('');
+                jQuery('#dokumen_syarat_khusus').html('');
+
+
+            
+                jQuery('#file_nota_dinas_existing').hide()
+
+            jQuery('#file_nota_dinas_existing')
+                
+                jQuery('#file_sptj_existing').hide()
+                jQuery('#file_sptj_existing')
+                
+                jQuery('#file_permohonan_transfer_existing').hide()
+                jQuery('#file_permohonan_transfer_existing')
+                
+                jQuery('#file_realisasi_tahap_sebelumnya_existing').hide()
+                jQuery('#file_realisasi_tahap_sebelumnya_existing')
+                
+                jQuery('#file_dokumen_syarat_umum_existing').hide()
+                jQuery('#file_dokumen_syarat_umum_existing')
+                
+                jQuery('#file_dokumen_syarat_khusus_existing').hide()
+                jQuery('#file_dokumen_syarat_khusus_existing')
+                jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
+                jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+            });
     }
 
     function submitTambahDataFormPencairanBKUDD(that) {
@@ -470,6 +576,7 @@ if (in_array("administrator", $user_meta->roles)) {
         if (tipe_verifikasi != '') {
             return submit_verifikasi();
         }
+
         var id_data = jQuery('#id_data').val();
         var desa = jQuery('#desa').val();
         if (desa == '') {
@@ -484,39 +591,105 @@ if (in_array("administrator", $user_meta->roles)) {
             return alert('Pilih Tahun Dulu!');
         }
         var id_bku_dd = jQuery('#id_bku_dd').val();
+        if (id_bku_dd == '') {
+            return alert('Pilih id bku add dulu!');
+        }
         var pagu_anggaran = jQuery('#pagu_anggaran').val();
         if (pagu_anggaran == '') {
             return alert('Pilih Pagu Anggaran Dulu!');
         }
+        var keterangan = jQuery('#keterangan').val();
+        if (keterangan == '') {
+            return alert('Isi keterangan Dulu!');
+        }
+
+        var nota_dinas = jQuery('#nota_dinas')[0].files[0];
+        var sptj = jQuery('#sptj')[0].files[0];
+        var pakta_integritas = jQuery('#pakta_integritas')[0].files[0];
+        var permohonan_transfer = jQuery('#permohonan_transfer')[0].files[0];
+        var realisasi_tahap_sebelumnya = jQuery('#realisasi_tahap_sebelumnya')[0].files[0];
+        var dokumen_syarat_umum = jQuery('#dokumen_syarat_umum')[0].files[0];
+        var dokumen_syarat_khusus = jQuery('#dokumen_syarat_khusus')[0].files[0];
+
+        if (id_data == '') {
+            if (typeof nota_dinas == 'undefined') {
+                return alert('Upload file nota dinas beserta kelengkapan dulu!');
+            }
+            if (typeof sptj == 'undefined') {
+                return alert('Upload file SPTJ dulu!');
+            }
+            if (typeof pakta_integritas == 'undefined') {
+                return alert('Upload file Pakta integritas dulu!');
+            }
+            if (typeof permohonan_transfer == 'undefined') {
+                return alert('Upload file Permohonan transfer dulu!');
+            }
+            var total_pencairan = +jQuery('#pencairan').attr('total-pencairan');
+            if (total_pencairan > 0) {
+                if (typeof realisasi_tahap_sebelumnya == 'undefined') {
+                    return alert('Upload file Realisasi tahap sebelumnya dulu!');
+                }
+            }
+            if (typeof dokumen_syarat_umum == 'undefined') {
+                return alert('Upload file Dokumen syarat umum dulu!');
+            }
+            if (typeof dokumen_syarat_khusus == 'undefined') {
+                return alert('Upload file Dokumen syarat khusus dulu!');
+            }
+        }
+
         var status_pencairan = jQuery('#status_pencairan').val();
         if (jQuery('#status_pencairan').is(':checked') == false) {
             status_pencairan = 0;
         }
         var keterangan_status_pencairan = jQuery('#keterangan_status_pencairan').val();
-        var keterangan = jQuery('#keterangan').val();
-        if (keterangan == '') {
-            return alert('Isi keterangan Dulu!');
+
+        let tempData = new FormData();
+        tempData.append('action', 'tambah_data_pencairan_bku_dd');
+        tempData.append('api_key', '<?php echo get_option('_crb_api_key_extension'); ?>');
+        tempData.append('id_bku_dd', id_bku_dd);
+        tempData.append('id_data', id_data);
+        tempData.append('pagu_anggaran', pagu_anggaran);
+        tempData.append('status_pencairan', status_pencairan);
+        tempData.append('keterangan_status_pencairan', keterangan_status_pencairan);
+        tempData.append('keterangan', keterangan);
+
+        if (typeof nota_dinas != 'undefined') {
+            tempData.append('nota_dinas', nota_dinas);
         }
+        if (typeof sptj != 'undefined') {
+            tempData.append('sptj', sptj);
+        }
+        if (typeof pakta_integritas != 'undefined') {
+            tempData.append('pakta_integritas', pakta_integritas);
+        }
+        if (typeof permohonan_transfer != 'undefined') {
+            tempData.append('permohonan_transfer', permohonan_transfer);
+        }
+        if (typeof realisasi_tahap_sebelumnya != 'undefined') {
+            tempData.append('realisasi_tahap_sebelumnya', realisasi_tahap_sebelumnya);
+        }
+        if (typeof dokumen_syarat_umum != 'undefined') {
+            tempData.append('dokumen_syarat_umum', dokumen_syarat_umum);
+        }
+        if (typeof dokumen_syarat_khusus != 'undefined') {
+            tempData.append('dokumen_syarat_khusus', dokumen_syarat_khusus);
+        }
+
 
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             method: 'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             dataType: 'json',
-            data: {
-                'action': 'tambah_data_pencairan_bku_dd',
-                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
-                'id_data': id_data,
-                'id_bku_dd': id_bku_dd,
-                'pagu_anggaran': pagu_anggaran,
-                'status_pencairan': status_pencairan,
-                'keterangan_status_pencairan': keterangan_status_pencairan,
-                'keterangan': keterangan,
-            },
+            data: tempData,
+            processData: false,
+            contentType: false,
+            cache: false,
             success: function(res) {
                 alert(res.message);
-                jQuery('#modalTambahDataPencairanBKUDD').modal('hide');
                 if (res.status == 'success') {
+                    jQuery('#modalTambahDataPencairanBKUDD').modal('hide');
                     get_data_pencairan_bku_dd();
                 } else {
                     jQuery('#wrap-loading').hide();
@@ -532,43 +705,46 @@ if (in_array("administrator", $user_meta->roles)) {
                 alert('Pilih tahun anggaran dulu!');
                 return resolve();
             }
-            jQuery('#wrap-loading').show();
-            jQuery.ajax({
-                url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                type: "post",
-                data: {
-                    'action': "get_pemdes_bku_dd",
-                    'api_key': jQuery("#api_key").val(),
-                    'tahun_anggaran': tahun,
-                },
-                dataType: "json",
-                success: function(response) {
-                    window.data_pemdes = response.data;
-                    window.kecamatan_all = {};
-                    data_pemdes.map(function(b, i) {
-                        if (!kecamatan_all[b.kecamatan]) {
-                            kecamatan_all[b.kecamatan] = {};
+            if (typeof bkk_global == 'undefined') {
+                window.bkk_global = {};
+            }
+
+            if (!bkk_global[tahun]) {
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    type: "post",
+                    data: {
+                        'action': "get_pemdes_bku_dd",
+                        'api_key': jQuery("#api_key").val(),
+                        'tahun_anggaran': tahun,
+                        'nama_kec': '<?php echo $nama_kec; ?>'
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        bkk_global[tahun] = response.data;
+                        window.kecamatan_all = {};
+                        bkk_global[tahun].map(function(b, i) {
+                            if (!kecamatan_all[b.kecamatan]) {
+                                kecamatan_all[b.kecamatan] = {};
+                            }
+                            if (!kecamatan_all[b.kecamatan][b.desa]) {
+                                kecamatan_all[b.kecamatan][b.desa] = [];
+                            }
+                            kecamatan_all[b.kecamatan][b.desa].push(b);
+                        });
+                        var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
+                        for (var i in kecamatan_all) {
+                            kecamatan += '<option value="' + i + '">' + i + '</option>';
                         }
-                        if (!kecamatan_all[b.kecamatan][b.desa]) {
-                            kecamatan_all[b.kecamatan][b.desa] = {};
-                        }
-                        if (!kecamatan_all[b.kecamatan][b.desa][b.kegiatan]) {
-                            kecamatan_all[b.kecamatan][b.desa][b.kegiatan] = {};
-                        }
-                        if (!kecamatan_all[b.kecamatan][b.desa][b.kegiatan][b.alamat]) {
-                            kecamatan_all[b.kecamatan][b.desa][b.kegiatan][b.alamat] = [];
-                        }
-                        kecamatan_all[b.kecamatan][b.desa][b.kegiatan][b.alamat].push(b);
-                    });
-                    var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
-                    for (var i in kecamatan_all) {
-                        kecamatan += '<option value="' + i + '">' + i + '</option>';
+                        jQuery('#kec').html(kecamatan);
+                        jQuery('#wrap-loading').hide();
+                        return resolve();
                     }
-                    jQuery('#kec').html(kecamatan);
-                    jQuery('#wrap-loading').hide();
-                    return resolve();
-                }
-            });
+                });
+            } else {
+                return resolve();
+            }
         })
     }
 
@@ -584,44 +760,8 @@ if (in_array("administrator", $user_meta->roles)) {
         jQuery('#desa').html(desa);
     }
 
-    function get_kegiatan() {
-        var kec = jQuery('#kec').val();
-        if (kec == '' || kec == '-1') {
-            return alert('Pilih kecamatan dulu!');
-        }
-        var desa = jQuery('#desa').val();
-        if (desa == '' || desa == '-1') {
-            return alert('Pilih desa dulu!');
-        }
-        var kegiatan = '<option value="-1">Pilih Kegiatan</option>';
-        for (var iii in kecamatan_all[kec][desa]) {
-            kegiatan += '<option value="' + iii + '">' + iii + '</option>';
-        }
-        jQuery('#uraian_kegiatan').html(kegiatan);
-    }
-
-    function get_alamat() {
-        var kec = jQuery('#kec').val();
-        if (kec == '' || kec == '-1') {
-            return alert('Pilih kecamatan dulu!');
-        }
-        var desa = jQuery('#desa').val();
-        if (desa == '' || desa == '-1') {
-            return alert('Pilih desa dulu!');
-        }
-        var kegiatan = jQuery('#uraian_kegiatan').val();
-        if (kegiatan == '' || kegiatan == '-1') {
-            return alert('Pilih kegiatan dulu!');
-        }
-        var alamat = '<option value="-1">Pilih alamat</option>';
-        for (var iiii in kecamatan_all[kec][desa][kegiatan]) {
-            alamat += '<option value="' + iiii + '">' + iiii + '</option>';
-        }
-        jQuery('#alamat').html(alamat);
-    }
-
     function get_pagu() {
-        return new Promise(function(resolve, reject){
+        return new Promise(function(resolve, reject) {
             var kec = jQuery('#kec').val();
             if (kec == '' || kec == '-1') {
                 return alert('Pilih kecamatan dulu!');
@@ -630,18 +770,10 @@ if (in_array("administrator", $user_meta->roles)) {
             if (desa == '' || desa == '-1') {
                 return alert('Pilih desa dulu!');
             }
-            var kegiatan = jQuery('#uraian_kegiatan').val();
-            if (kegiatan == '' || kegiatan == '-1') {
-                return alert('Pilih kegiatan dulu!');
-            }
-            var alamat = jQuery('#alamat').val();
-            if (alamat == '' || alamat == '-1') {
-                return alert('Pilih alamat dulu!');
-            }
             jQuery('#wrap-loading').show();
-            var pagu = kecamatan_all[kec][desa][kegiatan][alamat][0].total;
-            var id = kecamatan_all[kec][desa][kegiatan][alamat][0].id;
-            var tahun = kecamatan_all[kec][desa][kegiatan][alamat][0].tahun_anggaran;
+            var pagu = kecamatan_all[kec][desa][0].total;
+            var id = kecamatan_all[kec][desa][0].id;
+            var tahun = kecamatan_all[kec][desa][0].tahun_anggaran;
             jQuery.ajax({
                 url: "<?php echo admin_url('admin-ajax.php'); ?>",
                 type: "post",
@@ -659,9 +791,14 @@ if (in_array("administrator", $user_meta->roles)) {
                         var tbody = '' +
                             '<tr>' +
                             '<td class="text-right">' + formatRupiah(pagu) + '</td>' +
-                            '<td class="text-right">' + formatRupiah(total_pencairan) + '</td>' +
+                            '<td class="text-right" id="pencairan" total-pencairan="' + total_pencairan + '">' + formatRupiah(total_pencairan) + '</td>' +
                             '<td class="text-right">' + formatRupiah(global_sisa) + '</td>' +
                             '</tr>';
+                        if (total_pencairan > 0) {
+                            jQuery('#realisasi_tahap_sebelumnya').closest('.form-group').show();
+                        } else {
+                            jQuery('#realisasi_tahap_sebelumnya').closest('.form-group').hide();
+                        }
                         jQuery('#validasi_pagu').html(tbody);
                         jQuery('#id_bku_dd').val(id);
                         jQuery('#pagu_anggaran').val(global_sisa);

@@ -153,63 +153,74 @@ if (in_array("administrator", $user_meta->roles)) {
                     <label for="">Nota Dinas Permohonan beserta lampirannya</label>
                     <input type="file" name="file" class="form-control-file" id="nota_dinas" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_nota_dinas_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Pernyataan Tanggung Jawab</label>
                     <input type="file" name="file" class="form-control-file" id="sptj" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_sptj_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Pakta Integritas</label>
                     <input type="file" name="file" class="form-control-file" id="pakta_integritas" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_pakta_integritas_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Permohonan Transfer</label>
                     <input type="file" name="file" class="form-control-file" id="permohonan_transfer" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_permohonan_transfer_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Verifikasi dan Rekomendasi</label>
                     <input type="file" name="file" class="form-control-file" id="verifikasi_rekomendasi" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_verifikasi_rekomendasi_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Permohonan Penyaluran dari Kepala Desa</label>
                     <input type="file" name="file" class="form-control-file" id="permohonan_penyaluran_kades" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_permohonan_penyaluran_kades_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Pernyataan Tanggung Jawab Kepala Desa bermaterai</label>
                     <input type="file" name="file" class="form-control-file" id="sptj_kades" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_sptj_kades_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Pakta Integritas Kepala Desa bermaterai</label>
                     <input type="file" name="file" class="form-control-file" id="pakta_integritas_kades" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_pakta_integritas_kades_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Pakta Integritas 3 Orang (Kepala Desa, BPD, Ketua Pelaksana Kegiatan)</label>
                     <input type="file" name="file" class="form-control-file" id="pakta_integritas_3_orang" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_pakta_integritas_3_orang_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Proposal dengan Rencana Anggaran BOP maksimal 2,5%</label>
                     <input type="file" name="file" class="form-control-file" id="proposal_rencana_anggaran" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_proposal_rencana_anggaran_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Peraturan Desa tentang APBDesa</label>
                     <input type="file" name="file" class="form-control-file" id="apbdes" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_apbdes_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
                 <div class="form-group">
                     <label for="">Foto Copy Rekening Kas Desa</label>
                     <input type="file" name="file" class="form-control-file" id="fc_rek_kas_desa" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a target="_blank" id="file_fc_rek_kas_desa_existing"></a></div>
+                    <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 </div>
-                <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pencairan" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
                     <label class="form-check-label" for="status_pencairan">Setujui Pencairan</label>
@@ -448,29 +459,29 @@ if (in_array("administrator", $user_meta->roles)) {
                                 jQuery('#status_pencairan').prop('checked', true);
                             }
 
-                            jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas);
+                            jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas).show();
                             jQuery('#nota_dinas').val('').show();
-                            jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj);
+                            jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj).show();
                             jQuery('#sptj').val('').show();
-                            jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas);
+                            jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas).show();
                             jQuery('#pakta_integritas').val('').show();
-                            jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer);
+                            jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer).show();
                             jQuery('#permohonan_transfer').val('').show();
-                            jQuery('#file_verifikasi_rekomendasi_existing').attr('href', global_file_upload + res.data.file_verifikasi_rekomendasi).html(res.data.file_verifikasi_rekomendasi);
+                            jQuery('#file_verifikasi_rekomendasi_existing').attr('href', global_file_upload + res.data.file_verifikasi_rekomendasi).html(res.data.file_verifikasi_rekomendasi).show();
                             jQuery('#verifikasi_rekomendasi').val('').show();
-                            jQuery('#file_permohonan_penyaluran_kades_existing').attr('href', global_file_upload + res.data.file_permohonan_penyaluran_kades).html(res.data.file_permohonan_penyaluran_kades);
+                            jQuery('#file_permohonan_penyaluran_kades_existing').attr('href', global_file_upload + res.data.file_permohonan_penyaluran_kades).html(res.data.file_permohonan_penyaluran_kades).show();
                             jQuery('#permohonan_penyaluran_kades').val('').show();
-                            jQuery('#file_sptj_kades_existing').attr('href', global_file_upload + res.data.file_sptj_kades).html(res.data.file_sptj_kades);
+                            jQuery('#file_sptj_kades_existing').attr('href', global_file_upload + res.data.file_sptj_kades).html(res.data.file_sptj_kades).show();
                             jQuery('#sptj_kades').val('').show();
-                            jQuery('#file_pakta_integritas_kades_existing').attr('href', global_file_upload + res.data.file_pakta_integritas_kades).html(res.data.file_pakta_integritas_kades);
+                            jQuery('#file_pakta_integritas_kades_existing').attr('href', global_file_upload + res.data.file_pakta_integritas_kades).html(res.data.file_pakta_integritas_kades).show();
                             jQuery('#pakta_integritas_kades').val('').show();
-                            jQuery('#file_pakta_integritas_3_orang_existing').attr('href', global_file_upload + res.data.file_pakta_integritas_3_orang).html(res.data.file_pakta_integritas_3_orang);
+                            jQuery('#file_pakta_integritas_3_orang_existing').attr('href', global_file_upload + res.data.file_pakta_integritas_3_orang).html(res.data.file_pakta_integritas_3_orang).show();
                             jQuery('#pakta_integritas_3_orang').val('').show();
-                            jQuery('#file_proposal_rencana_anggaran_existing').attr('href', global_file_upload + res.data.file_proposal_rencana_anggaran).html(res.data.file_proposal_rencana_anggaran);
+                            jQuery('#file_proposal_rencana_anggaran_existing').attr('href', global_file_upload + res.data.file_proposal_rencana_anggaran).html(res.data.file_proposal_rencana_anggaran).show();
                             jQuery('#proposal_rencana_anggaran').val('').show();
-                            jQuery('#file_apbdes_existing').attr('href', global_file_upload + res.data.file_apbdes).html(res.data.file_apbdes);
+                            jQuery('#file_apbdes_existing').attr('href', global_file_upload + res.data.file_apbdes).html(res.data.file_apbdes).show();
                             jQuery('#apbdes').val('').show();
-                            jQuery('#file_fc_rek_kas_desa_existing').attr('href', global_file_upload + res.data.file_fc_rek_kas_desa).html(res.data.file_fc_rek_kas_desa);
+                            jQuery('#file_fc_rek_kas_desa_existing').attr('href', global_file_upload + res.data.file_fc_rek_kas_desa).html(res.data.file_fc_rek_kas_desa).show();
                             jQuery('#fc_rek_kas_desa').val('').show();
 
                             jQuery('#keterangan_status_pencairan').val(res.data.ket_ver_proposal).prop('disabled', false);
@@ -602,40 +613,40 @@ if (in_array("administrator", $user_meta->roles)) {
             jQuery('#apbdes').html('');
             jQuery('#fc_rek_kas_desa').html('');
             
-            jQuery('#file_nota_dinas_existing').show();
+            jQuery('#file_nota_dinas_existing').hide();
             jQuery('#file_nota_dinas_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_sptj_existing').show();
+            jQuery('#file_sptj_existing').hide();
             jQuery('#file_sptj_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_pakta_integritas_existing').show();
+            jQuery('#file_pakta_integritas_existing').hide();
             jQuery('#file_pakta_integritas_existing').closest('.form-group').find('input').show();
 
-            jQuery('#file_permohonan_transfer_existing').show();
+            jQuery('#file_permohonan_transfer_existing').hide();
             jQuery('#file_permohonan_transfer_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_verifikasi_rekomendasi_existing').show();
+            jQuery('#file_verifikasi_rekomendasi_existing').hide();
             jQuery('#file_verifikasi_rekomendasi_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_permohonan_penyaluran_kades_existing').show();
+            jQuery('#file_permohonan_penyaluran_kades_existing').hide();
             jQuery('#file_permohonan_penyaluran_kades_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_sptj_kades_existing').show();
+            jQuery('#file_sptj_kades_existing').hide();
             jQuery('#file_sptj_kades_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_pakta_integritas_kades_existing').show();
+            jQuery('#file_pakta_integritas_kades_existing').hide();
             jQuery('#file_pakta_integritas_kades_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_pakta_integritas_3_orang_existing').show();
+            jQuery('#file_pakta_integritas_3_orang_existing').hide();
             jQuery('#file_pakta_integritas_3_orang_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_proposal_rencana_anggaran_existing').show();
+            jQuery('#file_proposal_rencana_anggaran_existing').hide();
             jQuery('#file_proposal_rencana_anggaran_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_apbdes_existing').show();
+            jQuery('#file_apbdes_existing').hide();
             jQuery('#file_apbdes_existing').closest('.form-group').find('input').show();
             
-            jQuery('#file_fc_rek_kas_desa_existing').show();
+            jQuery('#file_fc_rek_kas_desa_existing').hide();
             jQuery('#file_fc_rek_kas_desa_existing').closest('.form-group').find('input').show();
             jQuery('#modalTambahDataPencairanBKK .send_data').show();
             jQuery('#modalTambahDataPencairanBKK').modal('show');
