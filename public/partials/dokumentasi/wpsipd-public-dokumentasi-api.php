@@ -1263,40 +1263,28 @@ curl \
         <div class="overflow-hidden content-section" id="content-errors">
             <h2>Errors</h2>
             <p>
-                The WP-SIPD API uses error codes:
+                The WP-SIPD API uses error status:
             </p>
             <table style="width:40%">
                 <thead>
                 <tr>
-                    <th>Error Code</th>
-                    <th>Meaning</th>
+                    <th>Status</th>
+                    <th>Message</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td>X000</td>
+                    <td><span class="badge badge-danger">error</span></td>
                     <td>
-                        Some parameters are missing. This error appears when you don't pass every mandatory parameters.
+                        Format Data Salah.
                     </td>
                 </tr>
                 <tr>
-                    <td>X001</td>
+                    <td><span class="badge badge-danger">error</span></td>
                     <td>
-                        Unknown or unvalid <code class="higlighted">secret_key</code>. This error appears if you use an unknow API key or if your API key expired.
+                        APIKEY tidak sesuai!.
                     </td>
-                </tr>
-                <tr>
-                    <td>X002</td>
-                    <td>
-                        Unvalid <code class="higlighted">secret_key</code> for this domain. APIKEY tidak sesuai!.
-                    </td>
-                </tr>
-                <tr>
-                    <td>X003</td>
-                    <td>
-                        Unknown or unvalid user <code class="higlighted">token</code>. This error appears if you use an unknow user <code class="higlighted">token</code> or if the user <code class="higlighted">token</code> expired.
-                    </td>
-                </tr>
+                </tr>                
                 </tbody>
             </table>
         </div>
