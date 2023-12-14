@@ -331,7 +331,7 @@ pre{
 }
 .content pre code, .content pre {
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1;
 }
 .content blockquote,
 .content pre,
@@ -357,13 +357,13 @@ pre{
     border-bottom: 1px solid #ccc;
     vertical-align: bottom;
     text-align: left;
-    line-height: 1.6;
+    line-height: 1;
 }
 .content table td {
     padding: 5px 18px 5px 0;
     text-align: left;
     vertical-align: top;
-    line-height: 1.6;
+    line-height: 1;
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     color: #777A7A;
@@ -588,14 +588,18 @@ body.one-content-column-version .content thead {
         <div class="content-infos">
             <div class="info"><b>Version:</b> <?php echo $versi; ?></div>
             <div class="info"><b>Last Updated:</b> <?php echo $tgl; ?></div>
-        </div>target="content-get-skpd">
+        </div>
+            <li class="scroll-to-link active" data-target="content-get-started">
+                <a>Pendahuluan</a>
+            </li>
+            <li class="scroll-to-link" data-target="content-get-skpd">
                 <a>Get SKPD</a>
             </li>
             <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
-                <a>Get SUB KEGIATAN by id skpd</a>
+                <a>Get SUB KEGIATAN</a>
             </li>
             <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
-                <a>Get RKA by kode sbl</a>
+                <a>Get RKA</a>
             </li>
             <li class="scroll-to-link" data-target="content-errors">
                 <a>Errors</a>
@@ -646,12 +650,12 @@ curl \
                 </code>
             </pre>
             <p>
-                Untuk menampilkan SKPD berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                Untuk menampilkan Nama dan Kode SKPD berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
                 <code class="higlighted break-word">
                     <?php echo get_site_url();?>/wp-admin/admin-ajax.php
                 </code>
                 <h4>QUERY PARAMETERS</h4>
-                <table class="central-overflow-x">
+                <table class="central-overflow-x" style="width:40%">
                     <thead>
                         <tr>
                             <th>Field</th>
@@ -775,7 +779,7 @@ curl \
             </pre>
         </div>
         <div class="overflow-hidden content-section" id="content-get-subkeg-by-skpd">
-            <h2>GET SUB KEGIATAN BY SKPD</h2>
+            <h2>GET SUB KEGIATAN BERDASARKAN SKPD</h2>
             <pre>
                 <code class="bash">
 # Here is a curl example
@@ -793,7 +797,7 @@ curl \
                     <?php echo get_site_url();?>/wp-admin/admin-ajax.php
                 </code>
                 <h4>QUERY PARAMETERS</h4>
-                <table class="central-overflow-x">
+                <table class="central-overflow-x" style="width:40%">
                     <thead>
                         <tr>
                             <th>Field</th>
@@ -1070,7 +1074,7 @@ curl \
             </pre>
         </div>
         <div class="overflow-hidden content-section" id="content-get-rka-by-kodesbl">
-            <h2>GET RKA by Kode SBL</h2>
+            <h2>GET RKA berdasarkan Kode SBL</h2>
             <pre>
                 <code class="bash">
 # Here is a curl example
@@ -1079,17 +1083,16 @@ curl \
 -F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_sub_keg_rka_sipd' \
 -F 'tahun_anggaran=2023' \
--F 'id_skpd=2023' \
 -F 'kode_sbl=3276.3276.825.3804.14140' \
                 </code>
             </pre>
             <p>
-                Untuk menampilkan Rincian Belanja pada RKA SKPD berdasarkan kode rincian SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                Untuk menampilkan Rincian Belanja pada RKA SKPD berdasarkan kode rincian belanja (kode SBL) dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
                 <code class="higlighted break-word">
                     <?php echo get_site_url();?>/wp-admin/admin-ajax.php
                 </code>
                 <h4>QUERY PARAMETERS</h4>
-                <table class="central-overflow-x">
+                <table class="central-overflow-x" style="width:40%">
                     <thead>
                         <tr>
                             <th>Field</th>
@@ -1148,23 +1151,7 @@ curl \
                                     Dibutuhkan
                                 </span>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>                                
-                                id_skpd                                
-                            </td>
-                            <td>
-                                Angka
-                            </td>
-                            <td>
-                                Bidang spesifik yang akan dilakukan pencarian atau filter SKPD
-                            </td>
-                            <td class="text-center">
-                                <span class="badge badge-danger">
-                                    Dibutuhkan
-                                </span>
-                            </td>
-                        </tr>
+                        </tr>                        
                         <tr>
                             <td>                                
                                 kode_sbl                                
@@ -1278,7 +1265,7 @@ curl \
             <p>
                 The WP-SIPD API uses error codes:
             </p>
-            <table>
+            <table style="width:40%">
                 <thead>
                 <tr>
                     <th>Error Code</th>
