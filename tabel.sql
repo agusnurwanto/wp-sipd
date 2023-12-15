@@ -1551,6 +1551,42 @@ CREATE TABLE `data_mapping_label` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_label_spm` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_spm` int(11) NOT NULL,
+  `abjad_spm` text DEFAULT NULL,
+  `nama` text DEFAULT NULL,
+  'kode_layanan' text DEFAULT NULL,
+  'layanan_teks' text DEFAULT NULL,
+  `dashuk_teks` text DEFAULT NULL,
+  `set_prov` tinyint(4) NOT NULL,
+  `set_kab_kota` tinyint(4) NOT NULL,  
+  `user` text DEFAULT NULL,
+  `is_locked` tinyint(4) NOT NULL,
+  `active` tinyint(4) NOT NULL, 
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_mapping_spm_subgiat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_spm_giat` int(11) NOT NULL,
+  `id_spm` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `set_prov` int(11) NOT NULL,
+  `set_kab_kota` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `is_locked` tinyint(4) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_renstra_tujuan` (
   `id` int(11) NOT NULL auto_increment,
   `bidur_lock` int(11) DEFAULT NULL,

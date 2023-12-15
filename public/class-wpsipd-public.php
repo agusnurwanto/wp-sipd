@@ -5024,6 +5024,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/dokumentasi/wpsipd-public-dokumentasi-api.php';
 	}
 
+	public function rpjmd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/perencanaan/rpjmd.php';
+	}
+
 	public function monitoring_spd_rinci($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -19475,6 +19484,72 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'data'=>$data
 		];
 
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_spm()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label SPM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						// $label = $_POST['label'];		
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_label_spm', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_kokab 
+							from data_prioritas_kokab 
+							where tahun_anggaran=%d 
+								AND id_label_kokab=%d
+						", $_POST['tahun_anggaran'], $v['id_spm']));
+						$opsi = array(
+							'id_spm' => $v['id_spm'],
+							'abjad_spm' => $v['abjad_spm'],
+							'spm_teks' => $v['spm_teks'],
+							'kode_layanan' => $v['kode_layanan'],
+							'layanan_teks' => $v['layanan_teks'],
+							'dashuk_teks' => $v['dashuk_teks'],
+							'set_prov' => $v['set_prov'],
+							'set_kab_kota' => $v['set_kab_kota'],
+							'is_locked' => $v['is_locked'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_prioritas_kokab', $opsi, array(
+								'id_label_kokab' => $v['id_label_kokab'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_prioritas_kokab', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label/Prioritas Kabupaten Kota Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
 		die(json_encode($ret));
 	}
 
