@@ -1026,6 +1026,7 @@ class Wpsipd
 		add_shortcode('rekap_sumber_dana_per_sub_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_sub_kegiatan'));
 		add_shortcode('rekap_sumber_dana_per_rekening', array($plugin_public, 'rekap_sumber_dana_per_rekening'));
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
+		add_shortcode('verifikasi_rka_lokal', array($plugin_public, 'verifikasi_rka_lokal'));
 		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
 		add_shortcode('user_pptk', array($plugin_public, 'user_pptk'));
 		add_shortcode('dokumentasi_api_wpsipd', array($plugin_public, 'dokumentasi_api_wpsipd'));
@@ -1034,6 +1035,7 @@ class Wpsipd
 		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
 		add_shortcode('input_batasan_pagu_per_sumber_dana', array($plugin_public, 'input_batasan_pagu_per_sumber_dana'));
 		add_shortcode('jadwal_verifikasi_rka', array($plugin_public, 'jadwal_verifikasi_rka'));
+		add_shortcode('jadwal_verifikasi_rka_sipd', array($plugin_public, 'jadwal_verifikasi_rka_sipd'));
 		add_shortcode('rekap_total_prog_keg_renstra', array($plugin_public, 'rekap_total_prog_keg_renstra'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

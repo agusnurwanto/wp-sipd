@@ -11,6 +11,17 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-verifikasi-rka.php';
     }
 
+    public function verifikasi_rka_lokal()
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+
+        $tipe_rka = 'rka_lokal';
+
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-verifikasi-rka.php';
+    }
+
     public function rekap_longlist_per_jenis_belanja($atts)
     {
         if (!empty($_GET) && !empty($_GET['post'])) {
@@ -446,15 +457,28 @@ class Wpsipd_Public_RKA
                     $ret['status'] = 'error';
                     $ret['message'] = 'tahun anggaran tidak boleh kosong!';
                     die(json_encode($ret));
+                } else if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe RKA tidak boleh kosong!';
+                    die(json_encode($ret));
                 }
 
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                    $where_rka = '';
+                }else{
+                    $prefix = '';
+                    $where_rka = '_sipd';
+                }
 
                 $datas = $wpdb->get_results($wpdb->prepare("
                     SELECT 
                         *
-                    FROM data_verifikasi_rka
+                    FROM data_verifikasi_rka".$prefix."
                     WHERE kode_sbl = %s
                         AND tahun_anggaran = %d
                         AND active = 1
@@ -496,7 +520,7 @@ class Wpsipd_Public_RKA
                     $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
                         SELECT
                             p.*
-                        FROM data_pptk_sub_keg p
+                        FROM data_pptk_sub_keg".$prefix." p
                         WHERE active=1
                             and tahun_anggaran=%d
                             and kode_sbl=%s
@@ -506,7 +530,7 @@ class Wpsipd_Public_RKA
                     }
                 }
 
-                $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka_sipd',$tahun_anggaran);
+                $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka'.$where_rka,$tahun_anggaran);
                 $jadwal_lokal = $cek_jadwal['data'];
                 $dateTime = new DateTime();
                 $time_now = $dateTime->format('Y-m-d H:i:s');
@@ -588,11 +612,24 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
+                if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe rka tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
                 $id_catatan = $_POST['id_catatan'];
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
                 $fokus_uraian = $_POST['fokus_uraian'];
                 $catatan_verifikasi = $_POST['catatan_verifikasi'];
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                }else{
+                    $prefix = '';
+                }
 
                 $data = array(
                     'tahun_anggaran' => $tahun_anggaran,
@@ -605,13 +642,14 @@ class Wpsipd_Public_RKA
                     'create_at' => current_time('mysql')
                 );
 
+                $tabel_verif = 'data_verifikasi_rka'.$prefix;
                 if (empty($id_catatan)) {
                     // Insert new data
-                    $result = $wpdb->insert('data_verifikasi_rka', $data);
+                    $result = $wpdb->insert($tabel_verif, $data);
                 } else {
                     // Update existing data and set update_at
                     $data['update_at'] = current_time('mysql');
-                    $result = $wpdb->update('data_verifikasi_rka', $data, array('id' => $id_catatan));
+                    $result = $wpdb->update($tabel_verif, $data, array('id' => $id_catatan));
                     $ret['message'] = 'Berhasil Update Catatan Verifikasi';
                 }
 
@@ -624,10 +662,12 @@ class Wpsipd_Public_RKA
                         'tahun_anggaran' => $tahun_anggaran
                     );
 
+                    $tabel_validasi = 'data_validasi_verifikasi_rka'.$prefix;
+
                     $existing_validasi = $wpdb->get_row($wpdb->prepare(
                         "
                         SELECT * 
-                        FROM data_validasi_verifikasi_rka 
+                        FROM ".$tabel_validasi." 
                         WHERE kode_sbl = %s 
                           AND tahun_anggaran = %d
                           AND id_user = %d",
@@ -639,7 +679,7 @@ class Wpsipd_Public_RKA
                     if ($existing_validasi) {
                         // Update existing data
                         $data_validasi['update_at'] = current_time('mysql');
-                        $result_validasi = $wpdb->update('data_validasi_verifikasi_rka', $data_validasi, array('id' => $existing_validasi->id));
+                        $result_validasi = $wpdb->update($tabel_validasi, $data_validasi, array('id' => $existing_validasi->id));
                         if ($result_validasi === false) {
                             $ret['status'] = 'error';
                             $ret['message'] = 'Gagal memperbarui data validasi di database.';
@@ -647,7 +687,7 @@ class Wpsipd_Public_RKA
                         }
                     } else {
                         // Insert new data
-                        $result_validasi = $wpdb->insert('data_validasi_verifikasi_rka', $data_validasi);
+                        $result_validasi = $wpdb->insert($tabel_validasi, $data_validasi);
                         if ($result_validasi === false) {
                             $ret['status'] = 'error';
                             $ret['message'] = 'Gagal menambahkan data validasi ke database.';
@@ -698,6 +738,19 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'tanggapan verifikasi harus diisi!';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe rka harus diisi!';
+                    die(json_encode($ret));
+                }
+
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                }else{
+                    $prefix = '';
+                }
                 $current_user = wp_get_current_user();
                 $allowed_roles = array('pptk', 'PA', 'KPA', 'PLT');
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
@@ -713,14 +766,14 @@ class Wpsipd_Public_RKA
                 $id_tanggapan = $wpdb->get_var($wpdb->prepare("
                     SELECT 
                         id
-                    FROM data_verifikasi_rka
+                    FROM data_verifikasi_rka".$prefix."
                     WHERE id = %d 
                     and active = 1", $id_catatan));
 
                 if ($id_tanggapan) {
                     // Update tabel data_verifikasi_rka
                     $result = $wpdb->update(
-                        'data_verifikasi_rka',
+                        'data_verifikasi_rka'.$prefix,
                         array(
                             'tanggapan_opd' => $tanggapan_verifikasi,
                             'update_at_tanggapan' => current_time('mysql')
@@ -761,6 +814,12 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'kode_sbl catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe rka tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+
                 $user_id = um_user('ID');
                 $user_meta = get_userdata($user_id);
                 $roles = $this->role_verifikator();
@@ -778,6 +837,14 @@ class Wpsipd_Public_RKA
 
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                }else{
+                    $prefix = '';
+                }
+                
                 $data = array(
                     'kode_sbl' => $kode_sbl,
                     'tahun_anggaran' => $tahun_anggaran,
@@ -785,17 +852,19 @@ class Wpsipd_Public_RKA
                     'nama_bidang' => get_usermeta($user_id, 'nama_bidang_skpd'),
                     'update_at' => current_time('mysql')
                 );
+
+                $tabel = 'data_validasi_verifikasi_rka'.$prefix;
                 $cek_data = $wpdb->get_var($wpdb->prepare("
                     SELECT
                         id
-                    FROM data_validasi_verifikasi_rka
+                    FROM ".$tabel."
                     WHERE kode_sbl = %s
                         AND tahun_anggaran= %d
                 ", $kode_sbl, $tahun_anggaran));
                 if (empty($cek_data)) {
-                    $wpdb->insert('data_validasi_verifikasi_rka', $data);
+                    $wpdb->insert($tabel, $data);
                 } else {
-                    $wpdb->update('data_validasi_verifikasi_rka', $data, array(
+                    $wpdb->update($tabel, $data, array(
                         'id' => $cek_data
                     ));
                 }
@@ -826,10 +895,24 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'id catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe rka tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                }else{
+                    $prefix = '';
+                }
+
                 $ret['data'] = $wpdb->get_row($wpdb->prepare('
                     SELECT
                         *
-                    FROM data_verifikasi_rka
+                    FROM data_verifikasi_rka'.$prefix.'
                     WHERE id=%d
                      AND active=1
                 ', $_POST['id']), ARRAY_A);
@@ -858,19 +941,33 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'id catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['tipe_rka'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tipe rka tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+
+                $tipe_rka = $_POST['tipe_rka'];
+
+                if($tipe_rka == 'rka_lokal'){
+                    $prefix = '_lokal';
+                }else{
+                    $prefix = '';
+                }
+
                 $id = intval($_POST['id']);
                 $data = $wpdb->get_row($wpdb->prepare("
                     SELECT
                         id_user,
                         kode_sbl,
                         tahun_anggaran
-                    FROM data_verifikasi_rka
+                    FROM data_verifikasi_rka".$prefix."
                     WHERE id = %d", $id));
 
                 if ($data) {
                     // Update tabel data_verifikasi_rka
                     $result = $wpdb->update(
-                        'data_verifikasi_rka',
+                        'data_verifikasi_rka'.$prefix,
                         array('active' => 0),
                         array('id' => $id)
                     );
@@ -878,7 +975,7 @@ class Wpsipd_Public_RKA
                     if ($result !== false) {
                         // Update tabel data_validasi_verifikasi_rka
                         $result_validasi = $wpdb->update(
-                            'data_validasi_verifikasi_rka',
+                            'data_validasi_verifikasi_rka'.$prefix,
                             array('update_at' => current_time('mysql')),
                             array(
                                 'id_user' => $data->id_user,
@@ -1416,12 +1513,20 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
                     die(json_encode($ret));
                 }
+
+                $prefix = '';
+                if(!empty($_POST['tipe_rka'])){
+                    if($_POST['tipe_rka'] == 'rka_lokal'){
+                        $prefix = '_lokal';
+                    }
+                }
+
                 $sub_keg = $wpdb->get_row($wpdb->prepare("
                 SELECT
                     p.*,
                     s.nama_sub_giat,
                     s.kode_urusan
-                FROM data_pptk_sub_keg p
+                FROM data_pptk_sub_keg".$prefix." p
                 RIGHT JOIN data_sub_keg_bl s on p.kode_sbl = s.kode_sbl
                     and p.tahun_anggaran = s.tahun_anggaran
                     and s.active=1
@@ -1516,19 +1621,27 @@ class Wpsipd_Public_RKA
                     'update_at' => current_time('mysql')
                 );
 
+                $prefix = '';
+                if(!empty($_POST['tipe_rka'])){
+                    if($_POST['tipe_rka'] == 'rka_lokal'){
+                        $prefix = '_lokal';
+                    }
+                }
+
+                $nama_tabel = "data_pptk_sub_keg".$prefix;
                 $cek_pptk = $wpdb->get_var($wpdb->prepare("
                     SELECT
                         id
-                    FROM data_pptk_sub_keg
+                    FROM ".$nama_tabel."
                     WHERE active=1
                         and tahun_anggaran=%d
                         and kode_sbl=%s
                 ", $tahun_anggaran, $kode_sbl));
 
                 if (empty($cek_pptk)) {
-                    $result = $wpdb->insert('data_pptk_sub_keg', $data);
+                    $result = $wpdb->insert($nama_tabel, $data);
                 } else {
-                    $wpdb->update('data_pptk_sub_keg', $data, array('id' => $cek_pptk));
+                    $wpdb->update($nama_tabel, $data, array('id' => $cek_pptk));
                 }
             } else {
                 $ret['status'] = 'error';

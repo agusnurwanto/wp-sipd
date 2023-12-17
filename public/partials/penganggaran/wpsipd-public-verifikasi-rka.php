@@ -8,11 +8,30 @@ if (!empty($_GET) && !empty($_GET['tahun']) && !empty($_GET['kode_sbl'])) {
 	die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
 }
 
+if (isset($tipe_rka)) {
+	if ($tipe_rka == 'rka_lokal') {
+		$tipe_rka = 'rka_lokal';
+		$prefix = '_lokal';
+		$jadwal_rka = 'verifikasi_rka';
+		$judul = '';
+	} else {
+		$tipe_rka = 'rka_sipd';
+		$prefix = '';
+		$jadwal_rka = 'verifikasi_rka_sipd';
+		$judul = ' SIPD';
+	}
+} else {
+	$tipe_rka = 'rka_sipd';
+	$prefix = '';
+	$jadwal_rka = 'verifikasi_rka_sipd';
+	$judul = ' SIPD';
+}
+
 $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
 $timezone = get_option('timezone_string');
-$cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka_sipd',$tahun_anggaran);
+$cek_jadwal = $this->validasi_jadwal_perencanaan($jadwal_rka,$tahun_anggaran);
 
 $jadwal_lokal = $cek_jadwal['data'];
 $setting_waktu = 0;
@@ -56,7 +75,7 @@ $data_rka = $wpdb->get_row($wpdb->prepare('
 		u.kode_skpd as kode_sub_skpd_asli,
 		uu.nama_skpd as nama_skpd_asli,
 		uu.kode_skpd as kode_skpd_asli
-	FROM data_sub_keg_bl s
+	FROM data_sub_keg_bl'.$prefix.' s
 	INNER JOIN data_unit u on s.id_sub_skpd=u.id_skpd
 		AND u.active=s.active
 		AND u.tahun_anggaran=s.tahun_anggaran
@@ -85,7 +104,7 @@ if ($data_rka) {
 			d.iddana,
 			d.namadana,
 			m.kode_dana
-		FROM data_dana_sub_keg d
+		FROM data_dana_sub_keg".$prefix." d
 			left join data_sumber_dana m on d.iddana=m.id_dana
 				and d.tahun_anggaran = m.tahun_anggaran
 		WHERE kode_sbl=%s
@@ -108,7 +127,7 @@ $result_verifikasi = $wpdb->get_results($wpdb->prepare("
 		nama_bidang,
 		update_at,
 		id_user
-	FROM data_validasi_verifikasi_rka 
+	FROM data_validasi_verifikasi_rka".$prefix." 
 	WHERE tahun_anggaran =%d
 		AND kode_sbl =%s
 ", $tahun_anggaran, $kode_sbl), ARRAY_A); 	
@@ -136,7 +155,7 @@ $user_pptk = 'User PPTK belum disetting!';
 $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
 	SELECT
 		p.*
-	FROM data_pptk_sub_keg p
+	FROM data_pptk_sub_keg".$prefix." p
 	WHERE active=1
 		and tahun_anggaran=%d
 		and kode_sbl=%s
@@ -184,7 +203,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 	}
 </style>
 <div style="padding: 15px;">
-	<h1 class="text-center">LEMBAR ASISTENSI RKA SKPD<br>TAHUN ANGGARAN <?php echo $tahun_anggaran ?></h1>
+	<h1 class="text-center">LEMBAR ASISTENSI RKA<?php echo $judul ?> SKPD<br>TAHUN ANGGARAN <?php echo $tahun_anggaran ?></h1>
 	<table id='tabel_detail_sub'>
 		<tbody>
 			<tr>
@@ -323,6 +342,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 </div>
 <script>
 	jQuery(document).ready(function() {
+		window.tipe_rka = '<?php echo $tipe_rka; ?>';
+
 		load_data();
 
 		var mySpace = '<div style="padding:3rem;"></div>';
@@ -347,7 +368,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				api_key: '<?php echo $api_key; ?>',
 				action: 'get_data_verifikasi_rka',
 				kode_sbl: '<?php echo $kode_sbl; ?>',
-				tahun_anggaran: <?php echo $tahun_anggaran; ?>
+				tahun_anggaran: <?php echo $tahun_anggaran; ?>,
+				tipe_rka: tipe_rka
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();
@@ -373,7 +395,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 					api_key: '<?php echo $api_key; ?>',
 					kode_sbl: '<?php echo $kode_sbl ?>',
 					tahun_anggaran: '<?php echo $tahun_anggaran ?>',
-					action: 'verifikasi_tanpa_catatan'
+					action: 'verifikasi_tanpa_catatan',
+					tipe_rka: tipe_rka
 				},
 				success: function(data) {
 					jQuery('#wrap-loading').hide();
@@ -404,6 +427,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				'action': 'get_catatan_verifikasi_by_id',
 				'api_key': '<?php echo $api_key; ?>',
 				'id': id,
+				tipe_rka: tipe_rka
 			},
 			success: function(res) {
 				if (res.status == 'success') {
@@ -472,6 +496,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				fokus_uraian: fokus_uraian,
 				catatan_verifikasi: catatan_verifikasi,
 				action: 'tambah_catatan_verifikator',
+				tipe_rka: tipe_rka
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();
@@ -507,7 +532,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				tanggapan_verifikasi: tanggapan_verifikasi,
 				action: 'tambah_data_tanggapan',
 				'id_catatan': id_catatan,
-				'user_pptk_status': userPptkStatus
+				'user_pptk_status': userPptkStatus,
+				tipe_rka: tipe_rka
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();
@@ -536,7 +562,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				data: {
 					'action': 'hapus_catatan_verifikasi',
 					'api_key': '<?php echo $api_key; ?>',
-					'id': id
+					'id': id,
+					tipe_rka: tipe_rka
 				},
 				dataType: 'json',
 				success: function(response) {
@@ -562,6 +589,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				'action': 'get_catatan_verifikasi_by_id',
 				'api_key': '<?php echo $api_key; ?>',
 				'id': id,
+				tipe_rka: tipe_rka
 			},
 			success: function(res) {
 				if (res.status == 'success') {
