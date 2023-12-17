@@ -146,40 +146,40 @@ if (in_array("administrator", $user_meta->roles)) {
                 </div>
                 <div class="form-group">
                     <label for="">Nota Dinas Permohonan beserta lampirannya</label>
-                    <input type="file" name="file" class="form-control-file" id="nota_dinas">
+                    <input type="file" name="file" class="form-control-file" id="nota_dinas" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_nota_dinas_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Pernyataan Tanggung Jawab</label>
-                    <input type="file" name="file" class="form-control-file" id="sptj">
+                    <input type="file" name="file" class="form-control-file" id="sptj" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sptj_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Pakta Integritas</label>
-                    <input type="file" name="file" class="form-control-file" id="pakta_integritas">
+                    <input type="file" name="file" class="form-control-file" id="pakta_integritas" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pakta_integritas_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Surat Permohonan Transfer</label>
-                    <input type="file" name="file" class="form-control-file" id="permohonan_transfer">
+                    <input type="file" name="file" class="form-control-file" id="permohonan_transfer" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_permohonan_transfer_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Realisasi Tahap Sebelumnya (hanya bagi Tahap II dan III)</label>
-                    <input type="file" name="file" class="form-control-file" id="realisasi_tahap_sebelumnya">
+                    <input type="file" name="file" class="form-control-file" id="realisasi_tahap_sebelumnya" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_realisasi_tahap_sebelumnya_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Dokumen Syarat Umum</label>
-                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_umum">
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_umum" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_umum_existing"></a></div>
                 </div>
                 <div class="form-group">
                     <label for="">Dokumen Syarat Khusus</label>
-                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_khusus">
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_khusus" accept="application/pdf">
                     <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_khusus_existing"></a></div>
                 </div>
-                <div>File maksimal berukuran 1 MB, berformat .pdf</div>
+                <div><small>File maksimal berukuran 1 MB, berformat .pdf</small></div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pencairan" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
                     <label class="form-check-label" for="status_pencairan">Setujui Pencairan</label>
@@ -416,17 +416,17 @@ if (in_array("administrator", $user_meta->roles)) {
 
                                     jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas);
                                     jQuery('#nota_dinas').val('').show();
-                                    jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj);
+                                    jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj).show();
                                     jQuery('#sptj').val('').show();
-                                    jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas);
+                                    jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas).show();
                                     jQuery('#pakta_integritas').val('').show();
-                                    jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer);
+                                    jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer).show();
                                     jQuery('#permohonan_transfer').val('').show();
-                                    jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya);
+                                    jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya).show();
                                     jQuery('#realisasi_tahap_sebelumnya').val('').show();
-                                    jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum);
+                                    jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum).show();
                                     jQuery('#dokumen_syarat_umum').val('').show();
-                                    jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus);
+                                    jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus).show();
                                     jQuery('#dokumen_syarat_khusus').val('').show();
 
                                     jQuery('#keterangan').val(res.data.keterangan).prop('disabled', false);
@@ -478,19 +478,19 @@ if (in_array("administrator", $user_meta->roles)) {
                                             jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', true);
                                             jQuery('#status_pencairan').prop('checked', true).prop('disabled', true);
                                         }
-                                        jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas);
+                                        jQuery('#file_nota_dinas_existing').attr('href', global_file_upload + res.data.file_nota_dinas).html(res.data.file_nota_dinas).;
                                         jQuery('#nota_dinas').val('').hide();
-                                        jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj);
+                                        jQuery('#file_sptj_existing').attr('href', global_file_upload + res.data.file_sptj).html(res.data.file_sptj).;
                                         jQuery('#sptj').val('').hide();
-                                        jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas);
+                                        jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload + res.data.file_pakta_integritas).html(res.data.file_pakta_integritas).;
                                         jQuery('#pakta_integritas').val('').hide();
-                                        jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer);
+                                        jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload + res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer).;
                                         jQuery('#permohonan_transfer').val('').hide();
-                                        jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya);
+                                        jQuery('#file_realisasi_tahap_sebelumnya_existing').attr('href', global_file_upload + res.data.file_realisasi_tahap_sebelumnya).html(res.data.file_realisasi_tahap_sebelumnya).;
                                         jQuery('#realisasi_tahap_sebelumnya').val('').hide();
-                                        jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum);
+                                        jQuery('#file_dokumen_syarat_umum_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_umum).html(res.data.file_dokumen_syarat_umum).;
                                         jQuery('#dokumen_syarat_umum').val('').hide();
-                                        jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus);
+                                        jQuery('#file_dokumen_syarat_khusus_existing').attr('href', global_file_upload + res.data.file_dokumen_syarat_khusus).html(res.data.file_dokumen_syarat_khusus).;
                                         jQuery('#dokumen_syarat_khusus').val('').hide();
 
                                         jQuery('#keterangan').val(res.data.keterangan).prop('disabled', true);
@@ -536,6 +536,34 @@ if (in_array("administrator", $user_meta->roles)) {
                 jQuery('#keterangan_status_pencairan').closest('.form-group').hide().prop('disabled', false);
                 jQuery('#status_pencairan').prop('checked', false);
                 jQuery('#keterangan_status_pencairan').val('').prop('disabled', false);
+                jQuery('#nota_dinas').html('');
+                jQuery('#sptj').html('');
+                jQuery('#pakta_integritas').html('');
+                jQuery('#permohonan_transfer').html('');
+                jQuery('#realisasi_tahap_sebelumnya').html('');
+                jQuery('#dokumen_syarat_umum').html('');
+                jQuery('#dokumen_syarat_khusus').html('');
+
+
+            
+                jQuery('#file_nota_dinas_existing').hide()
+
+            jQuery('#file_nota_dinas_existing')
+                
+                jQuery('#file_sptj_existing').hide()
+                jQuery('#file_sptj_existing')
+                
+                jQuery('#file_permohonan_transfer_existing').hide()
+                jQuery('#file_permohonan_transfer_existing')
+                
+                jQuery('#file_realisasi_tahap_sebelumnya_existing').hide()
+                jQuery('#file_realisasi_tahap_sebelumnya_existing')
+                
+                jQuery('#file_dokumen_syarat_umum_existing').hide()
+                jQuery('#file_dokumen_syarat_umum_existing')
+                
+                jQuery('#file_dokumen_syarat_khusus_existing').hide()
+                jQuery('#file_dokumen_syarat_khusus_existing')
                 jQuery('#modalTambahDataPencairanBKUADD .send_data').show();
                 jQuery('#modalTambahDataPencairanBKUADD').modal('show');
             });
