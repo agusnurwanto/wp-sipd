@@ -249,6 +249,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_mapping_spm',  $plugin_public, 'singkron_mapping_spm');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_mapping_spm',  $plugin_public, 'singkron_mapping_spm');
 
+		$this->loader->add_action('wp_ajax_singkron_label_kemiskinan',  $plugin_public, 'singkron_label_kemiskinan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_label_kemiskinan',  $plugin_public, 'singkron_label_kemiskinan');
+
+		$this->loader->add_action('wp_ajax_singkron_mapping_kemiskinan',  $plugin_public, 'singkron_mapping_kemiskinan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_mapping_kemiskinan',  $plugin_public, 'singkron_mapping_kemiskinan');
+
 		$this->loader->add_action('wp_ajax_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
 

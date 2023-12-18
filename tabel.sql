@@ -1588,6 +1588,36 @@ CREATE TABLE `data_mapping_spm_subgiat` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_label_kemiskinan` (
+  `id` int(11) NOT NULL auto_increment,  
+  `kelompok_teks` text DEFAULT NULL,
+  `strategi_teks` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL, 
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_mapping_kemiskinan_subgiat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_miskin` int(11) NOT NULL,
+  `kelompok_teks` text DEFAULT NULL,
+  `strategi_teks` text DEFAULT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `kode_sub_giat` text DEFAULT NULL,
+  `nama_sub_giat` text DEFAULT NULL,
+  `user` text DEFAULT NULL,
+  `is_locked` tinyint(4) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_renstra_tujuan` (
   `id` int(11) NOT NULL auto_increment,
   `bidur_lock` int(11) DEFAULT NULL,

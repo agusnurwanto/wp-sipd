@@ -19510,9 +19510,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
 								id_label_kokab 
-							from data_prioritas_kokab 
+							from data_label_spm 
 							where tahun_anggaran=%d 
-								AND id_label_kokab=%d
+								AND id_spm=%d
 						", $_POST['tahun_anggaran'], $v['id_spm']));
 						$opsi = array(
 							'id_spm' => $v['id_spm'],
@@ -19565,7 +19565,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
 						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
-						// $label = $_POST['label'];		
 					}else{
 						$label = $_POST['label'];
 					}
@@ -19575,10 +19574,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					foreach ($label as $k => $v) {
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
-								id_label_kokab 
-							from data_prioritas_kokab 
+								id_spm_giat 
+							from data_mapping_spm_subgiat 
 							where tahun_anggaran=%d 
-								AND id_label_kokab=%d
+								AND id_spm_giat=%d
 						", $_POST['tahun_anggaran'], $v['id_spm_giat']));
 						$opsi = array(
 							'id_spm_giat' => $v['id_spm_giat'],
@@ -19607,6 +19606,153 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Label SPM Sub Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_kemiskinan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label subgiat Kemiskinan Ekstrim!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_label_kemiskinan', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								strategi_teks 
+							from data_label_kemiskinan 
+							where tahun_anggaran=%d 
+								AND strategi_teks=%d
+						", $_POST['tahun_anggaran'], $v['strategi_teks']), OBJECT);
+
+						$opsi = array(
+							'strategi_teks' => $v['strategi_teks'],							
+							'kelompok_teks' => $v['kelompok_teks'],							
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_label_kemiskinan', $opsi, array(
+								'strategi_teks' => $v['strategi_teks'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_label_kemiskinan', $opsi);
+						}
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label Kemiskinan Ekstrim Sub Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_mapping_kemiskinan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label subgiat Kemiskinan Ekstrim!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					
+					$wpdb->update('data_mapping_kemiskinan_subgiat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					
+					foreach ($label as $k => $vg) {						
+						// $cek = $wpdb->get_row($wpdb->prepare("
+						// 	SELECT 
+						// 		data_mapping_kemiskinan_subgiat.id_label_miskin 
+						// 	from data_mapping_kemiskinan_subgiat 
+						// 	JOIN data_label_kemiskinan ON data_label_kemiskinan.id = data_mapping_kemiskinan_subgiat.id_label_miskin
+						// 	where data_label_kemiskinan.tahun_anggaran=%d 
+						// 		AND data_label_kemiskinan.strategi_teks=%d
+						// 		AND data_mapping_kemiskinan_subgiat.kode_sub_giat=%d
+						// ", $_POST['tahun_anggaran'], $vg['strategi_teks'], $vg['kode_sub_giat']), OBJECT);
+
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_sub_giat 
+							from data_mapping_kemiskinan_subgiat 
+							where tahun_anggaran=%d 
+								AND id_sub_giat=%d
+						", $_POST['tahun_anggaran'], $vg['id_sub_giat']));
+						
+						$id_label_miskin = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id 
+							from data_label_kemiskinan 
+							where tahun_anggaran=%d 
+								AND strategi_teks=%d
+						", $_POST['tahun_anggaran'], $vg['strategi_teks']), OBJECT);
+						// print_r($id_label_miskin);die();
+						$opsi = array(
+							'id_label_miskin' => $id_label_miskin->id,
+							'kelompok_teks' => $vg['kelompok_teks'],
+							'strategi_teks' => $vg['strategi_teks'],
+							'id_urusan' => $vg['id_urusan'],
+							'id_bidang_urusan' => $vg['id_bidang_urusan'],
+							'id_program' => $vg['id_program'],
+							'id_giat' => $vg['id_giat'],
+							'id_sub_giat' => $vg['id_sub_giat'],							
+							'kode_sub_giat' => $vg['kode_sub_giat'],
+							'nama_sub_giat' => $vg['nama_sub_giat'],							
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_mapping_kemiskinan_subgiat', $opsi, array(
+								// 'id_label_miskin' => $cek->id_label_miskin,
+								'id_sub_giat' => $vg['id_sub_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_mapping_kemiskinan_subgiat', $opsi);
+						}
+					}
+					
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label Kemiskinan Ekstrim Sub Giat Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
