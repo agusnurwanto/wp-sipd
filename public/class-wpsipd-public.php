@@ -19494,12 +19494,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export Label SPM!'
 		);
+
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['label'])) {
-					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){						
 						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
-						// $label = $_POST['label'];		
 					}else{
 						$label = $_POST['label'];
 					}

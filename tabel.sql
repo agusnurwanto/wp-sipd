@@ -1558,6 +1558,7 @@ CREATE TABLE `data_label_spm` (
   `nama` text DEFAULT NULL,
   `kode_layanan` text DEFAULT NULL,
   `layanan_teks` text DEFAULT NULL,
+  `spm_teks` text DEFAULT NULL,
   `dashuk_teks` text DEFAULT NULL,
   `set_prov` tinyint(4) NOT NULL,
   `set_kab_kota` tinyint(4) NOT NULL,  
