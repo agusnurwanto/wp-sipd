@@ -1556,8 +1556,9 @@ CREATE TABLE `data_label_spm` (
   `id_spm` int(11) NOT NULL,
   `abjad_spm` text DEFAULT NULL,
   `nama` text DEFAULT NULL,
-  'kode_layanan' text DEFAULT NULL,
-  'layanan_teks' text DEFAULT NULL,
+  `kode_layanan` text DEFAULT NULL,
+  `layanan_teks` text DEFAULT NULL,
+  `spm_teks` text DEFAULT NULL,
   `dashuk_teks` text DEFAULT NULL,
   `set_prov` tinyint(4) NOT NULL,
   `set_kab_kota` tinyint(4) NOT NULL,  
@@ -1579,6 +1580,36 @@ CREATE TABLE `data_mapping_spm_subgiat` (
   `id_sub_giat` int(11) NOT NULL,
   `set_prov` int(11) NOT NULL,
   `set_kab_kota` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `is_locked` tinyint(4) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_label_kemiskinan` (
+  `id` int(11) NOT NULL auto_increment,  
+  `kelompok_teks` text DEFAULT NULL,
+  `strategi_teks` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL, 
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_mapping_kemiskinan_subgiat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_miskin` int(11) NOT NULL,
+  `kelompok_teks` text DEFAULT NULL,
+  `strategi_teks` text DEFAULT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `kode_sub_giat` text DEFAULT NULL,
+  `nama_sub_giat` text DEFAULT NULL,
   `user` text DEFAULT NULL,
   `is_locked` tinyint(4) NOT NULL,
   `active` tinyint(4) NOT NULL,
