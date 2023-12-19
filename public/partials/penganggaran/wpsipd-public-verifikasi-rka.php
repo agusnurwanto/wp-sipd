@@ -33,21 +33,63 @@ $selesaiJadwal = '-';
 $timezone = get_option('timezone_string');
 $cek_jadwal = $this->validasi_jadwal_perencanaan($jadwal_rka,$tahun_anggaran);
 
+
+$jadwal_terpilih = 0;
+if(!empty($_GET['pilih_data_jadwal'])){
+	$jadwal_terpilih = $_GET['pilih_data_jadwal'];
+}
+
 $jadwal_lokal = $cek_jadwal['data'];
 $setting_waktu = 0;
-if(!empty($jadwal_lokal)){
-	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-	$namaJadwal = $jadwal_lokal[0]['nama'];
-	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-
-	$awal = new DateTime($mulaiJadwal);
-	$akhir = new DateTime($selesaiJadwal);
-	$now = new DateTime(date('Y-m-d H:i:s'));
-	if($now >= $awal && $now <= $akhir){
-		$setting_waktu = 1;
+if($jadwal_terpilih == 0 || $jadwal_terpilih == $jadwal_lokal[0]['id_jadwal_lokal']){
+	if(!empty($jadwal_lokal)){
+		$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+		$namaJadwal = $jadwal_lokal[0]['nama'];
+		$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+		$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+	
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+		if($now >= $awal && $now <= $akhir){
+			$setting_waktu = 1;
+		}
 	}
+}else{
+		$data_jadwal_lokal = $wpdb->get_results(
+			"SELECT * 
+			FROM data_jadwal_lokal
+			WHERE id_jadwal_lokal=".$jadwal_terpilih."
+			AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 
+		$tahun_anggaran = $data_jadwal_lokal[0]['tahun_anggaran'];
+		$namaJadwal = $data_jadwal_lokal[0]['nama'];
+		$mulaiJadwal = '-';
+		$selesaiJadwal = '-';
+		$setting_waktu = 0;
+}
+
+$sql_tipe = $wpdb->get_row("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$jadwal_rka."'", ARRAY_A);
+
+$list_data_jadwal = $wpdb->get_results(
+	"SELECT * 
+	FROM data_jadwal_lokal
+	WHERE tahun_anggaran=".$tahun_anggaran."
+	AND id_tipe=".$sql_tipe['id']."
+	ORDER BY id_jadwal_lokal ASC"
+);
+
+$option_jadwal = '';
+if(!empty($list_data_jadwal)){
+	foreach ($list_data_jadwal as $v_data_jadwal) {
+		$selected = '';
+		if($jadwal_terpilih != 0 && $jadwal_terpilih == $v_data_jadwal->id_jadwal_lokal){
+			$selected = "selected";
+		}else if($v_data_jadwal->status == 0 && $jadwal_terpilih == 0){
+			$selected = "selected";
+		}
+		$option_jadwal .= "<option value=".$v_data_jadwal->id_jadwal_lokal." ".$selected.">".$v_data_jadwal->nama."</option>";
+	}
 }
 
 $api_key = get_option('_crb_api_key_extension');
@@ -177,6 +219,9 @@ if($sumber_pagu_dpa == 2){
 $nama_page = 'RFK '.$nama_sub_skpd.' '.$kode_sub_skpd.' | '.$tahun_anggaran;
 $custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
+
+$add_setting = '';
+$add_setting .= '<a id="pilih-jadwal" onclick="return false;" href="#" class="btn btn-info" data-toggle="modal" data-target="#modal_pilih_jadwal">Pilih Jadwal</a>';
 ?>
 <style>
 	#tabel_detail_sub,
@@ -247,7 +292,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 
 	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
 		<?php
-		if ($is_verifikator AND $setting_waktu==1) {
+		if ($is_verifikator && $setting_waktu == 1) {
 			echo '<button class="btn btn-sm btn-warning" onclick="tambah_catatan()" style="margin-inline: 5px;"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>';
 			echo '<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>';
 		}
@@ -340,14 +385,47 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 		</div>
 	</div>
 </div>
+
+<!-- Modal pilih jadwal -->
+<div class="modal fade" id="modal_pilih_jadwal" tabindex="-1" role="dialog" aria-labelledby="exampleModalPilihJadwal" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalPilihJadwalTitle">Tampilkan data verifikasi RKA sesuai jadwal</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label>Pilih Jadwal</label>
+					<select class="form-control" id="pilih_jadwal">
+						<option value="" selected disabled>Pilih Salah Satu</option>
+						<?php echo $option_jadwal; ?>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+				<button type="button" class="btn btn-primary" onclick="pilih_jadwal(this)">Pilih</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	jQuery(document).ready(function() {
 		window.tipe_rka = '<?php echo $tipe_rka; ?>';
+		window.jadwal_terpilih = '<?php echo $jadwal_terpilih; ?>';
 
 		load_data();
 
-		var mySpace = '<div style="padding:3rem;"></div>';
+		var aksi = '<div id="aksi-rka" style="padding: 20px 0; text-align: center;"><?php echo $add_setting; ?></div>';
+    	jQuery('body').prepend(aksi);
+
+		var mySpace = '<div id="space-sipd" style="padding:3rem;"></div>';
     	jQuery('body').prepend(mySpace);
+
 
         // set_waktu();
     	var dataHitungMundur = {
@@ -357,7 +435,43 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
     		'thisTimeZone' : '<?php echo $timezone ?>'
     	}
     	penjadwalanHitungMundur(dataHitungMundur);
+
 	});
+
+	function pilih_jadwal(that) {
+		const id_jadwal = jQuery('#pilih_jadwal').val();
+
+		location.href = URL_add_parameter(location.href, 'pilih_data_jadwal', id_jadwal);
+	}
+
+	function URL_add_parameter(url, param, value){
+        var hash       = {};
+        var parser     = document.createElement('a');
+
+        parser.href    = url;
+
+        var parameters = parser.search.split(/\?|&/);
+
+        for(var i=0; i < parameters.length; i++) {
+            if(!parameters[i])
+                continue;
+
+            var ary      = parameters[i].split('=');
+            hash[ary[0]] = ary[1];
+        }
+
+        hash[param] = value;
+
+        var list = [];  
+        Object.keys(hash).forEach(function (key) {
+            list.push(key + '=' + hash[key]);
+        });
+
+        
+        parser.search = '?' + list.join('&');
+        console.log('modify link'+parser.href)
+        return parser.href;
+    }
 
 	function load_data() {
 		jQuery('#wrap-loading').show();
@@ -369,7 +483,8 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 				action: 'get_data_verifikasi_rka',
 				kode_sbl: '<?php echo $kode_sbl; ?>',
 				tahun_anggaran: <?php echo $tahun_anggaran; ?>,
-				tipe_rka: tipe_rka
+				tipe_rka: tipe_rka,
+				jadwal_terpilih: jadwal_terpilih
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();

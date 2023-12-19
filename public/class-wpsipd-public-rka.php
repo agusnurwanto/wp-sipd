@@ -466,7 +466,8 @@ class Wpsipd_Public_RKA
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
                 $tipe_rka = $_POST['tipe_rka'];
-
+                $jadwal_terpilih = (!empty($_POST['jadwal_terpilih'])) ? $_POST['jadwal_terpilih'] : 0;
+                
                 if($tipe_rka == 'rka_lokal'){
                     $prefix = '_lokal';
                     $where_rka = '';
@@ -474,14 +475,43 @@ class Wpsipd_Public_RKA
                     $prefix = '';
                     $where_rka = '_sipd';
                 }
+                
+                $data_jadwal_terpilih = array();
+                if($jadwal_terpilih != 0){
+                    $data_jadwal_terpilih = $wpdb->get_row(
+                        "SELECT *
+                        FROM data_jadwal_lokal
+                        WHERE id_jadwal_lokal=".$jadwal_terpilih."
+                        AND tahun_anggaran=".$tahun_anggaran
+                    ,ARRAY_A);
+                }
 
+                $prefix_history = '';
+                $where_history = '';
+                if(!empty($data_jadwal_terpilih)){
+                    if($data_jadwal_terpilih['status'] == 0){
+                        $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka'.$where_rka,$tahun_anggaran);
+                        $jadwal_lokal = $cek_jadwal['data'];
+                    }else{
+                        $jadwal_lokal = $data_jadwal_terpilih;
+                        $prefix_history = '_history';
+                        $where_history = ' AND id_jadwal='.$data_jadwal_terpilih['id_jadwal_lokal'];
+                    }
+                }else{
+                    $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka'.$where_rka,$tahun_anggaran);
+                    $jadwal_lokal = $cek_jadwal['data'];
+                }
+                $dateTime = new DateTime();
+                $time_now = $dateTime->format('Y-m-d H:i:s');
+                
                 $datas = $wpdb->get_results($wpdb->prepare("
                     SELECT 
                         *
-                    FROM data_verifikasi_rka".$prefix."
+                    FROM data_verifikasi_rka".$prefix."".$prefix_history."
                     WHERE kode_sbl = %s
                         AND tahun_anggaran = %d
                         AND active = 1
+                        ".$where_history."
                     ORDER BY update_at DESC", $kode_sbl, $tahun_anggaran), ARRAY_A);
                 $new_data = array();
                 foreach ($datas as $data) {
@@ -520,7 +550,7 @@ class Wpsipd_Public_RKA
                     $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
                         SELECT
                             p.*
-                        FROM data_pptk_sub_keg".$prefix." p
+                        FROM data_pptk_sub_keg".$prefix."".$prefix_history." p
                         WHERE active=1
                             and tahun_anggaran=%d
                             and kode_sbl=%s
@@ -529,11 +559,6 @@ class Wpsipd_Public_RKA
                         $btn_tanggapan = true;
                     }
                 }
-
-                $cek_jadwal = $this->validasi_jadwal_perencanaan('verifikasi_rka'.$where_rka,$tahun_anggaran);
-                $jadwal_lokal = $cek_jadwal['data'];
-                $dateTime = new DateTime();
-                $time_now = $dateTime->format('Y-m-d H:i:s');
 
                 $ret['html'] = '';
                 foreach ($new_data as $key => $data) {
