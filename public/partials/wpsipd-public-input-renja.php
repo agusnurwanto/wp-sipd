@@ -426,8 +426,39 @@ foreach ($subkeg as $kk => $sub) {
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
         $nama = explode(' ', $sub['nama_sub_giat']);
         unset($nama[0]);
+
+        //cek data set pptk
+        $data_pptk =     $wpdb->get_var($wpdb->prepare("
+            SELECT
+                id_user
+            FROM data_pptk_sub_keg_lokal
+            WHERE active=1
+                and tahun_anggaran=%d
+                and kode_sbl=%s
+        ", $sub['tahun_anggaran'], $sub['kode_sbl']));
+        //warna default belum di set
+        $cek_pptk = 'badge-primary';
+        if (!empty($data_pptk)) {
+            $cek_pptk = 'badge-success';
+        }
+
+        //cek data verifikasi rka
+        $data_verifikasi = $wpdb->get_var($wpdb->prepare("
+            SELECT
+                id_user
+            FROM data_validasi_verifikasi_rka_lokal
+            WHERE kode_sbl=%s
+              and tahun_anggaran=%d
+        ", $sub['tahun_anggaran'], $sub['kode_sbl']));
+        //warna default belum di set
+        $cek_verifikasi = 'badge-primary';
+        if (!empty($data_pptk)) {
+            $cek_verifikasi = 'badge-success';
+        }
+        $url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan Lokal', $sub['tahun_anggaran'], '[verifikasi_rka_lokal]');
+        $url_verifikasi .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-            'nama'  => implode(' ', $nama),
+            'nama'  => implode(' ', $nama) .'<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
             'total' => 0,
             'total_pergeseran' => 0,
             'total_n_plus' => 0,
@@ -888,6 +919,17 @@ if(!empty($data_rekap_sumber_dana)){
         }
     }
 }
+
+$cekbox_set_pptk = '';
+if (
+	current_user_can('administrator') ||
+	current_user_can('PA') ||
+	current_user_can('KPA') ||
+	current_user_can('PLT')
+) {
+	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
+}
+
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
@@ -1047,6 +1089,18 @@ echo '
             overflow: none;
             height: auto;
         }
+    }
+ 
+    [tipe="sub-kegiatan"] .set-pptk-per-sub-keg, 
+    [tipe="sub-kegiatan"] .verifikasi-rka-per-sub-keg { 
+        display: none; 
+    }
+    .set-pptk-per-sub-keg,
+    .verifikasi-rka-per-sub-keg {
+        margin-left: 5px;
+    }
+    #cetak a {
+			text-decoration: none !important;
     }
 </style>
 <div class="modal fade mt-4" id="modalTambahRenja" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
@@ -1361,6 +1415,35 @@ echo '
     </div>
 </div>
 
+<!-- Modal Set PPTK Verifikator-->
+<div class="modal fade" id="modal-set-pptk" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalScrollableTitle">Set User PPTK per Sub Kegiatan</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="kode_sbl">
+				<div class="form-group">
+					<label>Sub Kegiatan</label>
+					<input type="text" class="form-control" id="nama_sub_kegiatan" value="" disabled>
+				</div>
+				<div class="form-group">
+					<label>Nama PPTK</label>
+					<select class="form-control" id="user_pptk"></select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+				<button type="button" class="btn btn-primary" onclick="submit_data_pptk(this)">Simpan</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
     let id_skpd = <?php echo $input['id_skpd']; ?>;
     let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
@@ -1403,7 +1486,8 @@ echo '
 		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);" '+ceklist_usulan+'> Sembunyikan Data Usulan</label>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>'
-            +'<label style="margin-left: 20px;"><input type="checkbox" onclick="fokus_sumber_dana(this);"> Fokus Sumber Dana</label>';
+            +'<label style="margin-left: 20px;"><input type="checkbox" onclick="fokus_sumber_dana(this);"> Fokus Sumber Dana</label>'
+            +'<?php echo $cekbox_set_pptk; ?>';
             if(is_skpd == 1){
                 setting +='<label style="margin-left: 20px;"><input type="checkbox" id="show_sub_unit" onclick="show_sub_unit(this);" '+ceklist_sub_unit+'> Tampilkan Data Sub Unit</input></label>';
             }
@@ -4157,5 +4241,91 @@ echo '
                 });
             }
 		}
+	}
+
+    function tampil_set_pptk(that) {
+		if (jQuery(that).is(':checked')) {
+			jQuery('.set-pptk-per-sub-keg').show();
+			jQuery('.verifikasi-rka-per-sub-keg').show();
+		} else {
+			jQuery('.set-pptk-per-sub-keg').hide();
+			jQuery('.verifikasi-rka-per-sub-keg').hide();
+		}
+	}
+
+    // fungsi set PPTK per sub kegiatan
+    jQuery('.set-pptk-per-sub-keg').on('click', function() {
+        var tr = jQuery(this).closest('tr');
+        // var full_text = tr.find('.nama_sub_giat').text();
+        // var nama_sub = full_text.split(/ \d{9}/)[0];
+        var kode_sbl = tr.attr('kode');
+        let id_skpd = "<?php echo $input['id_skpd']; ?>";
+        if(id_skpd == ''){
+            alert('Id SKPD Kosong')
+        }else{
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                type: "post",
+                data: {
+                    "action": "get_sub_keg_pptk",
+                    "api_key": jQuery('#api_key').val(),
+                    "tahun_anggaran": tahun_anggaran,
+                    id_skpd: id_skpd,
+                    kode_sbl: kode_sbl,
+                    tipe_rka: 'rka_lokal'
+                },
+                dataType: "json",
+                success: function(data) {
+                    // menampilkan popup
+                    if (data.status == 'success') {
+                        jQuery('#nama_sub_kegiatan').val(data.sub_keg.nama_sub_giat);
+                        jQuery('#user_pptk').html(data.user_pptk_html);
+                        jQuery('#kode_sbl').val(kode_sbl);
+                        jQuery('#modal-set-pptk').modal('show');
+                    } else {
+                        alert(data.message);
+                    }
+                    jQuery('#wrap-loading').hide();
+                }
+            });
+        }
+    });
+
+    function submit_data_pptk() {
+    jQuery('#wrap-loading').show();
+		let id_user = jQuery('#user_pptk').val();
+		var kode_sbl = jQuery('#kode_sbl').val();
+		// dicek dulu id user dan kode sbl tidak boleh kosong
+		jQuery.ajax({
+			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			type: "POST",
+			data: {
+				"action": "simpan_sub_keg_pptk",
+				"api_key": jQuery('#api_key').val(),
+				"tahun_anggaran": tahun_anggaran,
+				kode_sbl: kode_sbl,
+				id_user: id_user,
+                tipe_rka: 'rka_lokal'
+			},
+			dataType: "json",
+			success: function(response) {
+				alert(response.message);
+				if (response.status == 'success') {
+					jQuery('tr[kode="' + kode_sbl + '"] .set-pptk-per-sub-keg').removeClass('badge-primary').addClass('badge-success');
+					jQuery('#modal-set-pptk').modal('hide');
+				}
+				jQuery('#wrap-loading').hide();
+			},
+			error: function(jqXHR) {
+				var errorMsg = 'Error: ';
+				if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+					errorMsg += jqXHR.responseJSON.message;
+				} else {
+					errorMsg += 'Terjadi kesalahan.';
+				}
+				alert(errorMsg);
+			}
+		});
 	}
 </script>

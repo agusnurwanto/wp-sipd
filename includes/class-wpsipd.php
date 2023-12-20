@@ -243,6 +243,18 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_ssh',  $plugin_public, 'singkron_ssh');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_ssh',  $plugin_public, 'singkron_ssh');
 
+		$this->loader->add_action('wp_ajax_singkron_label_spm',  $plugin_public, 'singkron_label_spm');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_label_spm',  $plugin_public, 'singkron_label_spm');
+
+		$this->loader->add_action('wp_ajax_singkron_mapping_spm',  $plugin_public, 'singkron_mapping_spm');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_mapping_spm',  $plugin_public, 'singkron_mapping_spm');
+
+		$this->loader->add_action('wp_ajax_singkron_label_kemiskinan',  $plugin_public, 'singkron_label_kemiskinan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_label_kemiskinan',  $plugin_public, 'singkron_label_kemiskinan');
+
+		$this->loader->add_action('wp_ajax_singkron_mapping_kemiskinan',  $plugin_public, 'singkron_mapping_kemiskinan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_mapping_kemiskinan',  $plugin_public, 'singkron_mapping_kemiskinan');
+
 		$this->loader->add_action('wp_ajax_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
 
@@ -1026,14 +1038,17 @@ class Wpsipd
 		add_shortcode('rekap_sumber_dana_per_sub_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_sub_kegiatan'));
 		add_shortcode('rekap_sumber_dana_per_rekening', array($plugin_public, 'rekap_sumber_dana_per_rekening'));
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
+		add_shortcode('verifikasi_rka_lokal', array($plugin_public, 'verifikasi_rka_lokal'));
 		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
 		add_shortcode('user_pptk', array($plugin_public, 'user_pptk'));
 		add_shortcode('dokumentasi_api_wpsipd', array($plugin_public, 'dokumentasi_api_wpsipd'));
+		add_shortcode('rpjmd', array($plugin_public, 'rpjmd'));
 		add_shortcode('rekap_longlist_per_jenis_belanja', array($plugin_public, 'rekap_longlist_per_jenis_belanja'));
 		add_shortcode('apbd_perda_lampiran_4', array($plugin_public, 'apbd_perda_lampiran_4'));
 		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
 		add_shortcode('input_batasan_pagu_per_sumber_dana', array($plugin_public, 'input_batasan_pagu_per_sumber_dana'));
 		add_shortcode('jadwal_verifikasi_rka', array($plugin_public, 'jadwal_verifikasi_rka'));
+		add_shortcode('jadwal_verifikasi_rka_sipd', array($plugin_public, 'jadwal_verifikasi_rka_sipd'));
 		add_shortcode('rekap_total_prog_keg_renstra', array($plugin_public, 'rekap_total_prog_keg_renstra'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

@@ -115,36 +115,47 @@ foreach ($data_skpd as $skpd) {
                 AND r.kode_sbl=%s
                 " . $where_jadwal_new . "
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-        
+
         $dana_query = $wpdb->prepare("
             SELECT namadana
-            FROM data_dana_sub_keg
+            FROM data_dana_sub_keg" . $_suffix_sipd . "" . $_suffix . "
             WHERE kode_sbl = %s
                 AND tahun_anggaran = %d
                 AND active = 1
         ", $sub['kode_sbl'], $input['tahun_anggaran']);
         $dana_result = $wpdb->get_results($dana_query, ARRAY_A);
-        
-        $lokasi_query = $wpdb->prepare("
-            SELECT daerahteks
-            FROM data_lokasi_sub_keg
+
+        $lokasi_result = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                *
+            FROM data_lokasi_sub_keg" . $_suffix_sipd . "" . $_suffix . "
             WHERE kode_sbl = %s
                 AND tahun_anggaran = %d
                 AND active = 1
-        ", $sub['kode_sbl'], $input['tahun_anggaran']);
-        $lokasi_result = $wpdb->get_results($lokasi_query, ARRAY_A);
+            ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-        $indikator_query = $wpdb->get_results($wpdb->prepare("
-            SELECT hasilteks
-            FROM data_keg_indikator_hasil
+        $indikator_program = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                *
+            FROM data_capaian_prog_sub_keg" . $_suffix_sipd . "" . $_suffix . "
             WHERE tahun_anggaran=%d
                 AND active=1
                 AND kode_sbl=%s
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-        
-        $target_query = $wpdb->get_results($wpdb->prepare("
-            SELECT targethasilteks
-            FROM data_keg_indikator_hasil
+
+        $indikator_giat = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                *
+            FROM data_output_giat_sub_keg" . $_suffix_sipd . "" . $_suffix . "
+            WHERE tahun_anggaran=%d
+                AND active=1
+                AND kode_sbl=%s
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+        $indikator_sub_giat = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                *
+            FROM data_sub_keg_indikator" . $_suffix_sipd . "" . $_suffix . "
             WHERE tahun_anggaran=%d
                 AND active=1
                 AND kode_sbl=%s
@@ -184,6 +195,7 @@ foreach ($data_skpd as $skpd) {
                     'tak_terduga_murni' => 0,
                     'transfer_murni' => 0,
                     'total_murni' => 0,
+                    'indikator_program' => $indikator_program,
                     'data' => array()
                 );
             }
@@ -202,6 +214,7 @@ foreach ($data_skpd as $skpd) {
                     'tak_terduga_murni' => 0,
                     'transfer_murni' => 0,
                     'total_murni' => 0,
+                    'indikator_giat' => $indikator_giat,
                     'data' => array()
                 );
             }
@@ -220,9 +233,8 @@ foreach ($data_skpd as $skpd) {
                     'data' => array(),
                     'sub' => $sub,
                     'sumber_dana' => $dana_result,
-                    'lokasi' => $lokasi_result,
-                    'indikator' => $indikator_query,
-                    'target' => $target_query
+                    'indikator_sub_giat' => $indikator_sub_giat,
+                    'lokasi'=> $lokasi_result
                 );
             }
 
@@ -315,14 +327,22 @@ foreach ($data_skpd as $skpd) {
             </tr>';
         }
         foreach ($skpd['data'] as $program) {
+            $indikator = array();
+            $target = array();
+            foreach ($program['indikator_program'] as $ind) {
+                $indikator[] = $ind['capaianteks'];
+                $target[] = $ind['targetcapaianteks'];
+            }
+            $indikator = implode('<br>', $indikator);
+            $target = implode('<br>', $target);
             if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                 $body .= '
                     <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
                         <td>' . '</td>
                         <td>' . $program['kode'] . '</td>
                         <td>' . $program['nama'] . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
+                        <td>' . $indikator . '</td>
+                        <td>' . $target . '</td>
                         <td>' . '</td>
                         <td>' . '</td>
                         <td>' . '</td>
@@ -404,28 +424,25 @@ foreach ($data_skpd as $skpd) {
                     $nama_sub_giat = $parts[1];
 
                     $sumber_dana = array();
-                    foreach($data['sumber_dana'] as $sd){
+                    foreach ($data['sumber_dana'] as $sd) {
                         $sumber_dana[] = $sd['namadana'];
                     }
                     $sumber_dana = implode('<br>', $sumber_dana);
-                    
+
+                    $indikator = array();
+                    $target = array();
+                    foreach ($data['indikator_sub_giat'] as $ind) {
+                        $indikator[] = $ind['outputteks'];
+                        $target[] = $ind['targetoutputteks'];
+                    }
+                    $indikator = implode('<br>', $indikator);
+                    $target = implode('<br>', $target);
+
                     $lokasi = array();
-                    foreach($data['lokasi'] as $lks){
+                    foreach ($data['lokasi'] as $lks) {
                         $lokasi[] = $lks['daerahteks'];
                     }
                     $lokasi = implode('<br>', $lokasi);
-
-                    $indikator = array();
-                    foreach($data['indikator'] as $ind){
-                        $indikator[] = $ind['hasilteks'];
-                    }
-                    $indikator = implode('<br>', $indikator);
-                    
-                    $target = array();
-                    foreach($data['target'] as $tg){
-                        $target[] = $tg['targethasilteks'];
-                    }
-                    $target = implode('<br>', $target);
 
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
@@ -450,7 +467,7 @@ foreach ($data_skpd as $skpd) {
                                 <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
-                                <td>' .'</td>
+                                <td>' . '</td>
                                 <td>' . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
@@ -462,7 +479,7 @@ foreach ($data_skpd as $skpd) {
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . $lokasi . '</td>
+                                <td>' . '</td>
                                 <td>' . $sumber_dana . '</td>
                             </tr>
                         ';

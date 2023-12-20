@@ -2169,7 +2169,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					$_POST['data'] = $data;						
 				}else{
 					$data = $_POST['data'];
 				}
@@ -2208,15 +2209,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'user2' => $v['user2'],
 						'id_skpd' => $_POST['id_skpd'],
 						'id_akun' => $v['id_akun'],
-						  'id_jadwal_murni' => $v['id_jadwal_murni'],
-						  'kode_akun' => $v['kode_akun'],
-						  'koefisien' => $v['koefisien'],
-						  'kua_murni' => $v['kua_murni'],
-						  'kua_pak' => $v['kua_pak'],
-						  'rkpd_murni' => $v['rkpd_murni'],
-						  'rkpd_pak' => $v['rkpd_pak'],
-						  'satuan' => $v['satuan'],
-						  'volume' => $v['volume'],
+						'id_jadwal_murni' => $v['id_jadwal_murni'],
+						'kode_akun' => $v['kode_akun'],
+						'koefisien' => $v['koefisien'],
+						'kua_murni' => $v['kua_murni'],
+						'kua_pak' => $v['kua_pak'],
+						'rkpd_murni' => $v['rkpd_murni'],
+						'rkpd_pak' => $v['rkpd_pak'],
+						'satuan' => $v['satuan'],
+						'volume' => $v['volume'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -5022,6 +5023,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/dokumentasi/wpsipd-public-dokumentasi-api.php';
+	}
+
+	public function rpjmd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/perencanaan/rpjmd.php';
 	}
 
 	public function monitoring_spd_rinci($atts)
@@ -15309,7 +15319,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$delete_lokal_history = $this->delete_data_lokal_history('data_validasi_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
 
 								$oclumns_1 = array(
-									'id',
 									'id_user',
 									'kode_sbl',
 									'nama_bidang',
@@ -15333,7 +15342,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$delete_lokal_history = $this->delete_data_lokal_history('data_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
 
 								$oclumns_2 = array(
-									'id',
 									'kode_sbl',
 									'tahun_anggaran',
 									'id_user',
@@ -15358,6 +15366,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								";
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_verifikasi_rka);
+
+								/** -- */
+								$delete_lokal_history = $this->delete_data_lokal_history('data_pptk_sub_keg'.$prefix, $data_this_id['id_jadwal_lokal']);
+
+								$oclumns_3 = array(
+									'id_user',
+									'kode_sbl',
+									'tahun_anggaran',
+									'update_at',
+									'active'
+								);
+
+								$sql_backup_data_set_pptk =  "
+									INSERT INTO data_pptk_sub_keg".$prefix."_history (".implode(', ', $oclumns_3).",id_asli,id_jadwal)
+									SELECT 
+										".implode(', ', $oclumns_3).",
+										id as id_asli,
+										".$data_this_id['id_jadwal_lokal']."
+									FROM data_pptk_sub_keg".$prefix." 
+									WHERE tahun_anggaran='".$data_this_id['tahun_anggaran']."'
+								";
+
+								$queryRecords3 = $wpdb->query($sql_backup_data_set_pptk);
 
 								$return = array(
 									'status' => 'success',
@@ -19475,6 +19506,284 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'data'=>$data
 		];
 
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_spm()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label SPM!'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){						
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_label_spm', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_kokab 
+							from data_label_spm 
+							where tahun_anggaran=%d 
+								AND id_spm=%d
+						", $_POST['tahun_anggaran'], $v['id_spm']));
+						$opsi = array(
+							'id_spm' => $v['id_spm'],
+							'abjad_spm' => $v['abjad_spm'],
+							'spm_teks' => $v['spm_teks'],
+							'kode_layanan' => $v['kode_layanan'],
+							'layanan_teks' => $v['layanan_teks'],
+							'dashuk_teks' => $v['dashuk_teks'],
+							'set_prov' => $v['set_prov'],
+							'set_kab_kota' => $v['set_kab_kota'],
+							'is_locked' => $v['is_locked'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_label_spm', $opsi, array(
+								'id_spm' => $v['id_spm'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_label_spm', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label SPM Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_mapping_spm()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label subgiat SPM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_mapping_spm_subgiat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_spm_giat 
+							from data_mapping_spm_subgiat 
+							where tahun_anggaran=%d 
+								AND id_spm_giat=%d
+						", $_POST['tahun_anggaran'], $v['id_spm_giat']));
+						$opsi = array(
+							'id_spm_giat' => $v['id_spm_giat'],
+							'id_spm' => $v['id_spm'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
+							'id_program' => $v['id_program'],
+							'id_giat' => $v['id_giat'],
+							'id_sub_giat' => $v['id_sub_giat'],							
+							'set_prov' => $v['set_prov'],
+							'set_kab_kota' => $v['set_kab_kota'],
+							'is_locked' => $v['is_locked'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_mapping_spm_subgiat', $opsi, array(
+								'id_spm_giat' => $v['id_spm_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_mapping_spm_subgiat', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label SPM Sub Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_kemiskinan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label subgiat Kemiskinan Ekstrim!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_label_kemiskinan', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								strategi_teks 
+							from data_label_kemiskinan 
+							where tahun_anggaran=%d 
+								AND strategi_teks=%d
+						", $_POST['tahun_anggaran'], $v['strategi_teks']), OBJECT);
+
+						$opsi = array(
+							'strategi_teks' => $v['strategi_teks'],							
+							'kelompok_teks' => $v['kelompok_teks'],							
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_label_kemiskinan', $opsi, array(
+								'strategi_teks' => $v['strategi_teks'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_label_kemiskinan', $opsi);
+						}
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label Kemiskinan Ekstrim Sub Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_mapping_kemiskinan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label subgiat Kemiskinan Ekstrim!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+					}else{
+						$label = $_POST['label'];
+					}
+					
+					$wpdb->update('data_mapping_kemiskinan_subgiat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					
+					foreach ($label as $k => $vg) {						
+						// $cek = $wpdb->get_row($wpdb->prepare("
+						// 	SELECT 
+						// 		data_mapping_kemiskinan_subgiat.id_label_miskin 
+						// 	from data_mapping_kemiskinan_subgiat 
+						// 	JOIN data_label_kemiskinan ON data_label_kemiskinan.id = data_mapping_kemiskinan_subgiat.id_label_miskin
+						// 	where data_label_kemiskinan.tahun_anggaran=%d 
+						// 		AND data_label_kemiskinan.strategi_teks=%d
+						// 		AND data_mapping_kemiskinan_subgiat.kode_sub_giat=%d
+						// ", $_POST['tahun_anggaran'], $vg['strategi_teks'], $vg['kode_sub_giat']), OBJECT);
+
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_sub_giat 
+							from data_mapping_kemiskinan_subgiat 
+							where tahun_anggaran=%d 
+								AND id_sub_giat=%d
+						", $_POST['tahun_anggaran'], $vg['id_sub_giat']));
+						
+						$id_label_miskin = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id 
+							from data_label_kemiskinan 
+							where tahun_anggaran=%d 
+								AND strategi_teks=%d
+						", $_POST['tahun_anggaran'], $vg['strategi_teks']), OBJECT);
+						// print_r($id_label_miskin);die();
+						$opsi = array(
+							'id_label_miskin' => $id_label_miskin->id,
+							'kelompok_teks' => $vg['kelompok_teks'],
+							'strategi_teks' => $vg['strategi_teks'],
+							'id_urusan' => $vg['id_urusan'],
+							'id_bidang_urusan' => $vg['id_bidang_urusan'],
+							'id_program' => $vg['id_program'],
+							'id_giat' => $vg['id_giat'],
+							'id_sub_giat' => $vg['id_sub_giat'],							
+							'kode_sub_giat' => $vg['kode_sub_giat'],
+							'nama_sub_giat' => $vg['nama_sub_giat'],							
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_mapping_kemiskinan_subgiat', $opsi, array(
+								// 'id_label_miskin' => $cek->id_label_miskin,
+								'id_sub_giat' => $vg['id_sub_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_mapping_kemiskinan_subgiat', $opsi);
+						}
+					}
+					
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label Kemiskinan Ekstrim Sub Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
 		die(json_encode($ret));
 	}
 
