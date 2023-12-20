@@ -171,15 +171,6 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
             return '';
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk-pilkades.php';
-    }   
-
-    public function desa_per_jenis_keuangan($atts)
-    {
-        // untuk disable render shortcode di halaman edit page/post
-        if(!empty($_GET) && !empty($_GET['post'])){
-            return '';
-        }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa-per-jenis-keuangan.php';
     }
 
     public function get_data_bkk_infrastruktur_by_id()

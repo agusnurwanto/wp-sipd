@@ -68,14 +68,8 @@ if(empty($input['id_kel']) && empty($input['id_skpd'])){
     if (empty($desa)) {
         die('<h1 class="text-center">Desa dengan id_kec ='.$input['id_kec'].' tidak ditemukan!</h1>'.$wpdb->last_query);
     }else{
-        echo '
-        <h1 class="text-center">Desa/Kelurahan di '.$unit['nama_skpd'].'</h1>
-        <ul style="margin: 20px auto; width: 400px;">';
-        foreach($desa as $val){
-            $url_skpd = $this->generatePage($val['nama'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_kec="'.$id_kec.'" id_kel="'.$val['id_alamat'].'"]');
-            echo '<li><a target="_blank" href="'.$url_skpd.'">'.$val['nama'].' | '.$input['tahun_anggaran'].'</a>';
-        }  
-        echo '</ul>'; exit;
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa-per-jenis-keuangan.php';
+        exit;
     }
 }
 

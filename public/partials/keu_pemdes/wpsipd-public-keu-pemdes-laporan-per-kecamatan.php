@@ -68,213 +68,212 @@ $realisasi_all = 0;
 $persen_all = 0;
 $id_kab = get_option('_crb_id_lokasi_kokab');
 foreach($unit as $i => $kec){
-    $url_skpd = $this->generatePage($kec['nama_skpd'].' '.$kec['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$kec['id_skpd'].'"]');
+    $url_skpd = $this->generatePage($kec['nama_skpd'].' '.$kec['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[desa_per_jenis_keuangan tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$kec['id_skpd'].'"]');
     $nama_kec = str_replace('kecamatan ', '', strtolower($kec['nama_skpd']));
     $url_all_kec[$nama_kec] = $url_skpd;
 
-	$bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bkk_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bkk_infrastruktur)) {
-	    $bkk_infrastruktur = array('total' => 0);
-	}
+    $bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bkk_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bkk_infrastruktur)) {
+        $bkk_infrastruktur = array('total' => 0);
+    }
 
-	$bhpd = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bhpd_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bhpd)) {
-	    $bhpd = array('total' => 0);
-	}
+    $bhpd = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bhpd_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bhpd)) {
+        $bhpd = array('total' => 0);
+    }
 
-	$bhrd = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bhrd_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bhrd)) {
-	    $bhrd = array('total' => 0);
-	}
+    $bhrd = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bhrd_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bhrd)) {
+        $bhrd = array('total' => 0);
+    }
 
-	$bku_dd = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bku_dd_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bku_dd)) {
-	    $bku_dd = array('total' => 0);
-	}
+    $bku_dd = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bku_dd_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bku_dd)) {
+        $bku_dd = array('total' => 0);
+    }
 
-	$bku_add = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bku_add_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bku_add)) {
-	    $bku_add = array('total' => 0);
-	}
+    $bku_add = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bku_add_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bku_add)) {
+        $bku_add = array('total' => 0);
+    }
 
-	$bkk_pilkades = $wpdb->get_row($wpdb->prepare('
-	    SELECT 
-	        kecamatan, 
-	        sum(total) as total 
-	    from data_bkk_pilkades_desa 
-	    WHERE tahun_anggaran=%d
-	        and active=1
-	        and kecamatan=%s
-	', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bkk_pilkades)) {
-	    $bkk_pilkades = array('total' => 0);
-	}
+    $bkk_pilkades = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            kecamatan, 
+            sum(total) as total 
+        from data_bkk_pilkades_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+            and kecamatan=%s
+    ', $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bkk_pilkades)) {
+        $bkk_pilkades = array('total' => 0);
+    }
 
-	$bkk_infrastruktur_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bkk_desa p
-	    INNER JOIN data_bkk_desa b on p.id_kegiatan=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bkk_infrastruktur_r)) {
-	    $bkk_infrastruktur_r = array('total' => 0);
-	}
+    $bkk_infrastruktur_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bkk_desa p
+        INNER JOIN data_bkk_desa b on p.id_kegiatan=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bkk_infrastruktur_r)) {
+        $bkk_infrastruktur_r = array('total' => 0);
+    }
 
-	$bkk_pilkades_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bkk_pilkades_desa p
-	    INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bkk_pilkades_r)) {
-	    $bkk_pilkades_r = array('total' => 0);
-	}
+    $bkk_pilkades_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bkk_pilkades_desa p
+        INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bkk_pilkades_r)) {
+        $bkk_pilkades_r = array('total' => 0);
+    }
 
-	$bhpd_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bhpd_desa p
-	    INNER JOIN data_bhpd_desa b on p.id_bhpd=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bhpd_r)) {
-	    $bhpd_r = array('total' => 0);
-	}
+    $bhpd_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bhpd_desa p
+        INNER JOIN data_bhpd_desa b on p.id_bhpd=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bhpd_r)) {
+        $bhpd_r = array('total' => 0);
+    }
 
-	$bhrd_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bhrd_desa p
-	    INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bhrd_r)) {
-	    $bhrd_r = array('total' => 0);
-	}
+    $bhrd_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bhrd_desa p
+        INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bhrd_r)) {
+        $bhrd_r = array('total' => 0);
+    }
 
-	$bku_dd_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bku_dd_desa p
-	    INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bku_dd_r)) {
-	    $bku_dd_r = array('total' => 0);
-	}
+    $bku_dd_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bku_dd_desa p
+        INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bku_dd_r)) {
+        $bku_dd_r = array('total' => 0);
+    }
 
-	$bku_add_r = $wpdb->get_row($wpdb->prepare("
-	    SELECT 
-	        SUM(p.total_pencairan) as total
-	    FROM data_pencairan_bku_add_desa p
-	    INNER JOIN data_bku_add_desa b on p.id_bku_add=b.id
-	        AND b.active=1
-	        AND b.tahun_anggaran=%d
-	    WHERE b.kecamatan=%s
-	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
-	if (empty($bku_add_r)) {
-	    $bku_add_r = array('total' => 0);
-	}
+    $bku_add_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bku_add_desa p
+        INNER JOIN data_bku_add_desa b on p.id_bku_add=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
+    if (empty($bku_add_r)) {
+        $bku_add_r = array('total' => 0);
+    }
 
-	$bkk_infrastruktur_b = $bkk_infrastruktur['total'] - $bkk_infrastruktur_r['total'];
-	$bkk_pilkades_b = $bkk_pilkades['total'] - $bkk_pilkades_r['total'];
-	$bhpd_b = $bhpd['total'] - $bhpd_r['total'];
-	$bhrd_b = $bhrd['total'] - $bhrd_r['total'];
-	$bku_dd_b = $bku_dd['total'] - $bku_dd_r['total'];
-	$bku_add_b = $bku_add['total'] - $bku_add_r['total'];
+    $bkk_infrastruktur_b = $bkk_infrastruktur['total'] - $bkk_infrastruktur_r['total'];
+    $bkk_pilkades_b = $bkk_pilkades['total'] - $bkk_pilkades_r['total'];
+    $bhpd_b = $bhpd['total'] - $bhpd_r['total'];
+    $bhrd_b = $bhrd['total'] - $bhrd_r['total'];
+    $bku_dd_b = $bku_dd['total'] - $bku_dd_r['total'];
+    $bku_add_b = $bku_add['total'] - $bku_add_r['total'];
 
-	$bkk_infrastruktur_p = 0;
-	if($bkk_infrastruktur['total'] > 0 && $bkk_infrastruktur_r['total'] > 0){
-	    $bkk_infrastruktur_p = round(($bkk_infrastruktur_r['total']/$bkk_infrastruktur['total'])*100, 2);
-	}
-	$bkk_pilkades_p = 0;
-	if($bkk_pilkades['total'] > 0 && $bkk_pilkades_r['total'] > 0){
-	    $bkk_pilkades_p = round(($bkk_pilkades_r['total']/$bkk_pilkades['total'])*100, 2);
-	}
-	$bhpd_p = 0;
-	if($bhpd['total'] > 0 && $bhpd_r['total'] > 0){
-	    $bhpd_p = round(($bhpd_r['total']/$bhpd['total'])*100, 2);
-	}
-	$bhrd_p = 0;
-	if($bhrd['total'] > 0 && $bhrd_r['total'] > 0){
-	    $bhrd_p = round(($bhrd_r['total']/$bhrd['total'])*100, 2);
-	}
-	$bku_dd_p = 0;
-	if($bku_dd['total'] > 0 && $bku_dd_r['total'] > 0){
-	    $bku_dd_p = round(($bku_dd_r['total']/$bku_dd['total'])*100, 2);
-	}
-	$bku_add_p = 0;
-	if($bku_add['total'] > 0 && $bku_add_r['total'] > 0){
-	    $bku_add_p = round(($bku_add_r['total']/$bku_add['total'])*100, 2);
-	}
-	// $url_desa = "onclick='per_jenis_keuangan'";
+    $bkk_infrastruktur_p = 0;
+    if($bkk_infrastruktur['total'] > 0 && $bkk_infrastruktur_r['total'] > 0){
+        $bkk_infrastruktur_p = round(($bkk_infrastruktur_r['total']/$bkk_infrastruktur['total'])*100, 2);
+    }
+    $bkk_pilkades_p = 0;
+    if($bkk_pilkades['total'] > 0 && $bkk_pilkades_r['total'] > 0){
+        $bkk_pilkades_p = round(($bkk_pilkades_r['total']/$bkk_pilkades['total'])*100, 2);
+    }
+    $bhpd_p = 0;
+    if($bhpd['total'] > 0 && $bhpd_r['total'] > 0){
+        $bhpd_p = round(($bhpd_r['total']/$bhpd['total'])*100, 2);
+    }
+    $bhrd_p = 0;
+    if($bhrd['total'] > 0 && $bhrd_r['total'] > 0){
+        $bhrd_p = round(($bhrd_r['total']/$bhrd['total'])*100, 2);
+    }
+    $bku_dd_p = 0;
+    if($bku_dd['total'] > 0 && $bku_dd_r['total'] > 0){
+        $bku_dd_p = round(($bku_dd_r['total']/$bku_dd['total'])*100, 2);
+    }
+    $bku_add_p = 0;
+    if($bku_add['total'] > 0 && $bku_add_r['total'] > 0){
+        $bku_add_p = round(($bku_add_r['total']/$bku_add['total'])*100, 2);
+    }
     $nama_kec_render = $nama_kec;
     if(
         $cek_login
         && !empty($url_all_kec[$nama_kec])
     ){
-        $nama_kec_render = "<a href='".$url_desa."' target='_blank'>".$nama_kec."</a>";
+        $nama_kec_render = "<a onclick='per_jenis_keuangan(\"".$url_all_kec[$nama_kec]."\"); return false;' href='".$url_all_kec[$nama_kec]."' target='_blank'>".$nama_kec."</a>";
     }
 
-	$total = $bkk_infrastruktur['total'] + $bkk_pilkades['total'] + $bhpd['total'] + $bhrd['total'] + $bku_dd['total'] + $bku_add['total'];
-	$realisasi = $bkk_infrastruktur_r['total'] + $bkk_pilkades_r['total'] + $bhpd_r['total'] + $bhrd_r['total'] + $bku_dd_r['total'] + $bku_add_r['total'];
-	$belum_realisasi = $total-$realisasi;
-	$persen = 0;
+    $total = $bkk_infrastruktur['total'] + $bkk_pilkades['total'] + $bhpd['total'] + $bhrd['total'] + $bku_dd['total'] + $bku_add['total'];
+    $realisasi = $bkk_infrastruktur_r['total'] + $bkk_pilkades_r['total'] + $bhpd_r['total'] + $bhrd_r['total'] + $bku_dd_r['total'] + $bku_add_r['total'];
+    $belum_realisasi = $total-$realisasi;
+    $persen = 0;
     if($total > 0 && $realisasi > 0){
         $persen = round(($realisasi/$total)*100, 2);
-	}
+    }
 
     $body .= '
     <tr>
@@ -287,13 +286,13 @@ foreach($unit as $i => $kec){
     </tr>
     ';
 
-	$total_all += $total;
-	$realisasi_all += $realisasi;
-	$belum_all += $total_all-$realisasi_all;
-	$persen_all += 0;
+    $total_all += $total;
+    $realisasi_all += $realisasi;
+    $belum_all += $total_all-$realisasi_all;
+    $persen_all += 0;
     if($total_all > 0 && $realisasi_all > 0){
         $persen_all = round(($realisasi_all/$total_all)*100, 2);
-	}
+    }
 
     $chart_kec['label'][] = $nama_kec;
     $chart_kec['data1'][] = $total;
@@ -364,9 +363,17 @@ window.pieChartkec = new Chart(document.getElementById('chart_per_kec'), {
     }
 });
 
-    function per_jenis_keuangan(){
-        var jenis_keuangan = prompt('Pilih jenis keuangan: 1=BKK Infrastruktur, 2=BKK Pilkades, 3=BHPD, 4=BHRD, 5=BKU ADD, 6=BKU DD', 1);
-        var url = '<?php echo $url_per_jenis_keuangan; ?>'+'&jenis_keuangan='+jenis_keuangan;
-        window.open(url, '_blank').focus();
+function cek_get(url){
+    if(url.split('?').length >= 2){
+        return url;
+    }else{
+        return url+'?1=1';
     }
+}
+
+function per_jenis_keuangan(url_kec){
+    var jenis_keuangan = prompt('Pilih jenis keuangan: 1=BKK Infrastruktur, 2=BKK Pilkades, 3=BHPD, 4=BHRD, 5=BKU ADD, 6=BKU DD', 1);
+    var url = cek_get(url_kec)+'&jenis_keuangan='+jenis_keuangan;
+    window.open(url, '_blank').focus();
+}
 </script>
