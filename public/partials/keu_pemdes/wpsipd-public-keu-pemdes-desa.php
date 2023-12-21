@@ -18,11 +18,6 @@ function link_detail($link_admin, $jenis){
     return "<a target='_blank' href='".$link_admin."?".$jenis['key']."=".$jenis['value']."'>".$jenis['label']."</a>";
 }
 
-function generateRandomColor($k){
-    $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
-    return $color[$k%10];
-}
-
 if(empty($input['id_kel']) && empty($input['id_skpd'])){
     die('<h1 class="text-center">id_skpd, id_kec dan id_kel tidak boleh kosong!</h1>');
 }else if(!empty($input['id_skpd'])){

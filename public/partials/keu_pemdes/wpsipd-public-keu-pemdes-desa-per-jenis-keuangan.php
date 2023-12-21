@@ -18,6 +18,11 @@ if(!empty($_GET) && !empty($_GET['tahun'])){
     $input['tahun_anggaran'] = $_GET['tahun'];
 }
 
+function generateRandomColor($k){
+    $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
+    return $color[$k%10];
+}
+
 $tampil_pilkades = get_option("_bkk_pilkades_".$input['tahun_anggaran']);
 $jenis_keuangan = ''; 
 /*
@@ -81,15 +86,26 @@ if (empty($desa)) {
     die('<h1 class="text-center">Desa dengan id_kec ='.$input['id_kec'].' tidak ditemukan!</h1>'.$wpdb->last_query);
 }
 
+// grafik desa
+$chart_desa = array(
+    'label' => array(),
+    'label1' => 'Anggaran',
+    'label2' => 'Realisasi',
+    'data1'  => array(),
+    'color1' => array(),
+    'data2'  => array(),
+    'color2' => array()
+);
+
 $total_all = 0;
 $belum_all = 0;
 $realisasi_all = 0;
 $persen_all = 0;
 
 if($jenis_keuangan == 1) {
-    $nama_jenis_keuangan = '<span>BKK Infrastruktur</span>';
+    $nama_jenis_keuangan = '<span>Bantuan Keuangan Khusus Infrastruktur</span>';
 }elseif($jenis_keuangan == 2) {
-    $nama_jenis_keuangan = '<span>BKK Pilkades</span>';
+    $nama_jenis_keuangan = '<span>Bantuan Keuangan Khusus Pemilihan Kepala Desa</span>';
 }elseif($jenis_keuangan == 3) {
     $nama_jenis_keuangan = '<span>Bagi Hasil Pajak Daerah</span>';
 }elseif($jenis_keuangan == 4) {
@@ -401,33 +417,72 @@ if($total_all > 0 && $realisasi_all > 0){
             <td class="text-center">'.$persen.'%</td>
         </tr>
     ';
+
+    $chart_desa['label'][] = $val['nama'];
+    $chart_desa['data1'][] = $anggaran['total'];
+    $chart_desa['color1'][] = generateRandomColor(1);
+    $chart_desa['data2'][] = $realisasi['total'];
+    $chart_desa['color2'][] = generateRandomColor(2);
 }  
 echo '</ul>';
 ?>
 <h1 class="text-center">Laporan <?php echo $nama_jenis_keuangan ?><br><?php echo $unit['nama_skpd']; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
-<div class="cetak container-fluid">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="atas kanan bawah kiri text_tengah text_blok" style="width: 30px;">No</th>
-                <th class="atas kanan bawah text_tengah text_blok" >Desa</th>
-                <th class="atas kanan bawah text_tengah text_blok">Anggaran</th>
-                <th class="atas kanan bawah text_tengah text_blok">Realisasi</th>
-                <th class="atas kanan bawah text_tengah text_blok">Belum Realisasi</th>
-                <th class="atas kanan bawah text_tengah text_blok">% Realisasi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php echo $body; ?>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="2">JUMLAH</th>
-                <th class="text-right"><?php echo number_format($total_all,0,",","."); ?></th>
-                <th class="text-right"><?php echo number_format($realisasi_all,0,",","."); ?></th>
-                <th class="text-right"><?php echo number_format($belum_all,0,",","."); ?></th>
-                <th class="text-center"><?php echo $persen_all; ?>%</th>
-            </tr>
-        </tfoot>
-    </table>
+<div class="cetak">
+    <div style="padding: 5px;">
+        <div class="row">
+            <div class="col-md-12">
+                <div style="width: 100%; margin:auto 5px;">
+                    <canvas id="chart_per_desa"></canvas>
+                </div>
+            </div>
+        </div>
+        <h1 class="text-center">Tabel Laporan <?php echo $nama_jenis_keuangan ?><br><?php echo $unit['nama_skpd']; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+        <div class="cetak container-fluid">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="atas kanan bawah kiri text_tengah text_blok" style="width: 30px;">No</th>
+                        <th class="atas kanan bawah text_tengah text_blok" >Desa</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Anggaran</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Realisasi</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Belum Realisasi</th>
+                        <th class="atas kanan bawah text_tengah text_blok">% Realisasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php echo $body; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">JUMLAH</th>
+                        <th class="text-right"><?php echo number_format($total_all,0,",","."); ?></th>
+                        <th class="text-right"><?php echo number_format($realisasi_all,0,",","."); ?></th>
+                        <th class="text-right"><?php echo number_format($belum_all,0,",","."); ?></th>
+                        <th class="text-center"><?php echo $persen_all; ?>%</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </div>
+<script type="text/javascript">
+window.desa = <?php echo json_encode($chart_desa); ?>;
+window.pieChartdesa = new Chart(document.getElementById('chart_per_desa'), {
+    type: 'bar',
+    data: {
+        labels: desa.label,
+        datasets: [
+            {
+                label: desa.label1,
+                data: desa.data1,
+                backgroundColor: desa.color1
+            },
+            {
+                label: desa.label2,
+                data: desa.data2,
+                backgroundColor: desa.color2
+            }
+        ]
+    }
+});
+</script>
