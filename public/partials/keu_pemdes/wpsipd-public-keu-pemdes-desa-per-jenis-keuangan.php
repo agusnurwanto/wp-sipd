@@ -360,7 +360,7 @@ foreach($desa as $val){
         if (empty($realisasi)) {
             $realisasi = array('total' => 0);
         }
-    }elseif($jenis_keuangan == 1) {
+    }elseif($jenis_keuangan == 6) {
         $realisasi = $wpdb->get_row($wpdb->prepare('
             SELECT 
                 SUM(p.total_pencairan) as total
