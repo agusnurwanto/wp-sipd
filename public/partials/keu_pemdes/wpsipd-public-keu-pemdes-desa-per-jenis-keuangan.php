@@ -305,7 +305,7 @@ foreach($desa as $val){
             SELECT 
                 SUM(p.total_pencairan) as total
             FROM data_pencairan_bkk_pilkades_desa p
-            INNER JOIN data_bkk_pilkades_desa b on p.id_kegiatan=b.id
+            INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
                 AND b.active=1
                 AND b.tahun_anggaran=%d
             WHERE b.id_desa=%d
@@ -320,7 +320,7 @@ foreach($desa as $val){
             SELECT 
                 SUM(p.total_pencairan) as total
             FROM data_pencairan_bhpd_desa p
-            INNER JOIN data_bhpd_desa b on p.id_kegiatan=b.id
+            INNER JOIN data_bhpd_desa b on p.id_bhpd=b.id
                 AND b.active=1
                 AND b.tahun_anggaran=%d
             WHERE b.id_desa=%d
@@ -335,7 +335,7 @@ foreach($desa as $val){
             SELECT 
                 SUM(p.total_pencairan) as total
             FROM data_pencairan_bhrd_desa p
-            INNER JOIN data_bhrd_desa b on p.id_kegiatan=b.id
+            INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
                 AND b.active=1
                 AND b.tahun_anggaran=%d
             WHERE b.id_desa=%d
@@ -350,7 +350,7 @@ foreach($desa as $val){
             SELECT 
                 SUM(p.total_pencairan) as total
             FROM data_pencairan_bku_add_desa p
-            INNER JOIN data_bku_add_desa b on p.id_kegiatan=b.id
+            INNER JOIN data_bku_add_desa b on p.id_bku_add=b.id
                 AND b.active=1
                 AND b.tahun_anggaran=%d
             WHERE b.id_desa=%d
@@ -365,7 +365,7 @@ foreach($desa as $val){
             SELECT 
                 SUM(p.total_pencairan) as total
             FROM data_pencairan_bku_dd_desa p
-            INNER JOIN data_bku_dd_desa b on p.id_kegiatan=b.id
+            INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
                 AND b.active=1
                 AND b.tahun_anggaran=%d
             WHERE b.id_desa=%d
