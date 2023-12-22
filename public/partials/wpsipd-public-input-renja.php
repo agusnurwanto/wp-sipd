@@ -41,6 +41,38 @@ if(
     $js_check_admin = 1;
 }
 
+$role_verifikator = $this->role_verifikator();
+$cek_verifikator = false; // cek user verifikator
+foreach($user_meta->roles as $role){
+    if(in_array($role, $role_verifikator)){
+        $cek_verifikator = true;
+    }
+}
+
+$setting_verifikasi_rka = false; //cek setting menu verifikator
+if( 
+    current_user_can('administrator') ||
+    current_user_can('PA') ||
+    current_user_can('KPA') ||
+    current_user_can('PLT') || 
+    $cek_verifikator
+){
+    $setting_verifikasi_rka = true;
+}
+
+$set_pptk = false; //cek setting menu pptk
+if(
+    current_user_can('administrator') ||
+    current_user_can('PA')
+){
+    $set_pptk = true;
+}
+
+$cek_user_pptk = false; //cek user pptk
+if(current_user_can('pptk')){
+    $cek_user_pptk = true;
+}
+
 $data_skpd = $wpdb->get_row($wpdb->prepare("
     select 
         nama_skpd,
@@ -110,19 +142,22 @@ if(!empty($jadwal_lokal)){
     $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
     $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
+    $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+    $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+    $awal = new DateTime($mulaiJadwal);
+    $akhir = new DateTime($selesaiJadwal);
+    $now = new DateTime(date('Y-m-d H:i:s'));
+
     if(
         $jenisJadwal == 'penetapan' 
         && (
             in_array("administrator", $user_meta->roles)
             || in_array("mitra_bappeda", $user_meta->roles)
         )
+        && $cek_verifikator == false
+        && $cek_user_pptk == false
     ){
         /** Penetapan */
-        $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-        $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-        $awal = new DateTime($mulaiJadwal);
-        $akhir = new DateTime($selesaiJadwal);
-        $now = new DateTime(date('Y-m-d H:i:s'));
 
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
@@ -143,13 +178,8 @@ if(!empty($jadwal_lokal)){
         }
         /** WARNING!!! */
         /** Jika ada perubahan di bagian code penetapan harus disesuaikan dengan code di bagian usulan juga. Begitupun sebaliknya */
-    }else if($jenisJadwal == 'usulan'){
+    }else if($jenisJadwal == 'usulan' && $cek_verifikator == false && $cek_user_pptk == false){
         /** Usulan */
-        $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-        $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-        $awal = new DateTime($mulaiJadwal);
-        $akhir = new DateTime($selesaiJadwal);
-        $now = new DateTime(date('Y-m-d H:i:s'));
         
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
@@ -442,6 +472,11 @@ foreach ($subkeg as $kk => $sub) {
             $cek_pptk = 'badge-success';
         }
 
+        $tombol_set_pptk = '';
+        if($set_pptk){
+            $tombol_set_pptk = '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>';
+        }
+
         //cek data verifikasi rka
         $data_verifikasi = $wpdb->get_var($wpdb->prepare("
             SELECT
@@ -458,7 +493,7 @@ foreach ($subkeg as $kk => $sub) {
         $url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan Lokal', $sub['tahun_anggaran'], '[verifikasi_rka_lokal]');
         $url_verifikasi .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-            'nama'  => implode(' ', $nama) .'<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
+            'nama'  => implode(' ', $nama) .''.$tombol_set_pptk.'<a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
             'total' => 0,
             'total_pergeseran' => 0,
             'total_n_plus' => 0,
@@ -922,10 +957,7 @@ if(!empty($data_rekap_sumber_dana)){
 
 $cekbox_set_pptk = '';
 if (
-	current_user_can('administrator') ||
-	current_user_can('PA') ||
-	current_user_can('KPA') ||
-	current_user_can('PLT')
+    $setting_verifikasi_rka || $cek_user_pptk
 ) {
 	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
 }

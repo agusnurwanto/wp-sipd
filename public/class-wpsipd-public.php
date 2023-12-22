@@ -7615,7 +7615,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'nama_skpd' => $v['nama_skpd'],
 					'kode_skpd' => $v['kode_skpd'],
 					'menu' => array(
-						array('value'=> 1) // menu 1 adalah halaman RFK saja
+						array('value'=> 1), // menu 1 adalah halaman RFK saja
+						array('value'=> 9) 	// menu 9 input renja
 					)
 				));
 			}
@@ -7645,7 +7646,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'nama_skpd' => $v['nama_skpd'],
 						'kode_skpd' => $v['kode_skpd'],
 						'menu' => array(
-							array('value'=> 1)
+							array('value'=> 1), //menu 1 menampilkan menu RFK
+							array('value'=> 9) //menu 9 menampilkan menu Input Renja
 						)
 					));
 				}
