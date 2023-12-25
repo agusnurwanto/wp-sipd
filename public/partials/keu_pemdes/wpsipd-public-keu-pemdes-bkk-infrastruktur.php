@@ -9,6 +9,10 @@ $input = shortcode_atts( array(
     'tahun_anggaran' => '2022'
 ), $atts );
 
+$title = 'Jenis Keuangan';
+$shortcode = '[desa_per_jenis_keuangan]';
+$url_per_jenis_keuangan = $this->generatePage($title, false, $shortcode, false);
+
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
 $cek_login = false;
@@ -37,7 +41,7 @@ $url_all_kec = array();
         order by kode_skpd ASC
     ", $input['tahun_anggaran']), ARRAY_A);
     foreach($unit as $kk => $vv){
-        $url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+        $url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[desa_per_jenis_keuangan tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
         $nama_kec = str_replace('kecamatan ', '', strtolower($vv['nama_skpd']));
         $url_all_kec[$nama_kec] = $url_skpd;
     }
@@ -105,7 +109,8 @@ foreach($data as $i => $val){
         $cek_login
         && !empty($url_all_kec[strtolower($val['kecamatan'])])
     ){
-        $nama_kec_render = "<a href='".$url_all_kec[strtolower($val['kecamatan'])]."' target='_blank'>".$val['kecamatan']."</a>";
+        // $nama_kec_render = "<a href='".$url_all_kec[strtolower($val['kecamatan'])]."' target='_blank'>".$val['kecamatan']."</a>";
+        $nama_kec_render = "<a onclick='per_jenis_keuangan(\"".$url_all_kec[strtolower($val['kecamatan'])]."\"); return false;' href='".$url_all_kec[strtolower($val['kecamatan'])]."' target='_blank'>".$val['kecamatan']."</a>";
     }
     $body .= '
     <tr>
@@ -193,4 +198,18 @@ window.pieChartkec = new Chart(document.getElementById('chart_per_kec'), {
         ]
     }
 });
+
+function cek_get(url){
+    if(url.split('?').length >= 2){
+        return url;
+    }else{
+        return url+'?1=1';
+    }
+}
+
+function per_jenis_keuangan(url_kec){
+    var jenis_keuangan = '';
+    var url = cek_get(url_kec)+'&jenis_keuangan=1';
+    window.open(url, '_blank').focus();
+}
 </script>

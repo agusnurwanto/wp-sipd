@@ -7590,7 +7590,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'nama_skpd' => $v['nama_skpd'],
 					'kode_skpd' => $v['kode_skpd'],
 					'menu' => array(
-						array('value'=> 1) // menu 1 adalah halaman RFK saja
+						array('value'=> 1), // menu 1 adalah halaman RFK saja
+						array('value'=> 9) 	// menu 9 input renja
 					)
 				));
 			}
@@ -7620,7 +7621,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'nama_skpd' => $v['nama_skpd'],
 						'kode_skpd' => $v['kode_skpd'],
 						'menu' => array(
-							array('value'=> 1)
+							array('value'=> 1), //menu 1 menampilkan menu RFK
+							array('value'=> 9) //menu 9 menampilkan menu Input Renja
 						)
 					));
 				}
@@ -15294,7 +15296,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$delete_lokal_history = $this->delete_data_lokal_history('data_validasi_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
 
 								$oclumns_1 = array(
-									'id',
 									'id_user',
 									'kode_sbl',
 									'nama_bidang',
@@ -15318,7 +15319,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$delete_lokal_history = $this->delete_data_lokal_history('data_verifikasi_rka'.$prefix, $data_this_id['id_jadwal_lokal']);
 
 								$oclumns_2 = array(
-									'id',
 									'kode_sbl',
 									'tahun_anggaran',
 									'id_user',
@@ -15343,6 +15343,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								";
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_verifikasi_rka);
+
+								/** -- */
+								$delete_lokal_history = $this->delete_data_lokal_history('data_pptk_sub_keg'.$prefix, $data_this_id['id_jadwal_lokal']);
+
+								$oclumns_3 = array(
+									'id_user',
+									'kode_sbl',
+									'tahun_anggaran',
+									'update_at',
+									'active'
+								);
+
+								$sql_backup_data_set_pptk =  "
+									INSERT INTO data_pptk_sub_keg".$prefix."_history (".implode(', ', $oclumns_3).",id_asli,id_jadwal)
+									SELECT 
+										".implode(', ', $oclumns_3).",
+										id as id_asli,
+										".$data_this_id['id_jadwal_lokal']."
+									FROM data_pptk_sub_keg".$prefix." 
+									WHERE tahun_anggaran='".$data_this_id['tahun_anggaran']."'
+								";
+
+								$queryRecords3 = $wpdb->query($sql_backup_data_set_pptk);
 
 								$return = array(
 									'status' => 'success',

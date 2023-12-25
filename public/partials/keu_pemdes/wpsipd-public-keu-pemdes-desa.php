@@ -18,11 +18,6 @@ function link_detail($link_admin, $jenis){
     return "<a target='_blank' href='".$link_admin."?".$jenis['key']."=".$jenis['value']."'>".$jenis['label']."</a>";
 }
 
-function generateRandomColor($k){
-    $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
-    return $color[$k%10];
-}
-
 if(empty($input['id_kel']) && empty($input['id_skpd'])){
     die('<h1 class="text-center">id_skpd, id_kec dan id_kel tidak boleh kosong!</h1>');
 }else if(!empty($input['id_skpd'])){
@@ -68,14 +63,8 @@ if(empty($input['id_kel']) && empty($input['id_skpd'])){
     if (empty($desa)) {
         die('<h1 class="text-center">Desa dengan id_kec ='.$input['id_kec'].' tidak ditemukan!</h1>'.$wpdb->last_query);
     }else{
-        echo '
-        <h1 class="text-center">Desa/Kelurahan di '.$unit['nama_skpd'].'</h1>
-        <ul style="margin: 20px auto; width: 400px;">';
-        foreach($desa as $val){
-            $url_skpd = $this->generatePage($val['nama'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_kec="'.$id_kec.'" id_kel="'.$val['id_alamat'].'"]');
-            echo '<li><a target="_blank" href="'.$url_skpd.'">'.$val['nama'].' | '.$input['tahun_anggaran'].'</a>';
-        }  
-        echo '</ul>'; exit;
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa-per-jenis-keuangan.php';
+        exit;
     }
 }
 

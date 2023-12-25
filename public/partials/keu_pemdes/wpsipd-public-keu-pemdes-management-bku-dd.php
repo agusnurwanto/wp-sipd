@@ -62,7 +62,7 @@ if (in_array("administrator", $user_meta->roles)) {
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU Add</h1>
+        <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU DD</h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -84,11 +84,11 @@ if (in_array("administrator", $user_meta->roles)) {
     </div>
 </div>
 
-<div class="modal fade mt-4" id="modalTambahDataBKUAdd" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataBKUAddLabel" aria-hidden="true">
+<div class="modal fade mt-4" id="modalTambahDataBKUDD" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataBKUDDLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataBKUAddLabel">Data BKUAdd</h5>
+                <h5 class="modal-title" id="modalTambahDataBKUDDLabel">Data BKUDD</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -117,7 +117,7 @@ if (in_array("administrator", $user_meta->roles)) {
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary submitBtn" onclick="submitTambahDataFormBKUAdd()">Simpan</button>
+                <button class="btn btn-primary submitBtn" onclick="submitTambahDataFormBKUDD()">Simpan</button>
                 <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -240,8 +240,8 @@ if (in_array("administrator", $user_meta->roles)) {
                         jQuery('#kec').val(res.data.id_kecamatan).trigger('change').prop('disabled', false);
                         jQuery('#desa').val(res.data.id_desa).trigger('change').prop('disabled', false);
                         jQuery('#total').val(res.data.total).trigger('input').prop('disabled', false);
-                        jQuery('#modalTambahDataBKUAdd .send_data').show();
-                        jQuery('#modalTambahDataBKUAdd').modal('show');
+                        jQuery('#modalTambahDataBKUDD .send_data').show();
+                        jQuery('#modalTambahDataBKUDD').modal('show');
                     })
                 } else {
                     alert(res.message);
@@ -270,11 +270,11 @@ if (in_array("administrator", $user_meta->roles)) {
             jQuery('#kec').val('').prop('disabled', false);
             jQuery('#desa').val('').prop('disabled', false);
             jQuery('#total').val('').trigger('change');
-            jQuery('#modalTambahDataBKUAdd').modal('show');
+            jQuery('#modalTambahDataBKUDD').modal('show');
         });
     }
 
-    function submitTambahDataFormBKUAdd() {
+    function submitTambahDataFormBKUDD() {
         var id_data = jQuery('#id_data').val();
 
         var id_kel = jQuery('#desa').val();
@@ -318,7 +318,7 @@ if (in_array("administrator", $user_meta->roles)) {
             success: function(res) {
                 alert(res.message);
                 if (res.status == 'success') {
-                    jQuery('#modalTambahDataBKUAdd').modal('hide');
+                    jQuery('#modalTambahDataBKUDD').modal('hide');
                     get_data_bku_dd();
                 } else {
                     jQuery('#wrap-loading').hide();
