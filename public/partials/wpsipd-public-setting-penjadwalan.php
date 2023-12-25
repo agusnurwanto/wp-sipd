@@ -184,8 +184,10 @@ $body = '';
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Anggaran</th>
+				<?php if($tipe_perencanaan == 'renja'): ?>
 					<th class="text-center">Jadwal RENSTRA</th>
 					<th class="text-center">Jenis Jadwal</th>
+				<?php endif; ?>
 					<th class="text-center" style="width: 250px;">Aksi</th>
 				</tr>
 			</thead>
@@ -213,11 +215,19 @@ $body = '';
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;' />
 				</div>
+			<?php if($tipe_perencanaan == 'renja'): ?>
 				<div>
 					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
 					<select id="link_renstra" style='display:block;width: 100%;'>
 						<option value="">Pilih RENSTRA</option>
 						<?php echo $select_renstra; ?>
+					</select>
+				</div>
+				<div>
+					<label for="jenis_jadwal" style='display:inline-block'>Pilih Jenis Jadwal</label>
+					<select id="jenis_jadwal" style='display:block;width: 100%;'>
+						<option value="usulan" selected>Usulan</option>
+						<option value="penetapan">Penetapan</option>
 					</select>
 				</div>
 				<div class="mt-3 form-input">
@@ -230,6 +240,7 @@ $body = '';
 						<?php echo $select_renja_pergeseran; ?>
 					</select>
 				</div>
+			<?php endif; ?>
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary submitBtn" onclick="submitTambahJadwalForm()">Simpan</button>
@@ -349,6 +360,7 @@ $body = '';
 					"data": "tahun_anggaran",
 					className: "text-center"
 				},
+			<?php if($tipe_perencanaan == 'renja'): ?>
 				{
 					"data": "relasi_perencanaan",
 					className: "text-center"
@@ -357,6 +369,7 @@ $body = '';
 					"data": "jenis_jadwal",
 					className: "text-center"
 				},
+			<?php endif; ?>
 				{
 					"data": "aksi",
 					className: "text-center"
@@ -382,59 +395,69 @@ $body = '';
 
 		/** Submit tambah jadwal */
 		function submitTambahJadwalForm() {
-			jQuery("#wrap-loading").show()
-			let nama = jQuery('#jadwal_nama').val()
-			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
-			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
-			let this_tahun_anggaran = tahun_anggaran
-			let jenis_jadwal = jQuery("#jenis_jadwal").val()
-			let relasi_perencanaan = jQuery("#link_renstra").val()
-			let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
-			let id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-			if (nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == '') {
-				jQuery("#wrap-loading").hide()
-				alert("Ada yang kosong, Harap diisi semua")
-				return false
-			} else if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-				jQuery("#wrap-loading").hide()
-				alert("Jadwal Renja Pergeseran Wajib Diisi!")
-				return false
-			} else {
-				jQuery.ajax({
-					url: thisAjaxUrl,
-					type: 'post',
-					dataType: 'json',
-					data: {
-						'action': 'submit_add_schedule',
-						'api_key': jQuery("#api_key").val(),
-						'nama': nama,
-						'jadwal_mulai': jadwalMulai,
-						'jadwal_selesai': jadwalSelesai,
-						'tahun_anggaran': this_tahun_anggaran,
-						'tipe_perencanaan': tipe_perencanaan,
-						'relasi_perencanaan': relasi_perencanaan,
-						'jenis_jadwal': jenis_jadwal,
-						'pergeseran_renja': pergeseran_renja,
-						'id_jadwal_pergeseran_renja': id_jadwal_pergeseran_renja
-					},
-					beforeSend: function() {
-						jQuery('.submitBtn').attr('disabled', 'disabled')
-					},
-					success: function(response) {
-						jQuery('#wrap-loading').hide()
-						alert(response.message);
-						if (response.status == 'success') {
-							jQuery('#modalTambahJadwal').modal('hide');
-							jQuery('#jadwal_nama').val('');
-							jQuery("#link_renstra").val('');
-							penjadwalanTable.ajax.reload();
-							jQuery(".tambah_jadwal").prop('hidden', true);
-						}
-					}
-
-				})
+			let this_tahun_anggaran = tahun_anggaran;
+			let nama = jQuery('#jadwal_nama').val();
+			if(nama.trim() == ''){
+				return alert("Nama jadwal tidak boleh kosong!");
 			}
-			jQuery('#modalTambahJadwal').modal('hide');
+			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss');
+			if(jadwalMulai == ''){
+				return alert('Jadwal mulai tidak boleh kosong!');
+			}
+			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss');
+			if(jadwalSelesai == ''){
+				return alert('Jadwal selesai tidak boleh kosong!');
+			}
+			let jenis_jadwal = 1;
+			let relasi_perencanaan = '';
+			let pergeseran_renja = '';
+			let id_jadwal_pergeseran_renja = false;
+		<?php if($tipe_perencanaan == 'renja'): ?>
+			jenis_jadwal = jQuery("#jenis_jadwal").val();
+			if(jenis_jadwal == ''){
+				return alert('Jenis jadwal tidak boleh kosong!');
+			}
+			relasi_perencanaan = jQuery("#link_renstra").val();
+			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
+			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+				return alert("Jadwal Renja Pergeseran harus dipilih!");
+			}
+		<?php endif; ?>
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type: 'post',
+				dataType: 'json',
+				data: {
+					'action': 'submit_add_schedule',
+					'api_key': jQuery("#api_key").val(),
+					'nama': nama,
+					'jadwal_mulai': jadwalMulai,
+					'jadwal_selesai': jadwalSelesai,
+					'tahun_anggaran': this_tahun_anggaran,
+					'tipe_perencanaan': tipe_perencanaan,
+					'relasi_perencanaan': relasi_perencanaan,
+					'jenis_jadwal': jenis_jadwal,
+					'pergeseran_renja': pergeseran_renja,
+					'id_jadwal_pergeseran_renja': id_jadwal_pergeseran_renja
+				},
+				beforeSend: function() {
+					jQuery('.submitBtn').attr('disabled', 'disabled')
+				},
+				success: function(response) {
+					jQuery('#wrap-loading').hide()
+					alert(response.message);
+					if (response.status == 'success') {
+						jQuery('#modalTambahJadwal').modal('hide');
+						jQuery('#jadwal_nama').val('');
+						jQuery("#link_renstra").val('');
+						penjadwalanTable.ajax.reload();
+						jQuery(".tambah_jadwal").prop('hidden', true);
+					}
+				}
+
+			});
 		}
 
 		/** edit akun ssh usulan */
@@ -476,61 +499,71 @@ $body = '';
 		}
 
 		function submitEditJadwalForm(id_jadwal_lokal) {
-			jQuery("#wrap-loading").show()
-			let nama = jQuery('#jadwal_nama').val()
-			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
-			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
-			let this_tahun_anggaran = tahun_anggaran
-			let relasi_perencanaan = jQuery("#link_renstra").val()
-			let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
-			let id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-			let jenis_jadwal = jQuery("#jenis_jadwal").val()
-			if (nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == '') {
-				jQuery("#wrap-loading").hide()
-				alert("Ada yang kosong, Harap diisi semua")
-				return false
-			} else if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-				jQuery("#wrap-loading").hide()
-				alert("Jadwal Renja Pergeseran Wajib Diisi!")
-				return false
-			} else {
-				jQuery.ajax({
-					url: thisAjaxUrl,
-					type: 'post',
-					dataType: 'json',
-					data: {
-						'action': 'submit_edit_schedule',
-						'api_key': jQuery("#api_key").val(),
-						'nama': nama,
-						'jadwal_mulai': jadwalMulai,
-						'jadwal_selesai': jadwalSelesai,
-						'id_jadwal_lokal': id_jadwal_lokal,
-						'tahun_anggaran': this_tahun_anggaran,
-						'tipe_perencanaan': tipe_perencanaan,
-						'relasi_perencanaan': relasi_perencanaan,
-						'jenis_jadwal': jenis_jadwal,
-						'pergeseran_renja': pergeseran_renja,
-						'id_jadwal_pergeseran_renja': id_jadwal_pergeseran_renja
-					},
-					beforeSend: function() {
-						jQuery('.submitBtn').attr('disabled', 'disabled')
-					},
-					success: function(response) {
-						jQuery('#modalTambahJadwal').modal('hide')
-						jQuery('#wrap-loading').hide()
-						if (response.status == 'success') {
-							alert('Data berhasil diperbarui')
-							penjadwalanTable.ajax.reload()
-						} else {
-							alert(`GAGAL! \n${response.message}`)
-						}
-						jQuery('#jadwal_nama').val('')
-						jQuery("#link_renstra").val('')
-						jQuery("#jenis_jadwal").val('')
-					}
-				})
+			let this_tahun_anggaran = tahun_anggaran;
+			let nama = jQuery('#jadwal_nama').val();
+			if(nama.trim() == ''){
+				return alert("Nama jadwal tidak boleh kosong!");
 			}
-			jQuery('#modalTambahJadwal').modal('hide');
+			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss');
+			if(jadwalMulai == ''){
+				return alert('Jadwal mulai tidak boleh kosong!');
+			}
+			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss');
+			if(jadwalSelesai == ''){
+				return alert('Jadwal selesai tidak boleh kosong!');
+			}
+			let jenis_jadwal = 1;
+			let relasi_perencanaan = '';
+			let pergeseran_renja = '';
+			let id_jadwal_pergeseran_renja = false;
+		<?php if($tipe_perencanaan == 'renja'): ?>
+			jenis_jadwal = jQuery("#jenis_jadwal").val();
+			if(jenis_jadwal == ''){
+				return alert('Jenis jadwal tidak boleh kosong!');
+			}
+			relasi_perencanaan = jQuery("#link_renstra").val();
+			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
+			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+				return alert("Jadwal Renja Pergeseran harus dipilih!");
+			}
+		<?php endif; ?>
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type: 'post',
+				dataType: 'json',
+				data: {
+					'action': 'submit_edit_schedule',
+					'api_key': jQuery("#api_key").val(),
+					'nama': nama,
+					'jadwal_mulai': jadwalMulai,
+					'jadwal_selesai': jadwalSelesai,
+					'id_jadwal_lokal': id_jadwal_lokal,
+					'tahun_anggaran': this_tahun_anggaran,
+					'tipe_perencanaan': tipe_perencanaan,
+					'relasi_perencanaan': relasi_perencanaan,
+					'jenis_jadwal': jenis_jadwal,
+					'pergeseran_renja': pergeseran_renja,
+					'id_jadwal_pergeseran_renja': id_jadwal_pergeseran_renja
+				},
+				beforeSend: function() {
+					jQuery('.submitBtn').attr('disabled', 'disabled');
+				},
+				success: function(response) {
+					jQuery('#modalTambahJadwal').modal('hide');
+					jQuery('#wrap-loading').hide();
+					if (response.status == 'success') {
+						alert('Data berhasil diperbarui');
+						penjadwalanTable.ajax.reload();
+					} else {
+						alert(`GAGAL! \n${response.message}`);
+					}
+					jQuery('#jadwal_nama').val('');
+					jQuery("#link_renstra").val('');
+					jQuery("#jenis_jadwal").val('');
+				}
+			});
 		}
 
 		function hapus_data_penjadwalan(id_jadwal_lokal) {
