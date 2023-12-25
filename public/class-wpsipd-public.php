@@ -5465,36 +5465,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT 
 							*
 						from data_unit
-						where id_skpd=%d
+						where id_unit=%d
 							AND tahun_anggaran=%d
 							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
-					if(!empty($ret['data']) && $ret['data'][0]['isskpd'] == 0){
-						$ret['data'] = $wpdb->get_results(
-							$wpdb->prepare("
-							SELECT 
-								*
-							from data_unit
-							where idinduk=%d
-								AND tahun_anggaran=%d
-								AND active=1
-							order by id_skpd ASC", $ret['data'][0]['idinduk'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-					}else if(!empty($ret['data'])){
-						$ret['data'] = $wpdb->get_results(
-							$wpdb->prepare("
-							SELECT 
-								*
-							from data_unit
-							where idinduk=%d
-								AND tahun_anggaran=%d
-								AND active=1
-							order by id_skpd ASC", $ret['data'][0]['id_skpd'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-					}
 					$ret['query'] = $wpdb->last_query;
 					$ret['id_skpd'] = $_POST['id_skpd'];
 				}else{
