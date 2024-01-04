@@ -6093,6 +6093,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						!empty($_POST['kode_sbl']) && $_POST['type']=='belanja'
 					)
 				){
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'type' => $_POST['type'],
@@ -6105,15 +6108,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							if(empty($v['id_akun'])){
 								continue;
 							}
-							$cek = $wpdb->get_var("
+							$cek = $wpdb->get_var($wpdb->prepare("
 								SELECT 
 									id_akun 
 								from data_anggaran_kas 
-								where tahun_anggaran=".$_POST['tahun_anggaran']." 
-									AND kode_sbl='" . $_POST['kode_sbl']."' 
-									AND id_unit='" . $_POST['id_skpd']."' 
-									AND type='" . $_POST['type']."' 
-									AND id_akun=".$v['id_akun']);
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s
+									AND id_unit=%d 
+									AND type=%s 
+									AND id_akun=%d
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $_POST['type'], $v['id_akun']));
 							$opsi = array(
 								'bulan_1' => $v['bulan_1'],
 								'bulan_2' => $v['bulan_2'],
