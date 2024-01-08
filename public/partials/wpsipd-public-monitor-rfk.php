@@ -736,6 +736,12 @@ foreach ($units as $k => $unit) :
 							$role_specific_column_permasalahan = '<td class="kanan bawah permasalahan">' . $sub_giat['data']['permasalahan'] . '</td>';
 							$role_specific_column_catatan = '<td class="kanan bawah catatan_verifikator">' . $sub_giat['data']['catatan_verifikator'] . '</td>';
 						}
+
+						$kode_sbl = $sub_giat['data']['kode_sbl'];
+                        $url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub_giat['data']['kode_sbl'].' | '.$sub_giat['data']['tahun_anggaran'],$sub_giat['data']['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub_giat['data']['id_sub_skpd'].'" kode_sbl="'.$sub_giat['data']['kode_sbl'].'" tahun_anggaran="'.$sub_giat['data']['tahun_anggaran'].'"]');
+
+                        $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.$sub_giat['nama'].'</a>';
+
 						$body .= '
 					        <tr style="' . $cek_fmis . '" data-kode="' . $kd_sub_giat1 . '" data-kdsbl="' . $sub_giat['data']['kode_sbl'] . '" data-idskpd="' . $sub_giat['data']['id_sub_skpd'] . '" data-pagu="' . $sub_giat['total'] . '">
 					            <td class="kiri kanan bawah">' . $kd_urusan . '</td>
@@ -743,7 +749,7 @@ foreach ($units as $k => $unit) :
 					            <td class="kanan bawah">' . $kd_program . '</td>
 					            <td class="kanan bawah">' . $kd_giat . '</td>
 					            <td class="kanan bawah">' . $kd_sub_giat . '</td>
-					            <td class="kanan bawah nama_sub_giat">' . $sub_giat['nama'] . '</td>
+					            <td class="kanan bawah nama_sub_giat">' . $nama_sub . '</td>
 					            <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 0, ",", ".") . '</td>
 					            <td class="kanan bawah text_kanan total_simda" data-pagu="' . $sub_keg_dpa . '">' . number_format($sub_keg_dpa, 0, ",", ".") . '</td>
 					            <td class="kanan bawah text_kanan">' . number_format($sub_giat['realisasi'], 0, ",", ".") . '</td>

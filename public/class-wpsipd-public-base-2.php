@@ -5411,10 +5411,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$kode_sbl = $_POST['kode_sbl'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$type = '';
+				$prefix_tabel = '_lokal';
+				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
+					$prefix_tabel = '';
+				}
 				$bl = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
-					from data_sub_keg_bl_lokal 
+					from data_sub_keg_bl".$prefix_tabel." 
 					where kode_sbl = %s
 						AND tahun_anggaran = %d
 						AND active=1
@@ -5424,7 +5428,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rinc = $wpdb->get_results("
 					SELECT 
 						* 
-					from data_rka_lokal 
+					from data_rka".$prefix_tabel." 
 					where kode_sbl='".$kode_sbl."'
 						AND tahun_anggaran=".$tahun_anggaran."
 						AND active=1
@@ -5793,7 +5797,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								d.id_sumber_dana,
 								m.nama_dana,
 								m.kode_dana
-							from data_mapping_sumberdana_lokal d
+							from data_mapping_sumberdana".$prefix_tabel." d
 							left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
 								and d.tahun_anggaran = m.tahun_anggaran
 							where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
