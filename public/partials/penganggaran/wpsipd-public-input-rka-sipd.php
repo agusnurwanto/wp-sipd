@@ -22,25 +22,44 @@ $type = 'rka_murni';
 if (!empty($_GET) && !empty($_GET['type'])) {
 	$type = $_GET['type'];
 }
+$judul_rincian = 'Rincian Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah';
 $keterangan_sub = '';
 $judul = '
 	<td class="kiri atas kanan bawah text_blok text_tengah">RENCANA KERJA DAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 	<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>RKA - RINCIAN BELANJA SKPD</td>
 ';
 if ($type == 'rka_perubahan') {
+	$judul_rincian = 'Rincian Perubahan Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah';
 	$judul = '
 		<td class="kiri atas kanan bawah text_blok text_tengah">RENCANA KERJA DAN PERUBAHAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 		<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>RKPA - RINCIAN BELANJA SKPD</td>
 	';
 } else if ($type == 'dpa_murni') {
+	$judul_rincian = 'Rincian Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah';
 	$judul = '
 		<td class="kiri atas kanan bawah text_blok text_tengah">DOKUMEN PELAKSANAAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 		<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>DPA-RINCIAN BELANJA SKPD</td>
 	';
 } else if ($type == 'dpa_perubahan') {
+	$judul_rincian = 'Rincian Perubahan Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah';
 	$judul = '
 		<td class="kiri atas kanan bawah text_blok text_tengah">DOKUMEN PELAKSANAAN PERGESERAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 		<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>DPPA-RINCIAN BELANJA SKPD</td>
+	';
+}
+
+$class_garis_table = '';
+if (
+	$type == 'dpa_murni'
+	|| $type == 'dpa_perubahan'
+) {
+	$class_garis_table = 'kiri atas kanan bawah';
+	$keterangan_sub = '
+		<tr class="' . $class_garis_table . '">
+			<td width="130">Keterangan</td>
+            <td width="10">:</td>
+            <td>&nbsp;</td>
+        </tr>
 	';
 }
 
@@ -90,6 +109,109 @@ foreach ($sd_sub_keg as $key => $sd) {
 		$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$sd['namadana'];
 		$sd_sub_id[] = $sd['iddana'];
 	}
+}
+
+$ind_output_db = $wpdb->get_results(
+	"
+	SELECT 
+		* 
+	from data_output_giat_sub_keg 
+	where kode_sbl='" . $input['kode_sbl'] . "' 
+		AND tahun_anggaran=" . $input['tahun_anggaran'] . "
+		AND active=1",
+	ARRAY_A
+);
+
+$ind_output_murni = [];
+$target_ind_output_murni = [];
+$ind_output = [];
+$target_ind_output = [];
+foreach ($ind_output_db as $k => $v) {
+	$ind_output[] = '
+		<tr>
+            <td width="495">' . $v['outputteks'] . '</td>
+        </tr>
+	';
+	$target_ind_output[] = '
+		<tr>
+            <td width="495">' . $v['targetoutputteks'] . '</td>
+        </tr>
+	';
+}
+
+$ind_hasil_db = $wpdb->get_results(
+	"
+	SELECT 
+		* 
+	from data_keg_indikator_hasil 
+	where kode_sbl='" . $input['kode_sbl'] . "' 
+		AND tahun_anggaran=" . $input['tahun_anggaran'] . "
+		AND active=1",
+	ARRAY_A
+);
+
+$ind_hasil_murni = [];
+$target_ind_hasil_murni = [];
+$ind_hasil = [];
+$target_ind_hasil = [];
+foreach ($ind_hasil_db as $k => $v) {
+	$ind_hasil[] = '
+		<tr>
+            <td width="495">' . $v['hasilteks'] . '</td>
+        </tr>
+	';
+	$target_ind_hasil[] = '
+		<tr>
+            <td width="495">' . $v['targethasilteks'] . '</td>
+        </tr>
+	';
+}
+
+$ind_prog_db = $wpdb->get_results(
+	"
+	SELECT 
+		* 
+	from data_capaian_prog_sub_keg 
+	where kode_sbl='" . $input['kode_sbl'] . "' 
+		AND tahun_anggaran=" . $input['tahun_anggaran'] . "
+		AND active=1",
+	ARRAY_A
+);
+
+$ind_capaian_kegiatan_murni = array();
+$target_ind_capaian_kegiatan_murni = array();
+$ind_capaian_kegiatan = array();
+$target_ind_capaian_kegiatan = array();
+$ind_prog = array();
+foreach ($ind_prog_db as $k => $v) {
+	// print_r($v); die();
+	if ($type == 'dpa_perubahan') {
+		$ind_prog[] = '
+			<tr>
+	            <td class="kiri atas kanan bawah"></td>
+	            <td class="kiri atas kanan bawah"></td>
+	            <td class="kiri atas kanan bawah" width="495">' . $v['capaianteks'] . '</td>
+	            <td class="kiri atas kanan bawah" width="495">' . $v['targetcapaianteks'] . '</td>
+	        </tr>
+		';
+	} else {
+		$ind_prog[] = '
+			<tr>
+	            <td class="kiri atas kanan bawah" width="495">' . $v['capaianteks'] . '</td>
+	            <td class="kiri atas kanan bawah" width="495">' . $v['targetcapaianteks'] . '</td>
+	        </tr>
+		';
+	}
+	$ind_capaian_kegiatan[] = '
+		<tr>
+            <td width="495">' . $v['capaianteks'] . '</td>
+        </tr>
+	';
+	$target_ind_capaian_kegiatan[] = '
+		<tr>
+            <td width="495">' . $v['targetcapaianteks'] . '</td>
+        </tr>
+	';
 }
 
 $sql = "
@@ -299,7 +421,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
     	vertical-align: middle;
     }
 </style>
-<div class="cetak" contenteditable="false">
+<div class="cetak" contenteditable="true">
 	<table width="100%" class="cellpadding_5" style="border-spacing: 2px;">
 	    <tr class="no_padding">
 	        <td colspan="2">
@@ -308,7 +430,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 	                    <?php echo $judul; ?>
 	                </tr>
 	                <tr>
-	                    <td class="kiri atas kanan bawah text_tengah">Pemerintah <?php echo get_option('_crb_daerah'); ?> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></td>
+	                    <td class="kiri atas kanan bawah text_tengah">Pemerintah <?php echo get_option('_crb_daerah'); ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></td>
 	                </tr>
 	            </table>
 	        </td>
@@ -316,6 +438,20 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 	    <tr class="no_padding">
 	        <td colspan="2">
 	            <table id="tabel-rincian" width="100%" class="cellpadding_5" style="border-spacing: 1px;">
+	            	<?php
+					if (
+						$type == 'dpa_murni'
+						|| $type == 'dpa_perubahan'
+					) {
+						echo '
+								<tr class="text_blok ' . $class_garis_table . '">
+				                    <td width="150">Nomor DPA</td>
+				                    <td width="10">:</td>
+				                    <td>XXXXXX</td>
+				                </tr>
+							';
+					}
+					?>
 	                <tr class="tr-urusan-pemerintahan kiri kanan atas bawah">
 	                    <td width="150">Urusan Pemerintahan</td>
 	                    <td width="10">:</td>
@@ -365,11 +501,167 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 	        </td>            
 	    </tr>
 	    <tr>
+			<td class="atas kanan bawah kiri text_15 text_tengah" colspan="2">Indikator &amp; Tolok Ukur Kinerja Kegiatan</td>
+		</tr>
+		<tr class="no_padding">
+			<td colspan="2">
+				<table width="100%" class="cellpadding_5 td_v_middle" style="border-spacing: 2px;">
+					<?php
+					$capaian_kegiatan_murni = '';
+					$masukan_kegiatan_murni = '';
+					$keluaran_kegiatan_murni = '';
+					$hasil_kegiatan_murni = '';
+					if (
+						$type == 'rka_murni'
+						|| $type == 'dpa_murni'
+					) {
+						echo '
+			                <tr>
+			                    <td width="130" class="text_tengah kiri atas kanan bawah">Indikator</td>
+			                    <td class="text_tengah kiri atas kanan bawah">Tolok Ukur Kinerja</td>
+			                    <td width="150" class="text_tengah kiri atas kanan bawah">Target Kinerja</td>
+			                </tr>';
+					} else {
+						$capaian_kegiatan_murni = '
+	            			<td class="kiri kanan atas bawah">
+			                    <table width="100%" border="0" style="border-spacing: 0px;">
+			                        ' . implode('', $ind_capaian_kegiatan_murni) . '
+			                    </table>
+			                </td>
+			                <td class="kiri kanan atas bawah">
+			                    <table width="100%" border="0" style="border-spacing: 0px;">
+			                        ' . implode('', $target_ind_capaian_kegiatan_murni) . '
+			                    </table>
+			                </td>';
+						$masukan_kegiatan_murni = '
+		            		<td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+			                        <tr>
+			                          <td width="495">Dana yang dibutuhkan</td>
+			                        </tr>
+		                        </table>
+		                    </td>
+		                    <td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+			                        <tr>
+			                          <td width="495">Rp. ' . number_format($pagu_murni, 0, ",", ".") . '</td>
+			                        </tr>
+		                        </table>
+		                    </td>';
+						$keluaran_kegiatan_murni = '
+	            			<td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+		                            ' . implode('', $ind_output_murni) . '
+		                    	</table>
+		                    </td>
+		                    <td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+		                            ' . implode('', $target_ind_output_murni) . '
+		                        </table>
+		                    </td>
+	            		';
+						$hasil_kegiatan_murni = '
+		                    <td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+		                        	' . implode('', $ind_hasil_murni) . '
+		                        </table>
+		                    </td>
+		                    <td class="kiri kanan atas bawah">
+		                        <table width="100%" border="0" style="border-spacing: 0px;">
+		                        	' . implode('', $target_ind_hasil_murni) . '
+		                        </table>
+		                    </td>
+	            		';
+						echo '
+			                <tr>
+			                    <td width="130" rowspan="2" class="text_tengah kiri atas kanan bawah">Indikator</td>
+			                	<td colspan="2" class="text_tengah kiri atas kanan bawah">Sebelum Perubahan</td>
+			                	<td colspan="2" class="text_tengah kiri atas kanan bawah">Setelah Perubahan</td>
+			                </tr>
+			                <tr>
+			                    <td class="text_tengah kiri atas kanan bawah">Tolok Ukur Kinerja</td>
+			                    <td width="150" class="text_tengah kiri atas kanan bawah">Target Kinerja</td>
+			                    <td class="text_tengah kiri atas kanan bawah">Tolok Ukur Kinerja</td>
+			                    <td width="150" class="text_tengah kiri atas kanan bawah">Target Kinerja</td>
+			                </tr>';
+					}
+
+					?>
+					<tr>
+						<td width="130" class="kiri kanan atas bawah">Capaian Kegiatan</td>
+						<?php echo $capaian_kegiatan_murni; ?>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $ind_capaian_kegiatan); ?>
+							</table>
+						</td>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $target_ind_capaian_kegiatan); ?>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td width="130" class="kiri kanan atas bawah">Masukan</td>
+						<?php echo $masukan_kegiatan_murni; ?>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<tr>
+									<td width="495">Dana yang dibutuhkan</td>
+								</tr>
+							</table>
+						</td>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<tr>
+									<td width="495">Rp. <?php echo number_format($subkeg['pagu'], 0, ",", "."); ?></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td width="130" class="kiri kanan atas bawah">Keluaran</td>
+						<?php echo $keluaran_kegiatan_murni; ?>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $ind_output); ?>
+							</table>
+						</td>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $target_ind_output); ?>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td width="130" class="kiri kanan atas bawah">Hasil</td>
+						<?php echo $hasil_kegiatan_murni; ?>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $ind_hasil); ?>
+							</table>
+						</td>
+						<td class="kiri kanan atas bawah">
+							<table width="100%" border="0" style="border-spacing: 0px;">
+								<?php echo implode('', $target_ind_hasil); ?>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="<?php echo $class_garis_table; ?>" width="150" colspan="2">Kelompok Sasaran Kegiatan : <?php echo $subkeg['sasaran']; ?></td>
+		</tr>
+		<tr>
+			<td class="<?php echo $class_garis_table; ?>" width="150" colspan="2">&nbsp;</td>
+		</tr>
+	    <tr>
 			<td class="atas kanan bawah kiri text_tengah text_15" colspan="2">
 				<table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
 				    <tbody>
 				    	<tr>
-				            <td>Rincian Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah</td>
+				            <td><?php echo $judul_rincian; ?></td>
 				        </tr>
 				    </tbody>
 				</table>
@@ -638,8 +930,8 @@ jQuery(document).ready(function(){
 	var body = '' +
 		'<h3>SETTING</h3>' +
 		'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>' +
-		'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>' +
-		'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>' +
+		'<label style="margin-left: 20px;"><input type="checkbox" class="label_nilai_kelompok" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>' +
+		'<label style="margin-left: 20px;"><input type="checkbox" class="label_nilai_keterangan" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>' +
 		'<label style="margin-left: 20px;"> Pilih format Laporan ' +
 			'<select class="" style="min-width: 300px;" id="type_laporan">' +
 				'<option>-- format --</option>' +
@@ -672,6 +964,14 @@ jQuery(document).ready(function(){
 	get_rinc_rka('<?php echo $input['kode_sbl']; ?>');
 });
 
+function tampil_nilai(that, _class) {
+	if (jQuery(that).is(':checked')) {
+		jQuery(_class).css('color', 'inherit');
+	} else {
+		jQuery(_class).css('color', '#fff');
+	}
+}
+
 function get_rinc_rka(kode_sbl){
 	jQuery("#wrap-loading").show();
 	jQuery.ajax({
@@ -687,6 +987,11 @@ function get_rinc_rka(kode_sbl){
 		dataType:"json",
 		success:function(response){
 			jQuery('#tabel_rincian_sub_keg').html(response.rin_sub_item);
+			tampil_nilai(jQuery(''), );
+			jQuery('.nilai_kelompok').css('color', 'inherit');
+			jQuery('.nilai_keterangan').css('color', 'inherit');
+			jQuery('.label_nilai_kelompok').prop('checked', true);
+			jQuery('.label_nilai_keterangan').prop('checked', true);
 			jQuery("#wrap-loading").hide();
 		}
 	});
