@@ -5559,11 +5559,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				// print_r($akun); die();
 				$id_subtitle = array();
 				$id_keterangan = array();
+				$keterangan_alamat = array();
 				foreach ($rinc as $key => $item) {
 					if(empty($item['kode_akun'])){
 						continue;
 					}
 					$alamat_array = $this->get_alamat($bl[0], $item);
+					if(!empty($alamat_array['keterangan'])){
+						$keterangan_alamat[] = $alamat_array['keterangan'];
+					}
 			        $alamat = $alamat_array['alamat'];
 			        $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
 					if(empty($alamat)){
@@ -5907,6 +5911,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			        </tr>
 				';
 				$return['rin_sub_item'] = $rin_sub_item;
+				$return['keterangan_alamat'] = $keterangan_alamat;
 			}else{
 				$return = array(
 					'status' => 'error',
