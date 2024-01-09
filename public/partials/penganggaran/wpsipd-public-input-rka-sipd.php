@@ -737,7 +737,14 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 			$type == 'dpa_murni'
 			|| $type == 'dpa_perubahan'
 		) :
+			$_POST['api_key'] = $api_key;
+			$_POST['action'] = 'get_kas';
+			$_POST['kode_giat'] = $subkeg['kode_giat'];
+			$_POST['kode_sub_giat'] = $subkeg['kode_sub_giat'];
+			$_POST['kode_skpd'] = $unit[0]['kode_skpd'];
 			$_POST['tahun_anggaran'] = $input['tahun_anggaran'];
+			$kas = $this->get_kas(true);
+			$kas = $kas['data'];
 			$user_ppkd_db = $wpdb->get_results("
 				select 
 					fullName, 
@@ -756,8 +763,8 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 				<td>
 					<table width="100%" style="border-collapse: collapse;" class="cellpadding_5">
 						<tr>
-							<td class="kiri atas bawah text_blok text_tengah" colspan="2"></td>
-							<td width="60%" class="kanan atas bawah" rowspan="14" style="vertical-align: middle;">
+							<td class="kiri kanan atas bawah text_blok text_tengah" colspan="2">Rencana Penarikan Dana per Bulan</td>
+							<td width="60%" class="kiri kanan atas bawah" rowspan="14" style="vertical-align: middle;">
 								<table class="tabel-standar" width="100%" cellpadding="2">
 									<tbody>
 										<tr>
@@ -796,6 +803,58 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 									</tbody>
 								</table>
 							</td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Januari</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][0], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Februari</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][1], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Maret</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][2], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">April</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][3], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Mei</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][4], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Juni</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][5], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Juli</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][6], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Agustus</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][7], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">September</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][8], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Oktober</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][9], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">November</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][10], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td width="20%" class="kiri kanan atas bawah">Desember</td>
+							<td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][11], 0, ",", "."); ?></td>
+						</tr>
+						<tr>
+							<td class="kiri kanan atas bawah text_tengah">Jumlah</td>
+							<td class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['total'], 0, ",", "."); ?></td>
 						</tr>
 					</table>
 				</td>
@@ -967,6 +1026,14 @@ function tampil_nilai(that, _class) {
 		jQuery(_class).css('color', 'inherit');
 	} else {
 		jQuery(_class).css('color', '#fff');
+	}
+}
+
+function tampil_rinci(that) {
+	if (jQuery(that).is(':checked')) {
+		jQuery('.profile-penerima').show();
+	} else {
+		jQuery('.profile-penerima').hide();
 	}
 }
 

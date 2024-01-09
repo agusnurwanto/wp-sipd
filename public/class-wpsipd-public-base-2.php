@@ -5594,7 +5594,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}else{
 
 						// jika lokus akun teks ada di nama komponen
-						if(strpos($item['nama_komponen'], $lokus_akun_teks) !== false ){
+						if(
+							strpos($item['nama_komponen'], $lokus_akun_teks) !== false
+							|| $lokus_akun_teks == $alamat
+						){
 							$profile_penerima = $alamat;
 						}else{
 							$profile_penerima = $lokus_akun_teks.', '.$alamat;
