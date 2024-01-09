@@ -3569,6 +3569,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	        $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
 	    }
 	    $alamat = '';
+	    $keterangan_alamat = '';
 	    $lokus_akun_teks = $this->replace_char($rincian['lokus_akun_teks']);
 	    if(!empty($profile)){
 	        $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
@@ -3592,11 +3593,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
 	                return $this->get_alamat($input, $rincian, $no);
 	            }else{
-	                echo "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
+	                $keterangan_alamat .= "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
 	            }
 	        }
 	    }
 	    return array(
+	    	'keterangan' => $keterangan_alamat, 
 	    	'alamat' => $alamat, 
 	    	'lokus_akun_teks' => $lokus_akun_teks, 
 	    	'lokus_akun_teks_decode' => str_replace(array('petik_satu', 'petik_dua'), array("'", '"'), $lokus_akun_teks)
