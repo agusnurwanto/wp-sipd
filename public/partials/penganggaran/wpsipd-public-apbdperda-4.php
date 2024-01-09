@@ -234,7 +234,7 @@ foreach ($data_skpd as $skpd) {
                     'sub' => $sub,
                     'sumber_dana' => $dana_result,
                     'indikator_sub_giat' => $indikator_sub_giat,
-                    'lokasi'=> $lokasi_result
+                    'lokasi' => $lokasi_result
                 );
             }
 
