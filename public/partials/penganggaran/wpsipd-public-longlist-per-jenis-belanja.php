@@ -72,7 +72,7 @@ if ($input['id_skpd'] == 'all') {
     }
 }
 $nama_pemda = get_option('_crb_daerah');
-$nama_excel = 'Rancangan Kerja Perangkat Daerah Pada APBD<br>TAHUN ANGGARAN ' . $input['tahun_anggaran'] . '<br>Per JENIS BELANJA<br>' . strtoupper($nama_pemda) . $nama_skpd . '<br>' . $jadwal_lokal->nama_jadwal;
+$nama_excel = 'REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN' . '<br>' . strtoupper($nama_pemda) . $nama_skpd . '<br>' . $jadwal_lokal->nama_jadwal . '<br>TAHUN ANGGARAN ' . $input['tahun_anggaran'];
 
 $body = '';
 $total_operasi = 0;
@@ -187,13 +187,13 @@ foreach ($data_skpd as $skpd) {
                     'sub' => $sub
                 );
             }
-            
+
             $data_all[$sub['id_sub_skpd']]['total'] += $rincian['rincian'];
             $data_all[$sub['id_sub_skpd']]['total_murni'] += $rincian['rincian_murni'];
-            
+
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total'] += $rincian['rincian'];
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['total_murni'] += $rincian['rincian_murni'];
-            
+
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $rincian['rincian'];
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_murni'] += $rincian['rincian_murni'];
 
@@ -225,7 +225,7 @@ foreach ($data_skpd as $skpd) {
 
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['modal_murni'] += $rincian['rincian_murni'];
-    
+
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['modal_murni'] += $rincian['rincian_murni'];
             } else if ($tipe_belanja == '5.3') {
@@ -237,7 +237,7 @@ foreach ($data_skpd as $skpd) {
 
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
-    
+
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['tak_terduga_murni'] += $rincian['rincian_murni'];
             } else if ($tipe_belanja == '5.4') {
@@ -249,7 +249,7 @@ foreach ($data_skpd as $skpd) {
 
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['transfer_murni'] += $rincian['rincian_murni'];
-    
+
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer'] += $rincian['rincian'];
                 $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['transfer_murni'] += $rincian['rincian_murni'];
             }
@@ -258,7 +258,7 @@ foreach ($data_skpd as $skpd) {
 }
 
 foreach ($data_all as $skpd) {
-    if($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil'){
+    if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
         $body .= '
             <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
                 <td>' . $skpd['kode'] . '</td>
@@ -269,7 +269,7 @@ foreach ($data_all as $skpd) {
                 <td class="text-right">' . $this->_number_format($skpd['transfer']) . '</td>
                 <td class="text-right">' . $this->_number_format($skpd['total']) . '</td>
             </tr>';
-    }else{
+    } else {
         $body .= '
             <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
                 <td>' . $skpd['kode'] . '</td>
@@ -287,7 +287,7 @@ foreach ($data_all as $skpd) {
             </tr>';
     }
     foreach ($skpd['data'] as $program) {
-        if($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil'){
+        if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
             $body .= '
                 <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
                     <td>' . $program['kode'] . '</td>
@@ -298,7 +298,7 @@ foreach ($data_all as $skpd) {
                     <td class="text-right">' . $this->_number_format($program['transfer']) . '</td>
                     <td class="text-right">' . $this->_number_format($program['total']) . '</td>
                 </tr>';
-        }else{
+        } else {
             $body .= '
                 <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
                     <td>' . $program['kode'] . '</td>
@@ -316,7 +316,7 @@ foreach ($data_all as $skpd) {
                 </tr>';
         }
         foreach ($program['data'] as $kegiatan) {
-            if($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil'){
+            if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                 $body .= '
                     <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
                         <td>' . $kegiatan['kode'] . '</td>
@@ -327,7 +327,7 @@ foreach ($data_all as $skpd) {
                         <td class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
                         <td class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
                     </tr>';
-            }else{
+            } else {
                 $body .= '
                     <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
                         <td>' . $kegiatan['kode'] . '</td>
@@ -357,7 +357,7 @@ foreach ($data_all as $skpd) {
                 $total_transfer_murni += $data['transfer_murni'];
                 $parts = explode(' ', $data['sub']['nama_sub_giat'], 2);
                 $nama_sub_giat = $parts[1];
-                if($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil'){
+                if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                     $body .= '
                         <tr data-kode="' . $kode . '">
                             <td>' . $data['sub']['kode_sub_giat'] . '</td>
@@ -369,7 +369,7 @@ foreach ($data_all as $skpd) {
                             <td class="text-right">' . $this->_number_format($data['total']) . '</td>
                         </tr>
                     ';
-                }else{
+                } else {
                     $body .= '
                         <tr data-kode="' . $kode . '">
                             <td>' . $data['sub']['kode_sub_giat'] . '</td>
@@ -392,6 +392,12 @@ foreach ($data_all as $skpd) {
     }
 }
 ?>
+<div class="print-btn text-center" style="margin-bottom: 20px;">
+    <button class="btn btn-lg btn-info" onclick="printPage()">
+        <i class="dashicons dashicons-printer"></i> Print
+    </button>
+</div>
+
 <div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
     <h1 class="text-center"><?php echo $nama_excel; ?></h1>
     <table class="table table-bordered">
@@ -399,21 +405,21 @@ foreach ($data_all as $skpd) {
             <tr>
                 <th class="text-center align-middle" rowspan="2">Kode</th>
                 <th class="text-center align-middle" rowspan="2">Uraian Organisasi, Program, Kegiatan, dan Sub Kegiatan</th>
-            <?php if($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil'): ?>
-                <th class="text-center align-middle" colspan="5">Belanja</th>
-            <?php else: ?>
-                <th class="text-center align-middle" colspan="5">Sebelum Perubahan</th>
-                <th class="text-center align-middle" colspan="5">Sesudah Perubahan</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') : ?>
+                    <th class="text-center align-middle" colspan="5">Belanja</th>
+                <?php else : ?>
+                    <th class="text-center align-middle" colspan="5">Sebelum Perubahan</th>
+                    <th class="text-center align-middle" colspan="5">Sesudah Perubahan</th>
+                <?php endif; ?>
             </tr>
             <tr>
-            <?php if($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil'): ?>
-                <th class="text-center align-middle">Belanja Operasi</th>
-                <th class="text-center align-middle">Belanja Modal</th>
-                <th class="text-center align-middle">Belanja Tak Terduga</th>
-                <th class="text-center align-middle">Belanja Transfer</th>
-                <th class="text-center align-middle">Jumlah Belanja</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil') : ?>
+                    <th class="text-center align-middle">Belanja Operasi</th>
+                    <th class="text-center align-middle">Belanja Modal</th>
+                    <th class="text-center align-middle">Belanja Tak Terduga</th>
+                    <th class="text-center align-middle">Belanja Transfer</th>
+                    <th class="text-center align-middle">Jumlah Belanja</th>
+                <?php endif; ?>
                 <th class="text-center align-middle">Belanja Operasi</th>
                 <th class="text-center align-middle">Belanja Modal</th>
                 <th class="text-center align-middle">Belanja Tak Terduga</th>
@@ -427,13 +433,13 @@ foreach ($data_all as $skpd) {
         <tfoot>
             <tr>
                 <th colspan="2" class="text-center">Total</th>
-            <?php if($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil'): ?>
-                <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil') : ?>
+                    <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
+                <?php endif; ?>
                 <th class="text-right"><?php echo $this->_number_format($total_operasi); ?></th>
                 <th class="text-right"><?php echo $this->_number_format($total_modal); ?></th>
                 <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
@@ -446,5 +452,14 @@ foreach ($data_all as $skpd) {
 <script type="text/javascript">
     jQuery(document).ready(function() {
         run_download_excel();
+
     });
+
+    function printPage() {
+        jQuery('.print-btn').hide();
+        window.print();
+        setTimeout(function() {
+            jQuery('.print-btn').show();
+        }, 1000);
+    }
 </script>
