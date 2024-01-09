@@ -72,7 +72,7 @@ if ($input['id_skpd'] == 'all') {
     }
 }
 $nama_pemda = get_option('_crb_daerah');
-$nama_excel = 'REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN' . '<br>' . strtoupper($nama_pemda) . $nama_skpd . '<br>' . $jadwal_lokal->nama_jadwal . '<br>TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+$nama_excel = 'REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN' . '<br>' . strtoupper($nama_pemda) . $nama_skpd . '<br>TAHUN ANGGARAN ' . $input['tahun_anggaran'];
 
 $body = '';
 $total_operasi = 0;
