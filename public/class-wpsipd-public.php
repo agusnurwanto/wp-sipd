@@ -6982,6 +6982,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['data'])){
+					if($_POST['type'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
 					$wpdb->update('data_user_tapd_sekda', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 					));
@@ -6993,7 +6996,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						    where tahun_anggaran=%d
 						    	and type='sekda'
 						        and nip=%s
-						        and active=1
 						", $_POST['tahun_anggaran'], $v['nip']);
 						$cek = $wpdb->get_results($sql, ARRAY_A);
 						$opsi = array(
@@ -7028,7 +7030,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						    where tahun_anggaran=%d
 						        and type='tapd'
 						        and nip=%s
-						        and active=1
 						", $_POST['tahun_anggaran'], $v['nip']);
 						$cek = $wpdb->get_results($sql, ARRAY_A);
 						$opsi = array(
