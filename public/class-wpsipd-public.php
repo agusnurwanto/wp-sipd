@@ -6628,6 +6628,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					!empty($_POST['kode_giat']) 
 					&& !empty($_POST['kode_skpd'])
 				){
+					$where_sub = '';
+					if(!empty($_POST['kode_sub_giat'])){
+						$where_sub = $wpdb->prepare(' AND kode_sub_giat=%s', $_POST['kode_sub_giat']);
+					}
 					$ret['data']['bl'] = $wpdb->get_results(
 						$wpdb->prepare("
 						SELECT 
@@ -6637,9 +6641,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND kode_sub_skpd=%s
 							AND tahun_anggaran=%d
 							AND kode_sbl != ''
-							AND active=1", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
-					);
+							AND active=1
+							$where_sub
+					", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 					foreach ($ret['data']['bl'] as $k => $v) {
 						$kode_sbl = explode('.', $v['kode_sbl']);
 						// id_unit.id_skpd.id_sub_skpd (format kode_sbl terbaru)

@@ -895,7 +895,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 				<td colspan="2">
 					<table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
 						<tr>
-							<td width="160" class="kiri atas bawah" colspan="3">Pembahasan</td>
+							<td width="160" class="kiri atas bawah kanan" colspan="3">Pembahasan</td>
 						</tr>
 						<tr>
 							<td width="160" class="kiri bawah">Tanggal</td>
