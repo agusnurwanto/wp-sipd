@@ -5570,6 +5570,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}
 			        $alamat = $alamat_array['alamat'];
 			        $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
+
+			        // jika alamat kosong maka cek id penerima bantuan
 					if(empty($alamat)){
 						$alamat = array();
 			            if(!empty($item['id_lurah_penerima'])){
@@ -5590,6 +5592,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			            }
 			            $profile_penerima = implode(', ', $alamat);
 					}else{
+
+						// jika lokus akun teks ada di nama komponen
 						if(strpos($item['nama_komponen'], $lokus_akun_teks) !== false ){
 							$profile_penerima = $alamat;
 						}else{

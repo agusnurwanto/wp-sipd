@@ -3574,28 +3574,36 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	    if(!empty($profile)){
 	        $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
 	    }else if(!empty($lokus_akun_teks)){
-	        $profile = $wpdb->get_row($wpdb->prepare("
-	            SELECT 
-	                alamat_teks, 
-	                jenis_penerima 
-	            from data_profile_penerima_bantuan 
-	            where BINARY nama_teks=%s 
-	                and tahun=%d", $lokus_akun_teks, $input['tahun_anggaran']
-	        ), ARRAY_A);
-	        if(!empty($profile)){
-	            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-	        }else{
-	            if(
-	                strpos($lokus_akun_teks, 'petik_satu') !== false 
-	                && $no <= 1
-	            ){
-	            	$no++;
-	                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
-	                return $this->get_alamat($input, $rincian, $no);
-	            }else{
-	                $keterangan_alamat .= "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
-	            }
-	        }
+	    	if(
+	    		strtoupper($rincian['jenis_bl']) == 'BAGI-HASIL'
+	    		|| strtoupper($rincian['jenis_bl']) == 'BANKEU'
+	    		|| strtoupper($rincian['jenis_bl']) == 'BANKEU-KHUSUS'
+	    	){
+	    		$alamat = $rincian['lokus_akun_teks'];
+	    	}else{
+		        $profile = $wpdb->get_row($wpdb->prepare("
+		            SELECT 
+		                alamat_teks, 
+		                jenis_penerima 
+		            from data_profile_penerima_bantuan 
+		            where BINARY nama_teks=%s 
+		                and tahun=%d", $lokus_akun_teks, $input['tahun_anggaran']
+		        ), ARRAY_A);
+		        if(!empty($profile)){
+		            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
+		        }else{
+		            if(
+		                strpos($lokus_akun_teks, 'petik_satu') !== false 
+		                && $no <= 1
+		            ){
+		            	$no++;
+		                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
+		                return $this->get_alamat($input, $rincian, $no);
+		            }else{
+		                $keterangan_alamat .= "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
+		            }
+		        }
+	    	}
 	    }
 	    return array(
 	    	'keterangan' => $keterangan_alamat, 
