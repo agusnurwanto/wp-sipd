@@ -447,7 +447,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 								<tr class="text_blok ' . $class_garis_table . '">
 				                    <td width="150">Nomor DPA</td>
 				                    <td width="10">:</td>
-				                    <td>XXXXXX</td>
+				                    <td>DPA/A.1/'.$subkeg['kode_sub_skpd'].'/001/'.$input['tahun_anggaran'].'</td>
 				                </tr>
 							';
 					}
@@ -483,17 +483,17 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 	                    <td><?php echo $subkeg['kode_skpd'] . " " . $subkeg['nama_skpd'];  ?></td>
 	                </tr>
 	                <tr class="tr-alokasi-min-1 kiri kanan atas bawah">
-	                    <td width="150">Alokasi Tahun <?php echo $input['tahun_anggaran']-1; ?></td>
+	                    <td width="150">Alokasi Tahun - 1</td>
 	                    <td width="10">:</td>
 	                    <td></td>
 	                </tr>
 	                <tr class="tr-alokasi kiri kanan atas bawah">
-	                    <td width="150">Alokasi Tahun <?php echo $input['tahun_anggaran']; ?></td>
+	                    <td width="150">Alokasi Tahun</td>
 	                    <td width="10">:</td>
 	                    <td class="total_giat">Rp. <?php echo $this->_number_format($subkeg['pagu']);  ?></td>
 	                </tr>
 	                <tr class="tr-alokasi-plus-1 kiri kanan atas bawah">
-	                    <td width="150">Alokasi Tahun <?php echo $input['tahun_anggaran']+1; ?></td>
+	                    <td width="150">Alokasi Tahun + 1</td>
 	                    <td width="10">:</td>
 	                    <td>Rp. <?php echo $this->_number_format($subkeg['pagu_n_depan']);  ?></td>
 	                </tr>
@@ -772,7 +772,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 											<td class="text_tengah"><?php echo get_option('_crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td>
 										</tr>
 										<tr>
-											<td class="text_tengah" style="font-size: 110%;">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td>
+											<td class="text_tengah" style="font-size: 110%;">Kepala SKPD</td>
 										</tr>
 										<tr>
 											<td height="80">&nbsp;</td>
@@ -871,7 +871,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 							<td colspan="3" class="text_tengah"><?php echo get_option('_crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td>
 						</tr>
 						<tr>
-							<td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td>
+							<td colspan="3" class="text_tengah text_15">Kepala SKPD</td>
 						</tr>
 						<tr>
 							<td colspan="3" height="80">&nbsp;</td>
