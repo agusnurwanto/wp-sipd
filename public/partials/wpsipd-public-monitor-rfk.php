@@ -452,8 +452,11 @@ foreach ($units as $k => $unit) :
 			}
 			$url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan', $sub['tahun_anggaran'], '[verifikasi_rka]');
 			$url_verifikasi .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
+
+			$url_panjar = $this->generatePage('Daftar Nota Pencairan Dana | Panjar', $sub['tahun_anggaran'], '[daftar_nota_pencairan_dana_panjar]');
+			$url_panjar .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
+				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">Set Panjar</a>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -809,7 +812,8 @@ foreach ($units as $k => $unit) :
 		.nama_sub_giat .detail_simda, 
 		.nama_sub_giat .simpan-per-sub-keg, 
 		.nama_sub_giat .set-pptk-per-sub-keg, 
-		.nama_sub_giat .verifikasi-rka-per-sub-keg { 
+		.nama_sub_giat .verifikasi-rka-per-sub-keg,
+		.nama_sub_giat .set-panjar-per-sub-keg { 
 			display: none; 
 		}
 		.simpan-per-sub-keg {
@@ -821,7 +825,8 @@ foreach ($units as $k => $unit) :
 			background: #ffbc0073;
 		}
 		.set-pptk-per-sub-keg,
-		.verifikasi-rka-per-sub-keg {
+		.verifikasi-rka-per-sub-keg,
+		.set-panjar-per-sub-keg {
 		    margin-left: 5px;
 		}
 		#cetak a {
@@ -937,6 +942,15 @@ if (
 ) {
 	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
 }
+
+$cekbox_set_panjar = '';
+if (
+	current_user_can('administrator') ||
+	current_user_can('pptk')
+){
+	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Set Panjar</label>';	
+}
+
 ?>
 
 <div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
@@ -1190,6 +1204,14 @@ if (
 		}
 	}
 
+	function tampil_set_panjar(that) {
+		if (jQuery(that).is(':checked')) {
+			jQuery('.set-panjar-per-sub-keg').show();
+		} else {
+			jQuery('.set-panjar-per-sub-keg').hide();
+		}
+	}
+
 	function tampil_nilai_fisik() {
 		if (jQuery('#tampil-nilai-fisik').is(':checked')) {
 			jQuery('.nama_urusan').attr('colspan', 12);
@@ -1240,6 +1262,7 @@ if (
 		'</select>' +
 		'</label>' +
 		'<?php echo $cekbox_set_pptk; ?>' +
+		'<?php echo $cekbox_set_panjar; ?>' +
 		'</div>';
 	jQuery(document).ready(function() {
 		jQuery('#action-sipd').append(extend_action);
