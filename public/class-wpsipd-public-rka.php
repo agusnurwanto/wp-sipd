@@ -62,6 +62,22 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-user-pptk.php';
     }
 
+    public function nota_pencairan_dana_panjar()
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-nota-pencairan-dana-panjar.php';
+    }
+
+    public function daftar_nota_pencairan_dana_panjar()
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-daftar-nota-pencairan-dana-panjar.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -1667,6 +1683,66 @@ class Wpsipd_Public_RKA
                     $result = $wpdb->insert($nama_tabel, $data);
                 } else {
                     $wpdb->update($nama_tabel, $data, array('id' => $cek_pptk));
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function get_data_nota_pencairan_dana()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get data nota pencairan dana!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $kode_sbl = $_POST['kode_sbl'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+
+                $data_npd = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        *
+                    FROM data_nota_pencairan_dana
+                    WHERE kode_sbl = %s
+                        AND tahun_anggaran = %d
+                        AND active = 1
+                    ORDER BY kode_akun ASC", $kode_sbl, $tahun_anggaran), ARRAY_A);
+
+                $ret['html'] = '';
+                $no = 0;
+                foreach ($data_npd as $val) {
+                    $ret['html'] .= '
+                        <tr>
+                            <td>' . $no++ . '</td>
+                            <td>' . $val['kode_akun'] . '</td>
+                            <td>' . $val['kode_akun'] . ' ' . $val['nama_akun'] . '</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>'. $val['pagu_pencairan'] .'</td>
+                            <td class="aksi">';
+                                // tampilkan tombol edit dan hapus
+                                $ret['html'] .= '
+                                    <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
+                    $ret['html'] .= '</td></tr>';
                 }
             } else {
                 $ret['status'] = 'error';

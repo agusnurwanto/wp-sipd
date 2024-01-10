@@ -6000,3 +6000,19 @@ CREATE TABLE `data_batasan_pagu_sd`(
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE `data_nota_pencairan_dana` (
+    `id` int(11) NOT NULL auto_increment,
+    `kode_sbl` text NOT NULL,
+    `nomor_NPD` VARCHAR(50) NOT NULL,
+    `kode_akun` VARCHAR(50) NOT NULL,
+    `nama_akun` TEXT NOT NULL,
+    `jenis_panjar` VARCHAR(10) DEFAULT NULL,
+    `nomor_DPA` VARCHAR(50) NOT NULL,
+    `pagu_pencairan` double(20, 0) NOT NULL,
+    `tahun_anggaran` year(4) NOT NULL,
+    `active` tinyint(4) NOT NULL,
+    `created_at` datetime DEFAULT current_timestamp(),
+    `update_at` datetime DEFAULT current_timestamp(),
+    PRIMARY KEY  (id)
+);

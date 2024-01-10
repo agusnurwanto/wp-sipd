@@ -942,6 +942,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg_pptk',  $plugin_public, 'get_sub_keg_pptk');
 		$this->loader->add_action('wp_ajax_simpan_sub_keg_pptk',  $plugin_public, 'simpan_sub_keg_pptk');
 
+		$this->loader->add_action('wp_ajax_get_data_nota_pencairan_dana',  $plugin_public, 'get_data_nota_pencairan_dana');
+
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
@@ -1050,6 +1052,8 @@ class Wpsipd
 		add_shortcode('jadwal_verifikasi_rka', array($plugin_public, 'jadwal_verifikasi_rka'));
 		add_shortcode('jadwal_verifikasi_rka_sipd', array($plugin_public, 'jadwal_verifikasi_rka_sipd'));
 		add_shortcode('rekap_total_prog_keg_renstra', array($plugin_public, 'rekap_total_prog_keg_renstra'));
+		add_shortcode('nota_pencairan_dana_panjar', array($plugin_public, 'nota_pencairan_dana_panjar'));
+		add_shortcode('daftar_nota_pencairan_dana_panjar', array($plugin_public, 'daftar_nota_pencairan_dana_panjar'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));

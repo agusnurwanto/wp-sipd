@@ -1961,7 +1961,7 @@ foreach ($bl as $k => $sub_bl) {
 			'<option value="dpa_perubahan">DPA Perubahan</option>' +
 			'</select>' +
 			'</label>' +
-			'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>' +
+			'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping as Label & Sumber Dana</label>' +
 			'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_verifikasi(this);"> Tampilkan Tombol Verifikasi</label>';
 		var aksi = '' +
 			'<div id="action-sipd" class="hide-print">' +
