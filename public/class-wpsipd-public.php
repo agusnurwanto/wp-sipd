@@ -3771,11 +3771,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						// print_r($data_user);exit;
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
-								userName 
+								userName
 							from data_user_penatausahaan 
 							where tahun=%d 								
 								AND idUser=%s
 						", $_POST['tahun_anggaran'], $data_user['idUser']));
+						// print_r($data_user['idUser']);exit;
 						$opsi = array(
 							"idSkpd" => $data_user['idSkpd'],
 							"idDaerah" => $data_user['idDaerah'],							
@@ -3804,8 +3805,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun' => $_POST['tahun_anggaran'],
 							'updated_at' => current_time('mysql')
 						);
-
-						if (!empty($cek)) {
+						
+						// if (!empty($cek)) {
+						if ($cek) {
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
 								'tahun' => $_POST['tahun_anggaran'],
 								'idUser' => $data_user['idUser'],
