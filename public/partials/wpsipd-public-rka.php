@@ -604,6 +604,9 @@ foreach ($bl as $k => $sub_bl) {
 			continue;
 		}
 		$alamat_array = $this->get_alamat($bl[0], $item);
+		if(!empty($alamat_array['keterangan'])){
+			echo $alamat_array['keterangan'];
+		}
 		$alamat = $alamat_array['alamat'];
 		$lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
 		if (empty($alamat)) {

@@ -3569,34 +3569,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	        $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
 	    }
 	    $alamat = '';
+	    $keterangan_alamat = '';
 	    $lokus_akun_teks = $this->replace_char($rincian['lokus_akun_teks']);
 	    if(!empty($profile)){
 	        $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
 	    }else if(!empty($lokus_akun_teks)){
-	        $profile = $wpdb->get_row($wpdb->prepare("
-	            SELECT 
-	                alamat_teks, 
-	                jenis_penerima 
-	            from data_profile_penerima_bantuan 
-	            where BINARY nama_teks=%s 
-	                and tahun=%d", $lokus_akun_teks, $input['tahun_anggaran']
-	        ), ARRAY_A);
-	        if(!empty($profile)){
-	            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-	        }else{
-	            if(
-	                strpos($lokus_akun_teks, 'petik_satu') !== false 
-	                && $no <= 1
-	            ){
-	            	$no++;
-	                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
-	                return $this->get_alamat($input, $rincian, $no);
-	            }else{
-	                echo "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
-	            }
-	        }
+	    	if(
+	    		strtoupper($rincian['jenis_bl']) == 'BAGI-HASIL'
+	    		|| strtoupper($rincian['jenis_bl']) == 'BANKEU'
+	    		|| strtoupper($rincian['jenis_bl']) == 'BANKEU-KHUSUS'
+	    	){
+	    		$alamat = $rincian['lokus_akun_teks'];
+	    	}else{
+		        $profile = $wpdb->get_row($wpdb->prepare("
+		            SELECT 
+		                alamat_teks, 
+		                jenis_penerima 
+		            from data_profile_penerima_bantuan 
+		            where BINARY nama_teks=%s 
+		                and tahun=%d", $lokus_akun_teks, $input['tahun_anggaran']
+		        ), ARRAY_A);
+		        if(!empty($profile)){
+		            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
+		        }else{
+		            if(
+		                strpos($lokus_akun_teks, 'petik_satu') !== false 
+		                && $no <= 1
+		            ){
+		            	$no++;
+		                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
+		                return $this->get_alamat($input, $rincian, $no);
+		            }else{
+		                $keterangan_alamat .= "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
+		            }
+		        }
+	    	}
 	    }
 	    return array(
+	    	'keterangan' => $keterangan_alamat, 
 	    	'alamat' => $alamat, 
 	    	'lokus_akun_teks' => $lokus_akun_teks, 
 	    	'lokus_akun_teks_decode' => str_replace(array('petik_satu', 'petik_dua'), array("'", '"'), $lokus_akun_teks)
@@ -6093,6 +6103,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						!empty($_POST['kode_sbl']) && $_POST['type']=='belanja'
 					)
 				){
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'type' => $_POST['type'],
@@ -6105,15 +6118,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							if(empty($v['id_akun'])){
 								continue;
 							}
-							$cek = $wpdb->get_var("
+							$cek = $wpdb->get_var($wpdb->prepare("
 								SELECT 
 									id_akun 
 								from data_anggaran_kas 
-								where tahun_anggaran=".$_POST['tahun_anggaran']." 
-									AND kode_sbl='" . $_POST['kode_sbl']."' 
-									AND id_unit='" . $_POST['id_skpd']."' 
-									AND type='" . $_POST['type']."' 
-									AND id_akun=".$v['id_akun']);
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s
+									AND id_unit=%d 
+									AND type=%s 
+									AND id_akun=%d
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $_POST['type'], $v['id_akun']));
 							$opsi = array(
 								'bulan_1' => $v['bulan_1'],
 								'bulan_2' => $v['bulan_2'],
@@ -6614,6 +6628,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					!empty($_POST['kode_giat']) 
 					&& !empty($_POST['kode_skpd'])
 				){
+					$where_sub = '';
+					if(!empty($_POST['kode_sub_giat'])){
+						$where_sub = $wpdb->prepare(' AND kode_sub_giat=%s', $_POST['kode_sub_giat']);
+					}
 					$ret['data']['bl'] = $wpdb->get_results(
 						$wpdb->prepare("
 						SELECT 
@@ -6623,9 +6641,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND kode_sub_skpd=%s
 							AND tahun_anggaran=%d
 							AND kode_sbl != ''
-							AND active=1", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
-					);
+							AND active=1
+							$where_sub
+					", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 					foreach ($ret['data']['bl'] as $k => $v) {
 						$kode_sbl = explode('.', $v['kode_sbl']);
 						// id_unit.id_skpd.id_sub_skpd (format kode_sbl terbaru)
@@ -6976,6 +6994,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['data'])){
+					if($_POST['type'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
 					$wpdb->update('data_user_tapd_sekda', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 					));
@@ -6987,7 +7008,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						    where tahun_anggaran=%d
 						    	and type='sekda'
 						        and nip=%s
-						        and active=1
 						", $_POST['tahun_anggaran'], $v['nip']);
 						$cek = $wpdb->get_results($sql, ARRAY_A);
 						$opsi = array(
@@ -7022,7 +7042,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						    where tahun_anggaran=%d
 						        and type='tapd'
 						        and nip=%s
-						        and active=1
 						", $_POST['tahun_anggaran'], $v['nip']);
 						$cek = $wpdb->get_results($sql, ARRAY_A);
 						$opsi = array(

@@ -1357,6 +1357,9 @@ class Wpsipd_Simda
 												$target_angka = explode(' ', $target_angka);
 												$target_angka = $target_angka[0];
 											}
+											if(empty($target_angka)){
+												$target_angka = 0;
+											}
 											$options = array(
 					                            'query' => "
 					                            INSERT INTO ta_indikator (
@@ -1409,6 +1412,9 @@ class Wpsipd_Simda
 												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
 												$target_angka = explode(' ', $target_angka);
 												$target_angka = $target_angka[0];
+											}
+											if(empty($target_angka)){
+												$target_angka = 0;
 											}
 											$options = array(
 					                            'query' => "

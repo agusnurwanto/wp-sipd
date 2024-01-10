@@ -5411,10 +5411,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$kode_sbl = $_POST['kode_sbl'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$type = '';
+				$prefix_tabel = '_lokal';
+				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
+					$prefix_tabel = '';
+				}
 				$bl = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
-					from data_sub_keg_bl_lokal 
+					from data_sub_keg_bl".$prefix_tabel." 
 					where kode_sbl = %s
 						AND tahun_anggaran = %d
 						AND active=1
@@ -5424,7 +5428,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rinc = $wpdb->get_results("
 					SELECT 
 						* 
-					from data_rka_lokal 
+					from data_rka".$prefix_tabel." 
 					where kode_sbl='".$kode_sbl."'
 						AND tahun_anggaran=".$tahun_anggaran."
 						AND active=1
@@ -5555,13 +5559,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				// print_r($akun); die();
 				$id_subtitle = array();
 				$id_keterangan = array();
+				$keterangan_alamat = array();
 				foreach ($rinc as $key => $item) {
 					if(empty($item['kode_akun'])){
 						continue;
 					}
 					$alamat_array = $this->get_alamat($bl[0], $item);
+					if(!empty($alamat_array['keterangan'])){
+						$keterangan_alamat[] = $alamat_array['keterangan'];
+					}
 			        $alamat = $alamat_array['alamat'];
 			        $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
+
+			        // jika alamat kosong maka cek id penerima bantuan
 					if(empty($alamat)){
 						$alamat = array();
 			            if(!empty($item['id_lurah_penerima'])){
@@ -5582,7 +5592,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			            }
 			            $profile_penerima = implode(', ', $alamat);
 					}else{
-						if(strpos($item['nama_komponen'], $lokus_akun_teks) !== false ){
+
+						// jika lokus akun teks ada di nama komponen
+						if(
+							strpos($item['nama_komponen'], $lokus_akun_teks) !== false
+							|| $lokus_akun_teks == $alamat
+						){
 							$profile_penerima = $alamat;
 						}else{
 							$profile_penerima = $lokus_akun_teks.', '.$alamat;
@@ -5793,7 +5808,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								d.id_sumber_dana,
 								m.nama_dana,
 								m.kode_dana
-							from data_mapping_sumberdana_lokal d
+							from data_mapping_sumberdana".$prefix_tabel." d
 							left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
 								and d.tahun_anggaran = m.tahun_anggaran
 							where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
@@ -5903,6 +5918,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			        </tr>
 				';
 				$return['rin_sub_item'] = $rin_sub_item;
+				$return['keterangan_alamat'] = $keterangan_alamat;
 			}else{
 				$return = array(
 					'status' => 'error',
