@@ -751,7 +751,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 					nip 
 				from data_user_penatausahaan 
 				where namaJabatan='BENDAHARA UMUM DAERAH'
-					AND tahun_anggaran=%d
+					AND tahun=%d
 			", $input['tahun_anggaran']), ARRAY_A);
 			$user_ppkd = 'XXXXXX';
 			$user_ppkd_nip = 'XXXXXX';
