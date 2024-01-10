@@ -3674,15 +3674,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
+					}
 					foreach ($_POST['data_user'] as $key => $data_user) {
-						$cek = $wpdb->get_var("
+						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
 								userName 
 							from data_user_penatausahaan 
-							where tahun=".$_POST['tahun_anggaran']." 
-								AND userName='" . $data_user['userName']."' 
-								AND idUser='".$data_user['idUser']."'"
-						);
+							where tahun=%d 
+								AND userName=%s 
+								AND idUser=%s
+						", $_POST['tahun_anggaran'], $data_user['userName'], $data_user['idUser']));
 						$opsi = array(
 							"idSkpd" => $data_user['skpd']['idSkpd'],
 							"namaSkpd" => $data_user['skpd']['namaSkpd'],
