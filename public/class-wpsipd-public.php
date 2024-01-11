@@ -3674,10 +3674,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
-					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
 						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
 					}
+
 					foreach ($_POST['data_user'] as $key => $data_user) {
+						// print_r($data_user);exit;
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
 								userName 
@@ -3693,7 +3695,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"idDaerah" => $data_user['skpd']['idDaerah'],
 							"userName" => $data_user['userName'],
 							"nip" => $data_user['nip'],
+							"nik" => $data_user['nik'],
 							"fullName" => $data_user['fullName'],
+							"lahir_user" => $data_user['lahir_user'],
 							"nomorHp" => $data_user['nomorHp'],
 							"rank" => $data_user['rank'],
 							"npwp" => $data_user['npwp'],
@@ -3727,6 +3731,85 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
 								'tahun' => $_POST['tahun_anggaran'],
 								'userName' => $data_user['userName'],
+								'idUser' => $data_user['idUser'],
+							));
+						} else {
+							$wpdb->insert('data_user_penatausahaan', $opsi);
+						}
+						$ret['sql'] = $wpdb->last_query;
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_pegawai_penatausahaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron Pegawai penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data_user'])) {
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
+					}
+					
+					foreach ($_POST['data_user'] as $key => $data_user) {
+						// print_r($data_user);exit;
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								userName
+							from data_user_penatausahaan 
+							where tahun=%d 								
+								AND idUser=%s
+						", $_POST['tahun_anggaran'], $data_user['idUser']));
+						// print_r($data_user['idUser']);exit;
+						$opsi = array(
+							"idSkpd" => $data_user['idSkpd'],
+							"idDaerah" => $data_user['idDaerah'],							
+							"npwp" => $data_user['npwp'],
+							"idJabatan" => $data_user['idRole'],
+							"namaJabatan" => $data_user['namaJabatan'],
+							"idRole" => $data_user['idRole'],							
+							"kpa" => $data_user['kpa'],
+							"bank" => $data_user['bank'],
+							"group" => $data_user['group'],
+							"password" => $data_user['password'],
+							"konfirmasiPassword" => $data_user['konfirmasiPassword'],
+							"kodeBank" => $data_user['kodeBank'],
+							"nama_rekening" => $data_user['nama_rekening'],
+							"nomorRekening" => $data_user['nomorRekening'],
+							"pangkatGolongan" => $data_user['pangkatGolongan'],
+							"tahunPegawai" => $data_user['tahunPegawai'],
+							"kodeDaerah" => $data_user['kodeDaerah'],
+							"is_from_sipd" => $data_user['is_from_sipd'],
+							"is_from_generate" => $data_user['is_from_generate'],
+							"is_from_external" => $data_user['is_from_external'],
+							"idSubUnit" => $data_user['idSubUnit'],
+							"idUser" => $data_user['idUser'],
+							"idPegawai" => $data_user['idPegawai'],
+							"alamat" => $data_user['alamat'],
+							'tahun' => $_POST['tahun_anggaran'],
+							'updated_at' => current_time('mysql')
+						);
+						
+						// if (!empty($cek)) {
+						if ($cek) {
+							$wpdb->update('data_user_penatausahaan', $opsi, array(
+								'tahun' => $_POST['tahun_anggaran'],
 								'idUser' => $data_user['idUser'],
 							));
 						} else {
