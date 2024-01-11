@@ -988,6 +988,9 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 </div>
 <script type="text/javascript">
 jQuery(document).ready(function(){
+	var _url_asli = window.location.href;
+	var url = new URL(_url_asli);
+	var type = url.searchParams.get("type");
 <?php if(empty($_GET['type'])): ?>
 	var tipe = prompt("Masukan kode format laporan! 1=RKA Murni, 2=DPA Murni, 3=RKA Perubahan, 4=DPA Perubahan", '1');
 	var val = 'rka_murni';
@@ -998,7 +1001,11 @@ jQuery(document).ready(function(){
 	}else if(tipe == 4){
 		val = 'dpa_perubahan';
 	}
-	jQuery('#type_laporan').val(val).trigger('change');
+	window.location = changeUrl({
+		key: 'type',
+		value: val,
+		url: _url_asli
+	});
 <?php endif; ?>
 	var body = '' +
 		'<h3>SETTING</h3>' +
@@ -1019,10 +1026,6 @@ jQuery(document).ready(function(){
 		body +
 		'</div>';
 	jQuery('body').prepend(aksi);
-
-	var _url_asli = window.location.href;
-	var url = new URL(_url_asli);
-	var type = url.searchParams.get("type");
 	jQuery('#type_laporan').val('rka_murni');
 	if (type) {
 		jQuery('#type_laporan').val(type);
