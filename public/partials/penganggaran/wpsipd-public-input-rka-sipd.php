@@ -990,20 +990,15 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 jQuery(document).ready(function(){
 <?php if(empty($_GET['type'])): ?>
 	var tipe = prompt("Masukan kode format laporan! 1=RKA Murni, 2=DPA Murni, 3=RKA Perubahan, 4=DPA Perubahan", '1');
-	if(tipe != 1){
-		var val = 'rka_murni';
-		if(tipe == 2){
-			val = 'dpa_murni';
-		}else if(tipe == 3){
-			val = 'rka_perubahan';
-		}else if(tipe == 4){
-			val = 'dpa_perubahan';
-		}
-		jQuery('#type_laporan').val(val).trigger('change');
-		setTimeout(function(){
-			window.close();
-		}, 1000);
+	var val = 'rka_murni';
+	if(tipe == 2){
+		val = 'dpa_murni';
+	}else if(tipe == 3){
+		val = 'rka_perubahan';
+	}else if(tipe == 4){
+		val = 'dpa_perubahan';
 	}
+	jQuery('#type_laporan').val(val).trigger('change');
 <?php endif; ?>
 	var body = '' +
 		'<h3>SETTING</h3>' +
