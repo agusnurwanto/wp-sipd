@@ -6649,8 +6649,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 					foreach ($ret['data']['bl'] as $k => $v) {
 						$kode_sbl = explode('.', $v['kode_sbl']);
-						// id_unit.id_skpd.id_sub_skpd (format kode_sbl terbaru)
-						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						if($_POST['tahun_anggaran'] >= 2024){
+							// id_skpd.id_sub_skpd.id_skpd (format kode_sbl terbaru)
+							$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[0].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						}else{
+							// id_unit.id_skpd.id_sub_skpd (format kode_sbl sipd biru)
+							$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+
+						}
 						$kas = $wpdb->get_results("
 							SELECT 
 								* 

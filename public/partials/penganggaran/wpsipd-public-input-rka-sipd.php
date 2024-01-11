@@ -420,9 +420,12 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
     .td_v_middle td {
     	vertical-align: middle;
     }
+    table.no_break {
+    	page-break-inside: avoid;
+    }
 </style>
 <div class="cetak" contenteditable="true">
-	<table width="100%" class="cellpadding_5" style="border-spacing: 2px;">
+	<table width="100%" class="cellpadding_5 no_break" style="border-spacing: 2px;">
 	    <tr class="no_padding">
 	        <td colspan="2">
 	            <table width="100%" class="cellpadding_5" style="border-spacing: 1px;" class="text_tengah text_15">
@@ -505,7 +508,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		</tr>
 		<tr class="no_padding">
 			<td colspan="2">
-				<table width="100%" class="cellpadding_5 td_v_middle" style="border-spacing: 2px;">
+				<table width="100%" class="cellpadding_5 td_v_middle no_break" style="border-spacing: 2px;">
 					<?php
 					$capaian_kegiatan_murni = '';
 					$masukan_kegiatan_murni = '';
@@ -658,7 +661,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		</tr>
 	    <tr>
 			<td class="atas kanan bawah kiri text_tengah text_15" colspan="2">
-				<table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
+				<table width="100%" class="cellpadding_5 no_break" style="border-spacing: 0px;">
 				    <tbody>
 				    	<tr>
 				            <td><?php echo $judul_rincian; ?></td>
@@ -673,7 +676,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 	        		<tbody>
 						<tr class="no_padding">
 					        <td colspan="2">
-					          	<table id="table-sub-kegiatan" class="cellpadding_5">
+					          	<table id="table-sub-kegiatan" class="cellpadding_5 no_break" style="page-break-after: always;">
 						            <tbody>
 							            <tr class="tr-sub-kegiatan kiri kanan atas bawah">
 							              	<td width="130">Sub Kegiatan</td>
@@ -708,7 +711,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 						</tr>
 				    	<tr class="no_padding">
 					        <td colspan="2">
-					            <table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
+					            <table width="100%" class="cellpadding_5" style="border-spacing: 0px; page-break-after: always;">
 					            	<thead>
 										<tr>
 								      		<td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
@@ -762,7 +765,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		?>
 			<tr class="no_padding">
 				<td>
-					<table width="100%" style="border-collapse: collapse;" class="cellpadding_5">
+					<table width="100%" style="border-collapse: collapse;" class="cellpadding_5 no_break">
 						<tr>
 							<td class="kiri kanan atas bawah text_blok text_tengah" colspan="2">Rencana Penarikan Dana per Bulan</td>
 							<td width="60%" class="kiri kanan atas bawah" rowspan="14" style="vertical-align: middle;">
@@ -866,7 +869,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 					&nbsp;
 				</td>
 				<td class="kiri kanan atas bawah" width="250" valign="top">
-					<table width="100%" class="cellpadding_2" style="border-spacing: 0px;">
+					<table width="100%" class="cellpadding_2 no_break" style="border-spacing: 0px;">
 						<tr>
 							<td colspan="3" class="text_tengah"><?php echo get_option('_crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td>
 						</tr>
@@ -894,7 +897,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		?>
 			<tr class="no_padding">
 				<td colspan="2">
-					<table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
+					<table width="100%" class="cellpadding_5 no_break" style="border-spacing: 0px;">
 						<tr>
 							<td width="160" class="kiri atas bawah kanan" colspan="3">Pembahasan</td>
 						</tr>
@@ -929,7 +932,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		<?php endif; ?>
 		<tr class="no_padding">
 			<td colspan="2">
-				<table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
+				<table width="100%" class="cellpadding_5 no_break" style="border-spacing: 0px;">
 					<tr>
 						<td colspan="5" class="kiri kanan atas bawah text_tengah">Tim Anggaran Pemerintah Daerah</td>
 					</tr>
@@ -985,6 +988,21 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 </div>
 <script type="text/javascript">
 jQuery(document).ready(function(){
+<?php if(empty($_GET['type'])): ?>
+	var tipe = prompt("Masukan kode format laporan! 1=RKA Murni, 2=DPA Murni, 3=RKA Perubahan, 4=DPA Perubahan", '1');
+	if(tipe != 1){
+		var val = 'rka_murni';
+		if(tipe == 2){
+			val = 'dpa_murni';
+		}else if(tipe == 3){
+			val = 'rka_perubahan';
+		}else if(tipe == 4){
+			val = 'dpa_perubahan';
+		}
+		jQuery('#type_laporan').val(val).trigger('change');
+		window.close();
+	}
+<?php endif; ?>
 	var body = '' +
 		'<h3>SETTING</h3>' +
 		'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>' +
