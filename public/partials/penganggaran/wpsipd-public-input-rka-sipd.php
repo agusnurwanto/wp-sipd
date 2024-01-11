@@ -1000,7 +1000,9 @@ jQuery(document).ready(function(){
 			val = 'dpa_perubahan';
 		}
 		jQuery('#type_laporan').val(val).trigger('change');
-		window.close();
+		setTimeout(function(){
+			window.close();
+		}, 1000);
 	}
 <?php endif; ?>
 	var body = '' +
