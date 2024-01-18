@@ -1226,6 +1226,18 @@ CREATE TABLE `data_user_tapd_sekda` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_pangkat_golongan` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_pangkat` int(11) DEFAULT NULL,
+  `nama_pangkat` text DEFAULT NULL,
+  `nama_golongan` text DEFAULT NULL,  
+  `tahun_anggaran` year(4) NOT NULL,
+  `singkron_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY  (id)
+);
+
+
 CREATE TABLE `data_rfk` (
   `id` int(11) NOT NULL auto_increment,
   `bulan` tinyint(2) NOT NULL,

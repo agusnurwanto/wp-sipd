@@ -3674,7 +3674,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
-					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
 						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
 					}
 
@@ -3735,6 +3735,63 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							));
 						} else {
 							$wpdb->insert('data_user_penatausahaan', $opsi);
+						}
+						$ret['sql'] = $wpdb->last_query;
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_panggol_penatausahaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron Pangkat dan Golongan penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
+
+					foreach ($_POST['data'] as $key => $data) {						
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								nama_pangkat 
+							from data_pangkat_golongan 
+							where tahun_anggaran=%d 
+								AND nama_pangkat=%s 
+								AND id_pangkat=%s
+						", $_POST['tahun_anggaran'], $data['nama_pangkat'], $data['id']));
+						$opsi = array(							
+							"id_pangkat" => $data['id'],
+							"nama_pangkat" => $data['nama_pangkat'],
+							"nama_golongan" => $data['nama_golongan'],						
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'singkron_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_pangkat_golongan', $opsi, array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'nama_pangkat' => $data['nama_pangkat'],
+								'id_pangkat' => $data['id'],
+							));
+						} else {
+							$wpdb->insert('data_pangkat_golongan', $opsi);
 						}
 						$ret['sql'] = $wpdb->last_query;
 					}
