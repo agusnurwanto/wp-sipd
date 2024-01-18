@@ -3820,7 +3820,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
-					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
 						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
 					}
 					
@@ -3832,8 +3832,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							from data_user_penatausahaan 
 							where tahun=%d 								
 								AND idUser=%s
-								AND idPegawai=%s
-						", $_POST['tahun_anggaran'], $data_user['idUser'], $data_user['idPegawai']));
+						", $_POST['tahun_anggaran'], $data_user['idUser']));
 						// print_r($data_user['idUser']);exit;
 						$opsi = array(
 							"idSkpd" => $data_user['idSkpd'],
