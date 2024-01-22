@@ -1983,7 +1983,7 @@ class Wpsipd_Simda
 		$rek90_6 = $rek90_5.'.'.$options['kd_rek_5'];
 
 		$no_tinny = 100;
-		$kd_rek_3 = ((int)$options['kd_rek_2'])+$no_tinny;
+		$kd_rek_3 = ((int)$options['kd_rek_2'])+((int)$options['kd_rek_3'])+$no_tinny;
 		$kd_rek_4 = ((int)$options['kd_rek_4'])+$no_tinny;
 		$kd_rek_5 = ((int)$options['kd_rek_5'])+$no_tinny;
 
