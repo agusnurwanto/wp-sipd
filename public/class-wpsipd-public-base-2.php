@@ -5409,18 +5409,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$type_apbd = '';
 				$type = '';
 				$prefix_tabel = '_lokal';
 				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
 					$prefix_tabel = '';
 				}
 				if(!empty($_POST['tipe']) && $_POST['tipe'] == 'pendapatan'){
+					$type_apbd = $_POST['tipe'];
 					$rinc = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							*,
-							keterangan as subs_bl_teks,
+							uraian as subs_bl_teks,
 							keterangan as ket_bl_teks,
-							uraian as nama_komponen
+							uraian as nama_komponen,
+							1 as koefisien,
+							1 as koefisien_murni,
+							'1 Tahun' as harga_satuan,
+							'1 Tahun' as harga_satuan_murni,
+							total as total_harga,
+							nilaimurni as total_harga_murni,
+							'Tahun' as satuan
 						from data_pendapatan".$prefix_tabel." 
 						where id_skpd=%d
 							AND tahun_anggaran=%d
@@ -5818,22 +5827,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']).'
 							';
 						}
-						$dana = $wpdb->get_row("
-							SELECT 
-								d.id_sumber_dana,
-								m.nama_dana,
-								m.kode_dana
-							from data_mapping_sumberdana".$prefix_tabel." d
-							left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
-								and d.tahun_anggaran = m.tahun_anggaran
-							where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
-								AND d.tahun_anggaran=".$item['tahun_anggaran']."
-								AND d.active=1
-						", ARRAY_A);
+						if($type_apbd == 'pendapatan'){
+							$dana = '';
+						}else{
+							$dana = $wpdb->get_row("
+								SELECT 
+									d.id_sumber_dana,
+									m.nama_dana,
+									m.kode_dana
+								from data_mapping_sumberdana".$prefix_tabel." d
+								left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
+									and d.tahun_anggaran = m.tahun_anggaran
+								where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
+									AND d.tahun_anggaran=".$item['tahun_anggaran']."
+									AND d.active=1
+							", ARRAY_A);
+							$dana = 'Sumber Dana: '.$dana['nama_dana'];
+						}
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">'.$dana.'</div></td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
