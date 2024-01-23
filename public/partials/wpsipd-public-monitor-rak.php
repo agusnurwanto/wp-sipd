@@ -50,7 +50,7 @@ $sql_anggaran = $wpdb->prepare("
         tahun_anggaran=%d
         AND type='belanja'
         AND active=1
-        AND id_unit=%d
+        AND id_sub_skpd=%d
     ",$input["tahun_anggaran"], $input['id_skpd']);
 $data_anggaran = $wpdb->get_results($sql_anggaran, ARRAY_A);
 
