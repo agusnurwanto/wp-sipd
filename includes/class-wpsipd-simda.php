@@ -798,7 +798,11 @@ class Wpsipd_Simda
 									AND u.active=1", $tahun_anggaran, $id_unit_sipd)
 							, ARRAY_A);
 							if($type == 'belanja'){
-								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
+								if($tahun_anggaran >= 2024){
+									$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[1]));
+								}else{
+									$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
+								}
 							}
 							if($type == 'pendapatan'){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
