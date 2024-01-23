@@ -5408,32 +5408,47 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$kode_sbl = $_POST['kode_sbl'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$type = '';
 				$prefix_tabel = '_lokal';
 				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
 					$prefix_tabel = '';
 				}
-				$bl = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						* 
-					from data_sub_keg_bl".$prefix_tabel." 
-					where kode_sbl = %s
-						AND tahun_anggaran = %d
-						AND active=1
-					order by kode_sub_giat ASC
-				", $kode_sbl, $tahun_anggaran), ARRAY_A);
+				if(!empty($_POST['tipe']) && $_POST['tipe'] == 'pendapatan'){
+					$rinc = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*,
+							keterangan as subs_bl_teks,
+							keterangan as ket_bl_teks,
+							uraian as nama_komponen
+						from data_pendapatan".$prefix_tabel." 
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+						Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC
+					", $_POST['id_skpd'], $tahun_anggaran), ARRAY_A);
+				}else{
+					$kode_sbl = $_POST['kode_sbl'];
+					$bl = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_sub_keg_bl".$prefix_tabel." 
+						where kode_sbl = %s
+							AND tahun_anggaran = %d
+							AND active=1
+						order by kode_sub_giat ASC
+					", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
-				$rinc = $wpdb->get_results("
-					SELECT 
-						* 
-					from data_rka".$prefix_tabel." 
-					where kode_sbl='".$kode_sbl."'
-						AND tahun_anggaran=".$tahun_anggaran."
-						AND active=1
-					Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC"
-				, ARRAY_A);
+					$rinc = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_rka".$prefix_tabel." 
+						where kode_sbl=%s
+							AND tahun_anggaran=%d
+							AND active=1
+						Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC
+					", $kode_sbl, $tahun_anggaran), ARRAY_A);
+				}
 				// print_r($rinc); die();
 				$rin_sub_item = '';
 				$total_sub_rinc = 0;
