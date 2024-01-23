@@ -754,7 +754,11 @@ class Wpsipd_Simda
 					$type = $_POST['type'];
 					if($type == 'belanja'){
 						$kode_sbl = explode('.', $_POST['kode_sbl']);
-						unset($kode_sbl[0]);
+						if($tahun_anggaran >= 2024){
+							unset($kode_sbl[2]);
+						}else{
+							unset($kode_sbl[0]);
+						}
 						unset($kode_sbl[3]);
 						$sub_giat = $wpdb->get_results($wpdb->prepare("
 							SELECT 
