@@ -1363,7 +1363,7 @@ class Wpsipd_Simda
 											if(!empty($ind['targetoutput'])){
 												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
 												$target_angka = explode(' ', $target_angka);
-												$target_angka = $target_angka[0];
+												$target_angka = (float) $target_angka[0];
 											}
 											if(empty($target_angka)){
 												$target_angka = 0;
@@ -1419,7 +1419,7 @@ class Wpsipd_Simda
 											if(!empty($ind['targetoutput'])){
 												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
 												$target_angka = explode(' ', $target_angka);
-												$target_angka = $target_angka[0];
+												$target_angka = (float) $target_angka[0];
 											}
 											if(empty($target_angka)){
 												$target_angka = 0;
