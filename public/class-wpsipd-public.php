@@ -5311,6 +5311,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rkpd.php';
 	}
+	public function daftar_penguji($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-daftar-penguji.php';
+	}
 
 	public function apbdpenjabaran($atts)
 	{

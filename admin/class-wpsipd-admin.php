@@ -352,6 +352,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			if(get_option('_crb_show_menu_laporan_rpjm_renstra_settings') != true){
 				Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 					->set_page_parent( $laporan );
+			}
+
+			if(get_option('_crb_show_menu_laporan_penatausahaan_settings') != true){
+				Container::make( 'theme_options', __( 'Laporan Penatausahaan' ) )
+					->set_page_parent( $laporan )
+					->add_fields( $this->get_ajax_field(array('type' => 'laporan_penatausahaan')) );
 			}	
 		}
 
@@ -1237,6 +1243,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda10.'">Halaman APBD PERDA Lampiran 10 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda11.'">Halaman APBD PERDA Lampiran 11 Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
+			        }else if($_POST['type'] == 'laporan_penatausahaan'){
+			        	$url_daftar_penguji = $this->generatePage($v['tahun_anggaran'] . ' | Daftar Penguji', $v['tahun_anggaran'], '[daftar_penguji tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_daftar_penguji.'">Halaman Data Daftar Penguji '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
 						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>';
@@ -1285,6 +1294,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'
 					|| $_POST['type'] == 'input_renstra'
+					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'rkpd_renja'
 				){
 					$ret['message'] = $body_all;
