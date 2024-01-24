@@ -5892,7 +5892,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			    	){
 			    		if($type_apbd == 'pendapatan'){
 			    			$harga_satuan_murni = '
-			    				<td class="kanan bawah text_center" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan_murni'].'</td>
+			    				<td class="kanan bawah text_tengah" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan_murni'].'</td>
 			    			';
 			    		}else{
 			    			$harga_satuan_murni = '
@@ -5901,8 +5901,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			    			';
 			    		}
 						$rin_murni = '
-			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
-			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['satuan'].'</td>
 			                '.$harga_satuan_murni.'
 			                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 						';
@@ -5913,7 +5913,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		    		if($type_apbd == 'pendapatan'){
 		    			$harga_satuan = '
-		    				<td class="kanan bawah text_center" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan'].'</td>
+		    				<td class="kanan bawah text_tengah" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan'].'</td>
 		    			';
 		    		}else{
 		    			$harga_satuan = '
@@ -5930,8 +5930,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
 			                </td>
 			                '.$rin_murni.'
-			                <td class="kanan bawah text_center volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
-			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                <td class="kanan bawah text_tengah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['satuan'].'</td>
 			                '.$harga_satuan.'
 			                <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
 			                '.$selisih_murni.'
@@ -5944,13 +5944,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rin_murni = '';
 				$selisih_murni = '';
 				$colspan = 6;
+
+				$teks_jumlah = "Jumlah Anggaran Sub Kegiatan :";
+				if($type_apbd == 'pendapatan'){
+					$teks_jumlah = "Jumlah";
+				}
 				if(
 					$type == 'rka_perubahan'
 					|| $type == 'dpa_perubahan'
 				){
 					$colspan = 4;
 					$rin_murni = '
-						<td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+						<td colspan="6" class="kiri kanan bawah text_kanan text_blok">'.$teks_jumlah.'</td>
 			            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc_murni,0,",",".").'</td>
 					';
 					$selisih_murni = '
@@ -5960,7 +5965,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rin_sub_item .= '
 					<tr>
 			            '.$rin_murni.'
-			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">'.$teks_jumlah.'</td>
 			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$kode_sbl.'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
 			            '.$selisih_murni.'
 			        </tr>
