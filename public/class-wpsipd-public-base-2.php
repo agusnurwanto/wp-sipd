@@ -5420,8 +5420,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$rinc = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							*,
-							uraian as subs_bl_teks,
-							keterangan as ket_bl_teks,
+							CONCAT(':: ', uraian) as subs_bl_teks,
+							CONCAT('::: ', keterangan) as ket_bl_teks,
 							uraian as nama_komponen,
 							1 as koefisien,
 							1 as koefisien_murni,
@@ -5890,17 +5890,37 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			    		$type == 'rka_perubahan'
 			    		|| $type == 'dpa_perubahan'
 			    	){
+			    		if($type_apbd == 'pendapatan'){
+			    			$harga_satuan_murni = '
+			    				<td class="kanan bawah text_center" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan_murni'].'</td>
+			    			';
+			    		}else{
+			    			$harga_satuan_murni = '
+			    				<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
+			                	<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
+			    			';
+			    		}
 						$rin_murni = '
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
+			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
+			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                '.$harga_satuan_murni.'
 			                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 						';
 						$selisih_murni = '
 							<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.$this->ubah_minus($item['total_harga']-$item['rincian_murni']).'</td>
 						';
 					}
+
+		    		if($type_apbd == 'pendapatan'){
+		    			$harga_satuan = '
+		    				<td class="kanan bawah text_center" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan'].'</td>
+		    			';
+		    		}else{
+		    			$harga_satuan = '
+		    				<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+		                	<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+		    			';
+		    		}
 					$rin_sub_item .= '
 						<tr class="data-komponen">
 							<td class="kiri kanan bawah text_blok">&nbsp;</td>
@@ -5910,10 +5930,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
 			                </td>
 			                '.$rin_murni.'
-			                <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+			                <td class="kanan bawah text_center volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
+			                <td class="kanan bawah text_center" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                '.$harga_satuan.'
 			                <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
 			                '.$selisih_murni.'
 			            </tr>

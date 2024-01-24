@@ -1235,8 +1235,8 @@ if (
 	}
 
 	<?php
-		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
-		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
+		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
+		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
 	?>
 	var extend_action = '' +
 		'<div style="margin-top: 20px;">' +

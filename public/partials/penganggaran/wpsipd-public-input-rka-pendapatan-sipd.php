@@ -269,8 +269,7 @@ $bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', '
 					    	<tr>
 					      		<td class="kanan bawah text_tengah text_blok">Koefisien</td>
 					      		<td class="kanan bawah text_tengah text_blok">Satuan</td>
-					      		<td class="kanan bawah text_tengah text_blok">Harga</td>
-					      		<td class="kanan bawah text_tengah text_blok">PPN</td>
+					      		<td class="kanan bawah text_tengah text_blok" colspan="2">Tarif/Harga</td>
 					    	</tr>
 		            	</thead>
 		                <tbody id="tabel_rincian_sub_keg"></tbody>
