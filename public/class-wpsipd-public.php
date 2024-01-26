@@ -6204,7 +6204,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if(!empty($_POST)){
 			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
-				$data=$_POST['data'];
+				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+					$data=$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				}else{
+					$data=$_POST['data'];	
+				}
+				
 				//Insert atau update data spd
 				$cek=$wpdb->get_var($wpdb->prepare("select idSpd from data_spd_sipd where idSpd=%d and tahun_anggaran=%d",$_POST["idSpd"],$_POST["tahun_anggaran"]));
 				$opsi=array(
