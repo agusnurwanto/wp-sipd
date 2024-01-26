@@ -4865,7 +4865,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id_rinci_sub_bl 
 							from data_rka 
 							where tahun_anggaran=%d 
-								AND id_rinci_sub_bl=%s AND kode_sbl=
+								AND id_rinci_sub_bl=%s 
+								AND kode_sbl=%s
 						", $_POST['tahun_anggaran'], $v['id_rinci_sub_bl'], $_POST['kode_sbl']));
 						$opsi = array(
 							'created_user' => $v['created_user'],
