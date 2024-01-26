@@ -6801,37 +6801,64 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!empty($_POST['kode_sub_giat'])){
 						$where_sub = $wpdb->prepare(' AND kode_sub_giat=%s', $_POST['kode_sub_giat']);
 					}
-					$ret['data']['bl'] = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							*
-						from data_sub_keg_bl
-						where kode_giat=%s
-							AND kode_sub_skpd=%s
-							AND tahun_anggaran=%d
-							AND kode_sbl != ''
-							AND active=1
-							$where_sub
-					", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
-					foreach ($ret['data']['bl'] as $k => $v) {
-						$kode_sbl = explode('.', $v['kode_sbl']);
-						if($_POST['tahun_anggaran'] >= 2024){
-							// id_skpd.id_sub_skpd.id_skpd (format kode_sbl terbaru)
-							$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[0].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
-						}else{
-							// id_unit.id_skpd.id_sub_skpd (format kode_sbl sipd biru)
-							$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
-
-						}
-						$kas = $wpdb->get_results("
+					if(
+						!empty($_POST['tipe']) 
+						&& (
+							$_POST['tipe'] == 'pendapatan'
+							|| $_POST['tipe'] == 'pembiayaan'
+						)
+					){
+						$ret['data']['bl'] = array('id_skpd' => $_POST['id_skpd']);
+					}else{
+						$ret['data']['bl'] = $wpdb->get_results(
+							$wpdb->prepare("
 							SELECT 
-								* 
-							from data_anggaran_kas 
-							where kode_sbl='".$kode_sbl."' 
-								AND tahun_anggaran=".$v['tahun_anggaran']."
-								AND active=1"
-							, ARRAY_A
-						);
+								*
+							from data_sub_keg_bl
+							where kode_giat=%s
+								AND kode_sub_skpd=%s
+								AND tahun_anggaran=%d
+								AND kode_sbl != ''
+								AND active=1
+								$where_sub
+						", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					}
+					foreach ($ret['data']['bl'] as $k => $v) {
+						if(
+							!empty($_POST['tipe']) 
+							&& (
+								$_POST['tipe'] == 'pendapatan'
+								|| $_POST['tipe'] == 'pembiayaan'
+							)
+						){
+							$kas = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								from data_anggaran_kas 
+								where id_sub_skpd=%d 
+									AND tahun_anggaran=%d
+									AND type=%s
+									AND active=1
+							", $v['id_skpd'], $v['tahun_anggaran'], $_POST['tipe']), ARRAY_A);
+						}else{
+							$kode_sbl = explode('.', $v['kode_sbl']);
+							if($_POST['tahun_anggaran'] >= 2024){
+								// id_skpd.id_sub_skpd.id_skpd (format kode_sbl terbaru)
+								$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[0].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+							}else{
+								// id_unit.id_skpd.id_sub_skpd (format kode_sbl sipd biru)
+								$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+
+							}
+							$kas = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								from data_anggaran_kas 
+								where kode_sbl=%s 
+									AND tahun_anggaran=%d
+									AND active=1
+							", $kode_sbl, $v['tahun_anggaran']), ARRAY_A);
+						}
 						if(!empty($kas)){
 							$ret['data']['kas'][] = $kas;
 							foreach ($kas as $kk => $vv) {
