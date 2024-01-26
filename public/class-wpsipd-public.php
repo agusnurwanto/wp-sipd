@@ -4846,7 +4846,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$rka = json_decode(stripslashes(html_entity_decode($_POST['rka'])), true);						
+						$rka = json_decode(stripslashes($_POST['rka']), true);						
 					}else{
 						$rka = $_POST['rka'];
 					}
@@ -4860,7 +4860,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                        $rka = array();
                    	}
 					foreach ($rka as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "' AND kode_sbl='".$_POST['kode_sbl']."'");
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_rinci_sub_bl 
+							from data_rka 
+							where tahun_anggaran=%d 
+								AND id_rinci_sub_bl=%s AND kode_sbl=
+						", $_POST['tahun_anggaran'], $v['id_rinci_sub_bl'], $_POST['kode_sbl']));
 						$opsi = array(
 							'created_user' => $v['created_user'],
 							'createddate' => $v['createddate'],
