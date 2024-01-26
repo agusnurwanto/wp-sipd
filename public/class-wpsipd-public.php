@@ -5752,13 +5752,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($_POST)){
 			//cek API KEY
 			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
-				$data=$_POST["data"];
+				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				}
+				else
+				{
+					$data=$_POST["data"];	
+				}
+				
 				foreach($data as $k=>$v){
 					$cek=$wpdb->get_var($wpdb->prepare("select id_besaran_up from data_up_sipd where id_besaran_up=%d",$v["id_besaran_up"]));
 					$opsi=array(
 						"id_besaran_up"=>$v["id_besaran_up"],
 						"id_skpd"=>$v["id_skpd"],
-						"pagu"=>$v["besaran_up"],
+						"id_sub_skpd"=>$v["id_sub_skpd"],
+						"besaran_up"=>$v["besaran_up"],
+						"besaran_up_kkpd"=>$v["besaran_up_kkpd"],
+						"pagu"=>$v["pagu"],
 						"active"=>1,
 						"create_at"=>current_time('mysql'),
 						"tahun_anggaran"=>$_POST["tahun_anggaran"]
