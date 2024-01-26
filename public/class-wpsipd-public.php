@@ -6808,7 +6808,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							|| $_POST['tipe'] == 'pembiayaan'
 						)
 					){
-						$ret['data']['bl'] = array('id_skpd' => $_POST['id_skpd']);
+						$ret['data']['bl'] = array(array('id_skpd' => $_POST['id_skpd']));
 					}else{
 						$ret['data']['bl'] = $wpdb->get_results(
 							$wpdb->prepare("
@@ -6839,7 +6839,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									AND tahun_anggaran=%d
 									AND type=%s
 									AND active=1
-							", $v['id_skpd'], $v['tahun_anggaran'], $_POST['tipe']), ARRAY_A);
+							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe']), ARRAY_A);
 						}else{
 							$kode_sbl = explode('.', $v['kode_sbl']);
 							if($_POST['tahun_anggaran'] >= 2024){
