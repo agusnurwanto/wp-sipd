@@ -1234,35 +1234,46 @@ if (
 		}
 	}
 
+	<?php
+		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
+		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
+	?>
 	var extend_action = '' +
 		'<div style="margin-top: 20px;">' +
-		'<label style="display:none;">Sumber Pagu Indikatif: ' +
-		'<select id="pilih_sumber_pagu" style="padding: 5px;">' +
-		'<option value="1">RKA SIPD</option>' +
-		'<option value="4">APBD SIMDA</option>' +
-		'<option value="5">APBD Pergeseran</option>' +
-		'<option value="6">APBD Perubahan</option>' +
-		'</select>' +
-		'</label>' +
-		'<label style="margin-left: 20px;">Bulan Realisasi: ' +
-		'<select id="pilih_bulan" style="padding: 5px;" data-bulan-asli="<?php echo $bulan_asli; ?>">' +
-		'<option value="0">-- Bulan --</option>' +
-		'<?php echo $opsi_bulan; ?>' +
-		'</select>' +
-		'</label>' +
-		'<?php echo $simpan_rfk; ?>' +
-		'<?php echo $reset_rfk; ?>' +
-		'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>' +
-		'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
-		'<label style="margin-left: 20px;">Pagu DPA: ' +
-		'<select id="pagu_dpa" style="padding: 5px; width: 200px;">' +
-		'<option value="rka_simda">RKA SIMDA</option>' +
-		'<option value="simda">APBD SIMDA</option>' +
-		'<option value="fmis">APBD FMIS</option>' +
-		'</select>' +
-		'</label>' +
-		'<?php echo $cekbox_set_pptk; ?>' +
-		'<?php echo $cekbox_set_panjar; ?>' +
+			'<label style="display:none;">Sumber Pagu Indikatif: ' +
+				'<select id="pilih_sumber_pagu" style="padding: 5px;">' +
+					'<option value="1">RKA SIPD</option>' +
+					'<option value="4">APBD SIMDA</option>' +
+					'<option value="5">APBD Pergeseran</option>' +
+					'<option value="6">APBD Perubahan</option>' +
+				'</select>' +
+			'</label>' +
+			'<label style="margin-left: 20px;">Bulan Realisasi: ' +
+				'<select id="pilih_bulan" style="padding: 5px;" data-bulan-asli="<?php echo $bulan_asli; ?>">' +
+					'<option value="0">-- Bulan --</option>' +
+					'<?php echo $opsi_bulan; ?>' +
+				'</select>' +
+			'</label>' +
+			'<?php echo $simpan_rfk; ?>' +
+			'<?php echo $reset_rfk; ?>' +
+			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>' +
+			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
+			'<label style="margin-left: 20px;">Pagu DPA: ' +
+				'<select id="pagu_dpa" style="padding: 5px; width: 200px;">' +
+					'<option value="rka_simda">RKA SIMDA</option>' +
+					'<option value="simda">APBD SIMDA</option>' +
+					'<option value="fmis">APBD FMIS</option>' +
+				'</select>' +
+			'</label>' +
+			'<?php echo $cekbox_set_pptk; ?>' +
+			'<?php echo $cekbox_set_panjar; ?>' +
+			'<label style="margin-left: 20px;">Data Lain: ' +
+				'<select id="jenis_data" style="padding: 5px; width: 200px;">' +
+					'<option value="" selected>Pilih Jenis Data</option>' +
+					'<option data-url="<?php echo $url_rka_pendapatan; ?>" value="1">Pendapatan</option>' +
+					'<option data-url="<?php echo $url_rka_pembiayaan; ?>" value="2">Pembiayaan</option>' +
+				'</select>' +
+			'</label>' +
 		'</div>';
 	jQuery(document).ready(function() {
 		jQuery('#action-sipd').append(extend_action);
@@ -1273,6 +1284,13 @@ if (
 		setTimeout(function() {
 			tampil_nilai_fisik();
 		}, 1000);
+		jQuery('#jenis_data').on('change', function() {
+			var val = +jQuery(this).val();
+			if (val != '') {
+				window.open(jQuery(this).find('option:selected').attr('data-url'), '_blank');
+			}
+			jQuery('#jenis_data').val('');
+		});
 		jQuery('#pilih_sumber_pagu').on('change', function() {
 			var val = +jQuery(this).val();
 			if (val > 0) {

@@ -5408,32 +5408,56 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$kode_sbl = $_POST['kode_sbl'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$type_apbd = '';
 				$type = '';
 				$prefix_tabel = '_lokal';
 				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
 					$prefix_tabel = '';
 				}
-				$bl = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						* 
-					from data_sub_keg_bl".$prefix_tabel." 
-					where kode_sbl = %s
-						AND tahun_anggaran = %d
-						AND active=1
-					order by kode_sub_giat ASC
-				", $kode_sbl, $tahun_anggaran), ARRAY_A);
+				if(!empty($_POST['tipe']) && $_POST['tipe'] == 'pendapatan'){
+					$type_apbd = $_POST['tipe'];
+					$rinc = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*,
+							CONCAT(':: ', uraian) as subs_bl_teks,
+							CONCAT('::: ', keterangan) as ket_bl_teks,
+							uraian as nama_komponen,
+							1 as koefisien,
+							1 as koefisien_murni,
+							'1 Tahun' as harga_satuan,
+							'1 Tahun' as harga_satuan_murni,
+							total as total_harga,
+							nilaimurni as total_harga_murni,
+							'Tahun' as satuan
+						from data_pendapatan".$prefix_tabel." 
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+						Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC
+					", $_POST['id_skpd'], $tahun_anggaran), ARRAY_A);
+				}else{
+					$kode_sbl = $_POST['kode_sbl'];
+					$bl = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_sub_keg_bl".$prefix_tabel." 
+						where kode_sbl = %s
+							AND tahun_anggaran = %d
+							AND active=1
+						order by kode_sub_giat ASC
+					", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
-				$rinc = $wpdb->get_results("
-					SELECT 
-						* 
-					from data_rka".$prefix_tabel." 
-					where kode_sbl='".$kode_sbl."'
-						AND tahun_anggaran=".$tahun_anggaran."
-						AND active=1
-					Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC"
-				, ARRAY_A);
+					$rinc = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_rka".$prefix_tabel." 
+						where kode_sbl=%s
+							AND tahun_anggaran=%d
+							AND active=1
+						Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC
+					", $kode_sbl, $tahun_anggaran), ARRAY_A);
+				}
 				// print_r($rinc); die();
 				$rin_sub_item = '';
 				$total_sub_rinc = 0;
@@ -5803,22 +5827,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']).'
 							';
 						}
-						$dana = $wpdb->get_row("
-							SELECT 
-								d.id_sumber_dana,
-								m.nama_dana,
-								m.kode_dana
-							from data_mapping_sumberdana".$prefix_tabel." d
-							left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
-								and d.tahun_anggaran = m.tahun_anggaran
-							where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
-								AND d.tahun_anggaran=".$item['tahun_anggaran']."
-								AND d.active=1
-						", ARRAY_A);
+						if($type_apbd == 'pendapatan'){
+							$dana = '';
+						}else{
+							$dana = $wpdb->get_row("
+								SELECT 
+									d.id_sumber_dana,
+									m.nama_dana,
+									m.kode_dana
+								from data_mapping_sumberdana".$prefix_tabel." d
+								left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
+									and d.tahun_anggaran = m.tahun_anggaran
+								where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
+									AND d.tahun_anggaran=".$item['tahun_anggaran']."
+									AND d.active=1
+							", ARRAY_A);
+							$dana = 'Sumber Dana: '.$dana['nama_dana'];
+						}
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">'.$dana.'</div></td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5861,17 +5890,37 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			    		$type == 'rka_perubahan'
 			    		|| $type == 'dpa_perubahan'
 			    	){
+			    		if($type_apbd == 'pendapatan'){
+			    			$harga_satuan_murni = '
+			    				<td class="kanan bawah text_tengah" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan_murni'].'</td>
+			    			';
+			    		}else{
+			    			$harga_satuan_murni = '
+			    				<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
+			                	<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
+			    			';
+			    		}
 						$rin_murni = '
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                '.$harga_satuan_murni.'
 			                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 						';
 						$selisih_murni = '
 							<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.$this->ubah_minus($item['total_harga']-$item['rincian_murni']).'</td>
 						';
 					}
+
+		    		if($type_apbd == 'pendapatan'){
+		    			$harga_satuan = '
+		    				<td class="kanan bawah text_tengah" style="vertical-align: middle;" colspan="2">'.$item['harga_satuan'].'</td>
+		    			';
+		    		}else{
+		    			$harga_satuan = '
+		    				<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+		                	<td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+		    			';
+		    		}
 					$rin_sub_item .= '
 						<tr class="data-komponen">
 							<td class="kiri kanan bawah text_blok">&nbsp;</td>
@@ -5881,10 +5930,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
 			                </td>
 			                '.$rin_murni.'
-			                <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
-			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
-			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+			                <td class="kanan bawah text_tengah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
+			                <td class="kanan bawah text_tengah" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                '.$harga_satuan.'
 			                <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
 			                '.$selisih_murni.'
 			            </tr>
@@ -5896,13 +5944,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rin_murni = '';
 				$selisih_murni = '';
 				$colspan = 6;
+
+				$teks_jumlah = "Jumlah Anggaran Sub Kegiatan :";
+				if($type_apbd == 'pendapatan'){
+					$teks_jumlah = "Jumlah";
+				}
 				if(
 					$type == 'rka_perubahan'
 					|| $type == 'dpa_perubahan'
 				){
 					$colspan = 4;
 					$rin_murni = '
-						<td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+						<td colspan="6" class="kiri kanan bawah text_kanan text_blok">'.$teks_jumlah.'</td>
 			            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc_murni,0,",",".").'</td>
 					';
 					$selisih_murni = '
@@ -5912,7 +5965,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$rin_sub_item .= '
 					<tr>
 			            '.$rin_murni.'
-			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">'.$teks_jumlah.'</td>
 			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$kode_sbl.'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
 			            '.$selisih_murni.'
 			        </tr>

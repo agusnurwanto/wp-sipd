@@ -50,7 +50,7 @@ $sql_anggaran = $wpdb->prepare("
         tahun_anggaran=%d
         AND type='belanja'
         AND active=1
-        AND id_unit=%d
+        AND id_sub_skpd=%d
     ",$input["tahun_anggaran"], $input['id_skpd']);
 $data_anggaran = $wpdb->get_results($sql_anggaran, ARRAY_A);
 
@@ -73,7 +73,11 @@ $no = 1;
 if(!empty($data_anggaran)){
     foreach ($data_anggaran as $v_anggaran) {
         $kode_sbl = explode('.', $v_anggaran['kode_sbl']);
-        if(!empty($kode_sbl[6])){
+        if($input["tahun_anggaran"] >= 2024){
+            unset($kode_sbl[2]);
+            unset($kode_sbl[3]);
+            $kode_sbl = implode('.', $kode_sbl);
+        }else if(!empty($kode_sbl[6])){
             $kode_sbl = $kode_sbl[1].'.'.$kode_sbl[2].'.'.$kode_sbl[4].'.'.$kode_sbl[5].'.'.$kode_sbl[6];
         }else if(!empty($kode_sbl[5])){
             $kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[3].'.'.$kode_sbl[4].'.'.$kode_sbl[5];

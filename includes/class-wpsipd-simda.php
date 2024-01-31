@@ -754,7 +754,11 @@ class Wpsipd_Simda
 					$type = $_POST['type'];
 					if($type == 'belanja'){
 						$kode_sbl = explode('.', $_POST['kode_sbl']);
-						unset($kode_sbl[0]);
+						if($tahun_anggaran >= 2024){
+							unset($kode_sbl[2]);
+						}else{
+							unset($kode_sbl[0]);
+						}
 						unset($kode_sbl[3]);
 						$sub_giat = $wpdb->get_results($wpdb->prepare("
 							SELECT 
@@ -794,7 +798,11 @@ class Wpsipd_Simda
 									AND u.active=1", $tahun_anggaran, $id_unit_sipd)
 							, ARRAY_A);
 							if($type == 'belanja'){
-								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
+								if($tahun_anggaran >= 2024){
+									$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[1]));
+								}else{
+									$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
+								}
 							}
 							if($type == 'pendapatan'){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
@@ -1355,7 +1363,7 @@ class Wpsipd_Simda
 											if(!empty($ind['targetoutput'])){
 												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
 												$target_angka = explode(' ', $target_angka);
-												$target_angka = $target_angka[0];
+												$target_angka = (float) $target_angka[0];
 											}
 											if(empty($target_angka)){
 												$target_angka = 0;
@@ -1411,7 +1419,7 @@ class Wpsipd_Simda
 											if(!empty($ind['targetoutput'])){
 												$target_angka = str_replace(',', '.', str_replace(',', '.', $ind['targetoutput']));
 												$target_angka = explode(' ', $target_angka);
-												$target_angka = $target_angka[0];
+												$target_angka = (float) $target_angka[0];
 											}
 											if(empty($target_angka)){
 												$target_angka = 0;
@@ -1983,7 +1991,7 @@ class Wpsipd_Simda
 		$rek90_6 = $rek90_5.'.'.$options['kd_rek_5'];
 
 		$no_tinny = 100;
-		$kd_rek_3 = ((int)$options['kd_rek_2'])+$no_tinny;
+		$kd_rek_3 = ((int)$options['kd_rek_2'])+((int)$options['kd_rek_3'])+$no_tinny;
 		$kd_rek_4 = ((int)$options['kd_rek_4'])+$no_tinny;
 		$kd_rek_5 = ((int)$options['kd_rek_5'])+$no_tinny;
 

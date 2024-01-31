@@ -306,6 +306,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 
+		$this->loader->add_action('wp_ajax_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
+
+		$this->loader->add_action('wp_ajax_singkron_pegawai_penatausahaan',  $plugin_public, 'singkron_pegawai_penatausahaan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_pegawai_penatausahaan',  $plugin_public, 'singkron_pegawai_penatausahaan');
+
 		$this->loader->add_action('wp_ajax_singkron_renstra',  $plugin_public, 'singkron_renstra');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra',  $plugin_public, 'singkron_renstra');
 
@@ -967,6 +973,8 @@ class Wpsipd
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
 		add_shortcode('tampilrkpd', array($plugin_public, 'tampilrkpd'));
 		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
+		add_shortcode('laporan_penatausahaan', array($plugin_public, 'laporan_penatausahaan'));
+		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
@@ -1006,6 +1014,8 @@ class Wpsipd
 		add_shortcode('register_sp2d_fmis', array($plugin_public, 'register_sp2d_fmis'));
 		add_shortcode('input_rka_lokal', array($plugin_public, 'input_rka_lokal'));
 		add_shortcode('input_rka_sipd', array($plugin_public, 'input_rka_sipd'));
+		add_shortcode('input_rka_pendapatan_sipd', array($plugin_public, 'input_rka_pendapatan_sipd'));
+		add_shortcode('input_rka_pembiayaan_sipd', array($plugin_public, 'input_rka_pembiayaan_sipd'));
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));

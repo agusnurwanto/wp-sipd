@@ -3674,15 +3674,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
+					}
+
 					foreach ($_POST['data_user'] as $key => $data_user) {
-						$cek = $wpdb->get_var("
+						// print_r($data_user);exit;
+						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
 								userName 
 							from data_user_penatausahaan 
-							where tahun=".$_POST['tahun_anggaran']." 
-								AND userName='" . $data_user['userName']."' 
-								AND idUser='".$data_user['idUser']."'"
-						);
+							where tahun=%d 
+								AND userName=%s 
+								AND idUser=%s
+						", $_POST['tahun_anggaran'], $data_user['userName'], $data_user['idUser']));
 						$opsi = array(
 							"idSkpd" => $data_user['skpd']['idSkpd'],
 							"namaSkpd" => $data_user['skpd']['namaSkpd'],
@@ -3690,7 +3695,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"idDaerah" => $data_user['skpd']['idDaerah'],
 							"userName" => $data_user['userName'],
 							"nip" => $data_user['nip'],
+							"nik" => $data_user['nik'],
 							"fullName" => $data_user['fullName'],
+							"lahir_user" => $data_user['lahir_user'],
 							"nomorHp" => $data_user['nomorHp'],
 							"rank" => $data_user['rank'],
 							"npwp" => $data_user['npwp'],
@@ -3724,6 +3731,142 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
 								'tahun' => $_POST['tahun_anggaran'],
 								'userName' => $data_user['userName'],
+								'idUser' => $data_user['idUser'],
+							));
+						} else {
+							$wpdb->insert('data_user_penatausahaan', $opsi);
+						}
+						$ret['sql'] = $wpdb->last_query;
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_panggol_penatausahaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron Pangkat dan Golongan penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
+
+					foreach ($_POST['data'] as $key => $data) {						
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								nama_pangkat 
+							from data_pangkat_golongan 
+							where tahun_anggaran=%d 
+								AND nama_pangkat=%s 
+								AND id_pangkat=%s
+						", $_POST['tahun_anggaran'], $data['nama_pangkat'], $data['id']));
+						$opsi = array(							
+							"id_pangkat" => $data['id'],
+							"nama_pangkat" => $data['nama_pangkat'],
+							"nama_golongan" => $data['nama_golongan'],						
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'singkron_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_pangkat_golongan', $opsi, array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'nama_pangkat' => $data['nama_pangkat'],
+								'id_pangkat' => $data['id'],
+							));
+						} else {
+							$wpdb->insert('data_pangkat_golongan', $opsi);
+						}
+						$ret['sql'] = $wpdb->last_query;
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_pegawai_penatausahaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron Pegawai penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data_user'])) {
+					if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+						$_POST['data_user'] = json_decode(stripslashes(html_entity_decode($_POST['data_user'])), true);
+					}
+					
+					foreach ($_POST['data_user'] as $key => $data_user) {
+						// print_r($data_user);exit;
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								userName
+							from data_user_penatausahaan 
+							where tahun=%d 								
+								AND idUser=%s
+						", $_POST['tahun_anggaran'], $data_user['idUser']));
+						// print_r($data_user['idUser']);exit;
+						$opsi = array(
+							"idSkpd" => $data_user['idSkpd'],
+							"idDaerah" => $data_user['idDaerah'],							
+							"npwp" => $data_user['npwp'],
+							"idJabatan" => $data_user['idRole'],
+							"namaJabatan" => $data_user['namaJabatan'],
+							"idRole" => $data_user['idRole'],							
+							"kpa" => $data_user['kpa'],
+							"bank" => $data_user['bank'],
+							"group" => $data_user['group'],
+							"password" => $data_user['password'],
+							"konfirmasiPassword" => $data_user['konfirmasiPassword'],
+							"kodeBank" => $data_user['kodeBank'],
+							"nama_rekening" => $data_user['nama_rekening'],
+							"nomorRekening" => $data_user['nomorRekening'],
+							"pangkatGolongan" => $data_user['pangkatGolongan'],
+							"tahunPegawai" => $data_user['tahunPegawai'],
+							"kodeDaerah" => $data_user['kodeDaerah'],
+							"is_from_sipd" => $data_user['is_from_sipd'],
+							"is_from_generate" => $data_user['is_from_generate'],
+							"is_from_external" => $data_user['is_from_external'],
+							"idSubUnit" => $data_user['idSubUnit'],
+							"idUser" => $data_user['idUser'],
+							"idPegawai" => $data_user['idPegawai'],
+							"alamat" => $data_user['alamat'],
+							'tahun' => $_POST['tahun_anggaran'],
+							'updated_at' => current_time('mysql')
+						);
+						
+						// if (!empty($cek)) {
+						if ($cek) {
+							$wpdb->update('data_user_penatausahaan', $opsi, array(
+								'tahun' => $_POST['tahun_anggaran'],
 								'idUser' => $data_user['idUser'],
 							));
 						} else {
@@ -4703,7 +4846,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$rka = json_decode(stripslashes(html_entity_decode($_POST['rka'])), true);						
+						$rka = json_decode(stripslashes($_POST['rka']), true);						
 					}else{
 						$rka = $_POST['rka'];
 					}
@@ -4717,7 +4860,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                        $rka = array();
                    	}
 					foreach ($rka as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "' AND kode_sbl='".$_POST['kode_sbl']."'");
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_rinci_sub_bl 
+							from data_rka 
+							where tahun_anggaran=%d 
+								AND id_rinci_sub_bl=%s 
+								AND kode_sbl=%s
+						", $_POST['tahun_anggaran'], $v['id_rinci_sub_bl'], $_POST['kode_sbl']));
 						$opsi = array(
 							'created_user' => $v['created_user'],
 							'createddate' => $v['createddate'],
@@ -5168,6 +5318,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rkpd.php';
 	}
+	public function daftar_penguji($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-daftar-penguji.php';
+	}
 
 	public function apbdpenjabaran($atts)
 	{
@@ -5594,13 +5753,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($_POST)){
 			//cek API KEY
 			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
-				$data=$_POST["data"];
+				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				}
+				else
+				{
+					$data=$_POST["data"];	
+				}
+				
 				foreach($data as $k=>$v){
 					$cek=$wpdb->get_var($wpdb->prepare("select id_besaran_up from data_up_sipd where id_besaran_up=%d",$v["id_besaran_up"]));
 					$opsi=array(
 						"id_besaran_up"=>$v["id_besaran_up"],
 						"id_skpd"=>$v["id_skpd"],
-						"pagu"=>$v["besaran_up"],
+						"id_sub_skpd"=>$v["id_sub_skpd"],
+						"besaran_up"=>$v["besaran_up"],
+						"besaran_up_kkpd"=>$v["besaran_up_kkpd"],
+						"pagu"=>$v["pagu"],
 						"active"=>1,
 						"create_at"=>current_time('mysql'),
 						"tahun_anggaran"=>$_POST["tahun_anggaran"]
@@ -6632,31 +6801,64 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!empty($_POST['kode_sub_giat'])){
 						$where_sub = $wpdb->prepare(' AND kode_sub_giat=%s', $_POST['kode_sub_giat']);
 					}
-					$ret['data']['bl'] = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							*
-						from data_sub_keg_bl
-						where kode_giat=%s
-							AND kode_sub_skpd=%s
-							AND tahun_anggaran=%d
-							AND kode_sbl != ''
-							AND active=1
-							$where_sub
-					", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
-					foreach ($ret['data']['bl'] as $k => $v) {
-						$kode_sbl = explode('.', $v['kode_sbl']);
-						// id_unit.id_skpd.id_sub_skpd (format kode_sbl terbaru)
-						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
-						$kas = $wpdb->get_results("
+					if(
+						!empty($_POST['tipe']) 
+						&& (
+							$_POST['tipe'] == 'pendapatan'
+							|| $_POST['tipe'] == 'pembiayaan'
+						)
+					){
+						$ret['data']['bl'] = array(array('id_skpd' => $_POST['id_skpd']));
+					}else{
+						$ret['data']['bl'] = $wpdb->get_results(
+							$wpdb->prepare("
 							SELECT 
-								* 
-							from data_anggaran_kas 
-							where kode_sbl='".$kode_sbl."' 
-								AND tahun_anggaran=".$v['tahun_anggaran']."
-								AND active=1"
-							, ARRAY_A
-						);
+								*
+							from data_sub_keg_bl
+							where kode_giat=%s
+								AND kode_sub_skpd=%s
+								AND tahun_anggaran=%d
+								AND kode_sbl != ''
+								AND active=1
+								$where_sub
+						", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					}
+					foreach ($ret['data']['bl'] as $k => $v) {
+						if(
+							!empty($_POST['tipe']) 
+							&& (
+								$_POST['tipe'] == 'pendapatan'
+								|| $_POST['tipe'] == 'pembiayaan'
+							)
+						){
+							$kas = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								from data_anggaran_kas 
+								where id_sub_skpd=%d 
+									AND tahun_anggaran=%d
+									AND type=%s
+									AND active=1
+							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe']), ARRAY_A);
+						}else{
+							$kode_sbl = explode('.', $v['kode_sbl']);
+							if($_POST['tahun_anggaran'] >= 2024){
+								// id_skpd.id_sub_skpd.id_skpd (format kode_sbl terbaru)
+								$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[0].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+							}else{
+								// id_unit.id_skpd.id_sub_skpd (format kode_sbl sipd biru)
+								$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+
+							}
+							$kas = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								from data_anggaran_kas 
+								where kode_sbl=%s 
+									AND tahun_anggaran=%d
+									AND active=1
+							", $kode_sbl, $v['tahun_anggaran']), ARRAY_A);
+						}
 						if(!empty($kas)){
 							$ret['data']['kas'][] = $kas;
 							foreach ($kas as $kk => $vv) {

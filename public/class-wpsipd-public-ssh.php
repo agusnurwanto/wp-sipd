@@ -451,7 +451,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						WHERE tahun_anggaran=%d
 					",$tahun_anggaran), ARRAY_A);
 					$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga + 1 : 1;
-	
+
 					//insert data usulan ssh
 					$opsi_ssh = array(
 						'id_standar_harga' => $id_standar_harga,
@@ -461,7 +461,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'spek' => $data_old_ssh[0]['spek'],
 						'created_at' => $date_now,
 						'created_user' => $user_id,
-						'kelompok' => 1,
+						'kelompok' => $data_old_ssh[0]['kelompok'],
 						'harga' => $harga_satuan,
 						'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
 						'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
@@ -634,7 +634,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'spek' => $data_old_ssh[0]['spek'],
 							'created_at' => $date_now,
 							'created_user' => $user_id,
-							'kelompok' => 1,
+							'kelompok' => $data_old_ssh[0]['kelompok'],
 							'harga' => $data_old_ssh[0]['harga'],
 							'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
 							'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
@@ -2498,6 +2498,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						", $tahun_anggaran));
 						$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga + 1 : 1;
 
+						$kelompok = 0;
+						if( $data_kategori[0]['tipe_kelompok'] == 'SSH'){
+							$kelompok = 1;
+						}else if( $data_kategori[0]['tipe_kelompok'] == 'HSPK'){
+							$kelompok = 2;
+						}else if( $data_kategori[0]['tipe_kelompok'] == 'ASB'){
+							$kelompok = 3;
+						}else if( $data_kategori[0]['tipe_kelompok'] == 'SBU'){
+							$kelompok = 4;
+						}
 						//insert data usulan ssh
 						$opsi_ssh = array(
 							'id_standar_harga' => $id_standar_harga,
@@ -2507,7 +2517,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'spek' => $spek,
 							'created_at' => $date_now,
 							'created_user' => $user_id,
-							'kelompok' => 1,
+							'kelompok' => $kelompok,
 							'harga' => $harga,
 							'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
 							'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
@@ -2950,6 +2960,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$last_kode_standar_harga = $data_this_id_ssh[0]['kode_standar_harga'];
 							}
 
+							$kelompok = 0;
+							if( $data_kategori[0]['tipe_kelompok'] == 'SSH'){
+								$kelompok = 1;
+							}else if( $data_kategori[0]['tipe_kelompok'] == 'HSPK'){
+								$kelompok = 2;
+							}else if( $data_kategori[0]['tipe_kelompok'] == 'ASB'){
+								$kelompok = 3;
+							}else if( $data_kategori[0]['tipe_kelompok'] == 'SBU'){
+								$kelompok = 4;
+							}
 							//insert edit data usulan ssh
 							$opsi_edit_ssh = array(
 								'kode_standar_harga' => $last_kode_standar_harga,
@@ -2957,7 +2977,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'satuan' => $satuan,
 								'spek' => $spek,
 								'created_at' => $date_now,
-								'kelompok' => 1,
+								'kelompok' => $kelompok,
 								'harga' => $harga,
 								'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
 								'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],

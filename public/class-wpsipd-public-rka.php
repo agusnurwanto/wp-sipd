@@ -3,6 +3,22 @@
 class Wpsipd_Public_RKA
 {
 
+    public function input_rka_pendapatan_sipd($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-input-rka-pendapatan-sipd.php';
+    }
+
+    public function input_rka_pembiayaan_sipd($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-input-rka-pembiayaan-sipd.php';
+    }
+
     public function input_rka_sipd($atts)
     {
         if (!empty($_GET) && !empty($_GET['post'])) {

@@ -46,7 +46,10 @@ CREATE TABLE `data_up_sipd` (
   `id` int(11) NOT NULL auto_increment,
   `id_besaran_up` int(11) NOT NULL,
   `id_skpd` int(11) NOT NULL,
+  `id_sub_skpd` int(11) NOT NULL,
   `pagu` double NOT NULL,
+  `besaran_up` double NOT NULL,
+  `besaran_up_kkpd` double NOT NULL,
   `active` tinyint(4) NOT NULL,
   `create_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
@@ -719,7 +722,9 @@ CREATE TABLE `data_user_penatausahaan` (
   `idDaerah` int(11) DEFAULT NULL,
   `userName` text DEFAULT NULL,
   `nip` varchar(50) DEFAULT NULL,
+  `nik` varchar(50) DEFAULT NULL,
   `fullName` text DEFAULT NULL,
+  `lahir_user` datetime DEFAULT NULL,
   `nomorHp` text DEFAULT NULL,
   `rank` varchar(50) DEFAULT NULL,
   `npwp` varchar(50) DEFAULT NULL,
@@ -1223,6 +1228,18 @@ CREATE TABLE `data_user_tapd_sekda` (
   `active` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_pangkat_golongan` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_pangkat` int(11) DEFAULT NULL,
+  `nama_pangkat` text DEFAULT NULL,
+  `nama_golongan` text DEFAULT NULL,  
+  `tahun_anggaran` year(4) NOT NULL,
+  `singkron_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY  (id)
+);
+
 
 CREATE TABLE `data_rfk` (
   `id` int(11) NOT NULL auto_increment,
