@@ -33,14 +33,19 @@ if ($data_rfk) {
     $nama_sub_skpd = $data_rfk['nama_sub_skpd_asli'];
     $kode_skpd = $data_rfk['kode_skpd_asli'];
     $nama_skpd = $data_rfk['nama_skpd_asli'];
+    $kode_urusan = $data_rfk['kode_urusan'];
+    $nama_urusan = $data_rfk['nama_urusan'];
     $kode_program = $data_rfk['kode_program'];
     $nama_program = $data_rfk['nama_program'];
     $kode_kegiatan = $data_rfk['kode_giat'];
     $nama_kegiatan = $data_rfk['nama_giat'];
     $kode_bidang_urusan = $data_rfk['kode_bidang_urusan'];
+    $nama_bidang_urusan = $data_rfk['nama_bidang_urusan'];
     $nama_sub_kegiatan = $data_rfk['nama_sub_giat'];
+    $kode_sub_kegiatan = $data_rfk['kode_sub_giat'];
     $nama_sub_kegiatan = str_replace('X.XX', $kode_bidang_urusan, $nama_sub_kegiatan);
     $pagu_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
+    $id_sub_skpd = $data_rfk['id_sub_skpd'];
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
@@ -57,24 +62,19 @@ if ($data_rfk) {
 		border: 0;
 	}
 </style>
-<!-- <div style="padding: 15px;">
+<div style="padding: 15px;">
     <h1 class="text-center" style="margin-top: 50px;">DAFTAR NOTA PENCAIRAN DANA</h1>
     <table id="tabel_detail_nota">
         <tbody>
             <tr>
-                <td style="width: 12%;">Jenis NPD</td>
-                <td style="width: 20px;">:</td>
-                <td>
-                    <input type="radio" id="set_panjar_true" name="set_panjar" value="set_panjar">
-                    <label for="html" style="margin-bottom: 0rem;">Panjar</label>
-                    <input type="radio" id="set_panjar_false" class="ml-5" name="set_panjar" value="not_set_panjar">
-                    <label for="html" style="margin-bottom: 0rem;">Tanpa Panjar</label>
-                </td>
+                <td>Urusan</td>
+                <td>:</td>
+                <td><?php echo $kode_urusan . '  ' . $nama_urusan ?></td>
             </tr>
             <tr>
-                <td>PPTK</td>
+                <td>Bidang Urusan</td>
                 <td>:</td>
-                <td>nama pptk</td>
+                <td><?php echo $kode_bidang_urusan . '  ' . $nama_bidang_urusan ?></td>
             </tr>
             <tr>
                 <td>Program</td>
@@ -89,39 +89,26 @@ if ($data_rfk) {
             <tr>
                 <td>Sub Kegiatan</td>
                 <td>:</td>
-                <td><?php echo $nama_sub_kegiatan ?></td>
-            </tr>
-            <tr>
-                <td>Nomor DPA</td>
-                <td>:</td>
-                <td>nama Nomor DPA</td>
-            </tr>
-            <tr>
-                <td>Tahun Anggaran</td>
-                <td>:</td>
-                <td><?php echo $tahun_anggaran ?></td>
+                <td><?php echo $kode_sub_kegiatan . '  ' . $nama_sub_kegiatan ?></td>
             </tr>
         </tbody>
     </table>
-</div> -->
+</div>
 
 <!-- table -->
 <div style="padding: 15px;margin:0 0 3rem 0;">
-    <h1 class="text-center" style="margin-top: 50px;">Daftar Nota Pencairan Dana</h1>
 
     <!-- Button trigger modal -->
-    <button class="btn btn-primary m-3" onclick="tambah_data_npd()"><i class="dashicons dashicons-plus-alt"></i> Tambah Data</button>
+    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Data</button>
 
-    <table id="table_data_npd">
+    <table id="table_daftar_panjar">
         <thead>
             <tr>
-                <th class="atas kanan bawah kiri text-center" style="width: 6px;">No</th>
-                <th class="atas kanan bawah text-center">Nomor NPD</th>
-                <th class="atas kanan bawah text-center">Uraian</th>
-                <th class="atas kanan bawah text-center">Anggaran</th>
-                <th class="atas kanan bawah text-center">Sisa Anggaran</th>
-                <th class="atas kanan bawah text-center">Pencairan</th>
-                <th class="atas kanan bawah text-center" style="width: 150px;">Aksi</th>
+                <th class="atas kanan bawah kiri text-center">Nomor NPD</th>
+                <th class="atas kanan bawah text-center">Jenis NPD</th>
+                <th class="atas kanan bawah text-center">PPTK</th>
+                <th class="atas kanan bawah text-center">Total Pencairan</th>
+                <th class="atas kanan bawah text-center" style="width: 12em;">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -129,106 +116,91 @@ if ($data_rfk) {
         <tfoot>
             <tr>
                 <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
-                <td class="kanan bawah text_blok text-right">0</td>
-                <td class="kanan bawah text_blok text-right">0</td>
                 <td class="kanan bawah text_blok text-right">0</td>
                 <td class="kanan bawah"></td>
             </tr>
         </tfoot>
     </table>
 </div>
-<!-- <div style="padding: 15px;margin:0 0 3rem 0;">
-    <table id="table_data_npd">
-        <thead>
-            <tr>
-                <th class="atas kanan bawah kiri text-center" style="width: 6px;">No</th>
-                <th class="atas kanan bawah text-center">Kode Rekening</th>
-                <th class="atas kanan bawah text-center">Uraian</th>
-                <th class="atas kanan bawah text-center">Anggaran</th>
-                <th class="atas kanan bawah text-center">Sisa Anggaran</th>
-                <th class="atas kanan bawah text-center">Pencairan</th>
-                <th class="atas kanan bawah text-center" style="width: 150px;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
-                <td class="kanan bawah text_blok text-right">0</td>
-                <td class="kanan bawah text_blok text-right">0</td>
-                <td class="kanan bawah text_blok text-right">0</td>
-                <td class="kanan bawah"></td>
-            </tr>
-        </tfoot>
-    </table>
-</div> -->
 
 <!-- Modal -->
 <div class="modal fade" id="modal_tambah_data" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Data User Verifikasi RKA</h5>
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Nota Pencairan Dana | Panjar</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <input type="hidden" class="form-control" id="id_user">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" class="form-control" id="username" required>
-                    <small class="form-text text-muted">
-                        Username minimal 5 karakter
-                    </small>
-                </div>
-                <div class="form-group" id="passForm">
-                    <label>Password</label>
-                    <input type="password" class="form-control" id="password">
-                    <input type="checkbox" onclick="pass_visibility()" style="margin-right: 2px;"> Lihat Password
-                    <small class="form-text text-muted">
-                        Password minimal 8 karakter, mengandung huruf, angka, dan karakter unik
-                    </small>
-                </div>
-                <div class="form-group" id="checkbox_edit_pass">
-                    <input type="checkbox" id="edit_pass" onclick="edit_pass_visibility()" style="margin-right: 2px;" checked> Edit Password
-                </div>
-                <div class="form-group">
-                    <label>Nama</label>
-                    <input type="text" class="form-control" id="nama" required>
-                </div>
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label>Nomor WA</label>
-                    <input type="text" class="form-control" id="nomorwa" required>
-                    <small class="form-text text-muted">
-                        Nomor WhatsApp harus dimulai dengan +62 dan berisi maksimal 15 angka.
-                    </small>
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select class="form-control" id="role" required>
-                        <option value="">Pilih role user</option>
-                        <?php echo implode('', $options_role); ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nama Bidang atau SKPD</label>
-                    <input type="text" class="form-control" id="nama_bidang_skpd" required>
-                </div>
-                <div class="form-group">
-                    <label>Fokus uraian yang verifikasi</label>
-                    <textarea class="form-control" id="fokus_uraian" required value=""></textarea>
-                    <small class="form-text text-muted">Diinput bisa lebih dari satu, dipisah dengan tanda garis lurus berspasi ( | )</small>
-                </div>
+                <form id="tambah-panjar">
+                    <div class="form-group">
+                        <label>Nomor Nota Pencairan Dana | Panjar</label>
+                        <input type="text" class="form-control" id="nomor_npd" name="nomor_npd" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="d-block">Jenis Nota Pencairan Dana</label>
+                        <input type="radio" class="ml-2" id="set_panjar" name="set_panjar" value="dengan_panjar">
+                        <label for="set_panjar">Panjar</label>
+                        <input type="radio" id="set_no_panjar" name="set_panjar" value="tanpa_panjar">
+                        <label for="set_no_panjar">Tanpa Panjar</label>
+                    </div>
+                    <div class="form-group">
+                        <label>PPTK</label>
+                        <select class="form-control" id="set_pptk" name="set_pptk" required>
+                            <option value="">Pilih PPTK</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor DPA</label>
+                        <input type="text" class="form-control" id="nomor_dpa" name="nomor_dpa" required>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_data(this)">Simpan</button>
+                <button type="button" class="btn btn-primary submitBtn" onclick="submit_data(this)">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Rekening-->
+<div class="modal fade" id="modal_tambah_rekening" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Rekening</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="tambah-panjar">
+                    <div class="form-group">
+                        <label>Nomor Nota Pencairan Dana | Panjar</label>
+                        <input type="text" class="form-control" id="nomor_npd" name="nomor_npd" disabled required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pilih Rekening</label>
+                        <select class="form-control input_select_2" id="rekening_akun" name="rekening_akun" required>
+                            <option value="">Pilih Rekening</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sisa Anggaran</label>
+                        <input type="number" class="form-control" id="sisa_anggaran" name="sisa_anggaran" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Pencairan</label>
+                        <input type="number" class="form-control" id="total_pencairan" name="total_pencairan" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="submit_data_rekening(this)">Simpan</button>
             </div>
         </div>
     </div>
@@ -236,7 +208,7 @@ if ($data_rfk) {
 
 <script>
     jQuery(document).ready(function() {
-        // load_data();
+        load_data();
     });
 
     function pass_visibility() {
@@ -259,7 +231,82 @@ if ($data_rfk) {
     }
 
     function tambah_data_npd() {
-        console.log("hei..")
+        jQuery('#wrap-loading').show();
+        get_pptk()
+            .then(function(){
+                // get_data_akun_rka_per_sub_keg()
+                // .then(function(){
+                    jQuery('#modal_tambah_data').modal('show');
+                    jQuery("#modal_tambah_data .modal-title").html("Tambah Nota Pencairan Dana | Panjar");
+                    jQuery("#modal_tambah_data .submitBtn")
+                        .attr("onclick", `submit_data()`)
+                        .attr("disabled", false)
+                        .text("Simpan");
+                    jQuery('#wrap-loading').hide();
+                // })
+            })
+    }
+
+    function tambah_rekening() {
+        jQuery('#wrap-loading').show();
+        jQuery('#modal_tambah_rekening').modal('show');
+        jQuery('#wrap-loading').hide();
+    }
+
+    function get_pptk() {
+        return new Promise(function(resolve, reject){
+            if(typeof dataPptk == 'undefined'){
+                jQuery.ajax({
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    type: "post",
+                    data: {
+                        "action": "get_sub_keg_pptk",
+                        "api_key": '<?php echo $api_key; ?>',
+                        "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+                        "id_skpd": <?php echo $id_sub_skpd; ?>,
+                        "kode_sbl": "<?php echo $kode_sbl; ?>",
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        // menampilkan popup
+                        if (data.status == 'success') {
+                            window.dataPptk = data;
+                            jQuery('#set_pptk').html(data.user_pptk_html);
+                            jQuery('#set_pptk').select2({width: '100%'});
+                            resolve()
+                        }
+                    }
+                });
+            }else{
+                jQuery('#set_pptk').html(dataPptk.user_pptk_html);
+                jQuery('#set_pptk').select2({width: '100%'});
+                resolve()
+            }
+        });
+    }
+
+    function get_data_akun_rka_per_sub_keg() {
+        return new Promise(function(resolve, reject){
+            jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: "post",
+				data: {
+					"action": "get_rka_sub_keg_akun",
+					"api_key": '<?php echo $api_key; ?>',
+					"tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+					"kode_sbl": "<?php echo $kode_sbl; ?>",
+				},
+				dataType: "json",
+				success: function(data) {
+					// menampilkan popup
+					if (data.status == 'success') {
+						jQuery('#rekening_akun').html(data.data_akun_html);
+                        jQuery('#rekening_akun').select2({width: '100%'});
+                        resolve()
+					}
+				}
+			});
+        });
     }
 
     function load_data() {
@@ -268,7 +315,7 @@ if ($data_rfk) {
 			url: '<?php echo admin_url('admin-ajax.php'); ?>',
 			data: {
                 api_key: '<?php echo $api_key; ?>',
-                action: 'get_data_nota_pencairan_dana',
+                action: 'get_daftar_panjar',
                 kode_sbl: '<?php echo $kode_sbl; ?>',
                 tahun_anggaran: <?php echo $tahun_anggaran; ?>,
             },
@@ -276,7 +323,7 @@ if ($data_rfk) {
 				jQuery('#wrap-loading').hide();
 				const response = JSON.parse(data);
 				if (response.status === 'success') {
-					jQuery('#table_data_npd > tbody').html(response.html);
+					jQuery('#table_daftar_panjar > tbody').html(response.html);
 				} else {
 					alert('Error: ' + response.message);
 				}
@@ -287,59 +334,49 @@ if ($data_rfk) {
 
 
     function submit_data(that) {
-        jQuery('#wrap-loading').show();
-        const username = jQuery('#username').val();
-        const password = jQuery('#password').val();
-        const nama = jQuery('#nama').val();
-        const email = jQuery('#email').val();
-        const nomorwa = jQuery('#nomorwa').val();
-        const role = jQuery('#role').val();
-        const namaBidang = jQuery('#nama_bidang_skpd').val();
-        const fokusUraian = jQuery('#fokus_uraian').val();
-        const id_user = jQuery('#id_user').val();
-        
-        jQuery.ajax({
-            type: 'POST',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            data: {
-                api_key: '<?php echo $api_key; ?>',
-                username: username,
-                password: password,
-                nama: nama,
-                email: email,
-                role: role,
-                nomorwa: nomorwa,
-                nama_bidang_skpd: namaBidang,
-                fokus_uraian: fokusUraian,
-                id_user: id_user,
-                action: 'tambah_user_verifikator'
-            },
-            success: function(data) {
-                jQuery('#wrap-loading').hide();
-                const response = JSON.parse(data);
-                if (response.status === 'success') {
-                    alert(response.message);
-                    jQuery('#modal_tambah_data').modal('hide');
-                    load_data();
-                } else {
-                    alert('Error: ' + response.message);
+        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#tambah-panjar"));
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: "post",
+                dataType: 'json',
+                data: {
+                    action: 'tambah_data_panjar',
+                    api_key: '<?php echo $api_key; ?>',
+                    kode_sbl: '<?php echo $kode_sbl; ?>',
+                    tahun_anggaran: <?php echo $tahun_anggaran; ?>,
+                    data: JSON.stringify(form)
+                    
+                },
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    console.log(response);
+                    if (response.status == 'success') {
+                        alert(response.message);
+                        jQuery('#modal_tambah_data').modal('hide');
+                        load_data();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-            }
-        });
+            });
+          
+        }
     }
 
     function delete_data(id) {
-        let confirmDelete = confirm("Apakah anda yakin akan menghapus user ini?");
+        let confirmDelete = confirm("Apakah anda yakin akan menghapus data ini?");
         if (confirmDelete) {
             jQuery('#wrap-loading').show();
             jQuery.ajax({
                 url: '<?php echo admin_url('admin-ajax.php'); ?>',
                 type: 'post',
                 data: {
-                    'action': 'delete_user_verifikator',
+                    'action': 'delete_data_panjar',
                     'api_key':'<?php echo $api_key; ?>',
                     'id': id
                 },
@@ -348,7 +385,7 @@ if ($data_rfk) {
                     jQuery('#wrap-loading').hide();
                     if (response.status == 'success') {
                         load_data();
-                        alert(`User berhasil dihapus!`);
+                        alert(`Data berhasil dihapus!`);
                     } else {
                         alert(`GAGAL! \n${response.message}`);
                     }
@@ -358,36 +395,99 @@ if ($data_rfk) {
     }
 
     function edit_data(id) {
-        jQuery('#wrap-loading').show();
-        jQuery('#id_user').val('');
-        jQuery.ajax({
-            method: 'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'get_user_verifikator_by_id',
-                'api_key': '<?php echo $api_key; ?>',
-                'id': id,
-            },
-            success: function(res) {
-                if (res.status == 'success') {
-                    jQuery('#id_user').val(res.data.id_user);
-                    jQuery('#username').val(res.data.user_login).prop('disabled', false);
-                    jQuery('#password').val(res.data.password).prop('disabled', false);
-                    jQuery('#nama').val(res.data.display_name).prop('disabled', false);
-                    jQuery('#email').val(res.data.user_email).prop('disabled', false);
-                    jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
-                    jQuery('#nama_bidang_skpd').val(res.data.nama_bidang_skpd).prop('disabled', false);
-                    jQuery('#fokus_uraian').val(res.data.fokus_uraian).prop('disabled', false);
-                    jQuery('#role').val(res.data.roles).prop('disabled', false);
-                    jQuery('#edit_pass').prop('disabled', false).show();
-                    jQuery('#checkbox_edit_pass').prop('disabled', false).show();
-                    jQuery('#modal_tambah_data').modal('show');
-                } else {
-                    alert(res.message);
-                }
-                jQuery('#wrap-loading').hide();
-            }
-        });
+        get_pptk()
+            .then(function(){
+                jQuery('#wrap-loading').show();
+                jQuery('#id_user').val('');
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: 'json',
+                    data: {
+                        'action': 'get_nota_panjar_by_id',
+                        'api_key': '<?php echo $api_key; ?>',
+                        'id': id,
+                        'tahun_anggaran': <?php echo $tahun_anggaran; ?>,
+                    },
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            jQuery('#modal_tambah_data').modal('show');
+                            jQuery('#nomor_npd').val(response.data.nomor_npd);
+                            jQuery('#nomor_dpa').val(response.data.nomor_dpa);
+                            jQuery('input[name=set_panjar][value="'+response.data.jenis_panjar+'"]').prop('checked', true);
+
+                            jQuery("#modal_tambah_data .modal-title").html("Edit Nota Pencairan Dana | Panjar");
+                            jQuery("#modal_tambah_data .submitBtn")
+                                .attr("onclick", `submitEdit('${id}')`)
+                                .attr("disabled", false)
+                                .text("Simpan");
+                            // jQuery('select[id="set_pptk"]').val(response.id_label_kokab).trigger('change');
+                        } else {
+                            alert(response.message);
+                        }
+                        jQuery('#wrap-loading').hide();
+                    }
+                });
+            })
     }
+
+    function submitEdit(id) {
+        if(confirm('Apakah anda yakin untuk mengubah data ini?')){
+            jQuery("#wrap-loading").show();
+            let form = getFormData(jQuery("#tambah-panjar"));
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: "post",
+                dataType: 'json',
+                data: {
+                    action: 'edit_data_panjar',
+                    api_key: '<?php echo $api_key; ?>',
+                    id: id,
+                    kode_sbl: '<?php echo $kode_sbl; ?>',
+                    tahun_anggaran: <?php echo $tahun_anggaran; ?>,
+                    data: JSON.stringify(form)
+                    
+                },
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    console.log(response);
+                    if (response.status == 'success') {
+                        alert(response.message);
+                        jQuery('#modal_tambah_data').modal('hide');
+                        load_data();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                }
+            });
+        }
+    }
+
+    function getFormData($form){
+        var disabled = $form.find('[disabled]');
+        disabled.map(function(i, b){
+            jQuery(b).attr('disabled', false);
+        });
+	    let unindexed_array = $form.serializeArray();
+        disabled.map(function(i, b){
+            jQuery(b).attr('disabled', true);
+        });
+        var data = {};
+        unindexed_array.map(function(b, i){
+            var nama_baru = b.name.split('[');
+            if(nama_baru.length > 1){
+                nama_baru = nama_baru[0];
+                if(!data[nama_baru]){
+                    data[nama_baru] = [];
+                }
+                data[nama_baru].push(b.value);
+            }else{
+                data[b.name] = b.value;
+            }
+        })
+        return data;
+	}
 </script>

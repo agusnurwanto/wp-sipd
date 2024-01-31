@@ -456,7 +456,7 @@ foreach ($units as $k => $unit) :
 			$url_panjar = $this->generatePage('Daftar Nota Pencairan Dana | Panjar', $sub['tahun_anggaran'], '[daftar_nota_pencairan_dana_panjar]');
 			$url_panjar .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">Set Panjar</a>',
+				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">Buat Panjar</a>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -948,7 +948,7 @@ if (
 	current_user_can('administrator') ||
 	current_user_can('pptk')
 ){
-	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Set Panjar</label>';	
+	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Buat Panjar</label>';	
 }
 
 ?>
