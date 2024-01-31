@@ -921,6 +921,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_bidang_urusan_analisis',  $plugin_public, 'show_skpd_bidang_urusan_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_sumber_dana_analisis',  $plugin_public, 'show_skpd_sumber_dana_analisis');
 		$this->loader->add_action('wp_ajax_get_rinc_rka_lokal',  $plugin_public, 'get_rinc_rka_lokal');
+		$this->loader->add_action('wp_ajax_get_rinc_rka_lokal_pembiayaan',  $plugin_public, 'get_rinc_rka_lokal_pembiayaan');
 		$this->loader->add_action('wp_ajax_show_skpd_rekening_analisis',  $plugin_public, 'show_skpd_rekening_analisis');
 
 		$this->loader->add_action('wp_ajax_get_pemdes_alamat',  $plugin_public, 'get_pemdes_alamat');
