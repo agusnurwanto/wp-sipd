@@ -6034,3 +6034,17 @@ CREATE TABLE `data_nota_pencairan_dana` (
     `update_at` datetime DEFAULT current_timestamp(),
     PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_rekening_nota_pencairan_dana` (
+  `id` int(11) NOT NULL auto_increment,
+  `nama_rekening` text NOT NULL,
+  `kode_rekening` varchar(50) NOT NULL,
+  `id_rekening` int(11) DEFAULT NULL,
+  `pagu_dana` double(20, 0) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `id_npd` int(11) NOT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);

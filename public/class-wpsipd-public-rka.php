@@ -2066,6 +2066,7 @@ class Wpsipd_Public_RKA
         $ret = array();
         $ret['status'] = 'success';
         $ret['message'] = 'Berhasil get nota panjar by id!';
+        $ret['data'] = array();
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
@@ -2087,14 +2088,25 @@ class Wpsipd_Public_RKA
                     AND active=1
                 ", $_POST['id'], $_POST['tahun_anggaran']), ARRAY_A);
 
-                $ret['last_query'] = $wpdb->last_query;
-                $ret['data_check'] = $data_nota_panjar;
                 if (!empty($data_nota_panjar)) {
                     $data_nota_panjar['jenis_panjar'] = $data_nota_panjar['jenis_panjar'] == 'set_panjar' ? 'dengan_panjar' : 'tanpa_panjar';
                     $ret['data'] = $data_nota_panjar;
                 } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Nota Panjar tidak ditemukan!';
+                }
+
+                $data_rekening_nota_panjar = $wpdb->get_results($wpdb->prepare("
+                    SELECT *
+                    FROM data_rekening_nota_pencairan_dana
+                    WHERE id_npd=%d
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ", $_POST['id'], $_POST['tahun_anggaran']));
+
+                $ret['data']['rekening_npd'] = array();
+                if (!empty($data_rekening_nota_panjar)) {
+                    $ret['data']['rekening_npd'] = $data_rekening_nota_panjar;
                 }
             } else {
                 $ret['status'] = 'error';
@@ -2177,5 +2189,129 @@ class Wpsipd_Public_RKA
             $ret['message'] = 'Format Salah!';
         }
         die(json_encode($ret));
+    }
+
+    function tambah_data_rekening_panjar($return_callback = false) {
+        global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Tambah rekening data panjar!'
+		);
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }else if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $kode_sbl = $_POST['kode_sbl'];
+                $data = json_decode(stripslashes($_POST['data']), true);
+                if(empty($data['id_npd_rek'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Id User tidak boleh kosong!';
+                }
+
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                foreach ($data['rekening_akun'] as $k_rekening => $v_rekening) {
+                    if($ret['status'] != 'error'){
+                        if(
+                            !isset($data['pagu_rekening'][$k_rekening])
+                            || $data['pagu_rekening'][$k_rekening] == ''
+                        ){
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Pagu Rekening tidak boleh kosong!';
+                        }else if(empty($data['rekening_akun'][$k_rekening])){
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Rekening tidak boleh kosong!';
+                        }
+                    }
+                }
+
+                if($ret['status'] != 'error'){
+                    //insert  rekening
+                    $wpdb->update('data_rekening_nota_pencairan_dana', array('active' => 0), array(
+                        'kode_sbl' => $kode_sbl,
+                        'tahun_anggaran' => $tahun_anggaran,
+                        'id_npd' => $data['id_npd_rek']
+                    ));
+                    foreach ($data['rekening_akun'] as $k_rek_akun => $v_rek_akun) {
+                        $data_akun = $wpdb->get_row($wpdb->prepare('
+                            SELECT 
+                                *
+                            FROM data_akun
+                            WHERE kode_akun=%s
+                                AND tahun_anggaran=%d
+                                AND active=1
+                        ', $data['rekening_akun'][$k_rek_akun], $tahun_anggaran));
+
+                        if(!empty($data_akun)){
+                            $cek_ids = $wpdb->get_results($wpdb->prepare('
+                                SELECT 
+                                    id
+                                FROM data_rekening_nota_pencairan_dana
+                                WHERE kode_sbl=%s
+                                    AND id_npd=%d
+                                    AND tahun_anggaran=%d
+                                    AND active=1
+                            ', $kode_sbl, $data['id_npd_rek'][$k_rek_akun],$tahun_anggaran), ARRAY_A);
+
+                            $opsi_rekening = array(
+                                'nama_rekening' => $data_akun->nama_akun,
+                                'kode_rekening' => $data_akun->kode_akun,
+                                'id_rekening' => $data_akun->id_akun,
+                                'pagu_dana' => $data['pagu_rekening'][$k_rek_akun],
+                                'kode_sbl' => $kode_sbl,
+                                'id_npd' => $data['id_npd_rek'],
+                                'update_at' => current_time('mysql'),
+                                'active' => 1,
+                                'tahun_anggaran' => $tahun_anggaran
+                            );
+
+                            if(
+                                empty($cek_ids)
+                                || empty($cek_ids[$k_rek_akun])
+                            ){
+                                $wpdb->insert('data_rekening_nota_pencairan_dana', $opsi_rekening);
+                                $ret['message'] = 'Berhasil menambahkan rekening data panjar!';
+                            }else{
+                                $wpdb->update('data_rekening_nota_pencairan_dana', $opsi_rekening, array('id' => $cek_ids[$k_rek_akun]['id']));
+                                $ret['message'] = 'Berhasil update rekening data panjar!';
+                            }
+                        }else{
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Data rekening tidak ditemukan!';
+                        }
+                    }
+                }
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        }else{
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        if($return_callback){
+            return $ret;
+        }else{
+            die(json_encode($ret));
+        }
     }
 }

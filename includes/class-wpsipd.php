@@ -956,6 +956,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_data_panjar',  $plugin_public, 'delete_data_panjar');
 		$this->loader->add_action('wp_ajax_get_nota_panjar_by_id',  $plugin_public, 'get_nota_panjar_by_id');
 		$this->loader->add_action('wp_ajax_get_rka_sub_keg_akun',  $plugin_public, 'get_rka_sub_keg_akun');
+		$this->loader->add_action('wp_ajax_tambah_data_rekening_panjar',  $plugin_public, 'tambah_data_rekening_panjar');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
