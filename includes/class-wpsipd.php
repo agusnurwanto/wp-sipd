@@ -989,6 +989,8 @@ class Wpsipd
 		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
 		add_shortcode('laporan_penatausahaan', array($plugin_public, 'laporan_penatausahaan'));
 		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
+		add_shortcode('halaman_spd', array($plugin_public, 'halaman_spd'));
+		add_shortcode('spd', array($plugin_public, 'spd'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
