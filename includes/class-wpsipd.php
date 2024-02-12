@@ -956,12 +956,25 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_data_panjar',  $plugin_public, 'delete_data_panjar');
 		$this->loader->add_action('wp_ajax_get_nota_panjar_by_id',  $plugin_public, 'get_nota_panjar_by_id');
 		$this->loader->add_action('wp_ajax_get_rka_sub_keg_akun',  $plugin_public, 'get_rka_sub_keg_akun');
+		$this->loader->add_action('wp_ajax_tambah_data_rekening_panjar',  $plugin_public, 'tambah_data_rekening_panjar');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
 		$this->loader->add_action('wp_ajax_subgiat_renstra_local_exist',  $plugin_public, 'subgiat_renstra_local_exist');
 		
+		$this->loader->add_action('wp_ajax_get_spd_sipd',  $plugin_public, 'get_spd_sipd');
+		$this->loader->add_action('wp_ajax_get_spp_sipd',  $plugin_public, 'get_spp_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_spd_sipd',  $plugin_public, 'get_spd_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_spp_sipd',  $plugin_public, 'get_spp_sipd');
+
+		$this->loader->add_action('wp_ajax_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
+		$this->loader->add_action('wp_ajax_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
@@ -1072,6 +1085,7 @@ class Wpsipd
 		add_shortcode('rekap_total_prog_keg_renstra', array($plugin_public, 'rekap_total_prog_keg_renstra'));
 		add_shortcode('nota_pencairan_dana_panjar', array($plugin_public, 'nota_pencairan_dana_panjar'));
 		add_shortcode('daftar_nota_pencairan_dana_panjar', array($plugin_public, 'daftar_nota_pencairan_dana_panjar'));
+		add_shortcode('laporan_panjar_npd', array($plugin_public, 'laporan_panjar_npd'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));

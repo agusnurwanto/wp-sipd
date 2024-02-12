@@ -49,6 +49,11 @@ if ($data_rfk) {
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
+
+$title = 'Laporan Panjar | Nota Pencairan Dana | ' . $tahun_anggaran;
+$shortcode = '[laporan_panjar_npd tahun_anggaran="'. $tahun_anggaran .'"] ';
+$url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
 ?>
 <style>
     .modal-content label:after {
@@ -99,7 +104,7 @@ if ($data_rfk) {
 <div style="padding: 15px;margin:0 0 3rem 0;">
 
     <!-- Button trigger modal -->
-    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Data</button>
+    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
 
     <table id="table_daftar_panjar">
         <thead>
@@ -177,30 +182,69 @@ if ($data_rfk) {
                 </button>
             </div>
             <div class="modal-body">
-                <form id="tambah-panjar">
+                <form id="tambah-rekening">
+                    <input type="number" class="form-control" id="id_npd_rek" name="id_npd_rek" hidden required>
                     <div class="form-group">
                         <label>Nomor Nota Pencairan Dana | Panjar</label>
-                        <input type="text" class="form-control" id="nomor_npd" name="nomor_npd" disabled required>
+                        <input type="text" class="form-control" id="nomor_npd_rek" name="nomor_npd_rek" required>
                     </div>
                     <div class="form-group">
                         <label>Pilih Rekening</label>
-                        <select class="form-control input_select_2" id="rekening_akun" name="rekening_akun" required>
-                            <option value="">Pilih Rekening</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Sisa Anggaran</label>
-                        <input type="number" class="form-control" id="sisa_anggaran" name="sisa_anggaran" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Pencairan</label>
-                        <input type="number" class="form-control" id="total_pencairan" name="total_pencairan" required>
+                        <table id="input_rekening" class="input_rekening" style="margin: 0;">
+                            <tr data-id="1">
+                                <td style="width: 60%; max-width:100px;">
+                                    <select class="form-control input_select_2 rekening_akun" id="rekening_akun_1" name="rekening_akun[1]">
+                                        <option value="">Pilih Rekening</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control input_number" id="pagu_rekening_1" type="number" name="pagu_rekening[1]"/>
+                                </td>
+                                <td style="width: 70px" class="text-center detail_tambah">
+                                    <button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_data_rekening(this)">Simpan</button>
+                <button type="button" class="btn btn-primary submitBtn" onclick="submit_data_rekening(this)">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Print Laporan-->
+<div class="modal fade" id="modal_print_laporan" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Laporan Panjar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="tambah-rekening">
+                    <input type="number" class="form-control" id="id_npd_print" name="id_npd_print" hidden required>
+                    <div class="form-group">
+                        <label>Nomor Nota Pencairan Dana | Panjar</label>
+                        <input type="text" class="form-control" id="nomor_npd_print" name="nomor_npd_print" disabled required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Laporan</label>
+                        <select class="form-control" name="jenis_laporan" id="jenis_laporan">
+                            <option value="">Pilih Jenis Laporan</option>
+                            <option value="npd">Format Nota Pencairan Dana</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary submitBtn" onclick="print_preview(this)">Preview</button>
             </div>
         </div>
     </div>
@@ -234,23 +278,138 @@ if ($data_rfk) {
         jQuery('#wrap-loading').show();
         get_pptk()
             .then(function(){
-                // get_data_akun_rka_per_sub_keg()
-                // .then(function(){
-                    jQuery('#modal_tambah_data').modal('show');
-                    jQuery("#modal_tambah_data .modal-title").html("Tambah Nota Pencairan Dana | Panjar");
-                    jQuery("#modal_tambah_data .submitBtn")
-                        .attr("onclick", `submit_data()`)
-                        .attr("disabled", false)
-                        .text("Simpan");
-                    jQuery('#wrap-loading').hide();
-                // })
+                jQuery('#modal_tambah_data').modal('show');
+                jQuery("#modal_tambah_data .modal-title").html("Tambah Nota Pencairan Dana | Panjar");
+                jQuery("#modal_tambah_data .submitBtn")
+                    .attr("onclick", `submit_data()`)
+                    .attr("disabled", false)
+                    .text("Simpan");
+                jQuery('#wrap-loading').hide();
             })
     }
 
-    function tambah_rekening() {
-        jQuery('#wrap-loading').show();
-        jQuery('#modal_tambah_rekening').modal('show');
-        jQuery('#wrap-loading').hide();
+    function tambah_rekening(id) {
+        get_data_akun_rka_per_sub_keg()
+            .then(function(){
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: 'json',
+                    data: {
+                        'action': 'get_nota_panjar_by_id',
+                        'api_key': '<?php echo $api_key; ?>',
+                        'id': id,
+                        'tahun_anggaran': <?php echo $tahun_anggaran; ?>,
+                    },
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            jQuery('#modal_tambah_rekening').modal('show');
+                            jQuery('#id_npd_rek').val(id);
+                            jQuery('#nomor_npd_rek').val(response.data.nomor_npd);
+                            jQuery('#nomor_npd_rek').prop('disabled', true);
+
+                            /** Start */
+                            response.data.rekening_npd.map(function(value, index){
+                                let id = index+1;
+                                new Promise(function(resolve, reject){
+                                    if(id > 1){
+                                        tambahRekening()
+                                        .then(function(){
+                                            resolve(value);
+                                        })
+                                    }else{
+                                        resolve(value);
+                                    }
+                                })
+                                .then(function(value){
+                                    jQuery("#rekening_akun_"+id).val(value.kode_rekening).trigger('change');
+                                    jQuery("#pagu_rekening_"+id).val(value.pagu_dana);
+                                });
+                            })
+                            /** End */
+
+                            jQuery("#modal_tambah_rekening .modal-title").html("Tambah Rekening Nota Pencairan Dana | Panjar");
+                            jQuery("#modal_tambah_rekening .submitBtn")
+                                .attr("onclick", `submit_data_rekening('${id}')`)
+                                .attr("disabled", false)
+                                .text("Simpan");
+                        } else {
+                            alert(response.message);
+                        }
+                        jQuery('#wrap-loading').hide();
+                    }
+                });
+            });
+    }
+
+    function tambahRekening(){
+        return new Promise(function(resolve, reject){
+            var id = +jQuery('.input_rekening > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNew = jQuery('.input_rekening > tbody tr').last().html();
+            trNew = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNew
+                +'</tr>';
+            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
+            var tbody = jQuery('.input_rekening > tbody');
+            tbody.append(trNew);
+            jQuery('.input_rekening > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_rekening > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            var tr = tbody.find('>tr');
+            var length = tr.length-1;
+            tr.map(function(i, b){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            });
+            resolve();
+        });
+    }
+
+    function submit_data_rekening() {
+        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#tambah-rekening"));
+            if(typeof form.id_user_rek == undefined || form.id_user_rek == ''){
+                alert("Submit gagal, harap refresh halaman!");
+                return false;
+            }
+
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: "post",
+                dataType: 'json',
+                data: {
+                    action: 'tambah_data_rekening_panjar',
+                    api_key: '<?php echo $api_key; ?>',
+                    kode_sbl: '<?php echo $kode_sbl; ?>',
+                    tahun_anggaran: <?php echo $tahun_anggaran; ?>,
+                    data: JSON.stringify(form)
+                    
+                },
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    console.log(response);
+                    if (response.status == 'success') {
+                        alert(response.message);
+                        jQuery('#modal_tambah_rekening').modal('hide');
+                        load_data();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                }
+            });
+          
+        }
     }
 
     function get_pptk() {
@@ -287,25 +446,32 @@ if ($data_rfk) {
 
     function get_data_akun_rka_per_sub_keg() {
         return new Promise(function(resolve, reject){
-            jQuery.ajax({
-				url: "<?php echo admin_url('admin-ajax.php'); ?>",
-				type: "post",
-				data: {
-					"action": "get_rka_sub_keg_akun",
-					"api_key": '<?php echo $api_key; ?>',
-					"tahun_anggaran": <?php echo $tahun_anggaran; ?>,
-					"kode_sbl": "<?php echo $kode_sbl; ?>",
-				},
-				dataType: "json",
-				success: function(data) {
-					// menampilkan popup
-					if (data.status == 'success') {
-						jQuery('#rekening_akun').html(data.data_akun_html);
-                        jQuery('#rekening_akun').select2({width: '100%'});
-                        resolve()
-					}
-				}
-			});
+            if(typeof dataRekening == 'undefined'){
+                jQuery.ajax({
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    type: "post",
+                    data: {
+                        "action": "get_rka_sub_keg_akun",
+                        "api_key": '<?php echo $api_key; ?>',
+                        "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+                        "kode_sbl": "<?php echo $kode_sbl; ?>",
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        window.dataRekening = data;
+                        // menampilkan popup
+                        if (data.status == 'success') {
+                            jQuery('.rekening_akun').html(data.data_akun_html);
+                            jQuery('.rekening_akun').select2({width: '100%'});
+                            resolve()
+                        }
+                    }
+                });
+            }else{
+                jQuery('#rekening_akun').html(dataRekening.data_akun_html);
+                jQuery('#rekening_akun').select2({width: '100%'});
+                resolve()
+            }
         });
     }
 
@@ -331,7 +497,6 @@ if ($data_rfk) {
 
 		});
     }
-
 
     function submit_data(that) {
         if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
@@ -398,7 +563,6 @@ if ($data_rfk) {
         get_pptk()
             .then(function(){
                 jQuery('#wrap-loading').show();
-                jQuery('#id_user').val('');
                 jQuery.ajax({
                     method: 'post',
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -421,7 +585,7 @@ if ($data_rfk) {
                                 .attr("onclick", `submitEdit('${id}')`)
                                 .attr("disabled", false)
                                 .text("Simpan");
-                            // jQuery('select[id="set_pptk"]').val(response.id_label_kokab).trigger('change');
+                            jQuery('select[id="set_pptk"]').val(response.data.id_user_pptk).trigger('change');
                         } else {
                             alert(response.message);
                         }
@@ -464,6 +628,35 @@ if ($data_rfk) {
                 }
             });
         }
+    }
+
+    function print(id) {
+        jQuery('#modal_print_laporan').modal('show');
+        jQuery('#id_npd_print').val(id);
+        let nomor_npd = jQuery('.id-npd-'+id).html();
+        jQuery('#nomor_npd_print').val(nomor_npd);
+    }
+
+    function print_preview(that) {
+        let id_npd = jQuery('#id_npd_print').val();
+        let jenis = jQuery('#jenis_laporan').val();
+        if(id_npd == "" || id_npd == undefined){
+            alert('Ada yang salah saat print preview, Harap refresh halaman!')
+            jQuery('#modal_print_laporan').modal('hide');
+            return;
+        }
+
+        switch (jenis) {
+            case 'npd':
+                window.open('<?php echo $url_laporan_panjar_npd; ?>'+'&id_npd='+id_npd,'_blank');
+                break;
+        
+            default:
+                alert('Jenis Laporan belum dipilih');
+                break;
+        }
+
+
     }
 
     function getFormData($form){
