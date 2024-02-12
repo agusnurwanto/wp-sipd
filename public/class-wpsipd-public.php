@@ -12436,7 +12436,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		$ret = array(
 			'status'  => 'success',
-			'message' => 'Berhasil Get pendapatan SIPD!',
+			'message' => 'Berhasil Get Pendapatan SIPD!',
 		);
 
 		if (!empty($_POST)) {
@@ -12451,9 +12451,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							* 
 						FROM data_pendapatan 
 						WHERE tahun_anggaran = %d 
-						  AND id_skpd = %s 
-						  AND active = 1
-						  ",  $tahun_anggaran, $id_skpd),
+							AND id_skpd = %s 
+							AND active = 1
+							",  $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
 
@@ -12477,7 +12477,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
-
 
 	public function get_spd_sipd()
 	{
@@ -12545,6 +12544,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT 
 								*
 							FROM data_spp_sipd
+							INNER JOIN data_spp_sipd_detail
+							ON data_spp_sipd.idSkpd = data_spp_sipd_detail.id_skpd
 							WHERE tahun_anggaran = %d 
 							AND idSkpd = %s
 							AND active = 1
@@ -12583,31 +12584,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				if (!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd'])) {
-					$id_skpd    	= $_POST['id_skpd'];
-					$tahun_anggaran = $_POST['tahun_anggaran'];
-
-					$rak_results = $wpdb->get_results(
-						$wpdb->prepare("
-							SELECT 
-								*
-							FROM data_anggaran_kas
-							WHERE tahun_anggaran = %d 
-							AND id_sub_skpd = %s
-							AND active = 1
-						", $tahun_anggaran, $id_skpd),
-						ARRAY_A
-					);
-
-					if (!empty($rak_results)) {
-						$ret['data'] = $rak_results;
-					} else {
-						$ret['status'] = 'error';
-						$ret['message'] = 'Tidak ada data RAK ditemukan!';
-					}
+				if (!empty($_POST['id_skpd'])) {
+					$id_skpd = $_POST['id_skpd'];
 				} else {
 					$ret['status'] = 'error';
-					$ret['message'] = 'Id SKPD dan Tahun anggaran tidak boleh kosong!';
+					$ret['message'] = 'ID SKPD tidak boleh kosong!';
+				}
+				if (!empty($_POST['tahun_anggaran'])) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong!';
+				}
+				if (!empty($_POST['type'])) {
+					$type = $_POST['type'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tipe tidak boleh kosong!';
+				}
+
+				$rak_results = $wpdb->get_results(
+					$wpdb->prepare("
+					SELECT 
+						*
+					FROM data_anggaran_kas
+					WHERE tahun_anggaran = %d 
+					AND id_sub_skpd = %s
+					AND type = %s
+					AND active = 1
+					", $tahun_anggaran, $id_skpd, $type),
+					ARRAY_A
+				);
+
+				if (!empty($rak_results)) {
+					$ret['data'] = $rak_results;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tidak ada data RAK ditemukan!';
 				}
 			} else {
 				$ret['status'] = 'error';

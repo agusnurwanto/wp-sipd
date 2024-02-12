@@ -829,21 +829,20 @@
         <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
             <a>Get RKA</a>
         </li>
-        <li class="scroll-to-link" data-target="content-get-spd-by-tahun-anggaran">
-            <a>Get SPD</a>
-        </li>
-        <li class="scroll-to-link" data-target="content-get-spp-by-tahun-anggaran">
-            <a>Get SPP</a>
-        </li>
         <li class="scroll-to-link" data-target="content-get-pembiayaan-by-tahun-anggaran">
             <a>Get Pembiayaan</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-pendapatan-by-tahun-anggaran">
             <a>Get Pendapatan</a>
         </li>
-        </li>
         <li class="scroll-to-link" data-target="content-get-rak-by-tahun-anggaran">
             <a>Get RAK</a>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-spd-by-tahun-anggaran">
+            <a>Get SPD</a>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-spp-by-tahun-anggaran">
+            <a>Get SPP</a>
         </li>
         <li class="scroll-to-link" data-target="content-errors">
             <a>Errors</a>
@@ -1504,295 +1503,6 @@ Result :
                 </code>
             </pre>
         </div>
-        <div class="overflow-hidden content-section" id="content-get-spd-by-tahun-anggaran">
-            <h2>GET SPD berdasarkan SKPD dan Tahun Anggaran</h2>
-            <pre>
-                <code class="bash">
-# Here is a curl example
-curl \
--X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
--F 'api_key=<?php echo $key; ?>' \
--F 'action=get_spd_sipd' \
--F 'tahun_anggaran=2023' \
--F 'id_skpd=101' \
-                </code>
-            </pre>
-            <p>
-                Untuk menampilkan semua data SPD berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
-                <code class="higlighted break-word">
-                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
-                </code>
-            <h4>QUERY PARAMETERS</h4>
-            <table class="central-overflow-x" style="width:40%">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Type</th>
-                        <th>Keterangan</th>
-                        <th>Dibutuhkan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <span style="font-family:Consolas">
-                                api_key
-                            </span>
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Kunci API yang telah ditambahkan dan diaktifkan
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            action
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            id_skpd
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan pencarian
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            tahun_anggaran
-                        </td>
-                        <td>
-                            Angka
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan pencarian
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </p>
-            <pre>
-                <code class="json">
-Result :
-{
-    "action": "get_spd_sipd",
-    "status": "success",
-    "message": "Berhasil Get SPD SIPD!",
-    "data": [
-        {
-            "idSpd": "1",
-            "nomorSpd": "SPD001",
-            "keteranganSpd": "Perjalanan Dinas 1",
-            "ketentuanLainnya": "Ketentuan 1",
-            "id_skpd": "101",
-            "totalSpd": "1500",
-            "active": "1",
-            "created_at": "2024-02-07 10:30:00",
-            "tahun_anggaran": "2024"
-        },
-    ]
-}
-                </code>
-            </pre>
-        </div>
-        <div class="overflow-hidden content-section" id="content-get-spp-by-tahun-anggaran">
-            <h2>GET SPP berdasarkan SKPD dan Tahun Anggaran</h2>
-            <pre>
-                <code class="bash">
-# Here is a curl example
-curl \
--X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
--F 'api_key=<?php echo $key; ?>' \
--F 'action=get_spp_sipd' \
--F 'tahun_anggaran=2023' \
--F 'id_skpd=201' \
-                </code>
-            </pre>
-            <p>
-                Untuk menampilkan semua data SPP berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
-                <code class="higlighted break-word">
-                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
-                </code>
-            <h4>QUERY PARAMETERS</h4>
-            <table class="central-overflow-x" style="width:40%">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Type</th>
-                        <th>Keterangan</th>
-                        <th>Dibutuhkan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <span style="font-family:Consolas">
-                                api_key
-                            </span>
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Kunci API yang telah ditambahkan dan diaktifkan
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            action
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            id_skpd
-                        </td>
-                        <td>
-                            String
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan pencarian
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            tahun_anggaran
-                        </td>
-                        <td>
-                            Angka
-                        </td>
-                        <td>
-                            Bidang spesifik yang akan dilakukan pencarian
-                        </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">
-                                Dibutuhkan
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </p>
-            <pre>
-                <code class="json">
-Result :
-{
-    "action": "get_spp_sipd",
-    "status": "success",
-    "message": "Berhasil Get SPP SIPD!",
-    "data": [
-        {
-            "id": "1",
-            "nomorSpp": "SPP001",
-            "nilaiSpp": "5000",
-            "tanggalSpp": "2024-02-07",
-            "keteranganSpp": "Pembayaran 1",
-            "idSkpd": "201",
-            "idSubUnit": "301",
-            "nilaiDisetujuiSpp": "4800",
-            "tanggalDisetujuiSpp": "2024-02-08",
-            "jenisSpp": "LS",
-            "verifikasiSpp": "1",
-            "keteranganVerifikasi": "Terverifikasi",
-            "idSpd": "1",
-            "idPengesahanSpj": "101",
-            "kunciRekening": "0",
-            "alamatPenerimaSpp": "Alamat Penerima 1",
-            "bankPenerimaSpp": "Bank Penerima 1",
-            "nomorRekeningPenerimaSpp": "1234567890",
-            "npwpPenerimaSpp": "NPWP123456789",
-            "idUser": "1",
-            "jenisLs": "Jenis LS 1",
-            "isUploaded": "1",
-            "tahunSpp": "2024",
-            "idKontrak": "301",
-            "idBA": "401",
-            "created_at": "2024-02-07 10:30:00",
-            "updated_at": "2024-02-07 10:30:00",
-            "isSpm": "0",
-            "statusPerubahan": "0",
-            "isDraft": "1",
-            "idSpp": "1",
-            "kodeDaerah": "Kode Daerah 1",
-            "idDaerah": "501",
-            "isGaji": "0",
-            "is_sptjm": "0",
-            "tanggal_otorisasi": "2024-02-07 10:30:00",
-            "is_otorisasi": "0",
-            "bulan_gaji": "Bulan Gaji 1",
-            "id_pegawai_pptk": "701",
-            "nama_pegawai_pptk": "Nama PPTK 1",
-            "nip_pegawai_pptk": "NIP PPTK 1",
-            "id_jadwal": "801",
-            "id_tahap": "901",
-            "status_tahap": "Status Tahap 1",
-            "kode_tahap": "Kode Tahap 1",
-            "is_tpp": "1",
-            "bulan_tpp": "2",
-            "id_pengajuan_tu": "1001",
-            "nomor_pengajuan_tu": "Nomor Pengajuan TU 1",
-            "id_npd": "1101",
-            "tipe": "Tipe 1",
-            "active": "1",
-            "update_at": "2024-02-07 10:30:00",
-            "tahun_anggaran": "2024"
-        },
-    ]
-}
-                </code>
-            </pre>
-        </div>
         <div class="overflow-hidden content-section" id="content-get-pembiayaan-by-tahun-anggaran">
             <h2>GET Pembiayaan berdasarkan SKPD dan Tahun Anggaran</h2>
             <pre>
@@ -2228,6 +1938,295 @@ Result :
             "type":"belanja",
             "tahun_anggaran":"2023",
             "updated_at":"2023-01-24 17:32:14"
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-spd-by-tahun-anggaran">
+            <h2>GET SPD berdasarkan SKPD dan Tahun Anggaran</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_spd_sipd' \
+-F 'tahun_anggaran=2024' \
+-F 'id_skpd=101' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data SPD berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            id_skpd
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_spd_sipd",
+    "status": "success",
+    "message": "Berhasil Get SPD SIPD!",
+    "data": [
+        {
+            "idSpd": "1",
+            "nomorSpd": "SPD001",
+            "keteranganSpd": "Perjalanan Dinas 1",
+            "ketentuanLainnya": "Ketentuan 1",
+            "id_skpd": "101",
+            "totalSpd": "1500",
+            "active": "1",
+            "created_at": "2024-02-07 10:30:00",
+            "tahun_anggaran": "2024"
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-spp-by-tahun-anggaran">
+            <h2>GET SPP berdasarkan SKPD dan Tahun Anggaran</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_spp_sipd' \
+-F 'tahun_anggaran=2024' \
+-F 'id_skpd=201' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data SPP berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            id_skpd
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_spp_sipd",
+    "status": "success",
+    "message": "Berhasil Get SPP SIPD!",
+    "data": [
+        {
+            "id": "1",
+            "nomorSpp": "SPP001",
+            "nilaiSpp": "5000",
+            "tanggalSpp": "2024-02-07",
+            "keteranganSpp": "Pembayaran 1",
+            "idSkpd": "201",
+            "idSubUnit": "301",
+            "nilaiDisetujuiSpp": "4800",
+            "tanggalDisetujuiSpp": "2024-02-08",
+            "jenisSpp": "LS",
+            "verifikasiSpp": "1",
+            "keteranganVerifikasi": "Terverifikasi",
+            "idSpd": "1",
+            "idPengesahanSpj": "101",
+            "kunciRekening": "0",
+            "alamatPenerimaSpp": "Alamat Penerima 1",
+            "bankPenerimaSpp": "Bank Penerima 1",
+            "nomorRekeningPenerimaSpp": "1234567890",
+            "npwpPenerimaSpp": "NPWP123456789",
+            "idUser": "1",
+            "jenisLs": "Jenis LS 1",
+            "isUploaded": "1",
+            "tahunSpp": "2024",
+            "idKontrak": "301",
+            "idBA": "401",
+            "created_at": "2024-02-07 10:30:00",
+            "updated_at": "2024-02-07 10:30:00",
+            "isSpm": "0",
+            "statusPerubahan": "0",
+            "isDraft": "1",
+            "idSpp": "1",
+            "kodeDaerah": "Kode Daerah 1",
+            "idDaerah": "501",
+            "isGaji": "0",
+            "is_sptjm": "0",
+            "tanggal_otorisasi": "2024-02-07 10:30:00",
+            "is_otorisasi": "0",
+            "bulan_gaji": "Bulan Gaji 1",
+            "id_pegawai_pptk": "701",
+            "nama_pegawai_pptk": "Nama PPTK 1",
+            "nip_pegawai_pptk": "NIP PPTK 1",
+            "id_jadwal": "801",
+            "id_tahap": "901",
+            "status_tahap": "Status Tahap 1",
+            "kode_tahap": "Kode Tahap 1",
+            "is_tpp": "1",
+            "bulan_tpp": "2",
+            "id_pengajuan_tu": "1001",
+            "nomor_pengajuan_tu": "Nomor Pengajuan TU 1",
+            "id_npd": "1101",
+            "tipe": "Tipe 1",
+            "active": "1",
+            "update_at": "2024-02-07 10:30:00",
+            "tahun_anggaran": "2024"
         },
     ]
 }
