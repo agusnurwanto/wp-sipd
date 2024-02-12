@@ -841,6 +841,10 @@
         <li class="scroll-to-link" data-target="content-get-pendapatan-by-tahun-anggaran">
             <a>Get Pendapatan</a>
         </li>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-rak-by-tahun-anggaran">
+            <a>Get RAK</a>
+        </li>
         <li class="scroll-to-link" data-target="content-errors">
             <a>Errors</a>
         </li>
@@ -1607,15 +1611,15 @@ Result :
     "message": "Berhasil Get SPD SIPD!",
     "data": [
         {
-        "idSpd": "1",
-        "nomorSpd": "SPD001",
-        "keteranganSpd": "Perjalanan Dinas 1",
-        "ketentuanLainnya": "Ketentuan 1",
-        "id_skpd": "101",
-        "totalSpd": "1500",
-        "active": "1",
-        "created_at": "2024-02-07 10:30:00",
-        "tahun_anggaran": "2024"
+            "idSpd": "1",
+            "nomorSpd": "SPD001",
+            "keteranganSpd": "Perjalanan Dinas 1",
+            "ketentuanLainnya": "Ketentuan 1",
+            "id_skpd": "101",
+            "totalSpd": "1500",
+            "active": "1",
+            "created_at": "2024-02-07 10:30:00",
+            "tahun_anggaran": "2024"
         },
     ]
 }
@@ -1896,41 +1900,41 @@ Result :
     "message": "Berhasil Get Pembiayaan SIPD!",
     "data": [
         {
-        "id": "1",
-        "created_user": "23537",
-        "createddate": "24-11-2020",
-        "createdtime": "14:42",
-        "id_pembiayaan": "1014",
-        "keterangan": "Silpa",
-        "kode_akun": "6.1.01.07.01.0001",
-        "nama_akun": "Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
-        "nilaimurni": "17000000000",
-        "program_koordinator": "0",
-        "rekening": "6.1.01.07.01.0001 Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
-        "skpd_koordinator": "0",
-        "total": "17000000000",
-        "pagu_fmis": null,
-        "updated_user": "21852",
-        "updateddate": "27-11-2020",
-        "updatedtime": "16:53",
-        "uraian": "Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
-        "urusan_koordinator": "0",
-        "type": "penerimaan",
-        "user1": "FATONI KURNIAWAN, S.Sos M,Si",
-        "user2": "PRABOWO ,S.Sos., M.Si",
-        "id_skpd": "3282",
-        "active": "1",
-        "update_at": "2021-11-02 20:54:05",
-        "tahun_anggaran": "2021",
-        "id_akun": null,
-        "id_jadwal_murni": null,
-        "koefisien": null,
-        "kua_murni": null,
-        "kua_pak": null,
-        "rkpd_murni": null,
-        "rkpd_pak": null,
-        "satuan": null,
-        "volume": null
+            "id": "1",
+            "created_user": "23537",
+            "createddate": "24-11-2020",
+            "createdtime": "14:42",
+            "id_pembiayaan": "1014",
+            "keterangan": "Silpa",
+            "kode_akun": "6.1.01.07.01.0001",
+            "nama_akun": "Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
+            "nilaimurni": "17000000000",
+            "program_koordinator": "0",
+            "rekening": "6.1.01.07.01.0001 Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
+            "skpd_koordinator": "0",
+            "total": "17000000000",
+            "pagu_fmis": null,
+            "updated_user": "21852",
+            "updateddate": "27-11-2020",
+            "updatedtime": "16:53",
+            "uraian": "Sisa Dana Akibat Tidak Tercapainya Capaian Target Kinerja",
+            "urusan_koordinator": "0",
+            "type": "penerimaan",
+            "user1": "FATONI KURNIAWAN, S.Sos M,Si",
+            "user2": "PRABOWO ,S.Sos., M.Si",
+            "id_skpd": "3282",
+            "active": "1",
+            "update_at": "2021-11-02 20:54:05",
+            "tahun_anggaran": "2021",
+            "id_akun": null,
+            "id_jadwal_murni": null,
+            "koefisien": null,
+            "kua_murni": null,
+            "kua_pak": null,
+            "rkpd_murni": null,
+            "rkpd_pak": null,
+            "satuan": null,
+            "volume": null
         },
     ]
 }
@@ -1945,7 +1949,7 @@ Result :
 curl \
 -X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
 -F 'api_key=<?php echo $key; ?>' \
--F 'action=get_Pembiayaan_sipd' \
+-F 'action=get_pembiayaan_sipd' \
 -F 'tahun_anggaran=2023' \
 -F 'id_skpd=3300' \
                 </code>
@@ -2044,40 +2048,186 @@ Result :
     "message": "Berhasil Get Pembiayaan SIPD!",
     "data": [
         {
-        "id": "1",
-        "created_user": "23837",
-        "createddate": "23-11-2020",
-        "createdtime": "12:31",
-        "id_pendapatan": "19716",
-        "keterangan": "",
-        "kode_akun": "4.1.04.16.01.0001",
-        "nama_akun": "Pendapatan BLUD",
-        "nilaimurni": "845456027",
-        "program_koordinator": "0",
-        "rekening": "4.1.04.16.01.0001 Pendapatan BLUD",
-        "skpd_koordinator": "0",
-        "total": "845456027",
-        "pagu_fmis": null,
-        "updated_user": "0",
-        "updateddate": "",
-        "updatedtime": "",
-        "uraian": "Pendapatan BLUD",
-        "urusan_koordinator": "0",
-        "user1": "dr. SULIS RAHADI",
-        "user2": "",
-        "id_skpd": "3300",
-        "active": "1",
-        "update_at": "2021-11-02 20:37:25",
-        "tahun_anggaran": "2021",
-        "id_akun": null,
-        "id_jadwal_murni": null,
-        "koefisien": null,
-        "kua_murni": null,
-        "kua_pak": null,
-        "rkpd_murni": null,
-        "rkpd_pak": null,
-        "satuan": null,
-        "volume": null
+            "id": "1",
+            "created_user": "23837",
+            "createddate": "23-11-2020",
+            "createdtime": "12:31",
+            "id_pendapatan": "19716",
+            "keterangan": "",
+            "kode_akun": "4.1.04.16.01.0001",
+            "nama_akun": "Pendapatan BLUD",
+            "nilaimurni": "845456027",
+            "program_koordinator": "0",
+            "rekening": "4.1.04.16.01.0001 Pendapatan BLUD",
+            "skpd_koordinator": "0",
+            "total": "845456027",
+            "pagu_fmis": null,
+            "updated_user": "0",
+            "updateddate": "",
+            "updatedtime": "",
+            "uraian": "Pendapatan BLUD",
+            "urusan_koordinator": "0",
+            "user1": "dr. SULIS RAHADI",
+            "user2": "",
+            "id_skpd": "3300",
+            "active": "1",
+            "update_at": "2021-11-02 20:37:25",
+            "tahun_anggaran": "2021",
+            "id_akun": null,
+            "id_jadwal_murni": null,
+            "koefisien": null,
+            "kua_murni": null,
+            "kua_pak": null,
+            "rkpd_murni": null,
+            "rkpd_pak": null,
+            "satuan": null,
+            "volume": null
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-rak-by-tahun-anggaran">
+            <h2>GET RAK berdasarkan SKPD dan Tahun Anggaran</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_rak_sipd' \
+-F 'tahun_anggaran=2023' \
+-F 'id_skpd=3300' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data RAK berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            id_skpd
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_rak_sipd",
+    "status": "success",
+    "message": "Berhasil Get RAK SIPD!",
+    "data": [
+        {
+            "id":"1",
+            "bulan_1":"1173063559",
+            "bulan_2":"0",
+            "bulan_3":"0",
+            "bulan_4":"0",
+            "bulan_5":"0",
+            "bulan_6":"0",
+            "bulan_7":"0",
+            "bulan_8":"0",
+            "bulan_9":"0",
+            "bulan_10":"0",
+            "bulan_11":"0",
+            "bulan_12":"0",
+            "id_akun":"16119",
+            "id_bidang_urusan":"101",
+            "id_daerah":"89",
+            "id_giat":"3797",
+            "id_program":"825",
+            "id_skpd":"3259",
+            "id_sub_giat":"14073",
+            "id_sub_skpd":"3259",
+            "id_unit":"3259",
+            "kode_akun":"5.1.01.01.01.0001",
+            "nama_akun":"5.1.01.01.01.0001 Belanja Gaji Pokok PNS",
+            "selisih":"0",
+            "tahun":null,
+            "total_akb":"1173063559",
+            "total_rincian":"1173063559",
+            "active":"1",
+            "kode_sbl":"3259.3259.3259.101.825.3797.14073",
+            "type":"belanja",
+            "tahun_anggaran":"2023",
+            "updated_at":"2023-01-24 17:32:14"
         },
     ]
 }

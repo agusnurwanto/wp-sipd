@@ -12413,6 +12413,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret['status']  = 'error';
 				$ret['message'] = 'API Key tidak sesuai!';
 			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
 	}
@@ -12458,6 +12461,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret['status']  = 'error';
 				$ret['message'] = 'API Key tidak sesuai!';
 			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
 	}
@@ -12502,6 +12508,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
 	}
@@ -12547,6 +12556,56 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_rak_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'   => 'success',
+			'message'  => 'Berhasil Get RAK SIPD!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd'])) {
+					$id_skpd    	= $_POST['id_skpd'];
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+
+					$rak_results = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								*
+							FROM data_anggaran_kas
+							WHERE tahun_anggaran = %d 
+							AND id_sub_skpd = %s
+							AND active = 1
+						", $tahun_anggaran, $id_skpd),
+						ARRAY_A
+					);
+
+					if (!empty($rak_results)) {
+						$ret['data'] = $rak_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data RAK ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id SKPD dan Tahun anggaran tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
 	}

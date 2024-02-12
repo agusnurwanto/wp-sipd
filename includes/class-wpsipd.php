@@ -970,6 +970,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
+		$this->loader->add_action('wp_ajax_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 
