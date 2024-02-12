@@ -102,6 +102,15 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-daftar-nota-pencairan-dana-panjar.php';
     }
 
+    public function laporan_panjar_npd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-panjar-npd.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -1838,7 +1847,7 @@ class Wpsipd_Public_RKA
                     $jenis_panjar = $v_all_npd['jenis_panjar'] == 'set_panjar' ? 'Panjar' : 'Tanpa Panjar';
                     $ret['html'] .= '
                         <tr>
-                            <td class="kanan bawah kiri">' . $v_all_npd['nomor_npd'] . '</td>
+                            <td class="kanan bawah kiri id-npd-'.$v_all_npd['id'].'">' . $v_all_npd['nomor_npd'] . '</td>
                             <td class="kanan bawah text-right">'. $jenis_panjar .'</td>
                             <td class="kanan bawah text-right">'. $current_user->display_name .'</td>
                             <td class="kanan bawah text-right">'. $v_all_npd['total_pagu_pencairan'] .'</td>
@@ -1846,7 +1855,8 @@ class Wpsipd_Public_RKA
                                 // \'' . $v_per_no_npd[0]->id . '\'
                                 // tampilkan tombol edit dan hapus
                                 $ret['html'] .= '
-                                <a class="btn btn-sm btn-info" onclick="tambah_rekening('. $v_all_npd['id'] .'); return false;" href="#" title="Tambah Rekening"><i class="dashicons dashicons-plus"></i></a>
+                                <a class="btn btn-sm btn-info" onclick="print('. $v_all_npd['id'] .'); return false;" href="#" title="Print"><i class="dashicons dashicons-printer"></i></a>
+                                <a class="btn btn-sm btn-success" onclick="tambah_rekening('. $v_all_npd['id'] .'); return false;" href="#" title="Tambah Rekening"><i class="dashicons dashicons-plus"></i></a>
                                 <a class="btn btn-sm btn-warning" onclick="edit_data('. $v_all_npd['id'] .'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
                                 <a class="btn btn-sm btn-danger" onclick="delete_data('. $v_all_npd['id'] .'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
                             $ret['html'] .='</td>

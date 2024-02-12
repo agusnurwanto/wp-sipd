@@ -49,6 +49,11 @@ if ($data_rfk) {
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
+
+$title = 'Laporan Panjar | Nota Pencairan Dana | ' . $tahun_anggaran;
+$shortcode = '[laporan_panjar_npd tahun_anggaran="'. $tahun_anggaran .'"] ';
+$url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
 ?>
 <style>
     .modal-content label:after {
@@ -99,7 +104,7 @@ if ($data_rfk) {
 <div style="padding: 15px;margin:0 0 3rem 0;">
 
     <!-- Button trigger modal -->
-    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Data</button>
+    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
 
     <table id="table_daftar_panjar">
         <thead>
@@ -206,6 +211,40 @@ if ($data_rfk) {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-primary submitBtn" onclick="submit_data_rekening(this)">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Print Laporan-->
+<div class="modal fade" id="modal_print_laporan" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Laporan Panjar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="tambah-rekening">
+                    <input type="number" class="form-control" id="id_npd_print" name="id_npd_print" hidden required>
+                    <div class="form-group">
+                        <label>Nomor Nota Pencairan Dana | Panjar</label>
+                        <input type="text" class="form-control" id="nomor_npd_print" name="nomor_npd_print" disabled required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Laporan</label>
+                        <select class="form-control" name="jenis_laporan" id="jenis_laporan">
+                            <option value="">Pilih Jenis Laporan</option>
+                            <option value="npd">Format Nota Pencairan Dana</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary submitBtn" onclick="print_preview(this)">Preview</button>
             </div>
         </div>
     </div>
@@ -589,6 +628,35 @@ if ($data_rfk) {
                 }
             });
         }
+    }
+
+    function print(id) {
+        jQuery('#modal_print_laporan').modal('show');
+        jQuery('#id_npd_print').val(id);
+        let nomor_npd = jQuery('.id-npd-'+id).html();
+        jQuery('#nomor_npd_print').val(nomor_npd);
+    }
+
+    function print_preview(that) {
+        let id_npd = jQuery('#id_npd_print').val();
+        let jenis = jQuery('#jenis_laporan').val();
+        if(id_npd == "" || id_npd == undefined){
+            alert('Ada yang salah saat print preview, Harap refresh halaman!')
+            jQuery('#modal_print_laporan').modal('hide');
+            return;
+        }
+
+        switch (jenis) {
+            case 'npd':
+                window.open('<?php echo $url_laporan_panjar_npd; ?>'+'&id_npd='+id_npd,'_blank');
+                break;
+        
+            default:
+                alert('Jenis Laporan belum dipilih');
+                break;
+        }
+
+
     }
 
     function getFormData($form){

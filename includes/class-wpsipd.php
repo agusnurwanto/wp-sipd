@@ -1073,6 +1073,7 @@ class Wpsipd
 		add_shortcode('rekap_total_prog_keg_renstra', array($plugin_public, 'rekap_total_prog_keg_renstra'));
 		add_shortcode('nota_pencairan_dana_panjar', array($plugin_public, 'nota_pencairan_dana_panjar'));
 		add_shortcode('daftar_nota_pencairan_dana_panjar', array($plugin_public, 'daftar_nota_pencairan_dana_panjar'));
+		add_shortcode('laporan_panjar_npd', array($plugin_public, 'laporan_panjar_npd'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
