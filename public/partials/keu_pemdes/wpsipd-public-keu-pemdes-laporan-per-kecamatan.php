@@ -17,9 +17,6 @@ function generateRandomColor($k){
     $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
     return $color[$k%10];
 }
-$title = 'Jenis Keuangan';
-$shortcode = '[desa_per_jenis_keuangan]';
-$url_per_jenis_keuangan = $this->generatePage($title, false, $shortcode, false);
 
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
@@ -68,7 +65,7 @@ $realisasi_all = 0;
 $persen_all = 0;
 $id_kab = get_option('_crb_id_lokasi_kokab');
 foreach($unit as $i => $kec){
-    $url_skpd = $this->generatePage($kec['nama_skpd'].' '.$kec['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[desa_per_jenis_keuangan tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$kec['id_skpd'].'"]');
+    $url_skpd = $this->generatePage($kec['nama_skpd'].' '.$kec['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$kec['id_skpd'].'"]');
     $nama_kec = str_replace('kecamatan ', '', strtolower($kec['nama_skpd']));
     $url_all_kec[$nama_kec] = $url_skpd;
 
@@ -259,12 +256,13 @@ foreach($unit as $i => $kec){
     if($bku_add['total'] > 0 && $bku_add_r['total'] > 0){
         $bku_add_p = round(($bku_add_r['total']/$bku_add['total'])*100, 2);
     }
+
     $nama_kec_render = $nama_kec;
     if(
         $cek_login
         && !empty($url_all_kec[$nama_kec])
     ){
-        $nama_kec_render = "<a onclick='per_jenis_keuangan(\"".$url_all_kec[$nama_kec]."\"); return false;' href='".$url_all_kec[$nama_kec]."' target='_blank'>".$nama_kec."</a>";
+        $nama_kec_render = "<a href='".$url_all_kec[$nama_kec]."' target='_blank'>".$nama_kec."</a>";
     }
 
     $total = $bkk_infrastruktur['total'] + $bkk_pilkades['total'] + $bhpd['total'] + $bhrd['total'] + $bku_dd['total'] + $bku_add['total'];
@@ -362,18 +360,4 @@ window.pieChartkec = new Chart(document.getElementById('chart_per_kec'), {
         ]
     }
 });
-
-function cek_get(url){
-    if(url.split('?').length >= 2){
-        return url;
-    }else{
-        return url+'?1=1';
-    }
-}
-
-function per_jenis_keuangan(url_kec){
-    var jenis_keuangan = prompt('Pilih jenis keuangan: 1=BKK Infrastruktur, 2=BKK Pilkades, 3=BHPD, 4=BHRD, 5=BKU ADD, 6=BKU DD', 1);
-    var url = cek_get(url_kec)+'&jenis_keuangan='+jenis_keuangan;
-    window.open(url, '_blank').focus();
-}
 </script>
