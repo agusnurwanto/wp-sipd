@@ -963,6 +963,18 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
 		$this->loader->add_action('wp_ajax_subgiat_renstra_local_exist',  $plugin_public, 'subgiat_renstra_local_exist');
 		
+		$this->loader->add_action('wp_ajax_get_spd_sipd',  $plugin_public, 'get_spd_sipd');
+		$this->loader->add_action('wp_ajax_get_spp_sipd',  $plugin_public, 'get_spp_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_spd_sipd',  $plugin_public, 'get_spd_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_spp_sipd',  $plugin_public, 'get_spp_sipd');
+
+		$this->loader->add_action('wp_ajax_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
+		$this->loader->add_action('wp_ajax_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
