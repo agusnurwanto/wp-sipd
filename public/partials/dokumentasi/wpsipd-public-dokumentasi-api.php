@@ -1799,7 +1799,7 @@ Result :
             </pre>
         </div>
         <div class="overflow-hidden content-section" id="content-get-rak-by-tahun-anggaran">
-            <h2>GET RAK berdasarkan SKPD dan Tahun Anggaran</h2>
+            <h2>GET RAK berdasarkan SKPD, Tipe dan Tahun Anggaran</h2>
             <pre>
                 <code class="bash">
 # Here is a curl example
@@ -1808,7 +1808,8 @@ curl \
 -F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_rak_sipd' \
 -F 'tahun_anggaran=2023' \
--F 'id_skpd=3300' \
+-F 'id_skpd=3283' \
+-F 'type=pendapatan' \
                 </code>
             </pre>
             <p>
@@ -1893,6 +1894,22 @@ curl \
                             </span>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            type
+                        </td>
+                        <td>
+                            string
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             </p>
@@ -1905,39 +1922,39 @@ Result :
     "message": "Berhasil Get RAK SIPD!",
     "data": [
         {
-            "id":"1",
-            "bulan_1":"1173063559",
+            "id":"8756",
+            "bulan_1":"16500000",
             "bulan_2":"0",
             "bulan_3":"0",
-            "bulan_4":"0",
+            "bulan_4":"27500000",
             "bulan_5":"0",
             "bulan_6":"0",
-            "bulan_7":"0",
+            "bulan_7":"38500000",
             "bulan_8":"0",
             "bulan_9":"0",
-            "bulan_10":"0",
+            "bulan_10":"27500000",
             "bulan_11":"0",
             "bulan_12":"0",
-            "id_akun":"16119",
-            "id_bidang_urusan":"101",
+            "id_akun":"8917",
+            "id_bidang_urusan":null,
             "id_daerah":"89",
-            "id_giat":"3797",
-            "id_program":"825",
-            "id_skpd":"3259",
-            "id_sub_giat":"14073",
-            "id_sub_skpd":"3259",
-            "id_unit":"3259",
-            "kode_akun":"5.1.01.01.01.0001",
-            "nama_akun":"5.1.01.01.01.0001 Belanja Gaji Pokok PNS",
-            "selisih":"0",
-            "tahun":null,
-            "total_akb":"1173063559",
-            "total_rincian":"1173063559",
+            "id_giat":null,
+            "id_program":null,
+            "id_skpd":"3283",
+            "id_sub_giat":null,
+            "id_sub_skpd":"3283",
+            "id_unit":"3283",
+            "kode_akun":"4.1.01.06.01.0001",
+            "nama_akun":"Pajak Hotel",
+            "selisih":null,
+            "tahun":"2024",
+            "total_akb":"110000000",
+            "total_rincian":"110000000",
             "active":"1",
-            "kode_sbl":"3259.3259.3259.101.825.3797.14073",
-            "type":"belanja",
-            "tahun_anggaran":"2023",
-            "updated_at":"2023-01-24 17:32:14"
+            "kode_sbl":"3283.5.02.0.00.0.00.02.0000",
+            "type":"pendapatan",
+            "tahun_anggaran":"2024",
+            "updated_at":"2024-01-26 15:56:57"
         },
     ]
 }
@@ -1954,7 +1971,7 @@ curl \
 -F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_spd_sipd' \
 -F 'tahun_anggaran=2024' \
--F 'id_skpd=101' \
+-F 'id_skpd=3346' \
                 </code>
             </pre>
             <p>
@@ -2050,16 +2067,23 @@ Result :
     "status": "success",
     "message": "Berhasil Get SPD SIPD!",
     "data": [
-        {
-            "idSpd": "1",
-            "nomorSpd": "SPD001",
-            "keteranganSpd": "Perjalanan Dinas 1",
-            "ketentuanLainnya": "Ketentuan 1",
-            "id_skpd": "101",
-            "totalSpd": "1500",
-            "active": "1",
-            "created_at": "2024-02-07 10:30:00",
-            "tahun_anggaran": "2024"
+       {
+            "id":"1",
+            "idSpd":"1758",
+            "nomorSpd":"35.19/01.0/000001/2.19.3.26.0.00.01.0000/M/2/2024",
+            "keteranganSpd":"TW1-M",
+            "ketentuanLainnya":null,
+            "id_skpd":"3346",
+            "totalSpd":null,
+            "active":"1",
+            "created_at":"2024-02-07 15:54:49",
+            "tahun_anggaran":"2024",
+            "idDetailSpd":"16420",
+            "id_program":null,
+            "id_giat":"8710",
+            "id_sub_giat":"20302",
+            "id_akun":"16420",
+            "nilai":"7106000"
         },
     ]
 }
@@ -2076,7 +2100,7 @@ curl \
 -F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_spp_sipd' \
 -F 'tahun_anggaran=2024' \
--F 'id_skpd=201' \
+-F 'id_skpd=1801' \
                 </code>
             </pre>
             <p>
@@ -2173,60 +2197,106 @@ Result :
     "message": "Berhasil Get SPP SIPD!",
     "data": [
         {
-            "id": "1",
-            "nomorSpp": "SPP001",
-            "nilaiSpp": "5000",
-            "tanggalSpp": "2024-02-07",
-            "keteranganSpp": "Pembayaran 1",
-            "idSkpd": "201",
-            "idSubUnit": "301",
-            "nilaiDisetujuiSpp": "4800",
-            "tanggalDisetujuiSpp": "2024-02-08",
-            "jenisSpp": "LS",
-            "verifikasiSpp": "1",
-            "keteranganVerifikasi": "Terverifikasi",
-            "idSpd": "1",
-            "idPengesahanSpj": "101",
-            "kunciRekening": "0",
-            "alamatPenerimaSpp": "Alamat Penerima 1",
-            "bankPenerimaSpp": "Bank Penerima 1",
-            "nomorRekeningPenerimaSpp": "1234567890",
-            "npwpPenerimaSpp": "NPWP123456789",
-            "idUser": "1",
-            "jenisLs": "Jenis LS 1",
-            "isUploaded": "1",
-            "tahunSpp": "2024",
-            "idKontrak": "301",
-            "idBA": "401",
-            "created_at": "2024-02-07 10:30:00",
-            "updated_at": "2024-02-07 10:30:00",
-            "isSpm": "0",
-            "statusPerubahan": "0",
-            "isDraft": "1",
-            "idSpp": "1",
-            "kodeDaerah": "Kode Daerah 1",
-            "idDaerah": "501",
-            "isGaji": "0",
-            "is_sptjm": "0",
-            "tanggal_otorisasi": "2024-02-07 10:30:00",
-            "is_otorisasi": "0",
-            "bulan_gaji": "Bulan Gaji 1",
-            "id_pegawai_pptk": "701",
-            "nama_pegawai_pptk": "Nama PPTK 1",
-            "nip_pegawai_pptk": "NIP PPTK 1",
-            "id_jadwal": "801",
-            "id_tahap": "901",
-            "status_tahap": "Status Tahap 1",
-            "kode_tahap": "Kode Tahap 1",
-            "is_tpp": "1",
-            "bulan_tpp": "2",
-            "id_pengajuan_tu": "1001",
-            "nomor_pengajuan_tu": "Nomor Pengajuan TU 1",
-            "id_npd": "1101",
-            "tipe": "Tipe 1",
-            "active": "1",
-            "update_at": "2024-02-07 10:30:00",
-            "tahun_anggaran": "2024"
+            "id":"1",
+            "nomorSpp":"SPP001",
+            "nilaiSpp":"5000",
+            "tanggalSpp":"2024-02-07",
+            "keteranganSpp":"Pembayaran 1",
+            "idSkpd":"1801",
+            "idSubUnit":"301",
+            "nilaiDisetujuiSpp":"4800",
+            "tanggalDisetujuiSpp":"2024-02-08",
+            "jenisSpp":"LS",
+            "verifikasiSpp":"1",
+            "keteranganVerifikasi":"Terverifikasi",
+            "idSpd":"601",
+            "idPengesahanSpj":"101",
+            "kunciRekening":"0",
+            "alamatPenerimaSpp":"Alamat Penerima 1",
+            "bankPenerimaSpp":"Bank Penerima 1",
+            "nomorRekeningPenerimaSpp":"1234567890",
+            "npwpPenerimaSpp":"NPWP123456789",
+            "idUser":"1",
+            "jenisLs":"Jenis LS 1",
+            "isUploaded":"1",
+            "tahunSpp":"2024",
+            "idKontrak":"301",
+            "idBA":"401",
+            "created_at":"2024-02-13 12:00:00",
+            "updated_at":"2024-02-13 12:30:00",
+            "isSpm":"0",
+            "statusPerubahan":"0",
+            "isDraft":"1",
+            "idSpp":"1",
+            "kodeDaerah":"Kode Daerah 1",
+            "idDaerah":"1901",
+            "isGaji":"0",
+            "is_sptjm":"0",
+            "tanggal_otorisasi":"2024-02-07 10:30:00",
+            "is_otorisasi":"0",
+            "bulan_gaji":"Bulan Gaji 1",
+            "id_pegawai_pptk":"701",
+            "nama_pegawai_pptk":"Nama PPTK 1",
+            "nip_pegawai_pptk":"NIP PPTK 1",
+            "id_jadwal":"801",
+            "id_tahap":"901",
+            "status_tahap":"Pending",
+            "kode_tahap":"Kode Tahap 1",
+            "is_tpp":"1",
+            "bulan_tpp":"2",
+            "id_pengajuan_tu":"1001",
+            "nomor_pengajuan_tu":"Nomor Pengajuan TU 1",
+            "id_npd":"1501",
+            "tipe":"Tipe 1",
+            "active":"1",
+            "update_at":"2024-02-13 13:00:00",
+            "tahun_anggaran":"2024",
+            "idKegiatan":"101",
+            "nilaiDetailSpp":"500000",
+            "nilaiDisetujuiDetailSpp":"450000",
+            "idRekening":"201",
+            "idBelanja":"301",
+            "nominal":"100000",
+            "idDetailSpd":"501",
+            "idDetailSpp":"701",
+            "id_daerah":"1001",
+            "id_skpd":"1101",
+            "tahun_spp":"2024",
+            "kode_rekening":"123.456.789",
+            "nama_rekening":"Dummy Rekening 1",
+            "id_sub_kegiatan":"1201",
+            "kode_sub_kegiatan":"123.456.789.001",
+            "nama_sub_kegiatan":"Dummy Sub Kegiatan 1",
+            "kode_kegiatan":"SK001",
+            "nama_kegiatan":"Dummy Kegiatan 1",
+            "id_sub_skpd":"1301",
+            "nama_sub_skpd":"Dummy Sub SKPD 1",
+            "distribusi":"Distribusi 1",
+            "id_pegawai_kpa":"1401",
+            "id_detail_npd":"1601",
+            "nilaiDetailSpd":"500000",
+            "sisaDetailSpd":"50000",
+            "isUp":"1",
+            "tahun":"2024",
+            "isPengajuanTu":"1",
+            "idSubKegiatan":"1701",
+            "kodeSubKegiatan":"SK001.001",
+            "namaSubKegiatan":"Dummy Sub Kegiatan 1.001",
+            "kodeRekening":"123.456.789.001.001",
+            "namaRekening":"Dummy Rekening 1.001",
+            "kodeKegiatan":"SK001.001",
+            "namaKegiatan":"Dummy Kegiatan 1.001",
+            "idProgram":"2001",
+            "idSubSkpd":"2101",
+            "idPegawaiKpa":"2201",
+            "kodeSubSkpd":"SK001.001",
+            "namaSubSkpd":"Dummy Sub SKPD 1.001",
+            "isVerifikasiSpp":"1",
+            "id_bidang":"2301",
+            "kode_program":"123.456.789.001.001",
+            "nama_program":"Dummy Program 1.001",
+            "kode_bidang_urusan":"001",
+            "nama_bidang_urusan":"Dummy Bidang Urusan 1"
         },
     ]
 }
