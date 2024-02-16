@@ -991,6 +991,8 @@ class Wpsipd
 		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
 		add_shortcode('halaman_spd', array($plugin_public, 'halaman_spd'));
 		add_shortcode('spd', array($plugin_public, 'spd'));
+		add_shortcode('halaman_spp', array($plugin_public, 'halaman_spp'));
+		add_shortcode('spp', array($plugin_public, 'spp'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));

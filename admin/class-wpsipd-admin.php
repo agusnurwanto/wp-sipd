@@ -318,6 +318,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					->add_fields( $this->get_ajax_field(array('type' => 'spd')) );
 			}
 
+			if(get_option('_crb_show_menu_spp') != true){
+				Container::make( 'theme_options', __( 'Halaman SPP' ) )
+					->set_page_parent( $monev )
+					->add_fields( $this->get_ajax_field(array('type' => 'spp')) );
+			}
+
 			if(get_option('_crb_show_menu_monev_json_rka_settings') != true){
 				Container::make( 'theme_options', __( 'Data JSON RKA' ) )
 					->set_page_parent( $monev )
@@ -1172,6 +1178,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 							}else if($_POST['type'] == 'spd'){
 								$url_skpd = $this->generatePage('Halaman SPD '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spd tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman SPD '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'spp'){
+								$url_skpd = $this->generatePage('Halaman SPP '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spp tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman SPP '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}else if($_POST['type'] == 'monev_json_rka'){
 								$url_skpd = $this->generatePage('Data JSON RKA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><input type="checkbox" value="'.$vvv['id_skpd'].'"> <a target="_blank" href="'.$url_skpd.'">Halaman JSON RKA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].') ID = '.$vvv['id_skpd'];
@@ -1284,6 +1293,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'spd'){
 			        	$body_all .= $body_pemda;
+					}else if($_POST['type'] == 'spp'){
+			        	$body_all .= $body_pemda;
 					}
 					if($_POST['type'] != 'input_renstra'){
 						$body_all .= '</div>';
@@ -1307,6 +1318,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					|| $_POST['type'] == 'input_renstra'
 					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'spd'
+					|| $_POST['type'] == 'spp'
 					|| $_POST['type'] == 'rkpd_renja'
 				){
 					$ret['message'] = $body_all;
