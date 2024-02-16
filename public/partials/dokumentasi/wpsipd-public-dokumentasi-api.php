@@ -1692,7 +1692,7 @@ curl \
                         <td>
                             Kunci API yang telah ditambahkan dan diaktifkan
                         </td>
-                        <td class="text-center">
+                        <td class="teParameter tidak lengkap!xt-center">
                             <span class="badge badge-danger">
                                 Dibutuhkan
                             </span>
@@ -2326,6 +2326,12 @@ Result :
                         <td><span class="badge badge-danger">error</span></td>
                         <td>
                             APIKEY tidak sesuai!.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-danger">error</span></td>
+                        <td>
+                            Parameter tidak lengkap!.
                         </td>
                     </tr>
                 </tbody>
