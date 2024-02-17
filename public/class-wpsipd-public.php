@@ -12517,11 +12517,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								d.id_giat,
 								d.id_sub_giat,
 								d.id_akun,
-								d.nilai
+								d.nilai,
+								a.kode_akun,
+								a.nama_akun
 							FROM data_spd_sipd s
 							INNER JOIN data_spd_sipd_detail d ON s.idSpd = d.idSpd
 								AND s.tahun_anggaran = d.tahun_anggaran
 								AND s.active = d.active
+							LEFT JOIN data_akun a ON a.id_akun=d.id_akun
+								AND a.tahun_anggaran = d.tahun_anggaran
+								AND a.active = d.active
 							WHERE s.tahun_anggaran=%d
 							  AND s.id_skpd = %s
 							  AND s.active=1
@@ -12529,6 +12534,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						ARRAY_A
 					);
 					if (!empty($spd_results)) {
+						$master_prog = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_program,
+								kode_program,
+								nama_program,
+								id_giat,
+								kode_giat,
+								nama_giat,
+								id_sub_giat,
+								kode_sub_giat,
+								nama_sub_giat
+							FROM data_prog_keg
+							WHERE tahun_anggaran=%d
+								AND active=1
+						", $tahun_anggaran), ARRAY_A);
+						$program = array();
+						$giat = array();
+						$sub_giat = array();
+						foreach($master_prog as $k => $v){
+							$program[$v['id_program']] = $v;
+							$giat[$v['id_giat']] = $v;
+							$sub_giat[$v['id_sub_giat']] = $v;
+						}
+						foreach($spd_results as $k => $v){
+							if(!empty($program[$v['id_program']])){
+								$spd_results['kode_program'] = $program[$v['id_program']]['kode_program'];
+								$spd_results['nama_program'] = $program[$v['id_program']]['nama_program'];
+							}
+							if(!empty($giat[$v['id_giat']])){
+								$spd_results['kode_giat'] = $giat[$v['id_giat']]['kode_giat'];
+								$spd_results['nama_giat'] = $giat[$v['id_giat']]['nama_giat'];
+							}
+							if(!empty($sub_giat[$v['id_sub_giat']])){
+								$spd_results['kode_sub_giat'] = $sub_giat[$v['id_sub_giat']]['kode_sub_giat'];
+								$spd_results['nama_sub_giat'] = $sub_giat[$v['id_sub_giat']]['nama_sub_giat'];
+							}
+						}
 						$ret['data'] = $spd_results;
 					} else {
 						$ret['status'] = 'error';
