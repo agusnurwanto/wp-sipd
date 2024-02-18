@@ -6962,9 +6962,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								from data_anggaran_kas 
 								where id_sub_skpd=%d 
 									AND tahun_anggaran=%d
-									AND type=%s
+									AND type like %s
 									AND active=1
-							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe']), ARRAY_A);
+							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe'].'%'), ARRAY_A);
 						} else {
 							$kode_sbl = explode('.', $v['kode_sbl']);
 							if ($_POST['tahun_anggaran'] >= 2024) {
@@ -12561,10 +12561,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							if(!empty($sub_giat[$v['id_sub_giat']])){
 								$spd_results[$k]['kode_sub_giat'] = $sub_giat[$v['id_sub_giat']]['kode_sub_giat'];
 								$spd_results[$k]['nama_sub_giat'] = $sub_giat[$v['id_sub_giat']]['nama_sub_giat'];
-								$spd_results[$k]['kode_giat'] = $giat[$v['id_sub_giat']]['kode_giat'];
-								$spd_results[$k]['nama_giat'] = $giat[$v['id_sub_giat']]['nama_giat'];
-								$spd_results[$k]['kode_program'] = $program[$v['id_sub_giat']]['kode_program'];
-								$spd_results[$k]['nama_program'] = $program[$v['id_sub_giat']]['nama_program'];
+								$spd_results[$k]['kode_giat'] = $sub_giat[$v['id_sub_giat']]['kode_giat'];
+								$spd_results[$k]['nama_giat'] = $sub_giat[$v['id_sub_giat']]['nama_giat'];
+								$spd_results[$k]['kode_program'] = $sub_giat[$v['id_sub_giat']]['kode_program'];
+								$spd_results[$k]['nama_program'] = $sub_giat[$v['id_sub_giat']]['nama_program'];
 							}
 						}
 						$ret['data'] = $spd_results;
