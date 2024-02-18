@@ -1776,7 +1776,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data sub kegiatan!',
+			'message' 	=> 'Berhasil mendapatkan data sub kegiatan!',
 			'data'		=> array(),
 		);
 
@@ -1857,11 +1857,71 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		die(json_encode($ret));
 	}
 
+	public function get_master_sub_keg_sipd(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapatkan data sub kegiatan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+
+						// sementara, kalau daerah khusus perlu diset query dengan id_daerah_khusus
+						$where .= ' AND id_daerah_khusus=0';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
+					$data_sub_kegiatan = $wpdb->get_results($wpdb->prepare(
+						'SELECT id,
+							id_bidang_urusan,
+							id_program,
+							kode_program,
+							nama_program,
+							id_giat,
+							kode_giat,
+							nama_giat,
+							id_sub_giat,
+							kode_sub_giat,
+							nama_sub_giat
+						FROM data_prog_keg
+						WHERE tahun_anggaran=%d
+							AND active=1
+							'.$where.'
+					', $tahun_anggaran),ARRAY_A);
+					$ret['data'] = $data_sub_kegiatan;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';	
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
 	public function get_indikator_sub_keg_parent(){
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data indikator sub kegiatan!',
+			'message' 	=> 'Berhasil mendapatkan data indikator sub kegiatan!',
 			'data'		=> array(),
 		);
 
@@ -1917,7 +1977,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data sumber dana!',
+			'message' 	=> 'Berhasil mendapatkan data sumber dana!',
 			'data'		=> array(),
 		);
 
@@ -4023,7 +4083,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data label (tag)!',
+			'message' 	=> 'Berhasil mendapatkan data label (tag)!',
 			'data'		=> array(),
 		);
 
@@ -4147,7 +4207,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data rekening pendapatan!',
+			'message' 	=> 'Berhasil mendapatkan data rekening pendapatan!',
 			'results'	=> array(),
 			'pagination'=> array(
 				"more" => false
@@ -4593,7 +4653,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data rekening penerimaan!',
+			'message' 	=> 'Berhasil mendapatkan data rekening penerimaan!',
 			'results'	=> array(),
 			'pagination'=> array(
 			    "more" => false
@@ -5041,7 +5101,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil mendapapatkan data rekening pengeluaran!',
+			'message' 	=> 'Berhasil mendapatkan data rekening pengeluaran!',
 			'results'	=> array(),
 			'pagination'=> array(
 			    "more" => false

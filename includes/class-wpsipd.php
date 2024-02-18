@@ -453,6 +453,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg',  $plugin_public, 'get_sub_keg');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg',  $plugin_public, 'get_sub_keg');
 
+		$this->loader->add_action('wp_ajax_get_master_sub_keg_sipd',  $plugin_public, 'get_master_sub_keg_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_master_sub_keg_sipd',  $plugin_public, 'get_master_sub_keg_sipd');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
 
@@ -831,6 +834,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_delete_pengeluaran', $plugin_public, 'submit_delete_pengeluaran');
 
 		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
+		$this->loader->add_action('wp_ajax_nopriv_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
+		
 		$this->loader->add_action('wp_ajax_get_jenis_standar_harga',  $plugin_public, 'get_jenis_standar_harga');
 		$this->loader->add_action('wp_ajax_simpan_meta_skpd', $plugin_public, 'simpan_meta_skpd');
 

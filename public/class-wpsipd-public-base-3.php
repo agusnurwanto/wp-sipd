@@ -8720,6 +8720,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_akun 
 						WHERE tahun_anggaran=%d 
 							AND set_input=1
+							AND active=1
 							".$where."
 					", $_POST['tahun_anggaran']), ARRAY_A);
 

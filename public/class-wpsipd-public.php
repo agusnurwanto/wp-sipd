@@ -12558,17 +12558,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$sub_giat[$v['id_sub_giat']] = $v;
 						}
 						foreach($spd_results as $k => $v){
-							if(!empty($program[$v['id_program']])){
-								$spd_results[$k]['kode_program'] = $program[$v['id_program']]['kode_program'];
-								$spd_results[$k]['nama_program'] = $program[$v['id_program']]['nama_program'];
-							}
-							if(!empty($giat[$v['id_giat']])){
-								$spd_results[$k]['kode_giat'] = $giat[$v['id_giat']]['kode_giat'];
-								$spd_results[$k]['nama_giat'] = $giat[$v['id_giat']]['nama_giat'];
-							}
 							if(!empty($sub_giat[$v['id_sub_giat']])){
 								$spd_results[$k]['kode_sub_giat'] = $sub_giat[$v['id_sub_giat']]['kode_sub_giat'];
 								$spd_results[$k]['nama_sub_giat'] = $sub_giat[$v['id_sub_giat']]['nama_sub_giat'];
+								$spd_results[$k]['kode_giat'] = $giat[$v['id_sub_giat']]['kode_giat'];
+								$spd_results[$k]['nama_giat'] = $giat[$v['id_sub_giat']]['nama_giat'];
+								$spd_results[$k]['kode_program'] = $program[$v['id_sub_giat']]['kode_program'];
+								$spd_results[$k]['nama_program'] = $program[$v['id_sub_giat']]['nama_program'];
 							}
 						}
 						$ret['data'] = $spd_results;

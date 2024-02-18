@@ -823,6 +823,12 @@
         <li class="scroll-to-link" data-target="content-get-skpd">
             <a>Get SKPD</a>
         </li>
+        <li class="scroll-to-link" data-target="content-get-sub-kegiatan">
+            <a>Get Master Sub Kegiatan</a>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-rekening">
+            <a>Get Rekening</a>
+        </li>
         <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
             <a>Get SUB KEGIATAN</a>
         </li>
@@ -856,16 +862,16 @@
         <div class="overflow-hidden content-section" id="content-get-started">
             <h1>Get started</h1>
             <pre>
-    API Endpoint
-    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+API Endpoint
+<?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
 
-    <?php
-    $key = 'diperlukan';
-    if (is_user_logged_in() == 1) {
-        $key = get_option('_crb_api_key_extension');
-    } ?>
-    API key = <?php echo $key; ?>
-                </pre>
+<?php
+$key = 'diperlukan';
+if (is_user_logged_in() == 1) {
+    $key = get_option('_crb_api_key_extension');
+} ?>
+API key = <?php echo $key; ?>
+            </pre>
             <p>
                 <strong>WP SIPD</strong> telah dilengkapi dengan kemampuan untuk membuat output API sekaligus tanpa Anda perlu menambahkan backend atau modul khusus untuk pengelolaan API. Konsep pada implementasi API selaras dengan fitur-fitur pada backoffice <strong>WP SIPD</strong> yang sedang Anda buka saat ini.
             </p>
@@ -950,7 +956,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1015,6 +1021,212 @@ Result :
             "bidur1": "7.01 KECAMATAN",
             "bidur2": null,
             "bidur3": null
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-sub-kegiatan">
+            <h2>GET Master Sub Kegiatan</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_master_sub_keg_sipd' \
+-F 'tahun_anggaran=2023' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan master data sub kegiatan berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_master_sub_keg_sipd
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_master_sub_keg_sipd",
+    "run": null,
+    "status": "success",
+    "message": "Berhasil mendapatkan data sub kegiatan!",
+    "data": [
+        {
+            "id": "15154",
+            "id_bidang_urusan": "205",
+            "id_program": "1029",
+            "kode_program": "1.05.02",
+            "nama_program": "1.05.02 PROGRAM PENINGKATAN KETENTERAMAN DAN KETERTIBAN UMUM",
+            "id_giat": "8125",
+            "kode_giat": "1.05.02.2.03",
+            "nama_giat": "1.05.02.2.03 Pembinaan Penyidik Pegawai Negeri Sipil (PPNS) Kabupaten/Kota",
+            "id_sub_giat": "18108",
+            "kode_sub_giat": "1.05.02.2.03.0002",
+            "nama_sub_giat": "1.05.02.2.03.0002 Pembentukan Sekretariat PPNS"
+        }
+    ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-rekening">
+            <h2>GET REKENING</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_rekening_akun' \
+-F 'tahun_anggaran=2023' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan rekening berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_rekening_akun
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_rekening_akun",
+    "status": "true",
+    "data": [
+        {
+            "id_akun": "16119",
+            "kode_akun": "5.1.01.01.01.0001",
+            "nama_akun": "Belanja Gaji Pokok PNS"
         },
     ]
 }
@@ -1092,7 +1304,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1387,7 +1599,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1590,7 +1802,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1738,7 +1950,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1886,7 +2098,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2016,7 +2228,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_spd_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2048,7 +2260,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2083,7 +2295,15 @@ Result :
             "id_giat":"8710",
             "id_sub_giat":"20302",
             "id_akun":"16420",
-            "nilai":"7106000"
+            "nilai":"7106000",
+            "kode_akun": "5.1.02.02.05.0037",
+            "nama_akun": "Belanja Sewa Bangunan Gedung Tempat Kerja Lainnya",
+            "kode_program": "3.26.05",
+            "nama_program": "3.26.05 PROGRAM PENGEMBANGAN SUMBER DAYA PARIWISATA DAN EKONOMI KREATIF",
+            "kode_giat": "3.26.05.2.01",
+            "nama_giat": "3.26.05.2.01 Pelaksanaan Peningkatan Kapasitas Sumber Daya Manusia Pariwisata dan Ekonomi Kreatif Tingkat Dasar",
+            "kode_sub_giat": "3.26.05.2.01.0006",
+            "nama_sub_giat": "3.26.05.2.01.0006 Fasilitasi Pengembangan Kompetensi Sumber Daya Manusia Ekonomi Kreatif"
         },
     ]
 }
@@ -2177,7 +2397,7 @@ curl \
                             Angka
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan pencarian
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
