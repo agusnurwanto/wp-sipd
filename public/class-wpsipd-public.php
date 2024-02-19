@@ -6009,6 +6009,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	{
 		global $wpdb;
 		$ret = array(
+			'action' => $_POST['action'],
 			'status' => 'success',
 			'message' => 'Berhasil singkronisasi Detail SPP'
 		);
@@ -6017,92 +6018,154 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
 					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					$wpdb->update("data_spp_sipd_ri_detail", array('active' => 0), array(
+							"id_skpd" => $_POST['idSkpd'],
+							"id_spp" => $_POST['id_spp']
+						));
+					foreach ($data['detail'] as $i => $v) {
+						$cek_id = $wpdb->get_var($wpdb->prepare("
+							select 
+								id 
+							from data_spp_sipd_ri_detail 
+							where id_skpd=%d
+								and id_spp=%d
+								and uraian=%s
+								and jumlah=%s
+								and kode_rekening=%s
+								and tahun_anggaran=%d
+						", $_POST['idSkpd'], $_POST['id_spp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+						$opsi = array(
+							"id_spp" => $_POST['id_spp'],
+							"id_skpd" => $_POST['idSkpd'],
+							"nomor_spd" => $v["nomor_spd"],
+							"tanggal_spd" => $v["tanggal_spd"],
+							"total_spd" => $v["total_spd"],
+							"jumlah" => $v["jumlah"],
+							"kode_rekening" => $v["kode_rekening"],
+							"uraian" => $v["uraian"],
+							"bank_bp_bpp" => $v["bank_bp_bpp"],
+							"jabatan_bp_bpp" => $v["jabatan_bp_bpp"],
+							"jabatan_pa_kpa" => $v["jabatan_pa_kpa"],
+							"jenis_ls_spp" => $v["jenis_ls_spp"],
+							"keterangan" => $v["keterangan"],
+							"nama_bp_bpp" => $v["nama_bp_bpp"],
+							"nama_daerah" => $v["nama_daerah"],
+							"nama_ibukota" => $v["nama_ibukota"],
+							"nama_pa_kpa" => $v["nama_pa_kpa"],
+							"nama_pptk" => $v["nama_pptk"],
+							"nama_rek_bp_bpp" => $v["nama_rek_bp_bpp"],
+							"nama_skpd" => $v["nama_skpd"],
+							"nama_sub_skpd" => $v["nama_sub_skpd"],
+							"nilai" => $v["nilai"],
+							"nip_bp_bpp" => $v["nip_bp_bpp"],
+							"nip_pa_kpa" => $v["nip_pa_kpa"],
+							"nip_pptk" => $v["nip_pptk"],
+							"no_rek_bp_bpp" => $v["no_rek_bp_bpp"],
+							"nomor_transaksi" => $v["nomor_transaksi"],
+							"npwp_bp_bpp" => $v["npwp_bp_bpp"],
+							"tahun" => $v["tahun"],
+							"tanggal_transaksi" => $v["tanggal_transaksi"],
+							"tipe" => $_POST['tipe'],
+							"active" => 1,
+							"update_at" => current_time('mysql'),
+							"tahun_anggaran" => $_POST["tahun_anggaran"]
+						);
+						if (!empty($cek_id)) {
+							//Update data spp ditable data_spp_sipd_ri_detail
+							$wpdb->update("data_spp_sipd_ri_detail", $opsi, array(
+								"id" => $cek_id
+							));
+						} else {
+							//insert data spp ditable data_spp_sipd_ri_detail
+							$wpdb->insert("data_spp_sipd_ri_detail", $opsi);
+						}
+					}
 				} else {
 					$data = $_POST['data'];
-				}
-				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("
-						select 
-							idDetailSpp 
-						from data_spp_sipd_detail 
-						where idDetailSpp=%d 
-							and tahun=%d
-							and tahun_anggaran=%d
-					", $v["idDetailSpp"], $v["tahun"], $v["tahun_anggaran"]));
-					$opsi = array(
-						"idSpp" => $v['idSpp'],
-						"idKegiatan" => $v['idKegiatan'],
-						"nilaiDetailSpp" => $v['nilaiDetailSpp'],
-						"nilaiDisetujuiDetailSpp" => $v['nilaiDisetujuiDetailSpp'],
-						"idRekening" => $v['idRekening'],
-						"idBelanja" => $v['idBelanja'],
-						"nominal" => $v['nominal'],
-						"idDetailSpd" => $v['idDetailSpd'],
-						"created_at" => $v['created_at'],
-						"updated_at" => $v['updated_at'],
-						"idSpd" => $v['idSpd'],
-						"idDetailSpp" => $v['idDetailSpp'],
-						"id_jadwal" => $v['id_jadwal'],
-						"id_tahap" => $v['id_tahap'],
-						"status_tahap" => $v['status_tahap'],
-						"id_daerah" => $v['id_daerah'],
-						"id_skpd" => $v['id_skpd'],
-						"tahun_spp" => $v['tahun_spp'],
-						"kode_rekening" => $v['kode_rekening'],
-						"nama_rekening" => $v['nama_rekening'],
-						"id_sub_kegiatan" => $v['id_sub_kegiatan'],
-						"kode_sub_kegiatan" => $v['kode_sub_kegiatan'],
-						"nama_sub_kegiatan" => $v['nama_sub_kegiatan'],
-						"kode_kegiatan" => $v['kode_kegiatan'],
-						"nama_kegiatan" => $v['nama_kegiatan'],
-						"id_sub_skpd" => $v['id_sub_skpd'],
-						"nama_sub_skpd" => $v['nama_sub_skpd'],
-						"distribusi" => $v['distribusi'],
-						"id_pegawai_kpa" => $v['id_pegawai_kpa'],
-						"id_npd" => $v['id_npd'],
-						"id_detail_npd" => $v['id_detail_npd'],
-						"nilaiDetailSpd" => $v['nilaiDetailSpd'],
-						"sisaDetailSpd" => $v['sisaDetailSpd'],
-						"isUp" => $v['isUp'],
-						"tahun" => $v['tahun'],
-						"isPengajuanTu" => $v['isPengajuanTu'],
-						"idSubKegiatan" => $v['idSubKegiatan'],
-						"kodeSubKegiatan" => $v['kodeSubKegiatan'],
-						"namaSubKegiatan" => $v['namaSubKegiatan'],
-						"kodeRekening" => $v['kodeRekening'],
-						"namaRekening" => $v['namaRekening'],
-						"kodeKegiatan" => $v['kodeKegiatan'],
-						"namaKegiatan" => $v['namaKegiatan'],
-						"idSkpd" => $v['idSkpd'],
-						"idDaerah" => $v['idDaerah'],
-						"idProgram" => $v['idProgram'],
-						"idSubSkpd" => $v['idSubSkpd'],
-						"idPegawaiKpa" => $v['idPegawaiKpa'],
-						"kodeSubSkpd" => $v['kodeSubSkpd'],
-						"namaSubSkpd" => $v['namaSubSkpd'],
-						"isVerifikasiSpp" => $v['isVerifikasiSpp'],
-						"id_bidang" => $v['id_bidang'],
-						"kode_program" => $v['kode_program'],
-						"nama_program" => $v['nama_program'],
-						"kode_bidang_urusan" => $v['kode_bidang_urusan'],
-						"nama_bidang_urusan" => $v['nama_bidang_urusan'],
-						"tipe" => $_POST['tipe'],
-						"active" => 1,
-						"update_at" => current_time('mysql'),
-						"tahun_anggaran" => $_POST["tahun_anggaran"]
-					);
-					if (!empty($cek)) {
-						//Update data spp ditable data_spp_sipd_detail
-						$wpdb->update("data_spp_sipd_detail", $opsi, array(
-							"idDetailSpp" => $v["idDetailSpp"],
-							"tahun" => $v["tahun"],
-							"idSubSkpd" => $_POST['idSkpd'],
-							"tahun_anggaran" => $_POST["tahun_anggaran"],
-							"tipe" => $_POST['tipe']
-						));
-					} else {
-						//insert data spp ditable data_spp_sipd_detail
-						$wpdb->insert("data_spp_sipd_detail", $opsi);
+					foreach ($data as $i => $v) {
+						$cek = $wpdb->get_var($wpdb->prepare("
+							select 
+								idDetailSpp 
+							from data_spp_sipd_detail 
+							where idDetailSpp=%d 
+								and tahun=%d
+								and tahun_anggaran=%d
+						", $v["idDetailSpp"], $v["tahun"], $v["tahun_anggaran"]));
+						$opsi = array(
+							"idSpp" => $v['idSpp'],
+							"idKegiatan" => $v['idKegiatan'],
+							"nilaiDetailSpp" => $v['nilaiDetailSpp'],
+							"nilaiDisetujuiDetailSpp" => $v['nilaiDisetujuiDetailSpp'],
+							"idRekening" => $v['idRekening'],
+							"idBelanja" => $v['idBelanja'],
+							"nominal" => $v['nominal'],
+							"idDetailSpd" => $v['idDetailSpd'],
+							"created_at" => $v['created_at'],
+							"updated_at" => $v['updated_at'],
+							"idSpd" => $v['idSpd'],
+							"idDetailSpp" => $v['idDetailSpp'],
+							"id_jadwal" => $v['id_jadwal'],
+							"id_tahap" => $v['id_tahap'],
+							"status_tahap" => $v['status_tahap'],
+							"id_daerah" => $v['id_daerah'],
+							"id_skpd" => $v['id_skpd'],
+							"tahun_spp" => $v['tahun_spp'],
+							"kode_rekening" => $v['kode_rekening'],
+							"nama_rekening" => $v['nama_rekening'],
+							"id_sub_kegiatan" => $v['id_sub_kegiatan'],
+							"kode_sub_kegiatan" => $v['kode_sub_kegiatan'],
+							"nama_sub_kegiatan" => $v['nama_sub_kegiatan'],
+							"kode_kegiatan" => $v['kode_kegiatan'],
+							"nama_kegiatan" => $v['nama_kegiatan'],
+							"id_sub_skpd" => $v['id_sub_skpd'],
+							"nama_sub_skpd" => $v['nama_sub_skpd'],
+							"distribusi" => $v['distribusi'],
+							"id_pegawai_kpa" => $v['id_pegawai_kpa'],
+							"id_npd" => $v['id_npd'],
+							"id_detail_npd" => $v['id_detail_npd'],
+							"nilaiDetailSpd" => $v['nilaiDetailSpd'],
+							"sisaDetailSpd" => $v['sisaDetailSpd'],
+							"isUp" => $v['isUp'],
+							"tahun" => $v['tahun'],
+							"isPengajuanTu" => $v['isPengajuanTu'],
+							"idSubKegiatan" => $v['idSubKegiatan'],
+							"kodeSubKegiatan" => $v['kodeSubKegiatan'],
+							"namaSubKegiatan" => $v['namaSubKegiatan'],
+							"kodeRekening" => $v['kodeRekening'],
+							"namaRekening" => $v['namaRekening'],
+							"kodeKegiatan" => $v['kodeKegiatan'],
+							"namaKegiatan" => $v['namaKegiatan'],
+							"idSkpd" => $v['idSkpd'],
+							"idDaerah" => $v['idDaerah'],
+							"idProgram" => $v['idProgram'],
+							"idSubSkpd" => $v['idSubSkpd'],
+							"idPegawaiKpa" => $v['idPegawaiKpa'],
+							"kodeSubSkpd" => $v['kodeSubSkpd'],
+							"namaSubSkpd" => $v['namaSubSkpd'],
+							"isVerifikasiSpp" => $v['isVerifikasiSpp'],
+							"id_bidang" => $v['id_bidang'],
+							"kode_program" => $v['kode_program'],
+							"nama_program" => $v['nama_program'],
+							"kode_bidang_urusan" => $v['kode_bidang_urusan'],
+							"nama_bidang_urusan" => $v['nama_bidang_urusan'],
+							"tipe" => $_POST['tipe'],
+							"active" => 1,
+							"update_at" => current_time('mysql'),
+							"tahun_anggaran" => $_POST["tahun_anggaran"]
+						);
+						if (!empty($cek)) {
+							//Update data spp ditable data_spp_sipd_detail
+							$wpdb->update("data_spp_sipd_detail", $opsi, array(
+								"idDetailSpp" => $v["idDetailSpp"],
+								"tahun" => $v["tahun"],
+								"idSubSkpd" => $_POST['idSkpd'],
+								"tahun_anggaran" => $_POST["tahun_anggaran"],
+								"tipe" => $_POST['tipe']
+							));
+						} else {
+							//insert data spp ditable data_spp_sipd_detail
+							$wpdb->insert("data_spp_sipd_detail", $opsi);
+						}
 					}
 				}
 			} else {

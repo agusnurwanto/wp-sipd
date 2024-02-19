@@ -5848,6 +5848,45 @@ CREATE TABLE `data_spp_sipd_detail` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_spp_sipd_ri_detail` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_skpd` int(11) DEFAULT NULL,
+  `id_spp` int(11) DEFAULT NULL,
+  `nomor_spd` text DEFAULT NULL,
+  `tanggal_spd` text DEFAULT NULL,
+  `total_spd` double(20,0) DEFAULT NULL,
+  `jumlah` double(20,0) DEFAULT NULL,
+  `kode_rekening` text DEFAULT NULL,
+  `uraian` text DEFAULT NULL,
+  `bank_bp_bpp` text DEFAULT NULL,
+  `jabatan_bp_bpp` text DEFAULT NULL,
+  `jabatan_pa_kpa` text DEFAULT NULL,
+  `jenis_ls_spp` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `nama_bp_bpp` text DEFAULT NULL,
+  `nama_daerah` text DEFAULT NULL,
+  `nama_ibukota` text DEFAULT NULL,
+  `nama_pa_kpa` text DEFAULT NULL,
+  `nama_pptk` text DEFAULT NULL,
+  `nama_rek_bp_bpp` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `nama_sub_skpd` text DEFAULT NULL,
+  `nilai` double(20,0) DEFAULT NULL,
+  `nip_bp_bpp` text DEFAULT NULL,
+  `nip_pa_kpa` text DEFAULT NULL,
+  `nip_pptk` text DEFAULT NULL,
+  `no_rek_bp_bpp` text DEFAULT NULL,
+  `nomor_transaksi` text DEFAULT NULL,
+  `npwp_bp_bpp` text DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL,
+  `tanggal_transaksi` text DEFAULT NULL,
+  `tipe` varchar(10) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_verifikasi_rka` (
   `id` int(11) NOT NULL auto_increment,
   `kode_sbl` text NOT NULL,
