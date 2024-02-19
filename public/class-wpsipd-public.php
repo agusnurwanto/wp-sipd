@@ -12667,16 +12667,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$spp_results = $wpdb->get_results(
 						$wpdb->prepare("
 							SELECT 
-								*
-							FROM data_spp_sipd
-							INNER JOIN data_spp_sipd_detail
-							ON data_spp_sipd.id = data_spp_sipd_detail.idSpp
-							WHERE data_spp_sipd.tahun_anggaran = %d 
-							  AND data_spp_sipd.idSkpd = %s
-							  AND data_spp_sipd.active = 1
+								s.*
+							FROM data_spp_sipd s
+							WHERE s.tahun_anggaran = %d 
+							  AND s.idSkpd = %s
+							  AND s.active = 1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
+					foreach($spp_results as $k => $v){
+						$detail = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									*
+								FROM data_spp_sipd_ri_detail
+								WHERE tahun_anggaran = %d 
+								  AND idSkpd = %s
+								  AND id_spp = %d
+								  AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['idSpp']),
+							ARRAY_A
+						);
+						$spp_results[$k]['detail'] = $detail;
+					}
 
 					if (!empty($spp_results)) {
 						$ret['data'] = $spp_results;
