@@ -12718,7 +12718,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-
 	public function get_spp_sipd()
 	{
 		global $wpdb;
@@ -12761,6 +12760,52 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if (!empty($spp_results)) {
 						$ret['data'] = $spp_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sp2d_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'   => 'success',
+			'message'  => 'Berhasil Get SP2D SIPD!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_skpd    	= $_POST['id_skpd'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($id_skpd) && !empty($tahun_anggaran)) {
+					$sp2d_results = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								s.*
+							FROM data_sp2d_sipd_ri s
+							WHERE s.tahun_anggaran = %d 
+							  AND s.id_skpd = %d
+							  AND s.active = 1
+						", $tahun_anggaran, $id_skpd),
+						ARRAY_A
+					);
+
+					if (!empty($sp2d_results)) {
+						$ret['data'] = $sp2d_results;
 					} else {
 						$ret['status'] = 'error';
 						$ret['message'] = 'Tidak ada data ditemukan!';
