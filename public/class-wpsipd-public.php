@@ -5905,16 +5905,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
-				$wpdb->update("data_spp_sipd", array('active' => 0), array(
-					"tahun_anggaran" => $_POST["tahun_anggaran"],
-					"idSubUnit" => $_POST['idSkpd'],
-					"tipe" => $_POST['tipe']
-				));
-				$wpdb->update("data_spp_sipd_detail", array('active' => 0), array(
-					"tahun_anggaran" => $_POST["tahun_anggaran"],
-					"idSubSkpd" => $_POST['idSkpd'],
-					"tipe" => $_POST['tipe']
-				));
+				if(
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update("data_spp_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"idSubUnit" => $_POST['idSkpd'],
+						"tipe" => $_POST['tipe']
+					));
+					$wpdb->update("data_spp_sipd_detail", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"idSubSkpd" => $_POST['idSkpd'],
+						"tipe" => $_POST['tipe']
+					));
+					$wpdb->update("data_spp_sipd_ri_detail", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"idSubSkpd" => $_POST['idSkpd'],
+						"tipe" => $_POST['tipe']
+					));
+				}
 				foreach ($data as $i => $v) {
 					$cek = $wpdb->get_var($wpdb->prepare("
 						select 
@@ -6018,10 +6028,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
 					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
-					$wpdb->update("data_spp_sipd_ri_detail", array('active' => 0), array(
-							"id_skpd" => $_POST['idSkpd'],
-							"id_spp" => $_POST['id_spp']
-						));
 					foreach ($data['detail'] as $i => $v) {
 						$cek_id = $wpdb->get_var($wpdb->prepare("
 							select 
