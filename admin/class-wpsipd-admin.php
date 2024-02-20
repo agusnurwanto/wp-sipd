@@ -1147,6 +1147,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						} else if ($_POST['type'] == 'monev_rak') {
 							$url_skpd = $this->generatePage('Rencana Anggaran Kas ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rak tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman RAK ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
+						} else if ($_POST['type'] == 'spd') {
+							$url_skpd = $this->generatePage('Halaman SPD ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spd tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPD ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
+						} else if ($_POST['type'] == 'spp') {
+							$url_skpd = $this->generatePage('Halaman SPP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPP ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><input type="checkbox" value="' . $vv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ') ID = ' . $vv['id_skpd'];
@@ -1871,9 +1877,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_monev_rak_settings', 'Monev RAK')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_spp', 'Halaman SPD')
+			Field::make('checkbox', 'crb_show_menu_spd', 'Halaman SPD')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_spd', 'Halaman SPP')
+			Field::make('checkbox', 'crb_show_menu_spp', 'Halaman SPP')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA')
 				->set_option_value('true'),
