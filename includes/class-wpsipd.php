@@ -974,11 +974,16 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_nopriv_get_spp_sipd',  $plugin_public, 'get_spp_sipd');
 
 		$this->loader->add_action('wp_ajax_get_datatable_data_spp_sipd',  $plugin_public, 'get_datatable_data_spp_sipd');
+		$this->loader->add_action('wp_ajax_get_datatable_data_sp2d_sipd',  $plugin_public, 'get_datatable_data_sp2d_sipd');
 
 		$this->loader->add_action('wp_ajax_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
 		$this->loader->add_action('wp_ajax_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_rak_sipd',  $plugin_public, 'get_rak_sipd');
+		$this->loader->add_action('wp_ajax_get_pegawai_sipd',  $plugin_public, 'get_pegawai_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_pegawai_sipd',  $plugin_public, 'get_pegawai_sipd');
+		$this->loader->add_action('wp_ajax_get_spm_sipd',  $plugin_public, 'get_spm_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_spm_sipd',  $plugin_public, 'get_spm_sipd');
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 
@@ -1000,6 +1005,8 @@ class Wpsipd
 		add_shortcode('spd', array($plugin_public, 'spd'));
 		add_shortcode('halaman_spp', array($plugin_public, 'halaman_spp'));
 		add_shortcode('spp', array($plugin_public, 'spp'));
+		add_shortcode('halaman_sp2d', array($plugin_public, 'halaman_sp2d'));
+		add_shortcode('sp2d', array($plugin_public, 'spp'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
