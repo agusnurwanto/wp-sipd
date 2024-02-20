@@ -5419,6 +5419,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-spp.php';
 	}
 
+	public function halaman_sp2d($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-sp2d.php';
+	}
+
 	public function apbdpenjabaran($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -12551,7 +12561,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['data'] = $pembiayaan_results;
 					} else {
 						$ret['status']  = 'error';
-						$ret['message'] = 'Tidak ada data pembiayaan ditemukan!';
+						$ret['message'] = 'Tidak ada data ditemukan!';
 					}
 				} else {
 					$ret['status']  = 'error';
@@ -12598,7 +12608,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['data'] = $pendapatan_results;
 					} else {
 						$ret['status']  = 'error';
-						$ret['message'] = 'Tidak ada data pendapatan ditemukan!';
+						$ret['message'] = 'Tidak ada data ditemukan!';
 					}
 				} else {
 					$ret['status']  = 'error';
@@ -12691,7 +12701,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['data'] = $spd_results;
 					} else {
 						$ret['status'] = 'error';
-						$ret['message'] = 'Tidak ada data SPD ditemukan!';
+						$ret['message'] = 'Tidak ada data ditemukan!';
 					}
 				} else {
 					$ret['status'] = 'error';
@@ -12753,7 +12763,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['data'] = $spp_results;
 					} else {
 						$ret['status'] = 'error';
-						$ret['message'] = 'Tidak ada data SPP ditemukan!';
+						$ret['message'] = 'Tidak ada data ditemukan!';
 					}
 				} else {
 					$ret['status'] = 'error';
@@ -12801,7 +12811,133 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['data'] = $rak_results;
 					} else {
 						$ret['status'] = 'error';
-						$ret['message'] = 'Tidak ada data RAK ditemukan!';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_pegawai_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'   => 'success',
+			'message'  => 'Berhasil Get Pegawai SIPD!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_skpd = $_POST['id_skpd'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($id_skpd) && !empty($tahun_anggaran)) {
+					$pegawai_results = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							id,
+							idSkpd,
+							namaSkpd,
+							kodeSkpd,
+							idDaerah,
+							userName,
+							nip,
+							nik,
+							fullName,
+							lahir_user,
+							nomorHp,
+							rank,
+							npwp,
+							idJabatan,
+							namaJabatan,
+							idRole,
+							`order`,
+							kpa,
+							bank,
+							`group`,
+							kodeBank,
+							nama_rekening,
+							nomorRekening,
+							pangkatGolongan,
+							tahunPegawai,
+							kodeDaerah,
+							is_from_sipd,
+							is_from_generate,
+							is_from_external,
+							idSubUnit,
+							idUser,
+							idPegawai,
+							alamat,
+							tahun,
+							updated_at
+							FROM data_user_penatausahaan
+						WHERE tahun_anggaran = %d 
+						  AND idSkpd = %s
+						  AND active = 1
+						", $tahun_anggaran, $id_skpd),
+						ARRAY_A
+					);
+
+					if (!empty($pegawai_results)) {
+						$ret['data'] = $pegawai_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_spm_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'   => 'success',
+			'message'  => 'Berhasil Get SPM SIPD!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_skpd = $_POST['id_skpd'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($id_skpd) && !empty($tahun_anggaran)) {
+					$spm_results = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						FROM data_spm_sipd
+						WHERE tahun_anggaran = %d 
+						  AND id_skpd = %s
+						  AND active = 1
+						", $tahun_anggaran, $id_skpd),
+						ARRAY_A
+					);
+
+					if (!empty($spm_results)) {
+						$ret['data'] = $spm_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
 					}
 				} else {
 					$ret['status'] = 'error';
@@ -21229,6 +21365,115 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				foreach ($queryRecords as $recKey => $recVal) {
 					$queryRecords[$recKey]['nomorSpp'] = $recVal['nomorSpp'];
+					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
+				}
+
+				$json_data = array(
+					"draw"            => intval($params['draw']),
+					"recordsTotal"    => intval($totalRecords),
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords,
+					"sql"             => $sqlRec
+				);
+
+				die(json_encode($json_data));
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_datatable_data_sp2d_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get datatable SP2D SIPD!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array(
+					0 => 'tahunSpp',
+					1 => 'nomorSpp',
+					2 => 'nilaiSpp',
+					3 => 'tanggalSpp',
+					4 => 'keteranganSpp',
+					5 => 'nilaiDisetujuiSpp',
+					6 => 'tanggalDisetujuiSpp',
+					7 => 'jenisSpp',
+					8 => 'verifikasiSpp',
+					9 => 'keteranganVerifikasi',
+					10 => 'kunciRekening',
+					11 => 'alamatPenerimaSpp',
+					12 => 'bankPenerimaSpp',
+					13 => 'nomorRekeningPenerimaSpp',
+					14 => 'npwpPenerimaSpp',
+					15 => 'jenisLs',
+					16 => 'statusPerubahan',
+					17 => 'kodeDaerah',
+					18 => 'tanggal_otorisasi',
+					19 => 'bulan_gaji',
+					20 => 'nama_pegawai_pptk',
+					21 => 'nip_pegawai_pptk',
+					22 => 'status_tahap',
+					23 => 'kode_tahap',
+					24 => 'bulan_tpp',
+					25 => 'nomor_pengajuan_tu',
+					26 => 'tipe',
+					27 => 'id'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if (!empty($params['search']['value'])) {
+					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+					$where .= " AND (nomorSpp LIKE " . $search_value;
+					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
+				}
+
+				if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
+					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(id) as jml FROM `data_sp2d_sipd`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_sp2d_sipd`";
+				$where_first = " WHERE 1=1";
+
+				$sqlTot .= $sql_tot . $where_first;
+				$sqlRec .= $sql . $where_first;
+				if (isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+				$limit = '';
+				if ($params['length'] != -1) {
+					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
+				}
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach ($queryRecords as $recKey => $recVal) {
 					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
 					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
 				}

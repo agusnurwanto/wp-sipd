@@ -35,8 +35,8 @@ if ($skpd_result) {
     }
 </style>
 <div class="wrap-table">
-    <h1 class="text-center">Data SPP ( Surat Pernyataan Pengajuan )<br> <?php echo $kd_nama_skpd; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-    <table id="table-data-spp" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+    <h1 class="text-center">Data SP2D ( Surat Perintah Pencairan Dana )<br> <?php echo $kd_nama_skpd; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+    <table id="table-data-sp2d" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
         <thead>
             <tr>
                 <th class="text-center">No</th>
@@ -75,12 +75,12 @@ if ($skpd_result) {
 </div>
 <script>
     jQuery(document).ready(function() {
-        get_datatable_spp();
+        get_datatable_sp2d();
     });
 
-    function get_datatable_spp() {
-        if (typeof tableDataSpp == 'undefined') {
-            window.tableDataSpp = jQuery('#table-data-spp').on('preXhr.dt', function(e, settings, data) {
+    function get_datatable_sp2d() {
+        if (typeof tableDataSp2d == 'undefined') {
+            window.tableDataSp2d = jQuery('#table-data-sp2d').on('preXhr.dt', function(e, settings, data) {
                 jQuery("#wrap-loading").show();
             }).DataTable({
                 "processing": true,
@@ -93,7 +93,7 @@ if ($skpd_result) {
                     type: 'POST',
                     dataType: 'JSON',
                     data: {
-                        'action': 'get_datatable_data_spp_sipd',
+                        'action': 'get_datatable_data_sp2d_sipd',
                         'api_key': '<?php echo $api_key; ?>',
                         'id_skpd': '<?php echo $input['id_skpd']; ?>',
                         'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
@@ -229,7 +229,7 @@ if ($skpd_result) {
                 ]
             });
         } else {
-            tableDataSpp.draw();
+            tableDataSp2d.draw();
         }
     }
 </script>
