@@ -6311,70 +6311,104 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = $_POST['data'];
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				if(
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update("data_sp2d_sipd_ri", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd'],
+						"jenis_sp_2_d" => $_POST['tipe']
+					));
+				}
 				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("select idSp2d from data_sp2d_sipd where idSp2d=%d and tahun_anggaran=%d", $v['idSp2d'], $_POST['tahun_anggaran']));
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_sp2d_sipd_ri 
+						where id_sp_2_d=%d 
+							and tahun_anggaran=%d
+					", $v['id_sp_2_d'], $_POST['tahun_anggaran']));
 					$opsi = array(
-						"idSpm" => $v["idSpm"],
-						"nomorSp2d" => $v["nomorSp2d"],
-						"tanggalSp2d" => $v["tanggalSp2d"],
-						"tahun_anggaran" => $v["tahunSp2d"],
-						"idSubUnit" => $v["idSubUnit"],
-						"keteranganSp2d" => $v["keteranganSp2d"],
-						"jenisSp2d" => $v["jenisSp2d"],
-						"nilaiSp2d" => $v["nilaiSp2d"],
-						"jenisLs" => $v["jenisLs"],
-						"isPergeseran" => $v["isPergeseran"],
-						"isPelimpahan" => $v["isPelimpanan"],
-						"created_at" => $v["created_at"],
-						"updated_at" => $v["updated_at"],
-						"isTbpLs" => $v["isTbpLs"],
-						"idSkpd" => $v["idSkpd"],
-						"isDraft" => $v["isDraft"],
-						"idSp2d" => $v["idSp2d"],
-						"verifikasiSp2d" => $v["verifikasiSp2d"],
-						"tanggalVerifikasi" => $v["tanggalVerifikasi"],
-						"idSkpdTujuan" => $v["idSkpdTujuan"],
-						"kunciRekening" => $v["kunciRekening"],
-						"isBku" => $v["isBku"],
-						"bulan_gaji" => $v["bulan_gaji"],
-						"tahun_gaji" => $v["tahun_gaji"],
-						"jenis_gaji" => $v["jenis_gaji"],
-						"is_bku_skpd" => $v["is_bku_skpd"],
-						"id_jadwal" => $v["id_jadwal"],
-						"id_tahap" => $v["id_tahap"],
-						"status_tahap" => $v["status_tahap"],
-						"kode_tahap" => $v["kode_tahap"],
-						"status_aklap" => $v["status_aklap"],
-						"nomor_jurnal" => $v["nomor_jurnal"],
-						"jurnal_id" => $v["jurnal_id"],
-						"metode" => $v["metode"],
-						"bulan_tpp" => $v["bulan_tpp"],
-						"tahun_tpp" => $v["tahun_tpp"],
-						"nomor_rekening_pembayar" => $v["nomor_rekening_pembayar"],
-						"bank_rekening_pembayar" => $v["bank_rekening_pembayar"],
-						"is_rekening_pembayar" => $v["is_rekening_pembayar"],
-						"nomorSpm" => $v["nomorSpm"],
-						"tanggalSpm" => $v["tanggalSpm"],
-						"tahunSpm" => $v["tahunSpm"],
-						"keteranganSpm" => $v["keteranganSpm"],
-						"verifikasiSpm" => $v["verifikasiSpm"],
-						"tanggalVerifikasiSpm" => $v["tanggalVerifikasiSpm"],
-						"jenisSpm" => $v["jenisSpm"],
-						"nilaiSpm" => $v["nilaiSpm"],
-						"keteranganVerifikasiSpm" => $v["keteranganVerifikasiSpm"],
-						"isOtorisasi" => $v["isOtorisasi"],
-						"tanggalOtorisasi" => $v["tanggal_otorisasi"],
-						"is_sptjm" => $v["is_sptjm"],
-						"namaSkpd" => $v["namaSkpd"],
-						"kodeSkpd" => $v["kodeSkpd"],
-						"is_bpk" => $v["is_bpk"]
+						'bulan_gaji' => $v['bulan_gaji'],
+						'bulan_tpp' => $v['bulan_tpp'],
+						'created_at' => $v['created_at'],
+						'created_by' => $v['created_by'],
+						'deleted_at' => $v['deleted_at'],
+						'deleted_by' => $v['deleted_by'],
+						'id_bank' => $v['id_bank'],
+						'id_daerah' => $v['id_daerah'],
+						'id_jadwal' => $v['id_jadwal'],
+						'id_pegawai_bud_kbud' => $v['id_pegawai_bud_kbud'],
+						'id_rkud' => $v['id_rkud'],
+						'id_skpd' => $v['id_skpd'],
+						'id_sp_2_d' => $v['id_sp_2_d'],
+						'id_spm' => $v['id_spm'],
+						'id_sub_skpd' => $v['id_sub_skpd'],
+						'id_sumber_dana' => $v['id_sumber_dana'],
+						'id_tahap' => $v['id_tahap'],
+						'id_unit' => $v['id_unit'],
+						'is_gaji' => $v['is_gaji'],
+						'is_kunci_rekening_sp_2_d' => $v['is_kunci_rekening_sp_2_d'],
+						'is_pelimpahan' => $v['is_pelimpahan'],
+						'is_status_perubahan' => $v['is_status_perubahan'],
+						'is_tpp' => $v['is_tpp'],
+						'is_transfer_sp_2_d' => $v['is_transfer_sp_2_d'],
+						'is_verifikasi_sp_2_d' => $v['is_verifikasi_sp_2_d'],
+						'jenis_gaji' => $v['jenis_gaji'],
+						'jenis_ls_sp_2_d' => $v['jenis_ls_sp_2_d'],
+						'jenis_rkud' => $v['jenis_rkud'],
+						'jenis_sp_2_d' => $v['jenis_sp_2_d'],
+						'jurnal_id' => $v['jurnal_id'],
+						'keterangan_sp_2_d' => $v['keterangan_sp_2_d'],
+						'keterangan_transfer_sp_2_d' => $v['keterangan_transfer_sp_2_d'],
+						'keterangan_verifikasi_sp_2_d' => $v['keterangan_verifikasi_sp_2_d'],
+						'kode_skpd' => $v['kode_skpd'],
+						'kode_sub_skpd' => $v['kode_sub_skpd'],
+						'kode_tahap' => $v['kode_tahap'],
+						'metode' => $v['metode'],
+						'nama_bank' => $v['nama_bank'],
+						'nama_bud_kbud' => $v['nama_bud_kbud'],
+						'nama_rek_bp_bpp' => $v['nama_rek_bp_bpp'],
+						'nama_skpd' => $v['nama_skpd'],
+						'nama_sub_skpd' => $v['nama_sub_skpd'],
+						'nilai_materai_sp_2_d' => $v['nilai_materai_sp_2_d'],
+						'nilai_sp_2_d' => $v['nilai_sp_2_d'],
+						'nip_bud_kbud' => $v['nip_bud_kbud'],
+						'no_rek_bp_bpp' => $v['no_rek_bp_bpp'],
+						'nomor_jurnal' => $v['nomor_jurnal'],
+						'nomor_sp_2_d' => $v['nomor_sp_2_d'],
+						'nomor_spm' => $v['nomor_spm'],
+						'status_aklap' => $v['status_aklap'],
+						'status_perubahan_at' => $v['status_perubahan_at'],
+						'status_perubahan_by' => $v['status_perubahan_by'],
+						'status_tahap' => $v['status_tahap'],
+						'tahun' => $v['tahun'],
+						'tahun_gaji' => $v['tahun_gaji'],
+						'tahun_tpp' => $v['tahun_tpp'],
+						'tanggal_sp_2_d' => $v['tanggal_sp_2_d'],
+						'tanggal_spm' => $v['tanggal_spm'],
+						'transfer_sp_2_d_at' => $v['transfer_sp_2_d_at'],
+						'transfer_sp_2_d_by' => $v['transfer_sp_2_d_by'],
+						'updated_at' => $v['updated_at'],
+						'updated_by' => $v['updated_by'],
+						'verifikasi_sp_2_d_at' => $v['verifikasi_sp_2_d_at'],
+						'verifikasi_sp_2_d_by' => $v['verifikasi_sp_2_d_by'],
+						'active' => 1,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
-						$wpdb->update('data_sp2d_sipd', $opsi, array('idSp2d' => $v["idSp2d"], 'tahun_anggaran' => $v["tahunSp2d"]));
+						$wpdb->update('data_sp2d_sipd_ri', $opsi, array(
+							'id' => $cek
+						));
 					} else {
-						$wpdb->insert('data_sp2d_sipd', $opsi);
-						//insert data ke table data_sp2d_sipd
+						$wpdb->insert('data_sp2d_sipd_ri', $opsi);
+						//insert data ke table data_sp2d_sipd_ri
 					}
 				}
 			} else {
@@ -21194,6 +21228,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
+					$queryRecords[$recKey]['nomorSpp'] = $recVal['nomorSpp'];
 					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
 					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
 				}
