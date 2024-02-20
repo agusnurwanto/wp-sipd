@@ -12670,7 +12670,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								s.*
 							FROM data_spp_sipd s
 							WHERE s.tahun_anggaran = %d 
-							  AND s.idSkpd = %s
+							  AND s.idSkpd = %d
 							  AND s.active = 1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
@@ -12682,7 +12682,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									*
 								FROM data_spp_sipd_ri_detail
 								WHERE tahun_anggaran = %d 
-								  AND idSkpd = %s
+								  AND id_skpd = %d
 								  AND id_spp = %d
 								  AND active = 1
 							", $tahun_anggaran, $id_skpd, $v['idSpp']),
