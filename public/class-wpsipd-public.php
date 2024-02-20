@@ -6201,8 +6201,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
+				if(
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update("data_spm_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd'],
+						"jenisSpm" => $_POST['tipe']
+					));
+				}
 				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("select idSpm from data_spm_sipd where idSpm=%d and tahun_anggaran=%d", $v["idSpm"], $v["tahunSpm"]));
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_spm_sipd 
+						where idSpm=%d 
+							and tahun_anggaran=%d
+						", $v["idSpm"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"idSpm" => $v["idSpm"],
 						"idSpp" => $v["idSpp"],
@@ -6210,7 +6226,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"updated_at" => $v["updated_at"],
 						"idDetailSpm" => $v["idDetailSpm"],
 						"id_skpd" => $v["id_skpd"],
-						"tahun_anggaran" => $v["tahunSpm"],
 						"id_jadwal" => $v["id_jadwal"],
 						"id_tahap" => $v["id_tahap"],
 						"status_tahap" => $v["status_tahap"],
@@ -6257,15 +6272,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"keteranganSpm" => $v["keteranganSpm"],
 						"verifikasiSpm" => $v["verifikasiSpm"],
 						"tanggalVerifikasiSpm" => $v["tanggalVerifikasiSpm"],
-						"jenisSpm" => $v["jenisSpm"],
+						"jenisSpm" => $_POST['tipe'],
 						"nilaiSpm" => $v["nilaiSpm"],
 						"keteranganVerifikasiSpm" => $v["keteranganVerifikasiSpm"],
 						"isOtorisasi" => $v["isOtorisasi"],
-						"tanggalOtorisasi" => $v["tanggalOtorisasi"]
+						"tanggalOtorisasi" => $v["tanggalOtorisasi"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("data_spm_sipd", $opsi, array("idSpm" => $v["idSpm"], "tahun_anggaran" => $v["tahun_spm"]));
+						$wpdb->update("data_spm_sipd", $opsi, array("id" => $cek));
 					} else {
 						//insert data spm ditable data_spm_sipd
 						$wpdb->insert("data_spm_sipd", $opsi);

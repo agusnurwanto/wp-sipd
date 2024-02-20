@@ -4941,7 +4941,6 @@ CREATE TABLE `data_spm_sipd` (
   `updated_at` datetime DEFAULT NULL,
   `idDetailSpm` int(11) DEFAULT NULL,
   `id_skpd` int(11) DEFAULT NULL,
-  `tahun_anggaran` year(4) DEFAULT NULL COMMENT 'tahun_spm',
   `id_jadwal` int(11) DEFAULT NULL,
   `id_tahap` int(11) DEFAULT NULL,
   `status_tahap` varchar(15) DEFAULT NULL,
@@ -4994,6 +4993,9 @@ CREATE TABLE `data_spm_sipd` (
   `keteranganVerifikasiSpm` varchar(500) DEFAULT NULL,
   `isOtorisasi` bit(1) DEFAULT NULL,
   `tanggalOtorisasi` date DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
