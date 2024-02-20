@@ -847,6 +847,9 @@
         <li class="scroll-to-link" data-target="content-get-spd-by-tahun-anggaran">
             <a>Get SPD</a>
         </li>
+        <li class="scroll-to-link" data-target="content-get-pegawai">
+            <a>Get Pegawai Penatausahaan</a>
+        </li>
         <li class="scroll-to-link" data-target="content-get-spp-by-tahun-anggaran">
             <a>Get SPP</a>
         </li>
@@ -2310,6 +2313,118 @@ Result :
                 </code>
             </pre>
         </div>
+        <div class="overflow-hidden content-section" id="content-get-pegawai">
+            <h2>GET Pegawai Penatausahaan</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_pegawai_sipd' \
+-F 'tahun_anggaran=2024' \
+-F 'id_skpd=3346' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data Pegawai berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_pegawai_sipd
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            id_skpd
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_pegawai_sipd",
+    "status": "success",
+    "message": "Berhasil Get Pegawai SIPD!",
+    "data": [
+       {}
+    ]
+}
+                </code>
+            </pre>
+        </div>
         <div class="overflow-hidden content-section" id="content-get-spp-by-tahun-anggaran">
             <h2>GET SPP berdasarkan SKPD dan Tahun Anggaran</h2>
             <pre>
@@ -2320,7 +2435,7 @@ curl \
 -F 'api_key=<?php echo $key; ?>' \
 -F 'action=get_spp_sipd' \
 -F 'tahun_anggaran=2024' \
--F 'id_skpd=1801' \
+-F 'id_skpd=3346' \
                 </code>
             </pre>
             <p>
@@ -2415,109 +2530,100 @@ Result :
     "action": "get_spp_sipd",
     "status": "success",
     "message": "Berhasil Get SPP SIPD!",
-    "data": [
-        {
-            "id":"1",
-            "nomorSpp":"SPP001",
-            "nilaiSpp":"5000",
-            "tanggalSpp":"2024-02-07",
-            "keteranganSpp":"Pembayaran 1",
-            "idSkpd":"1801",
-            "idSubUnit":"301",
-            "nilaiDisetujuiSpp":"4800",
-            "tanggalDisetujuiSpp":"2024-02-08",
-            "jenisSpp":"LS",
-            "verifikasiSpp":"1",
-            "keteranganVerifikasi":"Terverifikasi",
-            "idSpd":"601",
-            "idPengesahanSpj":"101",
-            "kunciRekening":"0",
-            "alamatPenerimaSpp":"Alamat Penerima 1",
-            "bankPenerimaSpp":"Bank Penerima 1",
-            "nomorRekeningPenerimaSpp":"1234567890",
-            "npwpPenerimaSpp":"NPWP123456789",
-            "idUser":"1",
-            "jenisLs":"Jenis LS 1",
-            "isUploaded":"1",
-            "tahunSpp":"2024",
-            "idKontrak":"301",
-            "idBA":"401",
-            "created_at":"2024-02-13 12:00:00",
-            "updated_at":"2024-02-13 12:30:00",
-            "isSpm":"0",
-            "statusPerubahan":"0",
-            "isDraft":"1",
-            "idSpp":"1",
-            "kodeDaerah":"Kode Daerah 1",
-            "idDaerah":"1901",
-            "isGaji":"0",
-            "is_sptjm":"0",
-            "tanggal_otorisasi":"2024-02-07 10:30:00",
-            "is_otorisasi":"0",
-            "bulan_gaji":"Bulan Gaji 1",
-            "id_pegawai_pptk":"701",
-            "nama_pegawai_pptk":"Nama PPTK 1",
-            "nip_pegawai_pptk":"NIP PPTK 1",
-            "id_jadwal":"801",
-            "id_tahap":"901",
-            "status_tahap":"Pending",
-            "kode_tahap":"Kode Tahap 1",
-            "is_tpp":"1",
-            "bulan_tpp":"2",
-            "id_pengajuan_tu":"1001",
-            "nomor_pengajuan_tu":"Nomor Pengajuan TU 1",
-            "id_npd":"1501",
-            "tipe":"Tipe 1",
-            "active":"1",
-            "update_at":"2024-02-13 13:00:00",
-            "tahun_anggaran":"2024",
-            "idKegiatan":"101",
-            "nilaiDetailSpp":"500000",
-            "nilaiDisetujuiDetailSpp":"450000",
-            "idRekening":"201",
-            "idBelanja":"301",
-            "nominal":"100000",
-            "idDetailSpd":"501",
-            "idDetailSpp":"701",
-            "id_daerah":"1001",
-            "id_skpd":"1101",
-            "tahun_spp":"2024",
-            "kode_rekening":"123.456.789",
-            "nama_rekening":"Dummy Rekening 1",
-            "id_sub_kegiatan":"1201",
-            "kode_sub_kegiatan":"123.456.789.001",
-            "nama_sub_kegiatan":"Dummy Sub Kegiatan 1",
-            "kode_kegiatan":"SK001",
-            "nama_kegiatan":"Dummy Kegiatan 1",
-            "id_sub_skpd":"1301",
-            "nama_sub_skpd":"Dummy Sub SKPD 1",
-            "distribusi":"Distribusi 1",
-            "id_pegawai_kpa":"1401",
-            "id_detail_npd":"1601",
-            "nilaiDetailSpd":"500000",
-            "sisaDetailSpd":"50000",
-            "isUp":"1",
-            "tahun":"2024",
-            "isPengajuanTu":"1",
-            "idSubKegiatan":"1701",
-            "kodeSubKegiatan":"SK001.001",
-            "namaSubKegiatan":"Dummy Sub Kegiatan 1.001",
-            "kodeRekening":"123.456.789.001.001",
-            "namaRekening":"Dummy Rekening 1.001",
-            "kodeKegiatan":"SK001.001",
-            "namaKegiatan":"Dummy Kegiatan 1.001",
-            "idProgram":"2001",
-            "idSubSkpd":"2101",
-            "idPegawaiKpa":"2201",
-            "kodeSubSkpd":"SK001.001",
-            "namaSubSkpd":"Dummy Sub SKPD 1.001",
-            "isVerifikasiSpp":"1",
-            "id_bidang":"2301",
-            "kode_program":"123.456.789.001.001",
-            "nama_program":"Dummy Program 1.001",
-            "kode_bidang_urusan":"001",
-            "nama_bidang_urusan":"Dummy Bidang Urusan 1"
-        },
+    "data": [{
+        "id": "18188",
+        "nomorSpp": "35.19/02.0/000005/LS/2.19.3.26.0.00.01.0000/P/2/2024",
+        "nilaiSpp": "116338787",
+        "tanggalSpp": "2024-02-07",
+        "keteranganSpp": "Pembayaran Gaji Bulan Februari 2024 Dinas Pariwisata, Pemuda, dan Olahraga (DAU)",
+        "idSkpd": "3346",
+        "idSubUnit": "0",
+        "nilaiDisetujuiSpp": "116338787",
+        "tanggalDisetujuiSpp": null,
+        "jenisSpp": "LS",
+        "verifikasiSpp": "1",
+        "keteranganVerifikasi": "",
+        "idSpd": null,
+        "idPengesahanSpj": null,
+        "kunciRekening": "0",
+        "alamatPenerimaSpp": null,
+        "bankPenerimaSpp": null,
+        "nomorRekeningPenerimaSpp": null,
+        "npwpPenerimaSpp": null,
+        "idUser": "0",
+        "jenisLs": "gaji",
+        "isUploaded": "0",
+        "tahunSpp": "2024",
+        "idKontrak": "0",
+        "idBA": "0",
+        "created_at": "2024-02-07 09:45:37",
+        "updated_at": "0001-01-01 00:00:00",
+        "isSpm": "0",
+        "statusPerubahan": "0",
+        "isDraft": null,
+        "idSpp": "23051",
+        "kodeDaerah": null,
+        "idDaerah": "89",
+        "isGaji": "0",
+        "is_sptjm": null,
+        "tanggal_otorisasi": "0001-01-01 00:00:00",
+        "is_otorisasi": "1",
+        "bulan_gaji": "2",
+        "id_pegawai_pptk": "0",
+        "nama_pegawai_pptk": null,
+        "nip_pegawai_pptk": null,
+        "id_jadwal": "0",
+        "id_tahap": "0",
+        "status_tahap": "",
+        "kode_tahap": "",
+        "is_tpp": "0",
+        "bulan_tpp": "0",
+        "id_pengajuan_tu": "0",
+        "nomor_pengajuan_tu": null,
+        "id_npd": null,
+        "tipe": "LS",
+        "active": "1",
+        "update_at": "2024-02-20 00:56:48",
+        "tahun_anggaran": "2024",
+        "detail": [
+            {
+                "id": "3479",
+                "id_skpd": "3346",
+                "id_spp": "23051",
+                "nomor_spd": "35.19/01.0/000001/2.19.3.26.0.00.01.0000/M/2/2024",
+                "tanggal_spd": "2024-02-05 00:00:00",
+                "total_spd": "7307025031",
+                "jumlah": "0",
+                "kode_rekening": "",
+                "uraian": "NOMOR SPD: 35.19/01.0/000001/2.19.3.26.0.00.01.0000/M/2/2024",
+                "bank_bp_bpp": "Bank JATIM",
+                "jabatan_bp_bpp": "BENDAHARA PENGELUARAN",
+                "jabatan_pa_kpa": "PENGGUNA ANGGARAN",
+                "jenis_ls_spp": "gaji",
+                "keterangan": "Pembayaran Gaji Bulan Februari 2024 Dinas Pariwisata, Pemuda, dan Olahraga (DAU)",
+                "nama_bp_bpp": "SILVIA AGUSTINA",
+                "nama_daerah": "Kab. Madiun",
+                "nama_ibukota": "Caruban",
+                "nama_pa_kpa": "ANANG SULISTIJONO, S.Sos. M.Si",
+                "nama_pptk": "Drs. AGUS PURNOMO",
+                "nama_rek_bp_bpp": "BEND PENG DISPARPORA KABMADIUN",
+                "nama_skpd": "Dinas Pariwisata Pemuda dan Olah Raga",
+                "nama_sub_skpd": "Dinas Pariwisata Pemuda dan Olah Raga",
+                "nilai": "116338787",
+                "nip_bp_bpp": "198408262005012003",
+                "nip_pa_kpa": "197003261991011001",
+                "nip_pptk": "196807121993021001",
+                "no_rek_bp_bpp": "0051039416",
+                "nomor_transaksi": "35.19/02.0/000005/LS/2.19.3.26.0.00.01.0000/P/2/2024",
+                "npwp_bp_bpp": "001200419621000",
+                "tahun": "2024",
+                "tanggal_transaksi": "2024-02-07 00:00:00",
+                "tipe": "LS",
+                "active": "1",
+                "update_at": "2024-02-20 01:43:24",
+                "tahun_anggaran": "2024"
+            }
+        ]
     ]
 }
                 </code>
