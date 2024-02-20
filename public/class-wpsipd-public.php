@@ -5905,10 +5905,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
-				if(
+				if (
 					empty($_POST['page'])
 					|| $_POST['page'] == 1
-				){
+				) {
 					$wpdb->update("data_spp_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
 						"idSubUnit" => $_POST['idSkpd'],
@@ -7051,7 +7051,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									AND tahun_anggaran=%d
 									AND type like %s
 									AND active=1
-							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe'].'%'), ARRAY_A);
+							", $v['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe'] . '%'), ARRAY_A);
 						} else {
 							$kode_sbl = explode('.', $v['kode_sbl']);
 							if ($_POST['tahun_anggaran'] >= 2024) {
@@ -12639,13 +12639,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$program = array();
 						$giat = array();
 						$sub_giat = array();
-						foreach($master_prog as $k => $v){
+						foreach ($master_prog as $k => $v) {
 							$program[$v['id_program']] = $v;
 							$giat[$v['id_giat']] = $v;
 							$sub_giat[$v['id_sub_giat']] = $v;
 						}
-						foreach($spd_results as $k => $v){
-							if(!empty($sub_giat[$v['id_sub_giat']])){
+						foreach ($spd_results as $k => $v) {
+							if (!empty($sub_giat[$v['id_sub_giat']])) {
 								$spd_results[$k]['kode_sub_giat'] = $sub_giat[$v['id_sub_giat']]['kode_sub_giat'];
 								$spd_results[$k]['nama_sub_giat'] = $sub_giat[$v['id_sub_giat']]['nama_sub_giat'];
 								$spd_results[$k]['kode_giat'] = $sub_giat[$v['id_sub_giat']]['kode_giat'];
@@ -12699,7 +12699,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
-					foreach($spp_results as $k => $v){
+					foreach ($spp_results as $k => $v) {
 						$detail = $wpdb->get_results(
 							$wpdb->prepare("
 								SELECT 
@@ -21111,5 +21111,114 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$current_url .= '?page_id=' . $query['page_id'];
 		}
 		return $current_url;
+	}
+
+	public function get_datatable_data_spp_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get datatable SPP SIPD!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array(
+					0 => 'tahunSpp',
+					1 => 'nomorSpp',
+					2 => 'nilaiSpp',
+					3 => 'tanggalSpp',
+					4 => 'keteranganSpp',
+					5 => 'nilaiDisetujuiSpp',
+					6 => 'tanggalDisetujuiSpp',
+					7 => 'jenisSpp',
+					8 => 'verifikasiSpp',
+					9 => 'keteranganVerifikasi',
+					10 => 'kunciRekening',
+					11 => 'alamatPenerimaSpp',
+					12 => 'bankPenerimaSpp',
+					13 => 'nomorRekeningPenerimaSpp',
+					14 => 'npwpPenerimaSpp',
+					15 => 'jenisLs',
+					16 => 'statusPerubahan',
+					17 => 'kodeDaerah',
+					18 => 'tanggal_otorisasi',
+					19 => 'bulan_gaji',
+					20 => 'nama_pegawai_pptk',
+					21 => 'nip_pegawai_pptk',
+					22 => 'status_tahap',
+					23 => 'kode_tahap',
+					24 => 'bulan_tpp',
+					25 => 'nomor_pengajuan_tu',
+					26 => 'tipe',
+					27 => 'id'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if (!empty($params['search']['value'])) {
+					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+					$where .= " AND (nomorSpp LIKE " . $search_value;
+					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
+				}
+
+				if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
+					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(id) as jml FROM `data_spp_sipd`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_spp_sipd`";
+				$where_first = " WHERE 1=1";
+
+				$sqlTot .= $sql_tot . $where_first;
+				$sqlRec .= $sql . $where_first;
+				if (isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+				$limit = '';
+				if ($params['length'] != -1) {
+					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
+				}
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach ($queryRecords as $recKey => $recVal) {
+					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
+				}
+
+				$json_data = array(
+					"draw"            => intval($params['draw']),
+					"recordsTotal"    => intval($totalRecords),
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords,
+					"sql"             => $sqlRec
+				);
+
+				die(json_encode($json_data));
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 }
