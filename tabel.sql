@@ -5066,7 +5066,7 @@ CREATE TABLE `data_spm_sipd` (
   `isOtorisasi` bit(1) DEFAULT NULL,
   `tanggalOtorisasi` date DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  `updated_at` datetime DEFAULT NULL,
+  `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
