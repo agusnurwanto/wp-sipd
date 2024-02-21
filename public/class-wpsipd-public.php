@@ -12925,7 +12925,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							tahun,
 							updated_at
 							FROM data_user_penatausahaan
-						WHERE tahun_anggaran = %d 
+						WHERE tahun = %d 
 						  AND idSkpd = %s
 						  AND active = 1
 						", $tahun_anggaran, $id_skpd),
