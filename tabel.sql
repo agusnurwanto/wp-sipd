@@ -750,8 +750,9 @@ CREATE TABLE `data_user_penatausahaan` (
   `idUser` int(11) DEFAULT NULL,
   `idPegawai` int(11) DEFAULT NULL,
   `alamat` text DEFAULT NULL,
-  `tahun` year(4) NOT NULL,
   `updated_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
+  `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
 

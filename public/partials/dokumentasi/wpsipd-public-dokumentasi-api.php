@@ -2459,7 +2459,7 @@ Result :
             idUser: 100,
             idPegawai: 0,
             alamat: 'Kab. Madiun',
-            tahun: '2024',
+            tahun_anggaran: '2024',
             updated_at: '0001-01-01 00:00:00',
        }
     ]

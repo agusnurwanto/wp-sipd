@@ -3751,9 +3751,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						// print_r($data_user);exit;
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
-								userName 
+								id 
 							from data_user_penatausahaan 
-							where tahun=%d 
+							where tahun_anggaran=%d 
 								AND userName=%s 
 								AND idUser=%s
 						", $_POST['tahun_anggaran'], $data_user['userName'], $data_user['idUser']));
@@ -3792,15 +3792,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"idUser" => $data_user['idUser'],
 							"idPegawai" => $data_user['idPegawai'],
 							"alamat" => $data_user['alamat'],
-							'tahun' => $_POST['tahun_anggaran'],
+							'active' => 1,
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'updated_at' => current_time('mysql')
 						);
 
 						if (!empty($cek)) {
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
-								'tahun' => $_POST['tahun_anggaran'],
-								'userName' => $data_user['userName'],
-								'idUser' => $data_user['idUser'],
+								'id' => $cek
 							));
 						} else {
 							$wpdb->insert('data_user_penatausahaan', $opsi);
@@ -3897,9 +3896,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						// print_r($data_user);exit;
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
-								userName
+								id
 							from data_user_penatausahaan 
-							where tahun=%d 								
+							where tahun_anggaran=%d 								
 								AND idUser=%s
 						", $_POST['tahun_anggaran'], $data_user['idUser']));
 						// print_r($data_user['idUser']);exit;
@@ -3928,15 +3927,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"idUser" => $data_user['idUser'],
 							"idPegawai" => $data_user['idPegawai'],
 							"alamat" => $data_user['alamat'],
-							'tahun' => $_POST['tahun_anggaran'],
+							'active' => 1,
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'updated_at' => current_time('mysql')
 						);
 
 						// if (!empty($cek)) {
 						if ($cek) {
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
-								'tahun' => $_POST['tahun_anggaran'],
-								'idUser' => $data_user['idUser'],
+								'id' => $cek
 							));
 						} else {
 							$wpdb->insert('data_user_penatausahaan', $opsi);
@@ -12922,10 +12921,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							idUser,
 							idPegawai,
 							alamat,
-							tahun,
+							tahun_anggaran,
 							updated_at
 							FROM data_user_penatausahaan
-						WHERE tahun = %d 
+						WHERE tahun_anggaran = %d 
 						  AND idSkpd = %s
 						  AND active = 1
 						", $tahun_anggaran, $id_skpd),
