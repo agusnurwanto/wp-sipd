@@ -2437,7 +2437,7 @@ Result :
             fullName: 'Pegawai A',
             lahir_user: '0001-01-01 00:00:00',
             nomorHp: '',
-            rank: '',
+            isRank: '',
             npwp: 'xxxxxxxxxxx',
             idJabatan: 0,
             namaJabatan: BENDAHARA PENGELUARAN,

@@ -726,7 +726,7 @@ CREATE TABLE `data_user_penatausahaan` (
   `fullName` text DEFAULT NULL,
   `lahir_user` datetime DEFAULT NULL,
   `nomorHp` text DEFAULT NULL,
-  `rank` varchar(50) DEFAULT NULL,
+  `IsRank` varchar(50) DEFAULT NULL,
   `npwp` varchar(50) DEFAULT NULL,
   `idJabatan` int(11) DEFAULT NULL,
   `namaJabatan` varchar(50) DEFAULT NULL,

@@ -13015,7 +13015,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							fullName,
 							lahir_user,
 							nomorHp,
-							rank,
+							IsRank,
 							npwp,
 							idJabatan,
 							namaJabatan,
