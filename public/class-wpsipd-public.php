@@ -6326,10 +6326,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
-				if(
+				if (
 					empty($_POST['page'])
 					|| $_POST['page'] == 1
-				){
+				) {
 					$wpdb->update("data_spm_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
 						"id_skpd" => $_POST['idSkpd'],
@@ -6441,10 +6441,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
-				if(
+				if (
 					empty($_POST['page'])
 					|| $_POST['page'] == 1
-				){
+				) {
 					$wpdb->update("data_sp2d_sipd_ri", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
 						"id_skpd" => $_POST['idSkpd'],
@@ -13092,7 +13092,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
-					foreach($spm_results as $k => $v){
+					foreach ($spm_results as $k => $v) {
 						$spm_results[$k]['detail'] = $wpdb->get_results(
 							$wpdb->prepare("
 							SELECT 
@@ -21523,7 +21523,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
 				}
 
-				if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
+				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
 					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
 				}
 
@@ -21595,47 +21595,75 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$params = $columns = $totalRecords = $data = array();
 				$params = $_REQUEST;
 				$columns = array(
-					0 => 'tahunSpp',
-					1 => 'nomorSpp',
-					2 => 'nilaiSpp',
-					3 => 'tanggalSpp',
-					4 => 'keteranganSpp',
-					5 => 'nilaiDisetujuiSpp',
-					6 => 'tanggalDisetujuiSpp',
-					7 => 'jenisSpp',
-					8 => 'verifikasiSpp',
-					9 => 'keteranganVerifikasi',
-					10 => 'kunciRekening',
-					11 => 'alamatPenerimaSpp',
-					12 => 'bankPenerimaSpp',
-					13 => 'nomorRekeningPenerimaSpp',
-					14 => 'npwpPenerimaSpp',
-					15 => 'jenisLs',
-					16 => 'statusPerubahan',
-					17 => 'kodeDaerah',
-					18 => 'tanggal_otorisasi',
-					19 => 'bulan_gaji',
-					20 => 'nama_pegawai_pptk',
-					21 => 'nip_pegawai_pptk',
-					22 => 'status_tahap',
-					23 => 'kode_tahap',
-					24 => 'bulan_tpp',
-					25 => 'nomor_pengajuan_tu',
-					26 => 'tipe',
-					27 => 'id'
+					0 => 'id',
+					1 => 'idSpm',
+					2 => 'nomorSp2d',
+					3 => 'tanggalSp2d',
+					4 => 'tahun_anggaran',
+					5 => 'idSubUnit',
+					6 => 'keteranganSp2d',
+					7 => 'jenisSp2d',
+					8 => 'nilaiSp2d',
+					9 => 'jenisLs',
+					10 => 'isPergeseran',
+					11 => 'isPelimpahan',
+					12 => 'created_at',
+					13 => 'updated_at',
+					14 => 'isTbpLs',
+					15 => 'idSkpd',
+					16 => 'isDraft',
+					17 => 'idSp2d',
+					18 => 'verifikasiSp2d',
+					19 => 'tanggalVerifikasi',
+					20 => 'idSkpdTujuan',
+					21 => 'kunciRekening',
+					22 => 'isBku',
+					23 => 'bulan_gaji',
+					24 => 'tahun_gaji',
+					25 => 'jenis_gaji',
+					26 => 'is_bku_skpd',
+					27 => 'id_jadwal',
+					28 => 'id_tahap',
+					29 => 'status_tahap',
+					30 => 'kode_tahap',
+					31 => 'status_aklap',
+					32 => 'nomor_jurnal',
+					33 => 'jurnal_id',
+					34 => 'metode',
+					35 => 'bulan_tpp',
+					36 => 'tahun_tpp',
+					37 => 'nomor_rekening_pembayar',
+					38 => 'bank_rekening_pembayar',
+					39 => 'is_rekening_pembayar',
+					40 => 'nomorSpm',
+					41 => 'tanggalSpm',
+					42 => 'tahunSpm',
+					43 => 'keteranganSpm',
+					44 => 'verifikasiSpm',
+					45 => 'tanggalVerifikasiSpm',
+					46 => 'jenisSpm',
+					47 => 'nilaiSpm',
+					48 => 'keteranganVerifikasiSpm',
+					49 => 'isOtorisasi',
+					50 => 'tanggalOtorisasi',
+					51 => 'is_sptjm',
+					52 => 'namaSkpd',
+					53 => 'kodeSkpd',
+					54 => 'is_bpk'
 				);
+
 				$where = $sqlTot = $sqlRec = "";
 
 				// check search value exist
 				if (!empty($params['search']['value'])) {
 					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-					$where .= " AND (nomorSpp LIKE " . $search_value;
-					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
+					$where .= " AND (nomorSp2d LIKE " . $search_value;
+					$where .= " OR keteranganSp2d LIKE " . $search_value . ")";
 				}
 
-				if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
-					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
-				}
+				// if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
+				// 	$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				// }
 
 				// getting total number records without any search
 				$sql_tot = "SELECT count(id) as jml FROM `data_sp2d_sipd`";
@@ -21653,7 +21681,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($params['length'] != -1) {
 					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
 				}
-				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggalSp2d DESC " . $limit;
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
