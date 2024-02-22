@@ -999,6 +999,9 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
+
+		$this->loader->add_action('wp_ajax_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
 		
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');

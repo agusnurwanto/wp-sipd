@@ -13288,6 +13288,66 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function get_stbp_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'   => 'success',
+			'message'  => 'Berhasil Get STBP SIPD!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_skpd = $_POST['id_skpd'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($id_skpd) && !empty($tahun_anggaran)) {
+					$stbp_results = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						FROM data_stbp_sipd
+						WHERE tahun_anggaran = %d 
+						  	AND id_skpd = %s
+						  	AND active = 1
+						", $tahun_anggaran, $id_skpd),
+						ARRAY_A
+					);
+					foreach ($stbp_results as $k => $v) {
+						$stbp_results[$k]['detail'] = $wpdb->get_results(
+							$wpdb->prepare("
+							SELECT 
+								*
+							FROM data_stbp_sipd_detail
+							WHERE tahun_anggaran = %d 
+							  	AND id_skpd = %d
+							  	AND id_stbp = %d
+							  	AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['id_stbp']),
+							ARRAY_A
+						);						
+					}
+
+					if (!empty($stbp_results)) {
+						$ret['data'] = $stbp_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 
 	function mapping_skpd_fmis()
 	{
