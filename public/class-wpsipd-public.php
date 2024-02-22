@@ -13087,8 +13087,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							*
 						FROM data_spm_sipd
 						WHERE tahun_anggaran = %d 
-						  AND id_skpd = %s
-						  AND active = 1
+						  	AND id_skpd = %s
+						  	AND active = 1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
@@ -13099,10 +13099,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								*
 							FROM data_spm_sipd_detail
 							WHERE tahun_anggaran = %d 
-							  AND id_skpd = %d
-							  AND id_spm = %d
-							  AND active = 1
-							", $tahun_anggaran, $id_skpd, $v['id_spm']),
+							  	AND id_skpd = %d
+							  	AND id_spm = %d
+							  	AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['idSpm']),
 							ARRAY_A
 						);
 						$spm_results[$k]['potongan'] = $wpdb->get_results(
@@ -13111,10 +13111,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								*
 							FROM data_spm_sipd_detail_potongan
 							WHERE tahun_anggaran = %d 
-							  AND id_skpd = %d
-							  AND id_spm = %d
-							  AND active = 1
-							", $tahun_anggaran, $id_skpd, $v['id_spm']),
+							  	AND id_skpd = %d
+							  	AND id_spm = %d
+							  	AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['idSpm']),
 							ARRAY_A
 						);
 					}

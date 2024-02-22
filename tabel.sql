@@ -5992,8 +5992,8 @@ CREATE TABLE `data_spm_sipd_detail` (
   `tanggal_spp` datetime DEFAULT NULL,
   `tipe` varchar(10) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  `update_at` int(11) DEFAULT NULL,
-  `tahun_anggaran` int(11) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -6006,8 +6006,8 @@ CREATE TABLE `data_spm_sipd_detail_potongan` (
   `nama_pajak_potongan` text DEFAULT NULL,
   `nilai_spp_pajak_potongan` double(20,0) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  `update_at` int(11) DEFAULT NULL,
-  `tahun_anggaran` int(11) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
 
