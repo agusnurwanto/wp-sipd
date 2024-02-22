@@ -6616,6 +6616,154 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data STBP dari SIPD Penatausahaan
+	public function singkron_stbp()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi STBP'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("data_stbp_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd']
+					));
+				}
+				foreach ($data as $i => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_stbp_sipd 
+						where idSpm=%d 
+							and tahun_anggaran=%d
+						", $v["id_stbp"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_stbp" => $v["id_stbp"],
+						"nomor_stbp" => $v["nomor_stbp"],
+						"no_rekening" => $v["no_rekening"],
+						"metode_penyetoran" => $v["metode_penyetoran"],
+						"nilai_stbp" => $v["nilai_stbp"],
+						"keterangan_stbp" => $v["keterangan_stbp"],
+						"is_verifikasi_stbp" => $v["is_verifikasi_stbp"],
+						"is_otorisasi_stbp" => $v["is_otorisasi_stbp"],
+						"is_validasi_stbp" => $v["is_validasi_stbp"],
+						"tanggal_stbp" => $v["tanggal_stbp"],
+						"id_daerah" => $v["id_daerah"],
+						"id_unit" => $v["id_unit"],
+						"id_skpd" => $v["id_skpd"],
+						"id_sub_skpd" => $v["id_sub_skpd"],
+						"is_sts" => $v["is_sts"],
+						"active" => 1,
+						"created_at" => $v["is_sts"],
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek)) {
+						//Update data spm ditable data_spm_sipd
+						$wpdb->update("data_stbp_sipd", $opsi, array("id" => $cek));
+					} else {
+						//insert data spm ditable data_spm_sipd
+						$wpdb->insert("data_stbp_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
+	//Import data STBP Detail dari SIPD Penatausahaan
+	public function singkron_stbp_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi Detail STBP'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				foreach ($data['detail'] as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_stbp_sipd_detail 
+						where id_skpd=%d
+							and id_stbp=%d
+							and uraian=%s
+							and nilai_stbp=%s
+							and kode_rekening=%s
+							and tahun_anggaran=%d
+					", $_POST['idSkpd'], $_POST['id_stbp'], $v["uraian"], $v["nilai_stbp"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_stbp" => $_POST['id_spm'],
+						"id_skpd" => $_POST['idSkpd'],
+						"nama_penyetor" => $data['nama_penyetor'],
+						"metode_input" => $data['metode_input'],
+						"nomor_stbp" => $data['nomor_stbp'],
+						"tanggal_stbp" => $data['tanggal_stbp'],
+						"id_bank" => $data['id_bank'],
+						"nama_bank" => $data['nama_bank'],
+						"nilai_stbp" => $data['nilai_stbp'],
+						"keterangan_stbp" => $data['keterangan_stbp'],
+						"created_by" => $data['created_by'],
+						"bendahara_penerimaan_nama" => $data['bendahara_penerimaan_nama'],
+						"bendahara_penerimaan_nip" => $data['bendahara_penerimaan_nip'],
+						"nama_skpd" => $data['nama_skpd'],
+						"id_unit" => $data['id_unit'],
+						"id_skpd" => $data['id_skpd'],
+						"id_sub_skpd" => $data['id_sub_skpd'],						
+						"nama_daerah" => $data['nama_daerah'],
+						"id_rekening" => $data['data_detail']["id_rekening"],
+						"kode_rekening" => $data['data_detail']["kode_rekening"],
+						"uraian" => $data['data_detail']["uraian"],
+						"nilai" => $data['data_detail']["nilai"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data spp ditable data_spm_sipd_detail
+						$wpdb->update("data_stbp_sipd_detail", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data spp ditable data_spm_sipd_detail
+						$wpdb->insert("data_stbp_sipd_detail", $opsi);
+					}
+				}
+
+				
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
 	function singkron_anggaran_kas()
 	{
 		global $wpdb;
