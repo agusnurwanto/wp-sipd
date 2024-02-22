@@ -2839,7 +2839,9 @@ Result :
             "isOtorisasi": null,
             "tanggalOtorisasi": null,
             "active": "1",
-            "update_at": "2024-02-22 07:02:47"
+            "update_at": "2024-02-22 07:02:47",
+            "detail": [],
+            "potongan": []
         }
     ]
 }

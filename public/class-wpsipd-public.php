@@ -13092,6 +13092,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						", $tahun_anggaran, $id_skpd),
 						ARRAY_A
 					);
+					foreach($spm_results as $k => $v){
+						$spm_results[$k]['detail'] = $wpdb->get_results(
+							$wpdb->prepare("
+							SELECT 
+								*
+							FROM data_spm_sipd_detail
+							WHERE tahun_anggaran = %d 
+							  AND id_skpd = %d
+							  AND id_spm = %d
+							  AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['id_spm']),
+							ARRAY_A
+						);
+						$spm_results[$k]['potongan'] = $wpdb->get_results(
+							$wpdb->prepare("
+							SELECT 
+								*
+							FROM data_spm_sipd_detail_potongan
+							WHERE tahun_anggaran = %d 
+							  AND id_skpd = %d
+							  AND id_spm = %d
+							  AND active = 1
+							", $tahun_anggaran, $id_skpd, $v['id_spm']),
+							ARRAY_A
+						);
+					}
 
 					if (!empty($spm_results)) {
 						$ret['data'] = $spm_results;
