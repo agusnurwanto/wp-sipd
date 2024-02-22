@@ -5961,6 +5961,56 @@ CREATE TABLE `data_spp_sipd_ri_detail` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_spm_sipd_detail` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_spm` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `nomor_spd` text DEFAULT NULL,
+  `tanggal_spd` datetime DEFAULT NULL,
+  `total_spd` double(20,0) DEFAULT NULL,
+  `jumlah` double(20,0) DEFAULT NULL,
+  `kode_rekening` text DEFAULT NULL,
+  `uraian` text DEFAULT NULL,
+  `bank_pihak_ketiga` text DEFAULT NULL,
+  `jabatan_pa_kpa` text DEFAULT NULL,
+  `keterangan_spm` text DEFAULT NULL,
+  `nama_daerah` text DEFAULT NULL,
+  `nama_ibukota` text DEFAULT NULL,
+  `nama_pa_kpa` text DEFAULT NULL,
+  `nama_pihak_ketiga` text DEFAULT NULL,
+  `nama_rek_pihak_ketiga` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `nama_sub_skpd` text DEFAULT NULL,
+  `nilai_spm` double(20,0) DEFAULT NULL,
+  `nip_pa_kpa` text DEFAULT NULL,
+  `no_rek_pihak_ketiga` text DEFAULT NULL,
+  `nomor_spm` text DEFAULT NULL,
+  `nomor_spp` text DEFAULT NULL,
+  `npwp_pihak_ketiga` text DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL,
+  `tanggal_spm` datetime DEFAULT NULL,
+  `tanggal_spp` datetime DEFAULT NULL,
+  `tipe` varchar(10) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` int(11) DEFAULT NULL,
+  `tahun_anggaran` int(11) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_spm_sipd_detail_potongan` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_spm` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `id_billing` int(11) DEFAULT NULL,
+  `id_pajak_potongan` int(11) DEFAULT NULL,
+  `nama_pajak_potongan` text DEFAULT NULL,
+  `nilai_spp_pajak_potongan` double(20,0) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` int(11) DEFAULT NULL,
+  `tahun_anggaran` int(11) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_verifikasi_rka` (
   `id` int(11) NOT NULL auto_increment,
   `kode_sbl` text NOT NULL,
