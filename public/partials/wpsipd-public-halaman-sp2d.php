@@ -22,7 +22,7 @@ $skpd_result = $wpdb->get_row(
 );
 
 if ($skpd_result) {
-    $kd_nama_skpd = $skpd_result['kode_skpd'] .' '. $skpd_result['nama_skpd'];
+    $kd_nama_skpd = $skpd_result['kode_skpd'] . ' ' . $skpd_result['nama_skpd'];
 } else {
     echo 'Data SKPD tidak ditemukan';
 }
@@ -40,33 +40,39 @@ if ($skpd_result) {
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th class="text-center">Nomor SPP</th>
-                <th class="text-center">Nilai SPP</th>
-                <th class="text-center">Tanggal SPP</th>
-                <th class="text-center">Keterangan SPP</th>
-                <th class="text-center">Nilai Disetujui SPP</th>
-                <th class="text-center">Tanggal Disetujui SPP</th>
-                <th class="text-center">Jenis SPP</th>
-                <th class="text-center">Verifikasi SPP</th>
-                <th class="text-center">Keterangan Verifikasi</th>
+                <th class="text-center">Nomor Sp2d</th>
+                <th class="text-center">Tanggal Sp2d</th>
+                <th class="text-center">Tahun Anggaran</th>
+                <th class="text-center">Keterangan Sp2d</th>
+                <th class="text-center">Jenis Sp2d</th>
+                <th class="text-center">Nilai Sp2d</th>
+                <th class="text-center">Jenis Ls</th>
+                <th class="text-center">Verifikasi Sp2d</th>
+                <th class="text-center">Tanggal Verifikasi</th>
                 <th class="text-center">Kunci Rekening</th>
-                <th class="text-center">Alamat Penerima SPP</th>
-                <th class="text-center">Bank Penerima SPP</th>
-                <th class="text-center">Nomor Rekening Penerima SPP</th>
-                <th class="text-center">NPWP Penerima SPP</th>
-                <th class="text-center">Jenis LS</th>
-                <th class="text-center">Tahun SPP</th>
-                <th class="text-center">Status Perubahan</th>
-                <th class="text-center">Kode Daerah</th>
-                <th class="text-center">Tanggal Otorisasi</th>
                 <th class="text-center">Bulan Gaji</th>
-                <th class="text-center">Nama Pegawai PPTK</th>
-                <th class="text-center">NIP Pegawai PPTK</th>
+                <th class="text-center">Tahun Gaji</th>
+                <th class="text-center">Jenis Gaji</th>
                 <th class="text-center">Status Tahap</th>
                 <th class="text-center">Kode Tahap</th>
-                <th class="text-center">Bulan TPP</th>
-                <th class="text-center">Nomor Pengajuan TU</th>
-                <th class="text-center">Tipe</th>
+                <th class="text-center">Status Aklap</th>
+                <th class="text-center">Nomor Jurnal</th>
+                <th class="text-center">Metode</th>
+                <th class="text-center">Bulan Tpp</th>
+                <th class="text-center">Tahun Tpp</th>
+                <th class="text-center">Nomor Rekening Pembayar</th>
+                <th class="text-center">Bank Rekening Pembayar</th>
+                <th class="text-center">Nomor Spm</th>
+                <th class="text-center">Tanggal Spm</th>
+                <th class="text-center">Tahun Spm</th>
+                <th class="text-center">Keterangan Spm</th>
+                <th class="text-center">Verifikasi Spm</th>
+                <th class="text-center">Tanggal Verifikasi Spm</th>
+                <th class="text-center">Jenis Spm</th>
+                <th class="text-center">Nilai Spm</th>
+                <th class="text-center">Keterangan Verifikasi Spm</th>
+                <th class="text-center">Tanggal Otorisasi</th>
+                <th class="text-center">Nama Skpd</th>
             </tr>
         </thead>
         <tbody>
@@ -119,35 +125,35 @@ if ($skpd_result) {
                         }
                     },
                     {
-                        "data": 'nomorSpp',
+                        "data": 'nomorSp2d',
                         className: "text-center"
                     },
                     {
-                        "data": 'nilaiSpp',
+                        "data": 'nilaiSp2d',
                         className: "text-right"
                     },
                     {
-                        "data": 'tanggalSpp',
+                        "data": 'tanggalSp2d',
                         className: "text-center"
                     },
                     {
-                        "data": 'keteranganSpp',
+                        "data": 'keteranganSp2d',
                         className: "text-center"
                     },
                     {
-                        "data": 'nilaiDisetujuiSpp',
+                        "data": 'nilaiSp2d',
                         className: "text-right"
                     },
                     {
-                        "data": 'tanggalDisetujuiSpp',
+                        "data": 'tanggalVerifikasi',
                         className: "text-center"
                     },
                     {
-                        "data": 'jenisSpp',
+                        "data": 'jenisSp2d',
                         className: "text-center"
                     },
                     {
-                        "data": 'verifikasiSpp',
+                        "data": 'verifikasiSp2d',
                         className: "text-center"
                     },
                     {
@@ -179,7 +185,7 @@ if ($skpd_result) {
                         className: "text-center"
                     },
                     {
-                        "data": 'tahunSpp',
+                        "data": 'tahunSp2d',
                         className: "text-center"
                     },
                     {
@@ -191,7 +197,7 @@ if ($skpd_result) {
                         className: "text-center"
                     },
                     {
-                        "data": 'tanggal_otorisasi',
+                        "data": 'tanggalOtorisasi',
                         className: "text-center"
                     },
                     {

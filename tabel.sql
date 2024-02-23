@@ -25,6 +25,61 @@ CREATE TABLE `data_spd_sipd`(
   PRIMARY KEY (`id`,`idSpd`,`tahun_anggaran`)
 );
 
+CREATE TABLE `data_stbp_sipd`(
+  `id` int not null auto_increment,
+  `id_stbp` int,
+  `nomor_stbp` varchar(255),
+  `no_rekening` varchar(80),
+  `metode_penyetoran` varchar(80),
+  `nilai_stbp` double,
+  `keterangan_stbp` varchar(500),
+  `is_verifikasi_stbp` bit(1) DEFAULT NULL,  
+  `is_otorisasi_stbp` bit(1) DEFAULT NULL,
+  `is_validasi_stbp` bit(1) DEFAULT NULL,
+  `tanggal_stbp` date DEFAULT NULL,
+  `id_daerah` int,
+  `id_unit` int,
+  `id_skpd` int,
+  `id_sub_skpd` int,
+  `is_sts` bit(1) DEFAULT NULL,
+  `active` tinyint,
+  `created_at` datetime,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year,
+  PRIMARY KEY (`id`,`idSpd`,`tahun_anggaran`)
+);
+
+CREATE TABLE `data_stbp_sipd_detail` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_skpd` int,
+  `id_stbp` int(11) DEFAULT NULL,
+  `nama_penyetor` text DEFAULT NULL,
+  `metode_input` text DEFAULT NULL,
+  `nomor_stbp` text DEFAULT NULL,
+  `tanggal_stbp` datetime DEFAULT NULL,
+  `id_bank` int,
+  `nama_bank` text DEFAULT NULL,
+  `no_rekening` text DEFAULT NULL,
+  `nilai_stbp` double(20,0) DEFAULT NULL,
+  `keterangan_stbp` text DEFAULT NULL,
+  `created_by` int,
+  `bendahara_penerimaan_nama` text DEFAULT NULL,
+  `bendahara_penerimaan_nip` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `id_unit` int,
+  `id_skpd` int,
+  `id_sub_skpd` int,
+  `nama_daerah` text DEFAULT NULL,
+  `id_rekening` int,
+  `kode_rekening` text DEFAULT NULL,    
+  `uraian` text DEFAULT NULL,
+  `nilai` double(20,0) DEFAULT NULL,
+  `active` tinyint,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_spd_sipd_detail`(
   `id` int(11) NOT NULL auto_increment,
   `idDetailSpd` int,
