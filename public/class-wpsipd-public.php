@@ -6732,7 +6732,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"nama_skpd" => $data['nama_skpd'],
 						"id_unit" => $data['id_unit'],
 						"id_skpd" => $data['id_skpd'],
-						"id_sub_skpd" => $data['id_sub_skpd'],						
+						"id_sub_skpd" => $data['id_sub_skpd'],
 						"nama_daerah" => $data['nama_daerah'],
 						"id_rekening" => $data['data_detail']["id_rekening"],
 						"kode_rekening" => $data['data_detail']["kode_rekening"],
@@ -6752,8 +6752,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$wpdb->insert("data_stbp_sipd_detail", $opsi);
 					}
 				}
-
-				
 			} else {
 				$ret["status"] = "error";
 				$ret["message"] = "APIKEY tidak sesuai";
@@ -13325,7 +13323,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							  	AND active = 1
 							", $tahun_anggaran, $id_skpd, $v['id_stbp']),
 							ARRAY_A
-						);						
+						);
 					}
 
 					if (!empty($stbp_results)) {
@@ -21726,7 +21724,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					24 => 'bulan_tpp',
 					25 => 'nomor_pengajuan_tu',
 					26 => 'tipe',
-					27 => 'id'
+					27 => 'id',
+					28 => 'idSpp'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -21737,9 +21736,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
 				}
 
-				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
-					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
-				}
+				// if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
+				// 	$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				// }
 
 				// getting total number records without any search
 				$sql_tot = "SELECT count(id) as jml FROM `data_spp_sipd`";
@@ -21764,7 +21763,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nomorSpp'] = $recVal['nomorSpp'];
+					$queryRecords[$recKey]['nomorSpp'] = '<a href="javascript:void(0);" onclick="modalDetailSpp(' . $recVal['idSpp'] . ')">' . $recVal['nomorSpp'] . '</a>';
+
 					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
 					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
 				}
@@ -21930,26 +21930,38 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-
-	public function get_data_spd()
+	public function get_data_spp_sipd_detail()
 	{
 		global $wpdb;
 		$ret = array(
 			'status' => 'success',
-			'message' => 'Berhasil get data!',
+			'message' => 'Berhasil Get SPP SIPD Detail!',
 			'data' => array()
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$ret['data'] = $wpdb->get_row($wpdb->prepare('
-                    SELECT 
-                        *
-                    FROM data_spd_sipd
-                    WHERE id=%d
-                ', $_POST['id']), ARRAY_A);
+				$id_spp = $_POST['id_spp'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$detail_results = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT 
+							*
+						FROM data_spp_sipd_ri_detail
+						WHERE id_spp=%s
+						  AND tahun_anggaran=%d
+						  AND active=1
+						', $id_spp, $tahun_anggaran
+					), ARRAY_A
+				);
+				$ret['data'] = $detail_results;
+				if(empty($detail_results)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data detail SPP kosong!';
+				}
+				$ret['sql'] = $wpdb->last_query;
 			} else {
 				$ret['status']  = 'error';
-				$ret['message'] = 'Api key tidak ditemukan!';
+				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
 		} else {
 			$ret['status']  = 'error';

@@ -1007,6 +1007,8 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+		
+		$this->loader->add_action('wp_ajax_get_data_spp_sipd_detail',  $plugin_public, 'get_data_spp_sipd_detail');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 

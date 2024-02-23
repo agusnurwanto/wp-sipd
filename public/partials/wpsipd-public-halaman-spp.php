@@ -2,12 +2,14 @@
 global $wpdb;
 $api_key = get_option('_crb_api_key_extension');
 $url = admin_url('admin-ajax.php');
+
 $nama_skpd = null;
 $kd_nama_skpd = null;
 $input = shortcode_atts(array(
     'id_skpd' => '',
     'tahun_anggaran' => ''
 ), $atts);
+
 $skpd_result = $wpdb->get_row(
     $wpdb->prepare('
         SELECT 
@@ -22,13 +24,19 @@ $skpd_result = $wpdb->get_row(
 );
 
 if ($skpd_result) {
-    $kd_nama_skpd = $skpd_result['kode_skpd'] .' '. $skpd_result['nama_skpd'];
+    $kd_nama_skpd = $skpd_result['kode_skpd'] . ' ' . $skpd_result['nama_skpd'];
 } else {
     echo 'Data SKPD tidak ditemukan';
 }
 ?>
 <style type="text/css">
     .wrap-table {
+        overflow: auto;
+        max-height: 100vh;
+        width: 100%;
+    }
+
+    .wrap-table-detail {
         overflow: auto;
         max-height: 100vh;
         width: 100%;
@@ -73,6 +81,64 @@ if ($skpd_result) {
         </tbody>
     </table>
 </div>
+<div class="modal fade" id="modalDetailSpp" tabindex="-1" role="dialog" aria-labelledby="modalDetailSppLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetailSppLabel">Detail SPP</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="wrap-table-detail">
+                    <table id="table-data-spp-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th class="text-center">Nomor SPD</th>
+                                <th class="text-center">Tanggal SPD</th>
+                                <th class="text-center">Total SPD</th>
+                                <th class="text-center">Jumlah</th>
+                                <th class="text-center">Kode Rekening</th>
+                                <th class="text-center">Uraian</th>
+                                <th class="text-center">Bank BP BPP</th>
+                                <th class="text-center">Jabatan BP BPP</th>
+                                <th class="text-center">Jabatan Pa Kpa</th>
+                                <th class="text-center">Jenis LS SPP</th>
+                                <th class="text-center">Keterangan</th>
+                                <th class="text-center">Nama BP BPP</th>
+                                <th class="text-center">Nama Daerah</th>
+                                <th class="text-center">Nama Ibukota</th>
+                                <th class="text-center">Nama Pa Kpa</th>
+                                <th class="text-center">Nama Pptk</th>
+                                <th class="text-center">Nama Rek BP BPP</th>
+                                <th class="text-center">Nama Skpd</th>
+                                <th class="text-center">Nama Sub Skpd</th>
+                                <th class="text-center">Nilai</th>
+                                <th class="text-center">Nip BP BPP</th>
+                                <th class="text-center">Nip Pa Kpa</th>
+                                <th class="text-center">Nip PPTK</th>
+                                <th class="text-center">No Rek BP BPP</th>
+                                <th class="text-center">Nomor Transaksi</th>
+                                <th class="text-center">NPWP BP BPP</th>
+                                <th class="text-center">Tahun</th>
+                                <th class="text-center">Tanggal Transaksi</th>
+                                <th class="text-center">Tipe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     jQuery(document).ready(function() {
         get_datatable_spp();
@@ -231,5 +297,68 @@ if ($skpd_result) {
         } else {
             tableDataSpp.draw();
         }
+    }
+
+    function modalDetailSpp(id) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo $url; ?>',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                'action': 'get_data_spp_sipd_detail',
+                'api_key': '<?php echo $api_key; ?>',
+                'tahun_anggaran': '2024',
+                'id_spp': id
+            },
+            success: function(res) {
+                console.log(res);
+                if (res.status == 'success') {
+                    var html = "";
+                    res.data.map(function(b, i){
+                        html += ''
+                            +'<tr>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                                +'<td></td>'
+                            +'</tr>'
+                    });
+                    jQuery('#table-data-spp-detail').DataTable().clear();
+                    jQuery('#table-data-spp-detail tbody').html(html);
+                    jQuery('#modalDetailSpp').modal('show');
+                    jQuery('#table-data-spp-detail').DataTable();
+                } else {
+                    alert(res.message);
+                }
+                jQuery('#wrap-loading').hide();
+            }
+        });
     }
 </script>
