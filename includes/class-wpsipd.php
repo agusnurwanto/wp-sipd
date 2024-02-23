@@ -354,6 +354,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
 
+		$this->loader->add_action('wp_ajax_singkron_stbp',  $plugin_public, 'singkron_stbp');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_stbp',  $plugin_public, 'singkron_stbp');
+		$this->loader->add_action('wp_ajax_singkron_stbp_detail',  $plugin_public, 'singkron_stbp_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_stbp_detail',  $plugin_public, 'singkron_stbp_detail');
+
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 
@@ -915,7 +920,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bku_add', $plugin_public, 'get_pencairan_pemdes_bku_add');
 		
 		$this->loader->add_action('wp_ajax_verifikasi_pencairan_desa', $plugin_public, 'verifikasi_pencairan_desa');
+		
 		$this->loader->add_action('wp_ajax_get_sumber_dana_desa', $plugin_public, 'get_sumber_dana_desa');
+		$this->loader->add_action('wp_ajax_nopriv_get_sumber_dana_desa', $plugin_public, 'get_sumber_dana_desa');
 		
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total', $plugin_public, 'cek_pemutakhiran_total');
 		$this->loader->add_action('wp_ajax_submit_edit_renja_pemutakhiran', $plugin_public, 'submit_edit_renja_pemutakhiran');
@@ -991,6 +998,12 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_spm_sipd',  $plugin_public, 'get_spm_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_spm_sipd',  $plugin_public, 'get_spm_sipd');
+
+		$this->loader->add_action('wp_ajax_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
+
+		$this->loader->add_action('wp_ajax_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
 		
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');

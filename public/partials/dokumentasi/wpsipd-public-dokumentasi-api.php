@@ -827,10 +827,13 @@
             <a>Get Master Sub Kegiatan</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-rekening">
-            <a>Get Rekening</a>
+            <a>Get Master Rekening</a>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-sumberdana">
+            <a>Get Master Sumber Dana</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
-            <a>Get SUB KEGIATAN</a>
+            <a>Get Pagu Sub Kegiatan</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
             <a>Get RKA</a>
@@ -1236,6 +1239,103 @@ Result :
             "id_akun": "16119",
             "kode_akun": "5.1.01.01.01.0001",
             "nama_akun": "Belanja Gaji Pokok PNS"
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div><div class="overflow-hidden content-section" id="content-get-sumberdana">
+            <h2>GET REKENING</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_sumber_dana_desa' \
+-F 'tahun_anggaran=2023' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan sumber dana berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_sumber_dana_desa
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_sumber_dana_desa",
+    "status": "true",
+    "data": [
+        {
+            "id_dana": "282",
+            "kode_dana": "1.1.01",
+            "nama_dana": "Pajak Daerah"
         },
     ]
 }
@@ -2425,7 +2525,43 @@ Result :
     "status": "success",
     "message": "Berhasil Get Pegawai SIPD!",
     "data": [
-       {}
+       {
+            id: '1',
+            idSkpd: '1111',
+            namaSkpd: '',
+            kodeSkpd: '',
+            idDaerah: '89',
+            userName: 'xxxxxxxx',
+            nip: 'xxxxxxxxxx',
+            nik: 'xxxxxxxxxx',
+            fullName: 'Pegawai A',
+            lahir_user: '0001-01-01 00:00:00',
+            nomorHp: '',
+            isRank: '',
+            npwp: 'xxxxxxxxxxx',
+            idJabatan: 0,
+            namaJabatan: BENDAHARA PENGELUARAN,
+            idRole: 3,
+            _order: 0,
+            kpa: '',
+            bank: '',
+            _group: '',
+            kodeBank: '',
+            nama_rekening: '',
+            nomorRekening: '',
+            pangkatGolongan: '',
+            tahunPegawai: 2024,
+            kodeDaerah: 0,
+            is_from_sipd: 0,
+            is_from_generate: 0,
+            is_from_external: 0,
+            idSubUnit: 0,
+            idUser: 100,
+            idPegawai: 0,
+            alamat: 'Kab. Madiun',
+            tahun_anggaran: '2024',
+            updated_at: '0001-01-01 00:00:00',
+       }
     ]
 }
                 </code>
@@ -2740,7 +2876,74 @@ Result :
     "action": "get_spm_sipd",
     "status": "success",
     "message": "Berhasil Get SPM SIPD!",
-    "data": []
+    "data": [
+        {
+            "id": "29",
+            "idSpm": "15248",
+            "idSpp": "17426",
+            "created_at": "2024-02-01 22:22:38",
+            "updated_at": "0001-01-01 00:00:00",
+            "idDetailSpm": null,
+            "id_skpd": "3346",
+            "tahun_anggaran": "2024",
+            "id_jadwal": "0",
+            "id_tahap": "0",
+            "status_tahap": "",
+            "nomorSpp": "35.19/02.0/000004/UP/2.19.3.26.0.00.01.0000/M/2/2024",
+            "nilaiSpp": "210000000",
+            "tanggalSpp": null,
+            "keteranganSpp": "Pembayaran Uang Persediaan ( UP TUNAI / REGULER ) Pada Dinas Pariwisata Pemuda dan Olahraga Kabupaten Madiun Tahun Anggaran 2024",
+            "idSkpd": null,
+            "idSubUnit": "3346",
+            "nilaiDisetujuiSpp": "210000000",
+            "tanggalDisetujuiSpp": null,
+            "jenisSpp": "0",
+            "verifikasiSpp": "1",
+            "keteranganVerifikasi": null,
+            "idSpd": null,
+            "idPengesahanSpj": null,
+            "kunciRekening": "1",
+            "alamatPenerimaSpp": null,
+            "bankPenerimaSpp": null,
+            "nomorRekeningPenerimaSpp": null,
+            "npwpPenerimaSpp": null,
+            "jenisLs": "",
+            "isUploaded": null,
+            "tahunSpp": "2024",
+            "idKontrak": null,
+            "idBA": null,
+            "isSpm": "1",
+            "statusPerubahan": "1",
+            "isDraft": null,
+            "isGaji": null,
+            "is_sptjm": "1",
+            "tanggal_otorisasi": null,
+            "is_otorisasi": null,
+            "bulan_gaji": "0",
+            "id_pegawai_pptk": null,
+            "nama_pegawai_pptk": null,
+            "nip_pegawai_pptk": null,
+            "kode_tahap": "",
+            "is_tpp": null,
+            "bulan_tpp": null,
+            "id_pengajuan_tu": null,
+            "nomor_pengajuan_tu": null,
+            "nomorSpm": null,
+            "tanggalSpm": "2024-02-02",
+            "keteranganSpm": "Pembayaran Uang Persediaan ( UP TUNAI / REGULER ) Pada Dinas Pariwisata Pemuda dan Olahraga Kabupaten Madiun Tahun Anggaran 2024",
+            "verifikasiSpm": "1",
+            "tanggalVerifikasiSpm": "0001-01-01",
+            "jenisSpm": "UP",
+            "nilaiSpm": "210000000",
+            "keteranganVerifikasiSpm": "",
+            "isOtorisasi": null,
+            "tanggalOtorisasi": null,
+            "active": "1",
+            "update_at": "2024-02-22 07:02:47",
+            "detail": [],
+            "potongan": []
+        }
+    ]
 }
                 </code>
             </pre>
