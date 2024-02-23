@@ -1001,6 +1001,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
 		
+		$this->loader->add_action('wp_ajax_get_data_spd',  $plugin_public, 'get_data_spd');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));

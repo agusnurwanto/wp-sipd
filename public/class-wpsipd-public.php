@@ -14033,7 +14033,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
-				$sql = $wpdb->prepare("SELECT * FROM ta_spd where tahun=%d order by tgl_spd ASC", $tahun_anggaran);
+				$sql = $wpdb->prepare("
+					SELECT 
+					* 
+					FROM data_spd 
+					where tahun_anggaran=%d 
+				", $tahun_anggaran);
 				$return['sql'] = $sql;
 				$data_spd = $this->simda->CurlSimda(array(
 					'query' => $sql,
@@ -21545,5 +21550,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 		}
 		die(json_encode($return));
+	}
+
+
+	public function get_data_spd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$ret['data'] = $wpdb->get_row($wpdb->prepare('
+                    SELECT 
+                        *
+                    FROM data_spd_sipd
+                    WHERE id=%d
+                ', $_POST['id']), ARRAY_A);
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'Api key tidak ditemukan!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
 	}
 }
