@@ -21929,45 +21929,4 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
-
-	public function get_data_spp_sipd_detail()
-	{
-		global $wpdb;
-		$ret = array(
-			'status' => 'success',
-			'message' => 'Berhasil Get SPP SIPD Detail!',
-			'data' => array()
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$id_spp = $_POST['id_spp'];
-				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$detail_results = $wpdb->get_results(
-					$wpdb->prepare('
-						SELECT 
-							*
-						FROM data_spp_sipd_ri_detail
-						WHERE id_spp=%s
-						  AND tahun_anggaran=%d
-						  AND active=1
-						', $id_spp, $tahun_anggaran
-					), ARRAY_A
-				);
-				$ret['data'] = $detail_results;
-				if(empty($detail_results)){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Data detail SPP kosong!';
-				}
-				$ret['sql'] = $wpdb->last_query;
-			} else {
-				$ret['status']  = 'error';
-				$ret['message'] = 'APIKEY tidak sesuai!';
-			}
-		} else {
-			$ret['status']  = 'error';
-			$ret['message'] = 'Format Salah!';
-		}
-
-		die(json_encode($ret));
-	}
 }
