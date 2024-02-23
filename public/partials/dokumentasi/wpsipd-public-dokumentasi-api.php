@@ -827,10 +827,13 @@
             <a>Get Master Sub Kegiatan</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-rekening">
-            <a>Get Rekening</a>
+            <a>Get Master Rekening</a>
+        </li>
+        <li class="scroll-to-link" data-target="content-get-sumberdana">
+            <a>Get Master Sumber Dana</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-subkeg-by-skpd">
-            <a>Get SUB KEGIATAN</a>
+            <a>Get Pagu Sub Kegiatan</a>
         </li>
         <li class="scroll-to-link" data-target="content-get-rka-by-kodesbl">
             <a>Get RKA</a>
@@ -1236,6 +1239,103 @@ Result :
             "id_akun": "16119",
             "kode_akun": "5.1.01.01.01.0001",
             "nama_akun": "Belanja Gaji Pokok PNS"
+        },
+    ]
+}
+                </code>
+            </pre>
+        </div><div class="overflow-hidden content-section" id="content-get-sumberdana">
+            <h2>GET REKENING</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_sumber_dana_desa' \
+-F 'tahun_anggaran=2023' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan sumber dana berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_sumber_dana_desa
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+    "action": "get_sumber_dana_desa",
+    "status": "true",
+    "data": [
+        {
+            "id_dana": "282",
+            "kode_dana": "1.1.01",
+            "nama_dana": "Pajak Daerah"
         },
     ]
 }
