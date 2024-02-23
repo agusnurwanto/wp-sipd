@@ -303,12 +303,12 @@ if ($skpd_result) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo $url; ?>',
-            type: 'post',
-            dataType: 'json',
+            type: 'POST',
+            dataType: 'JSON',
             data: {
                 'action': 'get_data_spp_sipd_detail',
                 'api_key': '<?php echo $api_key; ?>',
-                'tahun_anggaran': '2024',
+                'tahun_anggaran': '<?php echo $input['tahun_anggaran']?>',
                 'id_spp': id
             },
             success: function(res) {
