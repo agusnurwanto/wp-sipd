@@ -6665,8 +6665,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"id_skpd" => $v["id_skpd"],
 						"id_sub_skpd" => $v["id_sub_skpd"],
 						"is_sts" => $v["is_sts"],
-						"active" => 1,
-						"created_at" => $v["is_sts"],
+						"status" => $v["status"],
+						"created_at" => $v["created_at"],
+						"active" => 1,						
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
