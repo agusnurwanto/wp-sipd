@@ -1,5 +1,8 @@
 <?php
 // If this file is called directly, abort.
+
+$api_key = get_option('_crb_api_key_extension');
+$url = admin_url('admin-ajax.php');
 if (!defined('WPINC')) {
 	die;
 }
@@ -34,9 +37,10 @@ $get_spd = $wpdb->get_results($wpdb->prepare("
 	  AND s.id_skpd = %d
 	  AND s.active=1
 ", $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
+// print_r($get_spd); die($wpdb->last_query);
 if (!empty($get_spd)) {
 	foreach ($get_spd as $k => $v) {
-		$url_no_spd = '<a  onclick="show_spd('.$v['idSpd'].'); return false;" href="#">'.$v['nomorSpd'].'</a>';
+		$url_no_spd = '<a  onclick="showspd('.$v['idSpd'].'); return false;" href="#">'.$v['nomorSpd'].'</a>';
 		$body .= '
 			<tr>
 				<td class="text-center" style="width: 100px;">' . $v['idSpd'] . '</td>
@@ -84,81 +88,81 @@ if (!empty($get_spd)) {
 	</div>
 </div>
 
-<div class="modal fade mt-4" id="modalShowSPD" tabindex="-1" role="dialog" aria-labelledby="modalShowSPDLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+
+<div class="modal fade" id="showspd" tabindex="-1" role="dialog" aria-labelledby="showspdLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalShowSPDLabel">Data Surat Penyediaan Dana</h5>
+                <h5 class="modal-title" id="showspdLabel">Detail SPD</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <input type='hidden' id='id_data' name="id_data" placeholder=''>
-                <div class="form-group">
-                    <label>ID SPD</label>
-                    <input type="text" class="form-control" id="id_spd">
+                <div class="wrap-table-detail">
+                    <table id="table-data-spd" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                    	<h6>ID SPD : <?php echo $v['idSpd'] ?><br> Nomor SPD : <?php echo $v['nomorSpd'] ?></h6>
+                        <thead>
+								<th class="text-center">Nama Akun</th>
+								<th class="text-center">Nama Program</th>
+								<th class="text-center">Nama Kegiatan</th>
+								<th class="text-center">Nama Sub Kegiatan</th>
+								<th class="text-center">Detail SPD</th>
+								<th class="text-center">Keterangan SPD</th>
+								<th class="text-center">Ketentuan Lainnya</th>
+								<th class="text-center">Total SPD</th>
+								<th class="text-center">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label>Nomor SPD</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-                <div class="form-group">
-                    <label>Keterangan SPD</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-                <div class="form-group">
-                    <label>Nama Akun</label>
-                    <input type="text" class="form-control" id="nama_akun">
-                </div>
-                <div class="form-group">
-                    <label>Nama Program</label>
-                    <input type="text" class="form-control" id="nama_program">
-                </div>
-                <div class="form-group">
-                    <label>Nama Kegiatan</label>
-                    <input type="text" class="form-control" id="nama_giat">
-                </div>
-                <div class="form-group">
-                    <label>Nama Sub Kegiatan</label>
-                    <input type="text" class="form-control" id="nama_sub_giat">
-                </div>
-                <div class="form-group">
-                    <label>Ketentuan Lainnya</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-                <div class="form-group">
-                    <label>Detail SPD</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-                <div class="form-group">
-                    <label>Total SPD</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-                <div class="form-group">
-                    <label>Nilai</label>
-                    <input type="text" class="form-control" id="nomor_spd">
-                </div>
-	            <div class="modal-footer">
-	                <button type="submit" class="components-button btn btn-danger" data-dismiss="modal">Tutup</button>
-	            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-danger">Tutup</button>
             </div>
         </div>
     </div>
 </div>
+
 <script>
 
-    function show_spd(_id) {
+    function showspd(id) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
-            method: 'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
+            url: '<?php echo $url; ?>',
+            type: 'POST',
+            dataType: 'JSON',
             data: {
-                'action': 'get_data_spd',
-                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
-                'id': _id,
+                'action': 'get_data_spd_sipd',
+                'api_key': '<?php echo $api_key; ?>',
+                'tahun_anggaran': '<?php echo $input['tahun_anggaran'] ?>',
+                'idSpd': '<?php echo $v['idSpd'] ?>',
+                'nomorSpd': '<?php echo $v['nomorSpd'] ?>'
             },
             success: function(res) {
+                console.log(res);
                 if (res.status == 'success') {
-                    jQuery('#modalShowSPD').modal('show');
+                    var html = "";
+                    res.data.map(function(b, i){
+                        html += ''
+                        +'<tr>'
+                            +'<td></td>'
+                            +'<td></td>'
+                            +'<td></td>'
+                            +'<td></td>'
+                            +'<td></td>'
+                            +'<td><?php echo $v['keteranganSpd'] ?></td>'
+                            +'<td><?php echo $v['ketentuanLainnya'] ?></td>'
+                            +'<td><?php echo number_format($v['totalSpd'],0,",",".") ?></td>'
+                            +'<td></td>'
+                        +'</tr>'
+                    });
+                    jQuery('#table-data-spd').DataTable().clear();
+                    jQuery('#table-data-spd tbody').html(html);
+                    jQuery('#showspd').modal('show');
+                    jQuery('#table-data-spd').DataTable();
                 } else {
                     alert(res.message);
                 }

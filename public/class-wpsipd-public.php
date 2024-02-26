@@ -5428,6 +5428,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-sp2d.php';
 	}
 
+	public function halaman_spm($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-spm.php';
+	}
+
 	public function apbdpenjabaran($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -21969,5 +21979,187 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		die(json_encode($ret));
+	}
+
+	public function get_data_spd_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Get SPD SIPD Detail!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$idSpd = $_POST['idSpd'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$nomorSpd = $_POST['nomorSpd'];
+				$detail_results = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT 
+							*
+						FROM data_spd_sipd
+						WHERE idSpd=%s
+						  AND tahun_anggaran=%d
+						  AND nomorSpd=%s
+						  AND active=1
+						', $idSpd, $tahun_anggaran, $nomorSpd
+					), ARRAY_A
+				);
+				$ret['data'] = $detail_results;
+				if(empty($detail_results)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data dengan Nomor SPD '.$nomorSpd.' Kosong / Tidak Lengkap!';
+				}
+				$ret['sql'] = $wpdb->last_query;
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function get_datatable_data_spm_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get datatable SPP SIPD!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array(
+					0 => 'idSpm',	
+					1 => 'idSpp',	
+					2 => 'idDetailSpm',	
+					3 => 'nomorSpm',	
+					4 => 'tahun_anggaran',
+					5 => 'tahun_spm',
+					6 => 'id_jadwal',	
+					7 => 'id_tahap',	
+					8 => 'status_tahap',	
+					9 => 'nomorSpp',	
+					10 => 'nilaiSpp',	
+					11 => 'tanggalSpp',	
+					12 => 'keteranganSpp',
+					13 => 'idSkpd',	
+					14 => 'idSubUnit',	
+					15 => 'nilaiDisetujuiSpp',	
+					16 => 'tanggalDisetujuiSpp',	
+					17 => 'jenisSpp',	
+					18 => 'verifikasiSpp',	
+					19 => 'keteranganVerifikasi',	
+					20 => 'idSpd',	
+					21 => 'idPengesahanSpj',	
+					22 => 'kunciRekening',	
+					23 => 'alamatPenerimaSpp',	
+					24 => 'bankPenerimaSpp',	
+					25 => 'nomorRekeningPenerimaSpp',	
+					26 => 'npwpPenerimaSpp',	
+					27 => 'jenisLs',	
+					28 => 'isUploaded',	
+					29 => 'tahunSpp',	
+					30 => 'idKontrak',	
+					31 => 'idBA',	
+					32 => 'isSpm',	
+					33 => 'statusPerubahan',	
+					34 => 'isDraft',	
+					35 => 'isGaji',	
+					36 => 'is_sptjm',	
+					37 => 'tanggal_otorisasi',	
+					38 => 'is_otorisasi',	
+					39 => 'bulan_gaji',	
+					40 => 'id_pegawai_pptk',	
+					41 => 'nama_pegawai_pptk',	
+					42 => 'nip_pegawai_pptk',	
+					43 => 'kode_tahap',	
+					44 => 'is_tpp',	
+					45 => 'bulan_tpp',	
+					46 => 'id_pengajuan_tu',	
+					47 => 'nomor_pengajuan_tu',		
+					48 => 'tanggalSpm',	
+					49 => 'keteranganSpm',
+					50 => 'verifikasiSpm',	
+					51 => 'tanggalVerifikasiSpm',
+					52 => 'jenisSpm',	
+					53 => 'nilaiSpm',	
+					54 => 'keteranganVerifikasiSpm',	
+					55 => 'isOtorisasi',	
+					56 => 'tanggalOtorisasi',	
+					57 => 'id'
+
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if (!empty($params['search']['value'])) {
+	                $where .=" AND ( idSpm LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
+	            }
+
+				// if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
+				// 	$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				// }
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(id) as jml FROM `data_spm_sipd`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_spm_sipd`";
+				$where_first = " WHERE 1=1";
+
+				$sqlTot .= $sql_tot . $where_first;
+				$sqlRec .= $sql . $where_first;
+				if (isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+				$limit = '';
+				if ($params['length'] != -1) {
+					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
+				}
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach ($queryRecords as $recKey => $recVal) {
+					$queryRecords[$recKey]['nomorSpm'] = '<a href="#" onclick="ShowSpm(' . $recVal['idSpm'] . ')">' . $recVal['nomorSpm'] . '</a>';
+
+					$queryRecords[$recKey]['nilaiSpm'] = number_format($recVal['nilaiSpm'], 0, ",", ".");
+				}
+
+				$json_data = array(
+					"draw"            => intval($params['draw']),
+					"recordsTotal"    => intval($totalRecords),
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords,
+					"sql"             => $sqlRec
+				);
+
+				die(json_encode($json_data));
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 }
