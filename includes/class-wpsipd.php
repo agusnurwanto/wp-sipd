@@ -374,6 +374,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_up',  $plugin_public, 'get_up');
 		$this->loader->add_action('wp_ajax_nopriv_get_up',  $plugin_public, 'get_up');
 
+		$this->loader->add_action('wp_ajax_get_up_sipd',  $plugin_public, 'get_up_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_up_sipd',  $plugin_public, 'get_up_sipd');
+
 		$this->loader->add_action('wp_ajax_get_link_laporan',  $plugin_public, 'get_link_laporan');
 		$this->loader->add_action('wp_ajax_nopriv_get_link_laporan',  $plugin_public, 'get_link_laporan');
 

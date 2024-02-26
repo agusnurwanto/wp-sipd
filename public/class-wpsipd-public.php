@@ -5898,6 +5898,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function get_up_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			"status" => "success",
+			"message" => "Berhasil get Data SK UP"
+		);
+		//cek parameter dari client
+		if (!empty($_POST)) {
+			//cek API KEY
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($tahun_anggaran)) {
+					$up_results = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								s.*
+							FROM data_up_sipd s
+							WHERE s.tahun_anggaran = %d
+							  AND s.active = 1
+						", $tahun_anggaran),
+						ARRAY_A
+					);
+
+					if (!empty($up_results)) {
+						$ret['data'] = $up_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Parameter data kosong";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data SPP dari SIPD Penatausahaan
 	public function singkron_spp()
 	{
