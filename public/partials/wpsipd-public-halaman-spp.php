@@ -162,7 +162,7 @@ if ($skpd_result) {
                         'action': 'get_datatable_data_spp_sipd',
                         'api_key': '<?php echo $api_key; ?>',
                         'id_skpd': '<?php echo $input['id_skpd']; ?>',
-                        'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
+                        'tahun_anggaran': 2024,
                     }
                 },
                 lengthMenu: [
@@ -315,40 +315,40 @@ if ($skpd_result) {
                 console.log(res);
                 if (res.status == 'success') {
                     var html = "";
-                    res.data.map(function(b, i){
-                        html += ''
-                            +'<tr>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                                +'<td></td>'
-                            +'</tr>'
+                    res.data.map(function(b, i) {
+                        html += '' +
+                            '<tr>' +
+                            '<td class="text-center">' + (i + 1) + '</td>' +
+                            '<td class="text-center">' + b.nomor_spd + '</td>' +
+                            '<td class="text-center">' + b.tanggal_spd + '</td>' +
+                            '<td class="text-center">' + b.total_spd + '</td>' +
+                            '<td class="text-center">' + b.jumlah + '</td>' +
+                            '<td class="text-center">' + b.kode_rekening + '</td>' +
+                            '<td class="text-center">' + b.uraian + '</td>' +
+                            '<td class="text-center">' + b.bank_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.jabatan_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.jabatan_pa_kpa + '</td>' +
+                            '<td class="text-center">' + b.jenis_ls_spp + '</td>' +
+                            '<td class="text-center">' + b.keterangan + '</td>' +
+                            '<td class="text-center">' + b.nama_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.nama_daerah + '</td>' +
+                            '<td class="text-center">' + b.nama_ibukota + '</td>' +
+                            '<td class="text-center">' + b.nama_pa_kpa + '</td>' +
+                            '<td class="text-center">' + b.nama_pptk + '</td>' +
+                            '<td class="text-center">' + b.nama_rek_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.nama_skpd + '</td>' +
+                            '<td class="text-center">' + b.nama_sub_skpd + '</td>' +
+                            '<td class="text-center">' + b.nilai + '</td>' +
+                            '<td class="text-center">' + b.nip_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.nip_pa_kpa + '</td>' +
+                            '<td class="text-center">' + b.nip_pptk + '</td>' +
+                            '<td class="text-center">' + b.no_rek_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.nomor_transaksi + '</td>' +
+                            '<td class="text-center">' + b.npwp_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.tahun + '</td>' +
+                            '<td class="text-center">' + b.tanggal_transaksi + '</td>' +
+                            '<td class="text-center">' + b.tipe + '</td>' +
+                            '</tr>';
                     });
                     jQuery('#table-data-spp-detail').DataTable().clear();
                     jQuery('#table-data-spp-detail tbody').html(html);

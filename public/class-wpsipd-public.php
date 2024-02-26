@@ -21791,9 +21791,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
 				}
 
-				// if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
-				// 	$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
-				// }
+				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
+					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				}
 
 				// getting total number records without any search
 				$sql_tot = "SELECT count(id) as jml FROM `data_spp_sipd`";
