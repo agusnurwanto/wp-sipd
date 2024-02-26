@@ -755,10 +755,18 @@ echo $this->menu_ssh($input);
 								+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
 							+"</select>"
 						+"</li>"
-						<?php if(in_array("administrator", $user_meta->roles)
-						|| in_array("tapd_keu", $user_meta->roles)): ?>
+						<?php 
+							if(in_array("administrator", $user_meta->roles)
+							|| in_array("tapd_keu", $user_meta->roles)): 
+						?>
 						+"<li>"
 							+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"</select>"
+						+"</li>"
+						<?php else: ?>
+						+"<li>"
+							+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='display: none; margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
+								+"<option value='"+<?php echo $input['id_skpd']; ?>+"'></option>"
 							+"</select>"
 						+"</li>"
 						<?php endif; ?>

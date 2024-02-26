@@ -1010,6 +1010,8 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pendapatan_sipd',  $plugin_public, 'get_pendapatan_sipd');
+		
+		$this->loader->add_action('wp_ajax_get_data_spp_sipd_detail',  $plugin_public, 'get_data_spp_sipd_detail');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 
@@ -1017,6 +1019,9 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
 		
+		$this->loader->add_action('wp_ajax_get_data_spd_sipd',  $plugin_public, 'get_data_spd_sipd');
+		$this->loader->add_action('wp_ajax_show_spd',  $plugin_public, 'show_spd');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -1031,6 +1036,8 @@ class Wpsipd
 		add_shortcode('spp', array($plugin_public, 'spp'));
 		add_shortcode('halaman_sp2d', array($plugin_public, 'halaman_sp2d'));
 		add_shortcode('sp2d', array($plugin_public, 'spp'));
+		add_shortcode('halaman_spm', array($plugin_public, 'halaman_spm'));
+		add_shortcode('spm', array($plugin_public, 'spm'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));

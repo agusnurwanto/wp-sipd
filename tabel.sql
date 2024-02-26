@@ -42,6 +42,7 @@ CREATE TABLE `data_stbp_sipd`(
   `id_skpd` int,
   `id_sub_skpd` int,
   `is_sts` bit(1) DEFAULT NULL,
+  `status` text DEFAULT NULL,
   `active` tinyint,
   `created_at` datetime,
   `update_at` datetime NOT NULL,
