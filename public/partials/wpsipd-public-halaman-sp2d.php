@@ -40,39 +40,32 @@ if ($skpd_result) {
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th class="text-center">Nomor Sp2d</th>
-                <th class="text-center">Tanggal Sp2d</th>
-                <th class="text-center">Tahun Anggaran</th>
-                <th class="text-center">Keterangan Sp2d</th>
-                <th class="text-center">Jenis Sp2d</th>
-                <th class="text-center">Nilai Sp2d</th>
-                <th class="text-center">Jenis Ls</th>
-                <th class="text-center">Verifikasi Sp2d</th>
-                <th class="text-center">Tanggal Verifikasi</th>
-                <th class="text-center">Kunci Rekening</th>
-                <th class="text-center">Bulan Gaji</th>
-                <th class="text-center">Tahun Gaji</th>
-                <th class="text-center">Jenis Gaji</th>
-                <th class="text-center">Status Tahap</th>
-                <th class="text-center">Kode Tahap</th>
-                <th class="text-center">Status Aklap</th>
-                <th class="text-center">Nomor Jurnal</th>
+                <th class="text-center">Nomor SP2D</th>
+                <th class="text-center">Tanggal SP2D</th>
+                <th class="text-center">Keterangan SP2D</th>
+                <th class="text-center">Jenis SP2D</th>
+                <th class="text-center">Keterangan SP2D</th>
+                <th class="text-center">Keterangan Transfer SP2D</th>
+                <th class="text-center">Keterangan Verifikasi SP2D</th>
+                <th class="text-center">Kode Sub SKPD</th>
                 <th class="text-center">Metode</th>
-                <th class="text-center">Bulan Tpp</th>
-                <th class="text-center">Tahun Tpp</th>
-                <th class="text-center">Nomor Rekening Pembayar</th>
-                <th class="text-center">Bank Rekening Pembayar</th>
-                <th class="text-center">Nomor Spm</th>
-                <th class="text-center">Tanggal Spm</th>
-                <th class="text-center">Tahun Spm</th>
-                <th class="text-center">Keterangan Spm</th>
-                <th class="text-center">Verifikasi Spm</th>
-                <th class="text-center">Tanggal Verifikasi Spm</th>
-                <th class="text-center">Jenis Spm</th>
-                <th class="text-center">Nilai Spm</th>
-                <th class="text-center">Keterangan Verifikasi Spm</th>
-                <th class="text-center">Tanggal Otorisasi</th>
-                <th class="text-center">Nama Skpd</th>
+                <th class="text-center">Nama Bank</th>
+                <th class="text-center">Nama BUD KBUD</th>
+                <th class="text-center">Nama Rekening BP BPP</th>
+                <th class="text-center">Nama SKPD</th>
+                <th class="text-center">Nama Sub SKPD</th>
+                <th class="text-center">Nilai Materai SP2D</th>
+                <th class="text-center">Nilai SP2D</th>
+                <th class="text-center">NIP BUD KBUD</th>
+                <th class="text-center">Nomor Rekening BP BPP</th>
+                <th class="text-center">Nomor Jurnal</th>
+                <th class="text-center">Nomor SP2D</th>
+                <th class="text-center">Nomor SPM</th>
+                <th class="text-center">Tahun Gaji</th>
+                <th class="text-center">Tahun TPP</th>
+                <th class="text-center">Tanggal SP2D</th>
+                <th class="text-center">Tanggal SPM</th>
+                <th class="text-center">Tahun Anggaran</th>
             </tr>
         </thead>
         <tbody>
@@ -116,7 +109,7 @@ if ($skpd_result) {
                     jQuery("#wrap-loading").hide();
                 },
                 "columns": [{
-                        "data": null,
+                        "data": 'id',
                         "className": "text-center",
                         "orderable": false,
                         "searchable": false,
@@ -125,113 +118,109 @@ if ($skpd_result) {
                         }
                     },
                     {
-                        "data": 'nomorSp2d',
-                        className: "text-center"
+                        "data": 'nomor_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nilaiSp2d',
-                        className: "text-right"
+                        "data": 'tanggal_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'tanggalSp2d',
-                        className: "text-center"
+                        "data": 'keterangan_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'keteranganSp2d',
-                        className: "text-center"
+                        "data": 'jenis_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nilaiSp2d',
-                        className: "text-right"
+                        "data": 'keterangan_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'tanggalVerifikasi',
-                        className: "text-center"
+                        "data": 'keterangan_transfer_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'jenisSp2d',
-                        className: "text-center"
+                        "data": 'keterangan_verifikasi_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'verifikasiSp2d',
-                        className: "text-center"
+                        "data": 'kode_sub_skpd',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'keteranganVerifikasi',
-                        className: "text-center"
+                        "data": 'metode',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'kunciRekening',
-                        className: "text-center"
+                        "data": 'nama_bank',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'alamatPenerimaSpp',
-                        className: "text-center"
+                        "data": 'nama_bud_kbud',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'bankPenerimaSpp',
-                        className: "text-center"
+                        "data": 'nama_rek_bp_bpp',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nomorRekeningPenerimaSpp',
-                        className: "text-center"
+                        "data": 'nama_skpd',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'npwpPenerimaSpp',
-                        className: "text-center"
+                        "data": 'nama_sub_skpd',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'jenisLs',
-                        className: "text-center"
+                        "data": 'nilai_materai_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'tahunSp2d',
-                        className: "text-center"
+                        "data": 'nilai_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'statusPerubahan',
-                        className: "text-center"
+                        "data": 'nip_bud_kbud',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'kodeDaerah',
-                        className: "text-center"
+                        "data": 'no_rek_bp_bpp',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'tanggalOtorisasi',
-                        className: "text-center"
+                        "data": 'nomor_jurnal',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'bulan_gaji',
-                        className: "text-center"
+                        "data": 'nomor_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nama_pegawai_pptk',
-                        className: "text-center"
+                        "data": 'nomor_spm',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nip_pegawai_pptk',
-                        className: "text-center"
+                        "data": 'tahun_gaji',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'status_tahap',
-                        className: "text-center"
+                        "data": 'tahun_tpp',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'kode_tahap',
-                        className: "text-center"
+                        "data": 'tanggal_sp_2_d',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'bulan_tpp',
-                        className: "text-center"
+                        "data": 'tanggal_spm',
+                        "className": "text-center"
                     },
                     {
-                        "data": 'nomor_pengajuan_tu',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'tipe',
-                        className: "text-center"
-                    },
+                        "data": 'tahun_anggaran',
+                        "className": "text-center"
+                    }
                 ]
             });
         } else {
