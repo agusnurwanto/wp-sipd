@@ -8006,7 +8006,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$ret = array();
 		$ret['status'] = 'success';
-		$ret['message'] = 'Berhasil simda data SKPD!';
+		$ret['message'] = 'Berhasil simpan alamat SKPD!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$id_skpd = $_POST['id_skpd'];
