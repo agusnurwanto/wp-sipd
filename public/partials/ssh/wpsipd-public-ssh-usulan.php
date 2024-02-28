@@ -2980,35 +2980,18 @@ echo $this->menu_ssh($input);
 				success: function(response) {
 					jQuery('#wrap-loading').hide();
 					if (response.status == 'success') {
-						edit_nota_dinas(jQuery(this));
+						jQuery('#tambahNotaDinasModal').modal('hide');
+						suratNotaDinasUsulanSSHTable.ajax.reload(function() {
+							usulanSSHTable.ajax.reload(function() {
+								edit_nota_dinas(jQuery('#surat_nota_dinas_usulan_ssh_table a[data-id='+id+'].btn-warning'));
+							});
+						});
 					} else {
 						alert(`GAGAL! \n${response.message}`);
 					}
 				}
 			});
 		}
-	}
-
-	function updateModalContent(data) {
-		jQuery("#tambahNotaDinasModal #nomor_surat_nota_dinas").val(data.nomor_surat);
-		jQuery("#tambahNotaDinasModal #catatan_surat_nota_dinas").val(data.catatan);
-
-		var tableData = '';
-		data.items.forEach(function(item) {
-			tableData += +'<tr>' +
-				'<td>' + b.kelompok + '</td>' +
-				'<td>' + b.komponen + '</td>' +
-				'<td>' + b.spesifikasi + '</td>' +
-				'<td>' + b.harga + '</td>' +
-				'<td>' + b.rekening + '</td>' +
-				'<td>' + b.nomor_surat + '</td>' +
-				'<td>' + b.jenis + '</td>' +
-				'<td><button class="btn btn-sm btn-danger" onclick="hapusItemNotaDinasById(' + b.id + ')"><span class="dashicons dashicons-no"></span></button></td>' +
-				'</tr>';
-		});
-
-		jQuery('#tbody_data_usulan_nota_dinas').html(tableData);
-		jQuery('#tambahNotaDinasModal').modal('show');
 	}
 
 	function generateSuratUsulanSsh(that) {
