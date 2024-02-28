@@ -1366,6 +1366,46 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
+	public function hapus_surat_usulan_by_nota_dinas()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil hapus data usulan dari nota dinas!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$current_time = current_time('mysql');
+
+				$ret['data'] = $wpdb->update(
+					'data_ssh_usulan',
+					array(
+						'status' => 'waiting',
+						'no_nota_dinas' => null,
+						'status_by_admin' => null,
+						'verified_by_admin' => null,
+						'update_at' => $current_time,
+						'update_at_admin' => $current_time
+					),
+					array(
+						'id' => $_POST['id']
+					)
+				);
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'Api key tidak ditemukan!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+
+
 	public function hapus_surat_usulan_ssh()
 	{
 		global $wpdb;
@@ -1835,8 +1875,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$where .= " AND status_by_tapdkeu = 'approved' ";
 					} else if ($_POST['filter'] == 'ditolak_tapdkeu') {
 						$where .= " AND status_by_tapdkeu = 'rejected' ";
-					} else if ($_POST['filter'] == 'draft') {
-						$where .= " AND `status` = 'draft' ";
 					}
 				}
 
@@ -4908,7 +4946,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		';
 		return $ret;
 	}
-	
+
 	function submit_ssh_usulan_by_id($no_return = false)
 	{
 		global $wpdb;
