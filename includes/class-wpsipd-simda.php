@@ -782,13 +782,24 @@ class Wpsipd_Simda
 							if(!empty($v['id_sub_skpd'])){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
 								$id_unit_sipd = $v['id_sub_skpd'];
-							}else if(!empty($v['id_unit'])){
+							}
+
+							if(
+								empty($kd_unit_simda)
+								&& !empty($v['id_unit'])
+							){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
 								$id_unit_sipd = $v['id_unit'];
-							}else{
+							}
+
+							if(
+								empty($kd_unit_simda)
+								&& !empty($v['id_skpd'])
+							){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
 								$id_unit_sipd = $v['id_skpd'];
 							}
+							
 							$unit_sipd = $wpdb->get_results($wpdb->prepare("
 								SELECT 
 									u.kode_skpd 
@@ -803,9 +814,6 @@ class Wpsipd_Simda
 								}else{
 									$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
 								}
-							}
-							if($type == 'pendapatan'){
-								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
 							}
 
 							if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
