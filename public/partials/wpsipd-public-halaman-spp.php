@@ -3,7 +3,6 @@ global $wpdb;
 $api_key = get_option('_crb_api_key_extension');
 $url = admin_url('admin-ajax.php');
 
-$nama_skpd = null;
 $kd_nama_skpd = null;
 $input = shortcode_atts(array(
     'id_skpd' => '',
@@ -104,20 +103,20 @@ if ($skpd_result) {
                                 <th class="text-center">Uraian</th>
                                 <th class="text-center">Bank BP BPP</th>
                                 <th class="text-center">Jabatan BP BPP</th>
-                                <th class="text-center">Jabatan Pa Kpa</th>
+                                <th class="text-center">Jabatan PA KPA</th>
                                 <th class="text-center">Jenis LS SPP</th>
                                 <th class="text-center">Keterangan</th>
                                 <th class="text-center">Nama BP BPP</th>
                                 <th class="text-center">Nama Daerah</th>
                                 <th class="text-center">Nama Ibukota</th>
-                                <th class="text-center">Nama Pa Kpa</th>
-                                <th class="text-center">Nama Pptk</th>
+                                <th class="text-center">Nama PA KPA</th>
+                                <th class="text-center">Nama PPTK</th>
                                 <th class="text-center">Nama Rek BP BPP</th>
-                                <th class="text-center">Nama Skpd</th>
-                                <th class="text-center">Nama Sub Skpd</th>
+                                <th class="text-center">Nama SKPD</th>
+                                <th class="text-center">Nama Sub SKPD</th>
                                 <th class="text-center">Nilai</th>
                                 <th class="text-center">Nip BP BPP</th>
-                                <th class="text-center">Nip Pa Kpa</th>
+                                <th class="text-center">Nip PA KPA</th>
                                 <th class="text-center">Nip PPTK</th>
                                 <th class="text-center">No Rek BP BPP</th>
                                 <th class="text-center">Nomor Transaksi</th>
@@ -162,7 +161,7 @@ if ($skpd_result) {
                         'action': 'get_datatable_data_spp_sipd',
                         'api_key': '<?php echo $api_key; ?>',
                         'id_skpd': '<?php echo $input['id_skpd']; ?>',
-                        'tahun_anggaran': 2024,
+                        'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                     }
                 },
                 lengthMenu: [
@@ -312,9 +311,8 @@ if ($skpd_result) {
                 'id_spp': id
             },
             success: function(res) {
-                console.log(res);
                 if (res.status == 'success') {
-                    var html = "";
+                    let html = "";
                     res.data.map(function(b, i) {
                         html += '' +
                             '<tr>' +
