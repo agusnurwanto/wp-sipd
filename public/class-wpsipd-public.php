@@ -5908,6 +5908,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function get_up_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			"status" => "success",
+			"message" => "Berhasil get Data SK UP"
+		);
+		//cek parameter dari client
+		if (!empty($_POST)) {
+			//cek API KEY
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				if (!empty($tahun_anggaran)) {
+					$up_results = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								s.*
+							FROM data_up_sipd s
+							WHERE s.tahun_anggaran = %d
+							  AND s.active = 1
+						", $tahun_anggaran),
+						ARRAY_A
+					);
+
+					if (!empty($up_results)) {
+						$ret['data'] = $up_results;
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tidak ada data ditemukan!';
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Parameter data kosong";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data SPP dari SIPD Penatausahaan
 	public function singkron_spp()
 	{
@@ -7961,7 +8006,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$ret = array();
 		$ret['status'] = 'success';
-		$ret['message'] = 'Berhasil simda data SKPD!';
+		$ret['message'] = 'Berhasil simpan alamat SKPD!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$id_skpd = $_POST['id_skpd'];
@@ -21746,9 +21791,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
 				}
 
-				// if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
-				// 	$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
-				// }
+				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
+					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				}
 
 				// getting total number records without any search
 				$sql_tot = "SELECT count(id) as jml FROM `data_spp_sipd`";
@@ -21820,60 +21865,72 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$params = $_REQUEST;
 				$columns = array(
 					0 => 'id',
-					1 => 'idSpm',
-					2 => 'nomorSp2d',
-					3 => 'tanggalSp2d',
-					4 => 'tahun_anggaran',
-					5 => 'idSubUnit',
-					6 => 'keteranganSp2d',
-					7 => 'jenisSp2d',
-					8 => 'nilaiSp2d',
-					9 => 'jenisLs',
-					10 => 'isPergeseran',
-					11 => 'isPelimpahan',
-					12 => 'created_at',
-					13 => 'updated_at',
-					14 => 'isTbpLs',
-					15 => 'idSkpd',
-					16 => 'isDraft',
-					17 => 'idSp2d',
-					18 => 'verifikasiSp2d',
-					19 => 'tanggalVerifikasi',
-					20 => 'idSkpdTujuan',
-					21 => 'kunciRekening',
-					22 => 'isBku',
-					23 => 'bulan_gaji',
-					24 => 'tahun_gaji',
-					25 => 'jenis_gaji',
-					26 => 'is_bku_skpd',
-					27 => 'id_jadwal',
-					28 => 'id_tahap',
-					29 => 'status_tahap',
-					30 => 'kode_tahap',
-					31 => 'status_aklap',
-					32 => 'nomor_jurnal',
-					33 => 'jurnal_id',
-					34 => 'metode',
-					35 => 'bulan_tpp',
-					36 => 'tahun_tpp',
-					37 => 'nomor_rekening_pembayar',
-					38 => 'bank_rekening_pembayar',
-					39 => 'is_rekening_pembayar',
-					40 => 'nomorSpm',
-					41 => 'tanggalSpm',
-					42 => 'tahunSpm',
-					43 => 'keteranganSpm',
-					44 => 'verifikasiSpm',
-					45 => 'tanggalVerifikasiSpm',
-					46 => 'jenisSpm',
-					47 => 'nilaiSpm',
-					48 => 'keteranganVerifikasiSpm',
-					49 => 'isOtorisasi',
-					50 => 'tanggalOtorisasi',
-					51 => 'is_sptjm',
-					52 => 'namaSkpd',
-					53 => 'kodeSkpd',
-					54 => 'is_bpk'
+					1 => 'bulan_gaji',
+					2 => 'bulan_tpp',
+					3 => 'created_at',
+					4 => 'created_by',
+					5 => 'deleted_at',
+					6 => 'deleted_by',
+					7 => 'id_bank',
+					8 => 'id_daerah',
+					9 => 'id_jadwal',
+					10 => 'id_pegawai_bud_kbud',
+					11 => 'id_rkud',
+					12 => 'id_skpd',
+					13 => 'id_sp_2_d',
+					14 => 'id_spm',
+					15 => 'id_sub_skpd',
+					16 => 'id_sumber_dana',
+					17 => 'id_tahap',
+					18 => 'id_unit',
+					19 => 'is_gaji',
+					20 => 'is_kunci_rekening_sp_2_d',
+					21 => 'is_pelimpahan',
+					22 => 'is_status_perubahan',
+					23 => 'is_tpp',
+					24 => 'is_transfer_sp_2_d',
+					25 => 'is_verifikasi_sp_2_d',
+					26 => 'jenis_gaji',
+					27 => 'jenis_ls_sp_2_d',
+					28 => 'jenis_rkud',
+					29 => 'jenis_sp_2_d',
+					30 => 'jurnal_id',
+					31 => 'keterangan_sp_2_d',
+					32 => 'keterangan_transfer_sp_2_d',
+					33 => 'keterangan_verifikasi_sp_2_d',
+					34 => 'kode_skpd',
+					35 => 'kode_sub_skpd',
+					36 => 'kode_tahap',
+					37 => 'metode',
+					38 => 'nama_bank',
+					39 => 'nama_bud_kbud',
+					40 => 'nama_rek_bp_bpp',
+					41 => 'nama_skpd',
+					42 => 'nama_sub_skpd',
+					43 => 'nilai_materai_sp_2_d',
+					44 => 'nilai_sp_2_d',
+					45 => 'nip_bud_kbud',
+					46 => 'no_rek_bp_bpp',
+					47 => 'nomor_jurnal',
+					48 => 'nomor_sp_2_d',
+					49 => 'nomor_spm',
+					50 => 'status_aklap',
+					51 => 'status_perubahan_at',
+					52 => 'status_perubahan_by',
+					53 => 'status_tahap',
+					54 => 'tahun',
+					55 => 'tahun_gaji',
+					56 => 'tahun_tpp',
+					57 => 'tanggal_sp_2_d',
+					58 => 'tanggal_spm',
+					59 => 'transfer_sp_2_d_at',
+					60 => 'transfer_sp_2_d_by',
+					61 => 'updated_at',
+					62 => 'updated_by',
+					63 => 'verifikasi_sp_2_d_at',
+					64 => 'verifikasi_sp_2_d_by',
+					65 => 'active',
+					66 => 'tahun_anggaran'
 				);
 
 				$where = $sqlTot = $sqlRec = "";
@@ -21886,12 +21943,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($_POST['id_skpd'])&&!empty($_POST['tahun_anggaran'])) {
-					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+					$where .= $wpdb->prepare(' AND id_sub_skpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
 				}
 
 				// getting total number records without any search
-				$sql_tot = "SELECT count(id) as jml FROM `data_sp2d_sipd`";
-				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_sp2d_sipd`";
+				$sql_tot = "SELECT count(id) as jml FROM `data_sp2d_sipd_ri`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_sp2d_sipd_ri`";
 				$where_first = " WHERE 1=1";
 
 				$sqlTot .= $sql_tot . $where_first;
@@ -21905,15 +21962,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($params['length'] != -1) {
 					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
 				}
-				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggalSp2d DESC " . $limit;
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_sp_2_d DESC " . $limit;
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
-					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilai_materai_sp_2_d'] = number_format($recVal['nilai_materai_sp_2_d'], 0, ",", ".");
+					$queryRecords[$recKey]['nilai_sp_2_d'] = number_format($recVal['nilai_sp_2_d'], 0, ",", ".");
 				}
 
 				$json_data = array(
@@ -21968,7 +22025,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Data detail SPP kosong!';
 				}
-				$ret['sql'] = $wpdb->last_query;
 			} else {
 				$ret['status']  = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

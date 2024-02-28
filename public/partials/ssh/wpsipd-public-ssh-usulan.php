@@ -344,8 +344,8 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<label class="col-md-2" for="Acuan penyusunan SSH">Acuan Penyusunan SSH</label>
 					<div class="col-md-10">
-						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="jenis_survey">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
-						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="jenis_juknis">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
+						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="jenis_survey">Survei harga pasar yang telah kami lakukan secara mandiri.</label></br>
+						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="jenis_juknis">Petunjuk teknis yang kami terima dari Kementerian/Provinsi.</label></br>
 						<small style='color:red'>* Pilih salah satu atau keduanya. </small>
 					</div>
 				</div>
@@ -743,12 +743,13 @@ echo $this->menu_ssh($input);
 						<?php endif; ?>
 						+"<li>"
 							+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
-								+"<option value=''>Pilih Status</option>"
-								+"<option value='diterima'>Diterima</option>"
+								+"<option value=''>Semua</option>"
+								+"<option value='draft'>Draft</option>"
+								+"<option value='diterima'>Disetujui</option>"
 								+"<option value='ditolak'>Ditolak</option>"
-								+"<option value='diterima_admin'>Diterima Admin</option>"
+								+"<option value='diterima_admin'>Disetujui Admin</option>"
 								+"<option value='ditolak_admin'>Ditolak Admin</option>"
-								+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
+								+"<option value='diterima_tapdkeu'>Disetujui TAPD Keuangan</option>"
 								+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
 								+"<option value='menunggu'>Menunggu</option>"
 								+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
@@ -2919,10 +2920,10 @@ echo $this->menu_ssh($input);
 			"<div class=\'akun-ssh-verify\'>"+
 				"<table>"+
 					"<tr>"+
-						"<td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Berdasarkan survei harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
 					"</tr>"+
 					"<tr>"+
-						"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td>"+
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Berdasarkan petunjuk teknis yang kami terima dari Kementerian/Provinsi.</label></td>"+
 					"</tr>"+
 					"<tr>"+
 						"<td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td>"+
