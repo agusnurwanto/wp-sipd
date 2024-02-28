@@ -80,10 +80,6 @@ if (!empty($get_spd)) {
 			<tbody id="data_body">
 				<?php echo $body; ?>
 			</tbody>
-			<tfoot>
-				<th colspan="4" class="text-center">Total</th>
-                <th class="text-right"><?php echo number_format($total_all_spd,0,",","."); ?></th>
-			</tfoot>
 		</table>
 	</div>
 </div>
@@ -100,17 +96,15 @@ if (!empty($get_spd)) {
             </div>
             <div class="modal-body">
                 <div class="wrap-table-detail">
+                    <h6>ID SPD : <span id="id_spd"></span><br>Nomor SPD : <span id="nomor_spd"></span></h6>
                     <table id="table-data-spd" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
-                    	<h6>ID SPD : <?php echo $v['idSpd'] ?><br> Nomor SPD : <?php echo $v['nomorSpd'] ?></h6>
                         <thead>
-								<th class="text-center">Nama Akun</th>
-								<th class="text-center">Nama Program</th>
-								<th class="text-center">Nama Kegiatan</th>
-								<th class="text-center">Nama Sub Kegiatan</th>
-								<th class="text-center">Detail SPD</th>
-								<th class="text-center">Keterangan SPD</th>
-								<th class="text-center">Ketentuan Lainnya</th>
-								<th class="text-center">Total SPD</th>
+                            <tr>
+								<th class="text-center">ID Detail SPD</th>
+								<th class="text-center">ID Akun</th>
+								<th class="text-center">ID Program</th>
+								<th class="text-center">ID Kegiatan</th>
+								<th class="text-center">ID Sub Kegiatan</th>
 								<th class="text-center">Nilai</th>
                             </tr>
                         </thead>
@@ -125,9 +119,7 @@ if (!empty($get_spd)) {
         </div>
     </div>
 </div>
-
 <script>
-
     function showspd(id) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
@@ -138,31 +130,49 @@ if (!empty($get_spd)) {
                 'action': 'get_data_spd_sipd',
                 'api_key': '<?php echo $api_key; ?>',
                 'tahun_anggaran': '<?php echo $input['tahun_anggaran'] ?>',
-                'idSpd': '<?php echo $v['idSpd'] ?>',
-                'nomorSpd': '<?php echo $v['nomorSpd'] ?>'
+                'idSpd': id,
             },
             success: function(res) {
                 console.log(res);
                 if (res.status == 'success') {
-                    var html = "";
-                    res.data.map(function(b, i){
-                        html += ''
-                        +'<tr>'
-                            +'<td></td>'
-                            +'<td></td>'
-                            +'<td></td>'
-                            +'<td></td>'
-                            +'<td></td>'
-                            +'<td><?php echo $v['keteranganSpd'] ?></td>'
-                            +'<td><?php echo $v['ketentuanLainnya'] ?></td>'
-                            +'<td><?php echo number_format($v['totalSpd'],0,",",".") ?></td>'
-                            +'<td></td>'
-                        +'</tr>'
-                    });
-                    jQuery('#table-data-spd').DataTable().clear();
-                    jQuery('#table-data-spd tbody').html(html);
+                	jQuery('#id_spd').html(id);
+                	jQuery('#nomor_spd').html(res.data.nomorSpd);
+                	var html = '';
+            		var akun = '-';
+            		var program = '-';
+            		var giat = '-';
+            		var sub_giat = '-';
+            		var nilai = '-';
+                	res.data.detail.map(function(b, i){
+							if(b.id_akun != null){
+								akun = b.id_akun;
+							}
+							if(b.id_program != null){
+								program = b.id_program;
+							}
+							if(b.id_giat != null){
+								giat = b.id_giat;
+							}
+							if(b.id_sub_giat != null){
+								sub_giat = b.id_sub_giat;
+							}
+							if(b.nilai != null){
+								nilai = b.nilai;
+							}
+                		html += ''
+            			+'<tr>'
+            				+'<td>'+b.idDetailSpd+'</td>'
+            				+'<td>'+akun+'</td>'
+            				+'<td>'+program+'</td>'
+            				+'<td>'+giat+'</td>'
+            				+'<td>'+sub_giat+'</td>'
+            				+'<td class="text-right">'+nilai+'</td>'
+            			+'</tr>';
+                	});
+                	jQuery('#table-data-spd').DataTable().clear();
+                	jQuery('#table-data-spd tbody').html(html);
+                	jQuery('#table-data-spd').dataTable();
                     jQuery('#showspd').modal('show');
-                    jQuery('#table-data-spd').DataTable();
                 } else {
                     alert(res.message);
                 }
