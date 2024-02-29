@@ -5326,6 +5326,7 @@ CREATE TABLE `data_nota_dinas_usulan_ssh` (
   `created_user` text DEFAULT NULL,
   `nomor_surat` text DEFAULT NULL,
   `catatan` text DEFAULT NULL,
+  `is_locked` tinyint(4) DEFAULT 0,
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',

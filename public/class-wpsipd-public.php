@@ -22196,9 +22196,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
+                $nomor_spm = '--';
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nomorSpm'] = '<a href="#" onclick="showspm(' . $recVal['idSpm'] . ')">' . $recVal['nomorSpm'] . '</a>';
-
+					if ($recVal['nomorSpm'] != null) {
+                        $nomor_spm = $recVal['nomorSpm'];
+                    }
+					$queryRecords[$recKey]['nomorSpm'] = '<a href="#" onclick="showspm(' . $recVal['idSpm'] . ')">' . $nomor_spm . '</a>';
 				}
 
 				$json_data = array(
