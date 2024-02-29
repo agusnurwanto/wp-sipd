@@ -274,8 +274,8 @@ foreach ($ssh as $k => $val) {
 						<th class="text-center">HARGA SATUAN</th>
 						<th class="text-center">KETERANGAN</th>
 						<th class="text-center">SKPD Pengusul</th>
-						<th class="text-center">Verifikator 1</th>
-						<th class="text-center">Verifikator 2</th>
+						<th class="text-center">Iya</th>
+						<th class="text-center">Tidak</th>
 					</tr>
 					<tr>
 						<th class="text-center">1</th>
