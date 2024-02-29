@@ -3210,7 +3210,7 @@ echo $this->menu_ssh($input);
 		var id_skpd = jQuery('#search_filter_action_opd').val();
 		var no_surat = jQuery('#search_filter_surat').val();
 		var nota_dinas = jQuery('#search_nota_dinas_filter_surat').val();
-		var tipe_laporan = prompt('Pilih tipe laporan: 1=Laporan excel upload SIPD, 2=Laporan WP-SIPD', 1);
+		var tipe_laporan = prompt('Pilih tipe laporan: 1=Laporan excel upload SIPD, 2=Laporan WP-SIPD, 3=Laporan Verifikasi Usulan', 1);
 		var url = '<?php echo $url_cetak_usulan; ?>' + '&tahun=' + tahun + '&status=' + status + '&id_skpd=' + id_skpd + '&no_surat=' + no_surat + '&nota_dinas=' + nota_dinas + '&tipe_laporan=' + tipe_laporan;
 		window.open(url, '_blank').focus();
 	}
