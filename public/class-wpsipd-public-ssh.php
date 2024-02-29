@@ -1240,11 +1240,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-
 				$user_id = um_user('ID');
 				$user_meta = get_userdata($user_id);
 
-				$data_ssh = $wpdb->get_row($wpdb->prepare("
+				$data_ssh = $wpdb->get_row(
+					$wpdb->prepare("
 					SELECT 
 						keterangan_status_admin, 
 						keterangan_status_tapdkeu,
@@ -1252,13 +1252,13 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						no_surat_usulan 
 					FROM data_ssh_usulan 
 					WHERE id=%d
-				", $_POST['id']));
+				", $_POST['id'])
+				);
 
 				$return = array(
 					'status' => 'success',
 					'role' => $user_meta->roles[0],
 					'data' => $data_ssh,
-					'sql' => $wpdb->last_query
 				);
 			} else {
 				$return = array(
@@ -1695,9 +1695,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$columns = array(
 					0 => 'update_at',
 					1 => 'nomor_surat',
-					3 => 'catatan',
-					4 => 'tahun_anggaran',
-					5 => 'id'
+					2 => 'catatan',
+					3 => 'tahun_anggaran',
+					4 => 'id',
+					5 => 'is_locked'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1733,9 +1734,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$aksi = '
 						<a class="btn btn-sm btn-primary" onclick="filter_nota_dinas(\'' . $val['nomor_surat'] . '\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>';
 					if (in_array("administrator", $user_meta->roles)) {
-						$aksi .= '
-						<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="' . $val['id'] . '" data-nomorsurat="' . $val['nomor_surat'] . '"><i class="dashicons dashicons-edit"></i></a>
-						<a class="btn btn-sm btn-danger" onclick="hapus_nota_dinas(this); return false;" href="#" title="Hapus Nota Dinas" data-id="' . $val['id'] . '" data-nomorsurat="' . $val['nomor_surat'] . '"><i class="dashicons dashicons-trash"></i></a>';
+						if ($val['is_locked'] == 0) {
+							$aksi .= '
+							<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="' . $val['id'] . '" data-nomorsurat="' . $val['nomor_surat'] . '"><i class="dashicons dashicons-edit"></i></a>
+							<a class="btn btn-sm btn-danger" onclick="hapus_nota_dinas(this); return false;" href="#" title="Hapus Nota Dinas" data-id="' . $val['id'] . '" data-nomorsurat="' . $val['nomor_surat'] . '"><i class="dashicons dashicons-trash"></i></a>
+							<a class="btn btn-sm btn-secondary" onclick="kunci_nota_dinas(this); return false;" href="#" title="Kunci Nota Dinas" data-id="' . $val['id'] . '" data-nomorsurat="' . $val['nomor_surat'] . '"><span class="dashicons dashicons-unlock"></span></a>';
+						} else {
+							$aksi .= '
+							<a class="btn btn-sm btn-success" onclick="return false;" href="#" title="Nota Dinas Dikunci"><span class="dashicons dashicons-lock"></span></a>';
+						}
 					}
 					$queryRecords[$k]['aksi'] = $aksi;
 
@@ -1774,6 +1781,40 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	public function kunci_nota_dinas()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Kunci Nota Dinas!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$current_time = current_time('mysql');
+
+				$ret['data'] = $wpdb->update(
+					'data_nota_dinas_usulan_ssh',
+					array(
+						'is_locked' => 1,
+						'update_at' => $current_time,
+					),
+					array(
+						'id' => $_POST['id']
+					)
+				);
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'Api key tidak ditemukan!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 
 	public function data_ssh_usulan($atts)
 	{

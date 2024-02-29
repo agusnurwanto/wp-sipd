@@ -1027,7 +1027,6 @@ echo $this->menu_ssh($input);
 					},
 					"drawCallback": function(settings) {
 						var api = this.api();
-						// console.log('drawCallback');
 						jQuery("#wrap-loading").hide();
 						resolve();
 					}
@@ -1110,7 +1109,6 @@ echo $this->menu_ssh($input);
 					],
 					"drawCallback": function(settings) {
 						var api = this.api();
-						// console.log('api', api.rows().data());
 						window.html_surat_usulan = "" +
 							"<option value=''>Pilih Surat</option>";
 						api.rows().data().map(function(b, i) {
@@ -1177,13 +1175,22 @@ echo $this->menu_ssh($input);
 					],
 					"drawCallback": function(settings) {
 						jQuery("#wrap-loading").hide();
-						var api = this.api();
-						// console.log('api', api.rows().data());
-						window.html_surat_usulan_nota_dinas = "" +
-							"<option value=''>Pilih Nota Dinas</option>";
+						let api = this.api();
+						let dropdownData = [];
 						api.rows().data().map(function(b, i) {
-							html_surat_usulan_nota_dinas += "<option value='" + b.nomor_surat + "'>" + b.nomor_surat + "</option>";
+							if (b.is_locked != 1) {
+								dropdownData.push({
+									value: b.nomor_surat,
+									text: b.nomor_surat
+								});
+							}
 						});
+
+						window.html_surat_usulan_nota_dinas = "<option value=''>Pilih Nota Dinas</option>";
+						dropdownData.forEach(function(item) {
+							html_surat_usulan_nota_dinas += "<option value='" + item.value + "'>" + item.text + "</option>";
+						});
+
 						jQuery('#search_nota_dinas_filter_surat').html(html_surat_usulan_nota_dinas);
 						resolve();
 					}
@@ -2983,7 +2990,7 @@ echo $this->menu_ssh($input);
 						jQuery('#tambahNotaDinasModal').modal('hide');
 						suratNotaDinasUsulanSSHTable.ajax.reload(function() {
 							usulanSSHTable.ajax.reload(function() {
-								edit_nota_dinas(jQuery('#surat_nota_dinas_usulan_ssh_table a[data-id='+id+'].btn-warning'));
+								edit_nota_dinas(jQuery('#surat_nota_dinas_usulan_ssh_table a[data-id=' + id + '].btn-warning'));
 							});
 						});
 					} else {
@@ -3086,6 +3093,41 @@ echo $this->menu_ssh($input);
 				}
 			}
 		});
+	}
+
+	function kunci_nota_dinas(that) {
+		let id = jQuery(that).attr('data-id');
+		let nomor_surat = jQuery(that).attr('data-nomorsurat');
+		let confirmLock = confirm("Apakah anda yakin ingin mengunci Nota Dinas ini ?");
+		if (confirmLock) {
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+				type: "POST",
+				data: {
+					"action": "kunci_nota_dinas",
+					"api_key": jQuery("#api_key").val(),
+					"nomor_surat": nomor_surat,
+					"tahun_anggaran": tahun,
+					"id": id
+				},
+				dataType: "json",
+				success: function(res) {
+					jQuery('#wrap-loading').hide();
+					if (response.status == 'success') {
+						jQuery('#wrap-loading').hide();
+						alert(res.message);
+						if (res.status != 'error') {
+							suratNotaDinasUsulanSSHTable.ajax.reload(function() {
+								usulanSSHTable.ajax.reload();
+							});
+						}
+					} else {
+						alert(`GAGAL! \n${response.message}`);
+					}
+				}
+			});
+		}
 	}
 
 	function hapus_surat_usulan(that) {

@@ -809,6 +809,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_nota_dinas',  $plugin_public, 'submit_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_data_nota_dinas_by_id',  $plugin_public, 'get_data_nota_dinas_by_id');
 
+		$this->loader->add_action('wp_ajax_kunci_nota_dinas',  $plugin_public, 'kunci_nota_dinas');
 		$this->loader->add_action('wp_ajax_hapus_surat_usulan_by_nota_dinas',  $plugin_public, 'hapus_surat_usulan_by_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_indikator_kegiatan_renja',  $plugin_public, 'get_indikator_kegiatan_renja');
 		$this->loader->add_action('wp_ajax_submit_indikator_kegiatan_renja',  $plugin_public, 'submit_indikator_kegiatan_renja');
