@@ -2987,12 +2987,10 @@ echo $this->menu_ssh($input);
 				success: function(response) {
 					jQuery('#wrap-loading').hide();
 					if (response.status == 'success') {
-						jQuery('#tambahNotaDinasModal').modal('hide');
-						suratNotaDinasUsulanSSHTable.ajax.reload(function() {
-							usulanSSHTable.ajax.reload(function() {
-								edit_nota_dinas(jQuery('#surat_nota_dinas_usulan_ssh_table a[data-id=' + id + '].btn-warning'));
-							});
-						});
+						jQuery('#tambahNotaDinasModal').modal('show');
+						alert(response.message);
+						suratNotaDinasUsulanSSHTable.ajax.reload();
+						usulanSSHTable.ajax.reload();
 					} else {
 						alert(`GAGAL! \n${response.message}`);
 					}
@@ -3114,8 +3112,7 @@ echo $this->menu_ssh($input);
 				dataType: "json",
 				success: function(res) {
 					jQuery('#wrap-loading').hide();
-					if (response.status == 'success') {
-						jQuery('#wrap-loading').hide();
+					if (res.status == 'success') {
 						alert(res.message);
 						if (res.status != 'error') {
 							suratNotaDinasUsulanSSHTable.ajax.reload(function() {
@@ -3123,7 +3120,7 @@ echo $this->menu_ssh($input);
 							});
 						}
 					} else {
-						alert(`GAGAL! \n${response.message}`);
+						alert(`GAGAL! \n${res.message}`);
 					}
 				}
 			});
