@@ -1270,6 +1270,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_penjabaran6a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6a  - Bagi Hasil Kab', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6a"]');
 						$url_penjabaran6b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6b  - Bagi Hasil Kota', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6b"]');
 						$url_penjabaran6c = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6c  - Bagi Hasil Desa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6c"]');
+						$url_penjabaran_triwulan = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Per Triwulan', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="per_triwulan"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran1 . '">Halaman APBD PENJABARAN Lampiran 1 Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran2 . '">Halaman APBD PENJABARAN Lampiran 2 Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran3a . '">Halaman APBD PENJABARAN Lampiran 3a - Hibah Uang Tahun ' . $v['tahun_anggaran'] . '</a><br>';
@@ -1280,7 +1281,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran5b . '">Halaman APBD PENJABARAN Lampiran 5b - Bankeu Khusus Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6a . '">Halaman APBD PENJABARAN Lampiran 6a - Bagi Hasil Kab Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6b . '">Halaman APBD PENJABARAN Lampiran 6b - Bagi Hasil Kota Tahun ' . $v['tahun_anggaran'] . '</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6c . '">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6c . '">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran_triwulan . '">Halaman APBD PENJABARAN Per Triwulan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'apbdperda') {
 						$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="1"]');
