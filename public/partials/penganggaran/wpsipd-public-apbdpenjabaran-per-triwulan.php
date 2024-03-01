@@ -294,9 +294,9 @@ function generate_body($rek_all, $baris_kosong=false, $type='murni', $nama_reken
             <td class='kiri kanan bawah'></td>
             <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_1-$belanja_1)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_2-$belanja_2)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_3-$belanja_3)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_4-$belanja_4)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_1+$pendapatan_2)-($belanja_1+$belanja_2))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_1+$pendapatan_2+$pendapatan_3)-($belanja_1+$belanja_2+$belanja_3))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_1+$pendapatan_2+$pendapatan_3+$pendapatan_4)-($belanja_1+$belanja_2+$belanja_3+$belanja_4))."</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan-$belanja)."</td>
         </tr>";
     }else if($nama_rekening == 'Penerimaan Pembiayaan'){
@@ -316,18 +316,18 @@ function generate_body($rek_all, $baris_kosong=false, $type='murni', $nama_reken
             <td class='kiri kanan bawah'></td>
             <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_1-$pembiayaan_pengeluaran_1)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_2-$pembiayaan_pengeluaran_2)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_3-$pembiayaan_pengeluaran_3)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_4-$pembiayaan_pengeluaran_4)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2)-($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2+$pembiayaan_penerimaan_3)-($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_3))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2+$pembiayaan_penerimaan_3+$pembiayaan_penerimaan_4)-($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_3+$pembiayaan_pengeluaran_4))."</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan-$pembiayaan_pengeluaran)."</td>
         </tr>
         <tr>
             <td class='kiri kanan bawah text_blok'>6.3</td>
             <td class='kanan bawah text_kiri text_blok'>Sisa Lebih Pembiayaan Anggaran Daerah Tahun Berkenaan (SILPA)</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($belanja_1 - ($pembiayaan_penerimaan_1 - $pembiayaan_pengeluaran_1))."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($belanja_2 - ($pembiayaan_penerimaan_2 - $pembiayaan_pengeluaran_2))."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($belanja_3 - ($pembiayaan_penerimaan_3 - $pembiayaan_pengeluaran_3))."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($belanja_4 - ($pembiayaan_penerimaan_4 - $pembiayaan_pengeluaran_4))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($belanja_1+$belanja_2) - (($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2) - ($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2)))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($belanja_1+$belanja_2+$belanja_3) - (($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2+$pembiayaan_penerimaan_3) - ($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_3)))."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($belanja_1+$belanja_2+$belanja_3+$belanja_4) - (($pembiayaan_penerimaan_1+$pembiayaan_penerimaan_2+$pembiayaan_penerimaan_3+$pembiayaan_penerimaan_4) - ($pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_2+$pembiayaan_pengeluaran_3+$pembiayaan_pengeluaran_4)))."</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($belanja - ($pembiayaan_penerimaan - $pembiayaan_pengeluaran))."</td>
         </tr>";
     }
