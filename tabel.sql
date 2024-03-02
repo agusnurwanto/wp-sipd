@@ -64,6 +64,7 @@ CREATE TABLE `data_tbp_sipd`(
   `total_pertanggungjawaban` double,
   `active` tinyint,
   `created_at` datetime,
+  `update_at` datetime,
   `tahun_anggaran` year,
   PRIMARY KEY (`id`,`id_tbp`,`tahun_anggaran`)
 );
@@ -72,6 +73,7 @@ CREATE TABLE `data_tbp_sipd_detail` (
   `id` bigint NOT NULL auto_increment,
   `id_skpd` int,
   `id_tbp` int(11) DEFAULT NULL,
+  `jenis` text DEFAULT NULL,
   `alamat_perusahaan` text DEFAULT NULL,
   `jabatan_bp_bpp` text DEFAULT NULL,
   `jabatan_pa_kpa` text DEFAULT NULL,

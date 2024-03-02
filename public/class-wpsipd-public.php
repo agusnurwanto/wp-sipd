@@ -6695,88 +6695,182 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					empty($_POST['page'])
 					|| $_POST['page'] == 1
 				) {
-					$wpdb->update("data_spm_sipd", array('active' => 0), array(
+					$wpdb->update("data_tbp_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
 						"id_skpd" => $_POST['idSkpd'],
-						"jenisSpm" => $_POST['tipe']
+						"jenis" => $_POST['jenis']
 					));
 				}
 				foreach ($data as $i => $v) {
 					$cek = $wpdb->get_var($wpdb->prepare("
 						select 
 							id 
-						from data_spm_sipd 
-						where idSpm=%d 
+						from data_tbp_sipd 
+						where id_tbp=%d 
 							and tahun_anggaran=%d
 						", $v["idSpm"], $_POST["tahun_anggaran"]));
 					$opsi = array(
-						"idSpm" => $v["idSpm"],
-						"idSpp" => $v["idSpp"],
-						"created_at" => $v["created_at"],
-						"updated_at" => $v["updated_at"],
-						"idDetailSpm" => $v["idDetailSpm"],
+						"id_tbp" => $v["id_tbp"],
+						"id_sp2d_distribusi" => $v["id_sp2d_distribusi"],
+						"id_sp2d" => $v["id_sp2d"],
+						"nomor_tbp" => $v["nomor_tbp"],
+						"id_daerah" => $v["id_daerah"],
+						"id_unit" => $v["id_unit"],
 						"id_skpd" => $v["id_skpd"],
+						"id_sub_skpd" => $v["id_sub_skpd"],
+						"nilai_tbp" => $v["nilai_tbp"],
+						"tanggal_tbp" => $v["tanggal_tbp"],
+						"keterangan_tbp" => $v["keterangan_tbp"],
+						"nilai_materai_tbp" => $v["nilai_materai_tbp"],
+						"nomor_kwitansi" => $v["nomor_kwitansi"],
+						"id_pegawai_pa_kpa" => $v["id_pegawai_pa_kpa"],
+						"is_kunci_rekening_tbp" => $v["is_kunci_rekening_tbp"],
+						"is_panjar" => $v["is_panjar"],
+						"is_lpj" => $v["is_lpj"],
+						"id_lpj" => $v["id_lpj"],
+						"id_npd" => $v["id_npd"],
+						"idSpd" => $v["idSpd"],
+						"is_rekanan_upload" => $v["is_rekanan_upload"],
+						"status_aklap" => $v["status_aklap"],
+						"nomor_jurnal" => $v["nomor_jurnal"],
+						"jurnal_id" => $v["jurnal_id"],
+						"metode" => $v["metode"],
 						"id_jadwal" => $v["id_jadwal"],
 						"id_tahap" => $v["id_tahap"],
 						"status_tahap" => $v["status_tahap"],
-						"nomorSpp" => $v["nomorSpp"],
-						"nilaiSpp" => $v["nilaiSpp"],
-						"tanggalSpp" => $v["tanggalSpp"],
-						"keteranganSpp" => $v["keteranganSpp"],
-						"idSubUnit" => $v["idSubUnit"],
-						"nilaiDisetujuiSpp" => $v["nilaiDisetujuiSpp"],
-						"tanggalDisetujuiSpp" => $v["tanggalDisetujuiSpp"],
-						"jenisSpp" => $v["jenisSpp"],
-						"verifikasiSpp" => $v["verifikasiSpp"],
-						"keteranganVerifikasi" => $v["keteranganVerifikasi"],
-						"idSpd" => $v["idSpd"],
-						"idPengesahanSpj" => $v["idPengesahanSpj"],
-						"kunciRekening" => $v["kunciRekening"],
-						"alamatPenerimaSpp" => $v["alamatPenerimaSpp"],
-						"bankPenerimaSpp" => $v["bankPenerimaSpp"],
-						"nomorRekeningPenerimaSpp" => $v["nomorRekeningPenerimaSpp"],
-						"npwpPenerimaSpp" => $v["npwpPenerimaSpp"],
-						"jenisLs" => $v["jenisLs"],
-						"isUploaded" => $v["isUploaded"],
-						"tahunSpp" => $v["tahunSpp"],
-						"idKontrak" => $v["idKontrak"],
-						"idBA" => $v["idBA"],
-						"isSpm" => $v["isSpm"],
-						"statusPerubahan" => $v["statusPerubahan"],
-						"isDraft" => $v["isDraft"],
-						"isGaji" => $v["isGaji"],
-						"is_sptjm" => $v["is_sptjm"],
-						"tanggal_otorisasi" => $v["tanggal_otorisasi"],
-						"is_otorisasi" => $v["is_otorisasi"],
-						"bulan_gaji" => $v["bulan_gaji"],
-						"id_pegawai_pptk" => $v["id_pegawai_pptk"],
-						"nama_pegawai_pptk" => $v["nama_pegawai_pptk"],
-						"nip_pegawai_pptk" => $v["nip_pegawai_pptk"],
 						"kode_tahap" => $v["kode_tahap"],
-						"is_tpp" => $v["is_tpp"],
-						"bulan_tpp" => $v["bulan_tpp"],
-						"id_pengajuan_tu" => $v["id_pengajuan_tu"],
-						"nomor_pengajuan_tu" => $v["nomor_pengajuan_tu"],
-						"nomorSpm" => $v["nomorSpm"],
-						"tanggalSpm" => $v["tanggalSpm"],
-						"keteranganSpm" => $v["keteranganSpm"],
-						"verifikasiSpm" => $v["verifikasiSpm"],
-						"tanggalVerifikasiSpm" => $v["tanggalVerifikasiSpm"],
-						"jenisSpm" => $_POST['tipe'],
-						"nilaiSpm" => $v["nilaiSpm"],
-						"keteranganVerifikasiSpm" => $v["keteranganVerifikasiSpm"],
-						"isOtorisasi" => $v["isOtorisasi"],
-						"tanggalOtorisasi" => $v["tanggalOtorisasi"],
+						"kode_skpd" => $v["kode_skpd"],
+						"nama_skpd" => $v["nama_skpd"],
+						"kode_sub_skpd" => $v["kode_sub_skpd"],
+						"nama_sub_skpd" => $v["nama_sub_skpd"],
+						"total_pertanggungjawaban" => $v["total_pertanggungjawaban"],	
+						"created_at" => $v["created_at"],						
 						"active" => 1,
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("data_spm_sipd", $opsi, array("id" => $cek));
+						$wpdb->update("data_tbp_sipd", $opsi, array("id" => $cek));
 					} else {
 						//insert data spm ditable data_spm_sipd
-						$wpdb->insert("data_spm_sipd", $opsi);
+						$wpdb->insert("data_tbp_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
+	//Import data SPM Detail dari SIPD Penatausahaan
+	public function singkron_tbp_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi Detail SPM'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				foreach ($data['detail'] as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_tbp_sipd_detail 
+						where id_skpd=%d
+							and id_tbp=%d
+							and uraian=%s
+							and jumlah=%s
+							and kode_rekening=%s
+							and tahun_anggaran=%d
+					", $_POST['idSkpd'], $_POST['id_tbp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_spm" => $_POST['id_tbp'],
+						"id_skpd" => $_POST['idSkpd'],
+						"nomor_spd" => $data['dasar_pembayaran']["nomor_spd"],
+						"tanggal_spd" => $data['dasar_pembayaran']["tanggal_spd"],
+						"total_spd" => $data['dasar_pembayaran']["total_spd"],
+						"jumlah" => $v["jumlah"],
+						"kode_rekening" => $v["kode_rekening"],
+						"uraian" => $v["uraian"],
+						"bank_pihak_ketiga" => $data['header']["bank_pihak_ketiga"],
+						"jabatan_pa_kpa" => $data['header']["jabatan_pa_kpa"],
+						"keterangan_spm" => $data['header']["keterangan_spm"],
+						"nama_daerah" => $data['header']["nama_daerah"],
+						"nama_ibukota" => $data['header']["nama_ibukota"],
+						"nama_pa_kpa" => $data['header']["nama_pa_kpa"],
+						"nama_pihak_ketiga" => $data['header']["nama_pihak_ketiga"],
+						"nama_rek_pihak_ketiga" => $data['header']["nama_rek_pihak_ketiga"],
+						"nama_skpd" => $data['header']["nama_skpd"],
+						"nama_sub_skpd" => $data['header']["nama_sub_skpd"],
+						"nilai_spm" => $data['header']["nilai_spm"],
+						"nip_pa_kpa" => $data['header']["nip_pa_kpa"],
+						"no_rek_pihak_ketiga" => $data['header']["no_rek_pihak_ketiga"],
+						"nomor_spm" => $data['header']["nomor_spm"],
+						"nomor_spp" => $data['header']["nomor_spp"],
+						"npwp_pihak_ketiga" => $data['header']["npwp_pihak_ketiga"],
+						"tahun" => $data['header']["tahun"],
+						"tanggal_spm" => $data['header']["tanggal_spm"],
+						"tanggal_spp" => $data['header']["tanggal_spp"],
+						"jenis" => $_POST['jenis'],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data spp ditable data_spm_sipd_detail
+						$wpdb->update("data_spm_sipd_detail", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data spp ditable data_spm_sipd_detail
+						$wpdb->insert("data_spm_sipd_detail", $opsi);
+					}
+				}
+
+				$wpdb->update("data_spm_sipd_detail_potongan", array('active' => 0), array(
+					"id_skpd" => $_POST['idSkpd'],
+					"id_spm" => $_POST['id_spm'],
+					"tahun_anggaran" => $_POST["tahun_anggaran"]
+				));
+				foreach ($data['pajak_potongan'] as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_spm_sipd_detail_potongan 
+						where id_skpd=%d
+							and id_spm=%d
+							and tahun_anggaran=%d
+							and id_pajak_potongan=%d
+					", $_POST['idSkpd'], $_POST['id_spm'], $_POST["tahun_anggaran"], $v["id_pajak_potongan"]));
+					$opsi = array(
+						"id_spm" => $_POST['id_spm'],
+						"id_skpd" => $_POST['idSkpd'],
+						"id_billing" => $v["id_billing"],
+						"id_pajak_potongan" => $v["id_pajak_potongan"],
+						"nama_pajak_potongan" => $v["nama_pajak_potongan"],
+						"nilai_spp_pajak_potongan" => $v["nilai_spp_pajak_potongan"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data spp ditable data_spm_sipd_detail_potongan
+						$wpdb->update("data_spm_sipd_detail_potongan", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data spp ditable data_spm_sipd_detail_potongan
+						$wpdb->insert("data_spm_sipd_detail_potongan", $opsi);
 					}
 				}
 			} else {
