@@ -6488,7 +6488,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-
 	//Import data SP2D dari SIPD Penatausahaan
 	public function singkron_sp2d()
 	{
@@ -6609,6 +6608,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+
 	//Import data SPD SIPD Penatausahaan
 	public function singkron_detail_spd()
 	{
@@ -6679,6 +6679,215 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data TBP dari SIPD Penatausahaan
+	public function singkron_tbp()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi TBP'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);					
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("data_tbp_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd'],
+						"jenis_tbp" => $_POST['jenis']
+					));
+				}
+				
+				foreach ($data as $i => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_tbp_sipd 
+						where id_tbp=%d 
+							and tahun_anggaran=%d
+						", $v["id_tbp"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_tbp" => $v["id_tbp"],
+						"id_sp2d_distribusi" => $v["id_sp2d_distribusi"],
+						"id_sp2d" => $v["id_sp2d"],
+						"nomor_tbp" => $v["nomor_tbp"],
+						"id_daerah" => $v["id_daerah"],
+						"id_unit" => $v["id_unit"],
+						"id_skpd" => $v["id_skpd"],
+						"id_sub_skpd" => $v["id_sub_skpd"],
+						"nilai_tbp" => $v["nilai_tbp"],
+						"tanggal_tbp" => $v["tanggal_tbp"],
+						"keterangan_tbp" => $v["keterangan_tbp"],
+						"nilai_materai_tbp" => $v["nilai_materai_tbp"],
+						"nomor_kwitansi" => $v["nomor_kwitansi"],
+						"id_pegawai_pa_kpa" => $v["id_pegawai_pa_kpa"],
+						"jenis_tbp" => $v["jenis_tbp"],
+						"jenis_ls_tbp" => $v["jenis_ls_tbp"],
+						"is_kunci_rekening_tbp" => $v["is_kunci_rekening_tbp"],
+						"is_panjar" => $v["is_panjar"],
+						"is_lpj" => $v["is_lpj"],
+						"id_lpj" => $v["id_lpj"],
+						"id_npd" => $v["id_npd"],						
+						"is_rekanan_upload" => $v["is_rekanan_upload"],
+						"status_aklap" => $v["status_aklap"],
+						"nomor_jurnal" => $v["nomor_jurnal"],
+						"jurnal_id" => $v["jurnal_id"],
+						"metode" => $v["metode"],
+						"id_jadwal" => $v["id_jadwal"],
+						"id_tahap" => $v["id_tahap"],
+						"status_tahap" => $v["status_tahap"],
+						"kode_tahap" => $v["kode_tahap"],
+						"kode_skpd" => $v["kode_skpd"],
+						"nama_skpd" => $v["nama_skpd"],
+						"kode_sub_skpd" => $v["kode_sub_skpd"],
+						"nama_sub_skpd" => $v["nama_sub_skpd"],
+						"total_pertanggungjawaban" => $v["total_pertanggungjawaban"],	
+						"created_by" => $v["created_by"],
+						"created_at" => $v["created_at"],						
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek)) {
+						//Update data spm ditable data_spm_sipd
+						$wpdb->update("data_tbp_sipd", $opsi, array("id" => $cek));
+					} else {
+						//insert data spm ditable data_spm_sipd
+						$wpdb->insert("data_tbp_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
+	//Import data SPM Detail dari SIPD Penatausahaan
+	public function singkron_tbp_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi Detail TBP'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);		
+				foreach ($data as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_tbp_sipd_detail 
+						where id_skpd=%d
+							and id_tbp=%d
+							and nomor_tbp=%s
+							and nilai_tbp=%s
+							and tahun_anggaran=%d
+					", $_POST['idSkpd'], $_POST['id_tbp'], $data["nomor_tbp"], $data["nilai_tbp"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_tbp" => $_POST['id_tbp'],
+						"id_skpd" => $_POST['idSkpd'],
+						"nama_daerah" => $data["nama_daerah"],
+						"nama_skpd" => $data["nama_skpd"],
+						"nomor_tbp" => $data["nomor_tbp"],
+						"nilai_tbp" => $data["nilai_tbp"],
+						"nama_tujuan" => $data["nama_tujuan"],
+						"alamat_perusahaan" => $data["alamat_perusahaan"],
+						"npwp" => $data["npwp"],
+						"nomor_rekening" => $data["nomor_rekening"],
+						"nama_rekening" => $data["nama_rekening"],
+						"nama_bank" => $data["nama_bank"],
+						"keterangan_tbp" => $data["keterangan_tbp"],
+						"jenis_transaksi" => $data["jenis_transaksi"],
+						"nomor_npd" => $data["nomor_npd"],
+						"jenis_panjar" => $data["jenis_panjar"],
+						"tanggal_tbp" => $data["tanggal_tbp"],
+						"nama_pa_kpa" => $data["nama_pa_kpa"],
+						"nip_pa_kpa" => $data["nip_pa_kpa"],
+						"jabatan_pa_kpa" => $data["jabatan_pa_kpa"],
+						"nama_bp_bpp" => $data["nama_bp_bpp"],
+						"nip_bp_bpp" => $data["nip_bp_bpp"],
+						"jabatan_bp_bpp" => $data["jabatan_bp_bpp"],
+						"pajak_potongan" => $data["pajak_potongan"],
+						"jenis_tbp" => $_POST['jenis'],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data tbp ditable data_tbp_sipd_detail
+						$wpdb->update("data_tbp_sipd_detail", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data tbp ditable data_tbp_sipd_detail
+						$wpdb->insert("data_tbp_sipd_detail", $opsi);
+					}
+				}
+
+				$wpdb->update("data_tbp_sipd_detail", array('active' => 0), array(
+					"id_skpd" => $_POST['idSkpd'],
+					"id_tbp" => $_POST['id_tbp'],
+					"tahun_anggaran" => $_POST["tahun_anggaran"]
+				));
+				foreach ($data['detail'] as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_tbp_sipd_detail_rekening 
+						where id_skpd=%d
+							and id_tbp=%d
+							and tahun_anggaran=%d
+							and uraian=%d
+							and kode_rekening=%d
+							and jumlah=%d
+					", $_POST['idSkpd'], $_POST['id_tbp'], $_POST["tahun_anggaran"], $v["kode_rekening"], $v["uraian"], $v["jumlah"]));
+					$opsi = array(
+						"id_tbp" => $_POST['id_tbp'],
+						"id_skpd" => $_POST['idSkpd'],
+						"kode_rekening" => $v["kode_rekening"],
+						"uraian" => $v["uraian"],
+						"jumlah" => $v["jumlah"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data spp ditable data_tbp_sipd_detail_rekening
+						$wpdb->update("data_tbp_sipd_detail_rekening", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data spp ditable data_tbp_sipd_detail_rekening
+						$wpdb->insert("data_tbp_sipd_detail_rekening", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data STBP dari SIPD Penatausahaan
 	public function singkron_stbp()
 	{
@@ -6691,7 +6900,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
-					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
 				} else {
 					$data = $_POST['data'];
 				}
@@ -6765,7 +6974,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
 				foreach ($data['detail'] as $i => $v) {
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
