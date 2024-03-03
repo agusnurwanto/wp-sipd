@@ -5511,6 +5511,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdpenjabaran-per-triwulan.php';
 		}
 
+		if ($input['lampiran'] == 'kas_per_urusan') {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdpenjabaran-kas-per-urusan.php';
+		}
+
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
 		if ($input['lampiran'] == 99) {
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-99.php';

@@ -388,7 +388,7 @@ if(!empty($input['id_skpd'])){
         where tahun_anggaran=%d
             and active=1
             and type='pendapatan'
-            and id_skpd=%d
+            and id_sub_skpd=%d
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -472,7 +472,7 @@ if(!empty($input['id_skpd'])){
         where tahun_anggaran=%d
             and type='pembiayaan-penerimaan'
             and active=1
-            and id_skpd=%d
+            and id_sub_skpd=%d
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -514,7 +514,7 @@ if(!empty($input['id_skpd'])){
         where tahun_anggaran=%d
             and type='pembiayaan-pengeluaran'
             and active=1
-            and id_skpd=%d
+            and id_sub_skpd=%d
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
