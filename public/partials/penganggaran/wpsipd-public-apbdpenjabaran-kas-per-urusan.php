@@ -183,7 +183,7 @@ foreach($skpd_all['data'] as $urusan){
 				$warning = 'background: #ffe6e6;';
 			}
 			$body_html .= "
-		    <tr class='sub_skpd'>
+		    <tr class='sub_skpd' id_bidang_urusan='".$skpd['id_bidang_urusan']."' id_sub_skpd='".$skpd['id_sub_skpd']."'>
 		        <td class='kiri kanan bawah'>".$urusan['kode']."</td>
 		        <td class='kiri kanan bawah'>".$bidang_urusan['kode']."</td>
 		        <td class='kiri kanan bawah'>".$skpd['kode_skpd']."</td>
