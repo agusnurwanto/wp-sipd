@@ -6495,13 +6495,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret = array(
 			'action' => $_POST['action'],
 			'status' => 'success',
-			'message' => 'Berhasil singkronisasi Detail SPM'
+			'message' => 'Berhasil singkronisasi Detail SP2D'
 		);
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
-				foreach ($data['detail'] as $i => $v) {
+				foreach ($data['detail_belanja'] as $i => $v) {
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
 							id 

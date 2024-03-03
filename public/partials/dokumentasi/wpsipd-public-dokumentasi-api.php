@@ -3245,7 +3245,9 @@ Result :
             "verifikasi_sp_2_d_at": "0001-01-01 00:00:00",
             "verifikasi_sp_2_d_by": "0",
             "active": "1",
-            "tahun_anggaran": "2024"
+            "tahun_anggaran": "2024",
+            "detail": [],
+            "potongan": []
         }
     ]
 }
