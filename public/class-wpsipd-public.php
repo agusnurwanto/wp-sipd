@@ -7068,7 +7068,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 							$cek = $wpdb->get_var($wpdb->prepare("
 								SELECT 
-									id_akun 
+									id 
 								from data_anggaran_kas 
 								where tahun_anggaran=%d 
 									AND kode_sbl=%s
@@ -7112,13 +7112,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							);
 
 							if (!empty($cek)) {
-								$wpdb->update('data_anggaran_kas', $opsi, array(
-									'tahun_anggaran' => $_POST['tahun_anggaran'],
-									'kode_sbl' => $_POST['kode_sbl'],
-									'type' => $_POST['type'],
-									'id_unit' => $_POST['id_skpd'],
-									'id_akun' => $v['id_akun']
-								));
+								$wpdb->update('data_anggaran_kas', $opsi, array('id' => $cek));
 							} else {
 								$wpdb->insert('data_anggaran_kas', $opsi);
 							}
@@ -7140,6 +7134,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Salah!';
 				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function update_bl_rak_nonactive()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil update non active sub kegiatan Anggaran Kas',
+			'action'	=> $_POST['action'],
+			'id_unit'	=> $_POST['id_skpd']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$wpdb->update('data_anggaran_kas', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'type' => $_POST['type'],
+					'id_unit' => $_POST['id_skpd']
+				));
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
