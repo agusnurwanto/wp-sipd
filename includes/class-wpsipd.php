@@ -1036,6 +1036,7 @@ class Wpsipd
 		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
 		add_shortcode('halaman_spd', array($plugin_public, 'halaman_spd'));
 		add_shortcode('spd', array($plugin_public, 'spd'));
+		add_shortcode('sk_up', array($plugin_public, 'sk_up'));
 		add_shortcode('halaman_spp', array($plugin_public, 'halaman_spp'));
 		add_shortcode('spp', array($plugin_public, 'spp'));
 		add_shortcode('halaman_sp2d', array($plugin_public, 'halaman_sp2d'));

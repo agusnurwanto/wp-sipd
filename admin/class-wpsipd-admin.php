@@ -321,7 +321,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 
 			if (get_option('_crb_show_menu_spd') != true) {
-				Container::make('theme_options', __('Halaman SPD'))
+				Container::make('theme_options', __('Halaman SPD dan SK UP'))
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'spd')));
 			}
@@ -1249,6 +1249,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					if ($_POST['type'] == 'rfk') {
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+					} else if ($_POST['type'] == 'spd') {
+						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renja') {
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RENJA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
