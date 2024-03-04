@@ -391,6 +391,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->set_page_parent($laporan)
 					->add_fields($this->get_ajax_field(array('type' => 'laporan_penatausahaan')));
 			}
+
+			if (get_option('_crb_show_menu_laporan_pohon_kinerja') != true) {
+				Container::make('theme_options', __('Laporan Pohon Kinerja'))
+					->set_page_parent($laporan)
+					->add_fields(array(
+						Field::make('html', 'crb_laporan_pohon_kinerja')
+							->set_html('
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<h5>HALAMAN TERKAIT</h5>
+							<ol>
+								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Pohon Kinerja RPD</a></li>
+							</ol>
+							'))
+				);
+			}
 		}
 
 		$show_input_perencanaan_sipd_menu = get_option('_crb_show_menu_input_sipd_settings');
