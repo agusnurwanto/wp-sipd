@@ -321,7 +321,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 
 			if (get_option('_crb_show_menu_spd') != true) {
-				Container::make('theme_options', __('Halaman SPD'))
+				Container::make('theme_options', __('Halaman SPD dan SK UP'))
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'spd')));
 			}
@@ -332,16 +332,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->add_fields($this->get_ajax_field(array('type' => 'spp')));
 			}
 
-			if (get_option('_crb_show_menu_sp2d') != true) {
-				Container::make('theme_options', __('Halaman SP2D'))
-					->set_page_parent($monev)
-					->add_fields($this->get_ajax_field(array('type' => 'sp2d')));
-			}
-
 			if (get_option('_crb_show_menu_spm') != true) {
 				Container::make('theme_options', __('Halaman SPM'))
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'spm')));
+			}
+
+			if (get_option('_crb_show_menu_sp2d') != true) {
+				Container::make('theme_options', __('Halaman SP2D'))
+					->set_page_parent($monev)
+					->add_fields($this->get_ajax_field(array('type' => 'sp2d')));
 			}
 
 			if (get_option('_crb_show_menu_monev_json_rka_settings') != true) {
@@ -1183,11 +1183,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						} else if ($_POST['type'] == 'spp') {
 							$url_skpd = $this->generatePage('Halaman SPP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPP ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
+						} else if ($_POST['type'] == 'spm') {
+							$url_skpd = $this->generatePage('Halaman SPM ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spm tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPM ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'sp2d') {
 							$url_skpd = $this->generatePage('Halaman SP2D ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_sp2d tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-						}	else if ($_POST['type'] == 'spm') {
-							$url_skpd = $this->generatePage('Halaman SPM ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spm tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
@@ -1238,12 +1238,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							} else if ($_POST['type'] == 'spp') {
 								$url_skpd = $this->generatePage('Halaman SPP ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPP ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
-							} else if ($_POST['type'] == 'SP2D') {
-								$url_skpd = $this->generatePage('Halaman SP2D ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_sp2d tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'spm') {
 								$url_skpd = $this->generatePage('Halaman SPM ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_spm tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SPM ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
+							} else if ($_POST['type'] == 'sp2d') {
+								$url_skpd = $this->generatePage('Halaman SP2D ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_sp2d tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
+								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'monev_json_rka') {
 								$url_skpd = $this->generatePage('Data JSON RKA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><input type="checkbox" value="' . $vvv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ') ID = ' . $vvv['id_skpd'];
@@ -1267,6 +1267,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					if ($_POST['type'] == 'rfk') {
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+					} else if ($_POST['type'] == 'spd') {
+						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renja') {
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RENJA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
@@ -1288,6 +1291,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_penjabaran6a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6a  - Bagi Hasil Kab', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6a"]');
 						$url_penjabaran6b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6b  - Bagi Hasil Kota', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6b"]');
 						$url_penjabaran6c = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6c  - Bagi Hasil Desa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="6c"]');
+						$url_penjabaran_triwulan = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Per Triwulan', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="per_triwulan"]');
+						$url_penjabaran_kas_per_urusan = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Anggaran Kas Per Urusan', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="kas_per_urusan"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran1 . '">Halaman APBD PENJABARAN Lampiran 1 Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran2 . '">Halaman APBD PENJABARAN Lampiran 2 Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran3a . '">Halaman APBD PENJABARAN Lampiran 3a - Hibah Uang Tahun ' . $v['tahun_anggaran'] . '</a><br>';
@@ -1298,7 +1303,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran5b . '">Halaman APBD PENJABARAN Lampiran 5b - Bankeu Khusus Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6a . '">Halaman APBD PENJABARAN Lampiran 6a - Bagi Hasil Kab Tahun ' . $v['tahun_anggaran'] . '</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6b . '">Halaman APBD PENJABARAN Lampiran 6b - Bagi Hasil Kota Tahun ' . $v['tahun_anggaran'] . '</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6c . '">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran6c . '">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran_triwulan . '">Halaman APBD PENJABARAN Per Triwulan Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran_kas_per_urusan . '">Halaman APBD PENJABARAN Anggaran Kas Per Urusan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'apbdperda') {
 						$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="1"]');
@@ -1358,9 +1365,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'spp') {
 						$body_all .= $body_pemda;
-					} else if ($_POST['type'] == 'sp2d') {
+					} else if ($_POST['type'] == 'spm') {
 						$body_all .= $body_pemda;
-					}else if ($_POST['type'] == 'spm') {
+					} else if ($_POST['type'] == 'sp2d') {
 						$body_all .= $body_pemda;
 					}
 					if ($_POST['type'] != 'input_renstra') {
@@ -1386,8 +1393,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'spd'
 					|| $_POST['type'] == 'spp'
-					|| $_POST['type'] == 'sp2d'
 					|| $_POST['type'] == 'spm'
+					|| $_POST['type'] == 'sp2d'
 					|| $_POST['type'] == 'rkpd_renja'
 				) {
 					$ret['message'] = $body_all;
@@ -1929,9 +1936,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_spp', 'Halaman SPP')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_sp2d', 'Halaman SP2D')
-				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_spm', 'Halaman SPM')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_sp2d', 'Halaman SP2D')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA')
 				->set_option_value('true'),

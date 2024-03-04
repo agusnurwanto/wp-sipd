@@ -359,6 +359,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_stbp_detail',  $plugin_public, 'singkron_stbp_detail');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_stbp_detail',  $plugin_public, 'singkron_stbp_detail');
 
+		$this->loader->add_action('wp_ajax_singkron_tbp',  $plugin_public, 'singkron_tbp');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_tbp',  $plugin_public, 'singkron_tbp');
+		$this->loader->add_action('wp_ajax_singkron_tbp_detail',  $plugin_public, 'singkron_tbp_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_tbp_detail',  $plugin_public, 'singkron_tbp_detail');
+
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 
@@ -370,6 +375,9 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_singkron_pokir',  $plugin_public, 'singkron_pokir');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pokir',  $plugin_public, 'singkron_pokir');
+
+		$this->loader->add_action('wp_ajax_update_bl_rak_nonactive',  $plugin_public, 'update_bl_rak_nonactive');
+		$this->loader->add_action('wp_ajax_nopriv_update_bl_rak_nonactive',  $plugin_public, 'update_bl_rak_nonactive');
 
 		$this->loader->add_action('wp_ajax_get_up',  $plugin_public, 'get_up');
 		$this->loader->add_action('wp_ajax_nopriv_get_up',  $plugin_public, 'get_up');
@@ -809,6 +817,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_nota_dinas',  $plugin_public, 'submit_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_data_nota_dinas_by_id',  $plugin_public, 'get_data_nota_dinas_by_id');
 
+		$this->loader->add_action('wp_ajax_kunci_nota_dinas',  $plugin_public, 'kunci_nota_dinas');
+		$this->loader->add_action('wp_ajax_hapus_surat_usulan_by_nota_dinas',  $plugin_public, 'hapus_surat_usulan_by_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_indikator_kegiatan_renja',  $plugin_public, 'get_indikator_kegiatan_renja');
 		$this->loader->add_action('wp_ajax_submit_indikator_kegiatan_renja',  $plugin_public, 'submit_indikator_kegiatan_renja');
 		//ajax SIPKD
@@ -1005,6 +1015,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_spm_detail',  $plugin_public, 'singkron_spm_detail');
 
+		$this->loader->add_action('wp_ajax_singkron_sp2d_detail',  $plugin_public, 'singkron_sp2d_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_sp2d_detail',  $plugin_public, 'singkron_sp2d_detail');
+
 		$this->loader->add_action('wp_ajax_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_stbp_sipd',  $plugin_public, 'get_stbp_sipd');
 		
@@ -1022,6 +1035,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_spd_sipd',  $plugin_public, 'get_data_spd_sipd');
 		$this->loader->add_action('wp_ajax_show_spd',  $plugin_public, 'show_spd');
 
+		$this->loader->add_action('wp_ajax_get_datatable_data_spm_sipd',  $plugin_public, 'get_datatable_data_spm_sipd');
+		$this->loader->add_action('wp_ajax_get_data_spm_sipd',  $plugin_public, 'get_data_spm_sipd');
+		$this->loader->add_action('wp_ajax_show_spm',  $plugin_public, 'show_spm');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -1032,6 +1049,7 @@ class Wpsipd
 		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
 		add_shortcode('halaman_spd', array($plugin_public, 'halaman_spd'));
 		add_shortcode('spd', array($plugin_public, 'spd'));
+		add_shortcode('sk_up', array($plugin_public, 'sk_up'));
 		add_shortcode('halaman_spp', array($plugin_public, 'halaman_spp'));
 		add_shortcode('spp', array($plugin_public, 'spp'));
 		add_shortcode('halaman_sp2d', array($plugin_public, 'halaman_sp2d'));
