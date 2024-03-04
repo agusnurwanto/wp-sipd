@@ -70,7 +70,7 @@ CREATE TABLE `data_npd_sipd`(
   `created_at` datetime,
   `update_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_tbp`,`tahun_anggaran`)
+  PRIMARY KEY (`id`,`id_npd`,`tahun_anggaran`)
 );
 
 CREATE TABLE `data_npd_sipd_detail` (
