@@ -6806,6 +6806,223 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data NPD dari SIPD Penatausahaan
+	public function singkron_npd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi NPD'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);					
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("data_npd_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd']
+					));
+				}
+				
+				foreach ($data as $i => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_npd_sipd 
+						where id_npd=%d 
+							and tahun_anggaran=%d
+						", $v["id_npd"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_npd" => $v["id_npd"],
+						"nomor_npd" => $v["nomor_npd"],
+						"id_daerah" => $v["id_daerah"],
+						"id_unit" => $v["id_unit"],
+						"id_skpd" => $v["id_skpd"],
+						"id_sub_skpd" => $v["id_sub_skpd"],
+						"nilai_npd" => $v["nilai_npd"],
+						"nilai_npd_disetujui" => $v["nilai_npd_disetujui"],
+						"tanggal_npd" => $v["tanggal_npd"],
+						"tanggal_npd_selesai" => $v["tanggal_npd_selesai"],
+						"keterangan_npd" => $v["keterangan_npd"],
+						"is_verifikasi_npd" => $v["is_verifikasi_npd"],
+						"verifikasi_npd_at" => $v["verifikasi_npd_at"],
+						"verifikasi_npd_by" => $v["verifikasi_npd_by"],
+						"nomor_verifikasi" => $v["nomor_verifikasi"],
+						"is_npd_panjar" => $v["is_npd_panjar"],
+						"kondisi_selesai" => $v["kondisi_selesai"],
+						"selesai_at" => $v["selesai_at"],
+						"selesai_by" => $v["selesai_by"],
+						"nomor_selesai" => $v["nomor_selesai"],
+						"nilai_pengembalian" => $v["nilai_pengembalian"],	
+						"nilai_kurang_bayar" => $v["nilai_kurang_bayar"],
+						"nomor_kurang_lebih" => $v["nomor_kurang_lebih"],
+						"kurang_lebih_at" => $v["kurang_lebih_at"],
+						"kurang_lebih_by" => $v["kurang_lebih_by"],
+						"is_validasi_npd" => $v["is_validasi_npd"],
+						"validasi_npd_at" => $v["validasi_npd_at"],
+						"validasi_npd_by" => $v["validasi_npd_by"],
+						"is_tbp" => $v["is_tbp"],
+						"tbp_at" => $v["tbp_at"],
+						"tbp_by" => $v["tbp_by"],
+						"id_jadwal" => $v["id_jadwal"],
+						"id_tahap" => $v["id_tahap"],
+						"status_tahap" => $v["status_tahap"],
+						"kode_tahap" => $v["kode_tahap"],
+						"kode_skpd" => $v["kode_skpd"],
+						"nama_skpd" => $v["nama_skpd"],
+						"kode_sub_skpd" => $v["kode_sub_skpd"],
+						"nama_sub_skpd" => $v["nama_sub_skpd"],
+						"total_pertanggungjawaban" => $v["total_pertanggungjawaban"],	
+						"created_by" => $v["created_by"],
+						"created_at" => $v["created_at"],						
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek)) {
+						//Update data spm ditable data_spm_sipd
+						$wpdb->update("data_npd_sipd", $opsi, array("id" => $cek));
+					} else {
+						//insert data spm ditable data_spm_sipd
+						$wpdb->insert("data_npd_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
+	//Import data NPD Detail dari SIPD Penatausahaan
+	public function singkron_npd_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi Detail NPD'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);		
+				foreach ($data as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_npd_sipd_detail 
+						where id_skpd=%d
+							and id_npd=%d
+							and id_giat=%s
+							and id_sub_giat=%s
+							and nomor_npd=%s
+							and tahun_anggaran=%d
+					", $_POST['idSkpd'], $_POST['id_npd'], $data["id_giat"], $data["id_sub_giat"], $data["nomor_npd"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_npd" => $_POST['id_npd'],
+						"id_skpd" => $_POST['idSkpd'],
+						"id_daerah" => $data["id_daerah"],
+						"nama_daerah" => $data["nama_daerah"],
+						"nomor_npd" => $data["nomor_npd"],
+						"tanggal_npd" => $data["tanggal_npd"],
+						"kondisi_panjar" => $data["kondisi_panjar"],
+						"nama_skpd" => $data["nama_skpd"],
+						"nama_sub_skpd" => $data["nama_sub_skpd"],
+						"nama_pptk" => $data["nama_pptk"],
+						"nip_pptk" => $data["nip_pptk"],
+						"jabatan_pptk" => $data["jabatan_pptk"],
+						"nama_pa_kpa" => $data["nama_pa_kpa"],
+						"nip_pa_kpa" => $data["nip_pa_kpa"],
+						"jabatan_pa_kpa" => $data["jabatan_pa_kpa"],
+						"nomor_dpa" => $data["nomor_dpa"],
+						"id_program" => $data["id_program"],
+						"kode_program" => $data["kode_program"],
+						"nama_program" => $data["nama_program"],
+						"id_giat" => $data["id_giat"],
+						"kode_giat" => $data["kode_giat"],
+						"nama_giat" => $data["nama_giat"],
+						"id_sub_giat" => $data["id_sub_giat"],
+						"kode_sub_giat" => $data["kode_sub_giat"],
+						"nama_sub_giat" => $data["nama_sub_giat"],
+						"keterangan_npd" => $data["keterangan_npd"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data npd ditable data_tbp_sipd_detail
+						$wpdb->update("data_npd_sipd_detail", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data npd ditable data_tbp_sipd_detail
+						$wpdb->insert("data_npd_sipd_detail", $opsi);
+					}
+				}
+
+				$wpdb->update("data_npd_sipd_detail", array('active' => 0), array(
+					"id_skpd" => $_POST['idSkpd'],
+					"id_npd" => $_POST['id_npd'],
+					"tahun_anggaran" => $_POST["tahun_anggaran"]
+				));
+				foreach ($data['details'] as $i => $v) {
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_npd_sipd_detail_rekening 
+						where id_skpd=%d
+							and id_npd=%d
+							and tahun_anggaran=%d
+							and uraian=%d
+							and kode_rekening=%d
+							and anggaran=%d
+					", $_POST['idSkpd'], $_POST['id_npd'], $_POST["tahun_anggaran"], $v["kode_rekening"], $v["uraian"], $v["anggaran"]));
+					$opsi = array(
+						"id_npd" => $_POST['id_npd'],
+						"id_skpd" => $_POST['idSkpd'],
+						"kode_rekening" => $v["kode_rekening"],
+						"uraian" => $v["uraian"],
+						"anggaran" => $v["anggaran"],
+						"sisa_anggaran" => $v["sisa_anggaran"],
+						"rencana_penarikan" => $v["rencana_penarikan"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data NPD ditable data_npd_sipd_detail_rekening
+						$wpdb->update("data_npd_sipd_detail_rekening", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data NPD ditable data_npd_sipd_detail_rekening
+						$wpdb->insert("data_npd_sipd_detail_rekening", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data TBP dari SIPD Penatausahaan
 	public function singkron_tbp()
 	{
@@ -6902,7 +7119,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	//Import data SPM Detail dari SIPD Penatausahaan
+	//Import data TBP Detail dari SIPD Penatausahaan
 	public function singkron_tbp_detail()
 	{
 		global $wpdb;
