@@ -22578,6 +22578,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
+					$queryRecords[$recKey]['nomor_sp_2_d'] = '<a href="#" onclick="showsp2d(' . $recVal['id_sp_2_d'] . ')">' . $recVal['nomor_sp_2_d'] . '</a>';
 					$queryRecords[$recKey]['nilai_materai_sp_2_d'] = number_format($recVal['nilai_materai_sp_2_d'], 0, ",", ".");
 					$queryRecords[$recKey]['nilai_sp_2_d'] = number_format($recVal['nilai_sp_2_d'], 0, ",", ".");
 				}
@@ -22605,6 +22606,55 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
+
+    public function get_data_sp2d_sipd()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil Get SPD SIPD Detail!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $id_sp_2_d = $_POST['id_sp_2_d'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $spm = $wpdb->get_row(
+                    $wpdb->prepare('
+                        SELECT 
+                            *
+                        FROM data_sp2d_sipd_ri
+                        WHERE id_sp_2_d=%s
+                          AND tahun_anggaran=%d
+                          AND active=1
+                        ', $id_sp_2_d, $tahun_anggaran
+                    ), ARRAY_A
+                );
+                $spm['detail'] = $wpdb->get_results($wpdb->prepare('
+                    SELECT
+                        *
+                    FROM data_sp2d_sipd_detail
+                    WHERE id_sp_2_d = %d
+                        AND active=1
+                        AND tahun_anggaran=%d
+                ', $id_sp_2_d, $tahun_anggaran), ARRAY_A);
+                $ret['data'] = $spm;
+                if(empty($spm)){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data dengan ID SPD '.$id_sp_2_d.' Kosong / Tidak Lengkap!';
+                }
+                $ret['sql'] = $wpdb->last_query;
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
 
 	public function get_data_spp_sipd_detail()
 	{
