@@ -241,49 +241,52 @@ foreach ($data_all['data'] as $tujuan) {
   }
 }
 
-$class = 'style=\"color:red; font-style:italic\"';
-$class2 = 'style=\"color:blue; font-style:italic\"';
+$class0 = 'style=\"color:#252020;font-size:13px; font-weight:600; padding:20px\"';
+$class1 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #efd655; padding:10px\"';
+$class2 = 'style=\"color:#454810; font-size:12px; font-weight:600; font-style:italic\"';
+$class3 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #f84d4d; padding:10px\"';
+$class4 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #5995e9; padding:10px\"';
 $data = [];
 foreach ($data_temp as $keyTujuan => $tujuan) {
     $data[$keyTujuan][0] = (object)[
-      'v' => trim($tujuan['nama']),
-      'f' => trim($tujuan['nama']),
+      'v' => "<div ".$class0.">".trim($tujuan['nama'])."</div>",
+      'f' => "<div ".$class0.">".trim($tujuan['nama'])."</div>",
     ];
 
     foreach ($tujuan['indikator'] as $keyIndikatorTujuan => $indikator) {
-        $data[$keyTujuan][0]->f.="<div ".$class.">".$indikator."</div>";
+        $data[$keyTujuan][0]->f.="<div ".$class1.">".$indikator."</div>";
     }
 
     $data[$keyTujuan][0]->f.="<div ".$class2."> Rp.".number_format($tujuan['pagu'], '2', ',', '.')." </div>";
 
     foreach ($tujuan['data'] as $keySasaran => $sasaran) {
         $data[$keySasaran][0] = (object)[
-          'v' => trim($sasaran['nama']),
-          'f' => trim($sasaran['nama']),
+          'v' => "<div ".$class0.">".trim($sasaran['nama'])."</div>",
+          'f' => "<div ".$class0.">".trim($sasaran['nama'])."</div>",
         ];
 
         foreach ($sasaran['indikator'] as $keyIndikatorSasaran => $indikator) {
-            $data[$keySasaran][0]->f.="<div ".$class.">".$indikator."</div>";
+            $data[$keySasaran][0]->f.="<div ".$class3.">".$indikator."</div>";
         }
 
         $data[$keySasaran][0]->f.="<div ".$class2."> Rp.".number_format($sasaran['pagu'], '2', ',', '.')." </div>";
 
         foreach ($sasaran['data'] as $keyProgram => $program) {
             $data[$keyProgram][0] = (object)[
-              'v' => trim($program['nama']),
-              'f' => trim($program['nama']),
+              'v' => "<div ".$class0.">".trim($program['nama'])."</div>",
+              'f' => "<div ".$class0.">".trim($program['nama'])."</div>",
             ];
 
             foreach ($program['indikator'] as $keyIndikatorProgram => $indikator) {
-                $data[$keyProgram][0]->f.="<div ".$class.">".$indikator."</div>";
+                $data[$keyProgram][0]->f.="<div ".$class4.">".$indikator."</div>";
             }
 
             $data[$keyProgram][0]->f.="<div ".$class2."> Rp.".number_format($program['pagu'], '2', ',', '.')." </div>";
-            $data[$keyProgram][1] = trim($sasaran['nama']);
+            $data[$keyProgram][1] = "<div ".$class0.">".trim($sasaran['nama'])."</div>";
             $data[$keyProgram][2] = '';
         }
 
-        $data[$keySasaran][1] = trim($tujuan['nama']);
+        $data[$keySasaran][1] = "<div ".$class0.">".trim($tujuan['nama'])."</div>";
         $data[$keySasaran][2] = '';
     }
 
@@ -294,6 +297,13 @@ foreach ($data_temp as $keyTujuan => $tujuan) {
 $data = array_values($data);
 
 ?>
+
+<style type="text/css">
+  .google-visualization-orgchart-node{
+    background: #53cb82;
+  }
+</style>
+
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Pohon Kinerja RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?><br><?php echo $now->format('Y'); ?></h4><br>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
     <div id="chart_div"></div>
@@ -328,6 +338,7 @@ $data = array_values($data);
         data.addColumn('string', 'Level2');
         data.addColumn('string', 'ToolTip');
         data.addRows(data_all);
+        // data.setRowProperty(2, 'selectedStyle', 'background-color:#00FF00');
        
         // Create the chart.
         var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
