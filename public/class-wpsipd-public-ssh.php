@@ -2957,7 +2957,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$data_kategori = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							id_kategori,
-							kelompok,
+							tipe_kelompok,
 							kode_kategori,
 							uraian_kategori 
 						FROM data_kelompok_satuan_harga 
