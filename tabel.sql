@@ -33,7 +33,7 @@ CREATE TABLE `data_rekanan_sipd`(
   `active` tinyint,
   `created_at` datetime,
   `created_by` int DEFAULT NULL,
-  `update_at` datetime,
+  `updated_at` datetime,
   `tahun_anggaran` year,
   PRIMARY KEY (`id`,`tahun_anggaran`)
 );
