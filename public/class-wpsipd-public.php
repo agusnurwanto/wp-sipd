@@ -6518,7 +6518,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						where id_skpd=%d
 							and id_sp_2_d=%d
 							and tahun_anggaran=%d
-					", $_POST['idSkpd'], $_POST['id_sp_2_d'], $_POST["tahun_anggaran"]));
+							and kode_rekening=%s
+					", $_POST['idSkpd'], $_POST['id_sp_2_d'], $_POST["tahun_anggaran"], $v["kode_rekening"]));
 					$opsi = array(
 						"id_sp_2_d" => $_POST['id_sp_2_d'],
 						"id_skpd" => $_POST['idSkpd'],
