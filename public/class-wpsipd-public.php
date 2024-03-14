@@ -3821,6 +3821,78 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function singkron_rekanan_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron Rekanan penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['data_rekanan'])) {
+					if (!empty($_POST['type']) && $_POST['type'] == 'ri') {
+						$_POST['data_rekanan'] = json_decode(stripslashes(html_entity_decode($_POST['data_rekanan'])), true);
+					}
+
+					foreach ($_POST['data_rekanan'] as $key => $data_rekanan) {
+						// print_r($data_user);exit;
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id 
+							from data_rekanan_sipd 
+							where tahun_anggaran=%d 
+								AND nama_rekening=%s 
+						", $_POST['tahun_anggaran'], $data_rekanan['nama_rekening']));
+						$opsi = array(
+							"id_daerah" => $data_rekanan['id_daerah'],
+							"id_skpd" => $data_rekanan['id_skpd'],
+							"nomor_rekening" => $data_rekanan['nomor_rekening'],
+							"nama_rekening" => $data_rekanan['nama_rekening'],
+							"id_bank" => $data_rekanan['id_bank'],
+							"nama_bank" => $data_rekanan['nama_bank'],
+							"cabang_bank" => $data_rekanan['cabang_bank'],
+							"nama_tujuan" => $data_rekanan['nama_tujuan'],
+							"nama_perusahaan" => $data_rekanan['nama_perusahaan'],	
+							"alamat_perusahaan" => $data_rekanan['alamat_perusahaan'],
+							"telepon_perusahaan" => $data_rekanan['telepon_perusahaan'],
+							"npwp" => $data_rekanan['npwp'],
+							"nik" => $data_rekanan['nik'],
+							"jenis_rekanan" => $data_rekanan['jenis_rekanan'],
+							"kategori_rekanan" => $data_rekanan['kategori_rekanan'],
+							"is_valid" => $data_rekanan['is_valid'],
+							"is_locked" => $data_rekanan['is_locked'],
+							"created_at" => $data_rekanan['created_at'],
+							"created_by" => $data_rekanan['created_by'],
+							'active' => 1,
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'updated_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rekanan_sipd', $opsi, array(
+								'id' => $cek
+							));
+						} else {
+							$wpdb->insert('data_rekanan_sipd', $opsi);
+						}
+						$ret['sql'] = $wpdb->last_query;
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_panggol_penatausahaan()
 	{
 		global $wpdb;

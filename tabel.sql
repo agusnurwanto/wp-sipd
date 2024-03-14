@@ -11,6 +11,33 @@ CREATE TABLE `data_catatan_rfk_unit` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_rekanan_sipd`(
+  `id` int not null auto_increment,
+  `id_daerah` int,
+  `id_skpd` int(11) NOT NULL,
+  `nomor_rekening` varchar(80) DEFAULT 0,
+  `nama_rekening` text,
+  `id_bank` int DEFAULT NULL,
+  `nama_bank` varchar(255) DEFAULT NULL,
+  `cabang_bank` varchar(255) DEFAULT NULL,
+  `nama_tujuan` text DEFAULT NULL,
+  `nama_perusahaan` text DEFAULT NULL,
+  `alamat_perusahaan` text DEFAULT NULL,
+  `telepon_perusahaan` varchar(255) DEFAULT NULL,
+  `npwp` varchar(255) DEFAULT NULL,
+  `nik` varchar(255) DEFAULT NULL,
+  `jenis_rekanan` varchar(255) DEFAULT NULL,
+  `kategori_rekanan` varchar(255) DEFAULT NULL,
+  `is_valid` bit(1) DEFAULT NULL,
+  `is_locked` bit(1) DEFAULT NULL,
+  `active` tinyint,
+  `created_at` datetime,
+  `created_by` int DEFAULT NULL,
+  `updated_at` datetime,
+  `tahun_anggaran` year,
+  PRIMARY KEY (`id`,`tahun_anggaran`)
+);
+
 CREATE TABLE `data_spd_sipd`(
   `id` int not null auto_increment,
   `idSpd` int,
@@ -62,6 +89,8 @@ CREATE TABLE `data_npd_sipd`(
   `id_tahap` int DEFAULT 0,
   `status_tahap` text DEFAULT NULL,
   `kode_tahap` text DEFAULT NULL,
+  `kode_skpd` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
   `kode_sub_skpd` text DEFAULT NULL,
   `nama_sub_skpd` text DEFAULT NULL,
   `total_pertanggungjawaban` double,

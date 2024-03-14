@@ -306,6 +306,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 
+		$this->loader->add_action('wp_ajax_singkron_rekanan_sipd',  $plugin_public, 'singkron_rekanan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_rekanan_sipd',  $plugin_public, 'singkron_rekanan_sipd');
+
 		$this->loader->add_action('wp_ajax_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
 
