@@ -5030,4 +5030,111 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	function import_excel_ssh_usulan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil import excel!'
+		);
+
+		if (!empty($_POST)) {
+			$table_data = 'data_ssh_usulan';
+			$ret['data'] = array(
+				'insert' => 0,
+				'update' => 0,
+				'error' => array()
+			);
+
+			foreach ($_POST['data'] as $k => $data) {
+
+				$newData = array();
+
+				foreach ($data as $kk => $vv) {
+					$newData[trim(preg_replace('/\s+/', ' ', $kk))] = trim(preg_replace('/\s+/', ' ', $vv));
+				}
+
+				$data_db = array(
+					'id' => $newData['id'],
+					'id_standar_harga' => $newData['id_standar_harga'],
+					'kode_standar_harga' => $newData['kode_standar_harga'],
+					'nama_standar_harga' => $newData['nama_standar_harga'],
+					'satuan' => $newData['satuan'],
+					'spek' => $newData['spek'],
+					'ket_teks' => $newData['ket_teks'],
+					'created_at' => $newData['created_at'],
+					'created_user' => $newData['created_user'],
+					'updated_user' => $newData['updated_user'],
+					'is_deleted' => $newData['is_deleted'],
+					'is_locked' => $newData['is_locked'],
+					'kelompok' => $newData['kelompok'],
+					'harga' => $newData['harga'],
+					'harga_2' => $newData['harga_2'],
+					'harga_3' => $newData['harga_3'],
+					'kode_kel_standar_harga' => $newData['kode_kel_standar_harga'],
+					'nama_kel_standar_harga' => $newData['nama_kel_standar_harga'],
+					'update_at' => $newData['update_at'],
+					'update_at_admin' => $newData['update_at_admin'],
+					'update_at_tapdkeu' => $newData['update_at_tapdkeu'],
+					'tahun_anggaran' => $newData['tahun_anggaran'],
+					'status' => $newData['status'],
+					'status_by_admin' => $newData['status_by_admin'],
+					'status_by_tapdkeu' => $newData['status_by_tapdkeu'],
+					'keterangan_status' => $newData['keterangan_status'],
+					'keterangan_status_admin' => $newData['keterangan_status_admin'],
+					'keterangan_status_tapdkeu' => $newData['keterangan_status_tapdkeu'],
+					'status_upload_sipd' => $newData['status_upload_sipd'],
+					'keterangan_lampiran' => $newData['keterangan_lampiran'],
+					'kode_standar_harga_sipd' => $newData['kode_standar_harga_sipd'],
+					'status_jenis_usulan' => $newData['status_jenis_usulan'],
+					'jenis_produk' => $newData['jenis_produk'],
+					'tkdn' => $newData['tkdn'],
+					'lampiran_1' => $newData['lampiran_1'],
+					'lampiran_2' => $newData['lampiran_2'],
+					'lampiran_3' => $newData['lampiran_3'],
+					'verified_by_admin' => $newData['verified_by_admin'],
+					'verified_by_tapdkeu' => $newData['verified_by_tapdkeu'],
+					'no_surat_usulan' => $newData['no_surat_usulan'],
+					'no_nota_dinas' => $newData['no_nota_dinas'],
+					'id_sub_skpd' => $newData['id_sub_skpd'],
+					'active' => 1,
+					'update_at' => current_time('mysql')
+				);
+
+
+				$wpdb->last_error = "";
+
+				$cek_id = $wpdb->get_var(
+					$wpdb->prepare("
+						SELECT 
+							id 
+						FROM $table_data 
+						WHERE tahun_anggaran=%d
+							AND id_standar_harga=%s",
+						$newData['tahun_anggaran'],
+						$newData['id_standar_harga']
+					)
+				);
+
+				if (empty($cek_id)) {
+					$wpdb->insert($table_data, $data_db);
+					$ret['data']['insert']++;
+				} else {
+					$wpdb->update($table_data, $data_db, array(
+						"id" => $cek_id
+					));
+					$ret['data']['update']++;
+				}
+
+				if (!empty($wpdb->last_error)) {
+					$ret['data']['error'][] = array($wpdb->last_error, $data_db);
+				};
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

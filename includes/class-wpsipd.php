@@ -199,6 +199,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_import_excel_bhrd',  $plugin_admin, 'import_excel_bhrd');
 		$this->loader->add_action('wp_ajax_import_excel_bku_add',  $plugin_admin, 'import_excel_bku_add');
 		$this->loader->add_action('wp_ajax_import_excel_bku_dd',  $plugin_admin, 'import_excel_bku_dd');
+		$this->loader->add_action('wp_ajax_import_excel_ssh_usulan',  $plugin_admin, 'import_excel_ssh_usulan');
 		$this->loader->add_action('wp_ajax_singkron_bku_dd',  $plugin_admin, 'singkron_bku_dd');
 		$this->loader->add_action('wp_ajax_singkron_bku_add',  $plugin_admin, 'singkron_bku_add');
 		$this->loader->add_action('wp_ajax_set_setting_ajax',  $plugin_admin, 'set_setting_ajax');
