@@ -2,13 +2,14 @@
 global $wpdb;
 $api_key = get_option('_crb_api_key_extension');
 $url = admin_url('admin-ajax.php');
-$nama_skpd = null;
-$kd_nama_skpd = null;
+
+$get_skpd = null;
 $input = shortcode_atts(array(
     'id_skpd' => '',
     'tahun_anggaran' => ''
 ), $atts);
-$skpd_result = $wpdb->get_row(
+
+$unit = $wpdb->get_row(
     $wpdb->prepare('
         SELECT 
             kode_skpd,
@@ -21,8 +22,8 @@ $skpd_result = $wpdb->get_row(
     ARRAY_A
 );
 
-if ($skpd_result) {
-    $kd_nama_skpd = $skpd_result['kode_skpd'] . ' ' . $skpd_result['nama_skpd'];
+if ($unit) {
+    $get_skpd = $unit['kode_skpd'] . ' ' . $unit['nama_skpd'];
 } else {
     echo 'Data SKPD tidak ditemukan';
 }
@@ -33,18 +34,24 @@ if ($skpd_result) {
         max-height: 100vh;
         width: 100%;
     }
+
+    .wrap-table-detail {
+        overflow: auto;
+        max-height: 100vh;
+        width: 100%;
+    }
 </style>
 <div class="wrap-table">
-    <h1 class="text-center">Data SP2D ( Surat Perintah Pencairan Dana )<br> <?php echo $kd_nama_skpd; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+    <h4 style="text-align: center; margin: 0; font-weight: bold;">Surat Perintah Membayar (SP2D)<br><?php echo $get_skpd; ?>&nbsp;<br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4><br>
     <table id="table-data-sp2d" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
         <thead>
             <tr>
                 <th class="text-center">No</th>
+                <th class="text-center">ID SP2D</th>
                 <th class="text-center">Nomor SP2D</th>
                 <th class="text-center">Tanggal SP2D</th>
                 <th class="text-center">Keterangan SP2D</th>
                 <th class="text-center">Jenis SP2D</th>
-                <th class="text-center">Keterangan SP2D</th>
                 <th class="text-center">Keterangan Transfer SP2D</th>
                 <th class="text-center">Keterangan Verifikasi SP2D</th>
                 <th class="text-center">Kode Sub SKPD</th>
@@ -59,7 +66,6 @@ if ($skpd_result) {
                 <th class="text-center">NIP BUD KBUD</th>
                 <th class="text-center">Nomor Rekening BP BPP</th>
                 <th class="text-center">Nomor Jurnal</th>
-                <th class="text-center">Nomor SP2D</th>
                 <th class="text-center">Nomor SPM</th>
                 <th class="text-center">Tahun Gaji</th>
                 <th class="text-center">Tahun TPP</th>
@@ -83,7 +89,7 @@ if ($skpd_result) {
             </div>
             <div class="modal-body">
                 <div class="wrap-table-detail">
-                    <h6>ID SP2D : <span id="id_sp2d"></span></h6>
+                    <h6>ID SP2D : <span id="id_sp_2_d"></span></h6>
                     <table id="table-data-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
                         <thead>
                             <tr>
@@ -129,14 +135,49 @@ if ($skpd_result) {
         </div>
     </div>
 </div>
+<div class="modal fade" id="showpotongansp2d" tabindex="-1" role="dialog" aria-labelledby="showpotongansp2dLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showpotongansp2dLabel">Detail Potongan SP2D</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="wrap-table-detail">
+                    <h6>ID SP2D : <span id="id_sp_2_d"></span></h6>
+                    <table id="table-data-potongan-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th class="text-center">id_billing</th>
+                                <th class="text-center">id_pajak_potongan</th>
+                                <th class="text-center">nama_pajak_potongan</th>
+                                <th class="text-center">nilai_sp2d_pajak_potongan</th>
+                                <th class="text-center">tahun_anggaran</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     jQuery(document).ready(function() {
         get_datatable_sp2d();
     });
 
     function get_datatable_sp2d() {
-        if (typeof tableDataSp2d == 'undefined') {
-            window.tableDataSp2d = jQuery('#table-data-sp2d').on('preXhr.dt', function(e, settings, data) {
+        if (typeof tableDataSP2D == 'undefined') {
+            window.tableDataSP2D = jQuery('#table-data-sp2d').on('preXhr.dt', function(e, settings, data) {
                 jQuery("#wrap-loading").show();
             }).DataTable({
                 "processing": true,
@@ -152,7 +193,7 @@ if ($skpd_result) {
                         'action': 'get_datatable_data_sp2d_sipd',
                         'api_key': '<?php echo $api_key; ?>',
                         'id_skpd': '<?php echo $input['id_skpd']; ?>',
-                        'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
+                        'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                     }
                 },
                 lengthMenu: [
@@ -166,13 +207,17 @@ if ($skpd_result) {
                     jQuery("#wrap-loading").hide();
                 },
                 "columns": [{
-                        "data": 'id',
+                        "data": null,
                         "className": "text-center",
                         "orderable": false,
                         "searchable": false,
                         "render": function(data, type, full, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
+                    },
+                    {
+                        "data": 'id_sp_2_d',
+                        "className": "text-center"
                     },
                     {
                         "data": 'nomor_sp_2_d',
@@ -188,10 +233,6 @@ if ($skpd_result) {
                     },
                     {
                         "data": 'jenis_sp_2_d',
-                        "className": "text-center"
-                    },
-                    {
-                        "data": 'keterangan_sp_2_d',
                         "className": "text-center"
                     },
                     {
@@ -251,10 +292,6 @@ if ($skpd_result) {
                         "className": "text-center"
                     },
                     {
-                        "data": 'nomor_sp_2_d',
-                        "className": "text-center"
-                    },
-                    {
                         "data": 'nomor_spm',
                         "className": "text-center"
                     },
@@ -277,14 +314,13 @@ if ($skpd_result) {
                     {
                         "data": 'tahun_anggaran',
                         "className": "text-center"
-                    }
+                    },
                 ]
             });
         } else {
-            tableDataSp2d.draw();
+            tableDataSP2D.draw();
         }
     }
-
     function showsp2d(id) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
@@ -300,8 +336,9 @@ if ($skpd_result) {
             success: function(res) {
                 console.log(res);
                 if (res.status == 'success') {
-                    jQuery('#id_sp2d').html(id);
+                    jQuery('#id_sp_2_d').html(id);
                     var html = ''; 
+                    var link_nomor_sp2d = ''; 
                     var id_skpd ='-';
                     var nomor_sp_2_d ='-';
                     var nomor_spm ='-';
@@ -442,11 +479,13 @@ if ($skpd_result) {
                         if(b.tahun_anggaran != null){ 
                             tahun_anggaran = b.tahun_anggaran;
                         } 
+                        // var link_nomor_sp2d = '<a onclick="showspd href='+b.id_sp_2_d+' target="_blank">'+nomor_sp_2_d+'</a>';
+                        var link_nomor_sp2d = '<a href="#" onclick="showpotongansp2d('+b.id_sp_2_d+');">'+nomor_sp_2_d+'</a>';
                         html += ''
                         +'<tr>' 
                             +'<td class="text-center">' + (i + 1) + '</td>' 
                             +'<td>'+id_skpd+ '</td>'
-                            +'<td>'+nomor_sp_2_d+ '</td>'
+                            +'<td class="atas kanan bawah text_kiri"="'+id_sp_2_d+'">'+link_nomor_sp2d+'</td>'
                             +'<td>'+nomor_spm+ '</td>'
                             +'<td>'+jumlah+ '</td>'
                             +'<td>'+kode_rekening+ '</td>'
@@ -477,8 +516,71 @@ if ($skpd_result) {
                     });
                     jQuery('#table-data-sp2d-detail').DataTable().clear();
                     jQuery('#table-data-sp2d-detail tbody').html(html);
-                    jQuery('#showsp2d').modal('show');
                     jQuery('#table-data-sp2d-detail').dataTable();
+                    jQuery('#showsp2d').modal('show');
+                } else {
+                    alert(res.message);
+                }
+                jQuery('#wrap-loading').hide();
+            }
+        });
+    }
+    function showpotongansp2d(id) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo $url; ?>',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                'action': 'get_data_sp2d_sipd_potongan',
+                'api_key': '<?php echo $api_key; ?>',
+                'tahun_anggaran': '<?php echo $input['tahun_anggaran'] ?>',
+                'id_sp_2_d': id,
+            },
+            success: function(res) {
+                console.log(res);
+                if (res.status == 'success') {
+                    jQuery('#id_sp_2_d').html(id);
+                    var html = ''; 
+                    var id_billing ='-';
+                    var id_pajak_potongan ='-';
+                    var nama_pajak_potongan ='-';
+                    var nilai_sp2d_pajak_potongan ='-';
+                    var tahun_anggaran ='-';
+                    res.data.potongan.map(function(b, i){ 
+                        if(b.id_billing != null){                            
+                            id_billing = b.id_billing;
+                        }
+                          
+                        if(b.id_pajak_potongan != null){                            
+                            id_pajak_potongan = b.id_pajak_potongan;
+                        }
+                          
+                        if(b.nama_pajak_potongan != null){                            
+                            nama_pajak_potongan = b.nama_pajak_potongan;
+                        }
+                          
+                        if(b.nilai_sp2d_pajak_potongan != null){                            
+                            nilai_sp2d_pajak_potongan = b.nilai_sp2d_pajak_potongan;
+                        }
+
+                        if(b.tahun_anggaran != null){ 
+                            tahun_anggaran = b.tahun_anggaran;
+                        }
+                        html += ''
+                        +'<tr>' 
+                            +'<td class="text-center">' + (i + 1) + '</td>'
+                            +'<td>'+id_billing+ '</td>'
+                            +'<td>'+id_pajak_potongan+ '</td>'
+                            +'<td>'+nama_pajak_potongan+ '</td>'
+                            +'<td>'+nilai_sp2d_pajak_potongan+ '</td>'
+                            +'<td>'+tahun_anggaran+ '</td>'
+                        +'</tr>';
+                    });
+                    jQuery('#table-data-potongan-sp2d-detail').DataTable().clear();
+                    jQuery('#table-data-potongan-sp2d-detail tbody').html(html);
+                    jQuery('#table-data-potongan-sp2d-detail').dataTable();
+                    jQuery('#showsp2d').modal('show');
                 } else {
                     alert(res.message);
                 }

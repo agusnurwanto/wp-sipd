@@ -307,6 +307,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 
+		$this->loader->add_action('wp_ajax_singkron_rekanan_sipd',  $plugin_public, 'singkron_rekanan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_rekanan_sipd',  $plugin_public, 'singkron_rekanan_sipd');
+
 		$this->loader->add_action('wp_ajax_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_panggol_penatausahaan',  $plugin_public, 'singkron_panggol_penatausahaan');
 
@@ -1003,6 +1006,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sp2d_sipd',  $plugin_public, 'get_sp2d_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_sp2d_sipd',  $plugin_public, 'get_sp2d_sipd');
 		$this->loader->add_action('wp_ajax_get_data_sp2d_sipd',  $plugin_public, 'get_data_sp2d_sipd');
+		$this->loader->add_action('wp_ajax_get_data_sp2d_sipd_potongan',  $plugin_public, 'get_data_sp2d_sipd_potongan');
 
 		$this->loader->add_action('wp_ajax_get_datatable_data_spp_sipd',  $plugin_public, 'get_datatable_data_spp_sipd');
 		$this->loader->add_action('wp_ajax_get_datatable_data_sp2d_sipd',  $plugin_public, 'get_datatable_data_sp2d_sipd');
