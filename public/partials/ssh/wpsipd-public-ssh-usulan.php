@@ -422,6 +422,13 @@ echo $this->menu_ssh($input);
 				</button>
 			</div>
 			<div class="modal-body">
+				<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
+				<div class="row form-group">
+					<label class="col-md-2" for="list-skpd">Perangkat Daerah</label>
+					<div class="col-md-10">
+						<select id="list-skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
+					</div>
+				</div>
 				<div class="row form-group">
 					<label for="file-import-usulan-excel" class="col-md-2">Soft File Usulan SSH</label>
 					<div class="col-md-10">
@@ -1026,6 +1033,8 @@ echo $this->menu_ssh($input);
 
 	function import_excel_ssh_usulan() {
 		var data = jQuery('#data-excel').val();
+		var id_sub_skpd = jQuery('#list-skpd').val();
+		var tahun_anggaran = jQuery('#tahun_anggaran').val();
 
 		if (!data) {
 			return alert('Excel Tidak Boleh Kosong!');
@@ -1060,6 +1069,8 @@ echo $this->menu_ssh($input);
 										type: 'POST',
 										data: {
 											action: 'import_excel_ssh_usulan',
+											tahun_anggaran: tahun_anggaran,
+											id_sub_skpd: id_sub_skpd,
 											data: current_data
 										},
 										success: function(res) {
@@ -1083,6 +1094,8 @@ echo $this->menu_ssh($input);
 				.then(function(data_last) {
 					jQuery('#wrap-loading').hide();
 					alert('Import Data Usulan Sukses!');
+					jQuery('#importModal').modal('hide');
+					usulanSSHTable.ajax.reload();
 				})
 				.catch(function(e) {
 					console.log(e);

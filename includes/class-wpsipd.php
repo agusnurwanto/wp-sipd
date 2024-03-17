@@ -199,7 +199,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_import_excel_bhrd',  $plugin_admin, 'import_excel_bhrd');
 		$this->loader->add_action('wp_ajax_import_excel_bku_add',  $plugin_admin, 'import_excel_bku_add');
 		$this->loader->add_action('wp_ajax_import_excel_bku_dd',  $plugin_admin, 'import_excel_bku_dd');
-		$this->loader->add_action('wp_ajax_import_excel_ssh_usulan',  $plugin_admin, 'import_excel_ssh_usulan');
 		$this->loader->add_action('wp_ajax_singkron_bku_dd',  $plugin_admin, 'singkron_bku_dd');
 		$this->loader->add_action('wp_ajax_singkron_bku_add',  $plugin_admin, 'singkron_bku_add');
 		$this->loader->add_action('wp_ajax_set_setting_ajax',  $plugin_admin, 'set_setting_ajax');
@@ -634,6 +633,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_delete_check_usulan_ssh',  $plugin_public, 'submit_delete_check_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_approve_check_usulan_ssh',  $plugin_public, 'submit_approve_check_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_tambah_akun_ssh',  $plugin_public, 'submit_tambah_akun_ssh');
+		$this->loader->add_action('wp_ajax_import_excel_ssh_usulan',  $plugin_public, 'import_excel_ssh_usulan');
 		$this->loader->add_action('wp_ajax_submit_edit_tambah_harga_ssh', $plugin_public, 'submit_edit_tambah_harga_ssh');
 		$this->loader->add_action('wp_ajax_submit_edit_tambah_akun_ssh', $plugin_public, 'submit_edit_tambah_akun_ssh');
 		$this->loader->add_action('wp_ajax_get_data_penjadwalan', $plugin_public, 'get_data_penjadwalan');

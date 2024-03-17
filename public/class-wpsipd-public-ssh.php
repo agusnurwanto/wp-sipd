@@ -5048,87 +5048,57 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				'update' => 0,
 				'error' => array()
 			);
+			$date_now = current_datetime()->format('Y-m-d H:i:s');
+			$user_id = um_user('ID');
+			$id_sub_skpd = $_POST['id_sub_skpd'];
+			$tahun_anggaran = $_POST['tahun_anggaran'];
 
-			foreach ($_POST['data'] as $k => $data) {
+			$id_standar_harga = null;
+			$id_standar_harga = $wpdb->get_var(
+				$wpdb->prepare("
+					SELECT 
+						MAX(id_standar_harga)
+					FROM `data_ssh_usulan`
+					WHERE tahun_anggaran=%d
+				", $tahun_anggaran)
+			);
+			if ($id_standar_harga === null) {
+				$id_standar_harga = 0;
+			}
 
+			foreach ($_POST['data'] as $k => $data) {	
 				$newData = array();
-
 				foreach ($data as $kk => $vv) {
 					$newData[trim(preg_replace('/\s+/', ' ', $kk))] = trim(preg_replace('/\s+/', ' ', $vv));
 				}
-
 				$data_db = array(
-					'id' => $newData['id'],
-					'id_standar_harga' => $newData['id_standar_harga'],
+					'id_standar_harga' => $id_standar_harga++,
 					'kode_standar_harga' => $newData['kode_standar_harga'],
 					'nama_standar_harga' => $newData['nama_standar_harga'],
 					'satuan' => $newData['satuan'],
 					'spek' => $newData['spek'],
-					'ket_teks' => $newData['ket_teks'],
-					'created_at' => $newData['created_at'],
-					'created_user' => $newData['created_user'],
-					'updated_user' => $newData['updated_user'],
-					'is_deleted' => $newData['is_deleted'],
-					'is_locked' => $newData['is_locked'],
+					'created_at' => $date_now,
+					'created_user' => $user_id,
 					'kelompok' => $newData['kelompok'],
 					'harga' => $newData['harga'],
-					'harga_2' => $newData['harga_2'],
-					'harga_3' => $newData['harga_3'],
 					'kode_kel_standar_harga' => $newData['kode_kel_standar_harga'],
 					'nama_kel_standar_harga' => $newData['nama_kel_standar_harga'],
-					'update_at' => $newData['update_at'],
-					'update_at_admin' => $newData['update_at_admin'],
-					'update_at_tapdkeu' => $newData['update_at_tapdkeu'],
-					'tahun_anggaran' => $newData['tahun_anggaran'],
-					'status' => $newData['status'],
-					'status_by_admin' => $newData['status_by_admin'],
-					'status_by_tapdkeu' => $newData['status_by_tapdkeu'],
-					'keterangan_status' => $newData['keterangan_status'],
-					'keterangan_status_admin' => $newData['keterangan_status_admin'],
-					'keterangan_status_tapdkeu' => $newData['keterangan_status_tapdkeu'],
-					'status_upload_sipd' => $newData['status_upload_sipd'],
+					'tahun_anggaran' => $tahun_anggaran,
+					'status' => 'draft',
 					'keterangan_lampiran' => $newData['keterangan_lampiran'],
-					'kode_standar_harga_sipd' => $newData['kode_standar_harga_sipd'],
-					'status_jenis_usulan' => $newData['status_jenis_usulan'],
+					'status_jenis_usulan' => 'tambah_baru',
 					'jenis_produk' => $newData['jenis_produk'],
-					'tkdn' => $newData['tkdn'],
-					'lampiran_1' => $newData['lampiran_1'],
-					'lampiran_2' => $newData['lampiran_2'],
-					'lampiran_3' => $newData['lampiran_3'],
-					'verified_by_admin' => $newData['verified_by_admin'],
-					'verified_by_tapdkeu' => $newData['verified_by_tapdkeu'],
-					'no_surat_usulan' => $newData['no_surat_usulan'],
-					'no_nota_dinas' => $newData['no_nota_dinas'],
-					'id_sub_skpd' => $newData['id_sub_skpd'],
-					'active' => 1,
-					'update_at' => current_time('mysql')
+					'tkdn' => 0,
+					'id_sub_skpd' => $id_sub_skpd,
 				);
-
-
 				$wpdb->last_error = "";
-
-				$cek_id = $wpdb->get_var(
-					$wpdb->prepare("
-						SELECT 
-							id 
-						FROM $table_data 
-						WHERE tahun_anggaran=%d
-							AND id_standar_harga=%s",
-						$newData['tahun_anggaran'],
-						$newData['id_standar_harga']
-					)
-				);
-
-				if (empty($cek_id)) {
+				if (!empty($data_db)) {
 					$wpdb->insert($table_data, $data_db);
 					$ret['data']['insert']++;
 				} else {
-					$wpdb->update($table_data, $data_db, array(
-						"id" => $cek_id
-					));
-					$ret['data']['update']++;
+					$ret['status'] = 'error';
+					$ret['message'] = 'data kosong!';
 				}
-
 				if (!empty($wpdb->last_error)) {
 					$ret['data']['error'][] = array($wpdb->last_error, $data_db);
 				};
