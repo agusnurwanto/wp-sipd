@@ -251,6 +251,7 @@ echo $this->menu_ssh($input);
 			<h2 class="text-center">Daftar Usulan</h2>
 			<div style="margin-bottom: 25px;">
 				<?php if (false == $is_admin) : ?>
+					<button class="btn btn-success" onclick="importModal()"><span class="dashicons dashicons-database-import"></span>Import Usulan Excel</button>
 					<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Item SSH</button>
 					<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Harga SSH</button>
 					<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Akun SSH</button>
@@ -406,6 +407,44 @@ echo $this->menu_ssh($input);
 			<div class="modal-footer">
 				<button class="btn btn-primary submitBtn" id="submitSuratUsulan" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
 				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="importModalLabel">Import Usulan dari Excel</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
+				<div class="row form-group">
+					<label class="col-md-2" for="list-skpd">Perangkat Daerah</label>
+					<div class="col-md-10">
+						<select id="list-skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="file-import-usulan-excel" class="col-md-2">Soft File Usulan SSH</label>
+					<div class="col-md-10">
+						<input type="file" id="file-import-usulan-excel" accept=".xls, .xlsx" style="display:block;width:100%;" onchange="filePickedWpsipd(event)">
+						<div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_surat_usulan_ssh"></a></div>
+					</div>
+				</div>
+				<div>
+					Data JSON:
+					<textarea id="data-excel"></textarea>
+				</div>
+				<small style="margin-top: 15px;">Contoh format file excel untuk data usulan bisa <a target="_blank" href="<?php echo WPSIPD_PLUGIN_URL; ?>excel/contoh_usulan.xlsx">download di sini</a>. Data yang di-import adalah data yang sudah dilakukan verval. Kolom dengan isian berupa tanggal wajib diubah dari date ke text. Sheet file excel yang akan diimport harus diberi nama data. Untuk kolom nilai angka ditulis tanpa tanda titik.</small>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" onclick="import_excel_ssh_usulan()">Import</button>
 			</div>
 		</div>
 	</div>
@@ -734,7 +773,8 @@ echo $this->menu_ssh($input);
 		</div>
 	</div>
 </div>
-
+<script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL; ?>admin/js/jszip.js"></script>
+<script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL; ?>admin/js/xlsx.js"></script>
 <script>
 	jQuery(document).ready(function() {
 		jQuery('.harga_ssh').on('input', function() {
@@ -920,6 +960,155 @@ echo $this->menu_ssh($input);
 		var formatted = thousands.join('.').split('').reverse().join('');
 		return formatted;
 	}
+
+	function filePickedWpsipd(oEvent) {
+		jQuery('#wrap-loading').show();
+		// Get The File From The Input
+		var oFile = oEvent.target.files[0];
+		var sFilename = oFile.name;
+		// Create A File Reader HTML5
+		var reader = new FileReader();
+
+		reader.onload = function(e) {
+			var data = e.target.result;
+			var workbook = XLSX.read(data, {
+				type: 'binary'
+			});
+
+			var cek_sheet_name = false;
+			workbook.SheetNames.forEach(function(sheetName) {
+				// Here is your object
+				console.log('sheetName', sheetName);
+				if (sheetName == 'data') {
+					cek_sheet_name = true;
+					var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+					var data = [];
+					XL_row_object.map(function(b, i) {
+						for (ii in b) {
+							b[ii] = b[ii].replace(/(\r\n|\n|\r)/g, " ").trim();
+						}
+						data.push(b);
+					});
+					var json_object = JSON.stringify(data);
+					jQuery('#data-excel').val(json_object);
+					jQuery('#wrap-loading').hide();
+				}
+			});
+			setTimeout(function() {
+				if (false == cek_sheet_name) {
+					jQuery('#data-excel').val('');
+					alert('Sheet dengan nama "data" tidak ditemukan!');
+					jQuery('#wrap-loading').hide();
+				}
+			}, 2000);
+		};
+
+		reader.onerror = function(ex) {
+			console.log(ex);
+		};
+
+		reader.readAsBinaryString(oFile);
+	}
+
+	function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
+		options.timeout = timeout;
+		if (!options.success_rewrite) {
+			options.success_rewrite = options.success;
+		}
+		options.success = function(response, status, xhr) {
+			options.success_rewrite(response);
+		}
+		jQuery.ajax(options)
+			.fail(function() {
+				if (retries > 0) {
+					console.log('Koneksi error. Coba lagi ' + retries);
+					setTimeout(function() {
+						relayAjax(options, --retries, delay, timeout);
+					}, delay);
+				} else {
+					alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
+				}
+			});
+	}
+
+	function import_excel_ssh_usulan() {
+		var data = jQuery('#data-excel').val();
+		var id_sub_skpd = jQuery('#list-skpd').val();
+		var tahun_anggaran = jQuery('#tahun_anggaran').val();
+
+		if (!data) {
+			return alert('Excel Tidak Boleh Kosong!');
+		} else {
+			data = JSON.parse(data);
+			jQuery('#wrap-loading').show();
+
+			var data_all = [];
+			var data_sementara = [];
+			var max = 100;
+
+			data.map(function(row, index) {
+				data_sementara.push(row);
+
+				if (data_sementara.length % max === 0) {
+					data_all.push(data_sementara);
+					data_sementara = [];
+				}
+			});
+
+			if (data_sementara.length > 0) {
+				data_all.push(data_sementara);
+			}
+
+			var last = data_all.length - 1;
+
+			data_all.reduce(function(sequence, nextData) {
+					return sequence.then(function(current_data) {
+							return new Promise(function(resolve_reduce, reject_reduce) {
+									relayAjax({
+										url: "<?php echo admin_url('admin-ajax.php'); ?>",
+										type: 'POST',
+										data: {
+											action: 'import_excel_ssh_usulan',
+											tahun_anggaran: tahun_anggaran,
+											id_sub_skpd: id_sub_skpd,
+											data: current_data
+										},
+										success: function(res) {
+											resolve_reduce(nextData);
+										},
+										error: function(e) {
+											console.log('Error importing Excel', e);
+										}
+									});
+								})
+								.catch(function(e) {
+									console.log(e);
+									return Promise.resolve(nextData);
+								});
+						})
+						.catch(function(e) {
+							console.log(e);
+							return Promise.resolve(nextData);
+						});
+				}, Promise.resolve(data_all[last]))
+				.then(function(data_last) {
+					jQuery('#wrap-loading').hide();
+					alert('Import Data Usulan Sukses!');
+					jQuery('#importModal').modal('hide');
+					usulanSSHTable.ajax.reload();
+				})
+				.catch(function(e) {
+					console.log(e);
+					jQuery('#wrap-loading').hide();
+					alert('Error during import!');
+				});
+		}
+	}
+
+	function importModal() {
+		jQuery('#importModal').modal('show');
+	}
+
 
 	function get_data_ssh(tahun) {
 		return new Promise(function(resolve, reject) {
