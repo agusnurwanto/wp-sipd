@@ -22905,6 +22905,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                         $nomor_spm = $recVal['nomorSpm'];
                     }
 					$queryRecords[$recKey]['nomorSpm'] = '<a href="#" onclick="showspm(' . $recVal['idSpm'] . ')">' . $nomor_spm . '</a>';
+					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
 				}
 
 				$json_data = array(
@@ -22963,6 +22964,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						AND active=1
 						AND tahun_anggaran=%d
 				', $id_spm, $tahun_anggaran), ARRAY_A);
+                $spm['potongan'] = $wpdb->get_results($wpdb->prepare('
+                    SELECT
+                        *
+                    FROM data_spm_sipd_detail_potongan
+                    WHERE id_spm = %d
+                        AND active=1
+                        AND tahun_anggaran=%d
+                ', $id_spm, $tahun_anggaran), ARRAY_A);
 				$ret['data'] = $spm;
 				if(empty($spm)){
 					$ret['status'] = 'error';

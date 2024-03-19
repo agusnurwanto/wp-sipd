@@ -47,14 +47,14 @@ if ($unit) {
         <thead>
             <tr>
                 <th class="text-center">No</th>   
-                <th class="text-center">idSpm</th>   
-                <th class="text-center">idSpp</th>   
-                <th class="text-center">nomorSpm</th>    
-                <th class="text-center">idDetailSpm</th>    
-                <th class="text-center">nomorSpp</th>    
-                <th class="text-center">nilaiSpp</th>    
-                <th class="text-center">tanggalSpp</th>  
-                <th class="text-center">keteranganSpp</th>
+                <th class="text-center">ID Spm</th>   
+                <th class="text-center">ID Spp</th>   
+                <th class="text-center">Nomor Spm</th>    
+                <th class="text-center">ID Detail Spm</th>    
+                <th class="text-center">Nomor Spp</th>    
+                <th class="text-center">Nilai Spp</th>    
+                <th class="text-center">Tanggal Spp</th>  
+                <th class="text-center">KeteranganSpp</th>
                 <th class="text-center">nilaiDisetujuiSpp</th>   
                 <th class="text-center">tanggalDisetujuiSpp</th> 
                 <th class="text-center">jenisSpp</th>    
@@ -123,9 +123,9 @@ if ($unit) {
                             <tr>
                                 <th class="text-center">No</th>   
                                 <th class="text-center">Nomor Spm</th>    
-                                <th class="text-center">nomor_spp</th>  
-                                <th class="text-center">tanggal_spd</th>    
-                                <th class="text-center">total_spd</th>  
+                                <th class="text-center">Nomor Spp</th>  
+                                <th class="text-center">Tanggal Spd</th>    
+                                <th class="text-center">Total Spd</th>  
                                 <th class="text-center">jumlah</th> 
                                 <th class="text-center">kode_rekening</th>  
                                 <th class="text-center">uraian</th> 
@@ -146,6 +146,27 @@ if ($unit) {
                                 <th class="text-center">tanggal_spp</th>    
                                 <th class="text-center">tipe</th>   
                                 <th class="text-center">tahun_anggaran</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="showpotonganspmLabel">Detail Potongan SPM</h5>
+            </div>
+            <div class="modal-body">
+                <div class="wrap-table-detail">
+                    <table id="table-data-potongan-spm-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th class="text-center">id_billing</th>
+                                <th class="text-center">id_pajak_potongan</th>
+                                <th class="text-center">nama_pajak_potongan</th>
+                                <th class="text-center">nilai_spm_pajak_potongan</th>
+                                <th class="text-center">tahun_anggaran</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -571,7 +592,7 @@ if ($unit) {
                             +'<td class="text-center">' + b.nomor_spm + '</td>' 
                             +'<td class="text-center">' + b.nomor_spp + '</td>' 
                             +'<td class="text-center">' + b.tanggal_spd + '</td>' 
-                            +'<td class="text-center">' + b.total_spd + '</td>' 
+                            +'<td class="text-center">' + formatRupiah(b.total_spd) + '</td>' 
                             +'<td class="text-center">' + b.jumlah + '</td>' 
                             +'<td class="text-center">' + b.kode_rekening + '</td>' 
                             +'<td class="text-center">' + b.uraian + '</td>' 
@@ -597,6 +618,51 @@ if ($unit) {
                     jQuery('#table-data-spm-detail').DataTable().clear();
                     jQuery('#table-data-spm-detail tbody').html(html);
                     jQuery('#table-data-spm-detail').dataTable();
+                    jQuery('#showspm').modal('show');
+                } else {
+                    alert(res.message);
+                }
+                if (res.status == 'success') {
+                    jQuery('#id_spm').html(id);
+                    var html = ''; 
+                    var id_billing ='-';
+                    var id_pajak_potongan ='-';
+                    var nama_pajak_potongan ='-';
+                    var nilai_spm_pajak_potongan ='-';
+                    var tahun_anggaran ='-';
+                    res.data.potongan.map(function(b, i){ 
+                        if(b.id_billing != null){                            
+                            id_billing = b.id_billing;
+                        }
+                          
+                        if(b.id_pajak_potongan != null){                            
+                            id_pajak_potongan = b.id_pajak_potongan;
+                        }
+                          
+                        if(b.nama_pajak_potongan != null){                            
+                            nama_pajak_potongan = b.nama_pajak_potongan;
+                        }
+                          
+                        if(b.nilai_spm_pajak_potongan != null){                            
+                            nilai_spm_pajak_potongan = b.nilai_spm_pajak_potongan;
+                        }
+
+                        if(b.tahun_anggaran != null){ 
+                            tahun_anggaran = b.tahun_anggaran;
+                        }
+                        html += ''
+                        +'<tr>' 
+                            +'<td class="text-center">' + (i + 1) + '</td>'
+                            +'<td>'+id_billing+ '</td>'
+                            +'<td>'+id_pajak_potongan+ '</td>'
+                            +'<td>'+nama_pajak_potongan+ '</td>'
+                            +'<td class="text-right">'+formatRupiah(nilai_spm_pajak_potongan)+ '</td>'
+                            +'<td>'+tahun_anggaran+ '</td>'
+                        +'</tr>';
+                    });
+                    jQuery('#table-data-potongan-spm-detail').DataTable().clear();
+                    jQuery('#table-data-potongan-spm-detail tbody').html(html);
+                    jQuery('#table-data-potongan-spm-detail').dataTable();
                     jQuery('#showspm').modal('show');
                 } else {
                     alert(res.message);

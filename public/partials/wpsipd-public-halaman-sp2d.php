@@ -128,28 +128,28 @@ if ($unit) {
                         </tbody>
                     </table>
                 </div>
-            <div class="modal-header">
-                <h5 class="modal-title" id="showpotongansp2dLabel">Detail Potongan SP2D</h5>
             </div>
-            <div class="modal-body">
-                <div class="wrap-table-detail">
-                    <table id="table-data-potongan-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">No</th>
-                                <th class="text-center">id_billing</th>
-                                <th class="text-center">id_pajak_potongan</th>
-                                <th class="text-center">nama_pajak_potongan</th>
-                                <th class="text-center">nilai_sp2d_pajak_potongan</th>
-                                <th class="text-center">tahun_anggaran</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showpotongansp2dLabel">Detail Potongan SP2D</h5>
                 </div>
-            </div>
-            </div>
+                <div class="modal-body">
+                    <div class="wrap-table-detail">
+                        <table id="table-data-potongan-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th class="text-center">id_billing</th>
+                                    <th class="text-center">id_pajak_potongan</th>
+                                    <th class="text-center">nama_pajak_potongan</th>
+                                    <th class="text-center">nilai_sp2d_pajak_potongan</th>
+                                    <th class="text-center">tahun_anggaran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
             </div>

@@ -26,6 +26,7 @@ $total_besaran_up_kkpd = 0;
 foreach($get_sk_up as $sk_up){
     $nomor++;
     $persen = 0;
+    $persen_all = '';
     $besaran_up_all = $sk_up['besaran_up'] + $sk_up['besaran_up_kkpd'];
     if($sk_up['pagu'] > 0 && $besaran_up_all > 0){
         $persen = round(($besaran_up_all/$sk_up['pagu'])*100, 2);
@@ -37,7 +38,7 @@ foreach($get_sk_up as $sk_up){
         WHERE active=1
             AND tahun_anggaran=%d
             AND id_skpd=%d
-    ", $input['tahun_anggaran'], $sk_up['id_skpd']), ARRAY_A);
+    ", $input['tahun_anggaran'], $sk_up['id_sub_skpd']), ARRAY_A);
     $nama_skpd = '';
     $kode_skpd = '';
     if(empty(!$unit)){
@@ -64,7 +65,6 @@ foreach($get_sk_up as $sk_up){
     $total_besaran_up += $sk_up['besaran_up'];
     $total_besaran_up_kkpd += $sk_up['besaran_up_kkpd'];
     $total_besaran_up_all = $total_besaran_up + $total_besaran_up_kkpd;
-    $persen_all = 0;
     if($total_pagu > 0 && $total_besaran_up_all > 0){
         $persen_all = round(($total_besaran_up_all/$total_pagu)*100, 2);
     }
@@ -106,7 +106,9 @@ foreach($get_sk_up as $sk_up){
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_besaran_up,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_besaran_up_kkpd,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_besaran_up_all,0,",","."); ?></td>
+                <?php if(!empty($persen_all)): ?>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all; ?>%</td>
+                <?php endif; ?>
             </tr>
         </tfoot>
     </table>      
