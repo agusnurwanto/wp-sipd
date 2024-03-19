@@ -22613,6 +22613,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                         $nomor_sp2d = $recVal['nomor_sp_2_d'];
                     }
 					$queryRecords[$recKey]['nomor_sp_2_d'] = '<a href="#" onclick="showsp2d(' . $recVal['id_sp_2_d'] . ')">' . $nomor_sp2d . '</a>';
+					$queryRecords[$recKey]['nilai_sp_2_d'] = number_format($recVal['nilai_sp_2_d'], 0, ",", ".");
 				}
 
 				$json_data = array(
@@ -22671,48 +22672,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                         AND active=1
                         AND tahun_anggaran=%d
                 ', $id_sp_2_d, $tahun_anggaran), ARRAY_A);
-                $ret['data'] = $sp2d;
-                if(empty($sp2d)){
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data dengan ID SPD '.$id_sp_2_d.' Kosong / Tidak Lengkap!';
-                }
-                $ret['sql'] = $wpdb->last_query;
-            } else {
-                $ret['status']  = 'error';
-                $ret['message'] = 'APIKEY tidak sesuai!';
-            }
-        } else {
-            $ret['status']  = 'error';
-            $ret['message'] = 'Format Salah!';
-        }
-
-        die(json_encode($ret));
-    }
-
-    public function get_data_sp2d_sipd_potongan()
-    {
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil Get SPD SIPD Detail!',
-            'data' => array()
-        );
-        if (!empty($_POST)) {
-            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $id_sp_2_d = $_POST['id_sp_2_d'];
-                $id_sp2d = $_POST['id_sp2d'];
-                $tahun_anggaran = $_POST['tahun_anggaran'];
-                $sp2d = $wpdb->get_row(
-                    $wpdb->prepare('
-                        SELECT 
-                            *
-                        FROM data_sp2d_sipd_ri
-                        WHERE id_sp_2_d=%s
-                          AND tahun_anggaran=%d
-                          AND active=1
-                        ', $id_sp_2_d, $tahun_anggaran
-                    ), ARRAY_A
-                );
                 $sp2d['potongan'] = $wpdb->get_results($wpdb->prepare('
                     SELECT
                         *
