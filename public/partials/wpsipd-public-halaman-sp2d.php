@@ -42,7 +42,7 @@ if ($unit) {
     }
 </style>
 <div class="wrap-table">
-    <h4 style="text-align: center; margin: 0; font-weight: bold;">Surat Perintah Membayar (SP2D)<br><?php echo $get_skpd; ?>&nbsp;<br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4><br>
+    <h4 style="text-align: center; margin: 0; font-weight: bold;">Surat Perintah Pencairan Dana (SP2D)<br><?php echo $get_skpd; ?>&nbsp;<br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4><br>
     <table id="table-data-sp2d" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
         <thead>
             <tr>
@@ -129,40 +129,27 @@ if ($unit) {
                     </table>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="showpotongansp2d" tabindex="-1" role="dialog" aria-labelledby="showpotongansp2dLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="showpotongansp2dLabel">Detail Potongan SP2D</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="wrap-table-detail">
-                    <h6>ID SP2D : <span id="id_sp_2_d"></span></h6>
-                    <table id="table-data-potongan-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">No</th>
-                                <th class="text-center">id_billing</th>
-                                <th class="text-center">id_pajak_potongan</th>
-                                <th class="text-center">nama_pajak_potongan</th>
-                                <th class="text-center">nilai_sp2d_pajak_potongan</th>
-                                <th class="text-center">tahun_anggaran</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showpotongansp2dLabel">Detail Potongan SP2D</h5>
                 </div>
-            </div>
+                <div class="modal-body">
+                    <div class="wrap-table-detail">
+                        <table id="table-data-potongan-sp2d-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th class="text-center">id_billing</th>
+                                    <th class="text-center">id_pajak_potongan</th>
+                                    <th class="text-center">nama_pajak_potongan</th>
+                                    <th class="text-center">nilai_sp2d_pajak_potongan</th>
+                                    <th class="text-center">tahun_anggaran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
             </div>
@@ -277,7 +264,7 @@ if ($unit) {
                     },
                     {
                         "data": 'nilai_sp_2_d',
-                        "className": "text-center"
+                        "className": "text-right"
                     },
                     {
                         "data": 'nip_bud_kbud',
@@ -478,18 +465,16 @@ if ($unit) {
 
                         if(b.tahun_anggaran != null){ 
                             tahun_anggaran = b.tahun_anggaran;
-                        } 
-                        // var link_nomor_sp2d = '<a onclick="showspd href='+b.id_sp_2_d+' target="_blank">'+nomor_sp_2_d+'</a>';
-                        var link_nomor_sp2d = '<a href="#" onclick="showpotongansp2d('+b.id_sp_2_d+');">'+nomor_sp_2_d+'</a>';
+                        }
                         html += ''
                         +'<tr>' 
                             +'<td class="text-center">' + (i + 1) + '</td>' 
                             +'<td>'+id_skpd+ '</td>'
-                            +'<td class="atas kanan bawah text_kiri"="'+id_sp_2_d+'">'+link_nomor_sp2d+'</td>'
+                            +'<td>'+nomor_sp_2_d+ '</td>'
                             +'<td>'+nomor_spm+ '</td>'
-                            +'<td>'+jumlah+ '</td>'
+                            +'<td class="text-right">'+formatRupiah(jumlah)+ '</td>'
                             +'<td>'+kode_rekening+ '</td>'
-                            +'<td>'+total_anggaran+ '</td>'
+                            +'<td class="text-right">'+formatRupiah(total_anggaran)+ '</td>'
                             +'<td>'+uraian+ '</td>'
                             +'<td>'+bank_pihak_ketiga+ '</td>'
                             +'<td>'+jabatan_bud_kbud+ '</td>'
@@ -502,7 +487,7 @@ if ($unit) {
                             +'<td>'+nama_rek_pihak_ketiga+ '</td>'
                             +'<td>'+nama_skpd+ '</td>'
                             +'<td>'+nama_sub_skpd+ '</td>'
-                            +'<td>'+nilai_sp2d+ '</td>'
+                            +'<td class="text-right">'+formatRupiah(nilai_sp2d)+ '</td>'
                             +'<td>'+nip_bud_kbud+ '</td>'
                             +'<td>'+no_rek_pihak_ketiga+ '</td>'
                             +'<td>'+nomor_rekening+ '</td>'
@@ -521,24 +506,6 @@ if ($unit) {
                 } else {
                     alert(res.message);
                 }
-                jQuery('#wrap-loading').hide();
-            }
-        });
-    }
-    function showpotongansp2d(id) {
-        jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            url: '<?php echo $url; ?>',
-            type: 'POST',
-            dataType: 'JSON',
-            data: {
-                'action': 'get_data_sp2d_sipd_potongan',
-                'api_key': '<?php echo $api_key; ?>',
-                'tahun_anggaran': '<?php echo $input['tahun_anggaran'] ?>',
-                'id_sp_2_d': id,
-            },
-            success: function(res) {
-                console.log(res);
                 if (res.status == 'success') {
                     jQuery('#id_sp_2_d').html(id);
                     var html = ''; 
@@ -573,7 +540,7 @@ if ($unit) {
                             +'<td>'+id_billing+ '</td>'
                             +'<td>'+id_pajak_potongan+ '</td>'
                             +'<td>'+nama_pajak_potongan+ '</td>'
-                            +'<td>'+nilai_sp2d_pajak_potongan+ '</td>'
+                            +'<td class="text-right">'+formatRupiah(nilai_sp2d_pajak_potongan)+ '</td>'
                             +'<td>'+tahun_anggaran+ '</td>'
                         +'</tr>';
                     });
