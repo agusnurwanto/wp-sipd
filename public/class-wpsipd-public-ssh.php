@@ -5032,4 +5032,81 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	function import_excel_ssh_usulan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil import excel!'
+		);
+
+		if (!empty($_POST)) {
+			$table_data = 'data_ssh_usulan';
+			$ret['data'] = array(
+				'insert' => 0,
+				'update' => 0,
+				'error' => array()
+			);
+			$date_now = current_datetime()->format('Y-m-d H:i:s');
+			$user_id = um_user('ID');
+			$id_sub_skpd = $_POST['id_sub_skpd'];
+			$tahun_anggaran = $_POST['tahun_anggaran'];
+
+			$id_standar_harga = null;
+			$id_standar_harga = $wpdb->get_var(
+				$wpdb->prepare("
+					SELECT 
+						MAX(id_standar_harga)
+					FROM `data_ssh_usulan`
+					WHERE tahun_anggaran=%d
+				", $tahun_anggaran)
+			);
+			if ($id_standar_harga === null) {
+				$id_standar_harga = 0;
+			}
+
+			foreach ($_POST['data'] as $k => $data) {	
+				$newData = array();
+				foreach ($data as $kk => $vv) {
+					$newData[trim(preg_replace('/\s+/', ' ', $kk))] = trim(preg_replace('/\s+/', ' ', $vv));
+				}
+				$data_db = array(
+					'id_standar_harga' => $id_standar_harga++,
+					'kode_standar_harga' => $newData['kode_standar_harga'],
+					'nama_standar_harga' => $newData['nama_standar_harga'],
+					'satuan' => $newData['satuan'],
+					'spek' => $newData['spek'],
+					'created_at' => $date_now,
+					'created_user' => $user_id,
+					'kelompok' => $newData['kelompok'],
+					'harga' => $newData['harga'],
+					'kode_kel_standar_harga' => $newData['kode_kel_standar_harga'],
+					'nama_kel_standar_harga' => $newData['nama_kel_standar_harga'],
+					'tahun_anggaran' => $tahun_anggaran,
+					'status' => 'draft',
+					'keterangan_lampiran' => $newData['keterangan_lampiran'],
+					'status_jenis_usulan' => 'tambah_baru',
+					'jenis_produk' => $newData['jenis_produk'],
+					'tkdn' => 0,
+					'id_sub_skpd' => $id_sub_skpd,
+				);
+				$wpdb->last_error = "";
+				if (!empty($data_db)) {
+					$wpdb->insert($table_data, $data_db);
+					$ret['data']['insert']++;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'data kosong!';
+				}
+				if (!empty($wpdb->last_error)) {
+					$ret['data']['error'][] = array($wpdb->last_error, $data_db);
+				};
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

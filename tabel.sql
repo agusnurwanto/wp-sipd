@@ -6515,12 +6515,9 @@ CREATE TABLE `data_nota_pencairan_dana` (
     `id` int(11) NOT NULL auto_increment,
     `kode_sbl` text NOT NULL,
     `nomor_npd` VARCHAR(50) NOT NULL,
-    `kode_akun` VARCHAR(50) DEFAULT NULL,
-    `nama_akun` TEXT DEFAULT NULL,
     `id_user_pptk` int(11) NOT NULL,
     `jenis_panjar` VARCHAR(64) DEFAULT NULL,
     `nomor_dpa` VARCHAR(50) NOT NULL,
-    `pagu_pencairan` double(20, 0) DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),
@@ -6540,4 +6537,24 @@ CREATE TABLE `data_rekening_nota_pencairan_dana` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_buku_kas_umum_pembantu` (
+    `id` int(11) NOT NULL auto_increment,
+    `kode_sbl` text NOT NULL,
+    `nomor_nota_bkup` VARCHAR(50) NOT NULL,
+    `nomor_bukti` VARCHAR(50) DEFAULT NULL,
+    `uraian` TEXT DEFAULT NULL,
+    `tipe` VARCHAR(50) NOT NULL,
+    `tanggal_bkup` datetime DEFAULT current_timestamp(),
+    `pagu` VARCHAR(50) DEFAULT NULL,
+    `jenis_cash` VARCHAR(50) DEFAULT NULL,
+    `kode_rekening` varchar(50) NOT NULL,
+    `nama_rekening` text NOT NULL,
+    `id_npd` int(11) NOT NULL,
+    `tahun_anggaran` year(4) NOT NULL,
+    `active` tinyint(4) NOT NULL,
+    `created_at` datetime DEFAULT current_timestamp(),
+    `update_at` datetime DEFAULT current_timestamp(),
+    PRIMARY KEY  (id)
 );

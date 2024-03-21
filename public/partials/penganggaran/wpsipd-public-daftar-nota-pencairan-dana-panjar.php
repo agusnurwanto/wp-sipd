@@ -28,6 +28,7 @@ $data_rfk = $wpdb->get_row($wpdb->prepare('
 		AND s.active = 1
 		AND s.tahun_anggaran = %d', $kode_sbl, $tahun_anggaran), ARRAY_A);
 
+$total_pagu_rka_sub_keg = 0;
 if ($data_rfk) {
     $kode_sub_skpd = $data_rfk['kode_sub_skpd_asli'];
     $nama_sub_skpd = $data_rfk['nama_sub_skpd_asli'];
@@ -46,6 +47,18 @@ if ($data_rfk) {
     $nama_sub_kegiatan = str_replace('X.XX', $kode_bidang_urusan, $nama_sub_kegiatan);
     $pagu_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
     $id_sub_skpd = $data_rfk['id_sub_skpd'];
+
+    $data_total_pagu_rka_sub_keg = $wpdb->get_var($wpdb->prepare("
+                                    SELECT 
+                                        SUM(total_harga)
+                                    from data_rka 
+                                    where kode_sbl=%s
+                                        AND tahun_anggaran=%d
+                                        AND active=1
+                                ", $data_rfk['kode_sbl'], $data_rfk['tahun_anggaran']));
+    if(!empty($data_total_pagu_rka_sub_keg) && $data_total_pagu_rka_sub_keg > 0){
+        $total_pagu_rka_sub_keg = $data_total_pagu_rka_sub_keg;
+    }
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
@@ -53,6 +66,10 @@ if ($data_rfk) {
 $title = 'Laporan Panjar | Nota Pencairan Dana | ' . $tahun_anggaran;
 $shortcode = '[laporan_panjar_npd tahun_anggaran="'. $tahun_anggaran .'"] ';
 $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
+$title = 'Daftar Buku Kas Umum Pembantu | ' . $tahun_anggaran;
+$shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"]';
+$url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
 ?>
 <style>
@@ -66,6 +83,12 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
     #tabel_detail_nota th {
 		border: 0;
 	}
+    .hide-link-decoration {
+        text-decoration: none !important;
+    }
+    .warning_color {
+        background-color: #f9d9d9;
+    }
 </style>
 <div style="padding: 15px;">
     <h1 class="text-center" style="margin-top: 50px;">DAFTAR NOTA PENCAIRAN DANA</h1>
@@ -96,6 +119,11 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
                 <td>:</td>
                 <td><?php echo $kode_sub_kegiatan . '  ' . $nama_sub_kegiatan ?></td>
             </tr>
+            <tr>
+                <td>Total Pagu RKA Sub Kegiatan</td>
+                <td>:</td>
+                <td>Rp. <?php echo number_format($total_pagu_rka_sub_keg, 0, ",", ".") ?></td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -105,6 +133,7 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
 
     <!-- Button trigger modal -->
     <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
+    <!-- <a href="<?php echo $url_bku_pembantu; ?>" target="_blank" class="btn btn-info m-3 hide-link-decoration"><i class="dashicons dashicons-plus-alt"></i> Buku Kas Umum Pembantu</a> -->
 
     <table id="table_daftar_panjar">
         <thead>
@@ -118,13 +147,6 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
         </thead>
         <tbody>
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
-                <td class="kanan bawah text_blok text-right">0</td>
-                <td class="kanan bawah"></td>
-            </tr>
-        </tfoot>
     </table>
 </div>
 
@@ -173,7 +195,7 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
 
 <!-- Modal Tambah Rekening-->
 <div class="modal fade" id="modal_tambah_rekening" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Rekening</h5>
@@ -191,11 +213,20 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
                     <div class="form-group">
                         <label>Pilih Rekening</label>
                         <table id="input_rekening" class="input_rekening" style="margin: 0;">
+                            <tr>
+                                <th class="text-center">Rekening</th>
+                                <th class="text-center">Pagu Bukti BKU</th>
+                                <th class="text-center">Pagu Rekening</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
                             <tr data-id="1">
                                 <td style="width: 60%; max-width:100px;">
                                     <select class="form-control input_select_2 rekening_akun" id="rekening_akun_1" name="rekening_akun[1]">
                                         <option value="">Pilih Rekening</option>
                                     </select>
+                                </td>
+                                <td>
+                                    <input class="form-control input_number" id="pagu_bukti_1" type="number" name="pagu_bukti[1]" disabled/>
                                 </td>
                                 <td>
                                     <input class="form-control input_number" id="pagu_rekening_1" type="number" name="pagu_rekening[1]"/>
@@ -325,6 +356,14 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
                                 .then(function(value){
                                     jQuery("#rekening_akun_"+id).val(value.kode_rekening).trigger('change');
                                     jQuery("#pagu_rekening_"+id).val(value.pagu_dana);
+                                    jQuery("#pagu_bukti_"+id).val(value.total_pagu_bku);
+                                    if(value.total_pagu_bku > value.pagu_dana){
+                                        jQuery("#pagu_rekening_"+id).addClass("warning_color");
+                                        jQuery("#pagu_bukti_"+id).addClass("warning_color");
+                                    }else{
+                                        jQuery("#pagu_rekening_"+id).removeClass("warning_color");
+                                        jQuery("#pagu_bukti_"+id).removeClass("warning_color");
+                                    }
                                 });
                             })
                             /** End */
@@ -657,6 +696,12 @@ $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcod
         }
 
 
+    }
+
+    function buku_kas_umum_pembantu(that) {
+        let link = '<?php echo $url_bku_pembantu; ?>&kodenpd='+that;
+        window.open(link, '_blank');
+        return false;
     }
 
     function getFormData($form){
