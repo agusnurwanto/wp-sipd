@@ -8720,6 +8720,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_akun 
 						WHERE tahun_anggaran=%d 
 							AND set_input=1
+							AND active=1
 							".$where."
 					", $_POST['tahun_anggaran']), ARRAY_A);
 
@@ -10377,5 +10378,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     			'message' => $e->getMessage()
     		]);exit();
     	}
+    }
+
+    public function pohon_kinerja_rpd(){
+    	
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-pohon-kinerja-rpd.php';
     }
 }
