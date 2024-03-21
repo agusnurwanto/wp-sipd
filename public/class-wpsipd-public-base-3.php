@@ -10388,4 +10388,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-pohon-kinerja-rpd.php';
     }
+
+    public function pohon_kinerja_renja(){
+    	
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-pohon-kinerja-renja.php';
+    }
 }

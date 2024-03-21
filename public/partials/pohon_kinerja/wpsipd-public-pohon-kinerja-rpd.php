@@ -17,7 +17,6 @@ $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
 
-$add_rpd='';
 if(!empty($jadwal_lokal)){
     $tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
     $namaJadwal = $jadwal_lokal[0]['nama'];
