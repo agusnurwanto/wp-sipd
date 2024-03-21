@@ -74,31 +74,48 @@ if ($data_rfk) {
 
     $data_rek_npd = $wpdb->get_results($wpdb->prepare("
         SELECT 
-            *
-        FROM data_rekening_nota_pencairan_dana
-        WHERE id_npd=%d
-            AND kode_sbl = %s
-            AND tahun_anggaran = %d
-            AND active = 1
-        ORDER BY kode_rekening ASC", $data_npd['id'], $data_npd['kode_sbl'], $data_npd['tahun_anggaran']), ARRAY_A);
-// echo "<pre>";
-// // print_r($data_rek_npd);
-// echo $wpdb->last_query;
-// echo "</pre>";
+            rnpd.*
+        FROM data_rekening_nota_pencairan_dana as rnpd
+        WHERE rnpd.id_npd=%d
+            AND rnpd.kode_sbl = %s
+            AND rnpd.tahun_anggaran = %d
+            AND rnpd.active = 1
+        ORDER BY rnpd.kode_rekening ASC", $data_npd['id'], $data_npd['kode_sbl'], $data_npd['tahun_anggaran']), ARRAY_A);
 
     $ret['html'] = '';
     $no = 1;
+    $total_pagu = 0;
+    $total_anggaran = 0;
+    $total_sisa = 0;
     foreach ($data_rek_npd as $v_rek) {
+        $total_harga_akun = 0;
+        $total_harga_akun_rka = $wpdb->get_var($wpdb->prepare("
+                                    SELECT 
+                                        SUM(total_harga)
+                                    from data_rka 
+                                    where kode_akun=%s
+                                        AND nama_akun=%s
+                                        AND kode_sbl=%s
+                                        AND tahun_anggaran=%d
+                                        AND active=1
+                                ", $v_rek['kode_rekening'], $v_rek['nama_rekening'], $data_npd['kode_sbl'], $data_npd['tahun_anggaran']));
+
+        if(!empty($total_harga_akun_rka)){
+            $total_harga_akun = $total_harga_akun_rka;
+        }
         $ret['html'] .= '
             <tr>
                 <td class="kanan bawah kiri text-center">'. $no .'</td>
                 <td class="kanan bawah">' . $v_rek['kode_rekening'] . '</td>
-                <td class="kanan bawah text-right">'. $v_rek['nama_rekening'] .'</td>
-                <td class="kanan bawah text-right">0</td>
-                <td class="kanan bawah text-right">0</td>
+                <td class="kanan bawah text-left">'. $v_rek['nama_rekening'] .'</td>
+                <td class="kanan bawah text-right">'. number_format($total_harga_akun,0,",",".") .'</td>
+                <td class="kanan bawah text-right">'. number_format($total_harga_akun,0 ,"," , ".") .'</td>
                 <td class="kanan bawah text-right">'. number_format($v_rek['pagu_dana'],0,",",".") .'</td>
             </tr>';
         $no++;
+        $total_anggaran += $total_harga_akun;
+        $total_sisa     += $total_harga_akun;
+        $total_pagu     += $v_rek['pagu_dana'];
     }
 
     $user_pptk = get_userdata($data_npd['id_user_pptk']);
@@ -129,6 +146,13 @@ if ($data_rfk) {
     }
     #tabel_detail_nota td:nth-child(2) {
         width: 1em;
+    }
+
+    #table_data_pejabat,
+    #table_data_pejabat td,
+    #table_data_pejabat th {
+        border: 0;
+        padding: 0px;
     }
 </style>
 <div style="padding: 15px;">    
@@ -197,10 +221,50 @@ if ($data_rfk) {
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="5" class="kanan bawah text-right kiri text_blok">Jumlah</td>
-                <td class="kanan bawah text_blok text-right">0</td>
+                <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
+                <td class="kanan bawah text_blok text-right"><?php echo number_format($total_anggaran,0,",","."); ?></td>
+                <td class="kanan bawah text_blok text-right"><?php echo number_format($total_sisa,0,",","."); ?></td>
+                <td class="kanan bawah text_blok text-right"><?php echo number_format($total_pagu,0,",","."); ?></td>
             </tr>
         </tfoot>
+    </table>
+</div>
+<!-- data pejabat -->
+<div style="padding: 15px;margin:0 0 3rem 0;">
+    <table id="table_data_pejabat">
+        <thead>
+            <tr class="text-center">
+                <td>
+                    Disetujui</br>Penggguna Anggaran
+                </td>
+                <td>
+                    Disiapkan oleh</br>Pejabat Pelaksana Teknis Kegiatan
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="height: 7em;">
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="text-center">
+                <td style="font-weight: 700; text-decoration:underline; width: 50%;" contenteditable="true" title="Klik untuk ganti teks!">
+                    Nama Pengguna Anggaran
+                </td>
+                <td style="font-weight: 700; text-decoration:underline; width: 50%;" contenteditable="true" title="Klik untuk ganti teks!">
+                    <?php echo strtoupper($user_pptk->display_name) ?>
+                </td>
+            </tr>
+            <tr class="text-center">
+                <td contenteditable="true" title="Klik untuk ganti teks!">
+                    NIP. 1234567890
+                </td>
+                <td contenteditable="true" title="Klik untuk ganti teks!">
+                    NIP. 1234567890
+                </td>
+            </tr>
+        </tbody>
     </table>
 </div>
 <script>
