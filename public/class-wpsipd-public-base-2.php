@@ -2105,21 +2105,28 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 					foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
 						if($ret['status'] != 'error'){
-							if(empty($data['input_sumber_dana_usulan'][$k_sumber_dana])){
-								$ret['status'] = 'error';
-								$ret['message'] = 'Sumber Dana usulan tidak boleh kosong!';
-							}elseif(empty($data['input_pagu_sumber_dana_usulan'][$k_sumber_dana])){
-								$ret['status'] = 'error';
-								$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong!';
+							// jika pagu sub keg tidak dinolkan. (pagu dinolkan saat di pergeseran atau perubahan apbd)
+							if(!empty($data['input_pagu_sub_keg_usulan'])){
+								if(empty($data['input_sumber_dana_usulan'][$k_sumber_dana])){
+									$ret['status'] = 'error';
+									$ret['message'] = 'Sumber Dana usulan tidak boleh kosong!';
+								}elseif(empty($data['input_pagu_sumber_dana_usulan'][$k_sumber_dana])){
+									$ret['status'] = 'error';
+									$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong!';
+								}
 							}
 							if(
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
 								|| !empty($_POST['input_pemutakhiran'])
 							){
+								// jika pagu penetapan tidak dinolkan
 								if(
-									!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])
-									|| $data['input_pagu_sumber_dana'][$k_sumber_dana] == ''
+									(
+										!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])
+										|| $data['input_pagu_sumber_dana'][$k_sumber_dana] == ''
+									)
+									&& !empty($data['input_pagu_sub_keg'])
 								){
 									$ret['status'] = 'error';
 									$ret['message'] = 'Pagu Sumber Dana penetapan tidak boleh kosong!';

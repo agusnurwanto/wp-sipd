@@ -2435,17 +2435,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					// 	'tahun_anggaran' => $_POST['tahun_anggaran']
 					// ));
 
-					$cat_name = $_POST['tahun_anggaran'] . ' RKPD';
-					$taxonomy = 'category';
-					$cat  = get_term_by('name', $cat_name, $taxonomy);
-					if ($cat == false) {
-						$cat = wp_insert_term($cat_name, $taxonomy);
-						$cat_id = $cat['term_id'];
-					} else {
-						$cat_id = $cat->term_id;
-					}
 					foreach ($data_unit as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_skpd from data_unit where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND id_skpd=" . $v['id_skpd']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_skpd 
+							from data_unit 
+							where tahun_anggaran=%d 
+								AND id_skpd=%d
+						", $_POST['tahun_anggaran'], $v['id_skpd']));
 						$opsi = array(
 							'id_setup_unit' => $v['id_setup_unit'],
 							'id_skpd' => $v['id_skpd'],
@@ -2525,10 +2522,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 						update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 						update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-
-						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
-						$append = true;
-						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 						$ret['renja_link'][$v['kode_skpd']] = esc_url(get_permalink($custom_post));
 					}
 
@@ -2560,9 +2553,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 					update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 					update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-
-					$append = true;
-					wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 					$ret['renja_link'][0] = esc_url(get_permalink($custom_post));
 
 					if (
@@ -4394,16 +4384,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$parent_cat_name = 'Semua Perangkat Daerah Tahun Anggaran ' . $_POST['tahun_anggaran'];
-				$taxonomy = 'category';
-				$parent_cat  = get_term_by('name', $parent_cat_name, $taxonomy);
-				if ($parent_cat == false) {
-					$parent_cat = wp_insert_term($parent_cat_name, $taxonomy);
-					$parent_cat_id = $parent_cat['term_id'];
-				} else {
-					$parent_cat_id = $parent_cat->term_id;
-				}
-
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
 					if (!empty($_POST['type']) && $_POST['type'] == 'ri') {
@@ -4622,20 +4602,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
 						// print_r($custom_post); die();
 
-						$cat_name = $_POST['kode_sub_skpd'] . ' ' . $v['nama_sub_skpd'];
-						$taxonomy = 'category';
-						$cat  = get_term_by('name', $cat_name, $taxonomy);
-						// print_r($cat); die($cat_name);
-						if ($cat == false) {
-							$cat = wp_insert_term($cat_name, $taxonomy);
-							$cat_id = $cat['term_id'];
-						} else {
-							$cat_id = $cat->term_id;
-						}
-						wp_update_term($cat_id, $taxonomy, array(
-							'parent' => $parent_cat_id
-						));
-
 						$_post = array(
 							'post_title'	=> $nama_page,
 							'post_content'	=> '[tampilrka kode_bl="' . $_POST['kode_bl'] . '" tahun_anggaran="' . $_POST['tahun_anggaran'] . '"]',
@@ -4662,14 +4628,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 						update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 						update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-
-						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
-						$append = true;
-						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
-						$category_link = get_category_link($cat_id);
-
 						$ret['message'] .= ' URL ' . $custom_post->guid . '?key=' . $this->gen_key($_POST['api_key']);
-						$ret['category'] = $category_link;
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -4688,7 +4647,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataOutput as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_sub_keg_indikator 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND idoutputbl=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['idoutputbl']));
 							$opsi = array(
 								'outputteks' => $v['outputteks'],
 								'targetoutput' => $v['targetoutput'],
@@ -4724,7 +4690,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataHasil as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_keg_indikator_hasil 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND hasilteks=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['hasilteks']));
 							$opsi = array(
 								'hasilteks' => $v['hasilteks'],
 								'satuanhasil' => $v['satuanhasil'],
@@ -4759,7 +4732,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataTag as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_tag_sub_keg 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND idtagbl=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['idtagbl']));
 							$opsi = array(
 								'idlabelgiat' => $v['idlabelgiat'],
 								'namalabel' => $v['namalabel'],
@@ -4793,7 +4773,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataCapaian as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_capaian_prog_sub_keg 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND capaianteks=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['capaianteks']));
 							$opsi = array(
 								'satuancapaian' => $v['satuancapaian'],
 								'targetcapaianteks' => $v['targetcapaianteks'],
@@ -4828,7 +4815,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataOutputGiat as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_output_giat_sub_keg 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND outputteks=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['outputteks']));
 							$opsi = array(
 								'outputteks' => $v['outputteks'],
 								'satuanoutput' => $v['satuanoutput'],
@@ -4863,7 +4857,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataDana as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_dana_sub_keg 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND iddanasubbl=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['iddanasubbl']));
 							$opsi = array(
 								'namadana' => $v['namadana'],
 								'kodedana' => $v['kodedana'],
@@ -4898,7 +4899,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataLokout as $k => $v) {
-							$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_lokasi_sub_keg 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND iddetillokasi=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['iddetillokasi']));
 							$opsi = array(
 								'camatteks' => $v['camatteks'],
 								'daerahteks' => $v['daerahteks'],
@@ -4931,7 +4939,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($realisasi as $k => $v) {
-							$cek_id = $wpdb->get_var("SELECT kode_sbl from data_realisasi_akun_sipd where tahun_anggaran=" . $_POST['tahun_anggaran'] . " AND kode_sbl='" . $_POST['kode_sbl'] . "' AND kode_akun='" . $v['kode_akun'] . "'");
+							$cek_id = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									kode_sbl 
+								from data_realisasi_akun_sipd 
+								where tahun_anggaran=%d 
+									AND kode_sbl=%s 
+									AND kode_akun=%s
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $v['kode_akun']));
 							$opsi = array(
 								'id_unit' => $v['id_unit'],
 								'id_skpd' => $v['id_skpd'],
@@ -8308,15 +8323,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	function save_update_post($nama_page, $cat_name, $post_content)
 	{
 		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-		$taxonomy = 'category';
-		$cat  = get_term_by('name', $cat_name, $taxonomy);
-		if ($cat == false) {
-			$cat = wp_insert_term($cat_name, $taxonomy);
-			$cat_id = $cat['term_id'];
-		} else {
-			$cat_id = $cat->term_id;
-		}
-
 		$_post = array(
 			'post_title'	=> $nama_page,
 			'post_content'	=> $post_content,
@@ -8342,10 +8348,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 		update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-
-		// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
-		$append = true;
-		wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 		return $custom_post;
 	}
 

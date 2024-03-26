@@ -991,6 +991,13 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_nota_panjar_by_id',  $plugin_public, 'get_nota_panjar_by_id');
 		$this->loader->add_action('wp_ajax_get_rka_sub_keg_akun',  $plugin_public, 'get_rka_sub_keg_akun');
 		$this->loader->add_action('wp_ajax_tambah_data_rekening_panjar',  $plugin_public, 'tambah_data_rekening_panjar');
+		$this->loader->add_action('wp_ajax_get_daftar_bku',  $plugin_public, 'get_daftar_bku');
+		$this->loader->add_action('wp_ajax_tambah_data_bku',  $plugin_public, 'tambah_data_bku');
+		$this->loader->add_action('wp_ajax_get_rka_sub_keg_akun_npd',  $plugin_public, 'get_rka_sub_keg_akun_npd');
+		$this->loader->add_action('wp_ajax_get_data_buku_kas_umum_by_id',  $plugin_public, 'get_data_buku_kas_umum_by_id');
+		$this->loader->add_action('wp_ajax_edit_data_buku_kas_umum_pembantu',  $plugin_public, 'edit_data_buku_kas_umum_pembantu');
+		$this->loader->add_action('wp_ajax_delete_data_buku_kas_umum_pembantu',  $plugin_public, 'delete_data_buku_kas_umum_pembantu');
+		$this->loader->add_action('wp_ajax_get_data_sisa_pagu_per_akun_npd',  $plugin_public, 'get_data_sisa_pagu_per_akun_npd');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
@@ -1164,6 +1171,7 @@ class Wpsipd
 		add_shortcode('nota_pencairan_dana_panjar', array($plugin_public, 'nota_pencairan_dana_panjar'));
 		add_shortcode('daftar_nota_pencairan_dana_panjar', array($plugin_public, 'daftar_nota_pencairan_dana_panjar'));
 		add_shortcode('laporan_panjar_npd', array($plugin_public, 'laporan_panjar_npd'));
+		add_shortcode('daftar_buku_kas_umum_pembantu', array($plugin_public, 'daftar_buku_kas_umum_pembantu'));
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
