@@ -7113,12 +7113,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	//Import data LPJ dari SIPD Penatausahaan
-	public function singkron_lpj()
+	public function singkron_lpj_bpp()
 	{
 		global $wpdb;
 		$ret = array(
 			'status' => 'success',
-			'message' => 'Berhasil singkronisasi LPJ'
+			'message' => 'Berhasil singkronisasi LPJ BPP'
 		);
 
 		if (!empty($_POST)) {
@@ -7143,26 +7143,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						select 
 							id 
 						from data_lpj_sipd 
-						where id_lpj=%d 
+						where id_lpj_bpp=%d 
 							and tahun_anggaran=%d
 						", $v["id_lpj"], $_POST["tahun_anggaran"]));
 					$opsi = array(
-						"id_lpj" => $v["id_lpj"],
-						"nomor_lpj" => $v["nomor_lpj"],
+						"id_lpj_bpp" => $v["id_lpj_bpp"],
+						"nomor_lpj_bpp" => $v["nomor_lpj_bpp"],
 						"id_daerah" => $v["id_daerah"],
 						"id_unit" => $v["id_unit"],
 						"id_skpd" => $v["id_skpd"],
 						"id_sub_skpd" => $v["id_sub_skpd"],
-						"nilai_lpj" => $v["nilai_lpj"],	
-						"tanggal_lpj" => $v["tanggal_lpj"],
-						"jenis_lpj" => $v["jenis_lpj"],
+						"nilai_lpj_bpp" => $v["nilai_lpj_bpp"],	
+						"tanggal_lpj_bpp" => $v["tanggal_lpj_bpp"],
+						"jenis_lpj_bpp" => $v["jenis_lpj_bpp"],
 						"id_pegawai_pa_kpa" => $v["id_pegawai_pa_kpa"],
-						"is_verifikasi_lpj" => $v["is_verifikasi_lpj"],
-						"verifikasi_lpj_at" => $v["verifikasi_lpj_at"],
-						"verifikasi_lpj_by" => $v["verifikasi_lpj_by"],
-						"is_val_i_dasi_lpj" => $v["is_val_i_dasi_lpj"],
-						"val_i_dasi_lpj_at" => $v["val_i_dasi_lpj_at"],
-						"val_i_dasi_lpj_by" => $v["val_i_dasi_lpj_by"],
+						"is_verifikasi_lpj_bpp" => $v["is_verifikasi_lpj_bpp"],
+						"verifikasi_lpj_bpp_at" => $v["verifikasi_lpj_bpp_at"],
+						"verifikasi_lpj_bpp_by" => $v["verifikasi_lpj_bpp_by"],
+						"is_val_i_dasi_lpj_bpp" => $v["is_val_i_dasi_lpj_bpp"],
+						"val_i_dasi_lpj_bpp_at" => $v["val_i_dasi_lpj_bpp_at"],
+						"val_i_dasi_lpj_bpp_by" => $v["val_i_dasi_lpj_bpp_by"],
 						"is_spp_gu" => $v["is_spp_gu"],
 						"spp_gu_at" => $v["spp_gu_at"],
 						"spp_gu_by" => $v["spp_gu_by"],	
@@ -7224,13 +7224,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						from data_lpj_sipd_detail 
 						where id_skpd=%d
 							and id_lpj=%d
+							and tipe=%d
 							and nomor_lpj=%s
 							and tahun_anggaran=%d
-					", $v['idSkpd'], $v['id_npd'], $v["nomor_lpj"], $_POST["tahun_anggaran"]));
+					", $v['idSkpd'], $v['id_lpj'], $v['tipe'], $v["nomor_lpj"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"id_lpj" => $v['id_lpj'],
 						"id_skpd" => $v['idSkpd'],
 						"id_daerah" => $v["id_daerah"],
+						"tipe" => $v["tipe"],
 						"nama_daerah" => $v["nama_daerah"],
 						"nomor_lpj" => $v["nomor_lpj"],
 						"tanggal_lpj" => $v["tanggal_lpj"],
