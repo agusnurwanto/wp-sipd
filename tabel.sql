@@ -137,7 +137,7 @@ CREATE TABLE `data_lpj_bpp_sipd`(
   `created_at` datetime,
   `update_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_lpj`,`tahun_anggaran`)
+  PRIMARY KEY (`id`,`id_lpj_bpp`,`tahun_anggaran`)
 );
 
 CREATE TABLE `data_lpj_sipd_detail` (
