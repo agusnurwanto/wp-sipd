@@ -7223,11 +7223,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							id 
 						from data_lpj_sipd_detail 
 						where id_skpd=%d
-							and id_lpj=%d
-							and tipe=%d
+							and id_lpj=%d							
 							and nomor_lpj=%s
 							and tahun_anggaran=%d
-					", $v['idSkpd'], $v['id_lpj'], $v['tipe'], $v["nomor_lpj"], $_POST["tahun_anggaran"]));
+					", $v['idSkpd'], $v['id_lpj'], $v["nomor_lpj"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"id_lpj" => $v['id_lpj'],
 						"id_skpd" => $v['idSkpd'],

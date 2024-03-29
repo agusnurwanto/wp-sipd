@@ -143,8 +143,7 @@ CREATE TABLE `data_lpj_bpp_sipd`(
 CREATE TABLE `data_lpj_sipd_detail` (
   `id` bigint NOT NULL auto_increment,
   `id_skpd` int,
-  `id_lpj` int(11) DEFAULT NULL,
-  `id_daerah` int,
+  `id_lpj` int(11) DEFAULT NULL,  
   `tipe` text DEFAULT NULL,
   `nama_daerah` text DEFAULT NULL,
   `nama_skpd` text DEFAULT NULL,
