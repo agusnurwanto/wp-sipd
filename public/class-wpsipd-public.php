@@ -7132,7 +7132,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					empty($_POST['page'])
 					|| $_POST['page'] == 1
 				) {
-					$wpdb->update("data_lpj_sipd", array('active' => 0), array(
+					$wpdb->update("data_lpj_bpp_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
 						"id_skpd" => $_POST['idSkpd']
 					));
@@ -7142,7 +7142,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$cek = $wpdb->get_var($wpdb->prepare("
 						select 
 							id 
-						from data_lpj_sipd 
+						from data_lpj_bpp_sipd 
 						where id_lpj_bpp=%d 
 							and tahun_anggaran=%d
 						", $v["id_lpj"], $_POST["tahun_anggaran"]));
@@ -7182,10 +7182,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					);
 					if (!empty($cek)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("data_lpj_sipd", $opsi, array("id" => $cek));
+						$wpdb->update("data_lpj_bpp_sipd", $opsi, array("id" => $cek));
 					} else {
 						//insert data spm ditable data_spm_sipd
-						$wpdb->insert("data_lpj_sipd", $opsi);
+						$wpdb->insert("data_lpj_bpp_sipd", $opsi);
 					}
 				}
 			} else {
