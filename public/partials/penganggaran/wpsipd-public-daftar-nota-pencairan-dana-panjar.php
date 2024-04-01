@@ -67,6 +67,10 @@ $title = 'Laporan Panjar | Nota Pencairan Dana | ' . $tahun_anggaran;
 $shortcode = '[laporan_panjar_npd tahun_anggaran="'. $tahun_anggaran .'"] ';
 $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
+$title = 'Laporan Buku Kas Umum Pembantu | Buku Kas Umum Pembantu | ' . $tahun_anggaran;
+$shortcode = '[print_laporan_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"] ';
+$url_print_laporan_buku_kas_umum_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
 $title = 'Daftar Buku Kas Umum Pembantu | ' . $tahun_anggaran;
 $shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"]';
 $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
@@ -133,6 +137,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
 
     <!-- Button trigger modal -->
     <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
+    <button class="btn btn-info m-3" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
     <!-- <a href="<?php echo $url_bku_pembantu; ?>" target="_blank" class="btn btn-info m-3 hide-link-decoration"><i class="dashicons dashicons-plus-alt"></i> Buku Kas Umum Pembantu</a> -->
 
     <table id="table_daftar_panjar">
@@ -150,7 +155,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
     </table>
 </div>
 
-<!-- Modal -->
+<!-- Modal Tambah Data-->
 <div class="modal fade" id="modal_tambah_data" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -212,6 +217,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                     </div>
                     <div class="form-group">
                         <label>Pilih Rekening</label>
+                        <button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>
                         <table id="input_rekening" class="input_rekening" style="margin: 0;">
                             <tr>
                                 <th class="text-center">Rekening</th>
@@ -258,7 +264,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                 </button>
             </div>
             <div class="modal-body">
-                <form id="tambah-rekening">
+                <form id="print-laporan">
                     <input type="number" class="form-control" id="id_npd_print" name="id_npd_print" hidden required>
                     <div class="form-group">
                         <label>Nomor Nota Pencairan Dana | Panjar</label>
@@ -276,6 +282,45 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-primary submitBtn" onclick="print_preview(this)">Preview</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Print Laporan BKU-->
+<div class="modal fade" id="modal_print_laporan_bku" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Laporan Buku Kas Umum Pembantu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="print_laporan_bku">
+                    <div class="form-group">
+                        <label for='set_bulan' style='display:inline-block'>Pilih Bulan</label>
+                        <select name="set_bulan" value='00' id="set_bulan" class="form-control">Pilih Bulan</option>
+                            <option value='01'>Januari</option>
+                            <option value='02'>Februari</option>
+                            <option value='03'>Maret</option>
+                            <option value='04'>April</option>
+                            <option value='05'>Mei</option>
+                            <option value='06'>Juni</option>
+                            <option value='07'>Juli</option>
+                            <option value='08'>Agustus</option>
+                            <option value='09'>September</option>
+                            <option value='10'>Oktober</option>
+                            <option value='11'>November</option>
+                            <option value='12'>Desember</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary submitBtn" onclick="print_preview_bku(this)">Preview</button>
             </div>
         </div>
     </div>
@@ -357,12 +402,15 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                                     jQuery("#rekening_akun_"+id).val(value.kode_rekening).trigger('change');
                                     jQuery("#pagu_rekening_"+id).val(value.pagu_dana);
                                     jQuery("#pagu_bukti_"+id).val(value.total_pagu_bku);
-                                    if(value.total_pagu_bku > value.pagu_dana){
-                                        jQuery("#pagu_rekening_"+id).addClass("warning_color");
-                                        jQuery("#pagu_bukti_"+id).addClass("warning_color");
+
+                                    let total = parseInt(value.total_pagu_bku, 10);
+                                    let pagu_dana = parseInt(value.pagu_dana, 10);
+                                    if(total > pagu_dana){
+                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').addClass("warning_color");
+                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').addClass("warning_color");
                                     }else{
-                                        jQuery("#pagu_rekening_"+id).removeClass("warning_color");
-                                        jQuery("#pagu_bukti_"+id).removeClass("warning_color");
+                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').removeClass("warning_color");
+                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').removeClass("warning_color");
                                     }
                                 });
                             })
@@ -400,15 +448,16 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
             var tr = tbody.find('>tr');
             var length = tr.length-1;
             tr.map(function(i, b){
-                if(i == 0){
-                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                }else{
-                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                }
+                var html = '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
                 jQuery(b).find('>td').last().html(html);
             });
             resolve();
         });
+    }
+
+    function hapusRekening(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').remove();
     }
 
     function submit_data_rekening() {
@@ -675,6 +724,10 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
         let nomor_npd = jQuery('.id-npd-'+id).html();
         jQuery('#nomor_npd_print').val(nomor_npd);
     }
+    
+    function print_laporan_bku() {
+        jQuery('#modal_print_laporan_bku').modal('show');
+    }
 
     function print_preview(that) {
         let id_npd = jQuery('#id_npd_print').val();
@@ -694,8 +747,17 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                 alert('Jenis Laporan belum dipilih');
                 break;
         }
+    }
 
+    function print_preview_bku(that) {
+        let set_bulan = jQuery('#set_bulan').val();
+        if(set_bulan == "" || set_bulan == undefined){
+            alert('Ada yang kosong, Harap isi semua input!')
+            jQuery('#modal_print_laporan_bku').modal('hide');
+            return;
+        }
 
+        window.open('<?php echo $url_print_laporan_buku_kas_umum_pembantu; ?>'+'&bulan='+set_bulan,'_blank');
     }
 
     function buku_kas_umum_pembantu(that) {

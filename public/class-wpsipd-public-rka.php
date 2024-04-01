@@ -110,6 +110,15 @@ class Wpsipd_Public_RKA
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-panjar-npd.php';
     }
+
+    public function print_laporan_buku_kas_umum_pembantu($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-print-laporan-buku-kas-umum-pembantu.php';
+    }
     
     public function daftar_buku_kas_umum_pembantu($atts)
     {
@@ -2378,10 +2387,15 @@ class Wpsipd_Public_RKA
                     $ret['status'] = 'error';
                     $ret['message'] = 'tahun anggaran tidak boleh kosong!';
                     die(json_encode($ret));
+                } else if (empty($_POST['kode_npd'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode NPD tidak boleh kosong!';
+                    die(json_encode($ret));
                 }
 
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
+                $id_npd = $_POST['kode_npd'];
 
                 $data_bku = $wpdb->get_results($wpdb->prepare("
                     SELECT 
@@ -2390,7 +2404,8 @@ class Wpsipd_Public_RKA
                     WHERE kode_sbl = %s
                         AND tahun_anggaran = %d
                         AND active = 1
-                        AND tipe=%s", $kode_sbl, $tahun_anggaran,'pengeluaran'), ARRAY_A);
+                        AND tipe=%s
+                        AND id_npd=%d", $kode_sbl, $tahun_anggaran,'pengeluaran', $id_npd), ARRAY_A);
 
                 $data_all = array(
                     'total_pencairan_all' => 0,
@@ -2420,7 +2435,8 @@ class Wpsipd_Public_RKA
                         WHERE kode_sbl = %s
                             AND tahun_anggaran = %d
                             AND active = 1
-                            AND tipe=%s", $kode_sbl, $tahun_anggaran,'penerimaan'), ARRAY_A);
+                            AND tipe=%s
+                            AND id_npd=%d", $kode_sbl, $tahun_anggaran,'penerimaan', $id_npd), ARRAY_A);
                     
                     $uraian = '-';
                     $id_penerimaan = 0;
@@ -2428,9 +2444,10 @@ class Wpsipd_Public_RKA
                         $uraian = $data_bku_penerimaan['uraian'];
                         $id_penerimaan = $data_bku_penerimaan['id'];
                     }
+                    $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
                     $ret['html'] .= '
                         <tr>
-                            <td class="kanan bawah kiri id-npd"></td>
+                            <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
                             <td class="kanan bawah text-center"></td>
                             <td class="kanan bawah text-left">'. $uraian .'</td>
                             <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
@@ -2444,15 +2461,16 @@ class Wpsipd_Public_RKA
                             $ret['html'] .='</td>
                         </tr>';
 
-                        $total_pagu_npd_sekarang = $total_pagu_npd;
+                    $total_pagu_npd_sekarang = $total_pagu_npd;
                     $total_pengeluaran = 0;
                     $total_saldo = 0;
                     foreach ($data_bku as $v_bku) {
                         $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
                         $total_pagu_npd_sekarang = $saldo;
+                        $tanggal =  date_format(date_create($v_bku['tanggal_bkup']),"d/m/Y");
                         $ret['html'] .= '
                             <tr>
-                                <td class="kanan bawah kiri id-npd-'.$v_bku['id'].'"></td>
+                                <td class="kanan bawah kiri text-center id-npd-'.$v_bku['id'].'">'. $tanggal .'</td>
                                 <td class="kanan bawah text-center">'. $v_bku['nomor_bukti'] .'</td>
                                 <td class="kanan bawah text-left">'. $v_bku['uraian'] .'</td>
                                 <td class="kanan bawah text-right"></td>
@@ -2531,6 +2549,9 @@ class Wpsipd_Public_RKA
                     }elseif(empty($data['set_bku'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Jenis BKU tidak boleh kosong!';
+                    }elseif(empty($data['set_tanggal'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
                     }
                 }else{
                     if(empty($data['uraian_bku'])){
@@ -2539,6 +2560,9 @@ class Wpsipd_Public_RKA
                     }elseif(empty($data['set_bku'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Jenis BKU tidak boleh kosong!';
+                    }elseif(empty($data['set_tanggal'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
                     }
                 }
 
@@ -2631,6 +2655,7 @@ class Wpsipd_Public_RKA
                                 die(json_encode($ret));
                             }
     
+                            $tanggal = date_format(date_create($data['set_tanggal']), "Y-m-d H:m:s");
                             $input_options = array(
                                 'kode_sbl' => $kode_sbl,
                                 'nomor_bukti' => $data['nomor_bukti_bku'],
@@ -2640,6 +2665,7 @@ class Wpsipd_Public_RKA
                                 'kode_rekening' => $data_akun->kode_akun,
                                 'nama_rekening' => $data_akun->nama_akun,
                                 'id_npd' => $id_npd,
+                                'tanggal_bkup' => $tanggal,
                                 'tahun_anggaran' => $tahun_anggaran,
                                 'active' => 1,
                                 'created_at' => current_time('mysql'),
@@ -2689,11 +2715,13 @@ class Wpsipd_Public_RKA
                             $ret['message'] = 'Data rekening tidak ditemukan!';    
                         }
                     }else{
+                        $tanggal = date_format(date_create($data['set_tanggal']), "Y-m-d H:m:s");
                         $input_options = array(
                             'kode_sbl' => $kode_sbl,
                             'tipe' => $tipe_jenis_bku,
                             'uraian' => $data['uraian_bku'],
                             'id_npd' => $id_npd,
+                            'tanggal_bkup' => $tanggal,
                             'tahun_anggaran' => $tahun_anggaran,
                             'active' => 1,
                             'created_at' => current_time('mysql'),
