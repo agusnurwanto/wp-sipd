@@ -78,8 +78,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		            c.id_unik IS NOT NULL";
 		}
 		// die($sql);
-		$sql_data =  $wpdb->get_results($sql);
-		return $sql_data;
+		$data =  $wpdb->get_results($sql);
+		return $data;
 	}
 
 	public function get_sasaran_parent_by_tipe($params = array()){
@@ -10389,7 +10389,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-pohon-kinerja-rpd.php';
     }
 
-    public function pohon_kinerja_renja(){
+    public function pohon_kinerja_renja($atts){
     	
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';

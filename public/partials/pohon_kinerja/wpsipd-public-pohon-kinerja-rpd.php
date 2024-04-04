@@ -56,23 +56,23 @@ $program_ids = array();
 $skpd_filter = array();
 
 $sql = "
-  select 
+  SELECT 
     t.*,
     i.isu_teks 
-  from data_rpd_tujuan_lokal t
-  left join data_rpjpd_isu i on t.id_isu = i.id
-  where t.active=1
-  order by t.no_urut asc
+  FROM data_rpd_tujuan_lokal t
+  LEFT JOIN data_rpjpd_isu i ON t.id_isu = i.id
+  WHERE t.active=1
+  ORDER BY t.no_urut asc
 ";
 if(!empty($id_jadwal_rpjpd)){
   $sql = "
-    select 
+    SELECT 
       t.*,
       i.isu_teks 
-    from data_rpd_tujuan_lokal t
-    left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
-    where t.active=1
-    order by t.no_urut asc
+    FROM data_rpd_tujuan_lokal t
+    LEFT JOIN data_rpjpd_isu_history i ON t.id_isu = i.id_asli
+    WHERE t.active=1
+    ORDER BY t.no_urut asc
   ";
 }
 
@@ -90,16 +90,19 @@ foreach ($tujuan_all as $tujuan) {
       'data' => array()
     );
     $tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
+    
     $sql = $wpdb->prepare("
-      select 
+      SELECT 
         * 
-      from data_rpd_sasaran_lokal
-      where kode_tujuan=%s
-        and active=1
-        order by sasaran_no_urut asc
+      FROM data_rpd_sasaran_lokal
+      WHERE kode_tujuan=%s
+        AND active=1
+      ORDER BY sasaran_no_urut ASC
     ", $tujuan['id_unik']);
+    
     $sasaran_all = $wpdb->get_results($sql, ARRAY_A);
     foreach ($sasaran_all as $sasaran) {
+      
       if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
         $data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
           'nama' => $sasaran['sasaran_teks'],
@@ -112,14 +115,17 @@ foreach ($tujuan_all as $tujuan) {
           'data' => array()
         );
         $sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+        
         $sql = $wpdb->prepare("
-          select 
+          SELECT 
             * 
-          from data_rpd_program_lokal
-          where kode_sasaran=%s
-            and active=1
-            order by nama_program ASC
+          FROM data_rpd_program_lokal
+          WHERE 
+            kode_sasaran=%s and 
+            active=1
+          ORDER BY nama_program ASC
         ", $sasaran['id_unik']);
+
         $program_all = $wpdb->get_results($sql, ARRAY_A);
         foreach ($program_all as $program) {
           $program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -186,7 +192,6 @@ foreach ($tujuan_all as $tujuan) {
     }
   }
   $data_all['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
-
 }
 
 $data_temp = [];
@@ -240,52 +245,52 @@ foreach ($data_all['data'] as $tujuan) {
   }
 }
 
-$class0 = 'style=\"color:#252020;font-size:13px; font-weight:600; padding:20px\"';
-$class1 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #efd655; padding:10px\"';
-$class2 = 'style=\"color:#454810; font-size:12px; font-weight:600; font-style:italic\"';
-$class3 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #f84d4d; padding:10px\"';
-$class4 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #5995e9; padding:10px\"';
+$style0 = 'style=\"color:#252020;font-size:13px; font-weight:600; padding:20px\"';
+$style1 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #efd655; padding:10px\"';
+$style2 = 'style=\"color:#454810; font-size:12px; font-weight:600; font-style:italic; background: #4df8ef; padding:10px\"';
+$style3 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #f84d4d; padding:10px\"';
+$style4 = 'style=\"color: #0d0909; font-size:12px; font-weight:600;font-style:italic; border-radius: 5px; background: #5995e9; padding:10px\"';
 $data = [];
 foreach ($data_temp as $keyTujuan => $tujuan) {
     $data[$keyTujuan][0] = (object)[
-      'v' => "<div ".$class0.">".trim($tujuan['nama'])."</div>",
-      'f' => "<div ".$class0.">".trim($tujuan['nama'])."</div>",
+      'v' => "<div ".$style0.">".trim($tujuan['nama'])."</div>",
+      'f' => "<div ".$style0.">".trim($tujuan['nama'])."</div>",
     ];
 
     foreach ($tujuan['indikator'] as $keyIndikatorTujuan => $indikator) {
-        $data[$keyTujuan][0]->f.="<div ".$class1.">".$indikator."</div>";
+        $data[$keyTujuan][0]->f.="<div ".$style1.">".$indikator."</div>";
     }
 
-    $data[$keyTujuan][0]->f.="<div ".$class2."> Rp.".number_format($tujuan['pagu'], '2', ',', '.')." </div>";
+    $data[$keyTujuan][0]->f.="<div ".$style2."> Rp.".number_format($tujuan['pagu'], '2', ',', '.')." </div>";
 
     foreach ($tujuan['data'] as $keySasaran => $sasaran) {
         $data[$keySasaran][0] = (object)[
-          'v' => "<div ".$class0.">".trim($sasaran['nama'])."</div>",
-          'f' => "<div ".$class0.">".trim($sasaran['nama'])."</div>",
+          'v' => "<div ".$style0.">".trim($sasaran['nama'])."</div>",
+          'f' => "<div ".$style0.">".trim($sasaran['nama'])."</div>",
         ];
 
         foreach ($sasaran['indikator'] as $keyIndikatorSasaran => $indikator) {
-            $data[$keySasaran][0]->f.="<div ".$class3.">".$indikator."</div>";
+            $data[$keySasaran][0]->f.="<div ".$style3.">".$indikator."</div>";
         }
 
-        $data[$keySasaran][0]->f.="<div ".$class2."> Rp.".number_format($sasaran['pagu'], '2', ',', '.')." </div>";
+        $data[$keySasaran][0]->f.="<div ".$style2."> Rp.".number_format($sasaran['pagu'], '2', ',', '.')." </div>";
 
         foreach ($sasaran['data'] as $keyProgram => $program) {
             $data[$keyProgram][0] = (object)[
-              'v' => "<div ".$class0.">".trim($program['nama'])."</div>",
-              'f' => "<div ".$class0.">".trim($program['nama'])."</div>",
+              'v' => "<div ".$style0.">".trim($program['nama'])."</div>",
+              'f' => "<div ".$style0.">".trim($program['nama'])."</div>",
             ];
 
             foreach ($program['indikator'] as $keyIndikatorProgram => $indikator) {
-                $data[$keyProgram][0]->f.="<div ".$class4.">".$indikator."</div>";
+                $data[$keyProgram][0]->f.="<div ".$style4.">".$indikator."</div>";
             }
 
-            $data[$keyProgram][0]->f.="<div ".$class2."> Rp.".number_format($program['pagu'], '2', ',', '.')." </div>";
-            $data[$keyProgram][1] = "<div ".$class0.">".trim($sasaran['nama'])."</div>";
+            $data[$keyProgram][0]->f.="<div ".$style2."> Rp.".number_format($program['pagu'], '2', ',', '.')." </div>";
+            $data[$keyProgram][1] = "<div ".$style0.">".trim($sasaran['nama'])."</div>";
             $data[$keyProgram][2] = '';
         }
 
-        $data[$keySasaran][1] = "<div ".$class0.">".trim($tujuan['nama'])."</div>";
+        $data[$keySasaran][1] = "<div ".$style0.">".trim($tujuan['nama'])."</div>";
         $data[$keySasaran][2] = '';
     }
 
@@ -301,25 +306,33 @@ $data = array_values($data);
   .google-visualization-orgchart-node{
     background: #53cb82;
   }
+  #chart_div .google-visualization-orgchart-connrow-medium{
+    height: 34px;
+  }
+  #chart_div .google-visualization-orgchart-linebottom {
+    border-bottom: 4px solid #f84d4d;
+  }
+
+  #chart_div .google-visualization-orgchart-lineleft {
+    border-left: 4px solid #f84d4d;
+  }
+
+  #chart_div .google-visualization-orgchart-lineright {
+    border-right: 4px solid #f84d4d;
+  }
+
+  #chart_div .google-visualization-orgchart-linetop {
+    border-top: 4px solid #f84d4d;
+  }
 </style>
 
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Pohon Kinerja RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?><br><?php echo $now->format('Y'); ?></h4><br>
-<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
-    <div id="chart_div"></div>
+<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 100vh;">
+    <div id="chart_div" ></div>
 </div>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-
-  run_download_excel();
-    var dataHitungMundur = {
-      'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
-      'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
-      'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
-      'thisTimeZone' : '<?php echo $timezone ?>'
-    }
-
-    penjadwalanHitungMundur(dataHitungMundur);
 
     var aksi = ''
     +'<h3 style="margin-top: 30px;"></h3>';
@@ -337,11 +350,13 @@ $data = array_values($data);
         data.addColumn('string', 'Level2');
         data.addColumn('string', 'ToolTip');
         data.addRows(data_all);
-        // data.setRowProperty(2, 'selectedStyle', 'background-color:#00FF00');
+        data.setRowProperty(2, 'selectedStyle', 'background-color:#00FF00');
        
         // Create the chart.
         var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
         // Draw the chart, setting the allowHtml option to true for the tooltips.
-        chart.draw(data, {'allowHtml':true});
+        chart.draw(data, {
+          'allowHtml':true,
+        });
     }
 </script>

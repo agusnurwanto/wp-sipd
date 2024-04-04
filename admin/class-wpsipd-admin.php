@@ -1405,8 +1405,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			            	<div class="body-tahun" tahun="' . $label['tahun_anggaran'] . '">';
 
 			            foreach ($label['data'] as $namalabel) {
+
+			            	// $url_skpd = $this->generatePage('Input RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'], null, '[input_renstra id_skpd="' . $vv['id_skpd'] . '"]');
+
 			            	$url_label = $this->generatePage('POHON KINERJA RENJA ' . $namalabel . ' ' . $label['tahun_anggaran'], $label['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $label['tahun_anggaran'] . '" namalabel="' . $namalabel . '"]');
-								$body_all .= '<a target="_blank" href="'.$url_label.'">Halaman POHON KINERJA RENJA ' . $namalabel . '</a></br>';
+								$body_all .= '<a target="_blank" href="'.$url_label.'">POHON KINERJA RENJA ' . $namalabel . '</a></br>';
 			            }
 
 			            $body_all .= '</div>';
