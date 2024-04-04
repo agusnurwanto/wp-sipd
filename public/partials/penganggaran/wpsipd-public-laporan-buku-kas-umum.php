@@ -102,6 +102,7 @@ if ($data_rfk) {
         width: 1em;
     }
 </style>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div style="padding: 15px;">    
     <h3 class="text-center" style="margin-top: 50px;">PEMERINTAH <?php echo strtoupper($nama_pemda) ?></br><?php echo $nama_skpd; ?></br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h3>
     <table id="tabel_detail_nota" style="margin-top: 30px;">
@@ -166,6 +167,10 @@ if ($data_rfk) {
                         <input type="radio" class="jenis_bku" id="pengeluaran_bku" name="set_bku" value="keluar" checked>
                         <label for="pengeluaran_bku">Pengeluaran</label>
                     </div>
+                    <div>
+                        <label for='set_tanggal' style='display:inline-block'>Pilih Tanggal</label>
+                        <input type="text" id='set_tanggal' name="set_tanggal" style='display:block;width:100%;' />
+                    </div>
                     <div class="form-group set_keluar">
                         <label>Nomor Rekening</label>
                             <select class="form-control input_select_2 rekening_akun" id="rekening_akun" name="rekening_akun" onchange="get_data_sisa_pagu_per_akun_npd(this.value);">
@@ -197,6 +202,8 @@ if ($data_rfk) {
         </div>
     </div>
 </div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
     jQuery(document).ready(function(){
         load_data(); 
@@ -209,6 +216,15 @@ if ($data_rfk) {
                 }
 
         });
+        jQuery('#set_tanggal').daterangepicker({
+			singleDatePicker: true,
+			showDropdowns: true,
+            minYear: 2000,
+            maxYear: parseInt(moment().format('YYYY'),10),
+			locale: {
+				format: 'DD-MM-YYYY'
+			}
+		});
     });
 
     function load_data() {
@@ -220,6 +236,7 @@ if ($data_rfk) {
                 action: 'get_daftar_bku',
                 kode_sbl: '<?php echo $input['kode_sbl']; ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                kode_npd: "<?php echo $kode_npd; ?>",
             },
             success: function(data) {
                 jQuery('#wrap-loading').hide();
@@ -369,6 +386,7 @@ if ($data_rfk) {
                             jQuery('#nomor_bukti_bku').val(response.data.nomor_bukti);
                             jQuery('#uraian_bku').val(response.data.uraian);
                             jQuery('#pagu_bku').val(response.data.pagu);
+                            jQuery("#set_tanggal").val(response.data.tanggal_bkup);
 
                             jQuery("#modal_tambah_data .modal-title").html("Edit Buku Kas Umum Pembantu");
                             jQuery("#modal_tambah_data .submitBtn")

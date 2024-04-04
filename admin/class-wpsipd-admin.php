@@ -1772,8 +1772,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$default_val = $this->simda->CurlSimda(array(
 					'query' => 'select * from ref_bidang_mapping where kd_urusan90=' . $kd[0] . ' and kd_bidang90=' . ((int)$kd[1])
 				));
-				$default = $default_val[0]->kd_urusan . '.' . $default_val[0]->kd_bidang;
-				update_option('_crb_unit_' . $v['id_skpd'], $default);
+				if (!empty($default_val)){
+					$default = $default_val[0]->kd_urusan . '.' . $default_val[0]->kd_bidang;
+					update_option('_crb_unit_' . $v['id_skpd'], $default);
+				}
 			}
 			$mapping_unit[] = Field::make('text', 'crb_unit_' . $v['id_skpd'], ($k + 1) . '. Kode Sub Unit SIMDA untuk ' . $v['kode_skpd'] . ' ' . $v['nama_skpd']);
 		}

@@ -7112,6 +7112,199 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data LPJ dari SIPD Penatausahaan
+	public function singkron_lpj_bpp()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi LPJ BPP'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);					
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("data_lpj_bpp_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd']
+					));
+				}
+				
+				foreach ($data as $i => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_lpj_bpp_sipd 
+						where id_lpj_bpp=%d 
+							and tahun_anggaran=%d
+						", $v["id_lpj"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_lpj_bpp" => $v["id_lpj_bpp"],
+						"nomor_lpj_bpp" => $v["nomor_lpj_bpp"],
+						"id_daerah" => $v["id_daerah"],
+						"id_unit" => $v["id_unit"],
+						"id_skpd" => $v["id_skpd"],
+						"id_sub_skpd" => $v["id_sub_skpd"],
+						"nilai_lpj_bpp" => $v["nilai_lpj_bpp"],	
+						"tanggal_lpj_bpp" => $v["tanggal_lpj_bpp"],
+						"jenis_lpj_bpp" => $v["jenis_lpj_bpp"],
+						"id_pegawai_pa_kpa" => $v["id_pegawai_pa_kpa"],
+						"is_verifikasi_lpj_bpp" => $v["is_verifikasi_lpj_bpp"],
+						"verifikasi_lpj_bpp_at" => $v["verifikasi_lpj_bpp_at"],
+						"verifikasi_lpj_bpp_by" => $v["verifikasi_lpj_bpp_by"],
+						"is_val_i_dasi_lpj_bpp" => $v["is_val_i_dasi_lpj_bpp"],
+						"val_i_dasi_lpj_bpp_at" => $v["val_i_dasi_lpj_bpp_at"],
+						"val_i_dasi_lpj_bpp_by" => $v["val_i_dasi_lpj_bpp_by"],
+						"is_spp_gu" => $v["is_spp_gu"],
+						"spp_gu_at" => $v["spp_gu_at"],
+						"spp_gu_by" => $v["spp_gu_by"],	
+						"id_jadwal" => $v["id_jadwal"],
+						"id_tahap" => $v["id_tahap"],
+						"status_tahap" => $v["status_tahap"],
+						"kode_tahap" => $v["kode_tahap"],
+						"kode_skpd" => $v["kode_skpd"],
+						"nama_skpd" => $v["nama_skpd"],
+						"kode_sub_skpd" => $v["kode_sub_skpd"],
+						"nama_sub_skpd" => $v["nama_sub_skpd"],
+						"created_by" => $v["created_by"],
+						"created_at" => $v["created_at"],	
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek)) {
+						//Update data spm ditable data_spm_sipd
+						$wpdb->update("data_lpj_bpp_sipd", $opsi, array("id" => $cek));
+					} else {
+						//insert data spm ditable data_spm_sipd
+						$wpdb->insert("data_lpj_bpp_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
+	//Import data LPJ Detail dari SIPD Penatausahaan
+	public function singkron_lpj_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi Detail LPJ'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);		
+				foreach ($data as $i => $v) {
+					$wpdb->update("data_lpj_sipd_detail", array('active' => 0), array(
+						"id_skpd" => $v['idSkpd'],
+						"id_lpj" => $v['id_lpj'],
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					));
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						select 
+							id 
+						from data_lpj_sipd_detail 
+						where id_skpd=%d
+							and id_lpj=%d							
+							and nomor_lpj=%s
+							and tahun_anggaran=%d
+					", $v['idSkpd'], $v['id_lpj'], $v["nomor_lpj"], $_POST["tahun_anggaran"]));
+					$opsi = array(
+						"id_lpj" => $v['id_lpj'],
+						"id_skpd" => $v['idSkpd'],
+						"id_daerah" => $v["id_daerah"],
+						"tipe" => $v["tipe"],
+						"nama_daerah" => $v["nama_daerah"],
+						"nomor_lpj" => $v["nomor_lpj"],
+						"tanggal_lpj" => $v["tanggal_lpj"],
+						"up_awal" => $v["up_awal"],
+						"penggunaan_up" => $v["penggunaan_up"],
+						"up_akhir" => $v["up_akhir"],
+						"nama_skpd" => $v["nama_skpd"],
+						"nama_sub_skpd" => $v["nama_sub_skpd"],
+						"nama_bp_bpp" => $v["nama_bp_bpp"],
+						"nip_bp_bpp" => $v["nip_bp_bpp"],
+						"jabatan_bp_bpp" => $v["jabatan_bp_bpp"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek_id)) {
+						//Update data npd ditable data_tbp_sipd_detail
+						$wpdb->update("data_lpj_sipd_detail", $opsi, array(
+							"id" => $cek_id
+						));
+					} else {
+						//insert data npd ditable data_tbp_sipd_detail
+						$wpdb->insert("data_lpj_sipd_detail", $opsi);
+					}
+
+					foreach ($v['detail'] as $i => $d) {
+						$cek_id = $wpdb->get_var($wpdb->prepare("
+							select 
+								id 
+							from data_lpj_sipd_detail_rekening 
+							where id_skpd=%d
+								and id_lpj=%d
+								and tahun_anggaran=%d
+								and uraian=%d
+								and kode_rekening=%d
+								and jumlah_anggaran=%d
+						", $v['idSkpd'], $v['id_lpj'], $_POST["tahun_anggaran"], $d["kode_rekening"], $d["uraian"], $d["jumlah_anggaran"]));
+						$opsi = array(
+							"id_lpj" => $v['id_lpj'],
+							"id_skpd" => $v['idSkpd'],
+							"kode_rekening" => $d["kode_rekening"],
+							"uraian" => $d["uraian"],
+							"jumlah_anggaran" => $d["jumlah_anggaran"],
+							"belanja_periode_ini" => $d["belanja_periode_ini"],
+							"akumulasi_belanja" => $d["akumulasi_belanja"],
+							"sisa_anggaran" => $d["sisa_anggaran"],
+							"active" => 1,
+							"update_at" => current_time('mysql'),
+							"tahun_anggaran" => $_POST["tahun_anggaran"]
+						);
+						if (!empty($cek_id)) {
+							//Update data NPD ditable data_npd_sipd_detail_rekening
+							$wpdb->update("data_lpj_sipd_detail_rekening", $opsi, array(
+								"id" => $cek_id
+							));
+						} else {
+							//insert data NPD ditable data_npd_sipd_detail_rekening
+							$wpdb->insert("data_lpj_sipd_detail_rekening", $opsi);
+						}
+					}
+				}
+				
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data TBP dari SIPD Penatausahaan
 	public function singkron_tbp()
 	{
