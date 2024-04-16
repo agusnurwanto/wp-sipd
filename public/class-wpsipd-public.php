@@ -5752,31 +5752,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rka.php';
 	}
 
-	public function get_cat_url()
-	{
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'URL ...'
-		);
-		if (!empty($_POST)) {
-			$cat_name = $_POST['category'];
-			$taxonomy = 'category';
-			$cat  = get_term_by('name', $cat_name, $taxonomy);
-			if (!empty($cat)) {
-				$category_link = get_category_link($cat->term_id);
-				$ret['message'] = 'URL Category ' . $category_link;
-			} else {
-				$ret['status'] = 'error';
-				$ret['message'] = 'Category tidak ditemukan!';
-			}
-		} else {
-			$ret['status'] = 'error';
-			$ret['message'] = 'Format Salah!';
-		}
-		die(json_encode($ret));
-	}
-
 	public function get_unit()
 	{
 		global $wpdb;

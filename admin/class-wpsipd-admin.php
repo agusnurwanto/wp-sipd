@@ -973,10 +973,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if (empty($nama_pemda) || $nama_pemda == 'false') {
 			$nama_pemda = '';
 		}
+
+		$server_wpsipd = get_option('_crb_server_wp_sipd');
+		if (empty($server_wpsipd) || $server_wpsipd != 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php') {
+			update_option('_crb_server_wp_sipd', 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php');
+		}
+
 		$options_basic = array(
 			Field::make('text', 'crb_server_wp_sipd', 'Server Generate Lisensi WP-SIPD')
-				->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
-				->set_default_value('https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+				->set_attribute('placeholder', 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php')
+				->set_default_value('https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php')
 				->set_attribute('readOnly', 'true')
 				->set_required(true),
 			Field::make('text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD')
@@ -2967,7 +2973,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								'ID'    =>  $post[0]['ID'],
 								'post_status'   =>  'publish'
 							));
-							die('<script>window.location =  window.location.href+"&private=1";</script>');
+							if (!empty($_GET['private'])) {
+								die('<script>window.location =  window.location.href;</script>');
+							} else {
+								die('<script>window.location =  window.location.href+"&private=1";</script>');
+							}
 						} else if (!empty($_GET['private'])) {
 							wp_update_post(array(
 								'ID'    =>  $post[0]['ID'],
