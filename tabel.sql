@@ -102,6 +102,82 @@ CREATE TABLE `data_npd_sipd`(
   PRIMARY KEY (`id`,`id_npd`,`tahun_anggaran`)
 );
 
+CREATE TABLE `data_lpj_bpp_sipd`(
+  `id` bigint not null auto_increment,
+  `id_lpj_bpp` int,
+  `nomor_lpj_bpp` text DEFAULT NULL, 
+  `id_daerah` int,
+  `id_unit` int,
+  `id_skpd` int,
+  `id_sub_skpd` int,
+  `nilai_lpj_bpp` double,  
+  `tanggal_lpj_bpp` date DEFAULT NULL,  
+  `jenis_lpj_bpp` text DEFAULT NULL, 
+  `id_pegawai_pa_kpa` int DEFAULT NULL, 
+  `is_verifikasi_lpj_bpp` bit(1) DEFAULT NULL, 
+  `verifikasi_lpj_bpp_at` date DEFAULT NULL,
+  `verifikasi_lpj_bpp_by` int DEFAULT 0,  
+  `is_val_i_dasi_lpj_bpp` bit(1) DEFAULT NULL,   
+  `val_i_dasi_lpj_bpp_at` date DEFAULT NULL,
+  `val_i_dasi_lpj_bpp_by` int DEFAULT 0,  
+  `is_spp_gu` bit(1) DEFAULT NULL, 
+  `spp_gu_at` date DEFAULT NULL,
+  `spp_gu_by` int DEFAULT 0,  
+  `id_jadwal` int DEFAULT 0,
+  `id_tahap` int DEFAULT 0,
+  `status_tahap` text DEFAULT NULL,
+  `kode_tahap` text DEFAULT NULL,
+  `kode_skpd` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `kode_sub_skpd` text DEFAULT NULL,
+  `nama_sub_skpd` text DEFAULT NULL,
+  `total_pertanggungjawaban` double,
+  `active` tinyint,
+  `created_by` int DEFAULT NULL,
+  `created_at` datetime,
+  `update_at` datetime,
+  `tahun_anggaran` year,
+  PRIMARY KEY (`id`,`id_lpj_bpp`,`tahun_anggaran`)
+);
+
+CREATE TABLE `data_lpj_sipd_detail` (
+  `id` bigint NOT NULL auto_increment,
+  `id_skpd` int,
+  `id_lpj` int(11) DEFAULT NULL,  
+  `tipe` text DEFAULT NULL,
+  `nama_daerah` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `nama_sub_skpd` text DEFAULT NULL,
+  `nomor_lpj` varchar(255) DEFAULT NULL,
+  `tanggal_lpj` datetime DEFAULT NULL,
+  `up_awal` double DEFAULT 0,
+  `penggunaan_up` double DEFAULT 0,
+  `up_akhir` double DEFAULT 0,
+  `nama_bp_bpp` text DEFAULT NULL,
+  `nip_bp_bpp` text DEFAULT NULL,
+  `jabatan_bp_bpp` text DEFAULT NULL,
+  `active` tinyint,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_lpj_sipd_detail_rekening` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_lpj` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `kode_rekening` text DEFAULT NULL,
+  `uraian` text DEFAULT NULL,
+  `jumlah_anggaran` double(20,0) DEFAULT NULL,
+  `belanja_periode_ini` double(20,0) DEFAULT NULL,
+  `akumulasi_belanja` double(20,0) DEFAULT NULL,
+  `sisa_anggaran` double(20,0) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_npd_sipd_detail` (
   `id` bigint NOT NULL auto_increment,
   `id_skpd` int,
@@ -6515,12 +6591,9 @@ CREATE TABLE `data_nota_pencairan_dana` (
     `id` int(11) NOT NULL auto_increment,
     `kode_sbl` text NOT NULL,
     `nomor_npd` VARCHAR(50) NOT NULL,
-    `kode_akun` VARCHAR(50) DEFAULT NULL,
-    `nama_akun` TEXT DEFAULT NULL,
     `id_user_pptk` int(11) NOT NULL,
     `jenis_panjar` VARCHAR(64) DEFAULT NULL,
     `nomor_dpa` VARCHAR(50) NOT NULL,
-    `pagu_pencairan` double(20, 0) DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),
@@ -6540,4 +6613,24 @@ CREATE TABLE `data_rekening_nota_pencairan_dana` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_buku_kas_umum_pembantu` (
+    `id` int(11) NOT NULL auto_increment,
+    `kode_sbl` text NOT NULL,
+    `nomor_nota_bkup` VARCHAR(50) NOT NULL,
+    `nomor_bukti` VARCHAR(50) DEFAULT NULL,
+    `uraian` TEXT DEFAULT NULL,
+    `tipe` VARCHAR(50) NOT NULL,
+    `tanggal_bkup` datetime DEFAULT current_timestamp(),
+    `pagu` VARCHAR(50) DEFAULT NULL,
+    `jenis_cash` VARCHAR(50) DEFAULT NULL,
+    `kode_rekening` varchar(50) NOT NULL,
+    `nama_rekening` text NOT NULL,
+    `id_npd` int(11) NOT NULL,
+    `tahun_anggaran` year(4) NOT NULL,
+    `active` tinyint(4) NOT NULL,
+    `created_at` datetime DEFAULT current_timestamp(),
+    `update_at` datetime DEFAULT current_timestamp(),
+    PRIMARY KEY  (id)
 );

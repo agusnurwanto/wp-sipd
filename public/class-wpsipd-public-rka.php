@@ -111,6 +111,24 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-panjar-npd.php';
     }
 
+    public function print_laporan_buku_kas_umum_pembantu($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-print-laporan-buku-kas-umum-pembantu.php';
+    }
+    
+    public function daftar_buku_kas_umum_pembantu($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-buku-kas-umum.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -1811,14 +1829,12 @@ class Wpsipd_Public_RKA
 
                 $data_npd = $wpdb->get_results($wpdb->prepare("
                     SELECT 
-                        *,
-                        SUM(pagu_pencairan) as total_pagu_pencairan
+                        *
                     FROM data_nota_pencairan_dana
                     WHERE kode_sbl = %s
                         AND tahun_anggaran = %d
                         AND active = 1
-                    GROUP BY nomor_npd
-                    ORDER BY kode_akun ASC", $kode_sbl, $tahun_anggaran), ARRAY_A);
+                    GROUP BY nomor_npd", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
                 $data_all = array(
                     'total_pencairan_all' => 0,
@@ -1831,14 +1847,25 @@ class Wpsipd_Public_RKA
                             'id' => $v_npd['id'],
                             'nomor_npd' => $v_npd['nomor_npd'],
                             'jenis_panjar' => $v_npd['jenis_panjar'],
-                            'total_pagu_pencairan' => $v_npd['total_pagu_pencairan'],
-                            'id_user_pptk' => $v_npd['id_user_pptk']
+                            'id_user_pptk' => $v_npd['id_user_pptk'],
+                            'total_pagu' => 0
                         );
                     }
 
-                    // array_push($data_all['data'][$v_npd['nomor_npd']]['data'], $v_npd); 
-                    $data_all['total_pencairan_all'] += $v_npd['total_pagu_pencairan'];
-                    // $data_all['data'][$v_npd['nomor_npd']]['total_pencairan'] += $v_npd['pagu_pencairan'];
+                    $total_pagu_npd = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            SUM(pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana
+                        WHERE id_npd = %d
+                        AND kode_sbl = %s
+                        AND tahun_anggaran = %d
+                        AND active = 1
+                    ", $v_npd['id'], $v_npd['kode_sbl'], $v_npd['tahun_anggaran']));
+
+                    if(!empty($total_pagu_npd)){
+                        $data_all['data'][$v_npd['nomor_npd']]['total_pagu'] = $total_pagu_npd;
+                        $data_all['total_pencairan_all'] += $total_pagu_npd;
+                    }
                 }
 
                 $ret['html'] = '';
@@ -1848,13 +1875,13 @@ class Wpsipd_Public_RKA
                     $ret['html'] .= '
                         <tr>
                             <td class="kanan bawah kiri id-npd-'.$v_all_npd['id'].'">' . $v_all_npd['nomor_npd'] . '</td>
-                            <td class="kanan bawah text-right">'. $jenis_panjar .'</td>
-                            <td class="kanan bawah text-right">'. $current_user->display_name .'</td>
-                            <td class="kanan bawah text-right">'. $v_all_npd['total_pagu_pencairan'] .'</td>
+                            <td class="kanan bawah text-center">'. $jenis_panjar .'</td>
+                            <td class="kanan bawah text-left">'. $current_user->display_name .'</td>
+                            <td class="kanan bawah text-right">'. number_format($v_all_npd['total_pagu'], 0, ",", ".") .'</td>
                             <td class="kanan bawah text-right text-center">';
-                                // \'' . $v_per_no_npd[0]->id . '\'
                                 // tampilkan tombol edit dan hapus
                                 $ret['html'] .= '
+                                <a class="btn btn-sm btn-dark" onclick="buku_kas_umum_pembantu('. $v_all_npd['id'] .'); return false;" href="#" title="Buku Kas Umum Pembantu"><i class="dashicons dashicons-search"></i></a>
                                 <a class="btn btn-sm btn-info" onclick="print('. $v_all_npd['id'] .'); return false;" href="#" title="Print"><i class="dashicons dashicons-printer"></i></a>
                                 <a class="btn btn-sm btn-success" onclick="tambah_rekening('. $v_all_npd['id'] .'); return false;" href="#" title="Tambah Rekening"><i class="dashicons dashicons-plus"></i></a>
                                 <a class="btn btn-sm btn-warning" onclick="edit_data('. $v_all_npd['id'] .'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
@@ -1862,8 +1889,13 @@ class Wpsipd_Public_RKA
                             $ret['html'] .='</td>
                         </tr>';
                 }
-                $ret['cek'] = $data_all;
-                $ret['data_npd'] = $data_npd;
+                $ret['html'] .='
+                <tr>
+                    <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
+                    <td class="kanan bawah text_blok text-right total_all">'.number_format($data_all['total_pencairan_all'], 0, ",", ".").'</td>
+                    <td class="kanan bawah"></td>
+                </tr>';
+                $ret['data'] = $data_all;
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
@@ -2107,12 +2139,25 @@ class Wpsipd_Public_RKA
                 }
 
                 $data_rekening_nota_panjar = $wpdb->get_results($wpdb->prepare("
-                    SELECT *
-                    FROM data_rekening_nota_pencairan_dana
-                    WHERE id_npd=%d
-                    AND tahun_anggaran=%d
-                    AND active=1
-                ", $_POST['id'], $_POST['tahun_anggaran']));
+                    SELECT 
+                        rnpd.*, 
+                        SUM(bku.pagu) as total_pagu_bku
+                    FROM 
+                        data_rekening_nota_pencairan_dana as rnpd
+                    LEFT JOIN 
+                        data_buku_kas_umum_pembantu as bku
+                    ON 
+                        rnpd.kode_rekening=bku.kode_rekening
+                    WHERE rnpd.id_npd=%d
+                        AND rnpd.tahun_anggaran=%d
+                        AND rnpd.active=1
+                        AND bku.id_npd=%d
+                        AND bku.tahun_anggaran=%d
+                        AND bku.active=1
+                    GROUP BY 
+                        bku.kode_rekening
+                    ORDER BY bku.kode_rekening ASC
+                ", $_POST['id'], $_POST['tahun_anggaran'], $_POST['id'], $_POST['tahun_anggaran']));
 
                 $ret['data']['rekening_npd'] = array();
                 if (!empty($data_rekening_nota_panjar)) {
@@ -2323,5 +2368,655 @@ class Wpsipd_Public_RKA
         }else{
             die(json_encode($ret));
         }
+    }
+
+    function get_daftar_bku()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get daftar buku kas umum pembantu!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                } else if (empty($_POST['kode_npd'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode NPD tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $kode_sbl = $_POST['kode_sbl'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $id_npd = $_POST['kode_npd'];
+
+                $data_bku = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        *
+                    FROM data_buku_kas_umum_pembantu
+                    WHERE kode_sbl = %s
+                        AND tahun_anggaran = %d
+                        AND active = 1
+                        AND tipe=%s
+                        AND id_npd=%d", $kode_sbl, $tahun_anggaran,'pengeluaran', $id_npd), ARRAY_A);
+
+                $data_all = array(
+                    'total_pencairan_all' => 0,
+                    'data' => array()
+                );
+            
+                $ret['html'] = '';
+                if(!empty($data_bku)){
+                    $total_pagu_npd = 0;
+                    $data_pagu_npd = $wpdb->get_var($wpdb->prepare("
+                            SELECT
+                                SUM(pagu_dana) as total_pagu
+                            FROM data_rekening_nota_pencairan_dana
+                            WHERE id_npd = %d
+                            AND kode_sbl = %s
+                            AND tahun_anggaran = %d
+                            AND active = 1
+                        ", $data_bku[0]['id_npd'], $kode_sbl, $tahun_anggaran));
+                    if(!empty($data_pagu_npd)){
+                        $total_pagu_npd = $data_pagu_npd;
+                    }
+                    /** Untuk menampilkan kolom penerimaan */
+                    $data_bku_penerimaan = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            *
+                        FROM data_buku_kas_umum_pembantu
+                        WHERE kode_sbl = %s
+                            AND tahun_anggaran = %d
+                            AND active = 1
+                            AND tipe=%s
+                            AND id_npd=%d", $kode_sbl, $tahun_anggaran,'penerimaan', $id_npd), ARRAY_A);
+                    
+                    $uraian = '-';
+                    $id_penerimaan = 0;
+                    if(!empty($data_bku_penerimaan)){
+                        $uraian = $data_bku_penerimaan['uraian'];
+                        $id_penerimaan = $data_bku_penerimaan['id'];
+                    }
+                    $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
+                    $ret['html'] .= '
+                        <tr>
+                            <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
+                            <td class="kanan bawah text-center"></td>
+                            <td class="kanan bawah text-left">'. $uraian .'</td>
+                            <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
+                            <td class="kanan bawah text-right"></td>
+                            <td class="kanan bawah text-right">0</td>
+                            <td class="kanan bawah text-center">';
+                                // tampilkan tombol edit dan hapus
+                                $ret['html'] .= '
+                                <a class="btn btn-sm btn-warning" onclick="edit_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                <a class="btn btn-sm btn-danger" onclick="delete_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
+                            $ret['html'] .='</td>
+                        </tr>';
+
+                    $total_pagu_npd_sekarang = $total_pagu_npd;
+                    $total_pengeluaran = 0;
+                    $total_saldo = 0;
+                    foreach ($data_bku as $v_bku) {
+                        $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
+                        $total_pagu_npd_sekarang = $saldo;
+                        $tanggal =  date_format(date_create($v_bku['tanggal_bkup']),"d/m/Y");
+                        $ret['html'] .= '
+                            <tr>
+                                <td class="kanan bawah kiri text-center id-npd-'.$v_bku['id'].'">'. $tanggal .'</td>
+                                <td class="kanan bawah text-center">'. $v_bku['nomor_bukti'] .'</td>
+                                <td class="kanan bawah text-left">'. $v_bku['uraian'] .'</td>
+                                <td class="kanan bawah text-right"></td>
+                                <td class="kanan bawah text-right">'. number_format($v_bku['pagu'], 0, ",", ".") .'</td>
+                                <td class="kanan bawah text-right">'. number_format($saldo, 0, ",", ".") .'</td>
+                                <td class="kanan bawah text-center">';
+                                    // tampilkan tombol edit dan hapus
+                                    $ret['html'] .= '
+                                    <a class="btn btn-sm btn-warning" onclick="edit_data('. $v_bku['id'] .'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger" onclick="delete_data('. $v_bku['id'] .'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
+                                $ret['html'] .='</td>
+                            </tr>';
+                        $total_pengeluaran += $v_bku['pagu'];
+                    }
+                    $ret['html'] .='
+                        <tr>
+                            <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
+                            <td class="kanan bawah text_blok text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
+                            <td class="kanan bawah text_blok text-right">'. number_format($total_pengeluaran, 0, ",", ".") .'</td>
+                            <td class="kanan bawah text_blok text-right">'. number_format($saldo, 0, ",", ".") .'</td>
+                            <td class="kanan bawah"></td>
+                        </tr>
+                    ';
+                }
+                $ret['data_bku'] = $data_bku;
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function tambah_data_bku($return_callback = false) {
+        global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Tambah Data Buku Kas Umum Pembantu!'
+		);
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }else if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                }elseif(empty($_POST['kode_npd'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Kode npd tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $kode_sbl = $_POST['kode_sbl'];
+                $id_npd = $_POST['kode_npd'];
+                $data = json_decode(stripslashes($_POST['data']), true);
+                if($data['set_bku'] == 'keluar'){
+                    if(empty($data['nomor_bukti_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nomor bukti tidak boleh kosong!';
+                    }elseif(empty($data['uraian_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Uraian tidak boleh kosong!';
+                    }elseif(empty($data['pagu_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pagu tidak boleh kosong!';
+                    }elseif(empty($data['rekening_akun'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Rekening tidak boleh kosong!';
+                    }elseif(empty($data['set_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Jenis BKU tidak boleh kosong!';
+                    }elseif(empty($data['set_tanggal'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
+                    }
+                }else{
+                    if(empty($data['uraian_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Uraian tidak boleh kosong!';
+                    }elseif(empty($data['set_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Jenis BKU tidak boleh kosong!';
+                    }elseif(empty($data['set_tanggal'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
+                    }
+                }
+
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                if($ret['status'] != 'error'){
+                    //Cek input jenis penerimaan
+                    $cek_penerimaan = $wpdb->get_var($wpdb->prepare('
+                        SELECT
+                            id
+                        FROM data_buku_kas_umum_pembantu
+                        WHERE id_npd=%d
+                            AND tahun_anggaran=%d
+                            AND active=1
+                            AND tipe=%s
+                    ', $id_npd, $tahun_anggaran, 'penerimaan'));
+
+                    if($data['set_bku'] == 'terima' && !empty($cek_penerimaan) && empty($_POST['id'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Data Penerimaan sudah ada!';
+                        die(json_encode($ret));
+                    }
+
+                    $tipe_jenis_bku = ($data['set_bku'] == 'terima') ? 'penerimaan' : 'pengeluaran';
+
+                    //Cek nomor npd jika tambah baru
+                    $cek_nomor = $wpdb->get_var($wpdb->prepare('
+                        SELECT
+                            nomor_bukti
+                        FROM data_buku_kas_umum_pembantu
+                        WHERE nomor_bukti=%s
+                            AND tahun_anggaran=%d
+                            AND active=1
+                    ', $data['nomor_bukti_bku'], $tahun_anggaran));
+
+                    if(empty($_POST['id']) && !empty($cek_nomor)){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nomor bukti sudah terpakai!';
+                        die(json_encode($ret));
+                    }
+
+                    if($data['set_bku'] == 'keluar'){
+                        $data_akun = $wpdb->get_row($wpdb->prepare('
+                                SELECT 
+                                    *
+                                FROM data_akun
+                                WHERE kode_akun=%s
+                                    AND tahun_anggaran=%d
+                                    AND active=1
+                            ', $data['rekening_akun'], $tahun_anggaran));
+    
+                        if(!empty($data_akun)){
+                            /** Cek sisa pagu rekening di npd */
+                            $data_sisa_pagu_npd = $wpdb->get_var($wpdb->prepare("
+                                SELECT 
+                                    rnpd.pagu_dana as pagu_dana_npd
+                                FROM 
+                                    data_rekening_nota_pencairan_dana as rnpd
+                                WHERE rnpd.id_npd=%d
+                                    AND rnpd.tahun_anggaran=%d
+                                    AND rnpd.active=1
+                                    AND rnpd.kode_rekening=%s
+                            ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
+                            
+                            
+                            $data_total_pagu_bku = $wpdb->get_var($wpdb->prepare("
+                                SELECT 
+                                    SUM(bku.pagu) as total_pagu_bku
+                                FROM 
+                                    data_buku_kas_umum_pembantu as bku
+                                WHERE bku.id_npd=%d
+                                    AND bku.tahun_anggaran=%d
+                                    AND bku.active=1
+                                    AND bku.kode_rekening=%s
+                            ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
+                            $total_pagu_bku = (!empty($data_total_pagu_bku)) ? $data_total_pagu_bku + $data['pagu_bku'] : $data['pagu_bku'];
+
+                            if($total_pagu_bku > $data_sisa_pagu_npd){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Data pagu melebihi data pagu di Nota Pencairan Dana di rekening '. $data_akun->kode_akun .' '.$data_akun->nama_akun.'!';  
+                                die(json_encode($ret));
+                            }
+    
+                            $tanggal = date_format(date_create($data['set_tanggal']), "Y-m-d H:m:s");
+                            $input_options = array(
+                                'kode_sbl' => $kode_sbl,
+                                'nomor_bukti' => $data['nomor_bukti_bku'],
+                                'tipe' => $tipe_jenis_bku,
+                                'uraian' => $data['uraian_bku'],
+                                'pagu' => $data['pagu_bku'],
+                                'kode_rekening' => $data_akun->kode_akun,
+                                'nama_rekening' => $data_akun->nama_akun,
+                                'id_npd' => $id_npd,
+                                'tanggal_bkup' => $tanggal,
+                                'tahun_anggaran' => $tahun_anggaran,
+                                'active' => 1,
+                                'created_at' => current_time('mysql'),
+                                'update_at' => current_time('mysql')
+                            );
+    
+                            //insert data panjar
+                            if(!empty($_POST['id'])){
+                                $cek_id = $wpdb->get_var($wpdb->prepare('
+                                    SELECT
+                                        id
+                                    FROM data_buku_kas_umum_pembantu
+                                    WHERE id=%d
+                                        AND tahun_anggaran=%d
+                                        AND active=1
+                                ', $_POST['id'], $tahun_anggaran));
+                                
+                                if(!$cek_id){
+                                    //cek nomor npd
+                                    $cek_nomor = $wpdb->get_var($wpdb->prepare('
+                                        SELECT
+                                            nomor_npd
+                                        FROM data_buku_kas_umum_pembantu
+                                        WHERE nomor_bukti=%s
+                                            AND tahun_anggaran=%d
+                                            AND active=1
+                                    ', $data['nomor_bukti_bku'], $tahun_anggaran));
+    
+                                    if(!empty($cek_nomor)){
+                                        $ret['status'] = 'error';
+                                        $ret['message'] = 'Nomor bukti sudah terpakai!';
+                                        die(json_encode($ret));
+                                    }
+    
+                                    $wpdb->insert('data_buku_kas_umum_pembantu', $input_options);
+                                    $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                                }else{
+                                    $wpdb->update('data_buku_kas_umum_pembantu', $input_options, array('id' => $cek_id));
+                                    $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
+                                }
+                            }else{
+                                $wpdb->insert('data_buku_kas_umum_pembantu', $input_options);
+                                $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                            }
+                        }else{
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Data rekening tidak ditemukan!';    
+                        }
+                    }else{
+                        $tanggal = date_format(date_create($data['set_tanggal']), "Y-m-d H:m:s");
+                        $input_options = array(
+                            'kode_sbl' => $kode_sbl,
+                            'tipe' => $tipe_jenis_bku,
+                            'uraian' => $data['uraian_bku'],
+                            'id_npd' => $id_npd,
+                            'tanggal_bkup' => $tanggal,
+                            'tahun_anggaran' => $tahun_anggaran,
+                            'active' => 1,
+                            'created_at' => current_time('mysql'),
+                            'update_at' => current_time('mysql')
+                        );
+    
+                        //insert data panjar
+                        if(!empty($_POST['id'])){
+                            $cek_id = $wpdb->get_var($wpdb->prepare('
+                                SELECT
+                                    id
+                                FROM data_buku_kas_umum_pembantu
+                                WHERE id=%d
+                                    AND tahun_anggaran=%d
+                                    AND active=1
+                            ', $_POST['id'], $tahun_anggaran));
+                            
+                            if(!$cek_id){
+                                //cek nomor npd
+                                $cek_nomor = $wpdb->get_var($wpdb->prepare('
+                                    SELECT
+                                        nomor_npd
+                                    FROM data_buku_kas_umum_pembantu
+                                    WHERE nomor_bukti=%s
+                                        AND tahun_anggaran=%d
+                                        AND active=1
+                                ', $data['nomor_bukti_bku'], $tahun_anggaran));
+
+                                if(!empty($cek_nomor)){
+                                    $ret['status'] = 'error';
+                                    $ret['message'] = 'Nomor bukti sudah terpakai!';
+                                    die(json_encode($ret));
+                                }
+
+                                $wpdb->insert('data_buku_kas_umum_pembantu', $input_options);
+                                $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                            }else{
+                                $wpdb->update('data_buku_kas_umum_pembantu', $input_options, array('id' => $cek_id));
+                                $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
+                            }
+                        }else{
+                            $wpdb->insert('data_buku_kas_umum_pembantu', $input_options);
+                            $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                        }
+                    }
+                }
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        }else{
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        if($return_callback){
+            return $ret;
+        }else{
+            die(json_encode($ret));
+        }
+    }
+
+    function edit_data_buku_kas_umum_pembantu() {
+        $this->tambah_data_bku();
+    }
+
+    function get_rka_sub_keg_akun_npd(){
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get data akun rka per npd!';
+        $ret['data_akun_html'] = '';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Kode sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['kode_npd'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Kode npd tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $kode_sbl = $_POST['kode_sbl'];
+                $id_npd = $_POST['kode_npd'];
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                // $data_akun = array();
+                // if(!empty($data_rekening_npd)){
+                    $data_akun = $wpdb->get_results("
+                        SELECT 
+                            dakun.kode_akun,
+                            dakun.nama_akun 
+                        FROM data_rekening_nota_pencairan_dana as daker
+                        LEFT JOIN data_akun as dakun
+                        ON daker.kode_rekening = dakun.kode_akun
+                        WHERE daker.id_npd=". $id_npd ."
+                            AND dakun.tahun_anggaran=". $tahun_anggaran ."
+                            AND dakun.active=1
+                        GROUP BY dakun.kode_akun
+                        ORDER BY dakun.kode_akun ASC"
+                    , ARRAY_A);
+                // }
+
+                $data_akun_options = '<option value="">Pilih Rekening</option>';
+                foreach ($data_akun as $v_akun) {
+                    $data_akun_options .= '<option value="' . $v_akun['kode_akun'] . '">'. $v_akun['kode_akun'] .' ' . $v_akun['nama_akun'] . '</option>';
+                }
+                $ret['data_akun_html'] = $data_akun_options;
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function get_data_buku_kas_umum_by_id() {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get data buku kas umum by id!';
+        $ret['data'] = array();
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id tidak boleh kosong!';
+                    die(json_encode($ret));
+                }else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $data_bku = $wpdb->get_row($wpdb->prepare("
+                    SELECT *
+                    FROM data_buku_kas_umum_pembantu
+                    WHERE id=%d
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ", $_POST['id'], $_POST['tahun_anggaran']), ARRAY_A);
+
+                if (!empty($data_bku)) {
+                    $ret['data'] = $data_bku;
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Nota Panjar tidak ditemukan!';
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function delete_data_buku_kas_umum_pembantu() {
+        global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil hapus data buku kas umum pembantu!'
+		);
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                if($ret['status'] != 'error'){
+                    $status = $wpdb->update('data_buku_kas_umum_pembantu', array('active' => 0), array('id' => $_POST['id']));
+
+                    if($status === false){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Delete gagal, harap hubungi admin!';
+					}else{
+                        $ret['message'] = 'Data berhasil dihapus';
+                    }
+
+                }
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        }else{
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_data_sisa_pagu_per_akun_npd() {
+        global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil get data sisa pagu per akun di npd!',
+            'data'      => array()
+		);
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_npd'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode npd tidak boleh kosong!';
+                    die(json_encode($ret));
+                }else if (empty($_POST['kode_rekening'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode rekening tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                if($ret['status'] != 'error'){
+                    $data_sisa_pagu_npd = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            rnpd.pagu_dana as pagu_dana_npd, 
+                            SUM(bku.pagu) as total_pagu_bku
+                        FROM 
+                            data_rekening_nota_pencairan_dana as rnpd
+                        LEFT JOIN 
+                            data_buku_kas_umum_pembantu as bku
+                        ON 
+                            rnpd.kode_rekening=bku.kode_rekening
+                        WHERE rnpd.id_npd=%d
+                            AND rnpd.tahun_anggaran=%d
+                            AND rnpd.active=1
+                            AND bku.id_npd=%d
+                            AND bku.tahun_anggaran=%d
+                            AND bku.active=1
+                            AND bku.kode_rekening=%s
+                    ", $_POST['kode_npd'], $_POST['tahun_anggaran'], $_POST['kode_npd'], $_POST['tahun_anggaran'], $_POST['kode_rekening']));
+
+                    if(!empty($data_sisa_pagu_npd)){
+                        $ret['data'] = $data_sisa_pagu_npd;
+                    }
+                    $ret['last_q'] = $wpdb->last_query;
+
+                }
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        }else{
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
     }
 }
