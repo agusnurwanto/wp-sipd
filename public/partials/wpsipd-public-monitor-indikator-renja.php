@@ -185,7 +185,12 @@ foreach ($subkeg as $kk => $sub) {
 	}
 
 	$nama = explode(' ', $sub['nama_sub_giat']);
-	$kode_sub_giat_asli = explode('.', $nama[0]);
+	if($nama[0] !== $sub['kode_sub_giat']){
+		$kode_sub_giat_asli = explode('.', $sub['kode_sub_giat']);
+	}else{
+		$kode_sub_giat_asli = explode('.', $nama[0]);
+	}
+
 	if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
 		$capaian_prog = $wpdb->get_results($wpdb->prepare("
 			select 
