@@ -1213,8 +1213,8 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
 		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai DPA terakhir di SIMDA jika pengaturan cara input realisasi disetting <b>otomatis ambil dari SIMDA</b>. Jika pengaturan cara input realisasi disetting <b>manual</b> maka pagu program, kegiatan dan sub kegiatan diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
 		<li>Untuk kolom nomor 6 <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
-		<li>Untuk kolom nomor 14 <b>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun 2021 (Akhir Tahun Pelaksanaan Renja SKPD)</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
-		<li>Untuk kolom nomor 15 <b>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun 2021 (%)</b> juga diisi manual karena isianya dalah rumus dari kolom <b>14/5x100</b></li>
+		<li>Untuk kolom nomor 14 <b>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun <?php echo (date('Y') - 1); ?> (Akhir Tahun Pelaksanaan Renja SKPD)</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
+		<li>Untuk kolom nomor 15 <b>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun <?php echo (date('Y') - 1); ?> (%)</b> juga diisi manual karena isianya dalah rumus dari kolom <b>14/5x100</b></li>
 		<li>Jika target indikator RENSTRA bertipe string/karakter maka total target adalah tahun ke 5. Tidak diakumulasikan seperti ketika tipenya interger/angka.</li>
 	</ul>
 </div>
