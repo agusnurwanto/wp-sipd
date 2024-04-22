@@ -1184,6 +1184,7 @@ class Wpsipd
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
 		//end shortcode SIPKD
 		add_shortcode('pohon_kinerja_rpd',array($plugin_public,'pohon_kinerja_rpd'));
+		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
 	}
 
 	/**

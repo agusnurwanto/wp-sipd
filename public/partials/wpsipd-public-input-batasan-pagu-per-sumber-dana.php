@@ -28,28 +28,6 @@ $nama_excel = "Halaman Setting Batasan Pagu Sumber Dana ".$input['tahun_anggaran
 ?>
 <div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 10px; margin:0 0 3rem 0;">
 	<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-
-    <h2 class="text-center" id="sumberdana_unset_title">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
-    <table id="sumberdana_unset" cellpadding="2" cellspacing="0" class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="text-center">Kode Sumber Dana</th>
-                <th class="text-center">Nama Sumber Dana</th>
-                <th class="text-center">Pagu</th>
-                <th class="text-center hide-excel" style="width: 150px;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="2" class="text-center">Total</th>
-                <th id="total_pagu_terpakai_unset" class="text-right"></th>
-                <th></th>
-            </tr>
-        </tfoot>
-    </table>
-    
 	<h1 class="text-center" style="margin:3rem;"><?php echo $nama_excel ?></h1>
     <div style="margin-bottom: 25px;" class="hide-excel">
         <button class="btn btn-primary" onclick="tambah_data_batasan_pagu();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
@@ -78,6 +56,26 @@ $nama_excel = "Halaman Setting Batasan Pagu Sumber Dana ".$input['tahun_anggaran
             </tr>
         </tfoot>
 	</table>
+    <h2 class="text-center" id="sumberdana_unset_title">Daftar Sumber Dana yang Belum Disetting Batasan Pagu</h2>
+    <table id="sumberdana_unset" cellpadding="2" cellspacing="0" class="table table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center">Kode Sumber Dana</th>
+                <th class="text-center">Nama Sumber Dana</th>
+                <th class="text-center">Pagu</th>
+                <th class="text-center hide-excel" style="width: 150px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-center">Total</th>
+                <th id="total_pagu_terpakai_unset" class="text-right"></th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
 </div>
 
 <div class="modal fade mt-4" id="modalTambahDataBatasanPagu" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataBatasanPaguLabel" aria-hidden="true">

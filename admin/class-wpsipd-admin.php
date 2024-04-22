@@ -392,11 +392,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->add_fields($this->get_ajax_field(array('type' => 'laporan_penatausahaan')));
 			}
 
-			if (get_option('_crb_show_menu_laporan_pohon_kinerja') != true) {
-				Container::make('theme_options', __('Laporan Pohon Kinerja'))
+			if (get_option('_crb_show_menu_pohon_kinerja_rpd') != true) {
+				Container::make('theme_options', __('Pohon Kinerja RPD'))
 					->set_page_parent($laporan)
 					->add_fields(array(
-						Field::make('html', 'crb_laporan_pohon_kinerja')
+						Field::make('html', 'crb_pohon_kinerja_rpd')
 							->set_html('
 							<style>
 								.postbox-container { display: none; }
@@ -404,10 +404,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							</style>
 							<h5>HALAMAN TERKAIT</h5>
 							<ol>
-								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Pohon Kinerja RPD</a></li>
+								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Laporan Pohon Kinerja RPD</a></li>
 							</ol>
 							'))
 				);
+			}
+
+			if (get_option('_crb_show_menu_pohon_kinerja_renja') != true) {
+				Container::make('theme_options', __('Pohon Kinerja Renja'))
+					->set_page_parent($laporan)
+					->add_fields($this->get_ajax_field(array('type' => 'pohon_kinerja_renja')));
 			}
 		}
 
@@ -973,10 +979,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if (empty($nama_pemda) || $nama_pemda == 'false') {
 			$nama_pemda = '';
 		}
+
+		$server_wpsipd = get_option('_crb_server_wp_sipd');
+		if (empty($server_wpsipd) || $server_wpsipd != 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php') {
+			update_option('_crb_server_wp_sipd', 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php');
+		}
+
 		$options_basic = array(
 			Field::make('text', 'crb_server_wp_sipd', 'Server Generate Lisensi WP-SIPD')
-				->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
-				->set_default_value('https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+				->set_attribute('placeholder', 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php')
+				->set_default_value('https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php')
 				->set_attribute('readOnly', 'true')
 				->set_required(true),
 			Field::make('text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD')
@@ -1259,7 +1271,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 					$body_pemda .= '</ul>';
 
-					if ($_POST['type'] != 'input_renstra') {
+					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
 						$body_all .= '
 			            	<h3 class="header-tahun" tahun="' . $v['tahun_anggaran'] . '">Tahun Anggaran ' . $v['tahun_anggaran'] . '</h3>
 			            	<div class="body-tahun" tahun="' . $v['tahun_anggaran'] . '">';
@@ -1370,10 +1382,47 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'sp2d') {
 						$body_all .= $body_pemda;
 					}
-					if ($_POST['type'] != 'input_renstra') {
+					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
 						$body_all .= '</div>';
 					}
 				}
+
+				if($_POST['type'] == 'pohon_kinerja_renja'){
+					$data_label = $wpdb->get_results($wpdb->prepare("select distinct namalabel, tahun_anggaran from data_tag_sub_keg where idlabelgiat !=%d and namalabel is not null", 0), ARRAY_A);
+
+					$arr_label = [];
+					foreach ($data_label as $label) {
+						if(empty($arr_label[$label['tahun_anggaran']])){
+							$arr_label[$label['tahun_anggaran']] = [
+								'tahun_anggaran' => $label['tahun_anggaran'],
+								'data' => [],
+							];
+						}
+
+						if(empty($arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']])){
+							$arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']] = $label['namalabel'];
+						}
+					}
+
+					foreach ($arr_label as $label) {
+
+						$body_all .= '
+			            	<h3 class="header-tahun" tahun="' . $label['tahun_anggaran'] . '">Tahun Anggaran ' . $label['tahun_anggaran'] . '</h3>
+			            	<div class="body-tahun" tahun="' . $label['tahun_anggaran'] . '">';
+
+			            foreach ($label['data'] as $namalabel) {
+
+			            	// $url_skpd = $this->generatePage('Input RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'], null, '[input_renstra id_skpd="' . $vv['id_skpd'] . '"]');
+
+			            	$url_label = $this->generatePage('POHON KINERJA RENJA ' . $namalabel . ' ' . $label['tahun_anggaran'], $label['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $label['tahun_anggaran'] . '" namalabel="' . $namalabel . '"]');
+								$body_all .= '<a target="_blank" href="'.$url_label.'">POHON KINERJA RENJA ' . $namalabel . '</a></br>';
+			            }
+
+			            $body_all .= '</div>';
+
+					}
+				}
+
 				if (
 					$_POST['type'] == 'rfk'
 					|| $_POST['type'] == 'monev_renja'
@@ -1396,6 +1445,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'spm'
 					|| $_POST['type'] == 'sp2d'
 					|| $_POST['type'] == 'rkpd_renja'
+					|| $_POST['type'] == 'pohon_kinerja_renja'
 				) {
 					$ret['message'] = $body_all;
 				}
@@ -2969,7 +3019,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								'ID'    =>  $post[0]['ID'],
 								'post_status'   =>  'publish'
 							));
-							die('<script>window.location =  window.location.href+"&private=1";</script>');
+							if (!empty($_GET['private'])) {
+								die('<script>window.location =  window.location.href;</script>');
+							} else {
+								die('<script>window.location =  window.location.href+"&private=1";</script>');
+							}
 						} else if (!empty($_GET['private'])) {
 							wp_update_post(array(
 								'ID'    =>  $post[0]['ID'],

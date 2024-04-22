@@ -19,7 +19,6 @@ Semoga bermanfaat
 	- Klik tombol Generate Lisensi. Lisensi / API KEY ini akan digunakan di configurasi SIPD chrome extension.
 - Untuk menampilkan SSH menggunakan shortcode [datassh]
 - Untuk menampilkan akun belanja menggunakan shortcode [rekbelanja]
-- Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data
 - Theme yang sudah dites astra theme
 - Install plugin Ultimate Member untuk halaman profil user PA/KPA
 - Tambahkan shortcode `[menu_monev]` pada form user profile Ultimate Member untuk menampilkan url halaman MONEV sesuai user yang login
