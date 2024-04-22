@@ -119,6 +119,15 @@ class Wpsipd_Public_RKA
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-print-laporan-buku-kas-umum-pembantu.php';
     }
+
+    public function print_laporan_detail_kegiatan($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-print-laporan-detail-kegiatan.php';
+    }
     
     public function daftar_buku_kas_umum_pembantu($atts)
     {
@@ -1984,8 +1993,6 @@ class Wpsipd_Public_RKA
                     $input_options = array(
                         'kode_sbl' => $kode_sbl,
                         'nomor_npd' => $data['nomor_npd'],
-                        'kode_akun' => NULL,
-                        'nama_akun' => NULL,
                         'id_user_pptk' => $data['set_pptk'],
                         'jenis_panjar' => $jenis_panjar,
                         'nomor_dpa' => $data['nomor_dpa'],
@@ -2413,57 +2420,58 @@ class Wpsipd_Public_RKA
                 );
             
                 $ret['html'] = '';
-                if(!empty($data_bku)){
-                    $total_pagu_npd = 0;
-                    $data_pagu_npd = $wpdb->get_var($wpdb->prepare("
-                            SELECT
-                                SUM(pagu_dana) as total_pagu
-                            FROM data_rekening_nota_pencairan_dana
-                            WHERE id_npd = %d
-                            AND kode_sbl = %s
-                            AND tahun_anggaran = %d
-                            AND active = 1
-                        ", $data_bku[0]['id_npd'], $kode_sbl, $tahun_anggaran));
-                    if(!empty($data_pagu_npd)){
-                        $total_pagu_npd = $data_pagu_npd;
-                    }
-                    /** Untuk menampilkan kolom penerimaan */
-                    $data_bku_penerimaan = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                            *
-                        FROM data_buku_kas_umum_pembantu
-                        WHERE kode_sbl = %s
-                            AND tahun_anggaran = %d
-                            AND active = 1
-                            AND tipe=%s
-                            AND id_npd=%d", $kode_sbl, $tahun_anggaran,'penerimaan', $id_npd), ARRAY_A);
+                $total_pagu_npd = 0;
+                $data_pagu_npd = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            SUM(pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana
+                        WHERE id_npd = %d
+                        AND kode_sbl = %s
+                        AND tahun_anggaran = %d
+                        AND active = 1
+                    ", $id_npd, $kode_sbl, $tahun_anggaran));
+                    $ret['cek'] = $wpdb->last_query;
+                if(!empty($data_pagu_npd)){
+                    $total_pagu_npd = $data_pagu_npd;
+                }
+                /** Untuk menampilkan kolom penerimaan */
+                $data_bku_penerimaan = $wpdb->get_row($wpdb->prepare("
+                    SELECT 
+                        *
+                    FROM data_buku_kas_umum_pembantu
+                    WHERE kode_sbl = %s
+                        AND tahun_anggaran = %d
+                        AND active = 1
+                        AND tipe=%s
+                        AND id_npd=%d", $kode_sbl, $tahun_anggaran,'penerimaan', $id_npd), ARRAY_A);
                     
-                    $uraian = '-';
-                    $id_penerimaan = 0;
-                    if(!empty($data_bku_penerimaan)){
-                        $uraian = $data_bku_penerimaan['uraian'];
-                        $id_penerimaan = $data_bku_penerimaan['id'];
-                    }
-                    $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
-                    $ret['html'] .= '
-                        <tr>
-                            <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
-                            <td class="kanan bawah text-center"></td>
-                            <td class="kanan bawah text-left">'. $uraian .'</td>
-                            <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
-                            <td class="kanan bawah text-right"></td>
-                            <td class="kanan bawah text-right">0</td>
-                            <td class="kanan bawah text-center">';
-                                // tampilkan tombol edit dan hapus
-                                $ret['html'] .= '
-                                <a class="btn btn-sm btn-warning" onclick="edit_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
-                                <a class="btn btn-sm btn-danger" onclick="delete_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
-                            $ret['html'] .='</td>
-                        </tr>';
+                $uraian = '-';
+                $id_penerimaan = 0;
+                if(!empty($data_bku_penerimaan)){
+                    $uraian = $data_bku_penerimaan['uraian'];
+                    $id_penerimaan = $data_bku_penerimaan['id'];
+                }
+                $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
+                $ret['html'] .= '
+                    <tr>
+                        <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
+                        <td class="kanan bawah text-center"></td>
+                        <td class="kanan bawah text-left">'. $uraian .'</td>
+                        <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
+                        <td class="kanan bawah text-right"></td>
+                        <td class="kanan bawah text-right">0</td>
+                        <td class="kanan bawah text-center">';
+                            // tampilkan tombol edit dan hapus
+                            $ret['html'] .= '
+                            <a class="btn btn-sm btn-warning" onclick="edit_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                            <a class="btn btn-sm btn-danger" onclick="delete_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
+                        $ret['html'] .='</td>
+                    </tr>';
 
-                    $total_pagu_npd_sekarang = $total_pagu_npd;
-                    $total_pengeluaran = 0;
-                    $total_saldo = 0;
+                $total_pagu_npd_sekarang = $total_pagu_npd;
+                $total_pengeluaran = 0;
+                $total_saldo = 0;
+                if(!empty($data_bku)){
                     foreach ($data_bku as $v_bku) {
                         $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
                         $total_pagu_npd_sekarang = $saldo;
@@ -2492,8 +2500,7 @@ class Wpsipd_Public_RKA
                             <td class="kanan bawah text_blok text-right">'. number_format($total_pengeluaran, 0, ",", ".") .'</td>
                             <td class="kanan bawah text_blok text-right">'. number_format($saldo, 0, ",", ".") .'</td>
                             <td class="kanan bawah"></td>
-                        </tr>
-                    ';
+                        </tr>';
                 }
                 $ret['data_bku'] = $data_bku;
             } else {
@@ -2552,6 +2559,15 @@ class Wpsipd_Public_RKA
                     }elseif(empty($data['set_tanggal'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Set tanggal tidak boleh kosong!';
+                    }elseif(empty($data['nama_pemilik_rekening_bank_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nama Pemegang Rekening tidak boleh kosong!';
+                    }elseif(empty($data['nama_rekening_bank_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nama Rekening Bank tidak boleh kosong!';
+                    }elseif(empty($data['no_rekening_bank_bku'])){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'No Rekening Bank tidak boleh kosong!';
                     }
                 }else{
                     if(empty($data['uraian_bku'])){
@@ -2594,6 +2610,7 @@ class Wpsipd_Public_RKA
                         $ret['message'] = 'Data Penerimaan sudah ada!';
                         die(json_encode($ret));
                     }
+                    /** End of ceck */
 
                     $tipe_jenis_bku = ($data['set_bku'] == 'terima') ? 'penerimaan' : 'pengeluaran';
 
@@ -2635,8 +2652,9 @@ class Wpsipd_Public_RKA
                                     AND rnpd.active=1
                                     AND rnpd.kode_rekening=%s
                             ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
+                            /** end of cek */
                             
-                            
+                            $set_id_bku = !empty($_POST['id']) ? ' AND id != '.$_POST['id'] : '';
                             $data_total_pagu_bku = $wpdb->get_var($wpdb->prepare("
                                 SELECT 
                                     SUM(bku.pagu) as total_pagu_bku
@@ -2646,7 +2664,8 @@ class Wpsipd_Public_RKA
                                     AND bku.tahun_anggaran=%d
                                     AND bku.active=1
                                     AND bku.kode_rekening=%s
-                            ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
+                                ".$set_id_bku
+                            , $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
                             $total_pagu_bku = (!empty($data_total_pagu_bku)) ? $data_total_pagu_bku + $data['pagu_bku'] : $data['pagu_bku'];
 
                             if($total_pagu_bku > $data_sisa_pagu_npd){
@@ -2669,7 +2688,10 @@ class Wpsipd_Public_RKA
                                 'tahun_anggaran' => $tahun_anggaran,
                                 'active' => 1,
                                 'created_at' => current_time('mysql'),
-                                'update_at' => current_time('mysql')
+                                'update_at' => current_time('mysql'),
+                                'nama_pemilik_rekening_bank' => $data['nama_pemilik_rekening_bank_bku'],
+                                'nama_rekening_bank' => $data['nama_rekening_bank_bku'],
+                                'no_rekening_bank' => $data['no_rekening_bank_bku']
                             );
     
                             //insert data panjar
