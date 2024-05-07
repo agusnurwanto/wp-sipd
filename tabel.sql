@@ -2544,6 +2544,9 @@ CREATE TABLE `data_ssh_usulan` (
   `no_surat_usulan` text DEFAULT NULL,
   `no_nota_dinas` text DEFAULT NULL,
   `id_sub_skpd` int(11) DEFAULT NULL,
+  `url_lampiran_foto_1` text DEFAULT NULL,
+  `url_lampiran_foto_2` text DEFAULT NULL,
+  `url_lampiran_foto_3` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
