@@ -5045,7 +5045,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			// cek lampiran
 			if($_POST['cek_lampiran'] == "photo"){
 				if(empty($_FILES['file_lampiran_usulan_foto1'])
-					&& empty($_FILES['file_lampiran_usulan_foto2'])
+					|| empty($_FILES['file_lampiran_usulan_foto2'])
 				){
 					$ret['status'] = 'error';
 					$ret['message'] = 'Lampiran 1 dan 2 wajib terisi!';
@@ -5053,11 +5053,39 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 			}else{
 				if(empty($_POST['url_lampiran_usulan_foto1'])
-					&& empty($_POST['url_lampiran_usulan_foto2'])
+			 		|| empty($_POST['url_lampiran_usulan_foto2'])
 				){
 					$ret['status'] = 'error';
 					$ret['message'] = 'Lampiran 1 dan 2 wajib terisi!';
 					die(json_encode($ret));
+				}else{
+					$home_site_url = plugin_dir_url(__DIR__) . 'public/media/ssh';
+					$nama_url_lampiran_1 = explode("/",$_POST['url_lampiran_usulan_foto1']);
+					array_pop($nama_url_lampiran_1);
+					$nama_url_lampiran_1 = implode("/",$nama_url_lampiran_1);
+					$nama_url_lampiran_2 = explode("/",$_POST['url_lampiran_usulan_foto2']);
+					array_pop($nama_url_lampiran_2);
+					$nama_url_lampiran_2 = implode("/",$nama_url_lampiran_2);
+					$nama_url_lampiran_3 = explode("/",$_POST['url_lampiran_usulan_foto3']);
+					array_pop($nama_url_lampiran_3);
+					$nama_url_lampiran_3 = implode("/",$nama_url_lampiran_3);
+
+					if($home_site_url != $nama_url_lampiran_1 
+						|| $home_site_url != $nama_url_lampiran_2 
+					){
+						$ret['cek'] = $home_site_url;
+						$ret['cek_2'] = $nama_url_lampiran_1;
+						$ret['status'] = 'error';
+						$ret['message'] = 'URL photo belum pernah diupload ke server!';
+						die(json_encode($ret));
+					}else if(!empty($_POST['url_lampiran_usulan_foto3'])
+						&& $home_site_url != $nama_url_lampiran_3){
+							$ret['cek'] = $home_site_url;
+							$ret['cek_2'] = $nama_url_lampiran_1;
+							$ret['status'] = 'error';
+							$ret['message'] = 'URL photo belum pernah diupload ke server!';
+							die(json_encode($ret));	
+					}
 				}
 			}
 
@@ -5089,11 +5117,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			$file_lampiran_usulan_foto1 = $_FILES['file_lampiran_usulan_foto1'];
 			$file_lampiran_usulan_foto2 = $_FILES['file_lampiran_usulan_foto2'];
 			$file_lampiran_usulan_foto3 = $_FILES['file_lampiran_usulan_foto3'];
-			$url_lampiran_usulan_foto1 = $_POST['url_lampiran_usulan_foto1'];
-			$url_lampiran_usulan_foto2 = $_POST['url_lampiran_usulan_foto2'];
-			$url_lampiran_usulan_foto3 = $_POST['url_lampiran_usulan_foto3'];
+			$url_lampiran_usulan_foto1 = end(explode("/",$_POST['url_lampiran_usulan_foto1']));
+			$url_lampiran_usulan_foto2 = end(explode("/",$_POST['url_lampiran_usulan_foto2']));
+			$url_lampiran_usulan_foto3 = end(explode("/",$_POST['url_lampiran_usulan_foto3']));
 			
 			$json = json_decode(stripslashes(html_entity_decode($_POST['data_excel'])), true);
+			$nama_file_upload_photo_1 = '';
+			$nama_file_upload_photo_2 = '';
+			$nama_file_upload_photo_3 = '';
 			foreach ($json as $data) {
 				$newData = array();
 				foreach ($data as $kk => $vv) {
@@ -5133,37 +5164,46 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				);
 
 				// cek jenis lampiran sebelum upload
-				if($_POST['cek_lampiran'] == "photo"){
-					// masih ada bug saat upload gambar ke input 2 dst
-					if (!empty($file_lampiran_usulan_foto1)) {
-						$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto1, ['jpg', 'jpeg', 'png', 'pdf']);
-						if ($upload_1['status']) {
-							$data_db['lampiran_1'] = $upload_1['filename'];
+				if($ret['data']['insert'] == 0 || empty($nama_file_upload_photo_1) ){
+					if($_POST['cek_lampiran'] == "photo"){
+						// masih ada bug saat upload gambar ke input 2 dst
+						if (!empty($file_lampiran_usulan_foto1)) {
+							$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto1, ['jpg', 'jpeg', 'png', 'pdf']);
+							if ($upload_1['status']) {
+								$data_db['lampiran_1'] = $upload_1['filename'];
+								$nama_file_upload_photo_1 = $upload_1['filename'];
+							}
 						}
-					}
-	
-					if (!empty($file_lampiran_usulan_foto2)) {
-						$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto2, ['jpg', 'jpeg', 'png', 'pdf']);
-						if ($upload_2['status']) {
-							$data_db['lampiran_2'] = $upload_2['filename'];
+		
+						if (!empty($file_lampiran_usulan_foto2)) {
+							$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto2, ['jpg', 'jpeg', 'png', 'pdf']);
+							if ($upload_2['status']) {
+								$data_db['lampiran_2'] = $upload_2['filename'];
+								$nama_file_upload_photo_2 = $upload_2['filename'];
+							}
 						}
-					}
-	
-					if (!empty($file_lampiran_usulan_foto3)) {
-						$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto3, ['jpg', 'jpeg', 'png', 'pdf']);
-						if ($upload_3['status']) {
-							$data_db['lampiran_3'] = $upload_3['filename'];
+		
+						if (!empty($file_lampiran_usulan_foto3)) {
+							$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto3, ['jpg', 'jpeg', 'png', 'pdf']);
+							if ($upload_3['status']) {
+								$data_db['lampiran_3'] = $upload_3['filename'];
+								$nama_file_upload_photo_3 = $upload_3['filename'];
+							}
 						}
+					}else{
+						$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
+						$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
+						$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
 					}
 				}else{
-					if (!empty($url_lampiran_usulan_foto1)){
-						$data_db['url_lampiran_foto_1'] = $url_lampiran_usulan_foto1;
-					}
-					if (!empty($url_lampiran_usulan_foto2)){
-						$data_db['url_lampiran_foto_2'] = $url_lampiran_usulan_foto2;
-					}
-					if (!empty($url_lampiran_usulan_foto3)){
-						$data_db['url_lampiran_foto_3'] = $url_lampiran_usulan_foto3;
+					if($_POST['cek_lampiran'] == "photo"){
+						$data_db['lampiran_1'] = $nama_file_upload_photo_1;
+						$data_db['lampiran_2'] = $nama_file_upload_photo_2;
+						$data_db['lampiran_3'] = $nama_file_upload_photo_3;
+					}else{
+						$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
+						$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
+						$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
 					}
 				}
 

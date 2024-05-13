@@ -200,6 +200,12 @@ echo $this->menu_ssh($input);
 		margin-left: 10px;
 		margin-top: 5px;
 	}
+
+	.nav-pills>li>a {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: #FFFFFF;
+    }
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -436,13 +442,13 @@ echo $this->menu_ssh($input);
 						<div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_surat_usulan_ssh"></a></div>
 					</div>
 				</div>
-				<div class="border rounded p-3" style="margin-bottom:1rem;">
-					<ul class="nav nav-pills mb-3" style="margin-left: auto;" id="pills-tab" role="tablist">
+				<div class="border rounded p-3" id="nav-upload-photo" style="margin-bottom:1rem;">
+					<ul class="nav nav-pills mb-3" style="margin-left: 0;" id="pills-tab" role="tablist">
 						<li class="nav-item">
 							<a class="nav-link active" id="pills-photo-tab" data-toggle="pill" data-lampiran="photo" href="#pills-photo" role="tab" aria-controls="pills-photo" aria-selected="true">Upload Photo</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" id="pills-url-tab" data-toggle="pill" data-lampiran="url" href="#pills-url" role="tab" aria-controls="pills-url" aria-selected="false">Link URL</a>
+							<a class="nav-link ml-2" id="pills-url-tab" data-toggle="pill" data-lampiran="url" href="#pills-url" role="tab" aria-controls="pills-url" aria-selected="false">Link URL</a>
 						</li>
 					</ul>
 					<div class="tab-content" id="pills-tabContent">
@@ -1107,7 +1113,7 @@ echo $this->menu_ssh($input);
 		}else{
 			if (typeof url_lampiran_usulan_foto1 == 'undefined') {
 				alert('Lampiran 1 tidak boleh kosong!');
-			}else if (typeof url_lampiran_usulan_foto1 == 'undefined') {
+			}else if (typeof url_lampiran_usulan_foto2 == 'undefined') {
 				alert('Lampiran 2 tidak boleh kosong!');
 			}
 		}
