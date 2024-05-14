@@ -405,6 +405,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							<h5>HALAMAN TERKAIT</h5>
 							<ol>
 								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Laporan Pohon Kinerja RPD</a></li>
+								<li><a target="_blank" href="https://sipemikir.magetan.go.id/pohon-kinerja-rpd-menpan-rb/">Laporan Pohon Kinerja RPD Menpan RB</a></li>
 							</ol>
 							'))
 				);

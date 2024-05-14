@@ -38,7 +38,7 @@ if(!empty($jadwal_lokal)){
     }
 }
 
-$timezone = get_option('timezone_string');
+// $timezone = get_option('timezone_string');
 $nama_pemda = get_option('_crb_daerah');
 $current_user = wp_get_current_user();
 $bulan = date('m');
@@ -138,22 +138,11 @@ if(!empty($tujuan_all)){
                 $skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
                 if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 
-                  //check program
-                  $kode_program = explode(" ", $program['nama_program']);
-                  $checkProgram = $wpdb->get_row($wpdb->prepare("SELECT kode_program FROM data_prog_keg WHERE kode_program=%s AND tahun_anggaran=%d AND active=%d", $kode_program[0], $tahun_anggaran, 1), ARRAY_A);
-
-                  $statusMutakhirProgram=0;
-                  if(empty($checkProgram['kode_program'])){
-                    $statusMutakhirProgram=1;
-                    $data_all['pemutakhiran_program']++;
-                  }
-
                   $data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
                     'id_unik' => $program['id_unik'],
                     'nama' => $program['nama_program'],
                     'kode_skpd' => $program['kode_skpd'],
                     'nama_skpd' => $program['nama_skpd'],
-                    'statusMutakhirProgram' => $statusMutakhirProgram,
                     'total_akumulasi_1' => 0,
                     'total_akumulasi_2' => 0,
                     'total_akumulasi_3' => 0,
