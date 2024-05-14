@@ -71,6 +71,10 @@ $title = 'Laporan Buku Kas Umum Pembantu | Buku Kas Umum Pembantu | ' . $tahun_a
 $shortcode = '[print_laporan_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"] ';
 $url_print_laporan_buku_kas_umum_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
+$title = 'Laporan Detail Kegiatan | Kegiatan | ' . $tahun_anggaran;
+$shortcode = '[print_laporan_detail_kegiatan tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"] ';
+$url_print_laporan_detail_kegiatan = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
 $title = 'Daftar Buku Kas Umum Pembantu | ' . $tahun_anggaran;
 $shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'" kode_sbl="'. $kode_sbl .'"]';
 $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
@@ -138,6 +142,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
     <!-- Button trigger modal -->
     <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
     <button class="btn btn-info m-3" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
+    <button class="btn btn-info m-3" onclick="print_laporan_kegiatan();"><i class="dashicons dashicons-printer"></i> Print Laporan Kegiatan</button>
     <!-- <a href="<?php echo $url_bku_pembantu; ?>" target="_blank" class="btn btn-info m-3 hide-link-decoration"><i class="dashicons dashicons-plus-alt"></i> Buku Kas Umum Pembantu</a> -->
 
     <table id="table_daftar_panjar">
@@ -727,6 +732,18 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
     
     function print_laporan_bku() {
         jQuery('#modal_print_laporan_bku').modal('show');
+        jQuery("#modal_print_laporan_bku .submitBtn")
+            .attr("onclick", `print_preview_bku(this)`)
+        jQuery("#modal_print_laporan_bku .modal-title")
+            .html("Laporan Buku Kas Umum Pembantu")
+    }
+
+    function print_laporan_kegiatan() {
+        jQuery('#modal_print_laporan_bku').modal('show');
+        jQuery("#modal_print_laporan_bku .submitBtn")
+            .attr("onclick", `print_preview_laporan_kegiatan(this)`)
+        jQuery("#modal_print_laporan_bku .modal-title")
+            .html("Laporan Detail Kegiatan")
     }
 
     function print_preview(that) {
@@ -758,6 +775,17 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
         }
 
         window.open('<?php echo $url_print_laporan_buku_kas_umum_pembantu; ?>'+'&bulan='+set_bulan,'_blank');
+    }
+
+    function print_preview_laporan_kegiatan(that) {
+        let set_bulan = jQuery('#set_bulan').val();
+        if(set_bulan == "" || set_bulan == undefined){
+            alert('Ada yang kosong, Harap isi semua input!')
+            jQuery('#modal_print_laporan_bku').modal('hide');
+            return;
+        }
+
+        window.open('<?php echo $url_print_laporan_detail_kegiatan; ?>'+'&bulan='+set_bulan,'_blank');
     }
 
     function buku_kas_umum_pembantu(that) {

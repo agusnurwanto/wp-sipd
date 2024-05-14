@@ -193,6 +193,18 @@ if ($data_rfk) {
                         <label>Pagu</label>
                         <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required>
                     </div>
+                    <div class="form-group set_keluar">
+                        <label>Nama Pemegang Rekening Bank</label>
+                        <input type="text" class="form-control" id="nama_pemilik_rekening_bank_bku" name="nama_pemilik_rekening_bank_bku" required>
+                    </div>
+                    <div class="form-group set_keluar">
+                        <label>Nama Rekening Bank</label>
+                        <input type="text" class="form-control" id="nama_rekening_bank_bku" name="nama_rekening_bank_bku" required>
+                    </div>
+                    <div class="form-group set_keluar">
+                        <label>No Rekening Bank</label>
+                        <input type="number" class="form-control" id="no_rekening_bank_bku" name="no_rekening_bank_bku" required>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -395,6 +407,9 @@ if ($data_rfk) {
                                 .text("Simpan");
                             jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
                             jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
+                            jQuery("#nama_pemilik_rekening_bank_bku").val(response.data.nama_pemilik_rekening_bank);
+                            jQuery("#nama_rekening_bank_bku").val(response.data.nama_rekening_bank);
+                            jQuery("#no_rekening_bank_bku").val(response.data.no_rekening_bank);
                         } else {
                             alert(response.message);
                         }

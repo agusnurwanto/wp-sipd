@@ -200,6 +200,12 @@ echo $this->menu_ssh($input);
 		margin-left: 10px;
 		margin-top: 5px;
 	}
+
+	.nav-pills>li>a {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: #FFFFFF;
+    }
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -430,10 +436,65 @@ echo $this->menu_ssh($input);
 					</div>
 				</div>
 				<div class="row form-group">
-					<label for="file-import-usulan-excel" class="col-md-2">Soft File Usulan SSH</label>
+					<label for="file-import-usulan-excel" class="col-md-2">Upload Excel Usulan SSH</label>
 					<div class="col-md-10">
 						<input type="file" id="file-import-usulan-excel" accept=".xls, .xlsx" style="display:block;width:100%;" onchange="filePickedWpsipd(event)">
 						<div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_surat_usulan_ssh"></a></div>
+					</div>
+				</div>
+				<div class="border rounded p-3" id="nav-upload-photo" style="margin-bottom:1rem;">
+					<ul class="nav nav-pills mb-3" style="margin-left: 0;" id="pills-tab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="pills-photo-tab" data-toggle="pill" data-lampiran="photo" href="#pills-photo" role="tab" aria-controls="pills-photo" aria-selected="true">Upload Photo</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link ml-2" id="pills-url-tab" data-toggle="pill" data-lampiran="url" href="#pills-url" role="tab" aria-controls="pills-url" aria-selected="false">Link URL</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="pills-tabContent">
+						<div class="tab-pane fade show active" id="pills-photo" role="tabpanel" aria-labelledby="pills-photo-tab">
+							<div class="row form-group">
+								<label for="file-lampiran-usulan-foto-1" class="col-md-2">Lampiran 1 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="file" id="file-lampiran-usulan-foto-1"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+								</div>
+								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
+							</div>
+							<div class="row form-group">
+								<label for="file-lampiran-usulan-foto-2" class="col-md-2">Lampiran 2 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="file" id="file-lampiran-usulan-foto-2"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+								</div>
+								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
+							</div>
+							<div class="row form-group">
+								<label for="file-lampiran-usulan-foto-3" class="col-md-2">Lampiran 3 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="file" id="file-lampiran-usulan-foto-3"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+								</div>
+								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="pills-url" role="tabpanel" aria-labelledby="pills-url-tab">
+							<div class="row form-group">
+								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 1 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-1" >
+								</div>
+							</div>
+							<div class="row form-group">
+								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 2 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-2" >
+								</div>
+							</div>
+							<div class="row form-group">
+								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 3 Usulan SSH</label>
+								<div class="col-md-10">
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-3" >
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div>
@@ -1035,6 +1096,27 @@ echo $this->menu_ssh($input);
 		var data = jQuery('#data-excel').val();
 		var id_sub_skpd = jQuery('#list-skpd').val();
 		var tahun_anggaran = jQuery('#tahun_anggaran').val();
+		var url_lampiran_usulan_foto1 = jQuery('#url-lampiran-usulan-foto-1').val();
+		var url_lampiran_usulan_foto2 = jQuery('#url-lampiran-usulan-foto-2').val();
+		var url_lampiran_usulan_foto3 = jQuery('#url-lampiran-usulan-foto-3').val();
+		var file_lampiran_usulan_foto1 = jQuery('#file-lampiran-usulan-foto-1')[0].files[0];
+		var file_lampiran_usulan_foto2 = jQuery('#file-lampiran-usulan-foto-2')[0].files[0];
+		var file_lampiran_usulan_foto3 = jQuery('#file-lampiran-usulan-foto-3')[0].files[0];
+		let cek_aktif = jQuery('a[data-toggle="pill"].active').attr('data-lampiran');
+
+		if(cek_aktif == "photo"){
+			if (typeof file_lampiran_usulan_foto1 == 'undefined') {
+				alert('Lampiran 1 tidak boleh kosong!');
+			}else if (typeof file_lampiran_usulan_foto2 == 'undefined') {
+				alert('Lampiran 2 tidak boleh kosong!');
+			}
+		}else{
+			if (typeof url_lampiran_usulan_foto1 == 'undefined') {
+				alert('Lampiran 1 tidak boleh kosong!');
+			}else if (typeof url_lampiran_usulan_foto2 == 'undefined') {
+				alert('Lampiran 2 tidak boleh kosong!');
+			}
+		}
 
 		if (!data) {
 			return alert('Excel Tidak Boleh Kosong!');
@@ -1061,47 +1143,65 @@ echo $this->menu_ssh($input);
 
 			var last = data_all.length - 1;
 
+			let formData = new FormData();
+			formData.append('action', 'import_excel_ssh_usulan');
+			formData.append('api_key', jQuery("#api_key").val());
+			formData.append('tahun_anggaran', tahun_anggaran);
+			formData.append('id_sub_skpd', id_sub_skpd);
+			formData.append('cek_lampiran', cek_aktif);
+			formData.append('file_lampiran_usulan_foto1',file_lampiran_usulan_foto1);
+			formData.append('file_lampiran_usulan_foto2',file_lampiran_usulan_foto2);
+			formData.append('file_lampiran_usulan_foto3',file_lampiran_usulan_foto3);
+			formData.append('url_lampiran_usulan_foto1', url_lampiran_usulan_foto1);
+			formData.append('url_lampiran_usulan_foto2', url_lampiran_usulan_foto2);
+			formData.append('url_lampiran_usulan_foto3', url_lampiran_usulan_foto3);
+			
 			data_all.reduce(function(sequence, nextData) {
-					return sequence.then(function(current_data) {
-							return new Promise(function(resolve_reduce, reject_reduce) {
-									relayAjax({
-										url: "<?php echo admin_url('admin-ajax.php'); ?>",
-										type: 'POST',
-										data: {
-											action: 'import_excel_ssh_usulan',
-											tahun_anggaran: tahun_anggaran,
-											id_sub_skpd: id_sub_skpd,
-											data: current_data
-										},
-										success: function(res) {
-											resolve_reduce(nextData);
-										},
-										error: function(e) {
-											console.log('Error importing Excel', e);
-										}
-									});
-								})
-								.catch(function(e) {
-									console.log(e);
-									return Promise.resolve(nextData);
-								});
-						})
-						.catch(function(e) {
-							console.log(e);
-							return Promise.resolve(nextData);
+				return sequence.then(function(current_data) {
+					return new Promise(function(resolve_reduce, reject_reduce) {
+						formData.append('data_excel', JSON.stringify(current_data));
+
+						jQuery.ajax({
+							url: "<?php echo admin_url('admin-ajax.php'); ?>",
+							type: 'post',
+							data: formData,
+							dataType: 'json',
+							processData: false,
+							contentType: false,
+							cache: false,
+							success: function(response) {
+								if (response.status == 'success') {
+									alert('Import Data Usulan Sukses!');
+									jQuery('#importModal').modal('hide');
+									usulanSSHTable.ajax.reload();
+								} else {
+									alert(response.message);
+								}
+								jQuery("#wrap-loading").hide();
+							}
 						});
-				}, Promise.resolve(data_all[last]))
-				.then(function(data_last) {
-					jQuery('#wrap-loading').hide();
-					alert('Import Data Usulan Sukses!');
-					jQuery('#importModal').modal('hide');
-					usulanSSHTable.ajax.reload();
+					})
+					.catch(function(e) {
+						console.log(e);
+						return Promise.resolve(nextData);
+					});
 				})
 				.catch(function(e) {
 					console.log(e);
-					jQuery('#wrap-loading').hide();
-					alert('Error during import!');
+					return Promise.resolve(nextData);
 				});
+			}, Promise.resolve(data_all[last]))
+			.then(function(data_last) {
+				jQuery('#wrap-loading').hide();
+				alert('Import Data Usulan Sukses!');
+				jQuery('#importModal').modal('hide');
+				usulanSSHTable.ajax.reload();
+			})
+			.catch(function(e) {
+				console.log(e);
+				jQuery('#wrap-loading').hide();
+				alert('Error during import!');
+			});
 		}
 	}
 

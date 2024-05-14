@@ -2544,6 +2544,9 @@ CREATE TABLE `data_ssh_usulan` (
   `no_surat_usulan` text DEFAULT NULL,
   `no_nota_dinas` text DEFAULT NULL,
   `id_sub_skpd` int(11) DEFAULT NULL,
+  `url_lampiran_foto_1` text DEFAULT NULL,
+  `url_lampiran_foto_2` text DEFAULT NULL,
+  `url_lampiran_foto_3` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -6628,6 +6631,9 @@ CREATE TABLE `data_buku_kas_umum_pembantu` (
     `kode_rekening` varchar(50) NOT NULL,
     `nama_rekening` text NOT NULL,
     `id_npd` int(11) NOT NULL,
+    `nama_pemilik_rekening_bank` varchar(50) DEFAULT NULL,
+    `nama_rekening_bank` varchar(50) DEFAULT NULL,
+    `no_rekening_bank` int(11) DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),
