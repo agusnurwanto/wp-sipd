@@ -3942,7 +3942,10 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             s_dana.nama_dana, 
                             s_dana.tahun_anggaran,
                             SUM(s_lokal.pagudana) as total
-                        FROM data_dana_sub_keg_lokal as s_lokal 
+                        FROM data_sub_keg_bl_lokal as sub_keg
+                        LEFT JOIN data_dana_sub_keg_lokal as s_lokal ON (s_lokal.kode_sbl = sub_keg.kode_sbl) 
+                            AND s_lokal.tahun_anggaran=sub_keg.tahun_anggaran 
+                            AND s_lokal.active=sub_keg.active
                         INNER JOIN data_sumber_dana as s_dana ON (s_lokal.iddana=s_dana.id_dana) 
                             AND s_dana.active = s_lokal.active
                             AND s_dana.tahun_anggaran = s_lokal.tahun_anggaran
