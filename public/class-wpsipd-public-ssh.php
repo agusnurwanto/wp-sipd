@@ -5042,7 +5042,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		);
 
 		if (!empty($_POST)) {
-			// cek lampiran
+			// cek upload lampiran
 			if($_POST['cek_lampiran'] == "photo"){
 				if(empty($_FILES['file_lampiran_usulan_foto1'])
 					|| empty($_FILES['file_lampiran_usulan_foto2'])
@@ -5073,15 +5073,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if($home_site_url != $nama_url_lampiran_1 
 						|| $home_site_url != $nama_url_lampiran_2 
 					){
-						$ret['cek'] = $home_site_url;
-						$ret['cek_2'] = $nama_url_lampiran_1;
 						$ret['status'] = 'error';
 						$ret['message'] = 'URL photo belum pernah diupload ke server!';
 						die(json_encode($ret));
 					}else if(!empty($_POST['url_lampiran_usulan_foto3'])
-						&& $home_site_url != $nama_url_lampiran_3){
-							$ret['cek'] = $home_site_url;
-							$ret['cek_2'] = $nama_url_lampiran_1;
+						&& $home_site_url != $nama_url_lampiran_3
+					){
 							$ret['status'] = 'error';
 							$ret['message'] = 'URL photo belum pernah diupload ke server!';
 							die(json_encode($ret));	
@@ -5125,143 +5122,192 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			$nama_file_upload_photo_1 = '';
 			$nama_file_upload_photo_2 = '';
 			$nama_file_upload_photo_3 = '';
+			$ret['ssh_yang_sama'] = array();
 			foreach ($json as $data) {
 				$newData = array();
 				foreach ($data as $kk => $vv) {
 					$newData[trim(preg_replace('/\s+/', ' ', $kk))] = trim(preg_replace('/\s+/', ' ', $vv));
 				}
-				
-				$last_kode_standar_harga = $wpdb->get_var($wpdb->prepare("
-					SELECT 
-						MAX(kode_standar_harga) as kode_standar_harga
-					FROM `data_ssh_usulan` 
-					WHERE kode_kel_standar_harga = %s
-				", $newData['kode_kel_standar_harga']));
-				$last_kode_standar_harga = (empty($last_kode_standar_harga)) ? array("0") : explode(".", $last_kode_standar_harga);
-				$last_kode_standar_harga = ((int) end($last_kode_standar_harga)) + 1;
-				$last_kode_standar_harga = sprintf("%05d", $last_kode_standar_harga); // menambahkan angka nol di depan
-				$last_kode_standar_harga = $newData['kode_kel_standar_harga'] . '.' . $last_kode_standar_harga;
-
-				$data_db = array(
-					'id_standar_harga' => ++$id_standar_harga,
-					'kode_standar_harga' => $last_kode_standar_harga,
-					'nama_standar_harga' => $newData['nama_standar_harga'],
-					'satuan' => $newData['satuan'],
-					'spek' => $newData['spek'],
-					'created_at' => $date_now,
-					'created_user' => $user_id,
-					'kelompok' => $newData['kelompok'],
-					'harga' => $newData['harga'],
-					'kode_kel_standar_harga' => $newData['kode_kel_standar_harga'],
-					'nama_kel_standar_harga' => $newData['nama_kel_standar_harga'],
-					'tahun_anggaran' => $tahun_anggaran,
-					'status' => 'draft',
-					'keterangan_lampiran' => $newData['keterangan_lampiran'],
-					'status_jenis_usulan' => 'tambah_baru',
-					'jenis_produk' => $newData['jenis_produk'],
-					'tkdn' => $newData['tkdn'],
-					'id_sub_skpd' => $id_sub_skpd,
-				);
-
-				// cek jenis lampiran sebelum upload
-				if($ret['data']['insert'] == 0 || empty($nama_file_upload_photo_1) ){
-					if($_POST['cek_lampiran'] == "photo"){
-						// masih ada bug saat upload gambar ke input 2 dst
-						if (!empty($file_lampiran_usulan_foto1)) {
-							$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto1, ['jpg', 'jpeg', 'png', 'pdf']);
-							if ($upload_1['status']) {
-								$data_db['lampiran_1'] = $upload_1['filename'];
-								$nama_file_upload_photo_1 = $upload_1['filename'];
-							}
-						}
-		
-						if (!empty($file_lampiran_usulan_foto2)) {
-							$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto2, ['jpg', 'jpeg', 'png', 'pdf']);
-							if ($upload_2['status']) {
-								$data_db['lampiran_2'] = $upload_2['filename'];
-								$nama_file_upload_photo_2 = $upload_2['filename'];
-							}
-						}
-		
-						if (!empty($file_lampiran_usulan_foto3)) {
-							$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto3, ['jpg', 'jpeg', 'png', 'pdf']);
-							if ($upload_3['status']) {
-								$data_db['lampiran_3'] = $upload_3['filename'];
-								$nama_file_upload_photo_3 = $upload_3['filename'];
-							}
-						}
-					}else{
-						$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
-						$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
-						$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
-					}
-				}else{
-					if($_POST['cek_lampiran'] == "photo"){
-						$data_db['lampiran_1'] = $nama_file_upload_photo_1;
-						$data_db['lampiran_2'] = $nama_file_upload_photo_2;
-						$data_db['lampiran_3'] = $nama_file_upload_photo_3;
-					}else{
-						$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
-						$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
-						$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
-					}
-				}
 
 				if(empty($newData['kode_kel_standar_harga'])
-					&& empty($newData['nama_kel_standar_harga'])
-					&& empty($newData['spek'])
-					&& empty($newData['satuan'])
-					&& empty($newData['harga'])
-					&& empty($newData['jenis_produk'])
-					&& empty($newData['tkdn'])
+					|| empty($newData['nama_kel_standar_harga'])
+					|| empty($newData['spek'])
+					|| empty($newData['satuan'])
+					|| empty($newData['harga'])
+					|| empty($newData['nama_standar_harga'])
 				){
 					$ret['status'] = 'error';
 					$ret['message'] = 'ada data yang kosong!';
 					die(json_encode($ret));
 				}
 
-				if(!empty($newData['kode_rekening_akun'])){
-					$data_akun = array();
-					foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
-						$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
-							SELECT 
-								id_akun,
-								kode_akun,
-								nama_akun 
-							FROM data_akun 
-							WHERE kode_akun = %s
-						", $v_akun), ARRAY_A);
-					}
-				} else {
-					$ret['status'] = 'error';
-					$ret['message'] = 'data rekening ada yang kosong!';
-					die(json_encode($ret));
-				}
+				//avoid double data ssh
+				$data_avoid = $wpdb->get_results($wpdb->prepare(
+					"
+					SELECT 
+						id 
+					FROM data_ssh
+					WHERE nama_standar_harga = %s AND
+						active=1 AND
+						satuan = %s AND
+						spek = %s AND
+						harga = %s AND
+						kode_kel_standar_harga = %s AND
+						tahun_anggaran=%d
+					",
+					$newData['nama_standar_harga'],
+					$newData['satuan'],
+					$newData['spek'],
+					$newData['harga'],
+					$newData['kode_kel_standar_harga'],
+					$tahun_anggaran
+				), ARRAY_A);
 
-				$wpdb->last_error = "";
-				if (!empty($data_db)) {
-					$wpdb->insert($table_data, $data_db);
-					$ret['data']['insert']++;
+				//avoid double data ssh usulan
+				$data_avoid_usulan = $wpdb->get_results($wpdb->prepare(
+					"
+					SELECT 
+						id 
+					FROM data_ssh_usulan 
+					WHERE 
+						nama_standar_harga = %s AND
+						satuan = %s AND
+						spek = %s AND
+						harga = %s AND
+						kode_kel_standar_harga = %s",
+					$newData['nama_standar_harga'],
+					$newData['satuan'],
+					$newData['spek'],
+					$newData['harga'],
+					$newData['kode_kel_standar_harga']
+				), ARRAY_A);
 
-					$id_usulan = $wpdb->insert_id;
-					$opsi_akun = [];
-					foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
-						$opsi_akun[$v_akun] = array(
-							'id_akun' => $data_akun[$v_akun][0]['id_akun'],
-							'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
-							'nama_akun' => $data_akun[$v_akun][0]['kode_akun'] . ' ' . $data_akun[$v_akun][0]['nama_akun'],
-							'id_standar_harga' => $id_usulan,
-							'tahun_anggaran' => $tahun_anggaran,
-						);
-						$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun[$v_akun]);
+				// lompati jika ada data yang sama
+				if (!empty($data_avoid) || !empty($data_avoid_usulan)) {
+					$data_avoid = !empty($data_avoid) ? $data_avoid : $data_avoid_usulan;
+
+					$ret['pesan_tambahan'] = 'Standar Harga Sudah Ada!';
+					array_push($ret['ssh_yang_sama'], $data_avoid);
+				}else{
+					$last_kode_standar_harga = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							MAX(kode_standar_harga) as kode_standar_harga
+						FROM `data_ssh_usulan` 
+						WHERE kode_kel_standar_harga = %s
+					", $newData['kode_kel_standar_harga']));
+					$last_kode_standar_harga = (empty($last_kode_standar_harga)) ? array("0") : explode(".", $last_kode_standar_harga);
+					$last_kode_standar_harga = ((int) end($last_kode_standar_harga)) + 1;
+					$last_kode_standar_harga = sprintf("%05d", $last_kode_standar_harga); // menambahkan angka nol di depan
+					$last_kode_standar_harga = $newData['kode_kel_standar_harga'] . '.' . $last_kode_standar_harga;
+	
+					$data_db = array(
+						'id_standar_harga' => ++$id_standar_harga,
+						'kode_standar_harga' => $last_kode_standar_harga,
+						'nama_standar_harga' => $newData['nama_standar_harga'],
+						'satuan' => $newData['satuan'],
+						'spek' => $newData['spek'],
+						'created_at' => $date_now,
+						'created_user' => $user_id,
+						'kelompok' => $newData['kelompok'],
+						'harga' => $newData['harga'],
+						'kode_kel_standar_harga' => $newData['kode_kel_standar_harga'],
+						'nama_kel_standar_harga' => $newData['nama_kel_standar_harga'],
+						'tahun_anggaran' => $tahun_anggaran,
+						'status' => 'draft',
+						'keterangan_lampiran' => $newData['keterangan_lampiran'],
+						'status_jenis_usulan' => 'tambah_baru',
+						'jenis_produk' => $newData['jenis_produk'],
+						'tkdn' => $newData['tkdn'],
+						'id_sub_skpd' => $id_sub_skpd,
+					);
+	
+					// cek jenis lampiran sebelum upload
+					if($ret['data']['insert'] == 0 || empty($nama_file_upload_photo_1) ){
+						if($_POST['cek_lampiran'] == "photo"){
+							// masih ada bug saat upload gambar ke input 2 dst
+							if (!empty($file_lampiran_usulan_foto1)) {
+								$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto1, ['jpg', 'jpeg', 'png', 'pdf']);
+								if ($upload_1['status']) {
+									$data_db['lampiran_1'] = $upload_1['filename'];
+									$nama_file_upload_photo_1 = $upload_1['filename'];
+								}
+							}
+			
+							if (!empty($file_lampiran_usulan_foto2)) {
+								$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto2, ['jpg', 'jpeg', 'png', 'pdf']);
+								if ($upload_2['status']) {
+									$data_db['lampiran_2'] = $upload_2['filename'];
+									$nama_file_upload_photo_2 = $upload_2['filename'];
+								}
+							}
+			
+							if (!empty($file_lampiran_usulan_foto3)) {
+								$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto3, ['jpg', 'jpeg', 'png', 'pdf']);
+								if ($upload_3['status']) {
+									$data_db['lampiran_3'] = $upload_3['filename'];
+									$nama_file_upload_photo_3 = $upload_3['filename'];
+								}
+							}
+						}else{
+							$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
+							$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
+							$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
+						}
+					}else{
+						if($_POST['cek_lampiran'] == "photo"){
+							$data_db['lampiran_1'] = $nama_file_upload_photo_1;
+							$data_db['lampiran_2'] = $nama_file_upload_photo_2;
+							$data_db['lampiran_3'] = $nama_file_upload_photo_3;
+						}else{
+							$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
+							$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
+							$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
+						}
 					}
-				} else {
-					$ret['status'] = 'error';
-					$ret['message'] = 'data kosong!';
+	
+					if(!empty($newData['kode_rekening_akun'])){
+						$data_akun = array();
+						foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
+							$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id_akun,
+									kode_akun,
+									nama_akun 
+								FROM data_akun 
+								WHERE kode_akun = %s
+							", $v_akun), ARRAY_A);
+						}
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'data rekening ada yang kosong!';
+						die(json_encode($ret));
+					}
+	
+					$wpdb->last_error = "";
+					if (!empty($data_db)) {
+						$wpdb->insert($table_data, $data_db);
+						$ret['data']['insert']++;
+	
+						$id_usulan = $wpdb->insert_id;
+						$opsi_akun = [];
+						foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
+							$opsi_akun[$v_akun] = array(
+								'id_akun' => $data_akun[$v_akun][0]['id_akun'],
+								'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
+								'nama_akun' => $data_akun[$v_akun][0]['kode_akun'] . ' ' . $data_akun[$v_akun][0]['nama_akun'],
+								'id_standar_harga' => $id_usulan,
+								'tahun_anggaran' => $tahun_anggaran,
+							);
+							$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun[$v_akun]);
+						}
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'data kosong!';
+					}
+					if (!empty($wpdb->last_error)) {
+						$ret['data']['error'][] = array($wpdb->last_error, $data_db);
+					};
 				}
-				if (!empty($wpdb->last_error)) {
-					$ret['data']['error'][] = array($wpdb->last_error, $data_db);
-				};
 			}
 		} else {
 			$ret['status'] = 'error';
