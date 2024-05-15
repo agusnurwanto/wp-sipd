@@ -1178,6 +1178,15 @@ echo $this->menu_ssh($input);
 									alert(response.message);
 								}
 								jQuery("#wrap-loading").hide();
+								jQuery("#file-import-usulan-excel").val("");
+								jQuery('#data-excel').val("");
+								jQuery('#list-skpd').val("");
+								jQuery('#url-lampiran-usulan-foto-1').val("");
+								jQuery('#url-lampiran-usulan-foto-2').val("");
+								jQuery('#url-lampiran-usulan-foto-3').val("");
+								jQuery('#file-lampiran-usulan-foto-1').val("");
+								jQuery('#file-lampiran-usulan-foto-2').val("");
+								jQuery('#file-lampiran-usulan-foto-3').val("");
 							}
 						});
 					})
