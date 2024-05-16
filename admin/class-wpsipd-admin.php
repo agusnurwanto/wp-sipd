@@ -3739,13 +3739,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 				$ret['status'] = $response->status;
 				if ($response->status == 'success') {
-					$ret['api_key'] = $response->lisensi;
-					$ret['status_key'] = $response->order->bn_status_wpsipd;
-					$ret['pesan_key'] = $response->order->bn_status_wpsipd_message;
-					if ($ret['status_key'] != 'active') {
-						$ret['sipd_url'] = site_url() . '/' . $ret['status_key'] . '/';
-						$ret['status'] = $ret['status_key'];
-						$ret['message'] = $ret['pesan_key'];
+					if(empty($response->order)){
+						$ret['status'] = 'success';
+						$ret['message'] = 'Lisensi gagal create order ke server';
+					}else{
+						$ret['api_key'] = $response->lisensi;
+						$ret['status_key'] = $response->order->bn_status_wpsipd;
+						$ret['pesan_key'] = $response->order->bn_status_wpsipd_message;
+						if ($ret['status_key'] != 'active') {
+							$ret['sipd_url'] = site_url() . '/' . $ret['status_key'] . '/';
+							$ret['status'] = $ret['status_key'];
+							$ret['message'] = $ret['pesan_key'];
+						}
 					}
 				} else if($_POST['api_key'] == 'xxxxxxxx-xxxx-xxxx-xxxx'){
 					$ret['status'] = 'success';
