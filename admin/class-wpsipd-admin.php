@@ -3747,6 +3747,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$ret['status'] = $ret['status_key'];
 						$ret['message'] = $ret['pesan_key'];
 					}
+				} else if($_POST['api_key'] == 'xxxxxxxx-xxxx-xxxx-xxxx'){
+					$ret['status'] = 'success';
+					$ret['message'] = 'Lisensi belum terkoneksi ke server';
 				} else {
 					$ret['sipd_url'] = site_url();
 					$ret['message'] = $response->message;
