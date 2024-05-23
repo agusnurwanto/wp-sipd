@@ -406,6 +406,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							<ol>
 								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Laporan Pohon Kinerja RPD</a></li>
 								<li><a target="_blank" href="https://sipemikir.magetan.go.id/pohon-kinerja-rpd-menpan-rb/">Pokin Cascading Cross Cutting Sakip Kabupaten</a></li>
+								<li><a target="_blank" href="'.$this->generatePage('Penyusunan Pohon Kinerja', false, '[penyusunan_pohon_kinerja]').'">Penyusunan Pohon Kinerja</a></li>
 							</ol>
 							'))
 				);
