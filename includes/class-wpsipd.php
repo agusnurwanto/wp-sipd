@@ -1186,6 +1186,7 @@ class Wpsipd
 		add_shortcode('pohon_kinerja_rpd',array($plugin_public,'pohon_kinerja_rpd'));
 		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
 		add_shortcode('penyusunan_pohon_kinerja',array($plugin_public,'penyusunan_pohon_kinerja'));
+		add_shortcode('view_pohon_kinerja',array($plugin_public,'view_pohon_kinerja'));
 	}
 
 	/**
