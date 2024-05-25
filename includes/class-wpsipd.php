@@ -1061,6 +1061,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_datatable_data_spm_sipd',  $plugin_public, 'get_datatable_data_spm_sipd');
 		$this->loader->add_action('wp_ajax_get_data_spm_sipd',  $plugin_public, 'get_data_spm_sipd');
 		$this->loader->add_action('wp_ajax_show_spm',  $plugin_public, 'show_spm');
+		$this->loader->add_action('wp_ajax_get_pokin_level1',  $plugin_public, 'get_pokin_level1');
+		$this->loader->add_action('wp_ajax_create_pokin_level1',  $plugin_public, 'create_pokin_level1');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

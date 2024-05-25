@@ -10413,4 +10413,69 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-view-pohon-kinerja.php';
     }
+
+    public function get_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_pohon_kinerja WHERE parent=%d AND level=%d AND active=%d ORDER BY id", 0, 1, 1), ARRAY_A);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'data' => $data
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function create_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$input = json_decode(stripslashes($_POST['data']), true);
+
+					$id = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE label=%s AND parent=%d AND level=%d AND active=%d ORDER BY id", trim($input['level_1']), 0, 1, 1),  ARRAY_A);
+
+					if(!empty($id)){
+						throw new Exception("Data sudah ada!", 1);
+					}
+
+					$data = $wpdb->insert('data_pohon_kinerja', [
+						'label' => trim($input['level_1']),
+						'parent' => 0,
+						'level' => 1,
+						'active' => 1
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses simpan data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
 }

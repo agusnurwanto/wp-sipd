@@ -5,7 +5,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 global $wpdb;
-
+$api_key = get_option('_crb_api_key_extension' );
 $data_all = [
 	'data' => []
 ];
@@ -144,29 +144,41 @@ if(!empty($pohon_kinerja_level_1)){
 // echo '<pre>'; print_r($data_all['data']); echo '</pre>';die();
 
 $html = '';
-foreach ($data_all['data'] as $level_1) {
+foreach (array_values($data_all['data']) as $key1 => $level_1) {
 		$html.='<tr><td><a href="'.$this->generatePage('View Pohon Kinerja', false, '[view_pohon_kinerja]').'&id='.$level_1['id'].'" target="_blank">'.$level_1['label'].'</a></td>';
 		$indikator=[];
 		foreach ($level_1['indikator'] as $indikatorlevel1) {
 			$indikator[]=$indikatorlevel1['label_indikator_kinerja'];
 		}
-		$html.='<td>'.implode("</br>", $indikator).'</td><td colspan="6"></td></tr>';
-		foreach ($level_1['data'] as $level_2) {
-				$html.='<tr><td colspan="2"></td><td>'.$level_2['label'].'</td>';
+		$html.='<td>'.implode("</br>", $indikator).'</td>';
+		foreach (array_values($level_1['data']) as $key2 => $level_2) {
+				if($key2==0){
+						$html.='<td>'.$level_2['label'].'</td>';
+				}else{
+						$html.='<tr><td colspan="2"></td><td>'.$level_2['label'].'</td>';
+				}
 				$indikator=[];
 				foreach ($level_2['indikator'] as $indikatorlevel2) {
 						$indikator[]=$indikatorlevel2['label_indikator_kinerja'];
 				}
-				$html.='<td>'.implode("</br>", $indikator).'</td><td colspan="4"></td></tr>';
-				foreach ($level_2['data'] as $level_3) {
-						$html.='<tr><td colspan="4"></td><td>'.$level_3['label'].'</td>';
-						$indikator=[];
-						foreach ($level_3['indikator'] as $indikatorlevel3) {
-							$indikator[]=$indikatorlevel3['label_indikator_kinerja'];
-						}
-						$html.='<td>'.implode("</br>", $indikator).'</td><td colspan="2"></td></tr>';
-						foreach ($level_3['data'] as $level_4) {
-								$html.='<tr><td colspan="6"></td><td>'.$level_4['label'].'</td>';
+				$html.='<td>'.implode("</br>", $indikator).'</td>';
+				foreach (array_values($level_2['data']) as $key3 => $level_3) {
+							if($key3==0){
+									$html.='<td>'.$level_3['label'].'</td>';
+							}else{
+									$html.='<tr><td colspan="4"></td><td>'.$level_3['label'].'</td>';
+							}
+							$indikator=[];
+							foreach ($level_3['indikator'] as $indikatorlevel3) {
+								$indikator[]=$indikatorlevel3['label_indikator_kinerja'];
+							}
+						$html.='<td>'.implode("</br>", $indikator).'</td>';
+						foreach (array_values($level_3['data']) as $key4 => $level_4) {
+								if($key4==0){
+										$html.='<td>'.$level_4['label'].'</td>';
+								}else{
+										$html.='<tr><td colspan="6"></td><td>'.$level_4['label'].'</td>';
+								}
 								$indikator=[];
 								foreach ($level_4['indikator'] as $indikatorlevel4) {
 									$indikator[]=$indikatorlevel4['label_indikator_kinerja'];
@@ -203,4 +215,173 @@ foreach ($data_all['data'] as $level_1) {
 		</table>
 </div>
 
-<script type="text/javascript"></script>
+<div class="modal fade" id="modal-pokin" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog" style="max-width: 1200px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title">Kelola Pohon Kinerja</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<nav>
+				  	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+					    <a class="nav-item nav-link" id="nav-level-1-tab" data-toggle="tab" href="#nav-level-1" role="tab" aria-controls="nav-level-1" aria-selected="false">Level 1</a>
+					    <a class="nav-item nav-link" id="nav-level-2-tab" data-toggle="tab" href="#nav-level-2" role="tab" aria-controls="nav-level-2" aria-selected="false">Level 2</a>
+					    <a class="nav-item nav-link" id="nav-level-3-tab" data-toggle="tab" href="#nav-level-3" role="tab" aria-controls="nav-level-3" aria-selected="false">Level 3</a>
+					    <a class="nav-item nav-link" id="nav-level-4-tab" data-toggle="tab" href="#nav-level-4" role="tab" aria-controls="nav-level-4" aria-selected="false">Level 4</a>
+				  	</div>
+				</nav>
+				<div class="tab-content" id="nav-tabContent">
+				  	<div class="tab-pane fade show active" id="nav-level-1" role="tabpanel" aria-labelledby="nav-level-1-tab"></div>
+				  	<div class="tab-pane fade" id="nav-level-2" role="tabpanel" aria-labelledby="nav-level-2-tab"></div>
+				  	<div class="tab-pane fade" id="nav-level-3" role="tabpanel" aria-labelledby="nav-level-3-tab"></div>
+				  	<div class="tab-pane fade" id="nav-level-4" role="tabpanel" aria-labelledby="nav-level-4-tab"></div>
+				</div>
+    </div>
+</div>
+
+<!-- Modal crud -->
+<div class="modal fade" id="modal-crud" data-backdrop="static"  role="dialog" aria-labelledby="modal-crud-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+	jQuery("#tambah-pohon-kinerja").on('click', function(){
+			pokinLevel1();
+	});
+
+	jQuery(document).on('click', '#btn-tambah-pokin-level1', function(){
+			jQuery("#modal-crud").find('.modal-title').html('Tambah Pokin Level 1');
+			jQuery("#modal-crud").find('.modal-body').html(''
+						+'<form id="form-pokin">'
+								+'<div class="form-group">'
+										+'<label for="level-1">Level 1</label>'
+										+'<textarea class="form-control" name="level_1"></textarea>'
+								+'</div>'
+						+'</form>');
+			jQuery("#modal-crud").find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-danger" data-dismiss="modal">'
+									+'Tutup'
+							+'</button>'
+							+'<button type="button" class="btn btn-success" id="simpan-data-pokin" '
+									+'data-action="create_pokin_level1" '
+									+'data-view="pokinLevel1"'
+							+'>'
+									+'Simpan'
+							+'</button>');
+			jQuery("#modal-crud").find('.modal-dialog').css('maxWidth','');
+			jQuery("#modal-crud").find('.modal-dialog').css('width','');
+			jQuery("#modal-crud").modal('show');
+	})
+
+	jQuery(document).on('click', '#simpan-data-pokin', function(){
+				jQuery('#wrap-loading').show();
+				let modal = jQuery("#modal-crud");
+				let action = jQuery(this).data('action');
+				let view = jQuery(this).data('view');
+				let form = getFormData(jQuery("#form-pokin"));
+				
+				jQuery.ajax({
+						method:'POST',
+						url:ajax.url,
+						dataType:'json',
+						data:{
+							'action': action,
+				      'api_key': '<?php echo $api_key; ?>',
+							'data': JSON.stringify(form),
+						},
+						success:function(response){
+							jQuery('#wrap-loading').hide();
+							alert(response.message);
+							if(response.status){
+								runFunction(view, [form])
+								modal.modal('hide');
+							}
+						}
+				})
+	});
+
+	function pokinLevel1(){
+			jQuery("#wrap-loading").show();
+			jQuery("#nav-level-1").html('');
+			jQuery("#nav-level-2").html('');
+			jQuery("#nav-level-3").html('');
+			jQuery("#nav-level-4").html('');
+
+			jQuery.ajax({
+						url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_pokin_level1",
+          		"api_key": "<?php echo $api_key; ?>"
+          	},
+          	dataType: "json",
+          	success: function(res){
+	          		jQuery('#wrap-loading').hide();
+	          		let level1 = ''
+		          		+'<div style="margin-top:10px">'
+		          				+'<button type="button" class="btn btn-success mb-2" id="btn-tambah-pokin-level1"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>Tambah Data</button>'
+		          		+'</div>'
+		          		+'<table class="table">'
+		          			+'<thead>'
+		          				+'<tr>'
+		          					+'<th class="text-center" style="width:20px">No</th>'
+		          					+'<th class="text-center" style="width:80%">Label Pohon Kinerja</th>'
+		          					+'<th class="text-center" style="width:40px">Aksi</th>'
+		          				+'<tr>'
+		          			+'</thead>'
+		          			+'<tbody>';
+				          		res.data.map(function(value, index){
+				          			level1 += ''
+					          			+'<tr kodetujuan="'+value.id_unik+'" kode_bidang_urusan="'+value.kode_bidang_urusan+'">'
+						          			+'<td class="text-center">'+(index+1)+'</td>'
+						          			+'<td>'+value.label+'</td>'
+						          			+'<td class="text-center">'
+					          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-primary btn-edit-pokin-level1" title="Edit"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+					          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-danger btn-hapus-pokin-level1" title="Hapus"><i class="dashicons dashicons-trash"></i></a>'
+						          			+'</td>'
+						          		+'</tr>';
+				          		})
+	          					level1+='<tbody>'
+	          			+'</table>';
+
+	          		jQuery("#nav-level-1").html(level1);
+								jQuery('.nav-tabs a[href="#nav-level-1"]').tab('show');
+								jQuery('#modal-pokin').modal('show');
+        	}
+			})
+	}
+
+	function runFunction(name, arguments){
+	    var fn = window[name];
+	    if(typeof fn !== 'function')
+	        return;
+
+	    fn.apply(window, arguments);
+	}
+
+	function getFormData($form) {
+	    let unindexed_array = $form.serializeArray();
+	    let indexed_array = {};
+
+	    jQuery.map(unindexed_array, function (n, i) {
+	    	indexed_array[n['name']] = n['value'];
+	    });
+
+	    return indexed_array;
+	}
+
+</script>
