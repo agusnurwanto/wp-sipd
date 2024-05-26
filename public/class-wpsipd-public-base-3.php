@@ -10577,4 +10577,182 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     		]);exit();
     	}
     }
+
+    public function delete_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$indikator = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE parent=%d AND label_indikator_kinerja IS NOT NULL AND level=%d AND active=%d", $_POST['id'], 1, 1),  ARRAY_A);
+
+					if(!empty($indikator)){
+						throw new Exception("Indikator harus dihapus dulu!", 1);
+					}
+
+					$child = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE parent=%d AND level=%d AND active=%d", $_POST['id'], 2, 1),  ARRAY_A);
+
+
+					if(!empty($child)){
+						throw new Exception("Child harus dihapus dulu!", 1);
+					}
+
+					$data = $wpdb->delete('data_pohon_kinerja', [
+						'id' => $_POST['id']
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses hapus data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function create_indikator_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$input = json_decode(stripslashes($_POST['data']), true);
+
+					$id = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE label_indikator_kinerja=%s AND parent=%d AND level=%d AND active=%d", trim($input['ind_level_1']), $input['parent'], 1, 1),  ARRAY_A);
+
+					if(!empty($id)){
+						throw new Exception("Data sudah ada!", 1);
+					}
+
+					$data = $wpdb->insert('data_pohon_kinerja', [
+						'label' => trim($input['label']),
+						'label_indikator_kinerja' => trim($input['ind_level_1']),
+						'parent' => $input['parent'],
+						'level' => 1,
+						'active' => 1
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses simpan data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}	
+    }
+
+    public function edit_indikator_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->get_row($wpdb->prepare("SELECT id, label, parent, label_indikator_kinerja FROM data_pohon_kinerja WHERE id=%d AND active=%d", $_POST['id'], 1),  ARRAY_A);
+
+					if(empty($data)){
+						throw new Exception("Data tidak ditemukan!", 1);
+					}
+
+					echo json_encode([
+		    			'status' => true,
+		    			'data' => $data
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function update_indikator_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$input = json_decode(stripslashes($_POST['data']), true);
+
+					$id = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE id!=%d AND parent=%d AND level=%d AND active=%d", $input['id'], $input['parent'], 1, 1),  ARRAY_A);
+
+					if(!empty($id)){
+						throw new Exception("Data sudah ada!", 1);
+					}
+
+					$data = $wpdb->update('data_pohon_kinerja', [
+						'label_indikator_kinerja' => trim($input['ind_level_1']),
+					], [
+						'id' => $input['id'],
+						'parent' => $input['parent'],
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses ubah data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function delete_indikator_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->delete('data_pohon_kinerja', [
+						'id' => $_POST['id']
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses hapus data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
 }

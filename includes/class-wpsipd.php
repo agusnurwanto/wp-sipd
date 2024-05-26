@@ -1065,6 +1065,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_create_pokin_level1',  $plugin_public, 'create_pokin_level1');
 		$this->loader->add_action('wp_ajax_edit_pokin_level1',  $plugin_public, 'edit_pokin_level1');
 		$this->loader->add_action('wp_ajax_update_pokin_level1',  $plugin_public, 'update_pokin_level1');
+		$this->loader->add_action('wp_ajax_delete_pokin_level1',  $plugin_public, 'delete_pokin_level1');
+		$this->loader->add_action('wp_ajax_create_indikator_pokin_level1',  $plugin_public, 'create_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_edit_indikator_pokin_level1',  $plugin_public, 'edit_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_update_indikator_pokin_level1',  $plugin_public, 'update_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_delete_indikator_pokin_level1',  $plugin_public, 'delete_indikator_pokin_level1');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
