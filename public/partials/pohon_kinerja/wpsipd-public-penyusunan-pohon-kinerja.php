@@ -263,7 +263,7 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 			pokinLevel1();
 	});
 
-	jQuery(document).on('click', '#btn-tambah-pokin-level1', function(){
+	jQuery(document).on('click', '#tambah-pokin-level1', function(){
 			jQuery("#modal-crud").find('.modal-title').html('Tambah Pokin Level 1');
 			jQuery("#modal-crud").find('.modal-body').html(''
 						+'<form id="form-pokin">'
@@ -285,6 +285,45 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 			jQuery("#modal-crud").find('.modal-dialog').css('maxWidth','');
 			jQuery("#modal-crud").find('.modal-dialog').css('width','');
 			jQuery("#modal-crud").modal('show');
+	})
+
+	jQuery(document).on('click', '#edit-pokin-level1', function(){
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+					method:'POST',
+					url:ajax.url,
+					data:{
+          		"action": "edit_pokin_level1",
+          		"api_key": "<?php echo $api_key; ?>",
+          		'id':jQuery(this).data('id')
+					},
+					dataType:'json',
+					success:function(response){
+							jQuery("#wrap-loading").hide();
+							jQuery("#modal-crud").find('.modal-title').html('Edit Pokin Level 1');
+							jQuery("#modal-crud").find('.modal-body').html(``
+										+`<form id="form-pokin">`
+												+`<input type="hidden" name="id" value="${response.data.id}">`
+												+`<div class="form-group">`
+														+`<label for="level-1">Level 1</label>`
+														+`<textarea class="form-control" name="level_1">${response.data.label}</textarea>`
+												+`</div>`
+										+`</form>`);
+							jQuery("#modal-crud").find(`.modal-footer`).html(``
+											+`<button type="button" class="btn btn-danger" data-dismiss="modal">`
+													+`Tutup`
+											+`</button>`
+											+`<button type="button" class="btn btn-success" id="simpan-data-pokin" `
+													+`data-action="update_pokin_level1" `
+													+`data-view="pokinLevel1"`
+											+`>`
+													+`Update`
+											+`</button>`);
+							jQuery("#modal-crud").find('.modal-dialog').css('maxWidth','');
+							jQuery("#modal-crud").find('.modal-dialog').css('width','');
+							jQuery("#modal-crud").modal('show');
+					}
+			});
 	})
 
 	jQuery(document).on('click', '#simpan-data-pokin', function(){
@@ -316,11 +355,6 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 
 	function pokinLevel1(){
 			jQuery("#wrap-loading").show();
-			jQuery("#nav-level-1").html('');
-			jQuery("#nav-level-2").html('');
-			jQuery("#nav-level-3").html('');
-			jQuery("#nav-level-4").html('');
-
 			jQuery.ajax({
 						url: ajax.url,
           	type: "post",
@@ -331,32 +365,58 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
           	dataType: "json",
           	success: function(res){
 	          		jQuery('#wrap-loading').hide();
-	          		let level1 = ''
-		          		+'<div style="margin-top:10px">'
-		          				+'<button type="button" class="btn btn-success mb-2" id="btn-tambah-pokin-level1"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>Tambah Data</button>'
-		          		+'</div>'
-		          		+'<table class="table">'
-		          			+'<thead>'
-		          				+'<tr>'
-		          					+'<th class="text-center" style="width:20px">No</th>'
-		          					+'<th class="text-center" style="width:80%">Label Pohon Kinerja</th>'
-		          					+'<th class="text-center" style="width:40px">Aksi</th>'
-		          				+'<tr>'
-		          			+'</thead>'
-		          			+'<tbody>';
+	          		let level1 = ``
+		          		+`<div style="margin-top:10px">`
+		          				+`<button type="button" class="btn btn-success mb-2" id="tambah-pokin-level1"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>Tambah Data</button>`
+		          		+`</div>`
+		          		+`<table class="table">`
+		          			+`<thead>`
+		          				+`<tr>`
+		          					+`<th class="text-center" style="width:20px">No</th>`
+		          					+`<th class="text-center" style="width:80%">Label Pohon Kinerja</th>`
+		          					+`<th class="text-center" style="width:40px">Aksi</th>`
+		          				+`<tr>`
+		          			+`</thead>`
+		          			+`<tbody>`;
 				          		res.data.map(function(value, index){
-				          			level1 += ''
-					          			+'<tr kodetujuan="'+value.id_unik+'" kode_bidang_urusan="'+value.kode_bidang_urusan+'">'
-						          			+'<td class="text-center">'+(index+1)+'</td>'
-						          			+'<td>'+value.label+'</td>'
-						          			+'<td class="text-center">'
-					          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-primary btn-edit-pokin-level1" title="Edit"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-					          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-danger btn-hapus-pokin-level1" title="Hapus"><i class="dashicons dashicons-trash"></i></a>'
-						          			+'</td>'
-						          		+'</tr>';
+				          			level1 += ``
+					          			+`<tr>`
+						          			+`<td class="text-center">${index+1}</td>`
+						          			+`<td>${value.label}</td>`
+						          			+`<td class="text-center">`
+					          					+`<a href="javascript:void(0)" data-id="${value.id}" class="btn btn-primary" id="edit-pokin-level1" title="Edit"><i class="dashicons dashicons-edit"></i></a>&nbsp;`
+					          					+`<a href="javascript:void(0)" data-id="${value.id}" class="btn btn-danger" id="hapus-pokin-level1" title="Hapus"><i class="dashicons dashicons-trash"></i></a>`
+						          			+`</td>`
+						          		+`</tr>`;
+
+						          	let indikator = Object.values(value.indikator);
+						          	if(indikator.length > 0){
+						          		level1+=`<tr style="background:beige">`
+							          			+`<td></td>`
+							          			+`<td colspan="3">`
+								          			+`<table style="margin-bottom:-10px">`
+										          			+`<tr style="font-weight:600">`
+										          					+`<td class="text-center">No</td>`
+										          					+`<td class="text-center">Indikator</td>`
+										          			+`</tr>`;
+														        indikator.map(function(indikator_value, indikator_index){
+														         		level1 += ``
+														         			+`<tr>`
+															          			+`<td class="text-center">${index+1}.${indikator_index+1}</td>`
+															          			+`<td>${indikator_value.label}</td>`
+															          			+`<td class="text-right">`
+														          					+`<a href="javascript:void(0)" data-id="${indikator_value.id}" class="btn btn-primary" id="edit-indikator-pokin-level1" title="Edit"><i class="dashicons dashicons-edit"></i></a>&nbsp;`
+														          					+`<a href="javascript:void(0)" data-id="${indikator_value.id}" class="btn btn-danger" id="hapus-indikator-pokin-level1" title="Hapus"><i class="dashicons dashicons-trash"></i></a>`
+															          			+`</td>`
+															          	+`</tr>`;
+														          	});
+							          	level1+=`</table>`
+							          			+`</td>`
+							          		+`</tr>`;
+						          	}
 				          		})
-	          					level1+='<tbody>'
-	          			+'</table>';
+	          					level1+=`<tbody>`
+	          			+`</table>`;
 
 	          		jQuery("#nav-level-1").html(level1);
 								jQuery('.nav-tabs a[href="#nav-level-1"]').tab('show');

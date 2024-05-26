@@ -10420,11 +10420,42 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     		if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_pohon_kinerja WHERE parent=%d AND level=%d AND active=%d ORDER BY id", 0, 1, 1), ARRAY_A);
+					$dataPokin = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							a.id,
+							a.label,
+							b.parent,
+							b.active,
+							b.id AS id_indikator,
+							b.label_indikator_kinerja
+						FROM data_pohon_kinerja a
+							LEFT JOIN data_pohon_kinerja b ON a.id=b.parent AND a.level=b.level 
+						WHERE a.parent=%d AND a.level=%d AND a.active=%d ORDER BY a.id", 0, 1, 1), ARRAY_A);
+
+					$data = [];
+					foreach ($dataPokin as $key => $pokin) {
+						if(empty($data[$pokin['id']])){
+							$data[$pokin['id']] = [
+								'id' => $pokin['id'],
+								'label' => $pokin['label'],
+								'parent' => $pokin['parent'],
+								'indikator' => []
+							];
+						}
+
+						if(!empty($pokin['id_indikator'])){
+							if(empty($data[$pokin['id']]['indikator'][$pokin['id_indikator']])){
+								$data[$pokin['id']]['indikator'][$pokin['id_indikator']] = [
+									'id' => $pokin['id_indikator'],
+									'label' => $pokin['label_indikator_kinerja']
+								];
+							}
+						}
+					}
 
 					echo json_encode([
 		    			'status' => true,
-		    			'data' => $data
+		    			'data' => array_values($data)
 		    		]);exit();
 				}else{
 					throw new Exception("API tidak ditemukan!", 1);
@@ -10464,6 +10495,74 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					echo json_encode([
 		    			'status' => true,
 		    			'message' => 'Sukses simpan data!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function edit_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->get_row($wpdb->prepare("SELECT id, label FROM data_pohon_kinerja WHERE id=%d AND active=%d", $_POST['id'], 1),  ARRAY_A);
+
+					if(empty($data)){
+						throw new Exception("Data tidak ditemukan!", 1);
+					}
+
+					echo json_encode([
+		    			'status' => true,
+		    			'data' => $data
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}	
+    }
+
+    public function update_pokin_level1(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$input = json_decode(stripslashes($_POST['data']), true);
+
+					$id = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_pohon_kinerja WHERE label=%s AND id!=%d AND parent=%d AND level=%d AND active=%d", trim($input['level_1']), $input['id'], 0, 1, 1),  ARRAY_A);
+
+					if(!empty($id)){
+						throw new Exception("Data sudah ada!", 1);
+					}
+
+					$data = $wpdb->update('data_pohon_kinerja', [
+						'label' => trim($input['level_1'])
+					], [
+						'id' => $input['id']
+					]);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses ubah data!'
 		    		]);exit();
 				}else{
 					throw new Exception("API tidak ditemukan!", 1);
