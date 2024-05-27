@@ -1061,6 +1061,15 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_datatable_data_spm_sipd',  $plugin_public, 'get_datatable_data_spm_sipd');
 		$this->loader->add_action('wp_ajax_get_data_spm_sipd',  $plugin_public, 'get_data_spm_sipd');
 		$this->loader->add_action('wp_ajax_show_spm',  $plugin_public, 'show_spm');
+		$this->loader->add_action('wp_ajax_get_pokin_level1',  $plugin_public, 'get_pokin_level1');
+		$this->loader->add_action('wp_ajax_create_pokin_level1',  $plugin_public, 'create_pokin_level1');
+		$this->loader->add_action('wp_ajax_edit_pokin_level1',  $plugin_public, 'edit_pokin_level1');
+		$this->loader->add_action('wp_ajax_update_pokin_level1',  $plugin_public, 'update_pokin_level1');
+		$this->loader->add_action('wp_ajax_delete_pokin_level1',  $plugin_public, 'delete_pokin_level1');
+		$this->loader->add_action('wp_ajax_create_indikator_pokin_level1',  $plugin_public, 'create_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_edit_indikator_pokin_level1',  $plugin_public, 'edit_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_update_indikator_pokin_level1',  $plugin_public, 'update_indikator_pokin_level1');
+		$this->loader->add_action('wp_ajax_delete_indikator_pokin_level1',  $plugin_public, 'delete_indikator_pokin_level1');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -1185,6 +1194,8 @@ class Wpsipd
 		//end shortcode SIPKD
 		add_shortcode('pohon_kinerja_rpd',array($plugin_public,'pohon_kinerja_rpd'));
 		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
+		add_shortcode('penyusunan_pohon_kinerja',array($plugin_public,'penyusunan_pohon_kinerja'));
+		add_shortcode('view_pohon_kinerja',array($plugin_public,'view_pohon_kinerja'));
 	}
 
 	/**

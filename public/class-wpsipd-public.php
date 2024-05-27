@@ -3152,6 +3152,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'status'	=> 'success',
 			'message'	=> 'Berhasil singkron RPD!'
 		);
+		// foreach (json_decode($_POST['tujuanfy']) as $key => $value) {
+		// 	// $ret['message']=$value;
+		// 	die(json_encode([
+		// 		'status'	=> 'success',
+		// 		'message' => 'aa'
+		// 	]));
+		// }
+		// die(json_encode([
+		// 	'status'	=> 'success',
+		// 	'message' => 'bb'
+		// ]));
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 

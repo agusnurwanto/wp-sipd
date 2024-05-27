@@ -6640,3 +6640,16 @@ CREATE TABLE `data_buku_kas_umum_pembantu` (
     `update_at` datetime DEFAULT current_timestamp(),
     PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_pohon_kinerja` (
+  `id` int(11) NOT NULL auto_increment,
+  `label` varchar(255) NOT NULL,
+  `parent` int(11) DEFAULT 0,
+  `label_indikator_kinerja` varchar(255) DEFAULT null,
+  `level` int(11) NOT null,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY key (id)
+);
