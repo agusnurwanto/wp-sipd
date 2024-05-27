@@ -270,7 +270,7 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 			jQuery("#modal-crud").find('.modal-body').html(''
 						+'<form id="form-pokin">'
 								+'<div class="form-group">'
-										+'<textarea class="form-control" name="level_1" placeholder="Tuliskan pohon kinerja level 1"></textarea>'
+										+'<textarea class="form-control" name="level_1" placeholder="Tuliskan pohon kinerja level 1..."></textarea>'
 								+'</div>'
 						+'</form>');
 			jQuery("#modal-crud").find('.modal-footer').html(''
@@ -301,7 +301,7 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 					dataType:'json',
 					success:function(response){
 							jQuery("#wrap-loading").hide();
-							jQuery("#modal-crud").find('.modal-title').html('Edit pohon kinerja');
+							jQuery("#modal-crud").find('.modal-title').html('Edit Pohon Kinerja');
 							jQuery("#modal-crud").find('.modal-body').html(``
 										+`<form id="form-pokin">`
 												+`<input type="hidden" name="id" value="${response.data.id}">`
@@ -390,7 +390,7 @@ foreach (array_values($data_all['data']) as $key1 => $level_1) {
 					dataType:'json',
 					success:function(response){
 							jQuery("#wrap-loading").hide();
-							jQuery("#modal-crud").find('.modal-title').html('Edit indikator pohon kinerja');
+							jQuery("#modal-crud").find('.modal-title').html('Edit Indikator');
 							jQuery("#modal-crud").find('.modal-body').html(``
 										+`<form id="form-pokin">`
 												+`<input type="hidden" name="id" value="${response.data.id}">`
