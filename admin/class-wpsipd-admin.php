@@ -899,11 +899,19 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$status_lisensi_ket = ' Status: <b style="' . $warna . '">' . $status_lisensi_ket . '</b>';
 		} else {
 			$server = get_option('_crb_server_wp_sipd');
-			if (!empty($server)) {
+			$no_wa = get_option('_crb_no_wa');
+			$pemda = get_option('_crb_daerah');
+			$api_key_server = get_option('_crb_server_wp_sipd_api_key');
+			if (
+				!empty($server) 
+				&& !empty($no_wa)
+				&& !empty($pemda)
+				&& !empty($api_key_server)
+			) {
+				$_POST['no_wa'] = $no_wa;
 				$_POST['server'] = $server;
-				$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
-				$_POST['no_wa'] = get_option('_crb_no_wa');
-				$_POST['pemda'] = get_option('_crb_daerah');
+				$_POST['api_key_server'] = $api_key_server;
+				$_POST['pemda'] = $pemda;
 				$response = json_decode($this->generate_lisensi(true));
 				if ($response->status == 'success') {
 					$status_lisensi = get_option('_crb_status_lisensi');
