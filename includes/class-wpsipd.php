@@ -1191,11 +1191,9 @@ class Wpsipd
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
 		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
-		//end shortcode SIPKD
+		// pohon kinerja data SIPD
 		add_shortcode('pohon_kinerja_rpd',array($plugin_public,'pohon_kinerja_rpd'));
 		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
-		add_shortcode('penyusunan_pohon_kinerja',array($plugin_public,'penyusunan_pohon_kinerja'));
-		add_shortcode('view_pohon_kinerja',array($plugin_public,'view_pohon_kinerja'));
 	}
 
 	/**
