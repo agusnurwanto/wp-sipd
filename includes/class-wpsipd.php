@@ -395,6 +395,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_bl_rak_nonactive',  $plugin_public, 'update_bl_rak_nonactive');
 		$this->loader->add_action('wp_ajax_nopriv_update_bl_rak_nonactive',  $plugin_public, 'update_bl_rak_nonactive');
 
+		$this->loader->add_action('wp_ajax_update_bl_realisasi_nonactive',  $plugin_public, 'update_bl_realisasi_nonactive');
+		$this->loader->add_action('wp_ajax_nopriv_update_bl_realisasi_nonactive',  $plugin_public, 'update_bl_realisasi_nonactive');
+
 		$this->loader->add_action('wp_ajax_get_up',  $plugin_public, 'get_up');
 		$this->loader->add_action('wp_ajax_nopriv_get_up',  $plugin_public, 'get_up');
 

@@ -7774,7 +7774,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (
 					!empty($_POST['type'])
 					|| (
-						!empty($_POST['kode_sbl']) && $_POST['type'] == 'realisasi'
+						!empty($_POST['kode_sbl']) && $_POST['type'] == 'belanja'
 					)
 				) {
 					if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
