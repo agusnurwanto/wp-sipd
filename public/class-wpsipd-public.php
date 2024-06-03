@@ -7761,6 +7761,125 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function singkron_realisasi_dashboard()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil backup data realisasi APBD',
+			'action'	=> $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (
+					!empty($_POST['type'])
+					|| (
+						!empty($_POST['kode_sbl']) && $_POST['type'] == 'belanja'
+					)
+				) {
+					if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+						$_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}
+					$wpdb->update('data_realisasi_akun_sipd', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],						
+						'id_unit' => $_POST['id_skpd'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
+					if (!empty($_POST['data'])) {
+						$data = $_POST['data'];
+						foreach ($data as $k => $v) {
+							if (empty($v['id_akun'])) {
+								continue;
+							}
+							$cek = $wpdb->get_var($wpdb->prepare("
+								SELECT 
+									id 
+								from data_realisasi_akun_sipd 
+								where tahun_anggaran=%d 									
+									AND kode_sbl=%s
+									AND id_unit=%d 									
+									AND id_akun=%d
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $v['id_akun']));
+							$opsi = array(
+								'id_unit' => $_POST['id_skpd'],
+								'id_skpd' => $v['id_skpd'],
+								'id_sub_skpd' => $v['id_sub_skpd'],
+								'id_program' => $v['id_program'],
+								'id_giat' => $v['id_giat'],
+								'id_sub_giat' => $v['id_sub_giat'],
+								'id_daerah' => $v['id_daerah'],
+								'id_akun' => $v['id_akun'],
+								'kode_akun' => $v['kode_akun'],
+								'nama_akun' => $v['nama_akun'],
+								'nilai' => $v['nilai'],
+								'realisasi' => $v['realisasi'],
+								'tahun' => $v['tahun'],
+								'active' => 1,		
+								'kode_sbl' => $_POST['kode_sbl'],						
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'updated_at' => current_time('mysql')
+							);
+
+							if (!empty($cek)) {
+								$wpdb->update('data_realisasi_akun_sipd', $opsi, array('id' => $cek));
+							} else {
+								$wpdb->insert('data_realisasi_akun_sipd', $opsi);
+							}
+						}
+					}
+					if (
+						get_option('_crb_singkron_simda') == 1
+						&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					) {
+						$debug = false;
+						if (get_option('_crb_singkron_simda_debug') == 1) {
+							$debug = true;
+						}
+						$this->simda->singkronSimdaKas(array(
+							'return' => $debug
+						));
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function update_bl_realisasi_nonactive()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil update non active sub kegiatan Realisasi',
+			'action'	=> $_POST['action'],
+			'id_unit'	=> $_POST['id_skpd']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$wpdb->update('data_realisasi_akun_sipd', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],					
+					'id_unit' => $_POST['id_skpd']
+				));
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	function update_bl_rak_nonactive()
 	{
 		global $wpdb;
