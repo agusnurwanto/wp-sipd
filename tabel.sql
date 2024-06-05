@@ -4880,8 +4880,9 @@ CREATE TABLE `data_realisasi_akun_sipd` (
   `action` int(11) DEFAULT NULL,
   `realisasi` double(20,0) DEFAULT NULL,
   `kode_sbl` varchar(50) NOT NULL,
+  `tahun` year(4) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  `update_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
