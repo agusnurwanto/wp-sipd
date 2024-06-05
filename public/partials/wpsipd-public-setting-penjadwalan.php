@@ -149,6 +149,10 @@ $title = 'Rekap Longlist Per Jenis Belanja | ' . $input['tahun_anggaran'];
 $shortcode = '[rekap_longlist_per_jenis_belanja tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $rekap_longlist_per_jenis_belanja = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = $input['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1';
+$shortcode = '[apbdpenjabaran tahun_anggaran="' . $input['tahun_anggaran'] . '" lampiran="1"]';
+$apbd_penjabaran_lampiran_1 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'APBD Perda Lampiran 4 | ' . $input['tahun_anggaran'];
 $shortcode = '[apbd_perda_lampiran_4 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $apbd_perda_lampiran_4 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -334,10 +338,14 @@ $body = '';
 			},
 			"initComplete": function(settings, json) {
 				jQuery("#wrap-loading").hide();
-				if (json.checkOpenedSchedule != 'undefined' && json.checkOpenedSchedule > 0) {
-					jQuery(".tambah_jadwal").prop('hidden', true);
-				} else {
-					jQuery(".tambah_jadwal").prop('hidden', false);
+				if(json.status=='error'){
+					alert(json.message);
+				}else{
+					if (json.checkOpenedSchedule != 'undefined' && json.checkOpenedSchedule > 0) {
+						jQuery(".tambah_jadwal").prop('hidden', true);
+					} else {
+						jQuery(".tambah_jadwal").prop('hidden', false);
+					}
 				}
 			},
 			"columns": [{
@@ -454,6 +462,8 @@ $body = '';
 						jQuery("#link_renstra").val('');
 						penjadwalanTable.ajax.reload();
 						jQuery(".tambah_jadwal").prop('hidden', true);
+					}else{
+						jQuery('.submitBtn').attr('disabled', false);
 					}
 				}
 
@@ -752,6 +762,7 @@ $body = '';
 									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
 									<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
+									<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran 1</option>
 									<option value="apbd_perda_lampiran_4">APBD Perda Lampiran 4</option>
 									<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
 				      			</select>
@@ -863,6 +874,9 @@ $body = '';
 				break;
 			case 'rekap_longlist_per_jenis_belanja':
 				window.open('<?php echo $rekap_longlist_per_jenis_belanja; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_penjabaran_lampiran_1':
+				window.open('<?php echo $apbd_penjabaran_lampiran_1; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_4':
 				window.open('<?php echo $apbd_perda_lampiran_4; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');

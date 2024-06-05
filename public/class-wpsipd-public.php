@@ -16362,7 +16362,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								if ($valTipe['status'] != 1) {
 									$return = array(
 										'status' => 'error',
-										'message'	=> 'Masih ada penjadwalan yang terbuka!'
+										'message'	=> 'Masih ada penjadwalan yang terbuka!',
+										'sql' => $wpdb->last_query
 									);
 									die(json_encode($return));
 								}
