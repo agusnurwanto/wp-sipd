@@ -5493,7 +5493,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-daftar-penguji.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-daftar-penguji.php';
 	}
 
 	public function halaman_spd($atts)
@@ -5503,7 +5503,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-spd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-spd.php';
 	}
 
 	public function halaman_spp($atts)
@@ -5513,7 +5513,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-spp.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-spp.php';
 	}
 
 	public function halaman_sp2d($atts)
@@ -5523,7 +5523,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-sp2d.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-sp2d.php';
+	}
+
+	public function halaman_realisasi($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-realisasi.php';
 	}
 
 	public function halaman_spm($atts)
@@ -5533,7 +5543,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-spm.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-spm.php';
 	}
 	public function sk_up($atts)
 	{
@@ -5542,7 +5552,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-halaman-sk-up.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-sk-up.php';
 	}
 
 	public function apbdpenjabaran($atts)

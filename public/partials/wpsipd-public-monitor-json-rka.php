@@ -308,34 +308,34 @@ echo '
 
 $sql_anggaran = $wpdb->prepare("
     SELECT 
-        k.nama_skpd as OPD,
-        k.nama_program as PROGRAM,
-        k.nama_giat as KEGIATAN,
-        k.nama_sub_giat as \"SUB KEGIATAN\",
-        r.nama_akun as BELANJA,
-        r.subs_bl_teks as \"[#]\",
-        r.ket_bl_teks as \"[-]\",
-        concat(r.nama_komponen, ' ', r.spek_komponen) as \"SPESIFIKASI BELANJA\",
-        ms.nama_dana as \"SUMBER DANA\",
-        r.rincian_murni as \"ANGGARAN SEBELUM PERUBAHAN\",
-        r.rincian as \"ANGGARAN SETELAH PERUBAHAN\",
-        '' as \"REALISASI (Rp)\",
-        '' as \"Uraian SPM\",
-        '' as \"SISA\",
-        '' as \"KETERANGAN\"
-    FROM data_sub_keg_bl as k 
-    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
-        and r.active=k.active 
-        and r.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
-        and s.active=k.active 
-        and s.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
-        and ms.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_realisasi_akun as a on k.kode_sbl=a.kode_sbl 
-        and a.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_sub_keg_bl as u on k.kode_sbl=u.kode_sbl 
-        and u.tahun_anggaran=k.tahun_anggaran
+        k.nama_skpd AS OPD,
+        k.nama_program AS PROGRAM,
+        k.nama_giat AS KEGIATAN,
+        k.nama_sub_giat AS \"SUB KEGIATAN\",
+        r.nama_akun AS BELANJA,
+        r.subs_bl_teks AS \"[#]\",
+        r.ket_bl_teks AS \"[-]\",
+        concat(r.nama_komponen, ' ', r.spek_komponen) AS \"SPESIFIKASI BELANJA\",
+        ms.nama_dana AS \"SUMBER DANA\",
+        r.rincian_murni AS \"ANGGARAN SEBELUM PERUBAHAN\",
+        r.rincian AS \"ANGGARAN SETELAH PERUBAHAN\",
+        '' AS \"REALISASI (Rp)\",
+        '' AS \"Uraian SPM\",
+        '' AS \"SISA\",
+        '' AS \"KETERANGAN\"
+    FROM data_sub_keg_bl AS k 
+    INNER JOIN data_rka AS r on k.kode_sbl=r.kode_sbl 
+        AND r.active=k.active 
+        AND r.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_mapping_sumberdana AS s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
+        AND s.active=k.active 
+        AND s.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_sumber_dana AS ms on ms.id_dana=s.id_sumber_dana 
+        AND ms.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_realisasi_akun AS a on k.kode_sbl=a.kode_sbl 
+        AND a.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_sub_keg_bl AS u on k.kode_sbl=u.kode_sbl 
+        AND u.tahun_anggaran=k.tahun_anggaran
     WHERE
         k.tahun_anggaran=%d
         AND k.active=1

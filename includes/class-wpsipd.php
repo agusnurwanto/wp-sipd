@@ -1091,6 +1091,7 @@ class Wpsipd
 		add_shortcode('halaman_spp', array($plugin_public, 'halaman_spp'));
 		add_shortcode('spp', array($plugin_public, 'spp'));
 		add_shortcode('halaman_sp2d', array($plugin_public, 'halaman_sp2d'));
+		add_shortcode('halaman_realisasi', array($plugin_public, 'halaman_realisasi'));
 		add_shortcode('sp2d', array($plugin_public, 'spp'));
 		add_shortcode('halaman_spm', array($plugin_public, 'halaman_spm'));
 		add_shortcode('spm', array($plugin_public, 'spm'));
