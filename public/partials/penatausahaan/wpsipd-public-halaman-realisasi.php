@@ -18,10 +18,10 @@ if(!empty($input['id_skpd'])){
             nipkepala 
         from data_unit 
         where active=1 
-            and tahun_anggaran=%d 
-            and is_skpd=1 
+            and id_skpd=%d 
+            and tahun_anggaran=%d
         order by kode_skpd ASC
-    ", $input['tahun_anggaran']), ARRAY_A);
+    ", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     if(!empty($unit)){
         $nama_skpd = '<br>'.$unit['kode_skpd'].' '.$unit['nama_skpd'];
     }
