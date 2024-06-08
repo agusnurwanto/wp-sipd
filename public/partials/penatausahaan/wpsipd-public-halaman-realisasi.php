@@ -7,8 +7,24 @@ $input = shortcode_atts(array(
 ), $atts);
 
 $where_skpd = '';
+$nama_skpd = '';
 if(!empty($input['id_skpd'])){
     $where_skpd = $wpdb->prepare(' AND r.id_sub_skpd=%d', $input['id_skpd']);
+    $unit = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            nama_skpd, 
+            id_skpd, 
+            kode_skpd, 
+            nipkepala 
+        from data_unit 
+        where active=1 
+            and tahun_anggaran=%d 
+            and is_skpd=1 
+        order by kode_skpd ASC
+    ", $input['tahun_anggaran']), ARRAY_A);
+    if(!empty($unit)){
+        $nama_skpd = '<br>'.$unit['kode_skpd'].' '.$unit['nama_skpd'];
+    }
 }
 
 $get_realisasi = $wpdb->get_results($wpdb->prepare('
@@ -75,7 +91,7 @@ if($total_pagu > 0 && $total_realisasi > 0){
 </style>
 
 <div class="cetak container-fluid">
-    <h1 class="text-center">Halaman Surat Keterangan Uang Persediaan<br>Tahun <?php  echo $input['tahun_anggaran'] ?></h1>
+    <h1 class="text-center">Halaman Realisasi Per Akun Per Perangkat Daerah<?php echo $nama_skpd; ?><br>Tahun <?php  echo $input['tahun_anggaran'] ?></h1>
     <table class="table table-bordered" id="cetak">
         <thead>
             <tr>
