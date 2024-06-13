@@ -7784,7 +7784,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (
 					!empty($_POST['type'])
 					|| (
-						!empty($_POST['kode_sbl']) && $_POST['type'] == 'belanja'
+						//!empty($_POST['kode_sbl']) && $_POST['type'] == 'belanja'
+						!empty($_POST['kode_sbl'])
 					)
 				) {
 					if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
@@ -7793,7 +7794,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$wpdb->update('data_realisasi_akun_sipd', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],						
 						'id_unit' => $_POST['id_skpd'],
-						'kode_sbl' => $_POST['kode_sbl']
+						'kode_sbl' => $_POST['kode_sbl'],
+						'type' => $_POST['type']
 					));
 					if (!empty($_POST['data'])) {
 						$data = $_POST['data'];
@@ -7809,7 +7811,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									AND kode_sbl=%s
 									AND id_unit=%d 									
 									AND id_akun=%d
-							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $v['id_akun']));
+									AND type=%d
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $v['id_akun'], $_POST['type']));
 							$opsi = array(
 								'id_unit' => $_POST['id_skpd'],
 								'id_skpd' => $v['id_skpd'],
@@ -7826,6 +7829,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'tahun' => $v['tahun'],
 								'active' => 1,		
 								'kode_sbl' => $_POST['kode_sbl'],						
+								'type' => $_POST['type'],						
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
 								'updated_at' => current_time('mysql')
 							);

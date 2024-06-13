@@ -4882,6 +4882,7 @@ CREATE TABLE `data_realisasi_akun_sipd` (
   `kode_sbl` varchar(50) NOT NULL,
   `tahun` year(4) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
+  `type` varchar(50) NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
