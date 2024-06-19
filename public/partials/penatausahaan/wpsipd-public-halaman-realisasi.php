@@ -77,7 +77,7 @@ foreach($get_realisasi as $akun){
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
                 <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
-                <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
+                <td class="text-right">'.number_format($akun['nilai'],2,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],2,",",".").'</td>
                 <td class="text-center">'.$persen.'%</td>
             </tr>
@@ -93,7 +93,7 @@ foreach($get_realisasi as $akun){
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
                 <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
-                <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
+                <td class="text-right">'.number_format($akun['nilai'],2,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],2,",",".").'</td>
                 <td class="text-center">'.$persen.'%</td>
             </tr>
@@ -112,7 +112,7 @@ foreach($get_realisasi as $akun){
                 <td class="text-left">'.$akun['nama_sub_giat'].'</td>
                 <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
-                <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
+                <td class="text-right">'.number_format($akun['nilai'],2,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],2,",",".").'</td>
                 <td class="text-center">'.$persen.'%</td>
             </tr>
@@ -162,8 +162,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         <tfoot>
             <tr>
                 <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pendapatan,0,",","."); ?></td>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pendapatan,0,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pendapatan,2,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pendapatan,2,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pendapatan; ?>%</td>
             </tr>
         </tfoot>
@@ -190,8 +190,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         <tfoot>
             <tr>
                 <th class="atas bawah kanan kiri text_kanan" colspan="7">Total</th>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu,0,",","."); ?></td>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi,0,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu,2,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi,2,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all; ?>%</td>
             </tr>
         </tfoot>
@@ -215,8 +215,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         <tfoot>
             <tr>
                 <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pembiayaan,0,",","."); ?></td>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pembiayaan,0,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pembiayaan,2,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pembiayaan,2,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pembiayaan; ?>%</td>
             </tr>
         </tfoot>
