@@ -75,9 +75,6 @@ foreach($get_realisasi as $akun){
             <tr>
                 <td class="text-center">'.$nomor_pendapatan.'</td>
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
-                <td class="text-left">'.$akun['nama_program'].'</td>
-                <td class="text-left">'.$akun['nama_giat'].'</td>
-                <td class="text-left">'.$akun['nama_sub_giat'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
                 <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
@@ -108,6 +105,9 @@ foreach($get_realisasi as $akun){
             <tr>
                 <td class="text-center">'.$nomor.'</td>
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
+                <td class="text-left">'.$akun['nama_program'].'</td>
+                <td class="text-left">'.$akun['nama_giat'].'</td>
+                <td class="text-left">'.$akun['nama_sub_giat'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
                 <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
