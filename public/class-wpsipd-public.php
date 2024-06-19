@@ -7872,17 +7872,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	{
 		global $wpdb;
 		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Berhasil update non active sub kegiatan Realisasi',
-			'action'	=> $_POST['action'],
-			'id_unit'	=> $_POST['id_skpd']
+			'status' => 'success',
+			'message' => 'Berhasil update non active sub kegiatan Realisasi',
+			'action' => $_POST['action'],
+			'id_unit' => $_POST['id_skpd'],
+			'type' => $_POST['type']
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$wpdb->update('data_realisasi_akun_sipd', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran'],					
-					'id_unit' => $_POST['id_skpd']
-				));
+				$where = array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'type' => $_POST['type']
+				);
+				if(
+					empty($_POST['type']) 
+					|| $_POST['type'] == 'belanja'
+				){
+					$where['id_unit'] = $_POST['id_skpd'];
+				}
+				$wpdb->update('data_realisasi_akun_sipd', array('active' => 0), $where);
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
