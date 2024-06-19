@@ -25,6 +25,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     $data_pendapatan = array(
         'data' => array(),
         'realisasi' => 0,
+        'realisasi_sipd' => 0,
         'total' => 0,
         'totalmurni' => 0
     );
@@ -43,6 +44,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -54,6 +56,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -65,6 +68,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -76,6 +80,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -87,6 +92,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -98,6 +104,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5] = array(
                 'data' => array(),
                 'realisasi' => 0,
+                'realisasi_sipd' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -120,6 +127,13 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['realisasi'] += $v['realisasi'];
         $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['realisasi'] += $v['realisasi'];
         $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['realisasi'] += $v['realisasi'];
+        $data_pendapatan['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['realisasi_sipd'] += $v['realisasi_sipd'];
+        $data_pendapatan['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['realisasi_sipd'] += $v['realisasi_sipd'];
 
         if(!empty($v['totalmurni'])){
             $data_pendapatan['totalmurni'] += $v['totalmurni'];
@@ -148,6 +162,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             <td class='kanan bawah text_kanan text_blok'></td>
             ".$selisih."
             <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
+            <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
         </tr>";
         foreach ($v['data'] as $kk => $vv) {
             $murni = '';
@@ -164,6 +179,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                 <td class='kanan bawah text_kanan text_blok'>".ubah_minus($vv['total'])."</td>
                 ".$selisih."
                 <td class='kanan bawah text_kanan text_blok realisasi_simda'>".ubah_minus($vv['realisasi'])."</td>
+                <td class='kanan bawah text_kanan text_blok realisasi_sipd'>".ubah_minus($vv['realisasi_sipd'])."</td>
             </tr>";
             foreach ($vv['data'] as $kkk => $vvv) {
                 $murni = '';
@@ -180,6 +196,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                     <td class='kanan bawah text_kanan'>".ubah_minus($vvv['total'])."</td>
                     ".$selisih."
                     <td class='kanan bawah text_kanan realisasi_simda'>".ubah_minus($vvv['realisasi'])."</td>
+                    <td class='kanan bawah text_kanan realisasi_sipd'>".ubah_minus($vvv['realisasi_sipd'])."</td>
                 </tr>";
                 foreach ($vvv['data'] as $kkkk => $vvvv) {
                     $murni = '';
@@ -196,6 +213,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                         <td class='kanan bawah text_kanan'>".ubah_minus($vvvv['total'])."</td>
                         ".$selisih."
                         <td class='kanan bawah text_kanan realisasi_simda'>".ubah_minus($vvvv['realisasi'])."</td>
+                        <td class='kanan bawah text_kanan realisasi_sipd'>".ubah_minus($vvvv['realisasi_sipd'])."</td>
                     </tr>";
                     foreach ($vvvv['data'] as $kkkkk => $vvvvv) {
                         $murni = '';
@@ -212,6 +230,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                             <td class='kanan bawah text_kanan'>".ubah_minus($vvvvv['total'])."</td>
                             ".$selisih."
                             <td class='kanan bawah text_kanan realisasi_simda'>".ubah_minus($vvvvv['realisasi'])."</td>
+                            <td class='kanan bawah text_kanan realisasi_sipd'>".ubah_minus($vvvvv['realisasi_sipd'])."</td>
                         </tr>";
                         foreach ($vvvvv['data'] as $kkkkkk => $vvvvvv) {
                             $murni = '';
@@ -228,6 +247,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                                 <td class='kanan bawah text_kanan'>".ubah_minus($vvvvvv['total'])."</td>
                                 ".$selisih."
                                 <td class='kanan bawah text_kanan realisasi_simda'>".ubah_minus($vvvvvv['realisasi'])."</td>
+                                <td class='kanan bawah text_kanan realisasi_sipd'>".ubah_minus($vvvvvv['realisasi_sipd'])."</td>
                             </tr>";
                         }
                     }
@@ -250,6 +270,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         <td class='kanan bawah text_kanan text_blok'>".ubah_minus($data_pendapatan['total'])."</td>
         ".$selisih."
         <td class='kanan bawah text_kanan text_blok realisasi_simda'>".ubah_minus($data_pendapatan['realisasi'])."</td>
+        <td class='kanan bawah text_kanan text_blok realisasi_sipd'>".ubah_minus($data_pendapatan['realisasi_sipd'])."</td>
     </tr>";
     if($nama_rekening == 'Pendapatan'){
         $pendapatan_murni = $data_pendapatan['totalmurni'];
@@ -271,6 +292,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_pergeseran-$belanja_pergeseran)."</td>
             ".$selisih."
             <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
+            <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
         </tr>";
     }else if($nama_rekening == 'Penerimaan Pembiayaan'){
         $pembiayaan_penerimaan_murni = $data_pendapatan['totalmurni'];
@@ -292,6 +314,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran)."</td>
             ".$selisih."
             <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
+            <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
         </tr>";
     }
     if($baris_kosong){
@@ -309,6 +332,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             <td class='kanan bawah'></td>
             ".$selisih."
             <td class='kanan bawah realisasi_simda'></td>
+            <td class='kanan bawah realisasi_sipd'></td>
         </tr>";
     }
     return $body_pendapatan;
@@ -429,6 +453,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -445,6 +470,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -459,6 +485,37 @@ if(!empty($input['id_skpd'])){
 }
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
 
+foreach ($rek_pendapatan as $k => $v) {
+    if(empty($v['kode_akun'])){
+        continue;
+    }
+    if(!empty($input['id_skpd'])){
+        $sql_sipd = $wpdb->prepare("
+            select
+                sum(realisasi) as realisasi
+            from data_realisasi_akun_sipd
+            where kode_akun='".$v['kode_akun']."'
+                and active=1
+                and tahun_anggaran=%d
+                and id_skpd=%d
+                and type='pendapatan'
+            group by kode_akun
+        ", $input['tahun_anggaran'], $input['id_skpd']);
+    }else{
+        $sql_sipd = $wpdb->prepare("
+            select
+                sum(realisasi) as realisasi
+            from data_realisasi_akun_sipd
+            where kode_akun='".$v['kode_akun']."'
+                and active=1
+                and tahun_anggaran=%d
+                and type='pendapatan'
+            group by kode_akun
+        ", $input['tahun_anggaran']);
+    }
+    $rek_pendapatan[$k]['realisasi_sipd'] = $wpdb->get_var($sql_sipd);
+}
+
 if($dari_simda != 0){
     $rek_pendapatan = get_belanja_simda($rek_pendapatan, $input, 4);
 }
@@ -469,6 +526,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             r.kode_akun,
             r.nama_akun,
             sum(r.rincian) as total,
@@ -489,6 +547,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(rincian) as total,
@@ -518,6 +577,17 @@ foreach ($rek_belanja as $k => $v) {
                 and id_skpd=%d
             group by kode_akun
         ", $input['tahun_anggaran'], $input['id_skpd']);
+        $sql_sipd = $wpdb->prepare("
+            select
+                sum(realisasi) as realisasi
+            from data_realisasi_akun_sipd
+            where kode_akun='".$v['kode_akun']."'
+                and active=1
+                and tahun_anggaran=%d
+                and id_skpd=%d
+                and type='belanja'
+            group by kode_akun
+        ", $input['tahun_anggaran'], $input['id_skpd']);
     }else{
         $sql = $wpdb->prepare("
             select
@@ -528,8 +598,19 @@ foreach ($rek_belanja as $k => $v) {
                 and tahun_anggaran=%d
             group by kode_akun
         ", $input['tahun_anggaran']);
+        $sql_sipd = $wpdb->prepare("
+            select
+                sum(realisasi) as realisasi
+            from data_realisasi_akun_sipd
+            where kode_akun='".$v['kode_akun']."'
+                and active=1
+                and tahun_anggaran=%d
+                and type='belanja'
+            group by kode_akun
+        ", $input['tahun_anggaran']);
     }
     $rek_belanja[$k]['realisasi'] = $wpdb->get_var($sql);
+    $rek_belanja[$k]['realisasi_sipd'] = $wpdb->get_var($sql_sipd);
 }
 
 if($dari_simda != 0){
@@ -542,6 +623,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -559,6 +641,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -584,6 +667,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -601,6 +685,7 @@ if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
             0 as realisasi,
+            0 as realisasi_sipd,
             kode_akun,
             nama_akun,
             sum(total) as total,
@@ -641,7 +726,7 @@ foreach ($unit as $kk => $vv) {
 }
 ?>
 <style type="text/css">
-    .realisasi_simda { display: none; }
+    .realisasi_simda, .realisasi_sipd { display: none; }
 </style>
 <?php echo $nama_jadwal; ?>
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran II Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
@@ -684,6 +769,7 @@ foreach ($unit as $kk => $vv) {
                 <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
             <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok realisasi_simda">Realisasi SIMDA</td>
+                <td class="atas kanan bawah text_tengah text_blok realisasi_sipd">Realisasi SIPD</td>
             </tr>
         </thead>
         <tbody>
@@ -721,6 +807,13 @@ foreach ($unit as $kk => $vv) {
             jQuery('.realisasi_simda').show();
         }else{
             jQuery('.realisasi_simda').hide();
+        }
+    }
+    function tampil_realisasi_sipd(that){
+        if(jQuery(that).is(':checked')){
+            jQuery('.realisasi_sipd').show();
+        }else{
+            jQuery('.realisasi_sipd').hide();
         }
     }
     function tampil_rekening(that){
@@ -813,6 +906,7 @@ foreach ($unit as $kk => $vv) {
     });
     extend_action += '<select id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">'+options+'</select>';
     extend_action += '<label style="margin-left:25px;"><input type="checkbox" onclick="tampil_realisasi(this);"> Tampilkan Realisasi SIMDA</label>';
+    extend_action += '<label style="margin-left:25px;"><input type="checkbox" onclick="tampil_realisasi_sipd(this);"> Tampilkan Realisasi SIPD</label>';
     extend_action += '<h4 style="margin-top: 10px;">Tampilkan Baris Rekening</h4>';
     extend_action += '<label><input type="checkbox" onclick="tampil_rekening(this);" checked id="rek_2"> Rekening 2</label>';
     extend_action += '<label style="margin-left:25px;"><input type="checkbox" onclick="tampil_rekening(this);" checked id="rek_3"> Rekening 3</label>';
