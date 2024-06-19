@@ -4878,7 +4878,7 @@ CREATE TABLE `data_realisasi_akun_sipd` (
   `is_locked` tinyint(4) DEFAULT NULL,
   `nilai` double(20,0) DEFAULT NULL,
   `action` int(11) DEFAULT NULL,
-  `realisasi` double(20,0) DEFAULT NULL,
+  `realisasi` double(20,2) DEFAULT NULL,
   `kode_sbl` varchar(50) NOT NULL,
   `tahun` year(4) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,

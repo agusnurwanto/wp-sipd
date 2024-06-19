@@ -7800,7 +7800,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if (!empty($_POST['data'])) {
 						$data = $_POST['data'];
 						foreach ($data as $k => $v) {
-							if (empty($v['id_akun'])) {
+							if (empty($v['kode_akun'])) {
 								continue;
 							}
 							$cek = $wpdb->get_var($wpdb->prepare("
@@ -7810,9 +7810,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								where tahun_anggaran=%d 									
 									AND kode_sbl=%s
 									AND id_unit=%d 									
-									AND id_akun=%d
+									AND kode_akun=%d
 									AND type=%d
-							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $v['id_akun'], $_POST['type']));
+							", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['id_skpd'], $v['kode_akun'], $_POST['type']));
 							$opsi = array(
 								'id_unit' => $_POST['id_skpd'],
 								'id_skpd' => $v['id_skpd'],
