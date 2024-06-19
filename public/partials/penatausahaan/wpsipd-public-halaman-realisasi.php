@@ -75,6 +75,7 @@ foreach($get_realisasi as $akun){
             <tr>
                 <td class="text-center">'.$nomor_pendapatan.'</td>
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
+                <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
                 <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
@@ -90,6 +91,7 @@ foreach($get_realisasi as $akun){
             <tr>
                 <td class="text-center">'.$nomor_pembiayaan.'</td>
                 <td class="text-left">'.$akun['kode_skpd'].' '.$akun['nama_skpd'].'</td>
+                <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
                 <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
@@ -108,6 +110,7 @@ foreach($get_realisasi as $akun){
                 <td class="text-left">'.$akun['nama_program'].'</td>
                 <td class="text-left">'.$akun['nama_giat'].'</td>
                 <td class="text-left">'.$akun['nama_sub_giat'].'</td>
+                <td class="text-left">'.$akun['kode_akun'].'</td>
                 <td class="text-left">'.$akun['nama_akun'].'</td>
                 <td class="text-right">'.number_format($akun['nilai'],0,",",".").'</td>
                 <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
@@ -149,7 +152,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
                  <th class="text-center">Program</th>
                  <th class="text-center">Kegiatan</th>
                  <th class="text-center">Sub Kegiatan</th>
-                 <th class="text-center">Akun</th>
+                 <th class="text-center">Kode Akun</th>
+                 <th class="text-center">Nama Akun</th>
                  <th class="text-center">Pagu</th>
                  <th class="text-center">Realisasi</th>
                  <th class="text-center">Persen</th>
@@ -160,7 +164,7 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         </tbody>
         <tfoot>
             <tr>
-                <th class="atas bawah kanan kiri text_kanan" colspan="6">Total</th>
+                <th class="atas bawah kanan kiri text_kanan" colspan="7">Total</th>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all; ?>%</td>
@@ -173,7 +177,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
             <tr>
                  <th class="text-center">No</th>
                  <th class="text-center">Nama SKPD</th>
-                 <th class="text-center">Akun</th>
+                 <th class="text-center">Kode Akun</th>
+                 <th class="text-center">Nama Akun</th>
                  <th class="text-center">Pagu</th>
                  <th class="text-center">Realisasi</th>
                  <th class="text-center">Persen</th>
@@ -184,7 +189,7 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         </tbody>
         <tfoot>
             <tr>
-                <th class="atas bawah kanan kiri text_kanan" colspan="3">Total</th>
+                <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pendapatan,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pendapatan,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pendapatan; ?>%</td>
@@ -197,7 +202,8 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
             <tr>
                  <th class="text-center">No</th>
                  <th class="text-center">Nama SKPD</th>
-                 <th class="text-center">Akun</th>
+                 <th class="text-center">Kode Akun</th>
+                 <th class="text-center">Nama Akun</th>
                  <th class="text-center">Pagu</th>
                  <th class="text-center">Realisasi</th>
                  <th class="text-center">Persen</th>
@@ -208,7 +214,7 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
         </tbody>
         <tfoot>
             <tr>
-                <th class="atas bawah kanan kiri text_kanan" colspan="3">Total</th>
+                <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pembiayaan,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pembiayaan,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pembiayaan; ?>%</td>
