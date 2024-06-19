@@ -153,6 +153,10 @@ $title = $input['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1';
 $shortcode = '[apbdpenjabaran tahun_anggaran="' . $input['tahun_anggaran'] . '" lampiran="1"]';
 $apbd_penjabaran_lampiran_1 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = $input['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 2';
+$shortcode = '[apbdpenjabaran tahun_anggaran="' . $input['tahun_anggaran'] . '" lampiran="2"]';
+$apbd_penjabaran_lampiran_2 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'APBD Perda Lampiran 4 | ' . $input['tahun_anggaran'];
 $shortcode = '[apbd_perda_lampiran_4 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $apbd_perda_lampiran_4 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -763,6 +767,7 @@ $body = '';
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
 									<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
 									<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran 1</option>
+									<option value="apbd_penjabaran_lampiran_2">APBD Penjabaran Lampiran 2</option>
 									<option value="apbd_perda_lampiran_4">APBD Perda Lampiran 4</option>
 									<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
 				      			</select>
@@ -877,6 +882,9 @@ $body = '';
 				break;
 			case 'apbd_penjabaran_lampiran_1':
 				window.open('<?php echo $apbd_penjabaran_lampiran_1; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_penjabaran_lampiran_2':
+				window.open('<?php echo $apbd_penjabaran_lampiran_2; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_4':
 				window.open('<?php echo $apbd_perda_lampiran_4; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');

@@ -143,6 +143,31 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
 
 <div class="cetak container-fluid">
     <h1 class="text-center">Halaman Realisasi Per Akun Per Perangkat Daerah<?php echo $nama_skpd; ?><br>Tahun <?php  echo $input['tahun_anggaran'] ?></h1>
+    <h2 class="text-center">Pendapatan</h2>
+    <table class="table table-bordered" id="cetak1">
+        <thead>
+            <tr>
+                 <th class="text-center">No</th>
+                 <th class="text-center">Nama SKPD</th>
+                 <th class="text-center">Kode Akun</th>
+                 <th class="text-center">Nama Akun</th>
+                 <th class="text-center">Pagu</th>
+                 <th class="text-center">Realisasi</th>
+                 <th class="text-center">Persen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php echo $body_pendapatan; ?>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pendapatan,0,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pendapatan,0,",","."); ?></td>
+                <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pendapatan; ?>%</td>
+            </tr>
+        </tfoot>
+    </table>
     <h2 class="text-center">Belanja</h2>
     <table class="table table-bordered" id="cetak">
         <thead>
@@ -168,31 +193,6 @@ if($total_pagu_pembiayaan > 0 && $total_realisasi_pembiayaan > 0){
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi,0,",","."); ?></td>
                 <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all; ?>%</td>
-            </tr>
-        </tfoot>
-    </table>
-    <h2 class="text-center">Pendapatan</h2>
-    <table class="table table-bordered" id="cetak1">
-        <thead>
-            <tr>
-                 <th class="text-center">No</th>
-                 <th class="text-center">Nama SKPD</th>
-                 <th class="text-center">Kode Akun</th>
-                 <th class="text-center">Nama Akun</th>
-                 <th class="text-center">Pagu</th>
-                 <th class="text-center">Realisasi</th>
-                 <th class="text-center">Persen</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php echo $body_pendapatan; ?>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th class="atas bawah kanan kiri text_kanan" colspan="4">Total</th>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_pagu_pendapatan,0,",","."); ?></td>
-                <td class="atas bawah kanan kiri text_kanan"><?php echo number_format($total_realisasi_pendapatan,0,",","."); ?></td>
-                <td class="atas bawah kanan kiri text_tengah"><?php echo $persen_all_pendapatan; ?>%</td>
             </tr>
         </tfoot>
     </table>

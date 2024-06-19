@@ -401,6 +401,30 @@ if(!empty($_GET) && !empty($_GET['id_skpd'])){
     $input['id_skpd'] = $_GET['id_skpd'];
 }
 
+$tabel_history = '';
+$where_jadwal = '';
+$nama_jadwal = '';
+if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
+    $input['id_jadwal_lokal'] = $_GET['id_jadwal_lokal'];
+    $cek_jadwal = $wpdb->get_row($wpdb->prepare("
+        SELECT
+            *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal=%d
+            AND tahun_anggaran=%d
+            AND id_tipe=6
+    ", $input['id_jadwal_lokal'], $input['tahun_anggaran']), ARRAY_A);
+    if(!empty($cek_jadwal)){
+        if($cek_jadwal['status']==1){
+            $tabel_history = '_history';
+            $where_jadwal = $wpdb->prepare(' AND id_jadwal=%d', $input['id_jadwal_lokal']);
+        }
+        $nama_jadwal = '<h1 class="text-center">Jadwal: '.$cek_jadwal['nama'].'</h1>';
+    }
+}
+$where_jadwal_rka = str_replace('id_jadwal=', 'r.id_jadwal=', $where_jadwal);
+$where_sub_keg_bl = str_replace('id_jadwal=', 's.id_jadwal=', $where_jadwal);
+
 if(!empty($input['id_skpd'])){
     $sql = $wpdb->prepare("
         select 
@@ -409,10 +433,11 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pendapatan
+        from data_pendapatan".$tabel_history."
         where tahun_anggaran=%d
             and active=1
             and id_skpd=%d
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -424,9 +449,10 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pendapatan
+        from data_pendapatan".$tabel_history."
         where tahun_anggaran=%d
             and active=1
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran']);
@@ -447,13 +473,15 @@ if(!empty($input['id_skpd'])){
             r.nama_akun,
             sum(r.rincian) as total,
             sum(r.rincian_murni) as totalmurni
-        from data_rka r
-            inner join data_sub_keg_bl s on s.kode_sbl = r.kode_sbl
+        from data_rka".$tabel_history." r
+            inner join data_sub_keg_bl".$tabel_history." s on s.kode_sbl = r.kode_sbl
                 and s.active = r.active
                 and s.tahun_anggaran = r.tahun_anggaran
         where r.tahun_anggaran=%d
             and r.active=1
             and s.id_sub_skpd=%d
+            ".$where_jadwal_rka."
+            ".$where_sub_keg_bl."
         group by r.kode_akun
         order by r.kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -465,9 +493,10 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(rincian) as total,
             sum(rincian_murni) as totalmurni
-        from data_rka
+        from data_rka".$tabel_history."
         where tahun_anggaran=%d
             and active=1
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran']);
@@ -517,11 +546,12 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan
+        from data_pembiayaan".$tabel_history."
         where tahun_anggaran=%d
             and type='penerimaan'
             and active=1
             and id_skpd=%d
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -533,10 +563,11 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan
+        from data_pembiayaan".$tabel_history."
         where tahun_anggaran=%d
             and type='penerimaan'
             and active=1
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran']);
@@ -557,11 +588,12 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan
+        from data_pembiayaan".$tabel_history."
         where tahun_anggaran=%d
             and type='pengeluaran'
             and active=1
             and id_skpd=%d
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
@@ -573,10 +605,11 @@ if(!empty($input['id_skpd'])){
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan
+        from data_pembiayaan".$tabel_history."
         where tahun_anggaran=%d
             and type='pengeluaran'
             and active=1
+            ".$where_jadwal."
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran']);
@@ -610,6 +643,7 @@ foreach ($unit as $kk => $vv) {
 <style type="text/css">
     .realisasi_simda { display: none; }
 </style>
+<?php echo $nama_jadwal; ?>
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran II Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>

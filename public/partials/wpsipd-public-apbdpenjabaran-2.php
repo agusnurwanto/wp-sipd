@@ -3,6 +3,8 @@
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
+
+global $wpdb;
 global $total_belanja_murni;
 global $total_belanja;
 global $total_pendapatan_murni;
@@ -520,7 +522,9 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
     return $body_pendapatan;
 }
 
-global $wpdb;
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $input['id_skpd'] = $_GET['id_skpd'];
+}
 $skpd = $wpdb->get_row($wpdb->prepare('
     SELECT 
         * 
@@ -530,11 +534,40 @@ $skpd = $wpdb->get_row($wpdb->prepare('
         and active=1
 ', $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
+if(empty($skpd)){
+    die('<h1 class="text-center">Perangkat Daerah tidak ditemukan!</h1>');
+}
+
 $kode = explode('.', $skpd['kode_skpd']);
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
+
+$tabel_history = '';
+$where_jadwal = '';
+$nama_jadwal = '';
+if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
+    $input['id_jadwal_lokal'] = $_GET['id_jadwal_lokal'];
+    $cek_jadwal = $wpdb->get_row($wpdb->prepare("
+        SELECT
+            *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal=%d
+            AND tahun_anggaran=%d
+            AND id_tipe=6
+    ", $input['id_jadwal_lokal'], $input['tahun_anggaran']), ARRAY_A);
+    if(!empty($cek_jadwal)){
+        if($cek_jadwal['status']==1){
+            $tabel_history = '_history';
+            $where_jadwal = $wpdb->prepare(' AND id_jadwal=%d', $input['id_jadwal_lokal']);
+        }
+        $nama_jadwal = '<h1 class="text-center">Jadwal: '.$cek_jadwal['nama'].'</h1>';
+    }
+}
+$where_jadwal_rka = str_replace('id_jadwal=', 'r.id_jadwal=', $where_jadwal);
+$where_sub_keg_bl = str_replace('id_jadwal=', 's.id_jadwal=', $where_jadwal);
+
 $id_skpd_all = array();
 if($skpd['is_skpd'] == 1){
     $skpd_induk = $wpdb->get_results($wpdb->prepare('
@@ -571,10 +604,11 @@ $sql = $wpdb->prepare("
         nama_akun,
         sum(total) as total,
         sum(nilaimurni) as totalmurni
-    from data_pendapatan
+    from data_pendapatan".$tabel_history."
     where tahun_anggaran=%d
         and id_skpd IN (".implode(',', $id_skpd_all).")
         and active=1
+        ".$where_jadwal."
     group by id_skpd, kode_akun
     order by id_skpd ASC, kode_akun ASC
 ", $input['tahun_anggaran']);
@@ -599,12 +633,14 @@ $sql = $wpdb->prepare("
         r.nama_akun,
         sum(r.rincian) as total,
         sum(r.rincian_murni) as totalmurni
-    from data_rka r
-        left join data_sub_keg_bl s ON r.kode_sbl=s.kode_sbl AND s.tahun_anggaran=r.tahun_anggaran
+    from data_rka".$tabel_history." r
+        left join data_sub_keg_bl".$tabel_history." s ON r.kode_sbl=s.kode_sbl AND s.tahun_anggaran=r.tahun_anggaran
     where r.tahun_anggaran=%d
         and s.id_sub_skpd IN (".implode(',', $id_skpd_all).")
         and r.active=1
         and s.active=1
+        ".$where_jadwal_rka."
+        ".$where_sub_keg_bl."
     group by s.kode_sbl, r.kode_akun
     order by s.kode_sub_giat ASC, r.kode_akun ASC
 ", $input['tahun_anggaran']);
@@ -628,10 +664,11 @@ $sql = $wpdb->prepare("
         nama_akun,
         sum(total) as total,
         sum(nilaimurni) as totalmurni
-    from data_pembiayaan
+    from data_pembiayaan".$tabel_history."
     where tahun_anggaran=%d
         and id_skpd IN (".implode(',', $id_skpd_all).")
         and active=1
+        ".$where_jadwal."
     group by id_skpd, kode_akun
     order by id_skpd ASC, kode_akun ASC
 ", $input['tahun_anggaran']);
@@ -640,6 +677,7 @@ $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 $body_pembiayaan = generate_body($rek_pembiayaan, 'Pembiayaan', $type, $skpd);
 $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where kode_bidang_urusan=\''.$kode[0].'.'.$kode[1].'\' and tahun_anggaran='.$input['tahun_anggaran'], ARRAY_A);
 ?>
+<?php echo $nama_jadwal; ?>
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 2 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="table-header no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
