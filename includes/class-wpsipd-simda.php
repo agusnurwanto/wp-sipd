@@ -1613,9 +1613,38 @@ class Wpsipd_Simda
 															$nilai1 = $rkkk['volum1'];
 															$nilai1_t = $rkkk['volum1'];
 														}else{
-															$jml_satuan_db = explode(' ', $rkkk['koefisien']);
-															if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
-																$nilai1 = $jml_satuan_db[0];
+															$jml_satuan_db_all = explode('x', $rkkk['koefisien']);
+															if(!empty($jml_satuan_db_all[0])){
+																$jml_satuan_db = explode(' ', $jml_satuan_db_all[0]);
+																if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
+																	$nilai1 = $jml_satuan_db[0];
+																	unset($jml_satuan_db[0]);
+																	$rkkk['sat1'] = implode(' ', $jml_satuan_db);
+																}
+															}
+															if(!empty($jml_satuan_db_all[1])){
+																$jml_satuan_db = explode(' ', $jml_satuan_db_all[1]);
+																if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
+																	$rkkk['volum2'] = $jml_satuan_db[0];
+																	unset($jml_satuan_db[0]);
+																	$rkkk['sat2'] = implode(' ', $jml_satuan_db);
+																}
+															}
+															if(!empty($jml_satuan_db_all[2])){
+																$jml_satuan_db = explode(' ', $jml_satuan_db_all[2]);
+																if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
+																	$rkkk['volum3'] = $jml_satuan_db[0];
+																	unset($jml_satuan_db[0]);
+																	$rkkk['sat3'] = implode(' ', $jml_satuan_db);
+																}
+															}
+															if(!empty($jml_satuan_db_all[3])){
+																$jml_satuan_db = explode(' ', $jml_satuan_db_all[3]);
+																if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
+																	$rkkk['volum4'] = $jml_satuan_db[0];
+																	unset($jml_satuan_db[0]);
+																	$rkkk['sat4'] = implode(' ', $jml_satuan_db);
+																}
 															}
 														}
 														$sat1 = $rkkk['satuan'];
