@@ -58,26 +58,26 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                 'totalmurni' => 0
             );
         }
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']])){
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']] = array(
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']])){
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']] = array(
                 'data' => array(),
                 'nama' => $v['nama_program'],
                 'total' => 0,
                 'totalmurni' => 0
             );
         }
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']])){
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']] = array(
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']])){
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']] = array(
                 'data' => array(),
                 'nama' => $v['nama_giat'],
                 'total' => 0,
                 'totalmurni' => 0
             );
         }
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']])){
             $skpd_sub = $wpdb->get_row('SELECT kode_skpd, nama_skpd FROM `data_unit` where id_skpd='.$v['id_skpd'].' and tahun_anggaran='.$v['tahun_anggaran'].' and active=1', ARRAY_A);
             // echo $skpd_sub['nama_skpd'].' - '.$skpd_sub['kode_skpd'].' - '.$v['id_skpd'].'<br>';
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']] = array(
                 'data' => array(),
                 'kode_skpd' => $skpd_sub['kode_skpd'],
                 'nama_skpd' => $skpd_sub['nama_skpd'],
@@ -87,9 +87,9 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         $kode_akun1 = $kode_akun.'.'.$rek[1];
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun1."'", ARRAY_A);
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1] = array(
                 'data' => array(),
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
@@ -97,9 +97,9 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         $kode_akun2 = $kode_akun1.'.'.$rek[2];
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun2."'", ARRAY_A);
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2] = array(
                 'data' => array(),
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
@@ -107,9 +107,9 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         $kode_akun3 = $kode_akun2.'.'.$rek[3];
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun3."'", ARRAY_A);
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3] = array(
                 'data' => array(),
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
@@ -117,9 +117,9 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         $kode_akun4 = $kode_akun3.'.'.$rek[4];
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun4."'", ARRAY_A);
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4] = array(
                 'data' => array(),
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
@@ -127,41 +127,41 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         $kode_akun5 = $kode_akun4.'.'.$rek[5];
-        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5])){
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun5."'", ARRAY_A);
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5] = array(
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5] = array(
                 'data' => array(),
                 'nama' => $nama_akun[0]['nama_akun'],
                 'total' => 0,
                 'totalmurni' => 0
             );
         }
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['data'][] = $v;
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['data'][] = $v;
 
         $data_pendapatan['total'] += $v['total'];
         $data_pendapatan['data'][$kode_akun]['total'] += $v['total'];
         $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['total'] += $v['total'];
-        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['total'] += $v['total'];
 
         // if(!empty($v['totalmurni'])){
             $data_pendapatan['totalmurni'] += $v['totalmurni'];
             $data_pendapatan['data'][$kode_akun]['totalmurni'] += $v['totalmurni'];
             $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['totalmurni'] += $v['totalmurni'];
-            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['totalmurni'] += $v['totalmurni'];
         // }
     }
     // print_r($data_pendapatan); die();
@@ -597,9 +597,9 @@ $sql = $wpdb->prepare("
         '' as nama_giat,
         '' as nama_sub_giat,
         '".$kode[0].".".$kode[1]."' as kode_bidang_urusan,
-        '00' as no_program,
-        '0.00' as no_giat,
-        '00' as no_sub_giat,
+        '00' as kode_program,
+        '0.00' as kode_giat,
+        '00' as kode_sub_giat,
         kode_akun,
         nama_akun,
         sum(total) as total,
@@ -626,9 +626,9 @@ $sql = $wpdb->prepare("
         s.nama_program,
         s.nama_giat,
         s.nama_sub_giat,
-        s.no_program,
-        s.no_giat,
-        s.no_sub_giat,
+        s.kode_program,
+        s.kode_giat,
+        s.kode_sub_giat,
         r.kode_akun,
         r.nama_akun,
         sum(r.rincian) as total,
@@ -657,9 +657,9 @@ $sql = $wpdb->prepare("
         '' as nama_giat,
         '' as nama_sub_giat,
         '".$kode[0].".".$kode[1]."' as kode_bidang_urusan,
-        '00' as no_program,
-        '0.00' as no_giat,
-        '00' as no_sub_giat,
+        '00' as kode_program,
+        '0.00' as kode_giat,
+        '00' as kode_sub_giat,
         kode_akun,
         nama_akun,
         sum(total) as total,
