@@ -550,7 +550,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 				                    <td class="kiri kanan atas bawah">
 				                        <table width="100%" border="0" style="border-spacing: 0px;">
 					                        <tr>
-					                          <td width="495">Rp. ' . number_format($pagu_murni, 0, ",", ".") . '</td>
+					                          <td width="495">Rp. ' . number_format($subkeg['pagumurni'], 0, ",", ".") . '</td>
 					                        </tr>
 				                        </table>
 				                    </td>';
@@ -729,18 +729,7 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 		    	<td colspan="2" class="no_break">
 		            <table width="100%" class="cellpadding_5 no_break" style="border-spacing: 0px;">
 		            	<thead>
-							<tr>
-					      		<td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
-					      		<td class="kanan bawah atas text_tengah text_blok" rowspan="2">Uraian</td>
-					      		<td class="kanan bawah atas text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
-					      		<td class="kanan bawah atas text_tengah text_blok" rowspan="2">Jumlah</td>
-					    	</tr>
-					    	<tr>
-					      		<td class="kanan bawah text_tengah text_blok">Koefisien</td>
-					      		<td class="kanan bawah text_tengah text_blok">Satuan</td>
-					      		<td class="kanan bawah text_tengah text_blok">Harga</td>
-					      		<td class="kanan bawah text_tengah text_blok">PPN</td>
-					    	</tr>
+							<?php echo $header_sub; ?>
 		            	</thead>
 		                <tbody id="tabel_rincian_sub_keg"></tbody>
 		            </table>
@@ -1086,6 +1075,7 @@ function get_rinc_rka(kode_sbl){
 			"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
 			"kode_sbl":kode_sbl,
 			"sumber":'sipd',
+			"type":jQuery('#type_laporan').val()
 		},
 		dataType:"json",
 		success:function(response){

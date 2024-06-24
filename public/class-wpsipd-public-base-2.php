@@ -5478,6 +5478,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$type_apbd = '';
 				$type = '';
+				if(!empty($_POST['type'])){
+					$type = $_POST['type'];
+				}
 				$prefix_tabel = '_lokal';
 				if(!empty($_POST['sumber']) && $_POST['sumber'] == 'sipd'){
 					$prefix_tabel = '';
