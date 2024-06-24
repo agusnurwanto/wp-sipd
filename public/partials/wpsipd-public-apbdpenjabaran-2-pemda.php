@@ -377,10 +377,23 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
             );
         }
         if(empty($data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']])){
+            $ind_db = $wpdb->get_results($wpdb->prepare("
+                SELECT 
+                    hasilteks
+                from data_keg_indikator_hasil 
+                where kode_sbl=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+            ", $v['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+            $ind_text = array();
+            foreach($ind_db as $ind){
+                $ind_text[] = $ind['hasilteks'];
+            }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']] = array(
                 'nama' => $v['nama_program'],
                 'kode' => $v['kode_program'],
                 'data' => array(),
+                'indikator' => implode('<br>', $ind_text),
                 'realisasi' => 0,
                 'realisasi_sipd' => 0,
                 'total' => 0,
@@ -388,10 +401,23 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
             );
         }
         if(empty($data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']])){
+            $ind_db = $wpdb->get_results($wpdb->prepare("
+                SELECT 
+                    capaianteks 
+                from data_capaian_prog_sub_keg 
+                where kode_sbl=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+            ", $v['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+            $ind_text = array();
+            foreach($ind_db as $ind){
+                $ind_text[] = $ind['capaianteks'];
+            }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']] = array(
                 'nama' => $v['nama_giat'],
                 'kode' => $v['kode_giat'],
                 'data' => array(),
+                'indikator' => implode('<br>', $ind_text),
                 'realisasi' => 0,
                 'realisasi_sipd' => 0,
                 'total' => 0,
@@ -399,9 +425,22 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
             );
         }
         if(empty($data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']])){
+            $ind_db = $wpdb->get_results($wpdb->prepare("
+                SELECT 
+                    outputteks 
+                from data_sub_keg_indikator 
+                where kode_sbl=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+            ", $v['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+            $ind_text = array();
+            foreach($ind_db as $ind){
+                $ind_text[] = $ind['outputteks'];
+            }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']] = array(
                 'nama' => $v['nama_sub_giat'],
                 'kode' => $v['kode_sub_giat'],
+                'indikator' => implode('<br>', $ind_text),
                 'data' => array(),
                 'realisasi' => 0,
                 'realisasi_sipd' => 0,
@@ -427,9 +466,9 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                     nama_akun 
                 from data_akun 
                 where kode_akun=%s
-                    and tahun_anggaran=%d
-                    and active=1
-                ",$kode_akun1, $input['tahun_anggaran']), ARRAY_A);
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ",$kode_akun1, $input['tahun_anggaran']));
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun]['data'][$kode_akun1] = array(
                 'nama' => $nama_akun,
                 'kode' => $kode_akun1,
@@ -447,9 +486,9 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                     nama_akun 
                 from data_akun 
                 where kode_akun=%s
-                    and tahun_anggaran=%d
-                    and active=1
-            ",$kode_akun2, $input['tahun_anggaran']), ARRAY_A);
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ",$kode_akun2, $input['tahun_anggaran']));
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2] = array(
                 'nama' => $nama_akun,
                 'kode' => $kode_akun2,
@@ -467,9 +506,9 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                     nama_akun 
                 from data_akun 
                 where kode_akun=%s
-                    and tahun_anggaran=%d
-                    and active=1
-            ",$kode_akun3, $input['tahun_anggaran']), ARRAY_A);
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ",$kode_akun3, $input['tahun_anggaran']));
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3] = array(
                 'nama' => $nama_akun,
                 'kode' => $kode_akun3,
@@ -487,9 +526,9 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                     nama_akun 
                 from data_akun 
                 where kode_akun=%s
-                    and tahun_anggaran=%d
-                    and active=1
-            ",$kode_akun4, $input['tahun_anggaran']), ARRAY_A);
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ",$kode_akun4, $input['tahun_anggaran']));
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4] = array(
                 'nama' => $nama_akun,
                 'kode' => $kode_akun4,
@@ -507,9 +546,9 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                     nama_akun 
                 from data_akun 
                 where kode_akun=%s
-                    and tahun_anggaran=%d
-                    and active=1
-            ",$kode_akun5, $input['tahun_anggaran']), ARRAY_A);
+                    AND tahun_anggaran=%d
+                    AND active=1
+                ",$kode_akun5, $input['tahun_anggaran']));
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5] = array(
                 'nama' => $nama_akun,
                 'kode' => $kode_akun5,
@@ -652,7 +691,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                         </tr>
                         <tr class='indikator_program'>
                             <td class='kiri kanan bawah text_blok'>Indikator Hasil</td>
-                            <td class='kanan bawah text_blok' colspan='".$collspan."'>: </td>
+                            <td class='kanan bawah text_blok' colspan='".$collspan."'>: ".$program['indikator']."</td>
                             <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
                             <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
                         </tr>";
@@ -667,7 +706,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                             </tr>
                             <tr class='kegiatan'>
                                 <td class='kiri kanan bawah text_blok'>Indikator Keluaran</td>
-                                <td class='kanan bawah text_blok' colspan='".$collspan."'>: </td>
+                                <td class='kanan bawah text_blok' colspan='".$collspan."'>: ".$kegiatan['indikator']."</td>
                                 <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
                                 <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
                             </tr>";
@@ -682,7 +721,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                                 </tr>
                                 <tr class='sub_keg'>
                                     <td class='kiri kanan bawah text_blok'>Indikator Keluaran</td>
-                                    <td class='kanan bawah text_blok' colspan='".$collspan."'>: </td>
+                                    <td class='kanan bawah text_blok' colspan='".$collspan."'>: ".$sub_keg['indikator']."</td>
                                     <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
                                     <td class='kanan bawah text_kanan text_blok realisasi_sipd'></td>
                                 </tr>";
@@ -1041,6 +1080,7 @@ $sql = $wpdb->prepare("
         s.no_sub_giat,
         r.kode_akun,
         r.nama_akun,
+        r.kode_sbl,
         sum(r.rincian) as total,
         sum(r.rincian_murni) as totalmurni
     from data_rka".$tabel_history." r
