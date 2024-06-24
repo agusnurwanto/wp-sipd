@@ -379,15 +379,15 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
         if(empty($data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']])){
             $ind_db = $wpdb->get_results($wpdb->prepare("
                 SELECT 
-                    hasilteks
-                from data_keg_indikator_hasil 
+                    capaianteks 
+                from data_capaian_prog_sub_keg 
                 where kode_sbl=%s 
                     AND tahun_anggaran=%d
                     AND active=1
             ", $v['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
             $ind_text = array();
             foreach($ind_db as $ind){
-                $ind_text[] = $ind['hasilteks'];
+                $ind_text[] = $ind['capaianteks'];
             }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']] = array(
                 'nama' => $v['nama_program'],
@@ -403,15 +403,15 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
         if(empty($data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']])){
             $ind_db = $wpdb->get_results($wpdb->prepare("
                 SELECT 
-                    capaianteks 
-                from data_capaian_prog_sub_keg 
+                    outputteks 
+                from data_output_giat_sub_keg 
                 where kode_sbl=%s 
                     AND tahun_anggaran=%d
                     AND active=1
             ", $v['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
             $ind_text = array();
             foreach($ind_db as $ind){
-                $ind_text[] = $ind['capaianteks'];
+                $ind_text[] = $ind['outputteks'];
             }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['no_program']]['data'][$v['no_giat']] = array(
                 'nama' => $v['nama_giat'],
