@@ -390,7 +390,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                 $ind_text[] = $ind['capaianteks'];
             }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['kode_program']] = array(
-                'nama' => $v['nama_program'],
+                'nama' => str_replace($v['kode_giat'].' ', '', $v['nama_program']),
                 'kode' => $v['kode_program'],
                 'data' => array(),
                 'indikator' => implode('<br>', $ind_text),
@@ -414,7 +414,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                 $ind_text[] = $ind['outputteks'];
             }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['kode_program']]['data'][$v['kode_giat']] = array(
-                'nama' => $v['nama_giat'],
+                'nama' => str_replace($v['kode_giat'].' ', '', $v['nama_giat']),
                 'kode' => $v['kode_giat'],
                 'data' => array(),
                 'indikator' => implode('<br>', $ind_text),
@@ -438,7 +438,7 @@ function generate_body_belanja($rek_pendapatan, $baris_kosong=false, $type='murn
                 $ind_text[] = $ind['outputteks'];
             }
             $data_pendapatan['data'][$v['kode_urusan']]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_skpd']]['data'][$v['kode_sub_skpd']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']] = array(
-                'nama' => $v['nama_sub_giat'],
+                'nama' => str_replace($v['kode_sub_giat'].' ', '', $v['nama_sub_giat']),
                 'kode' => $v['kode_sub_giat'],
                 'indikator' => implode('<br>', $ind_text),
                 'data' => array(),
