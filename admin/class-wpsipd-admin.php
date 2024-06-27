@@ -1065,7 +1065,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('select', 'crb_default_sumber_pagu_dpa', 'Nilai pagu DPA untuk RFK')
 				->add_options(array(
 					'1' => 'APBD SIMDA',
-					'2' => 'APBD FMIS'
+					'2' => 'APBD FMIS',
+					'3' => 'APBD SIPD'
 				))
 				->set_default_value(1)
 				->set_help_text('Nilai pagu DPA pada halaman monitoring data realisasi fisik dan keuangan (RFK)'),
@@ -1140,6 +1141,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$url_nilai_dpa = '&pagu_dpa=simda';
 				if ($sumber_pagu_dpa == 2) {
 					$url_nilai_dpa = '&pagu_dpa=fmis';
+				}else if ($sumber_pagu_dpa == 3) {
+					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
 				$unit_renstra = [];

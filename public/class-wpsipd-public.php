@@ -10031,6 +10031,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				AND type='belanja'
 				AND tahun_anggaran=%d
 		", $options['kode_sbl'], $options['id_skpd'], $options['tahun_anggaran']), ARRAY_A);
+		// die($wpdb->last_query);
 		if (empty($data_kas)) {
 			return $options['rak'];
 		} else {

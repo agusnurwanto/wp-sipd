@@ -32,6 +32,12 @@ if (
 	&& $_GET['pagu_dpa'] == 'rka_simda'
 ) {
 	$cek_pagu_dpa = 'rka_simda';
+} else if (
+	!empty($_GET)
+	&& !empty($_GET['pagu_dpa'])
+	&& $_GET['pagu_dpa'] == 'sipd'
+) {
+	$cek_pagu_dpa = 'sipd';
 }
 
 $tahun_asli = date('Y');
@@ -101,7 +107,10 @@ foreach ($current_user->roles as $role) {
 
 // $singkron_simda = get_option('_crb_singkron_simda');
 $singkron_simda = 1;
-if ($cek_pagu_dpa == 'fmis') {
+if (
+	$cek_pagu_dpa == 'fmis'
+	|| $cek_pagu_dpa == 'sipd'
+) {
 	$singkron_simda = 2;
 }
 foreach ($units as $k => $unit) :
@@ -333,8 +342,8 @@ foreach ($units as $k => $unit) :
 				'id_prog' => $id_prog,
 				'kd_keg' => $kd_keg
 			));
-		}
-		if ($singkron_simda != '1') {
+		}else{
+			$total_simda = $sub['pagu'];
 			$total_rak_simda = $this->get_rak_sipd_rfk(array(
 				'user' => $current_user->display_name,
 				'id_skpd' => $input['id_skpd'],
@@ -566,6 +575,8 @@ foreach ($units as $k => $unit) :
 			$bidang_dpa = $bidang['total_simda'];
 			if ($cek_pagu_dpa == 'fmis') {
 				$bidang_dpa = $bidang['total_fmis'];
+			}else if($cek_pagu_dpa == 'sipd') {
+				$bidang_dpa = $bidang['total'];
 			}
 			$body .= '
 				<tr class="bidang" data-kode="' . $kd_urusan . '.' . $kd_bidang . '">
@@ -604,6 +615,8 @@ foreach ($units as $k => $unit) :
 				$prog_dpa = $program['total_simda'];
 				if ($cek_pagu_dpa == 'fmis') {
 					$prog_dpa = $program['total_fmis'];
+				}else if($cek_pagu_dpa == 'sipd') {
+					$prog_dpa = $program['total'];
 				}
 				$body .= '
 					<tr class="program" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '">
@@ -645,6 +658,8 @@ foreach ($units as $k => $unit) :
 					$keg_dpa = $giat['total_simda'];
 					if ($cek_pagu_dpa == 'fmis') {
 						$keg_dpa = $giat['total_fmis'];
+					}else if($cek_pagu_dpa == 'sipd') {
+						$keg_dpa = $giat['total'];
 					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '">
@@ -727,6 +742,8 @@ foreach ($units as $k => $unit) :
 						$sub_keg_dpa = $sub_giat['total_simda'];
 						if ($cek_pagu_dpa == 'fmis') {
 							$sub_keg_dpa = $sub_giat['total_fmis'];
+						}else if($cek_pagu_dpa == 'sipd') {
+							$sub_keg_dpa = $sub_giat['total'];
 						}
 						$cek_fmis = '';
 						if ($sub_keg_dpa != $sub_giat['total']) {
@@ -813,6 +830,9 @@ foreach ($units as $k => $unit) :
 	} else if ($cek_pagu_dpa == 'fmis') {
 		$kolom_dpa = 'RKA FMIS';
 		$total_dpa = $data_all['total_fmis'];
+	} else if ($cek_pagu_dpa == 'sipd') {
+		$kolom_dpa = 'RKA SIPD';
+		$total_dpa = $data_all['total'];
 	}
 
 	echo '
@@ -1268,6 +1288,7 @@ if (
 			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
 			'<label style="margin-left: 20px;">Pagu DPA: ' +
 				'<select id="pagu_dpa" style="padding: 5px; width: 200px;">' +
+					'<option value="sipd">SIPD</option>' +
 					'<option value="rka_simda">RKA SIMDA</option>' +
 					'<option value="simda">APBD SIMDA</option>' +
 					'<option value="fmis">APBD FMIS</option>' +
