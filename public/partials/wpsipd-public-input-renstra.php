@@ -7470,7 +7470,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	success: function(response){
 	          		jQuery('#wrap-loading').hide();
 	          		alert(response.message);
-	          		location.reload();
+	          		if(response.status == true){
+	          			location.reload();
+	          		}
 	          	}
 	        });
 		}

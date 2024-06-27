@@ -9081,6 +9081,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$url_nilai_dpa = '&pagu_dpa=simda';
 			if ($sumber_pagu_dpa == 2) {
 				$url_nilai_dpa = '&pagu_dpa=fmis';
+			}else if ($sumber_pagu_dpa == 3) {
+				$url_nilai_dpa = '&pagu_dpa=sipd';
 			}
 			echo '<ul class="aksi-monev text_tengah">';
 			$user_id = um_user('ID');
