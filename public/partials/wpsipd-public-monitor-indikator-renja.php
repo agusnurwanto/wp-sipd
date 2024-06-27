@@ -31,7 +31,13 @@ function valid_number($no){
 	return $no;
 }
 
-$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$rumus_indikator_db = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_rumus_indikator 
+	where active=1 
+		and tahun_anggaran=".$input['tahun_anggaran']
+, ARRAY_A);
 $rumus_indikator_html = '';
 $keterangan_indikator_html = '';
 foreach ($rumus_indikator_db as $k => $v){

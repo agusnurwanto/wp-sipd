@@ -7732,6 +7732,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'total_rincian' => $v['total_rincian'],
 								'active' => 1,
 								'kode_sbl' => $_POST['kode_sbl'],
+								'kode_sbl_sub_keg' => $_POST['kode_sbl_sub_keg'],
 								'type' => $_POST['type'],
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
 								'updated_at' => current_time('mysql')
@@ -10001,6 +10002,70 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			} else {
 				$wpdb->insert('data_rfk', $opsi);
 			}
+		}
+		return $total_rak;
+	}
+
+	function get_rak_sipd_rfk($options = array())
+	{
+		global $wpdb;
+		$total_rak = 0;
+		$data_kas = $wpdb->get_row($wpdb->prepare("
+			SELECT
+				SUM(bulan_1) as bulan_1,
+				SUM(bulan_2) as bulan_2,
+				SUM(bulan_3) as bulan_3,
+				SUM(bulan_4) as bulan_4,
+				SUM(bulan_5) as bulan_5,
+				SUM(bulan_6) as bulan_6,
+				SUM(bulan_7) as bulan_7,
+				SUM(bulan_8) as bulan_8,
+				SUM(bulan_9) as bulan_9,
+				SUM(bulan_10) as bulan_10,
+				SUM(bulan_11) as bulan_11,
+				SUM(bulan_12) as bulan_12
+			FROM data_anggaran_kas
+			WHERE kode_sbl=%s
+				AND id_sub_skpd=%d
+				AND active=1
+				AND type='belanja'
+				AND tahun_anggaran=%d
+		", $options['kode_sbl'], $options['id_skpd'], $options['tahun_anggaran']), ARRAY_A);
+		if (empty($data_kas)) {
+			return $options['rak'];
+		} else {
+			for ($i = 1; $i <= $options['bulan']; $i++) {
+				$total_rak += $data_kas['bulan_' . $i];
+			}
+		}
+		$sql = $wpdb->prepare("
+		    select 
+		        id
+		    from data_rfk
+		    where tahun_anggaran=%d
+		        and bulan=%d
+		        and id_skpd=%d
+		        and kode_sbl=%s
+		", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
+		$cek = $wpdb->get_results($sql, ARRAY_A);
+		$opsi = array(
+			'bulan'	=> $options['bulan'],
+			'kode_sbl'	=> $options['kode_sbl'],
+			'rak' => $total_rak,
+			'user_edit'	=> $options['user'],
+			'id_skpd'	=> $options['id_skpd'],
+			'tahun_anggaran'	=> $options['tahun_anggaran'],
+			'created_at'	=>  current_time('mysql')
+		);
+		if (!empty($cek)) {
+			$wpdb->update('data_rfk', $opsi, array(
+				'tahun_anggaran' => $options['tahun_anggaran'],
+				'bulan' => $options['bulan'],
+				'id_skpd' => $options['id_skpd'],
+				'kode_sbl' => $options['kode_sbl']
+			));
+		} else {
+			$wpdb->insert('data_rfk', $opsi);
 		}
 		return $total_rak;
 	}

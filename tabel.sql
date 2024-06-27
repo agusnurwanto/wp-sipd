@@ -1240,6 +1240,7 @@ CREATE TABLE `data_anggaran_kas` (
   `total_rincian` double DEFAULT NULL,
   `active` tinyint(4) DEFAULT NULL,
   `kode_sbl` varchar(50) DEFAULT NULL,
+  `kode_sbl_sub_keg` varchar(50) DEFAULT NULL,
   `type` varchar(50) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `updated_at` datetime NOT NULL,

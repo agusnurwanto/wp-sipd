@@ -288,6 +288,7 @@ foreach ($units as $k => $unit) :
 		}
 
 		$total_simda = 0;
+		$total_rak_simda = 0;
 		if ($singkron_simda == '1') {
 			if ($cek_pagu_dpa == 'rka_simda') {
 				$total_simda = $this->get_pagu_simda_rka(array(
@@ -333,8 +334,15 @@ foreach ($units as $k => $unit) :
 				'kd_keg' => $kd_keg
 			));
 		}
-		if ($total_simda == 0) {
-			$total_rak_simda = 0;
+		if ($singkron_simda != '1') {
+			$total_rak_simda = $this->get_rak_sipd_rfk(array(
+				'user' => $current_user->display_name,
+				'id_skpd' => $input['id_skpd'],
+				'kode_sbl' => $sub['kode_sbl'],
+				'tahun_anggaran' => $input['tahun_anggaran'],
+				'bulan' => $bulan,
+				'rak' => $sub['rak']
+			));
 		}
 
 		$realisasi = 0;
