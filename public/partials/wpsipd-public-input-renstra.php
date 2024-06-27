@@ -7146,7 +7146,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	jQuery("#modal-crud-renstra").modal('show');
 
           		listKegiatanByProgram(response.kegiatan.id_program).then(function(){
-          			jQuery("#list-kegiatan").select2({'max-width':'100%'});
+          			jQuery("#list-kegiatan").select2({'width':'100%'});
           		});
           	}
         })
@@ -7170,7 +7170,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          		response.data.map(function(value, index){
 						option +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
 					})
-	          		jQuery("#list-kegiatan").html(option);
+	          		jQuery("#list-kegiatan").html(option).select2({'width':'100%'});
 	          		resolve();
 	          	}
 	        })
@@ -7410,12 +7410,12 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	          		jQuery(document).on("change", "#program-teks",function(event) {
 						listKegiatanByProgram(event.target.value).then(function(){
-							jQuery("#list-kegiatan").select2({'min-width':'100%'});
+							jQuery("#list-kegiatan").select2({'width':'100%'});
 				          	jQuery("#list-kegiatan").attr('onchange', `listSubGiat(
 				          		'${response.sub_kegiatan.id_unit}', 
 				          		'<?php echo $tahun_anggaran; ?>'
 				          	)`);
-				          	jQuery("#select-sub-kegiatan-2").html(null);
+				          	jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
 				        });
 					});
           		});
