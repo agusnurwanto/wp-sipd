@@ -10025,7 +10025,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				SUM(bulan_11) as bulan_11,
 				SUM(bulan_12) as bulan_12
 			FROM data_anggaran_kas
-			WHERE kode_sbl=%s
+			WHERE kode_sbl_sub_keg=%s
 				AND id_sub_skpd=%d
 				AND active=1
 				AND type='belanja'
