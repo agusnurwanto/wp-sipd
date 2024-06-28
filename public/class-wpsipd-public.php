@@ -11491,7 +11491,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$realisasi_bulanan = 0;
 					}
 					if (empty($rak[$i])) {
-						$rak[$i] = 0;
+						$rak[$i] = $this->get_rak_sipd_rfk(array(
+							'user' => $current_user->display_name,
+							'id_skpd' => $id_skpd,
+							'kode_sbl' => $kode_sbl,
+							'tahun_anggaran' => $tahun_anggaran,
+							'bulan' => $i,
+							'rak' => 0
+						));
 					}
 					$bulan_minus = $i - 1;
 					if (empty($rak[$bulan_minus])) {
