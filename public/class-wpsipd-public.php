@@ -9208,6 +9208,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['tahun'])) {
 			echo '<h1 class="text-center">TAHUN ANGGARAN TERPILIH<br>' . $_GET['tahun'] . '</h1>';
 		}
+		$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
+
+		if(empty($tahun_skpd)){
+			echo "Tahun angaran SIPD belum disetting oleh admin!";
+			return;
+		}
+
 		if (empty($user_meta->roles)) {
 			echo 'User ini tidak dapat akses sama sekali :)';
 		} else if (in_array("mitra_bappeda", $user_meta->roles)) {
@@ -9215,7 +9222,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (empty($_GET) || empty($_GET['tahun'])) {
 				return;
 			}
-
 			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
 			if (!empty($id_user_sipd)) {
 				$title = 'Jadwal Input Perencanaan RENJA | ' . $_GET['tahun'];
@@ -9240,7 +9246,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						and m.id_user=" . $id_user_sipd[0] . " 
 						and m.tahun_anggaran=%d 
 						and u.is_skpd=1
-					group by id_unit", $_GET['tahun']), ARRAY_A);
+					group by id_unit", $tahun_skpd), ARRAY_A);
 				foreach ($skpd_mitra as $k => $v) {
 					$this->menu_monev_skpd(array(
 						'id_skpd' => $v['id_unit'],
@@ -9275,6 +9281,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			in_array("PA", $user_meta->roles)
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("PLT", $user_meta->roles)
+			|| in_array("PLH", $user_meta->roles)
 		) {
 			$this->pilih_tahun_anggaran();
 			if (empty($_GET) || empty($_GET['tahun'])) {
@@ -9312,7 +9319,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				from data_unit 
 				where nipkepala=%s 
 					and tahun_anggaran=%d
-				group by id_skpd", $nipkepala[0], $_GET['tahun']), ARRAY_A);
+				group by id_skpd", $nipkepala[0], $tahun_skpd), ARRAY_A);
 			foreach ($skpd_db as $skpd) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $skpd['id_skpd'],
@@ -9330,7 +9337,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						where id_unit=%d 
 							and tahun_anggaran=%d
 							and is_skpd=0
-						group by id_skpd", $skpd['id_skpd'], $_GET['tahun']), ARRAY_A);
+						group by id_skpd", $skpd['id_skpd'], $tahun_skpd), ARRAY_A);
 					foreach ($sub_skpd_db as $sub_skpd) {
 						$this->menu_monev_skpd(array(
 							'id_skpd' => $sub_skpd['id_skpd'],
@@ -9358,7 +9365,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				from data_unit 
 				where active=1 
 					and tahun_anggaran=%d
-				group by id_skpd", $_GET['tahun']), ARRAY_A);
+				group by id_skpd", $tahun_skpd), ARRAY_A);
 			foreach ($skpd_mitra as $k => $v) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $v['id_skpd'],
@@ -9389,7 +9396,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				where active=1 
 					and tahun_anggaran=%d
 					and id_skpd IN (" . implode(',', $ids) . ")
-				group by id_skpd", $_GET['tahun']), ARRAY_A);
+				group by id_skpd", $tahun_skpd), ARRAY_A);
 			foreach ($skpd_mitra as $k => $v) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $v['id_skpd'],
@@ -9422,7 +9429,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					from data_unit 
 					where active=1 
 						and tahun_anggaran=%d
-					group by id_skpd", $_GET['tahun']), ARRAY_A);
+					group by id_skpd", $tahun_skpd), ARRAY_A);
 				foreach ($skpd_mitra as $k => $v) {
 					$this->menu_monev_skpd(array(
 						'id_skpd' => $v['id_skpd'],
