@@ -8671,24 +8671,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 		return $custom_post;
 	}
-
-	function gen_key($key_db = false, $options = array())
-	{
-		$now = time() * 1000;
-		if (empty($key_db)) {
-			$key_db = md5(get_option('_crb_api_key_extension'));
-		}
-		$tambahan_url = '';
-		if (!empty($options['custom_url'])) {
-			$custom_url = array();
-			foreach ($options['custom_url'] as $k => $v) {
-				$custom_url[] = $v['key'] . '=' . $v['value'];
-			}
-			$tambahan_url = $key_db . implode('&', $custom_url);
-		}
-		$key = base64_encode($now . $key_db . $now . $tambahan_url);
-		return $key;
-	}
+	
+    function gen_key($key_db = false, $options = array())
+    {
+        $now = time() * 1000;
+        if (empty($key_db)) {
+            $key_db = md5(get_option('_crb_api_key_extension'));
+        }
+        $tambahan_url = '';
+        $cek_param_get = [];
+        if (!empty($options['custom_url'])) {
+            $custom_url = array();
+            foreach ($options['custom_url'] as $k => $v) {
+                if(
+                    !empty($v['key']) 
+                    && !empty($v['value'])
+                ){
+                    $custom_url[] = $v['key'] . '=' . $v['value'];
+                }else{
+                    $cek_param_get[] = $k . '=' . $v;
+                }
+            }
+            $tambahan_url = $key_db . implode('&', $custom_url);
+        }
+        $key = base64_encode($now . $key_db . $now . $tambahan_url);
+        if(!empty($cek_param_get)){
+            $key .= '&'.implode('&', $cek_param_get);
+        }
+        return $key;
+    }
 
 	function penyebut($nilai)
 	{
@@ -9060,7 +9071,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					</div>
 				</div>";
 			}
-			
+
 			$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
 			$tahun = $_GET['tahun'];
 			$unit = $wpdb->get_results($wpdb->prepare(

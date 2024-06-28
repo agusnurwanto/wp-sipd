@@ -117,23 +117,34 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		));
 	}
 
-	function gen_key($key_db = false, $options = array())
-	{
-		$now = time() * 1000;
-		if (empty($key_db)) {
-			$key_db = md5(get_option('_crb_api_key_extension'));
-		}
-		$tambahan_url = '';
-		if (!empty($options['custom_url'])) {
-			$custom_url = array();
-			foreach ($options['custom_url'] as $k => $v) {
-				$custom_url[] = $v['key'] . '=' . $v['value'];
-			}
-			$tambahan_url = $key_db . implode('&', $custom_url);
-		}
-		$key = base64_encode($now . $key_db . $now . $tambahan_url);
-		return $key;
-	}
+    function gen_key($key_db = false, $options = array())
+    {
+        $now = time() * 1000;
+        if (empty($key_db)) {
+            $key_db = md5(get_option('_crb_api_key_extension'));
+        }
+        $tambahan_url = '';
+        $cek_param_get = [];
+        if (!empty($options['custom_url'])) {
+            $custom_url = array();
+            foreach ($options['custom_url'] as $k => $v) {
+                if(
+                    !empty($v['key']) 
+                    && !empty($v['value'])
+                ){
+                    $custom_url[] = $v['key'] . '=' . $v['value'];
+                }else{
+                    $cek_param_get[] = $k . '=' . $v;
+                }
+            }
+            $tambahan_url = $key_db . implode('&', $custom_url);
+        }
+        $key = base64_encode($now . $key_db . $now . $tambahan_url);
+        if(!empty($cek_param_get)){
+            $key .= '&'.implode('&', $cek_param_get);
+        }
+        return $key;
+    }
 
 	public function get_link_post($custom_post)
 	{
