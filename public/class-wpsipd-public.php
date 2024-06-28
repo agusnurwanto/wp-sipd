@@ -8671,7 +8671,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 		return $custom_post;
 	}
-	
+
     function gen_key($key_db = false, $options = array())
     {
         $now = time() * 1000;
@@ -10060,6 +10060,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			for ($i = 1; $i <= $options['bulan']; $i++) {
 				$total_rak += $data_kas['bulan_' . $i];
 			}
+		}
+		if($total_rak == $options['rak']){
+			return $total_rak;
 		}
 		$sql = $wpdb->prepare("
 		    select 
