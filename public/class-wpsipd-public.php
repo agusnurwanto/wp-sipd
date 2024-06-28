@@ -9060,7 +9060,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					</div>
 				</div>";
 			}
-
+			
+			$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
 			$tahun = $_GET['tahun'];
 			$unit = $wpdb->get_results($wpdb->prepare(
 				"
@@ -9073,7 +9074,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				where active=1 
 					and tahun_anggaran=%d
 					and id_skpd=%d",
-				$tahun,
+				$tahun_skpd,
 				$id_skpd
 			), ARRAY_A);
 
@@ -9090,6 +9091,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			foreach ($unit as $kk => $vv) {
 				if (
 					in_array("administrator", $user_meta->roles)
+					|| in_array("PLH", $user_meta->roles)
 					|| in_array("PLT", $user_meta->roles)
 					|| in_array("PA", $user_meta->roles)
 					|| in_array("KPA", $user_meta->roles)
