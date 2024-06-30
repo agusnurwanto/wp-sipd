@@ -70,7 +70,8 @@ $nama_pemda = get_option('_crb_daerah');
 $bulan = date('m');
 $body_monev = '';
 $data_all = array(
-	'data' => array()
+	'data' => array(),
+	'isRenstraLokal' => false
 );
 $current_user = wp_get_current_user();
 $tujuan = $wpdb->get_results($wpdb->prepare("
@@ -83,6 +84,31 @@ $tujuan = $wpdb->get_results($wpdb->prepare("
 				tahun_anggaran=%d order by id",
 				$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 // echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+
+if(empty($tujuan)){
+	$tujuan = $wpdb->get_results($wpdb->prepare("
+		SELECT 
+			* 
+		FROM data_renstra_tujuan_lokal 
+		WHERE 
+			id_unit=%d AND 
+			active=1 ORDER BY urut_tujuan
+	", $input['id_skpd']), ARRAY_A);
+	if(!empty($tujuan)){
+		$data_all['isRenstraLokal'] = true;
+
+		$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
+		$jadwal_lokal = $cek_jadwal['data'];
+		if(!empty($jadwal_lokal)){
+			$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
+			$urut = $input['tahun_anggaran']-$awal_renstra+1;
+			if($urut <= 0){
+				die('');
+			}
+		}
+	}
+}
+
 
 if(!empty($tujuan)){
 	foreach ($tujuan as $t => $tujuan_value) {
@@ -103,6 +129,16 @@ if(!empty($tujuan)){
 						$tujuan_value['kode_sasaran_rpjm'],
 						$input['tahun_anggaran']
 					), ARRAY_A);
+
+				if(empty($cek_status_rpjmd) && $data_all['isRenstraLokal']){
+					$sasaran_rpjm = $wpdb->get_var("
+						SELECT DISTINCT
+							sasaran_teks
+						FROM data_rpjmd_sasaran_lokal 
+						WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
+							AND active=1
+					");
+				}
 
 				if(!empty($cek_status_rpjmd)){
 					$status_rpjmd='TERKONEKSI';
@@ -158,10 +194,27 @@ if(!empty($tujuan)){
 			", $input['id_skpd'], $input['tahun_anggaran'], $tujuan_value['id_unik'], $tujuan_value['id_bidang_urusan'], $tujuan_value['urut_tujuan']), ARRAY_A);
 		// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
+		if($data_all['isRenstraLokal']){
+			$sasaran = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							kode_tujuan=%s AND 
+							active=1 ORDER BY urut_sasaran
+					", $tujuan_value['id_unik']), ARRAY_A);
+		}
+
 		if(!empty($sasaran)){
 			foreach ($sasaran as $s => $sasaran_value) {
-				$nama = explode("||", $sasaran_value['sasaran_teks']);
-				$sasaran_key = $nama[2];			
+				if($data_all['isRenstraLokal']){
+					$sasaran_key = $sasaran_value['id_unik'];
+					$nama[0] = $sasaran_value['sasaran_teks'];
+					$nama[2] = $sasaran_value['id_unik'];
+				}else{
+					$nama = explode("||", $sasaran_value['sasaran_teks']);
+					$sasaran_key = $nama[2];	
+				}
 
 				if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])){
 					$nama_bidang_urusan = explode("||", $sasaran_value['nama_bidang_urusan']);
@@ -1018,7 +1071,7 @@ if(!empty($kegiatan)){
 // echo '<pre>';print_r($data_all['data']);echo '</pre>'; die();
 foreach ($data_all['data'] as $key => $tujuan) 
 	{
-
+			// echo '<pre>';print_r($tujuan);echo '</pre>'; die();
 			$indikator = array(
 					'indikator_teks' => array(),
 					'target_akhir' => array(),

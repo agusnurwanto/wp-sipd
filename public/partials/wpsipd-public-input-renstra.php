@@ -7146,7 +7146,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	jQuery("#modal-crud-renstra").modal('show');
 
           		listKegiatanByProgram(response.kegiatan.id_program).then(function(){
-          			jQuery("#list-kegiatan").select2({'width':'100%'});
+          			// jQuery("#list-kegiatan").select2({'width':'100%'});
           		});
           	}
         })
@@ -7401,7 +7401,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					jQuery('.btn-mutakhirkan').attr('onclick', 'mutakhirkanSubKegiatan(\''+response.sub_kegiatan.id_sub_giat+'\', \''+id+'\')');
 					jQuery('.nav-tabs a[href="#nav-sub-giat-default"]').tab('show');
 	          		jQuery("#modal-crud-renstra").modal('show');
-	          		jQuery("#select-sub-kegiatan").select2({width: '100%'});
+	          		// jQuery("#select-sub-kegiatan").select2({width: '100%'});
 
 	          		get_urusan();
 					get_bidang();
@@ -7410,12 +7410,12 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	          		jQuery(document).on("change", "#program-teks",function(event) {
 						listKegiatanByProgram(event.target.value).then(function(){
-							jQuery("#list-kegiatan").select2({'width':'100%'});
+							// jQuery("#list-kegiatan").select2({'width':'100%'});
 				          	jQuery("#list-kegiatan").attr('onchange', `listSubGiat(
 				          		'${response.sub_kegiatan.id_unit}', 
 				          		'<?php echo $tahun_anggaran; ?>'
 				          	)`);
-				          	jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
+				          	// jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
 				        });
 					});
           		});
@@ -7440,7 +7440,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 		}, 'select-indikator-sub-kegiatan').then(function(){
 			jQuery('#wrap-loading').hide();
-	        jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
+	        // jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
 		});
 	}
 
@@ -7492,7 +7492,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
 		}, "select-sub-kegiatan-2").then(function(){
 			jQuery('#wrap-loading').hide();
-			jQuery("#select-sub-kegiatan-2").select2({width: '100%'});
+			// jQuery("#select-sub-kegiatan-2").select2({width: '100%'});
 
 			jQuery(document).on('change', "#select-sub-kegiatan-2", function(event){
 				jQuery('#wrap-loading').show();
