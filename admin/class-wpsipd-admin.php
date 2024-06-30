@@ -117,23 +117,34 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		));
 	}
 
-	function gen_key($key_db = false, $options = array())
-	{
-		$now = time() * 1000;
-		if (empty($key_db)) {
-			$key_db = md5(get_option('_crb_api_key_extension'));
-		}
-		$tambahan_url = '';
-		if (!empty($options['custom_url'])) {
-			$custom_url = array();
-			foreach ($options['custom_url'] as $k => $v) {
-				$custom_url[] = $v['key'] . '=' . $v['value'];
-			}
-			$tambahan_url = $key_db . implode('&', $custom_url);
-		}
-		$key = base64_encode($now . $key_db . $now . $tambahan_url);
-		return $key;
-	}
+    function gen_key($key_db = false, $options = array())
+    {
+        $now = time() * 1000;
+        if (empty($key_db)) {
+            $key_db = md5(get_option('_crb_api_key_extension'));
+        }
+        $tambahan_url = '';
+        $cek_param_get = [];
+        if (!empty($options['custom_url'])) {
+            $custom_url = array();
+            foreach ($options['custom_url'] as $k => $v) {
+                if(
+                    !empty($v['key']) 
+                    && !empty($v['value'])
+                ){
+                    $custom_url[] = $v['key'] . '=' . $v['value'];
+                }else{
+                    $cek_param_get[] = $k . '=' . $v;
+                }
+            }
+            $tambahan_url = $key_db . implode('&', $custom_url);
+        }
+        $key = base64_encode($now . $key_db . $now . $tambahan_url);
+        if(!empty($cek_param_get)){
+            $key .= '&'.implode('&', $cek_param_get);
+        }
+        return $key;
+    }
 
 	public function get_link_post($custom_post)
 	{
@@ -3000,76 +3011,104 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		return $label;
 	}
 
+	public function decode_key($value)
+    {
+        $key = base64_decode($value);
+        $key_db = md5(get_option('_crb_api_key_extension'));
+        $key = explode($key_db, $key);
+        $get = array();
+        if (!empty($key[2])) {
+            $all_get = explode('&', $key[2]);
+            foreach ($all_get as $k => $v) {
+                $current_get = explode('=', $v);
+                $get[$current_get[0]] = $current_get[1];
+            }
+        }
+        return $get;
+    }
+
 	function allow_access_private_post()
-	{
-		if (
-			!empty($_GET)
-			&& !empty($_GET['key'])
-		) {
-			$key = base64_decode($_GET['key']);
-			$key_db = md5(get_option('_crb_api_key_extension'));
-			$key = explode($key_db, $key);
-			$valid = 0;
-			if (
-				!empty($key[1])
-				&& $key[0] == $key[1]
-				&& is_numeric($key[1])
-			) {
-				$tgl1 = new DateTime();
-				$date = substr($key[1], 0, strlen($key[1]) - 3);
-				$tgl2 = new DateTime(date('Y-m-d', $date));
-				$valid = $tgl2->diff($tgl1)->days + 1;
-			}
-			if ($valid == 1) {
-				global $wp_query;
-				// print_r($wp_query);
-				// print_r($wp_query->queried_object); die('tes');
-				if (!empty($wp_query->queried_object)) {
-					if ($wp_query->queried_object->post_status == 'private') {
-						wp_update_post(array(
-							'ID'    =>  $wp_query->queried_object->ID,
-							'post_status'   =>  'publish'
-						));
-						if (!empty($_GET['private'])) {
-							die('<script>window.location =  window.location.href;</script>');
-						} else {
-							die('<script>window.location =  window.location.href+"&private=1";</script>');
-						}
-					} else if (!empty($_GET['private'])) {
-						wp_update_post(array(
-							'ID'    =>  $wp_query->queried_object->ID,
-							'post_status'   =>  'private'
-						));
-					}
-				} else if ($wp_query->found_posts >= 1) {
-					global $wpdb;
-					$sql = $wp_query->request;
-					$post = $wpdb->get_results($sql, ARRAY_A);
-					if (!empty($post)) {
-						if (empty($post[0]['post_status'])) {
-							return;
-						}
-						if ($post[0]['post_status'] == 'private') {
-							wp_update_post(array(
-								'ID'    =>  $post[0]['ID'],
-								'post_status'   =>  'publish'
-							));
-							if (!empty($_GET['private'])) {
-								die('<script>window.location =  window.location.href;</script>');
-							} else {
-								die('<script>window.location =  window.location.href+"&private=1";</script>');
-							}
-						} else if (!empty($_GET['private'])) {
-							wp_update_post(array(
-								'ID'    =>  $post[0]['ID'],
-								'post_status'   =>  'private'
-							));
-						}
-					}
-				}
-			}
-		}
-	}
+    {
+        if (
+            !empty($_GET)
+            && !empty($_GET['key'])
+        ) {
+            $key = base64_decode($_GET['key']);
+            $decode = $this->decode_key($_GET['key']);
+            if (!empty($decode['skip'])) {
+                return;
+            }
+            unset($_GET['key']);
+
+            $key_db = md5(get_option('_crb_api_key_extension'));
+            $key = explode($key_db, $key);
+            $valid = 0;
+            if (
+                !empty($key[1])
+                && $key[0] == $key[1]
+                && is_numeric($key[1])
+            ) {
+                $tgl1 = new DateTime();
+                $date = substr($key[1], 0, strlen($key[1]) - 3);
+                $tgl2 = new DateTime(date('Y-m-d', $date));
+                $valid = $tgl2->diff($tgl1)->days + 1;
+            }
+            if ($valid == 1) {
+                global $wp_query;
+                // print_r($wp_query);
+                // print_r($wp_query->queried_object); die('tes');
+                if (!empty($wp_query->queried_object)) {
+                    if ($wp_query->queried_object->post_status == 'private') {
+                        wp_update_post(array(
+                            'ID'    =>  $wp_query->queried_object->ID,
+                            'post_status'   =>  'publish'
+                        ));
+                        $custom_post = get_page($wp_query->queried_object->ID);
+                        $custom_post->custom_url = $_GET;
+                        $link = $this->get_link_post($custom_post);
+                        if (!empty($_GET['private'])) {
+                            die('<script>window.location =  "' . $link . '";</script>');
+                        } else {
+                            die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
+                        }
+                    } else if (!empty($_GET['private'])) {
+                        wp_update_post(array(
+                            'ID'    =>  $wp_query->queried_object->ID,
+                            'post_status'   =>  'private'
+                        ));
+                    }
+                } else if ($wp_query->found_posts >= 1) {
+                    global $wpdb;
+                    $sql = $wp_query->request;
+                    $post = $wpdb->get_results($sql, ARRAY_A);
+                    if (!empty($post)) {
+                        if (empty($post[0]['post_status'])) {
+                            return;
+                        }
+                        if ($post[0]['post_status'] == 'private') {
+                            wp_update_post(array(
+                                'ID'    =>  $post[0]['ID'],
+                                'post_status'   =>  'publish'
+                            ));
+                            $custom_post = get_page($post[0]['ID']);
+                            $custom_post->custom_url = $_GET;
+                            $link = $this->get_link_post($custom_post);
+                            if (!empty($_GET['private'])) {
+                                die('<script>window.location =  "' . $link . '";</script>');
+                            } else {
+                                die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
+                            }
+                        } else if (!empty($_GET['private'])) {
+                            wp_update_post(array(
+                                'ID'    =>  $post[0]['ID'],
+                                'post_status'   =>  'private'
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	function get_label_komponen()
 	{

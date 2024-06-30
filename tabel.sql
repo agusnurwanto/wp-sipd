@@ -1602,7 +1602,7 @@ CREATE TABLE `data_rfk` (
   `id` int(11) NOT NULL auto_increment,
   `bulan` tinyint(2) NOT NULL,
   `kode_sbl` text NOT NULL,
-  `rak` double(20,0) DEFAULT NULL,
+  `rak` double(20,2) DEFAULT NULL,
   `realisasi_anggaran` double(20,2) DEFAULT NULL,
   `realisasi_fisik` double(5,2) DEFAULT NULL,
   `permasalahan` text DEFAULT NULL,

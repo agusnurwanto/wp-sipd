@@ -13,6 +13,18 @@ jQuery(document).ready(function(){
 	    	jQuery('body').addClass('modal-open');
 	  	}
 	});
+
+	jQuery( document ).on( "ajaxComplete", function( event, xhr, settings ) {
+	  	console.log('xhr complete!', xhr);
+	  	if(
+	  		xhr.status == 400 
+	  		&& settings.url.indexOf('/admin-ajax.php') != -1
+	  	){
+	  		if(confirm('Permintaan ke server gagal! Sepertinya session login kamu sudah habis. Apakah kamu mau pindah ke halaman user untuk memastikan?')){
+	  			window.location.href = ajax.site_url+'/user';
+	  		}
+	  	}
+	});
 });
 
 function to_number(text){

@@ -2487,7 +2487,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	<li>Indikator kegiatan memiliki pagu tersendiri sesuai format SIPD. Pada kotak pagu kegiatan akan berwarna merah jika pagu akumulasi sub kegiatan dan pagu akumulasi indikator kegiatan tidak sama.</li>
 </ol>
 
-<div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal fade" id="modal-monev">
     <div class="modal-dialog" style="max-width: 1200px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -2519,7 +2519,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 </div>
 
 <!-- Modal indikator renstra -->
-<div class="modal fade" id="modal-indikator-renstra" data-backdrop="static" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-indikator-renstra">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -2536,7 +2536,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 </div>
 
 <!-- Modal crud renstra -->
-<div class="modal fade" id="modal-crud-renstra" data-backdrop="static"  role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-crud-renstra">
   <div class="modal-dialog modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -3616,11 +3616,11 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
 					+'<div class="form-group">'
 				    	+'<label>Pilih Urusan</label>'
-				    	+'<select class="form-control" name="id_urusan" id="urusan-teks" readonly></select>'
+				    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
 				  	+'</div>'
 				  	+'<div class="form-group">'
 				    	+'<label>Pilih Bidang</label>'
-				    	+'<select class="form-control" name="id_bidang" id="bidang-teks" readonly></select>'
+				    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
 				  	+'</div>'
 				  	+'<div class="form-group">'
 				    	+'<label>Pilih Program</label>'
@@ -4167,7 +4167,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					kegiatanModal.find('.modal-dialog').css('maxWidth','');
 					kegiatanModal.find('.modal-dialog').css('width','');
 					kegiatanModal.modal('show');
-					jQuery("#id_kegiatan").select2({width: '100%'});
+					jQuery("#id_kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 				}
 		});	
 	});
@@ -4243,7 +4243,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					kegiatanModal.find('.modal-dialog').css('width','');
 					kegiatanModal.modal('show');
 					jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
-					jQuery("#id_kegiatan").select2({width: '100%'});
+					jQuery("#id_kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 				}
 		});	
 	});
@@ -4982,7 +4982,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		       'id_sub_giat':id_sub_giat,
 		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 		    }, 'opt_indikator').then(function(){
-	            jQuery(".opt_indikator").select2({width: '100%'});
+	            jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 		    });
 			
 	});
@@ -5116,7 +5116,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						jQuery(".opt_indikator_usulan").val(response.data.id_indikator_usulan);
 						if(response.data.id_indikator!='' && response.data.id_indikator != 'undefined'){
 							jQuery(".opt_indikator_penetapan").val(response.data.id_indikator);
-	            			jQuery(".opt_indikator").select2({width: '100%'});
+	            			jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 						}
 					});
 			}
@@ -6534,7 +6534,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		for(var nm_urusan in all_program){
 			html += '<option>'+nm_urusan+'</option>';
 		}
-		jQuery('#urusan-teks').html(html).select2({width: '100%', disabled: true});
+		jQuery('#urusan-teks').html(html);
 	}
 
 	function get_bidang(nm_urusan) {
@@ -6550,7 +6550,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				}
 			}
 		}
-		jQuery('#bidang-teks').html(html).select2({width: '100%', disabled: true});
+		jQuery('#bidang-teks').html(html);
 	}
 
 	function get_program(nm_bidang, val) {
@@ -6603,7 +6603,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				}
 			}
 		}
-		jQuery('#program-teks').html(html).select2({width: '100%'});
+		jQuery('#program-teks').html(html);
 	}
 
 	function get_bidang_urusan(skpd){
@@ -7007,11 +7007,11 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						          		+'</tr>'
 					          			+'<tr>'
 					          				+'<th class="text-center" style="width: 160px;">Urusan</th>'
-					          				+'<td><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>'
+					          				+'<td><select class="form-control" name="id_urusan" id="urusan-teks"></select></td>'
 					          			+'</tr>'
 					          			+'<tr>'
 					          				+'<th class="text-center" style="width: 160px;">Bidang</th>'
-					          				+'<td><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>'
+					          				+'<td><select class="form-control" name="id_bidang" id="bidang-teks"></select></td>'
 					          			+'</tr>'
 					          			+'<tr>'
 					          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
@@ -7402,6 +7402,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					jQuery('.nav-tabs a[href="#nav-sub-giat-default"]').tab('show');
 	          		jQuery("#modal-crud-renstra").modal('show');
 	          		// jQuery("#select-sub-kegiatan").select2({width: '100%'});
+	          		// jQuery("#select-sub-kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 
 	          		get_urusan();
 					get_bidang();
@@ -7416,6 +7417,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				          		'<?php echo $tahun_anggaran; ?>'
 				          	)`);
 				          	// jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
+				          	// jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 				        });
 					});
           		});
@@ -7441,6 +7443,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		}, 'select-indikator-sub-kegiatan').then(function(){
 			jQuery('#wrap-loading').hide();
 	        // jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
+	        // jQuery(".select-indikator-sub-kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 		});
 	}
 
@@ -7493,6 +7496,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		}, "select-sub-kegiatan-2").then(function(){
 			jQuery('#wrap-loading').hide();
 			// jQuery("#select-sub-kegiatan-2").select2({width: '100%'});
+			// jQuery("#select-sub-kegiatan-2").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 
 			jQuery(document).on('change', "#select-sub-kegiatan-2", function(event){
 				jQuery('#wrap-loading').show();
