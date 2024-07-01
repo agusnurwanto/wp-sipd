@@ -141,14 +141,16 @@ foreach ($subkeg as $kk => $sub) {
 	$triwulan_3 = 0;
 	$triwulan_4 = 0;
 	foreach ($rfk_all as $k => $v) {
-		if($v['bulan'] <= 3){
-			$triwulan_1 = $v['realisasi_anggaran'];
-		}else if($v['bulan'] <= 6){
-			$triwulan_2 = $v['realisasi_anggaran']-$triwulan_1;
-		}else if($v['bulan'] <= 9){
-			$triwulan_3 = $v['realisasi_anggaran']-$triwulan_2;
-		}else if($v['bulan'] <= 12){
-			$triwulan_4 = $v['realisasi_anggaran']-$triwulan_3;
+		if(!empty($v['realisasi_anggaran'])){
+			if($v['bulan'] <= 3){
+				$triwulan_1 = $v['realisasi_anggaran'];
+			}else if($v['bulan'] <= 6){
+				$triwulan_2 = $v['realisasi_anggaran']-$triwulan_1;
+			}else if($v['bulan'] <= 9){
+				$triwulan_3 = $v['realisasi_anggaran']-$triwulan_2;
+			}else if($v['bulan'] <= 12){
+				$triwulan_4 = $v['realisasi_anggaran']-$triwulan_3;
+			}
 		}
 	}
 	$realisasi = $triwulan_1+$triwulan_2+$triwulan_3+$triwulan_4;
