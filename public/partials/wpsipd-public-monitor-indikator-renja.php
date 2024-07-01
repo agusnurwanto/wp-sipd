@@ -133,8 +133,9 @@ foreach ($subkeg as $kk => $sub) {
 		where tahun_anggaran=%d
 			and id_skpd=%d
 			and kode_sbl=%s
+			and bulan<=%d
 		order by bulan ASC
-	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl']), ARRAY_A);
+	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$triwulan_1 = 0;
 	$triwulan_2 = 0;
 	$triwulan_3 = 0;
