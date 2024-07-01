@@ -53,9 +53,10 @@
 	$table_default_value = array();
 	$body_default_value = '';
 	$data_statis_rumus_indikator = array(
-		array('id' => 1,'rumus' => 'Indikator Tren Positif','keterangan' => 'Indikator Tren Positif adalah jenis indikator yang semakin tinggi realisasi maka dianggap semakin baik. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = akumulasi dari semua triwulan.','user' => NULL,'active' => 1),
-		array('id' => 2,'rumus' => 'Indikator Tren Negatif','keterangan' => 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.','user' => NULL,'active' => 1),
-		array('id' => 3,'rumus' => 'Indikator Jenis Persentase','keterangan' => 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.','user' => NULL,'active' => 1)
+		array('id' => 1,'rumus' => 'Indikator Tren Positif','keterangan' => 'Indikator Tren Positif adalah jenis indikator yang semakin tinggi realisasi maka dianggap semakin baik. Rumus capaian target = Akumulasi Realisasi Semua Bulan/Target * 100. Rumus total target triwulan = akumulasi dari semua triwulan.','user' => NULL,'active' => 1),
+		array('id' => 2,'rumus' => 'Indikator Tren Negatif','keterangan' => 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target Bulan Terakhir/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.','user' => NULL,'active' => 1),
+		array('id' => 3,'rumus' => 'Indikator Jenis Persentase','keterangan' => 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi Bulan Terakhir/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.','user' => NULL,'active' => 1),
+		array('id' => 4,'rumus' => 'Indikator Nilai Akhir','keterangan' => 'Indikator Jenis Nilai Akhir adalah jenis indikator yang dinilai dari nilai akhirnya saja, seperti jenis persentase tapi tidak harus lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi Bulan Terakhir/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.','user' => NULL,'active' => 1)
 	);
 
 	update_option('data_master_rumus_indikator', $data_statis_rumus_indikator);
