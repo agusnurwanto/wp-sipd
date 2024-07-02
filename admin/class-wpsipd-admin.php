@@ -1324,7 +1324,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renja') {
+						$url_monev = $this->generatePage('MONITOR MONEV RENJA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja_skpd tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_monev . '">Halaman Monitor MONEV RENJA Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RENJA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renstra') {
 						$url_pemda = $this->generatePage('MONEV RENSTRA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
