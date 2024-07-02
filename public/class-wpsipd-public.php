@@ -11392,6 +11392,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$kode_sbl_s = explode('.', $kode_sbl);
 				$count_kode_sbl = count(explode('.', $ids[2]));
 				$type_indikator = 0;
+				$tahun_sekarang = date('Y');
+				$batas_bulan_input = date('m');
 
 				// sub kegiatan
 				if ($count_kode_sbl == 6) {
@@ -11456,8 +11458,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					where tahun_anggaran=%d
 						and id_skpd=%d
 						and kode_sbl LIKE %s
-					order by id DESC
-				", $tahun_anggaran, $id_skpd, $kode_sbl . '%'), ARRAY_A);
+						and bulan<=%d
+					order by bulan ASC
+				", $tahun_anggaran, $id_skpd, $kode_sbl . '%', $batas_bulan_input), ARRAY_A);
 				$ret['rfk_sql'] = $wpdb->last_query;
 				$realisasi_anggaran = array();
 				$rak = array();
@@ -11471,9 +11474,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 					$rak[$v['bulan']] += $v['rak'];
 				}
-
-				$tahun_sekarang = date('Y');
-				$batas_bulan_input = date('m');
 				if ($tahun_anggaran < $tahun_sekarang) {
 					$batas_bulan_input = 12;
 				}

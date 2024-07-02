@@ -89,23 +89,13 @@ $bulan = date('m');
 $subkeg = $wpdb->get_results($wpdb->prepare("
 		select 
 			k.*,
-			k.id as id_sub_keg, 
-			r.rak,
-			r.realisasi_anggaran, 
-			r.id as id_rfk, 
-			r.realisasi_fisik, 
-			r.permasalahan,
-			r.catatan_verifikator
+			k.id as id_sub_keg
 		from data_sub_keg_bl k
-			left join data_rfk r on k.kode_sbl=r.kode_sbl
-				AND k.tahun_anggaran=r.tahun_anggaran
-				AND k.id_sub_skpd=r.id_skpd
-				AND r.bulan=%d
 		where k.tahun_anggaran=%d
 			and k.active=1
 			and k.id_sub_skpd=%d
-		order by kode_sub_giat ASC
-	", $bulan, $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
+		order by k.kode_sub_giat ASC
+	", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
 $data_all = array(
 	'total' => 0,
 	'total_simda' => 0,
@@ -132,7 +122,6 @@ foreach ($subkeg as $kk => $sub) {
 	}else{
 		$total_simda = $sub['pagu'];
 	}
-	$realisasi = $sub['realisasi_anggaran'];
 	$total_pagu = $sub['pagu'];
 	$kode = explode('.', $sub['kode_sbl']);
 
@@ -144,23 +133,27 @@ foreach ($subkeg as $kk => $sub) {
 		where tahun_anggaran=%d
 			and id_skpd=%d
 			and kode_sbl=%s
+			and bulan<=%d
 		order by bulan ASC
-	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl']), ARRAY_A);
+	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$triwulan_1 = 0;
 	$triwulan_2 = 0;
 	$triwulan_3 = 0;
 	$triwulan_4 = 0;
 	foreach ($rfk_all as $k => $v) {
-		if($v['bulan'] <= 3){
-			$triwulan_1 = $v['realisasi_anggaran'];
-		}else if($v['bulan'] <= 6){
-			$triwulan_2 = $v['realisasi_anggaran']-$triwulan_1;
-		}else if($v['bulan'] <= 9){
-			$triwulan_3 = $v['realisasi_anggaran']-$triwulan_2;
-		}else if($v['bulan'] <= 12){
-			$triwulan_4 = $v['realisasi_anggaran']-$triwulan_3;
+		if(!empty($v['realisasi_anggaran'])){
+			if($v['bulan'] <= 3){
+				$triwulan_1 = $v['realisasi_anggaran'];
+			}else if($v['bulan'] <= 6){
+				$triwulan_2 = $v['realisasi_anggaran']-$triwulan_1;
+			}else if($v['bulan'] <= 9){
+				$triwulan_3 = $v['realisasi_anggaran']-$triwulan_2;
+			}else if($v['bulan'] <= 12){
+				$triwulan_4 = $v['realisasi_anggaran']-$triwulan_3;
+			}
 		}
 	}
+	$realisasi = $triwulan_1+$triwulan_2+$triwulan_3+$triwulan_4;
 
 	$kode_sbl_s = explode('.', $sub['kode_sbl']);
 	if(empty($data_all['data'][$sub['kode_urusan']])){
@@ -457,7 +450,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							}
 							$total_tw[$k_sub] += $realisasi_bulan;
 							if($i <= 3){
-								if($rumus_indikator == 3 || $rumus_indikator == 2){
+								if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 									if($i == 3){
 										$realisasi_indikator_tw1[$k_sub] = $realisasi_bulan;
 									}
@@ -465,7 +458,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									$realisasi_indikator_tw1[$k_sub] += $realisasi_bulan;
 								}
 							}else if($i <= 6){
-								if($rumus_indikator == 3 || $rumus_indikator == 2){
+								if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 									if($i == 6){
 										$realisasi_indikator_tw2[$k_sub] = $realisasi_bulan;
 									}
@@ -473,7 +466,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									$realisasi_indikator_tw2[$k_sub] += $realisasi_bulan;
 								}
 							}else if($i <= 9){
-								if($rumus_indikator == 3 || $rumus_indikator == 2){
+								if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 									if($i == 9){
 										$realisasi_indikator_tw3[$k_sub] = $realisasi_bulan;
 									}
@@ -481,7 +474,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									$realisasi_indikator_tw3[$k_sub] += $realisasi_bulan;
 								}
 							}else if($i <= 12){
-								if($rumus_indikator == 3 || $rumus_indikator == 2){
+								if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 									if($i == 12){
 										$realisasi_indikator_tw4[$k_sub] = $realisasi_bulan;
 									}
@@ -501,8 +494,12 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							if(!empty($total_tw[$k_sub])){
 								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator[$k_sub]/$total_tw[$k_sub])*100);
 							}
-						}else if($rumus_indikator == 3){
-							$class_rumus_target[$k_sub] = "persentase";
+						}else if($rumus_indikator == 3 || $rumus_indikator == 4){
+							if($rumus_indikator == 3){
+								$class_rumus_target[$k_sub] = "persentase";
+							}else if ($rumus_indikator == 4){
+								$class_rumus_target[$k_sub] = "nilai_akhir";
+							}
 							$total_tw[$k_sub] = $max;
 							if(!empty($target_indikator[$k_sub])){
 								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub]/$target_indikator[$k_sub])*100);
@@ -637,7 +634,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								}
 								$total_tw[$k_sub] += $realisasi_bulan;
 								if($i <= 3){
-									if($rumus_indikator == 3 || $rumus_indikator == 2){
+									if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 										if($i == 3){
 											$realisasi_indikator_tw1[$k_sub] = $realisasi_bulan;
 										}
@@ -645,7 +642,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 										$realisasi_indikator_tw1[$k_sub] += $realisasi_bulan;
 									}
 								}else if($i <= 6){
-									if($rumus_indikator == 3 || $rumus_indikator == 2){
+									if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 										if($i == 6){
 											$realisasi_indikator_tw2[$k_sub] = $realisasi_bulan;
 										}
@@ -653,7 +650,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 										$realisasi_indikator_tw2[$k_sub] += $realisasi_bulan;
 									}
 								}else if($i <= 9){
-									if($rumus_indikator == 3 || $rumus_indikator == 2){
+									if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 										if($i == 9){
 											$realisasi_indikator_tw3[$k_sub] = $realisasi_bulan;
 										}
@@ -661,7 +658,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 										$realisasi_indikator_tw3[$k_sub] += $realisasi_bulan;
 									}
 								}else if($i <= 12){
-									if($rumus_indikator == 3 || $rumus_indikator == 2){
+									if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 										if($i == 12){
 											$realisasi_indikator_tw4[$k_sub] = $realisasi_bulan;
 										}
@@ -681,8 +678,12 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								if(!empty($total_tw[$k_sub])){
 									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator[$k_sub]/$total_tw[$k_sub])*100);
 								}
-							}else if($rumus_indikator == 3){
-								$class_rumus_target[$k_sub] = "persentase";
+							}else if($rumus_indikator == 3 || $rumus_indikator == 4){
+								if($rumus_indikator == 3){
+									$class_rumus_target[$k_sub] = "persentase";
+								}else if($rumus_indikator == 4){
+									$class_rumus_target[$k_sub] = "nilai_akhir";
+								}
 								$total_tw[$k_sub] = $max;
 								if(!empty($target_indikator[$k_sub])){
 									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub]/$target_indikator[$k_sub])*100);
@@ -810,7 +811,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									}
 									$total_tw[$k_sub] += $realisasi_bulan;
 									if($i <= 3){
-										if($rumus_indikator == 3 || $rumus_indikator == 2){
+										if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 											if($i == 3){
 												$realisasi_indikator_tw1[$k_sub] = $realisasi_bulan;
 											}
@@ -818,7 +819,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 											$realisasi_indikator_tw1[$k_sub] += $realisasi_bulan;
 										}
 									}else if($i <= 6){
-										if($rumus_indikator == 3 || $rumus_indikator == 2){
+										if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 											if($i == 6){
 												$realisasi_indikator_tw2[$k_sub] = $realisasi_bulan;
 											}
@@ -826,7 +827,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 											$realisasi_indikator_tw2[$k_sub] += $realisasi_bulan;
 										}
 									}else if($i <= 9){
-										if($rumus_indikator == 3 || $rumus_indikator == 2){
+										if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 											if($i == 9){
 												$realisasi_indikator_tw3[$k_sub] = $realisasi_bulan;
 											}
@@ -834,7 +835,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 											$realisasi_indikator_tw3[$k_sub] += $realisasi_bulan;
 										}
 									}else if($i <= 12){
-										if($rumus_indikator == 3 || $rumus_indikator == 2){
+										if($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4){
 											if($i == 12){
 												$realisasi_indikator_tw4[$k_sub] = $realisasi_bulan;
 											}
@@ -854,8 +855,12 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									if(!empty($total_tw[$k_sub])){
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator/$total_tw[$k_sub])*100);
 									}
-								}else if($rumus_indikator == 3){
-									$class_rumus_target[$k_sub] = "persentase";
+								}else if($rumus_indikator == 3 || $rumus_indikator == 4){
+									if($rumus_indikator == 3){
+										$class_rumus_target[$k_sub] = "persentase";
+									}else if($rumus_indikator == 4){
+										$class_rumus_target[$k_sub] = "nilai_akhir";
+									}
 									$total_tw[$k_sub] = $max;
 									if(!empty($target_indikator)){
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub]/$target_indikator)*100);
@@ -949,6 +954,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	.persentase {
 		color: #9d00ff; 
 	}
+	.nilai_akhir {
+		color: #28bb00; 
+	}
 	.renstra_kegiatan, .indikator_renstra {
 		display: none;
 	}
@@ -979,13 +987,30 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	.display-indikator-renstra {
 		display: none;
 	}
+	#tabel-monev-renja {
+		font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; 
+		border-collapse: collapse; 
+		font-size: 70%; 
+		border: 0; 
+		table-layout: fixed;
+	}
+	#tabel-monev-renja thead{
+	  	position: sticky;
+	  	top: -6px;
+	  	background: #ffc491;
+	}
+	#tabel-monev-renja tfoot{
+	  	position: sticky;
+	  	bottom: -6px;
+	  	background: #ffc491;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Kerja <br><?php echo $url_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; max-height: 80vh;">
-	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+	<table id="tabel-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
 			<tr>
 				<th rowspan="5" style="width: 60px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
@@ -1077,6 +1102,22 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 		<tbody>
 			<?php echo $body_monev; ?>
 		</tbody>
+		<tfoot>
+			<tr>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="9">0</th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3">0</th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['total'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['triwulan_1'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['triwulan_2'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['triwulan_3'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['triwulan_4'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3"><?php echo number_format($data_all['realisasi'],0,",","."); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="2"><?php echo $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100); ?></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="3">0</th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="2">0</th>
+				<th></th>
+			</tr>
+		</tfoot>
 	</table>
 </div>
 <?php
@@ -1212,6 +1253,7 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Indikator berwarna <b>hitam</b> adalah indikator dengan rumus <b>Tren Positif</b></li>
 		<li>Indikator berwarna <b>merah</b> adalah indikator dengan rumus <b>Tren Negatif</b></li>
 		<li>Indikator berwarna <b>ungu</b> adalah indikator dengan rumus <b>Prosentase</b></li>
+		<li>Indikator berwarna <b>hijau</b> adalah indikator dengan rumus <b>Nilai Akhir</b></li>
 		<li>Lampiran excel, tanggal update file dan keterangan SKPD pada tabel Data File MONEV Indikator RENJA diisi oleh user SKPD (PA/KPA)</li>
 		<li>Catatan verifikator dan tanggal update catatan pada tabel Data File MONEV Indikator RENJA diisi oleh user Admin (BAPPEDA)</li>
 		<li>Ukuran file maksimal adalah 10MB dan berextensi .xlsx (excel)</li>
@@ -1423,6 +1465,11 @@ foreach ($monev_triwulan as $k => $v) {
 			if(total_indikator > 0){
 				total_realisasi_indikator = Math.round((total/total_indikator)*10000)/100;
 			}
+		}else if(tipe_indikator == 4){
+			total = target_batas_bulan_input;
+			if(total_indikator > 0){
+				total_realisasi_indikator = Math.round((total/total_indikator)*10000)/100;
+			}
 		}
 		jQuery('#total_target_realisasi').text(total);
 		jQuery('#capaian_target_realisasi').text(total_realisasi_indikator);
@@ -1569,7 +1616,7 @@ foreach ($monev_triwulan as $k => $v) {
 				keterangan[id_ket] = jQuery('#'+id_ket).text().trim();
 				if(i<=3){
 					total_tw1_realisasi += nilai_realisasi[id_realisasi];
-					if(tipe_indikator == 3 || tipe_indikator == 2){
+					if(tipe_indikator == 3 || tipe_indikator == 2 || tipe_indikator == 4){
 						if(i == 3){
 							total_tw1 = target_realisasi[id];
 						}
@@ -1578,7 +1625,7 @@ foreach ($monev_triwulan as $k => $v) {
 					}
 				}else if(i<=6){
 					total_tw2_realisasi += nilai_realisasi[id_realisasi];
-					if(tipe_indikator == 3 || tipe_indikator == 2){
+					if(tipe_indikator == 3 || tipe_indikator == 2 || tipe_indikator == 4){
 						if(i == 6){
 							total_tw2 = target_realisasi[id];
 						}
@@ -1587,7 +1634,7 @@ foreach ($monev_triwulan as $k => $v) {
 					}
 				}else if(i<=9){
 					total_tw3_realisasi += nilai_realisasi[id_realisasi];
-					if(tipe_indikator == 3 || tipe_indikator == 2){
+					if(tipe_indikator == 3 || tipe_indikator == 2 || tipe_indikator == 4){
 						if(i == 9){
 							total_tw3 = target_realisasi[id];
 						}
@@ -1596,7 +1643,7 @@ foreach ($monev_triwulan as $k => $v) {
 					}
 				}else if(i<=12){
 					total_tw4_realisasi += nilai_realisasi[id_realisasi];
-					if(tipe_indikator == 3 || tipe_indikator == 2){
+					if(tipe_indikator == 3 || tipe_indikator == 2 || tipe_indikator == 4){
 						if(i == 12){
 							total_tw4 = target_realisasi[id];
 						}
@@ -1668,6 +1715,8 @@ foreach ($monev_triwulan as $k => $v) {
 			          			rumus_indikator = 'negatif';
 			          		}else if(tipe_indikator == 3){
 			          			rumus_indikator = 'persentase';
+			          		}else if(tipe_indikator == 4){
+			          			rumus_indikator = 'nilai_akhir';
 			          		}
 			          		jQuery(tr).find('.rumus_indikator').addClass(rumus_indikator);
 			          		if(id_indikator_renstra){
@@ -1685,9 +1734,7 @@ foreach ($monev_triwulan as $k => $v) {
 			          				target_5 = target_5_asli;
 			          				total_target_renstra = target_5;
 			          			}
-			          			if(tipe_indikator == 2){
-			          				total_target_renstra = target_5;
-			          			}else if(tipe_indikator == 3){
+			          			if(tipe_indikator == 2 || tipe_indikator == 3 || tipe_indikator == 4){
 			          				total_target_renstra = target_5;
 			          			}
 			          			jQuery(tr).find('.total_target_renstra[data-id="'+id_indikator+'"]').text(total_target_renstra);
