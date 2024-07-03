@@ -81,18 +81,7 @@ foreach($all_unit_sub_skpd as $skpd){
 		ORDER BY r.bulan ASC
 	", $input['tahun_anggaran'], $skpd['id_skpd']), ARRAY_A);
 
-	$data_all = array(
-		'triwulan1' => 0,
-		'triwulan2' => 0,
-		'triwulan3' => 0,
-		'triwulan4' => 0,
-		'pagu_triwulan1' => 0,
-		'pagu_triwulan2' => 0,
-		'pagu_triwulan3' => 0,
-		'pagu_triwulan4' => 0
-	);
 	$total_pagu_skpd = 0;
-
 	$triwulan1 = 0;
 	$triwulan2 = 0;
 	$triwulan3 = 0;
@@ -123,18 +112,9 @@ foreach($all_unit_sub_skpd as $skpd){
 			}
 		}
 
-		$data_all['triwulan1'] += $triwulan1;
-		$data_all['triwulan2'] += $triwulan2;
-		$data_all['triwulan3'] += $triwulan3;
-		$data_all['triwulan4'] += $triwulan4;
-		$data_all['pagu_triwulan1'] += $pagu_triwulan1;
-		$data_all['pagu_triwulan2'] += $pagu_triwulan2;
-		$data_all['pagu_triwulan3'] += $pagu_triwulan3;
-		$data_all['pagu_triwulan4'] += $pagu_triwulan4;
-
 	}
 
-	$total_realisasi_triwulan = $data_all['triwulan1'] + $data_all['triwulan2'] + $data_all['triwulan3'] + $data_all['triwulan4'];
+	$total_realisasi_triwulan = $triwulan1 + $triwulan2 + $triwulan3 + $triwulan4;
 	$persen = $total_pagu_skpd > 0 ? round($total_realisasi_triwulan / $total_pagu_skpd * 100, 2) : 0;
 	$selisih = $total_pagu_skpd - $total_realisasi_triwulan;
 	$no++;
@@ -146,14 +126,14 @@ foreach($all_unit_sub_skpd as $skpd){
 		<tr>
 			<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
 			<td class="atas kanan bawah kiri text_kiri" style="'.$padding_skpd.'">'.$skpd['nama_skpd'].'</td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($data_all['pagu_triwulan1'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($data_all['triwulan1'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_2"><span>'.number_format($data_all['pagu_triwulan2'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_2"><span>'.number_format($data_all['triwulan2'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_3"><span>'.number_format($data_all['pagu_triwulan3'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_3"><span>'.number_format($data_all['triwulan3'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_4"><span>'.number_format($data_all['pagu_triwulan4'],2,",",".").'</span></td>
-	        <td class="atas kanan bawah kiri text_kanan triwulan_4"><span>'.number_format($data_all['triwulan4'],2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($pagu_triwulan1,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($triwulan1,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_2"><span>'.number_format($pagu_triwulan2,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_2"><span>'.number_format($triwulan2,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_3"><span>'.number_format($pagu_triwulan3,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_3"><span>'.number_format($triwulan3,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_4"><span>'.number_format($pagu_triwulan4,2,",",".").'</span></td>
+	        <td class="atas kanan bawah kiri text_kanan triwulan_4"><span>'.number_format($triwulan4,2,",",".").'</span></td>
 	        <td class="atas kanan bawah kiri text_kanan"><span>'.number_format($total_pagu_skpd,2,",",".").'</span></td>
 	        <td class="atas kanan bawah kiri text_kanan"><span>'.number_format($total_realisasi_triwulan,2,",",".").'</span></td>
 	        <td class="atas kanan bawah kiri text_kanan"><span>'.number_format($selisih,2,",",".").'</span></td>
@@ -162,10 +142,10 @@ foreach($all_unit_sub_skpd as $skpd){
 	';
 
 	//tfoot
-	$total_all_realisasi_triwulan_1 += $data_all['triwulan1'];
-	$total_all_realisasi_triwulan_2 += $data_all['triwulan2'];
-	$total_all_realisasi_triwulan_3 += $data_all['triwulan3'];
-	$total_all_realisasi_triwulan_4 += $data_all['triwulan4'];
+	$total_all_realisasi_triwulan_1 += $triwulan1;
+	$total_all_realisasi_triwulan_2 += $triwulan2;
+	$total_all_realisasi_triwulan_3 += $triwulan3;
+	$total_all_realisasi_triwulan_4 += $triwulan4;
 
 	$total_all_realisasi_triwulan += $total_realisasi_triwulan;
 	$total_all_selisih += $selisih;
