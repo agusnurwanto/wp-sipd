@@ -149,6 +149,11 @@ foreach($all_unit_sub_skpd as $skpd){
 	$total_all_realisasi_triwulan_3 += $triwulan3;
 	$total_all_realisasi_triwulan_4 += $triwulan4;
 
+	$total_all_pagu_triwulan_1 += $pagu_triwulan1;
+	$total_all_pagu_triwulan_2 += $pagu_triwulan2;
+	$total_all_pagu_triwulan_3 += $pagu_triwulan3;
+	$total_all_pagu_triwulan_4 += $pagu_triwulan4;
+
 	$total_all_realisasi_triwulan += $total_realisasi_triwulan;
 	$total_all_selisih += $selisih;
 	$total_all_pagu += $total_pagu_skpd;

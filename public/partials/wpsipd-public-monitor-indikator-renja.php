@@ -148,28 +148,28 @@ foreach ($subkeg as $kk => $sub) {
 	}
 	$cek_input = false;
 	for ($i = 1; $i <= $bulan; $i++) {
-		if (!isset($rak[$i])) {
+		$cek_rak = $this->get_rak_sipd_rfk(array(
+			'user' => $current_user->display_name,
+			'id_skpd' => $unit[0]['id_skpd'],
+			'kode_sbl' => $sub['kode_sbl'],
+			'tahun_anggaran' => $input['tahun_anggaran'],
+			'bulan' => $i,
+			'rak' => 0
+		));
+
+		// jika rak belum ada di data_rfk dan rak kosong maka lakukan insert data dengan nilai rak 0
+		if (!isset($rak[$i]) && $cek_rak==0) {
 			$cek_input = true;
-			$cek_rak = $this->get_rak_sipd_rfk(array(
-				'user' => $current_user->display_name,
-				'id_skpd' => $unit[0]['id_skpd'],
-				'kode_sbl' => $sub['kode_sbl'],
-				'tahun_anggaran' => $input['tahun_anggaran'],
-				'bulan' => $i,
-				'rak' => 0
-			));
-			if($cek_rak == 0){
-				$opsi = array(
-					'bulan'	=> $i,
-					'kode_sbl'	=> $sub['kode_sbl'],
-					'rak' => 0,
-					'user_edit'	=> $current_user->display_name,
-					'id_skpd'	=> $unit[0]['id_skpd'],
-					'tahun_anggaran'	=> $input['tahun_anggaran'],
-					'created_at'	=>  current_time('mysql')
-				);
-				$wpdb->insert('data_rfk', $opsi);
-			}
+			$opsi = array(
+				'bulan'	=> $i,
+				'kode_sbl'	=> $sub['kode_sbl'],
+				'rak' => 0,
+				'user_edit'	=> $current_user->display_name,
+				'id_skpd'	=> $unit[0]['id_skpd'],
+				'tahun_anggaran'	=> $input['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			$wpdb->insert('data_rfk', $opsi);
 		}
 	}
 
