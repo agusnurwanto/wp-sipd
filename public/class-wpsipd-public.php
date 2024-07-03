@@ -11500,7 +11500,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if ($realisasi_bulanan < 0) {
 						$realisasi_bulanan = 0;
 					}
-					if (empty($rak[$i])) {
+					if (empty($rak[$i]) && $i<=$batas_bulan_input) {
 						$rak[$i] = $this->get_rak_sipd_rfk(array(
 							'user' => $current_user->display_name,
 							'id_skpd' => $id_skpd,
