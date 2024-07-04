@@ -85,36 +85,46 @@ $tujuan = $wpdb->get_results($wpdb->prepare("
 				$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 // echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
-if(empty($tujuan)){
-	$tujuan = $wpdb->get_results($wpdb->prepare("
-		SELECT 
-			* 
-		FROM data_renstra_tujuan_lokal 
-		WHERE 
-			id_unit=%d AND 
-			active=1 ORDER BY urut_tujuan
-	", $input['id_skpd']), ARRAY_A);
-	if(!empty($tujuan)){
-		$data_all['isRenstraLokal'] = true;
+// if(empty($tujuan)){
+// 	$tujuan = $wpdb->get_results($wpdb->prepare("
+// 		SELECT 
+// 			* 
+// 		FROM data_renstra_tujuan_lokal 
+// 		WHERE 
+// 			id_unit=%d AND 
+// 			active=1 ORDER BY urut_tujuan
+// 	", $input['id_skpd']), ARRAY_A);
+// 	if(!empty($tujuan)){
+// 		$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
+// 		$jadwal_lokal = $cek_jadwal['data'];
+// 		if(!empty($jadwal_lokal)){
+// 			// $data_all['isRenstraLokal'] = true;
+// 			$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
+// 			$urut = $input['tahun_anggaran']-$awal_renstra+1;
+// 			if($urut <= 0){
+// 				die('');
+// 			}
+// 		}
+// 	}else{
+// 		die('<script>alert("Oops... Jadwal Renstra belum aktif!")</script>');
+// 	}
+// }
 
-		$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
-		$jadwal_lokal = $cek_jadwal['data'];
-		if(!empty($jadwal_lokal)){
-			$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
-			$urut = $input['tahun_anggaran']-$awal_renstra+1;
-			if($urut <= 0){
-				die('');
-			}
-		}
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
+$jadwal_lokal = $cek_jadwal['data'];
+if(!empty($jadwal_lokal)){
+	$data_all['isRenstraLokal'] = true;
+	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
+	$urut = $input['tahun_anggaran']-$awal_renstra+1;
+	if($urut <= 0){
+		die('');
 	}
 }
-
 
 if(!empty($tujuan)){
 	foreach ($tujuan as $t => $tujuan_value) {
 		$tujuan_key = $tujuan_value['id_bidang_urusan']."-".$tujuan_value['id_unik'];
 		if(empty($data_all['data'][$tujuan_key])){
-
 			$status_rpjmd='';
 			if(!empty($tujuan_value['kode_sasaran_rpjm'])){
 				$cek_status_rpjmd = $wpdb->get_results($wpdb->prepare("
@@ -130,15 +140,15 @@ if(!empty($tujuan)){
 						$input['tahun_anggaran']
 					), ARRAY_A);
 
-				if(empty($cek_status_rpjmd) && $data_all['isRenstraLokal']){
-					$sasaran_rpjm = $wpdb->get_var("
-						SELECT DISTINCT
-							sasaran_teks
-						FROM data_rpjmd_sasaran_lokal 
-						WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
-							AND active=1
-					");
-				}
+				// if(empty($cek_status_rpjmd) && $data_all['isRenstraLokal']){
+				// 	$sasaran_rpjm = $wpdb->get_var("
+				// 		SELECT DISTINCT
+				// 			sasaran_teks
+				// 		FROM data_rpjmd_sasaran_lokal 
+				// 		WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
+				// 			AND active=1
+				// 	");
+				// }
 
 				if(!empty($cek_status_rpjmd)){
 					$status_rpjmd='TERKONEKSI';
@@ -194,16 +204,16 @@ if(!empty($tujuan)){
 			", $input['id_skpd'], $input['tahun_anggaran'], $tujuan_value['id_unik'], $tujuan_value['id_bidang_urusan'], $tujuan_value['urut_tujuan']), ARRAY_A);
 		// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
-		if($data_all['isRenstraLokal']){
-			$sasaran = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						FROM data_renstra_sasaran_lokal 
-						WHERE 
-							kode_tujuan=%s AND 
-							active=1 ORDER BY urut_sasaran
-					", $tujuan_value['id_unik']), ARRAY_A);
-		}
+		// if($data_all['isRenstraLokal']){
+		// 	$sasaran = $wpdb->get_results($wpdb->prepare("
+		// 				SELECT 
+		// 					* 
+		// 				FROM data_renstra_sasaran_lokal 
+		// 				WHERE 
+		// 					kode_tujuan=%s AND 
+		// 					active=1 ORDER BY urut_sasaran
+		// 			", $tujuan_value['id_unik']), ARRAY_A);
+		// }
 
 		if(!empty($sasaran)){
 			foreach ($sasaran as $s => $sasaran_value) {
@@ -477,8 +487,14 @@ if(!empty($sasaran)){
 			}
 		}
 
-		$nama = explode("||", $s_value['sasaran_teks']);
-		$sasaran_key = $nama[2];
+		if($data_all['isRenstraLokal']){
+			$sasaran_key = $s_value['id_unik'];
+			$nama[0] = $s_value['sasaran_teks'];
+			$nama[2] = $s_value['id_unik'];
+		}else{
+			$nama = explode("||", $s_value['sasaran_teks']);
+			$sasaran_key = $nama[2];
+		}
 
 		if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])){
 			$data_all['data'][$tujuan_key]['data'][$sasaran_key] = array(
@@ -1739,6 +1755,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 
 	jQuery(document).on('ready', function(){
 		var aksi = ''
+			+'<a style="margin-left: 10px;" onclick="copy_renstra_local(); return false;" href="#" class="btn btn-danger">Copy Data Renstra Lokal</a>'
 			+'<h3 style="margin-top: 20px;">SETTING</h3>'
 			+'<label class="action-checkbox"><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;'
 			+'<label class="action-checkbox"><input type="checkbox" onclick="debug_renstra(this);"> Debug Cascading Renstra</label>'
@@ -2018,5 +2035,26 @@ foreach ($data_all['data'] as $key => $tujuan)
 			}
 		});
 
+	}
+
+	function copy_renstra_local(){
+		if(confirm('Copy data Tujuan dan Sasaran Renstra Lokal?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url:"<?php echo admin_url("admin-ajax.php") ?>",
+				type:"post",
+				data:{
+					"action": "copy_data_renstra_lokal",
+		          	"api_key": "<?php echo $api_key; ?>",
+					"tahun_anggaran": jQuery("#tahun_anggaran").val(),
+					"id_unit": jQuery("#id_skpd").val(),
+				},
+				dataType:"json",
+				success: function(response){
+					alert(response.message);
+					location.reload();
+				}
+			});
+		}	
 	}
 </script>
