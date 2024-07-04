@@ -65,9 +65,17 @@ foreach ($unit as $skpd) {
 }
 
 foreach($all_unit_sub_skpd as $skpd){	
+	$total_pagu_skpd = $wpdb->get_var($wpdb->prepare("
+		SELECT 
+			sum(k.pagu) as pagu
+		FROM data_sub_keg_bl k
+		WHERE k.tahun_anggaran = %d
+			AND k.active = 1
+			AND k.id_sub_skpd = %d
+			and k.pagu > 0
+	", $input['tahun_anggaran'], $skpd['id_skpd']));
 	$subkeg = $wpdb->get_results($wpdb->prepare("
 		SELECT 
-			sum(k.pagu) as pagu,
 			sum(r.rak) as rak, 
 			sum(r.realisasi_anggaran) as realisasi_anggaran,
 			r.bulan
@@ -82,7 +90,6 @@ foreach($all_unit_sub_skpd as $skpd){
 		ORDER BY r.bulan ASC
 	", $input['tahun_anggaran'], $skpd['id_skpd']), ARRAY_A);
 
-	$total_pagu_skpd = 0;
 	$triwulan1 = 0;
 	$triwulan2 = 0;
 	$triwulan3 = 0;
@@ -94,7 +101,6 @@ foreach($all_unit_sub_skpd as $skpd){
 	$realisasi_bulan_all = array();
 	$pagu_bulan_all = array();
 	foreach ($subkeg as $sub) {
-		$total_pagu_skpd = $sub['pagu'];
 		$realisasi_bulan_all[$sub['bulan']] = $sub['realisasi_anggaran'];
 		$pagu_bulan_all[$sub['bulan']] = $sub['rak'];
 		if (!empty($sub['realisasi_anggaran'])) {
