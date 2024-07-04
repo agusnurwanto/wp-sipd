@@ -10395,4 +10395,292 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/pohon_kinerja/wpsipd-public-pohon-kinerja-renja.php';
     }
+
+    public function copy_data_renstra_lokal(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
+					if(empty($cek_jadwal['data'])){
+						throw new Exception("Oops... Jadwal renstra lokal belum dibuka!", 1);
+					}
+					
+					$tujuan_lokal = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unit=%d AND active=%d", $_POST['id_unit'], 1), ARRAY_A);
+					if(!empty($tujuan_lokal)){
+						foreach ($tujuan_lokal as $key => $tujuan_value) {
+							$data = [
+								'bidur_lock' => $tujuan_value['bidur_lock'],
+								'id_bidang_urusan' => $tujuan_value['id_bidang_urusan'],
+								'id_unik' => $tujuan_value['id_unik'],
+								'id_unik_indikator' => $tujuan_value['id_unik_indikator'],
+								'id_unit' => $tujuan_value['id_unit'],
+								'indikator_teks' => $tujuan_value['indikator_teks'],
+								'is_locked' => $tujuan_value['is_locked'],
+								'is_locked_indikator' => $tujuan_value['is_locked_indikator'],
+								'kode_bidang_urusan' => $tujuan_value['kode_bidang_urusan'],
+								'kode_sasaran_rpjm' => $tujuan_value['kode_sasaran_rpjm'],
+								'kode_skpd' => $tujuan_value['kode_skpd'],
+								'nama_bidang_urusan' => $tujuan_value['nama_bidang_urusan'],
+								'nama_skpd' => $tujuan_value['nama_skpd'],
+								'satuan' => $tujuan_value['satuan'],
+								'status' => $tujuan_value['status'],
+								'target_1' => $tujuan_value['target_1'],
+								'target_2' => $tujuan_value['target_2'],
+								'target_3' => $tujuan_value['target_3'],
+								'target_4' => $tujuan_value['target_4'],
+								'target_5' => $tujuan_value['target_5'],
+								'target_akhir' => $tujuan_value['target_akhir'],
+								'target_awal' => $tujuan_value['target_awal'],
+								'tujuan_teks' => $tujuan_value['tujuan_teks'],
+								'urut_tujuan' => $tujuan_value['urut_tujuan'],
+								'active' => $tujuan_value['active'],
+								'update_at' => date('Y-m-d H:i:s'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							];
+
+							if(empty($tujuan_value['id_unik_indikator'])){
+								$cek_tujuan_renstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_tujuan WHERE id_unik=%s AND id_unik_indikator IS NULL AND active=%d", $tujuan_value['id_unik'], 1), ARRAY_A);
+								if(empty($cek_tujuan_renstra)){
+									$wpdb->insert("data_renstra_tujuan", $data);
+								}else{
+									$wpdb->query($wpdb->prepare("
+										UPDATE data_renstra_tujuan 
+											SET 
+												bidur_lock = '".$tujuan_value['bidur_lock']."',
+												id_bidang_urusan = '".$tujuan_value['id_bidang_urusan']."',
+												id_unik = '".$tujuan_value['id_unik']."',
+												id_unik_indikator = '".$tujuan_value['id_unik_indikator']."',
+												id_unit = '".$tujuan_value['id_unit']."',
+												indikator_teks = '".$tujuan_value['indikator_teks']."',
+												is_locked = '".$tujuan_value['is_locked']."',
+												is_locked_indikator = '".$tujuan_value['is_locked_indikator']."',
+												kode_bidang_urusan = '".$tujuan_value['kode_bidang_urusan']."',
+												kode_sasaran_rpjm = '".$tujuan_value['kode_sasaran_rpjm']."',
+												kode_skpd = '".$tujuan_value['kode_skpd']."',
+												nama_bidang_urusan = '".$tujuan_value['nama_bidang_urusan']."',
+												nama_skpd = '".$tujuan_value['nama_skpd']."',
+												satuan = '".$tujuan_value['satuan']."',
+												status = '".$tujuan_value['status']."',
+												target_1 = '".$tujuan_value['target_1']."',
+												target_2 = '".$tujuan_value['target_2']."',
+												target_3 = '".$tujuan_value['target_3']."',
+												target_4 = '".$tujuan_value['target_4']."',
+												target_5 = '".$tujuan_value['target_5']."',
+												target_akhir = '".$tujuan_value['target_akhir']."',
+												target_awal = '".$tujuan_value['target_awal']."',
+												tujuan_teks = '".$tujuan_value['tujuan_teks']."',
+												urut_tujuan = '".$tujuan_value['urut_tujuan']."',
+												active = '".$tujuan_value['active']."',
+												tahun_anggaran = '".$_POST['tahun_anggaran']."',
+												update_at='".date('Y-m-d H:i:s')."'
+											WHERE 
+												id_unik=%s AND
+												id_unik_indikator IS NULL AND 
+												active=%d", 
+												$tujuan_value['id_unik'], 1
+									));
+								}
+							}else{
+								$cek_indikator_tujuan_renstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_tujuan WHERE id_unik=%s AND id_unik_indikator IS NOT NULL AND active=%d", $tujuan_value['id_unik'], 1), ARRAY_A);
+								if(empty($cek_indikator_tujuan_renstra)){
+									$wpdb->insert("data_renstra_tujuan", $data);
+								}else{
+									$wpdb->query($wpdb->prepare("
+										UPDATE data_renstra_tujuan 
+											SET 
+												bidur_lock = '".$tujuan_value['bidur_lock']."',
+												id_bidang_urusan = '".$tujuan_value['id_bidang_urusan']."',
+												id_unik = '".$tujuan_value['id_unik']."',
+												id_unik_indikator = '".$tujuan_value['id_unik_indikator']."',
+												id_unit = '".$tujuan_value['id_unit']."',
+												indikator_teks = '".$tujuan_value['indikator_teks']."',
+												is_locked = '".$tujuan_value['is_locked']."',
+												is_locked_indikator = '".$tujuan_value['is_locked_indikator']."',
+												kode_bidang_urusan = '".$tujuan_value['kode_bidang_urusan']."',
+												kode_sasaran_rpjm = '".$tujuan_value['kode_sasaran_rpjm']."',
+												kode_skpd = '".$tujuan_value['kode_skpd']."',
+												nama_bidang_urusan = '".$tujuan_value['nama_bidang_urusan']."',
+												nama_skpd = '".$tujuan_value['nama_skpd']."',
+												satuan = '".$tujuan_value['satuan']."',
+												status = '".$tujuan_value['status']."',
+												target_1 = '".$tujuan_value['target_1']."',
+												target_2 = '".$tujuan_value['target_2']."',
+												target_3 = '".$tujuan_value['target_3']."',
+												target_4 = '".$tujuan_value['target_4']."',
+												target_5 = '".$tujuan_value['target_5']."',
+												target_akhir = '".$tujuan_value['target_akhir']."',
+												target_awal = '".$tujuan_value['target_awal']."',
+												tujuan_teks = '".$tujuan_value['tujuan_teks']."',
+												urut_tujuan = '".$tujuan_value['urut_tujuan']."',
+												active = '".$tujuan_value['active']."',
+												tahun_anggaran = '".$_POST['tahun_anggaran']."',
+												update_at='".date('Y-m-d H:i:s')."'
+											WHERE 
+												id_unik=%s AND
+												id_unik_indikator IS NULL AND 
+												active=%d", 
+												$tujuan_value['id_unik'], 1
+									));
+								}
+							}
+
+							$sasaran_lokal = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_renstra_sasaran_lokal WHERE id_unit=%d AND kode_tujuan=%s AND active=%d", $_POST['id_unit'], $tujuan_value['id_unik'],1), ARRAY_A);
+							if(!empty($sasaran_lokal)){
+								foreach ($sasaran_lokal as $key => $sasaran_value) {
+									$data = [
+										'bidur_lock' => $sasaran_value['bidur_lock'],
+										'id_bidang_urusan' => $sasaran_value['id_bidang_urusan'],
+										'id_misi' => $sasaran_value['id_misi'],
+										'id_unit' => $sasaran_value['id_unit'],
+										'id_unik' => $sasaran_value['id_unik'],
+										'id_unik_indikator' => $sasaran_value['id_unik_indikator'],
+										'id_visi' => $sasaran_value['id_visi'],
+										'indikator_teks' => $sasaran_value['indikator_teks'],
+										'is_locked' => $sasaran_value['is_locked'],
+										'is_locked_indikator' => $sasaran_value['is_locked_indikator'],
+										'kode_bidang_urusan' => $sasaran_value['kode_bidang_urusan'],
+										'kode_skpd' => $sasaran_value['kode_skpd'],
+										'kode_tujuan' => $sasaran_value['kode_tujuan'],
+										'nama_bidang_urusan' => $sasaran_value['nama_bidang_urusan'],
+										'nama_skpd' => $sasaran_value['nama_skpd'],
+										'sasaran_teks' => $sasaran_value['sasaran_teks'],
+										'satuan' => $sasaran_value['satuan'],
+										'status' => $sasaran_value['status'],
+										'target_1' => $sasaran_value['target_1'],
+										'target_2' => $sasaran_value['target_2'],
+										'target_3' => $sasaran_value['target_3'],
+										'target_4' => $sasaran_value['target_4'],
+										'target_5' => $sasaran_value['target_5'],
+										'target_akhir' => $sasaran_value['target_akhir'],
+										'target_awal' => $sasaran_value['target_awal'],
+										'tujuan_lock' => $sasaran_value['tujuan_lock'],
+										'tujuan_teks' => $sasaran_value['tujuan_teks'],
+										'urut_sasaran' => $sasaran_value['urut_sasaran'],
+										'urut_tujuan' => $sasaran_value['urut_tujuan'],
+										'active' => $sasaran_value['active'],
+										'update_at' => date('Y-m-d H:i:s'),
+										'tahun_anggaran' => $_POST['tahun_anggaran'],
+									];
+
+									if(empty($sasaran_value['id_unik_indikator'])){
+										$cek_sasaran_renstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_sasaran WHERE id_unik=%s AND id_unik_indikator IS NULL AND active=%d", $sasaran_value['id_unik'], 1), ARRAY_A);
+										if(empty($cek_sasaran_renstra)){
+											$wpdb->insert('data_renstra_sasaran', $data);
+										}else{
+											$wpdb->query($wpdb->prepare("
+												UPDATE data_renstra_sasaran 
+													SET 
+														bidur_lock = '".$sasaran_value['bidur_lock']."',
+														id_bidang_urusan = '".$sasaran_value['id_bidang_urusan']."',
+														id_misi = '".$sasaran_value['id_misi']."',
+														id_unit = '".$sasaran_value['id_unit']."',
+														id_unik = '".$sasaran_value['id_unik']."',
+														id_unik_indikator = '".$sasaran_value['id_unik_indikator']."',
+														id_visi = '".$sasaran_value['id_visi']."',
+														indikator_teks = '".$sasaran_value['indikator_teks']."',
+														is_locked = '".$sasaran_value['is_locked']."',
+														is_locked_indikator = '".$sasaran_value['is_locked_indikator']."',
+														kode_bidang_urusan = '".$sasaran_value['kode_bidang_urusan']."',
+														kode_skpd = '".$sasaran_value['kode_skpd']."',
+														kode_tujuan = '".$sasaran_value['kode_tujuan']."',
+														nama_bidang_urusan = '".$sasaran_value['nama_bidang_urusan']."',
+														nama_skpd = '".$sasaran_value['nama_skpd']."',
+														sasaran_teks = '".$sasaran_value['sasaran_teks']."',
+														satuan = '".$sasaran_value['satuan']."',
+														status = '".$sasaran_value['status']."',
+														target_1 = '".$sasaran_value['target_1']."',
+														target_2 = '".$sasaran_value['target_2']."',
+														target_3 = '".$sasaran_value['target_3']."',
+														target_4 = '".$sasaran_value['target_4']."',
+														target_5 = '".$sasaran_value['target_5']."',
+														target_akhir = '".$sasaran_value['target_akhir']."',
+														target_awal = '".$sasaran_value['target_awal']."',
+														tujuan_lock = '".$sasaran_value['tujuan_lock']."',
+														tujuan_teks = '".$sasaran_value['tujuan_teks']."',
+														urut_sasaran = '".$sasaran_value['urut_sasaran']."',
+														urut_tujuan = '".$sasaran_value['urut_tujuan']."',
+														active = '".$sasaran_value['active']."',
+														update_at = '".date('Y-m-d H:i:s')."',
+														tahun_anggaran = '".$_POST['tahun_anggaran']."'
+													WHERE 
+														id_unik=%s AND
+														id_unik_indikator IS NULL AND 
+														active=%d", 
+														$sasaran_value['id_unik'], 
+														1
+											));
+										}
+									}else{
+										$cek_indikator_sasaran_renstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_sasaran WHERE id_unik=%s AND id_unik_indikator IS NOT NULL AND active=%d", $sasaran_value['id_unik'], 1), ARRAY_A);
+										if(empty($cek_indikator_sasaran_renstra)){
+											$wpdb->insert('data_renstra_sasaran', $data);
+										}else{
+											$wpdb->query($wpdb->prepare("
+												UPDATE data_renstra_sasaran 
+													SET 
+														bidur_lock = '".$sasaran_value['bidur_lock']."',
+														id_bidang_urusan = '".$sasaran_value['id_bidang_urusan']."',
+														id_misi = '".$sasaran_value['id_misi']."',
+														id_unit = '".$sasaran_value['id_unit']."',
+														id_unik = '".$sasaran_value['id_unik']."',
+														id_unik_indikator = '".$sasaran_value['id_unik_indikator']."',
+														id_visi = '".$sasaran_value['id_visi']."',
+														indikator_teks = '".$sasaran_value['indikator_teks']."',
+														is_locked = '".$sasaran_value['is_locked']."',
+														is_locked_indikator = '".$sasaran_value['is_locked_indikator']."',
+														kode_bidang_urusan = '".$sasaran_value['kode_bidang_urusan']."',
+														kode_skpd = '".$sasaran_value['kode_skpd']."',
+														kode_tujuan = '".$sasaran_value['kode_tujuan']."',
+														nama_bidang_urusan = '".$sasaran_value['nama_bidang_urusan']."',
+														nama_skpd = '".$sasaran_value['nama_skpd']."',
+														sasaran_teks = '".$sasaran_value['sasaran_teks']."',
+														satuan = '".$sasaran_value['satuan']."',
+														status = '".$sasaran_value['status']."',
+														target_1 = '".$sasaran_value['target_1']."',
+														target_2 = '".$sasaran_value['target_2']."',
+														target_3 = '".$sasaran_value['target_3']."',
+														target_4 = '".$sasaran_value['target_4']."',
+														target_5 = '".$sasaran_value['target_5']."',
+														target_akhir = '".$sasaran_value['target_akhir']."',
+														target_awal = '".$sasaran_value['target_awal']."',
+														tujuan_lock = '".$sasaran_value['tujuan_lock']."',
+														tujuan_teks = '".$sasaran_value['tujuan_teks']."',
+														urut_sasaran = '".$sasaran_value['urut_sasaran']."',
+														urut_tujuan = '".$sasaran_value['urut_tujuan']."',
+														active = '".$sasaran_value['active']."',
+														update_at = '".date('Y-m-d H:i:s')."',
+														tahun_anggaran = '".$_POST['tahun_anggaran']."'
+													WHERE 
+														id_unik=%s AND
+														id_unik_indikator IS NOT NULL AND 
+														active=%d", 
+														$sasaran_value['id_unik'], 
+														1
+											));
+										}	
+									}
+								}
+							}
+						}
+					}
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses copy data Tujuan dan Sasaran Renstra Lokal!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
 }
