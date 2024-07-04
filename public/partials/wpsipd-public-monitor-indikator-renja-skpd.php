@@ -116,6 +116,10 @@ foreach($all_unit_sub_skpd as $skpd){
 
 	$total_realisasi_triwulan = $triwulan1 + $triwulan2 + $triwulan3 + $triwulan4;
 	$persen = $total_pagu_skpd > 0 ? round($total_realisasi_triwulan / $total_pagu_skpd * 100, 2) : 0;
+	$warning = '';
+	if($persen > 100){
+		$warning = 'bg-danger';
+	}
 	$selisih = $total_pagu_skpd - $total_realisasi_triwulan;
 	$no++;
 	$padding_skpd = 0;
@@ -125,7 +129,7 @@ foreach($all_unit_sub_skpd as $skpd){
 
 	$url_skpd = $this->generatePage('MONEV ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
 	$body_monev .= '
-		<tr>
+		<tr class="'.$warning.'">
 			<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
 			<td class="atas kanan bawah kiri text_kiri" style="'.$padding_skpd.'"><a target="_blank" href="'.$url_skpd.'">'.$skpd['nama_skpd'].'</a></td>
 	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($pagu_triwulan1,2,",",".").'</span></td>
@@ -161,6 +165,8 @@ foreach($all_unit_sub_skpd as $skpd){
 
 $persen_all = $total_all_pagu > 0 ? round($total_all_realisasi_triwulan / $total_all_pagu * 100, 2) : 0;
 
+$string_hari_ini = date('H:i, d').' '.$this->get_bulan().' '.date('Y');
+
 ?>
 <style type="text/css">
 	#tabel-monitor-monev-renja {
@@ -173,6 +179,9 @@ $persen_all = $total_all_pagu > 0 ? round($total_all_realisasi_triwulan / $total
 	#tabel-monitor-monev-renja th{
 		vertical-align: middle;
 	}
+	#tabel-monitor-monev-renja td, #tabel-monitor-monev-renja th{
+		padding: 0.3em 0.3em;
+	}
 	#tabel-monitor-monev-renja thead{
 	  	position: sticky;
 	  	top: -6px;
@@ -184,17 +193,18 @@ $persen_all = $total_all_pagu > 0 ? round($total_all_realisasi_triwulan / $total
 	  	background: #ffc491;
 	}
 </style>
-<h1 style="text-align: center; font-weight: bold;">Monitor dan Evaluasi Renja<br><?php echo 'Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h1>
+<h1 class="text-center">Monitor dan Evaluasi Renja<br><?php echo 'Tahun '.$input['tahun_anggaran'].'<br>'.$nama_pemda; ?></h1>
+<h4 class="text-center"><?php echo $string_hari_ini; ?></h4>
 <div id="cetak" title="Monitor Monev Renja" style="padding: 5px; overflow: auto; max-height: 80vh;">
 	<table id="tabel-monitor-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
 			<tr>
 				<th rowspan ="2" class='atas kanan bawah kiri text_tengah text_blok' style="width: 40px;">No</th>
 				<th rowspan ="2" class='atas kanan bawah kiri text_tengah text_blok' style="width: 250px;">Nama SKPD</th>
-				<th colspan="2" class='atas kanan bawah kiri text_tengah text_blok' style="width: 200px;">Triwulan I</th>
-				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 200px;">Triwulan II</th>
-				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 200px;">Triwulan III</th>
-				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 200px;">Triwulan IV</th>
+				<th colspan="2" class='atas kanan bawah kiri text_tengah text_blok' style="width: 218px;">Triwulan I</th>
+				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 218px;">Triwulan II</th>
+				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 218px;">Triwulan III</th>
+				<th colspan="2" class='atas kanan bawah text_tengah text_blok' style="width: 218px;">Triwulan IV</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>Total Pagu</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>Total Realisasi</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>Selisih</th>

@@ -8752,7 +8752,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $hasil . ' rupiah';
 	}
 
-	function get_bulan($bulan)
+	function get_bulan($bulan=false)
 	{
 		if (empty($bulan)) {
 			$bulan = date('m');
