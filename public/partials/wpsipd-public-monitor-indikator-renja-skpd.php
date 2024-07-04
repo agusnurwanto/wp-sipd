@@ -77,6 +77,7 @@ foreach($all_unit_sub_skpd as $skpd){
 		WHERE k.tahun_anggaran = %d
 			AND k.active = 1
 			AND k.id_sub_skpd = %d
+			and k.pagu > 0
 		GROUP by r.bulan
 		ORDER BY r.bulan ASC
 	", $input['tahun_anggaran'], $skpd['id_skpd']), ARRAY_A);
@@ -100,18 +101,17 @@ foreach($all_unit_sub_skpd as $skpd){
 			if ($sub['bulan'] <= 3) {
 				$triwulan1 = $sub['realisasi_anggaran'];
 				$pagu_triwulan1 = $sub['rak'];
-			} elseif ($sub['bulan'] <= 6) {
+			} elseif ($sub['bulan'] <= 6 && !empty($realisasi_bulan_all[3])) {
 				$triwulan2 = $sub['realisasi_anggaran'] - $realisasi_bulan_all[3];
 				$pagu_triwulan2 = $sub['rak'] - $pagu_bulan_all[3];
-			} elseif ($sub['bulan'] <= 9) {
+			} elseif ($sub['bulan'] <= 9 && !empty($realisasi_bulan_all[6])) {
 				$triwulan3 = $sub['realisasi_anggaran'] - $realisasi_bulan_all[6];
 				$pagu_triwulan3 = $sub['rak'] - $pagu_bulan_all[6];
-			} else {
+			} elseif ($sub['bulan'] <= 12 && !empty($realisasi_bulan_all[9])) {
 				$triwulan4 = $sub['realisasi_anggaran'] - $realisasi_bulan_all[9];
 				$pagu_triwulan4 = $sub['rak'] - $pagu_bulan_all[9];
 			}
 		}
-
 	}
 
 	$total_realisasi_triwulan = $triwulan1 + $triwulan2 + $triwulan3 + $triwulan4;
@@ -122,10 +122,12 @@ foreach($all_unit_sub_skpd as $skpd){
 	if($skpd['is_skpd'] == 0){
 		$padding_skpd = 'padding-left: 20px; background: #dedeff;';
 	}
+
+	$url_skpd = $this->generatePage('MONEV ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
 	$body_monev .= '
 		<tr>
 			<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
-			<td class="atas kanan bawah kiri text_kiri" style="'.$padding_skpd.'">'.$skpd['nama_skpd'].'</td>
+			<td class="atas kanan bawah kiri text_kiri" style="'.$padding_skpd.'"><a target="_blank" href="'.$url_skpd.'">'.$skpd['nama_skpd'].'</a></td>
 	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($pagu_triwulan1,2,",",".").'</span></td>
 	        <td class="atas kanan bawah kiri text_kanan triwulan_1"><span>'.number_format($triwulan1,2,",",".").'</span></td>
 	        <td class="atas kanan bawah kiri text_kanan triwulan_2"><span>'.number_format($pagu_triwulan2,2,",",".").'</span></td>
@@ -146,6 +148,11 @@ foreach($all_unit_sub_skpd as $skpd){
 	$total_all_realisasi_triwulan_2 += $triwulan2;
 	$total_all_realisasi_triwulan_3 += $triwulan3;
 	$total_all_realisasi_triwulan_4 += $triwulan4;
+
+	$total_all_pagu_triwulan_1 += $pagu_triwulan1;
+	$total_all_pagu_triwulan_2 += $pagu_triwulan2;
+	$total_all_pagu_triwulan_3 += $pagu_triwulan3;
+	$total_all_pagu_triwulan_4 += $pagu_triwulan4;
 
 	$total_all_realisasi_triwulan += $total_realisasi_triwulan;
 	$total_all_selisih += $selisih;

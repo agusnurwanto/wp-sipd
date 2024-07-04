@@ -94,6 +94,7 @@ $subkeg = $wpdb->get_results($wpdb->prepare("
 		where k.tahun_anggaran=%d
 			and k.active=1
 			and k.id_sub_skpd=%d
+			and k.pagu > 0
 		order by k.kode_sub_giat ASC
 	", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
 $data_all = array(
@@ -127,7 +128,9 @@ foreach ($subkeg as $kk => $sub) {
 
 	$rfk_all = $wpdb->get_results($wpdb->prepare("
 		select 
+			id,
 			realisasi_anggaran,
+			rak,
 			bulan
 		from data_rfk
 		where tahun_anggaran=%d
@@ -136,12 +139,73 @@ foreach ($subkeg as $kk => $sub) {
 			and bulan<=%d
 		order by bulan ASC
 	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+	$rak = array();
+	foreach ($rfk_all as $k => $v) {
+		if (empty($rak[$v['bulan']])) {
+			$rak[$v['bulan']] = 0;
+		}
+		$rak[$v['bulan']] += $v['rak'];
+	}
+	$cek_input = false;
+	for ($i = 1; $i <= $bulan; $i++) {
+		$cek_rak = $this->get_rak_sipd_rfk(array(
+			'user' => $current_user->display_name,
+			'id_skpd' => $unit[0]['id_skpd'],
+			'kode_sbl' => $sub['kode_sbl'],
+			'tahun_anggaran' => $input['tahun_anggaran'],
+			'bulan' => $i,
+			'rak' => 0
+		));
+
+		// jika rak belum ada di data_rfk dan rak kosong maka lakukan insert data dengan nilai rak 0
+		if (!isset($rak[$i]) && $cek_rak==0) {
+			$cek_input = true;
+			$opsi = array(
+				'bulan'	=> $i,
+				'kode_sbl'	=> $sub['kode_sbl'],
+				'rak' => 0,
+				'user_edit'	=> $current_user->display_name,
+				'id_skpd'	=> $unit[0]['id_skpd'],
+				'tahun_anggaran'	=> $input['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			$wpdb->insert('data_rfk', $opsi);
+		}
+	}
+
+	// jika ada data rak yang baru diinput maka diselect ulang
+	if($cek_input == true){
+		$rfk_all = $wpdb->get_results($wpdb->prepare("
+			select 
+				id,
+				realisasi_anggaran,
+				rak,
+				bulan
+			from data_rfk
+			where tahun_anggaran=%d
+				and id_skpd=%d
+				and kode_sbl=%s
+				and bulan<=%d
+			order by bulan ASC
+		", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+	}
 	$triwulan_1 = 0;
 	$triwulan_2 = 0;
 	$triwulan_3 = 0;
 	$triwulan_4 = 0;
 	$realisasi_bulan_all = array();
 	foreach ($rfk_all as $k => $v) {
+		// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
+		if(
+			$v['bulan'] <= $bulan
+			&& empty($v['realisasi_anggaran'])
+			&& !empty($realisasi_bulan_all[$v['bulan']-1])
+		){
+			$v['realisasi_anggaran'] = $realisasi_bulan_all[$v['bulan']-1];
+			$wpdb->update('data_rfk', array(
+				'realisasi_anggaran' => $v['realisasi_anggaran']
+			), array('id' => $v['id']));
+		}
 		$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
 		if(!empty($v['realisasi_anggaran'])){
 			if($v['bulan'] <= 3){
