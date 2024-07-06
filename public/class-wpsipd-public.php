@@ -12199,6 +12199,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$sum_realisasi_anggaran = 0;
 				$body_realisasi_renstra = '';
 				switch ($_POST['type_indikator']) {
+					case '5':
+						$indikator = $wpdb->get_row($wpdb->prepare(
+							"select * from data_renstra_sub_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							$_POST['id'],
+							$_POST['id_skpd'],
+							$_POST['tahun_anggaran']
+						), ARRAY_A);
+						break;
+
 					case '4':
 						$indikator = $wpdb->get_row($wpdb->prepare(
 							"select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
@@ -12211,6 +12220,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					case '3':
 						$indikator = $wpdb->get_row($wpdb->prepare(
 							"select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							$_POST['id'],
+							$_POST['id_skpd'],
+							$_POST['tahun_anggaran']
+						), ARRAY_A);
+						break;
+
+					case '2':
+						$indikator = $wpdb->get_row($wpdb->prepare(
+							"select * from data_renstra_sasaran where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							$_POST['id'],
+							$_POST['id_skpd'],
+							$_POST['tahun_anggaran']
+						), ARRAY_A);
+						break;
+
+					case '1':
+						$indikator = $wpdb->get_row($wpdb->prepare(
+							"select * from data_renstra_tujuan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
