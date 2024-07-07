@@ -326,16 +326,21 @@ if(!empty($tujuan)){
 																'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
 																'id_misi' => $sk_value['id_misi'],
 																'id_visi' => $sk_value['id_visi'],
+																'pagu_1' => !empty($sk_value['pagu_1']) ? $sk_value['pagu_1'] : null,
+																'pagu_2' => !empty($sk_value['pagu_2']) ? $sk_value['pagu_2'] : null,
+																'pagu_3' => !empty($sk_value['pagu_3']) ? $sk_value['pagu_3'] : null,
+																'pagu_4' => !empty($sk_value['pagu_4']) ? $sk_value['pagu_4'] : null,
+																'pagu_5' => !empty($sk_value['pagu_5']) ? $sk_value['pagu_5'] : null,
 																'indikator' => array()
 															);
 														}
 
-														if(!empty($k_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['data'][$sk_value['kode_sub_giat']]['indikator'][$k_value['id_unik_indikator']])){
+														if(!empty($sk_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['data'][$sk_value['kode_sub_giat']]['indikator'][$sk_value['id_unik_indikator']])){
 
 															$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['data'][$sk_value['kode_sub_giat']]['indikator'][$sk_value['id_unik_indikator']] = array(
 																'id' => $sk_value['id'],
 																'id_unik_indikator' => $sk_value['id_unik_indikator'],
-																'indikator_teks' => !empty($sk_value['indikator']) ? $sk_value['indikator'] : '-',
+																'indikator' => !empty($sk_value['indikator']) ? $sk_value['indikator'] : '-',
 																'satuan' => !empty($sk_value['satuan']) ? $sk_value['satuan'] : "",
 																'target_1' => !empty($sk_value['target_1']) ? $sk_value['target_1'] : "",
 																'target_2' => !empty($sk_value['target_2']) ? $sk_value['target_2'] : "",
@@ -343,12 +348,7 @@ if(!empty($tujuan)){
 																'target_4' => !empty($sk_value['target_4']) ? $sk_value['target_4'] : "",
 																'target_5' => !empty($sk_value['target_5']) ? $sk_value['target_5'] : "",
 																'target_awal' => !empty($sk_value['target_awal']) ? $sk_value['target_awal'] : "",
-																'target_akhir' => !empty($sk_value['target_akhir']) ? $sk_value['target_akhir'] : "",
-																'pagu_1' => !empty($sk_value['pagu_1']) ? $sk_value['pagu_1'] : null,
-																'pagu_2' => !empty($sk_value['pagu_2']) ? $sk_value['pagu_2'] : null,
-																'pagu_3' => !empty($sk_value['pagu_3']) ? $sk_value['pagu_3'] : null,
-																'pagu_4' => !empty($sk_value['pagu_4']) ? $sk_value['pagu_4'] : null,
-																'pagu_5' => !empty($sk_value['pagu_5']) ? $sk_value['pagu_5'] : null	
+																'target_akhir' => !empty($sk_value['target_akhir']) ? $sk_value['target_akhir'] : ""	
 															);
 														}
 													}
@@ -360,7 +360,7 @@ if(!empty($tujuan)){
 												$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']] = array(
 													'id' => $k_value['id'],
 													'id_unik_indikator' => $k_value['id_unik_indikator'],
-													'indikator_teks' => !empty($k_value['indikator']) ? $k_value['indikator'] : '-',
+													'indikator' => !empty($k_value['indikator']) ? $k_value['indikator'] : '-',
 													'satuan' => !empty($k_value['satuan']) ? $k_value['satuan'] : "",
 													'target_1' => !empty($k_value['target_1']) ? $k_value['target_1'] : "",
 													'target_2' => !empty($k_value['target_2']) ? $k_value['target_2'] : "",
@@ -385,7 +385,7 @@ if(!empty($tujuan)){
 									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']] = array(
 										'id' => $p_value['id'],
 										'id_unik_indikator' => $p_value['id_unik_indikator'],
-										'indikator_teks' => !empty($p_value['indikator']) ? $p_value['indikator'] : '-',
+										'indikator' => !empty($p_value['indikator']) ? $p_value['indikator'] : '-',
 										'satuan' => !empty($p_value['satuan']) ? $p_value['satuan'] : "",
 										'target_1' => !empty($p_value['target_1']) ? $p_value['target_1'] : "",
 										'target_2' => !empty($p_value['target_2']) ? $p_value['target_2'] : "",
@@ -696,7 +696,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			        </tr>';
 
 				foreach ($program['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-3'.'-'.$bulan);
+					$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-3'.'-'.$bulan);
 
 					$target_1= array('
 						<td class="kiri kanan bawah text_blok text_tengah target-1">'.$v['target_1'].'</td>
@@ -802,7 +802,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				        </tr>';
 
 				    foreach ($kegiatan['indikator'] as $k => $v) {
-						$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-4'.'-'.$bulan);
+						$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-4'.'-'.$bulan);
 
 						$target_1= array('
 							<td class="kiri kanan bawah text_blok text_tengah target-1">'.$v['target_1'].'</td>
@@ -870,11 +870,32 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$no_sub_kegiatan = 0;
 					foreach ($kegiatan['data'] as $key => $sub_kegiatan){
 						$no_sub_kegiatan++;
-						$target_1= $target_1_default;
-						$target_2= $target_2_default;
-						$target_3= $target_3_default;
-						$target_4= $target_4_default;
-						$target_5= $target_5_default;
+
+						$target_1= array('
+							<td class="kiri kanan bawah text_blok text_tengah target-1"></td>
+							<td class="kiri kanan bawah text_blok text_tengah realisasi-target-1"></td>
+							<td class="kiri kanan bawah text_blok text_kanan pagu-1">'.$this->_number_format($sub_kegiatan['pagu_1']).'</td>
+							<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-1"></td>');
+						$target_2= array('
+							<td class="kiri kanan bawah text_blok text_tengah target-2"></td>
+							<td class="kiri kanan bawah text_blok text_tengah realisasi-target-2"></td>
+							<td class="kiri kanan bawah text_blok text_kanan pagu-2">'.$this->_number_format($sub_kegiatan['pagu_2']).'</td>
+							<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-2"></td>');
+						$target_3= array('
+							<td class="kiri kanan bawah text_blok text_tengah target-3"></td>
+							<td class="kiri kanan bawah text_blok text_tengah realisasi-target-3"></td>
+							<td class="kiri kanan bawah text_blok text_kanan pagu-3">'.$this->_number_format($sub_kegiatan['pagu_3']).'</td>
+							<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-3"></td>');
+						$target_4= array('
+							<td class="kiri kanan bawah text_blok text_tengah target-4"></td>
+							<td class="kiri kanan bawah text_blok text_tengah realisasi-target-4"></td>
+							<td class="kiri kanan bawah text_blok text_kanan pagu-4">'.$this->_number_format($sub_kegiatan['pagu_4']).'</td>
+							<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-4"></td>');
+						$target_5= array('
+							<td class="kiri kanan bawah text_blok text_tengah target-5"></td>
+							<td class="kiri kanan bawah text_blok text_tengah realisasi-target-5"></td>
+							<td class="kiri kanan bawah text_blok text_kanan pagu-5">'.$this->_number_format($sub_kegiatan['pagu_5']).'</td>
+							<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-5"></td>');
 						$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 						$backgroundColor = !empty($sub_kegiatan['status']) ? '' : '#ffdbdb';
 						$body_monev .= '
@@ -912,34 +933,34 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					            <td class="text_kanan kanan bawah total_renstra"></td>
 				        		<td class="kanan bawah">'.$unit[0]['nama_skpd'].'</td>
 					        </tr>';
-
+					    // print_r($sub_kegiatan);
 					    foreach ($sub_kegiatan['indikator'] as $k => $v) {
-							$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-5'.'-'.$bulan);
+							$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-5'.'-'.$bulan);
 
 							$target_1= array('
 								<td class="kiri kanan bawah text_blok text_tengah target-1">'.$v['target_1'].'</td>
 								<td class="kiri kanan bawah text_blok text_tengah realisasi-target-1"></td>
-								<td class="kiri kanan bawah text_blok text_kanan pagu-1">'.$this->_number_format($v['pagu_1']).'</td>
+								<td class="kiri kanan bawah text_blok text_kanan pagu-1"></td>
 								<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-1"></td>');
 							$target_2= array('
 								<td class="kiri kanan bawah text_blok text_tengah target-2">'.$v['target_2'].'</td>
 								<td class="kiri kanan bawah text_blok text_tengah realisasi-target-2"></td>
-								<td class="kiri kanan bawah text_blok text_kanan pagu-2">'.$this->_number_format($v['pagu_2']).'</td>
+								<td class="kiri kanan bawah text_blok text_kanan pagu-2"></td>
 								<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-2"></td>');
 							$target_3= array('
 								<td class="kiri kanan bawah text_blok text_tengah target-3">'.$v['target_3'].'</td>
 								<td class="kiri kanan bawah text_blok text_tengah realisasi-target-3"></td>
-								<td class="kiri kanan bawah text_blok text_kanan pagu-3">'.$this->_number_format($v['pagu_3']).'</td>
+								<td class="kiri kanan bawah text_blok text_kanan pagu-3"></td>
 								<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-3"></td>');
 							$target_4= array('
 								<td class="kiri kanan bawah text_blok text_tengah target-4">'.$v['target_4'].'</td>
 								<td class="kiri kanan bawah text_blok text_tengah realisasi-target-4"></td>
-								<td class="kiri kanan bawah text_blok text_kanan pagu-4">'.$this->_number_format($v['pagu_4']).'</td>
+								<td class="kiri kanan bawah text_blok text_kanan pagu-4"></td>
 								<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-4"></td>');
 							$target_5= array('
 								<td class="kiri kanan bawah text_blok text_tengah target-5">'.$v['target_5'].'</td>
 								<td class="kiri kanan bawah text_blok text_tengah realisasi-target-5"></td>
-								<td class="kiri kanan bawah text_blok text_kanan pagu-5">'.$this->_number_format($v['pagu_5']).'</td>
+								<td class="kiri kanan bawah text_blok text_kanan pagu-5"></td>
 								<td class="kiri kanan bawah text_blok text_kanan realisasi-pagu-5"></td>');
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 							
@@ -1007,13 +1028,25 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	.action-checkbox {
 		margin-left: 20px;
 	}
+	#table-renstra {
+		font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; 
+		border-collapse: collapse; 
+		font-size: 70%; 
+		border: 0; 
+		table-layout: fixed;
+	}
+	#table-renstra thead{
+		position: sticky;
+	    top: -6px;
+	    background: #ffc491;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
-	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+	<table cellpadding="2" cellspacing="0" id="table-renstra" contenteditable="false">
 		<thead>
 			<?php
 			$row_head='<tr>
