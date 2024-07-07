@@ -10564,7 +10564,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											}
 
 											$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
-												'kode_program' => $program_value['id_unik'],
+												'kode_unik_program' => $program_value['id_unik'],
 												'tahun_anggaran' => $_POST['tahun_anggaran']
 											));
 											$kegiatan_lokal = $wpdb->get_results($wpdb->prepare("
@@ -10580,6 +10580,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											if(!empty($kegiatan_lokal)){
 												foreach ($kegiatan_lokal as $key => $kegiatan_value) {
 													$data = $kegiatan_value;
+													if(empty($data['kode_unik_program'])){
+														$data['kode_unik_program'] = $data['kode_program'];
+													}
 													$data['update_at'] = date('Y-m-d H:i:s');
 													$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
 													foreach($data as $k => $v){

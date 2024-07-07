@@ -12447,7 +12447,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$pagu_3 = explode(' ', $v['pagu_3']);
 			$pagu_4 = explode(' ', $v['pagu_4']);
 			$pagu_5 = explode(' ', $v['pagu_5']);
-			$ret['total_pagu_renstra'][$k] = $pagu_1[0] + $pagu_2[0] + $pagu_3[0] + $pagu_4[0] + $pagu_5[0];
+			if(
+				!empty($pagu_1[0])
+				&& !empty($pagu_2[0])
+				&& !empty($pagu_3[0])
+				&& !empty($pagu_4[0])
+				&& !empty($pagu_5[0])
+			){
+				$ret['total_pagu_renstra'][$k] = $pagu_1[0] + $pagu_2[0] + $pagu_3[0] + $pagu_4[0] + $pagu_5[0];
+			}else{
+				$ret['total_pagu_renstra'][$k] = $v['pagu_1'] + $v['pagu_2'] + $v['pagu_3'] + $v['pagu_4'] + $v['pagu_5'];
+			}
 
 			// debug RENSTRA
 			$ret['renstra_indikator'][] = '<li data-id=' . $v['id_unik_indikator'] . '><span class="indikator_renstra_text_hide">' . $v['indikator'] . '</span> <span class="target_indikator_renstra_text_hide">' . $target_indikator_renstra_1[0] . ' | ' . $target_indikator_renstra_2[0] . ' | ' . $target_indikator_renstra_3[0] . ' | ' . $target_indikator_renstra_4[0] . ' | ' . $target_indikator_renstra_5[0] . '</span> <span class="satuan_indikator_renstra_text_hide">' . $v['satuan'] . '</span> (Rp <span class="pagu_indikator_renstra_text_hide">' . number_format($v['pagu_' . $options['tahun_renstra']], 0, ",", ".") . '</span> / Rp <span class="total_pagu_indikator_renstra_text_hide">' . number_format($ret['total_pagu_renstra'][$k], 0, ",", ".") . '</span>)</li>';

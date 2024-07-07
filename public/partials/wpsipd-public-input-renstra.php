@@ -4982,7 +4982,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		       'id_sub_giat':id_sub_giat,
 		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 		    }, 'opt_indikator').then(function(){
-	            jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
+	            // jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 		    });
 			
 	});
@@ -5116,7 +5116,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						jQuery(".opt_indikator_usulan").val(response.data.id_indikator_usulan);
 						if(response.data.id_indikator!='' && response.data.id_indikator != 'undefined'){
 							jQuery(".opt_indikator_penetapan").val(response.data.id_indikator);
-	            			jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
+	            			// jQuery(".opt_indikator").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 						}
 					});
 			}

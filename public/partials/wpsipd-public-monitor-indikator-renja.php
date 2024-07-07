@@ -80,7 +80,12 @@ if(!empty($pengaturan)){
 	$tahun_anggaran_5 = $awal_rpjmd+5;
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
-$tahun_renstra = $input['tahun_anggaran']-$awal_rpjmd;
+$tahun_renstra = ($input['tahun_anggaran']-$awal_rpjmd)+1;
+if($tahun_renstra > 5){
+	die('<h1>Tahun awal RPJMD sudah lebih dari 5 tahun. Sesuaikan di halaman admin!</h1>');
+}else if($tahun_renstra < 1){
+	die('<h1>Tahun awal RPJMD sudah kurang dari 1 tahun. Sesuaikan di halaman admin!</h1>');
+}
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
