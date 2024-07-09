@@ -109,6 +109,10 @@ $data_all = array(
 	'triwulan_2' => 0,
 	'triwulan_3' => 0,
 	'triwulan_4' => 0,
+	'rak_triwulan_1' => 0,
+	'rak_triwulan_2' => 0,
+	'rak_triwulan_3' => 0,
+	'rak_triwulan_4' => 0,
 	'realisasi' => 0,
 	'data' => array()
 );
@@ -198,6 +202,10 @@ foreach ($subkeg as $kk => $sub) {
 	$triwulan_2 = 0;
 	$triwulan_3 = 0;
 	$triwulan_4 = 0;
+	$rak_triwulan_1 = 0;
+	$rak_triwulan_2 = 0;
+	$rak_triwulan_3 = 0;
+	$rak_triwulan_4 = 0;
 	$realisasi_bulan_all = array();
 	foreach ($rfk_all as $k => $v) {
 		// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
@@ -212,15 +220,20 @@ foreach ($subkeg as $kk => $sub) {
 			), array('id' => $v['id']));
 		}
 		$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
+		$rak_bulan_all[$v['bulan']] = $v['rak'];
 		if(!empty($v['realisasi_anggaran'])){
 			if($v['bulan'] <= 3){
 				$triwulan_1 = $v['realisasi_anggaran'];
+				$rak_triwulan_1 = $v['rak'];
 			}else if($v['bulan'] <= 6){
 				$triwulan_2 = $v['realisasi_anggaran']-$realisasi_bulan_all[3];
+				$rak_triwulan_2 = $v['rak']-$rak_bulan_all[3];;
 			}else if($v['bulan'] <= 9){
 				$triwulan_3 = $v['realisasi_anggaran']-$realisasi_bulan_all[6];
+				$rak_triwulan_3 = $v['rak']-$rak_bulan_all[6];;
 			}else if($v['bulan'] <= 12){
 				$triwulan_4 = $v['realisasi_anggaran']-$realisasi_bulan_all[9];
+				$rak_triwulan_4 = $v['rak']-$rak_bulan_all[9];;
 			}
 		}
 	}
@@ -460,6 +473,28 @@ foreach ($subkeg as $kk => $sub) {
 	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_4'] += $triwulan_4;
 	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_4'] += $triwulan_4;
 	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_4'] += $triwulan_4;
+	
+	$data_all['rak_triwulan_1'] += $rak_triwulan_1;
+	$data_all['rak_triwulan_2'] += $rak_triwulan_2;
+	$data_all['rak_triwulan_3'] += $rak_triwulan_3;
+	$data_all['rak_triwulan_4'] += $rak_triwulan_4;
+}
+
+$persen_triwulan_1 = 0;
+$persen_triwulan_2 = 0;
+$persen_triwulan_3 = 0;
+$persen_triwulan_4 = 0;
+if(!empty($data_all['rak_triwulan_1']) && !empty($data_all['triwulan_1'])){
+	$persen_triwulan_1 = ($data_all['triwulan_1']/$data_all['rak_triwulan_1'])*100;
+}
+if(!empty($data_all['rak_triwulan_2']) && !empty($data_all['triwulan_2'])){
+	$persen_triwulan_2 = ($data_all['triwulan_2']/$data_all['rak_triwulan_2'])*100;
+}
+if(!empty($data_all['rak_triwulan_3']) && !empty($data_all['triwulan_3'])){
+	$persen_triwulan_3 = ($data_all['triwulan_3']/$data_all['rak_triwulan_3'])*100;
+}
+if(!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])){
+	$persen_triwulan_4 = ($data_all['triwulan_4']/$data_all['rak_triwulan_4'])*100;
 }
 
 $body_monev = '';
@@ -1079,7 +1114,152 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Kerja <br><?php echo $url_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
+<h1 class="text-center">Monitoring dan Evaluasi Rencana Kerja <br><?php echo $url_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h1>
+<div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
+	<div class="row gy-5 g-xl-8 mb-5">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">
+					<div class="card-title">
+						<h4 style="margin: 0;"><i class="dashicons dashicons-chart-bar" style="font-size: x-large; padding-top: 2px;"></i> Dashboard Anggaran dan Realisasi</h4>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div id="chart" style="padding: 30px; height: 500px;"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="row">
+								<div class="col-md-12">
+									<h2 class="font-weight-bolder text-white p-5 bg-warning rounded m-0 text-center">Anggaran</h2>
+								</div>
+							</div>
+							<div class="d-flex align-items-center mb-9 bg-light-warning rounded" style="margin-top: 3rem;">
+								<!--begin::Title-->
+								<div class="col-md-12">
+									<table class="table">
+										<tr>
+											<td style="width:20px;"><h2 class="font-weight-bolder text-warning py-1 m-0">Total</h2></td>
+											<td style="width:2px;"><h2 class="font-weight-bolder text-warning py-1 m-0">:</h2></td>
+											<td class="text-end text-right"><h2 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['total'],0,",","."); ?></h2></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_1'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_2'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_3'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_4'],0,",","."); ?></h4></td>
+										</tr>
+									</table>
+								</div>
+								<!--end::Title-->
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="row">
+								<div class="col-md-12">
+									<h2 class="font-weight-bolder text-white p-5 bg-primary rounded m-0 text-center">Realisasi</h2>
+								</div>
+							</div>
+							<div class="d-flex align-items-center mb-9 bg-light-primary rounded" style="margin-top: 3rem;">
+								<!--begin::Title-->
+								<div class="col-md-12">
+									<table class="table">
+										<tr>
+											<td style="width:20px;"><h2 class="font-weight-bolder text-primary py-1 m-0">Total</h2></td>
+											<td style="width:2px;"><h2 class="font-weight-bolder text-primary py-1 m-0">:</h2></td>
+											<td class="text-end text-right"><h2 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['realisasi'],0,",","."); ?></h2></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_1'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_2'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_3'],0,",","."); ?></h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_4'],0,",","."); ?></h4></td>
+										</tr>
+									</table>
+								</div>
+								<!--end::Title-->
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="row">
+								<div class="col-md-12">
+									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Persentase</h2>
+								</div>
+							</div>
+							<div class="d-flex align-items-center mb-9 bg-light-success rounded p-5">
+								<!--begin::Title-->
+								<div class="col-md-12">
+									<table class="table">
+										<tr>
+											<td style="width:20px;"><h2 class="font-weight-bolder text-success py-1 m-0">Total</h2></td>
+											<td style="width:2px;"><h2 class="font-weight-bolder text-success py-1 m-0">:</h2></td>
+											<td class="text-end text-center"><h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100); ?>%</h2></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_1); ?>%</h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_2); ?>%</h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_3); ?>%</h4></td>
+										</tr>
+										<tr>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_4); ?>%</h4></td>
+										</tr>
+									</table>
+								</div>
+								<!--end::Title-->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id='aksi-wp-sipd'></div>
+<h2 class="text-center">Tabel Monitorin dan Evaluasi RENJA</h2>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; max-height: 80vh;">
 	<table id="tabel-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
@@ -1330,10 +1510,7 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Ukuran file maksimal adalah 10MB dan berextensi .xlsx (excel)</li>
 		<li>Tekan tombol (X) untuk menghapus file .xlsx (excel)</li>
 		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
-		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai DPA terakhir di SIMDA jika pengaturan cara input realisasi disetting <b>otomatis ambil dari SIMDA</b>. Jika pengaturan cara input realisasi disetting <b>manual</b> maka pagu program, kegiatan dan sub kegiatan diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
-		<li>Untuk kolom nomor 6 <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
-		<li>Untuk kolom nomor 14 <b>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun <?php echo (date('Y') - 1); ?> (Akhir Tahun Pelaksanaan Renja SKPD)</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
-		<li>Untuk kolom nomor 15 <b>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun <?php echo (date('Y') - 1); ?> (%)</b> juga diisi manual karena isianya dalah rumus dari kolom <b>14/5x100</b></li>
+		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
 		<li>Jika target indikator RENSTRA bertipe string/karakter maka total target adalah tahun ke 5. Tidak diakumulasikan seperti ketika tipenya interger/angka.</li>
 	</ul>
 </div>
@@ -1462,10 +1639,8 @@ foreach ($monev_triwulan as $k => $v) {
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-	run_download_excel();
-	var batas_bulan_input = <?php echo $batas_bulan_input; ?>;
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
@@ -1563,12 +1738,49 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('#total_nilai_realisasi').text(formatRupiah(total_realisasi));
 		jQuery('#total_nilai_selisih').text(formatRupiah(total_selisih));
 	}
+
+	function drawColColors() {
+        var data_cart = [
+            ['Triwulan', 'Anggaran', 'Realisasi'],
+            ['Triwulan 1', <?php echo $data_all['rak_triwulan_1']; ?>, <?php echo $data_all['triwulan_1']; ?>],
+            ['Triwulan 2', <?php echo $data_all['rak_triwulan_2']; ?>, <?php echo $data_all['triwulan_2']; ?>],
+            ['Triwulan 3', <?php echo $data_all['rak_triwulan_3']; ?>, <?php echo $data_all['triwulan_3']; ?>],
+            ['Triwulan 4', <?php echo $data_all['rak_triwulan_4']; ?>, <?php echo $data_all['triwulan_4']; ?>],
+        ];
+        console.log('data_cart', data_cart);
+        
+        var data = new google.visualization.arrayToDataTable(data_cart);
+
+        var options = {
+            title: 'ANGGARAN DAN REALISASI',
+            colors: ['#007bff', '#ffc107'],
+            hAxis: {
+                title: 'TRIWULAN',
+                minValue: 0
+            },
+            vAxis: {
+                title: 'NILAI'
+            }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+        chart.draw(data, options);
+    }
+
 	jQuery(document).on('ready', function(){
+		run_download_excel('', '#aksi-wp-sipd');
+
 		var aksi = ''
 			+'<h3 style="margin-top: 20px;">SETTING</h3>'
 			+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_indikator_renstra(this);"> Tampilkan indikator RENSTRA</label>';
 		jQuery('#action-sipd').append(aksi);
+
+		google.charts.load('current', {packages: ['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawColColors);
+
+		window.batas_bulan_input = <?php echo $batas_bulan_input; ?>;
+
 		jQuery('#tipe_indikator').on('click', function(){
 			setRumus(jQuery(this).val());
 		});

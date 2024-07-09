@@ -15,7 +15,7 @@ jQuery(document).ready(function(){
 	});
 
 	jQuery( document ).on( "ajaxComplete", function( event, xhr, settings ) {
-	  	console.log('xhr complete!', xhr);
+	  	// console.log('xhr complete!', xhr);
 	  	if(
 	  		xhr.status == 400 
 	  		&& settings.url.indexOf('/admin-ajax.php') != -1
@@ -38,7 +38,7 @@ function to_number(text){
 	return text;
 }
 
-function run_download_excel(type){
+function run_download_excel(type, tag_html='body'){
 	var current_url = window.location.href;
 	var body = '<a id="excel" onclick="return false;" href="#" class="btn btn-primary">DOWNLOAD EXCEL</a>';
 	if(type == 'apbd'){
@@ -53,7 +53,7 @@ function run_download_excel(type){
 		+'<div id="action-sipd" class="hide-print">'
 			+body
 		+'</div>';
-	jQuery('body').prepend(download_excel);
+	jQuery(tag_html).prepend(download_excel);
 
 	var style = '';
 
