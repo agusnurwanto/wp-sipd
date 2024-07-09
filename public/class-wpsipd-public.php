@@ -5324,7 +5324,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-mapping-fmis.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/fmis/wpsipd-public-mapping-fmis.php';
 	}
 
 	public function monitoring_sql_migrate($atts)
@@ -5485,7 +5485,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rka.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rka.php';
 	}
 
 	public function tampilrkpd($atts)
@@ -5494,7 +5494,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rkpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-rkpd.php';
 	}
 	public function daftar_penguji($atts)
 	{

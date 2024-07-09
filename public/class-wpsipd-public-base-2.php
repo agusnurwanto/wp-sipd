@@ -3959,7 +3959,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-pendapatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-pendapatan.php';
 	}
 
 	public function halaman_pembiayaan_penerimaan($atts)
@@ -3968,7 +3968,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-penerimaan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-penerimaan.php';
 	}
 
 	public function halaman_pembiayaan_pengeluaran($atts)
@@ -3977,7 +3977,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-pengeluaran.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-pengeluaran.php';
 	}
 
 	public function get_prioritas_pusat(){
