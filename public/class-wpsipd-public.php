@@ -5333,7 +5333,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sql-migrate.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-sql-migrate.php';
 	}
 
 	public function monitor_json_rka($atts)
@@ -5342,7 +5342,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-json-rka.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-json-rka.php';
 	}
 
 	public function dokumentasi_api_wpsipd($atts)
@@ -5369,7 +5369,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd-rinci.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-spd-rinci.php';
 	}
 
 	public function monitoring_data_spd($atts)
@@ -5378,7 +5378,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-spd.php';
 	}
 
 	public function monitor_monev_rpjm($atts)
@@ -5387,7 +5387,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monev-rpjm.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monev-rpjm.php';
 	}
 
 	public function monitor_monev_renstra($atts)
@@ -5396,7 +5396,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monev-renstra.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monev-renstra.php';
 	}
 
 	public function monitor_daftar_label_komponen($atts)
@@ -5405,7 +5405,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-daftar-label-komponen.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-daftar-label-komponen.php';
 	}
 
 	public function monitor_daftar_sumber_dana($atts)
@@ -5414,7 +5414,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-daftar-sumber-dana.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-daftar-sumber-dana.php';
 	}
 
 	public function monitor_monev_renja($atts)
@@ -5423,7 +5423,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-indikator-renja.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-indikator-renja.php';
 	}
 
 	public function monitor_monev_renja_skpd($atts)
@@ -5432,7 +5432,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-indikator-renja-skpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-indikator-renja-skpd.php';
 	}
 
 	public function monitor_rfk($atts)
@@ -5442,9 +5442,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 		if (!empty($atts['id_skpd'])) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-rfk.php';
 		} else {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk-pemda.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-rfk-pemda.php';
 		}
 	}
 
@@ -5455,9 +5455,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 		if (!empty($atts['id_skpd'])) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sumberdana.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-sumberdana.php';
 		} else {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sumberdana-pemda.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-sumberdana-pemda.php';
 		}
 	}
 
@@ -5467,7 +5467,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-label-komponen.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-label-komponen.php';
 	}
 
 	public function monitor_sipd($atts)
@@ -5476,7 +5476,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-update.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-update.php';
 	}
 
 	public function tampilrka($atts)
@@ -5581,70 +5581,70 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		// RINGKASAN PENJABARAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if ($input['lampiran'] == 1) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran.php';
 		}
 
 		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
 		if ($input['lampiran'] == 2) {
 			if (empty($input['id_skpd'])) {
-				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2-pemda.php';
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-2-pemda.php';
 			} else {
-				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-2.php';
 			}
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
 		if ($input['lampiran'] == '3a') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3a.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-3a.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
 		if ($input['lampiran'] == '3b') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3b.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-3b.php';
 		}
 
 		if ($input['lampiran'] == '4a') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4a.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-4a.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
 		if ($input['lampiran'] == '4b') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4b.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-4b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM/KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN
 		if ($input['lampiran'] == '5a') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5a.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-5a.php';
 		}
 
 		if ($input['lampiran'] == '5b') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5b.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-5b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
 		if ($input['lampiran'] == '6a') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6a.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-6a.php';
 		}
 
 		if ($input['lampiran'] == '6b') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6b.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-6b.php';
 		}
 
 		if ($input['lampiran'] == '6c') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6c.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-6c.php';
 		}
 
 		if ($input['lampiran'] == 'per_triwulan') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdpenjabaran-per-triwulan.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdpenjabaran-per-triwulan.php';
 		}
 
 		if ($input['lampiran'] == 'kas_per_urusan') {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdpenjabaran-kas-per-urusan.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdpenjabaran-kas-per-urusan.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
 		if ($input['lampiran'] == 99) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-99.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-99.php';
 		}
 	}
 
@@ -5664,62 +5664,62 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		// RINGKASAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if ($input['lampiran'] == 1) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda.php';
 		}
 
 		// RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI
 		if ($input['lampiran'] == 2) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-2.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-2.php';
 		}
 
 		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if ($input['lampiran'] == 3) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-3.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-3.php';
 		}
 
 		// REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN BESERTA HASIL DAN SUB KEGIATAN BESERTA SUB KELUARAN
 		if ($input['lampiran'] == 4) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-4.php';
 		}
 
 		// REKAPITULASI BELANJA DAERAH UNTUK KESELARASAN DAN KETERPADUAN URUSAN PEMERINTAHAN DAERAH DAN FUNGSI DALAM KERANGKA PENGELOLAAN KEUANGAN NEGARA
 		if ($input['lampiran'] == 5) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-5.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-5.php';
 		}
 
 		// REKAPITULASI BELANJA UNTUK PEMENUHAN SPM
 		if ($input['lampiran'] == 6) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-6.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-6.php';
 		}
 
 		// SINKRONISASI PROGRAM PADA RPJMD/RPD DENGAN RANCANGAN APBD
 		if ($input['lampiran'] == 7) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-7.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-7.php';
 		}
 
 		// SINKRONISASI PROGRAM, KEGIATAN DAN SUB KEGIATAN PADA RKPD DAN PPAS DENGAN RANCANGAN PERATURAN DAERAH TENTANG APBD
 		if ($input['lampiran'] == 8) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-8.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-8.php';
 		}
 
 		// SIKRONISASI PROGRAM PRIORITAS NASIONAL DAN PRIORITAS PROVINSI DENGAN PROGRAM PRIORITAS KABUPATEN/KOTA
 		if ($input['lampiran'] == 9) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-9.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-9.php';
 		}
 
 		// DAFTAR JUMLAH PEGAWAI PER GOLONGAN DAN PER JABATAN
 		if ($input['lampiran'] == 10) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-10.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-10.php';
 		}
 
 		// DAFTAR PIUTANG DAERAH
 		if ($input['lampiran'] == 11) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-11.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-11.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
 		if ($input['lampiran'] == 99) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-99.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-99.php';
 		}
 	}
 
@@ -5730,7 +5730,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan.php';
 	}
 
 	public function input_rpjm($atts)
@@ -5740,7 +5740,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpjm.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/input_perencanaan/wpsipd-public-input-rpjm.php';
 	}
 
 	public function input_renstra($atts)
@@ -5750,7 +5750,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-renstra.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/input_perencanaan/wpsipd-public-input-renstra.php';
 	}
 
 	public function input_rpd($atts)
@@ -5760,7 +5760,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/input_perencanaan/wpsipd-public-input-rpd.php';
 	}
 
 	public function input_rpjpd($atts)
@@ -5770,7 +5770,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpjpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/input_perencanaan/wpsipd-public-input-rpjpd.php';
 	}
 
 	public function input_rka_lokal($atts)
@@ -5780,7 +5780,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rka.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/input_perencanaan/wpsipd-public-input-rka.php';
 	}
 
 	public function get_unit()
@@ -15533,7 +15533,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		$tipe_perencanaan = 'renja';
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan.php';
 	}
 
 	public function jadwal_rpjm($atts)
@@ -15543,7 +15543,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpjm.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan-rpjm.php';
 	}
 
 	public function jadwal_renstra($atts)
@@ -15553,7 +15553,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-renstra.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan-renstra.php';
 	}
 
 	public function jadwal_rpjpd($atts)
@@ -15563,7 +15563,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpjpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan-rpjpd.php';
 	}
 
 	public function jadwal_rpd($atts)
@@ -15573,7 +15573,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			return '';
 		}
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpd.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penjadwalan/wpsipd-public-setting-penjadwalan-rpd.php';
 	}
 
 	public function get_spd($cek_return = false)
