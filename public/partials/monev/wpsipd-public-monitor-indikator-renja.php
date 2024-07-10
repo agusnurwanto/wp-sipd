@@ -1350,7 +1350,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	</div>
 </div>
 <div id='aksi-wp-sipd'></div>
-<h2 class="text-center">Tabel Monitorin dan Evaluasi RENJA</h2>
+<h2 class="text-center">Tabel Monitoring dan Evaluasi RENJA</h2>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; max-height: 80vh;">
 	<table id="tabel-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
