@@ -1130,6 +1130,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		$ret = array();
 		$hide_sidebar = Field::make('html', 'crb_hide_sidebar')
 			->set_html('
+				<style>
+					.postbox-container { display: none; }
+					#poststuff #post-body.columns-2 { margin: 0 !important; }
+				</style>
         		<div id="load_ajax_carbon" data-type="' . $options['type'] . '"></div>
         	');
 		$ret[] = $hide_sidebar;
@@ -1325,10 +1329,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renja') {
 						$url_monev = $this->generatePage('MONITOR MONEV RENJA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja_skpd tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_monev . '">Halaman Monitor MONEV RENJA Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+						$body_all .= '<a class="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_monev . '">Dashboard MONEV RENJA Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renstra') {
 						$url_pemda = $this->generatePage('MONEV RENSTRA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RENSTRA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENSTRA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_rpjm') {
 						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RPJM Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
