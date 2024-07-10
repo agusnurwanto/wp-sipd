@@ -321,6 +321,10 @@ foreach ($subkeg as $kk => $sub) {
 			'triwulan_2' => 0,
 			'triwulan_3' => 0,
 			'triwulan_4' => 0,
+			'rak_triwulan_1' => 0,
+			'rak_triwulan_2' => 0,
+			'rak_triwulan_3' => 0,
+			'rak_triwulan_4' => 0,
 			'total_simda' => 0,
 			'realisasi' => 0,
 			'data'	=> array()
@@ -474,6 +478,11 @@ foreach ($subkeg as $kk => $sub) {
 	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_4'] += $triwulan_4;
 	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_4'] += $triwulan_4;
 	
+	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_1'] += $rak_triwulan_1;
+	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_2'] += $rak_triwulan_2;
+	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_3'] += $rak_triwulan_3;
+	$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_4'] += $rak_triwulan_4;
+
 	$data_all['rak_triwulan_1'] += $rak_triwulan_1;
 	$data_all['rak_triwulan_2'] += $rak_triwulan_2;
 	$data_all['rak_triwulan_3'] += $rak_triwulan_3;
@@ -501,6 +510,7 @@ $body_monev = '';
 $no_program = 0;
 $no_kegiatan = 0;
 $no_sub_kegiatan = 0;
+$data_all_js = array();
 foreach ($data_all['data'] as $kd_urusan => $urusan) {
 	foreach ($urusan['data'] as $kd_bidang => $bidang) {
 		foreach ($bidang['data'] as $kd_program_asli => $program) {
@@ -511,6 +521,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			if(!empty($program['total_simda'])){
 				$capaian = $this->pembulatan(($program['realisasi']/$program['total_simda'])*100);
 			}
+			$capaian_prog_js = array();
+			$target_capaian_prog_js = array();
+			$satuan_capaian_prog_js = array();
+			$realisasi_indikator_tw1_js = array();
+			$realisasi_indikator_tw2_js = array();
+			$realisasi_indikator_tw3_js = array();
+			$realisasi_indikator_tw4_js = array();
+			$total_tw_js = array();
 			$capaian_prog = array();
 			$target_capaian_prog = array();
 			$satuan_capaian_prog = array();
@@ -532,6 +550,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
 				}
 				foreach ($program['indikator'] as $k_sub => $v_sub) {
+					$target_capaian_prog_js[$k_sub] = $v_sub['targetcapaian'];
+					$satuan_capaian_prog_js[$k_sub] = $v_sub['satuancapaian'];
 					$target_capaian_prog[$k_sub] = '<span data-id="'.$k_sub.'">'.$v_sub['targetcapaian'].'</span>';
 					$satuan_capaian_prog[$k_sub] = '<span data-id="'.$k_sub.'">'.$v_sub['satuancapaian'].'</span>';
 					$target_indikator = $v_sub['targetcapaian'];
@@ -541,6 +561,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4[$k_sub] = 0;
 					$total_tw[$k_sub] = 0;
 					$capaian_realisasi_indikator[$k_sub] = 0;
+					$realisasi_indikator_tw1_js[$k_sub] = 0;
+					$realisasi_indikator_tw2_js[$k_sub] = 0;
+					$realisasi_indikator_tw3_js[$k_sub] = 0;
+					$realisasi_indikator_tw4_js[$k_sub] = 0;
+					$total_tw_js[$k_sub] = 0;
 					$class_rumus_target[$k_sub] = "positif";
 
 					if(
@@ -613,6 +638,13 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						}
 					}
 
+					$capaian_prog_js[] = $v_sub['capaianteks'];
+					$realisasi_indikator_tw1_js[$k_sub] = $realisasi_indikator_tw1_js[$k_sub];
+					$realisasi_indikator_tw2_js[$k_sub] = $realisasi_indikator_tw2_js[$k_sub];
+					$realisasi_indikator_tw3_js[$k_sub] = $realisasi_indikator_tw3_js[$k_sub];
+					$realisasi_indikator_tw4_js[$k_sub] = $realisasi_indikator_tw4_js[$k_sub];
+					$total_tw_js[$k_sub] = $total_tw[$k_sub];
+
 					$realisasi_indikator_tw1[$k_sub] = '<span class="realisasi_indikator_tw1-'.$k_sub.'">'.$realisasi_indikator_tw1[$k_sub].'</span>';
 					$realisasi_indikator_tw2[$k_sub] = '<span class="realisasi_indikator_tw2-'.$k_sub.'">'.$realisasi_indikator_tw2[$k_sub].'</span>';
 					$realisasi_indikator_tw3[$k_sub] = '<span class="realisasi_indikator_tw3-'.$k_sub.'">'.$realisasi_indikator_tw3[$k_sub].'</span>';
@@ -625,6 +657,29 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$total_pagu_renstra_renja[$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">0</span>';
 				}
 			}
+
+			$data_all_js[] = array(
+				'nama' => $kd_program_asli.' '.$program['nama'],
+				'pagu' => number_format($program['total_simda'],0,",","."),
+				'realisasi' => number_format($program['realisasi'],0,",","."),
+				'rak_tw_1' => $program['rak_triwulan_1'],
+				'rak_tw_2' => $program['rak_triwulan_2'],
+				'rak_tw_3' => $program['rak_triwulan_3'],
+				'rak_tw_4' => $program['rak_triwulan_4'],
+				'realisasi_tw_1' => $program['triwulan_1'],
+				'realisasi_tw_2' => $program['triwulan_2'],
+				'realisasi_tw_3' => $program['triwulan_3'],
+				'realisasi_tw_4' => $program['triwulan_4'],
+				'indikator' => $capaian_prog_js,
+				'satuan' => $satuan_capaian_prog_js,
+				'target_indikator' => $target_capaian_prog_js,
+				'realisasi_indikator' => $total_tw_js,
+				'realisasi_indikator_1' => $realisasi_indikator_tw1_js,
+				'realisasi_indikator_2' => $realisasi_indikator_tw2_js,
+				'realisasi_indikator_3' => $realisasi_indikator_tw3_js,
+				'realisasi_indikator_4' => $realisasi_indikator_tw4_js,
+			);
+
 			$capaian_prog = implode('<br>', $capaian_prog);
 			$target_capaian_prog = implode('<br>', $target_capaian_prog);
 			$satuan_capaian_prog = implode('<br>', $satuan_capaian_prog);
@@ -1253,6 +1308,41 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 							</div>
 						</div>
 					</div>
+					<div class="row mb-5">
+						<div class="col-md-6 offset-md-3 offset-sm-0">
+							<div class="card card-primary" style="box-shadow: 1px 1px 5px #666;">
+								<div class="card-header bg-primary text-white p-5">
+									<div class="col-12">
+										<div class="row">
+											<div class="col-2">
+												<i class="fas fa-money-bill-wave-alt fa-3x lh-lg"></i>
+											</div>
+											<div class="col">
+												<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Kerja</h2>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="card-body">
+									<div class="row mb-5">
+										<div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
+											<p>Program</p>
+											<p><?php echo $no_program; ?></p>
+										</div>
+										<div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
+											<p>Kegiatan</p>
+											<p><?php echo $no_kegiatan; ?></p>
+										</div>
+										<div class="col-4 text-center" style="font-size:1.3em;">
+											<p>Sub Kegiatan</p>
+											<p><?php echo $no_sub_kegiatan; ?></p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row" id="chart-program"></div>
 				</div>
 			</div>
 		</div>
@@ -1747,7 +1837,6 @@ foreach ($monev_triwulan as $k => $v) {
             ['Triwulan 3', <?php echo $data_all['rak_triwulan_3']; ?>, <?php echo $data_all['triwulan_3']; ?>],
             ['Triwulan 4', <?php echo $data_all['rak_triwulan_4']; ?>, <?php echo $data_all['triwulan_4']; ?>],
         ];
-        console.log('data_cart', data_cart);
         
         var data = new google.visualization.arrayToDataTable(data_cart);
 
@@ -1765,6 +1854,65 @@ foreach ($monev_triwulan as $k => $v) {
 
         var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
         chart.draw(data, options);
+
+        var no = 0;
+        data_all_js.map(function(program, i){
+			no++;
+			var id_cart = 'chart-program-'+no;
+            var html = '<div id="'+id_cart+'" style="margin-buttom: 20px; min-height: 400px;" class="col-md-6"></div>';
+            var id_cart_indikator = [];
+            program.indikator.map(function(indikator, ii){
+				id_cart_indikator[ii] = id_cart+'-indikator-'+(ii+1);
+	            html += '<div id="'+id_cart_indikator[ii]+'" style="margin-buttom: 20px; min-height: 400px;" class="col-md-6"></div>';
+            });
+            jQuery('#chart-program').append('<div class="col-md-12"><h3 class="text-center" style="margin-top: 30px;">'+program.nama+'</h3></div>'+html);
+            var data_cart = [
+                ['Triwulan', 'Anggaran', 'Realisasi'],
+                ['Triwulan 1', +program.rak_tw_1, +program.realisasi_tw_1],
+                ['Triwulan 2', +program.rak_tw_2, +program.realisasi_tw_2],
+                ['Triwulan 3', +program.rak_tw_3, +program.realisasi_tw_3],
+                ['Triwulan 4', +program.rak_tw_4, +program.realisasi_tw_4],
+            ];
+            
+            var data = new google.visualization.arrayToDataTable(data_cart);
+
+            var options = {
+                title: 'Pagu Program: '+program.pagu+', Realisasi: '+program.realisasi,
+                colors: ['#9575cd', '#33ac71'],
+                hAxis: {
+                    title: 'Anggaran Kas dan Realisasi Anggaran Per Triwulan',
+                    minValue: 0
+                },
+                vAxis: {
+                	title: 'Rp'
+                }
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById(id_cart));
+            chart.draw(data, options);
+
+            program.indikator.map(function(indikator, ii){
+	            var data_cart = [
+	                ['Triwulan', 'Realisasi Target Program'],
+	                ['Triwulan 1', +program.realisasi_indikator_1[ii]],
+	                ['Triwulan 2', +program.realisasi_indikator_2[ii]],
+	                ['Triwulan 3', +program.realisasi_indikator_3[ii]],
+	                ['Triwulan 4', +program.realisasi_indikator_4[ii]],
+	            ];
+	            var data = new google.visualization.arrayToDataTable(data_cart);
+	            var options = {
+	                title: 'Indikator: '+indikator+', '+'Target: '+program.target_indikator[ii]+' '+program.satuan[ii]+', Realisasi: '+program.realisasi_indikator[ii]+' '+program.satuan[ii],
+	                hAxis: {
+	                    title: 'Realisasi Target Per Triwulan',
+	                    minValue: 0
+	                },
+	                vAxis: {
+	                	title: program.satuan[ii]
+	                }
+	            };
+	            var chart = new google.visualization.ColumnChart(document.getElementById(id_cart_indikator[ii]));
+	            chart.draw(data, options);
+	        });
+		});
     }
 
 	jQuery(document).on('ready', function(){
@@ -1780,6 +1928,7 @@ foreach ($monev_triwulan as $k => $v) {
         google.charts.setOnLoadCallback(drawColColors);
 
 		window.batas_bulan_input = <?php echo $batas_bulan_input; ?>;
+		window.data_all_js = <?php echo json_encode($data_all_js); ?>
 
 		jQuery('#tipe_indikator').on('click', function(){
 			setRumus(jQuery(this).val());
