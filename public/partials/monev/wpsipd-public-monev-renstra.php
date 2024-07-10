@@ -214,6 +214,9 @@ if(!empty($tujuan)){
 							'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
 							'id_misi' => $sasaran_value['id_misi'],
 							'id_visi' => $sasaran_value['id_visi'],
+							'pagu' => 0,
+							'realisasi' => 0,
+							'capaian' => 0,
 							'pagu_1' => 0,
 							'pagu_2' => 0,
 							'pagu_3' => 0,
@@ -403,6 +406,9 @@ if(!empty($tujuan)){
 															);
 														}
 
+														$pagu_all = $pagu_1+$pagu_2+$pagu_3+$pagu_4+$pagu_5;
+														$realisasi_all = $realisasi_pagu_1+$realisasi_pagu_2+$realisasi_pagu_3+$realisasi_pagu_4+$realisasi_pagu_5;
+
 														$data_all['pagu_1'] += $pagu_1;
 														$data_all['pagu_2'] += $pagu_2;
 														$data_all['pagu_3'] += $pagu_3;
@@ -424,6 +430,9 @@ if(!empty($tujuan)){
 														$data_all['data'][$tujuan_key]['realisasi_pagu_3'] += $realisasi_pagu_3;
 														$data_all['data'][$tujuan_key]['realisasi_pagu_4'] += $realisasi_pagu_4;
 														$data_all['data'][$tujuan_key]['realisasi_pagu_5'] += $realisasi_pagu_5;
+
+														$data_all['data'][$tujuan_key]['data'][$sasaran_key]['pagu'] += $pagu_all;
+														$data_all['data'][$tujuan_key]['data'][$sasaran_key]['realisasi'] += $realisasi_all;
 
 														$data_all['data'][$tujuan_key]['data'][$sasaran_key]['pagu_1'] += $pagu_1;
 														$data_all['data'][$tujuan_key]['data'][$sasaran_key]['pagu_2'] += $pagu_2;
@@ -1155,8 +1164,10 @@ foreach ($data_all['data'] as $key => $tujuan) {
 $html_pagu = '';
 $html_realisasi_pagu = '';
 $html_capaian = '';
+$data_all['lama_pelaksanaan'] = $lama_pelaksanaan;
 $data_all['total'] = 0;
 $data_all['realisasi'] = 0;
+$data_all_js = array(array('Tahun', 'Anggaran', 'Realisasi'));
 for ($i=0; $i < $lama_pelaksanaan; $i++) {
 	$no_urut = $i+1;
 	$data_all['total'] += $data_all['pagu_'.$no_urut];
@@ -1186,6 +1197,11 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 			<td class="text-end text-right"><h4 class="font-weight-bolder text-success py-1 m-0">'.$this->pembulatan($capaian).'</h4></td>
 		</tr>
 	';
+	$data_all_js[] = array(strval($tahun_anggaran_renstra[$no_urut]), $data_all['pagu_'.$no_urut], $data_all['realisasi_pagu_'.$no_urut]);
+}
+$capaian_all = 0;
+if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
+	$capaian_all = ($data_all['realisasi']/$data_all['total'])*100;
 }
 ?>
 
@@ -1242,7 +1258,7 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
+<h1 class="text-center">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h1>
 <div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
 	<div class="row gy-5 g-xl-8 mb-5">
 		<div class="col-md-12">
@@ -1315,7 +1331,7 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 										<tr>
 											<td style="width:20px;"><h2 class="font-weight-bolder text-success py-1 m-0">Total</h2></td>
 											<td style="width:2px;"><h2 class="font-weight-bolder text-success py-1 m-0">:</h2></td>
-											<td class="text-end text-center"><h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100); ?>%</h2></td>
+											<td class="text-end text-center"><h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($capaian_all); ?>%</h2></td>
 										</tr>
 										<?php echo $html_capaian; ?>
 									</table>
@@ -1615,6 +1631,7 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
     </div>
 </div>
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
 	run_download_excel('', '#aksi-wp-sipd');
 	var data_all = <?php echo json_encode($data_all); ?>;
@@ -1748,17 +1765,108 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 					jQuery('#wrap-loading').hide();
 				}
 			});
-		})
+		});
+		jQuery("#rumus_indikator").on('change', function(){
+			var rumus = jQuery(this).val();
+
+			var total_realisasi_anggaran=0;
+			for (var i = 1; i <= <?php echo $bulan; ?>; i++) {
+				total_realisasi_anggaran += parseInt(jQuery("#realisasi_anggaran_bulan_"+i).text());
+			}
+		});
+
+		google.charts.load('current', {packages: ['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawColColors);
 	});
 
-	jQuery("#rumus_indikator").on('change', function(){
-		var rumus = jQuery(this).val();
+	function drawColColors() {
+        var data_cart = <?php echo json_encode($data_all_js); ?>;
+        
+        var data = new google.visualization.arrayToDataTable(data_cart);
 
-		var total_realisasi_anggaran=0;
-		for (var i = 1; i <= <?php echo $bulan; ?>; i++) {
-			total_realisasi_anggaran += parseInt(jQuery("#realisasi_anggaran_bulan_"+i).text());
-		}
-	})
+        var options = {
+            title: 'ANGGARAN DAN REALISASI',
+            colors: ['#007bff', '#ffc107'],
+            hAxis: {
+                title: 'TAHUN',
+                minValue: 0
+            },
+            vAxis: {
+                title: 'Rp'
+            }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+        chart.draw(data, options);
+
+        var no = 0;
+        for(var i in data_all['data']){
+        	for(var ii in data_all['data'][i]['data']){
+        		var sasaran = data_all['data'][i]['data'][ii];
+				no++;
+				var id_cart = 'chart-sasaran-'+no;
+	            var html = '<div id="'+id_cart+'" style="margin-buttom: 20px; min-height: 400px;" class="col-md-6"></div>';
+	            var id_cart_indikator = {};
+	            for(var iii in sasaran.indikator){
+	            	var id_indikator = sasaran.indikator[iii].id
+					id_cart_indikator[id_indikator] = id_cart+'-indikator-'+id_indikator;
+		            html += '<div id="'+id_cart_indikator[id_indikator]+'" style="margin-buttom: 20px; min-height: 400px;" class="col-md-6"></div>';
+	            };
+	            jQuery('#chart-sasaran').append('<div class="col-md-12"><h3 class="text-center" style="margin-top: 30px;">'+sasaran.nama+'</h3></div>'+html);
+	            var data_cart = [
+	                ['Tahun', 'Anggaran', 'Realisasi']
+	            ];
+	            for(var t=1; t<=data_all.lama_pelaksanaan; t++){
+	            	data_cart.push(['Tahun  '+t, sasaran['pagu_'+t], sasaran['realisasi_pagu_'+t]]);
+	            }
+	            
+	            var data = new google.visualization.arrayToDataTable(data_cart);
+
+	            var capaian = 0;
+	            if(sasaran.pagu > 0 && sasaran.realisasi > 0){
+	            	capaian = ceil((sasaran.realisasi/sasaran.pagu)*100);
+	            }
+	            var options = {
+	                title: 'Pagu sasaran: '+formatRupiah(sasaran.pagu)+', Realisasi: '+formatRupiah(sasaran.realisasi)+', Capaian: '+capaian+'%',
+	                colors: ['#9575cd', '#33ac71'],
+	                hAxis: {
+	                    title: 'Anggaran dan Realisasi Per Tahun',
+	                    minValue: 0
+	                },
+	                vAxis: {
+	                	title: 'Rp'
+	                }
+	            };
+	            var chart = new google.visualization.ColumnChart(document.getElementById(id_cart));
+	            chart.draw(data, options);
+
+	            for(var iii in sasaran.indikator){
+	            	var id_indikator = sasaran.indikator[iii].id;
+		            var data_cart = [
+		                ['Tahun', 'Target', 'Realisasi']
+		            ];
+		            for(var t=1; t<=data_all.lama_pelaksanaan; t++){
+		            	data_cart.push(['Tahun  '+t, +sasaran.indikator[iii]['target_'+t], +sasaran.indikator[iii]['realisasi_target_'+t]])
+		            }
+		            var data = new google.visualization.arrayToDataTable(data_cart);
+		            var options = {
+		                title: 'Indikator: '+sasaran.indikator[iii].indikator+', '+'Target Awal: '+sasaran.indikator[iii].target_awal+' '+sasaran.indikator[iii].satuan+', Target Akhir: '+sasaran.indikator[iii].target_akhir+' '+sasaran.indikator[iii].satuan,
+		                hAxis: {
+		                    title: 'Target dan Realisasi Per Tahun',
+		                    minValue: 0
+		                },
+		                vAxis: {
+		                	title: sasaran.indikator[iii].satuan
+		                }
+		            };
+		            console.log('data_cart', data_cart, options);
+		            var chart = new google.visualization.ColumnChart(document.getElementById(id_cart_indikator[id_indikator]));
+		            chart.draw(data, options);
+		        };
+		    };
+		};
+    }
+
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
