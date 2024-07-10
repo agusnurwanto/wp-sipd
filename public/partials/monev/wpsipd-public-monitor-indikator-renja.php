@@ -662,6 +662,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				'nama' => $kd_program_asli.' '.$program['nama'],
 				'pagu' => number_format($program['total_simda'],0,",","."),
 				'realisasi' => number_format($program['realisasi'],0,",","."),
+				'capaian' => $capaian,
 				'rak_tw_1' => $program['rak_triwulan_1'],
 				'rak_tw_2' => $program['rak_triwulan_2'],
 				'rak_tw_3' => $program['rak_triwulan_3'],
@@ -1877,7 +1878,7 @@ foreach ($monev_triwulan as $k => $v) {
             var data = new google.visualization.arrayToDataTable(data_cart);
 
             var options = {
-                title: 'Pagu Program: '+program.pagu+', Realisasi: '+program.realisasi,
+                title: 'Pagu Program: '+program.pagu+', Realisasi: '+program.realisasi+', Capaian: '+program.capaian+'%',
                 colors: ['#9575cd', '#33ac71'],
                 hAxis: {
                     title: 'Anggaran Kas dan Realisasi Anggaran Per Triwulan',
