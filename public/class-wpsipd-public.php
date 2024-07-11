@@ -12204,7 +12204,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				AND kode_kegiatan=%s
 				AND id_unik_indikator IS NULL
 		", $opsi['tahun_anggaran'], $opsi['id_skpd'], $opsi['id_unik']), ARRAY_A);
-		// die($wpdb->last_query);
 		return $ret;
 	}
 
@@ -12398,7 +12397,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_keg(array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'id_unit' => $_POST['id_skpd'],
+							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
 						break;
@@ -12412,7 +12411,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_prog(array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'id_unit' => $_POST['id_skpd'],
+							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
 						break;
@@ -12426,7 +12425,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_sasaran(array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'id_unit' => $_POST['id_skpd'],
+							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
 						break;
@@ -12440,7 +12439,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_tujuan(array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'id_unit' => $_POST['id_skpd'],
+							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
 						break;
