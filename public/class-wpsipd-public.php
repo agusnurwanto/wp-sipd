@@ -5399,6 +5399,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monev-renstra.php';
 	}
 
+	public function monitor_monev_renstra_pemda($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monev-renstra-pemda.php';
+	}
+
 	public function monitor_daftar_label_komponen($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post

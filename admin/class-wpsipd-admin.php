@@ -1267,9 +1267,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							} else if ($_POST['type'] == 'monev_renja') {
 								$url_skpd = $this->generatePage('MONEV ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
-							} else if ($_POST['type'] == 'monev_renstra') {
-								$url_skpd = $this->generatePage('MONEV RENSTRA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV RENSTRA ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
 							} else if ($_POST['type'] == 'sumber_dana') {
 								$this->generatePage('Sumber Dana ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 							} else if ($_POST['type'] == 'label_komponen') {
@@ -1331,8 +1328,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_monev = $this->generatePage('MONITOR MONEV RENJA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja_skpd tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a class="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_monev . '">Dashboard MONEV RENJA Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_renstra') {
-						$url_pemda = $this->generatePage('MONEV RENSTRA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENSTRA Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+						$url_pemda = $this->generatePage('Dashboard MONEV RENSTRA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra_pemda tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a class ="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENSTRA Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_rpjm') {
 						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RPJM Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
