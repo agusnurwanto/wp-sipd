@@ -2033,6 +2033,11 @@ CREATE TABLE `data_renstra_tujuan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2081,6 +2086,11 @@ CREATE TABLE `data_renstra_sasaran` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2147,6 +2157,11 @@ CREATE TABLE `data_renstra_program` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2218,6 +2233,11 @@ CREATE TABLE `data_renstra_kegiatan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4058,6 +4078,11 @@ CREATE TABLE `data_renstra_tujuan_history` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
@@ -4097,6 +4122,11 @@ CREATE TABLE `data_renstra_sasaran_history` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
@@ -4147,6 +4177,11 @@ CREATE TABLE `data_renstra_program_history` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
@@ -4203,6 +4238,11 @@ CREATE TABLE `data_renstra_kegiatan_history` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
@@ -5106,6 +5146,11 @@ CREATE TABLE `data_renstra_sub_kegiatan` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_sub_giat_lama` text DEFAULT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -5185,6 +5230,11 @@ CREATE TABLE `data_renstra_sub_kegiatan_history` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_sub_giat_lama` text DEFAULT NULL,
+  `keterangan_1` text DEFAULT NULL,
+  `keterangan_2` text DEFAULT NULL,
+  `keterangan_3` text DEFAULT NULL,
+  `keterangan_4` text DEFAULT NULL,
+  `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
