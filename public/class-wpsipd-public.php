@@ -12186,10 +12186,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	public function get_monev_renstra()
 	{
 		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-
-				$bulan = 12;
 				$indikator = '';
 				$body_renstra = '';
 				$rumus_indikator = 1;
@@ -12228,7 +12230,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					case '2':
 						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select * from data_renstra_sasaran where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							"select *, indikator_teks as indikator from data_renstra_sasaran where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
@@ -12237,7 +12239,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					case '1':
 						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select * from data_renstra_tujuan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							"select *, indikator_teks as indikator from data_renstra_tujuan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
@@ -12251,49 +12253,37 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($indikator)) {
-					$body_renstra .= '
-							<tr>
-								<td colspan="2">' . $indikator['indikator'] . '</td>
-								<td>' . $indikator['target_1'] . '</td>
-								<td>' . $indikator['target_2'] . '</td>
-								<td>' . $indikator['target_3'] . '</td>
-								<td>' . $indikator['target_4'] . '</td>
-								<td>' . $indikator['target_5'] . '</td>
-								<td>' . $indikator['satuan'] . '</td>
-								<td colspan="2">Rp. ' . number_format($indikator['pagu_' . $_POST['urut']], 2, ',', '.') . '</td>
-							</tr>';
-					$target_indikator = $indikator['target_' . $_POST['urut']];
-
-					$realisasi_renstra = $wpdb->get_row($wpdb->prepare("select * from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
-
-					$hitung_indikator = !is_null($realisasi_renstra['hitung_indikator']) ? $realisasi_renstra['hitung_indikator'] : $hitung_indikator;
-					$rumus_indikator = !is_null($realisasi_renstra['id_rumus_indikator']) ? $realisasi_renstra['id_rumus_indikator'] : $rumus_indikator;
-
-					for ($i = 1; $i <= $bulan; $i++) {
-						$edited = 'false';
-						if ($i <= $_POST['bulan']) {
-							$edited = 'true';
+					for($i=1; $i<=$_POST['lama_pelaksanaan']; $i++){
+						$capaian_pagu = 0;
+						if(
+							!empty($indikator['pagu_'.$i]) 
+							&& !empty($indikator['realisasi_pagu_'.$i])
+						){
+							$capaian_pagu = ($indikator['realisasi_pagu_'.$i]/$indikator['pagu_'.$i])*100;
 						}
-						$realisasi_anggaran_bulanan = !empty($realisasi_renstra['realisasi_anggaran_bulan_' . $i]) ? $realisasi_renstra['realisasi_anggaran_bulan_' . $i] : 0;
-						$realisasi_target_bulanan = !empty($realisasi_renstra['realisasi_bulan_' . $i]) ? $realisasi_renstra['realisasi_bulan_' . $i] : 0;
-						$capaian_target_bulanan = !empty($realisasi_renstra['capaian_bulan_' . $i]) ? $realisasi_renstra['capaian_bulan_' . $i] : 0;
-						$body_realisasi_renstra .= '
+						$capaian_target = 0;
+						if(
+							!empty($indikator['target_'.$i]) 
+							&& !empty($indikator['realisasi_target_'.$i])
+							&& is_numeric($indikator['target_'.$i])
+							&& is_numeric($indikator['realisasi_target_'.$i])
+						){
+							$capaian_target = ($indikator['realisasi_target_'.$i]/$indikator['target_'.$i])*100;
+						}
+						$body_renstra .= '
 							<tr>
-								<td>' . $this->get_bulan($i) . '</td>
-								<td class="realisasi_anggaran" contenteditable="' . $edited . '" id="realisasi_anggaran_bulan_' . $i . '" style="text-align:right" onkeypress=onlyNumber(event) onkeyup=setTotalMonev()>' . number_format($realisasi_anggaran_bulanan, 2, '.', ',') . '</td>
-								<td class="realisasi_target_bulanan" contenteditable="' . $edited . '" id="realisasi_target_bulan_' . $i . '" style="text-align:center" onkeyup=setCapaianMonev(this)>' . $realisasi_target_bulanan . '</td>
-								<td class="capaian_target_bulanan" id="capaian_target_bulan_' . $i . '" style="text-align:center">' . $capaian_target_bulanan . '</td>
-								<td contenteditable="' . $edited . '" id="keterangan_bulan_' . $i . '" style="text-align:left">' . $realisasi_renstra['keterangan_bulan_' . $i] . '</td>
+								<td class="text-center">' . ($_POST['tahun_awal']+($i-1)) . '</td>
+								<td class="text-right">' . $indikator['pagu_'.$i] . '</td>
+								<td class="text-right" contenteditable="true">' . $indikator['realisasi_pagu_'.$i] . '</td>
+								<td class="text-center">' . $this->pembulatan($capaian_pagu) . '</td>
+								<td class="text-center">' . $indikator['target_'.$i] . '</td>
+								<td class="text-center" contenteditable="true">' . $indikator['realisasi_target_'.$i] . '</td>
+								<td class="text-center">' . $this->pembulatan($capaian_target) . '</td>
 							</tr>';
-						$sum_realisasi_anggaran += $realisasi_anggaran_bulanan;
 					}
-
-					$return['hitung_indikator'] = $hitung_indikator;
-					$return['rumus_indikator'] = $rumus_indikator;
-					$return['target_indikator'] = $target_indikator;
-					$return['sum_realisasi_anggaran'] = number_format($sum_realisasi_anggaran, 2, '.', ',');
 					$return['body_renstra'] = $body_renstra;
-					$return['body_realisasi_renstra'] = $body_realisasi_renstra;
+					$return['indikator'] = $indikator['indikator'];
+					$return['satuan'] = $indikator['satuan'];
 				}
 			} else {
 				$return['status'] = 'error';

@@ -623,7 +623,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	$target_awal = '';
 	$target_akhir = '';
     foreach ($tujuan['indikator'] as $k => $v) {
-		$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-1'.'-'.$bulan);
+		$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-1');
 		$target_1 .= '<div class="indikator target-1">'.$v['target_1'].'</div>';
 		$target_2 .= '<div class="indikator target-2">'.$v['target_2'].'</div>';
 		$target_3 .= '<div class="indikator target-3">'.$v['target_3'].'</div>';
@@ -737,7 +737,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$target_awal = '';
 		$target_akhir = '';
 	    foreach ($sasaran['indikator'] as $k => $v) {
-			$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-2'.'-'.$bulan);
+			$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-2');
 			$target_1 .= '<div class="indikator target-1">'.$v['target_1'].'</div>';
 			$target_2 .= '<div class="indikator target-2">'.$v['target_2'].'</div>';
 			$target_3 .= '<div class="indikator target-3">'.$v['target_3'].'</div>';
@@ -845,7 +845,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			$target_awal = '';
 			$target_akhir = '';
 		    foreach ($program['indikator'] as $k => $v) {
-				$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-3'.'-'.$bulan);
+				$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-3');
 				$target_1 .= '<div class="indikator target-1">'.$v['target_1'].'</div>';
 				$target_2 .= '<div class="indikator target-2">'.$v['target_2'].'</div>';
 				$target_3 .= '<div class="indikator target-3">'.$v['target_3'].'</div>';
@@ -956,7 +956,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$target_awal = '';
 				$target_akhir = '';
 			    foreach ($kegiatan['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-4'.'-'.$bulan);
+					$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-4');
 					$target_1 .= '<div class="indikator target-1">'.$v['target_1'].'</div>';
 					$target_2 .= '<div class="indikator target-2">'.$v['target_2'].'</div>';
 					$target_3 .= '<div class="indikator target-3">'.$v['target_3'].'</div>';
@@ -1069,7 +1069,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$target_awal = '';
 					$target_akhir = '';
 				    foreach ($sub_kegiatan['indikator'] as $k => $v) {
-						$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-5'.'-'.$bulan);
+						$indikator_teks = $v['indikator'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-5');
 						$target_1 .= '<div class="indikator target-1">'.$v['target_1'].'</div>';
 						$target_2 .= '<div class="indikator target-2">'.$v['target_2'].'</div>';
 						$target_3 .= '<div class="indikator target-3">'.$v['target_3'].'</div>';
@@ -1492,100 +1492,42 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
                   		<table class="table table-bordered">
                   			<tbody>
                   				<tr>
-                  					<th style="width: 200px;">Tujuan / Sasaran / Program / Kegiatan</th>
+                  					<th style="width: 200px;" id="jenis-indikator">Tujuan / Sasaran / Program / Kegiatan</th>
                   					<td id="monev-nama"></td>
+                  				</tr>
+                  				<tr>
+                  					<th style="width: 200px;">Indikator</th>
+                  					<td id="indikator-nama"></td>
+                  				</tr>
+                  				<tr>
+                  					<th style="width: 200px;">Satuan</th>
+                  					<td id="satuan-nama"></td>
                   				</tr>
                   				<tr>
                   					<td colspan="2">
                   						<table class="display-indikator-renstra">
                   							<thead>
                   								<tr>
-					              					<th class="text_tengah" colspan="2" rowspan="2">Indikator</th>
-					              					<th class="text_tengah" style="width: 100px;" colspan="5">Target</th>
-					              					<th class="text_tengah" style="width: 100px;" rowspan="2">Satuan</th>
-					              					<th class="text_tengah" style="width: 140px;" rowspan="2" colspan="2">Pagu (Rp)<br>Tahun <?php echo $input['tahun_anggaran']; ?></th>
-												</tr>
-												<tr>
-													<th><?php echo $tahun_anggaran_1; ?></th>
-													<th><?php echo $tahun_anggaran_2; ?></th>
-													<th><?php echo $tahun_anggaran_3; ?></th>
-													<th><?php echo $tahun_anggaran_4; ?></th>
-													<th><?php echo $tahun_anggaran_5; ?></th>
+					              					<th class="text_tengah" style="width: 50px;">Tahun</th>
+					              					<th class="text_tengah" style="width: 140px;">Anggaran</th>
+					              					<th class="text_tengah" style="width: 140px;">Realisasi</th>
+					              					<th class="text_tengah" style="width: 50px;">Capaian Penyerapan</th>
+					              					<th class="text_tengah" style="width: 50px;">Target</th>
+					              					<th class="text_tengah" style="width: 50px;">Realisasi Target</th>
+					              					<th class="text_tengah" style="width: 50px;">Capaian Target</th>
 												</tr>
                   							</thead>
                   							<tbody id="monev-body-renstra">
                   							</tbody>
-                  						</table>
-                  					</td>
-                  				</tr>
-                  				<tr>
-                  					<td colspan="2">
-                  						<table>
-                  							<thead>
+                  							<tfoot>
                   								<tr>
-                  									<th class="text_tengah">Hitung Capaian Indikator</th>
-                  								</tr>
-                  							</thead>
-                  							<tbody>
-                  								<tr>
-                  									<td>
-				                  						<select style="width: 100%;" id="hitung_indikator">
-				                  							<option value="1">Automatis</option>
-				                  							<option value="0">Manual</option>
-				                  						</select>
-				                  						<ul id="helptext_hitung_indikator" style="margin: 10px 0 0 30px;">
-				                  							<li data-id="1" style="display: none;">Capaian indikator dihitung secara otomatis oleh system</li>
-				                  							<li data-id="0" style="display: none;">Capaian indikator diisi manual</li>
-				                  						</ul>
-				                  					</td>
-                  								</tr>
-                  							</tbody>
-                  						</table>
-                  					</td>
-                  				</tr>
-                  				<tr>
-                  					<td colspan="2">
-                  						<table id="table_rumus_indikator">
-                  							<thead>
-                  								<tr>
-                  									<th class="text_tengah">Pilih Rumus Indikator</th>
-                  								</tr>
-                  							</thead>
-                  							<tbody>
-                  								<tr>
-                  									<td>
-				                  						<select style="width: 100%;" id="rumus_indikator">
-				                  							<?php echo $rumus_indikator; ?>
-				                  						</select>
-				                  						<ul id="helptext_rumus_indikator" style="margin: 10px 0 0 30px;">
-				                  							<?php echo $keterangan_indikator_html; ?>
-				                  						</ul>
-				                  					</td>
-                  								</tr>
-                  							</tbody>
-                  						</table>
-                  					</td>
-                  				</tr>
-                  				<tr>
-                  					<td colspan="2">
-                  						<table>
-                  							<thead>
-                  								<tr>
-		              								<th class="text_tengah">Bulan</th>
-		              								<th class="text_tengah" style="width: 300px;">Realisasi (Rp.)</th>
-		              								<th class="text_tengah" style="width: 200px;">Realisasi Target</th>
-		              								<th class="text_tengah" style="width: 200px;">Capaian Target (%)</th>
-		              								<th class="text_tengah" style="width: 200px;">Keterangan / Permasalahan / Saran</th>
-		              							</tr>
-                  								<tr>
-		              								<th class="text_tengah">1</th>
-		              								<th class="text_tengah">2</th>
-		              								<th class="text_tengah">3</th>
-		              								<th class="text_tengah">4</th>
-		              								<th class="text_tengah">5</th>
-		              							</tr>
-                  							</thead>
-                  							<tbody id="monev-body-realisasi-renstra"></tbody>
+					              					<th class="text_tengah" style="width: 50px;">Total</th>
+					              					<th class="text_tengah" style="width: 140px;">0</th>
+					              					<th class="text_tengah" style="width: 140px;">0</th>
+					              					<th class="text_tengah" style="width: 50px;">0</th>
+					              					<th class="text_tengah" colspan="3"></th>
+												</tr>
+                  							</tfoot>
                   						</table>
                   					</td>
                   				</tr>
@@ -1692,37 +1634,34 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 					'tahun_anggaran' : rinc_kode[0],
 					'id_skpd': rinc_kode[1],
 					'id': rinc_kode[2],
-					'urut': rinc_kode[3],
-					'type_indikator': rinc_kode[4],
-					'bulan': rinc_kode[5],
+					'type_indikator': rinc_kode[3],
+					'lama_pelaksanaan': <?php echo $lama_pelaksanaan; ?>,
+					'tahun_awal': <?php echo $awal_rpjmd; ?>
 				},
 				dataType:'json',
 				success:function(res){
-					jQuery("#monev-nama").html(nama);
-					jQuery("#monev-body-renstra").html(res.body_renstra);
-					jQuery("#monev-body-realisasi-renstra").html(res.body_realisasi_renstra);
-					jQuery("#id_indikator").val(rinc_kode[2]);
-					jQuery("#type_indikator").val(rinc_kode[4]);
-					jQuery("#target_indikator").val(res.target_indikator);
-					jQuery("#sum_realisasi_anggaran").text(res.sum_realisasi_anggaran);
-
-					if(res.hitung_indikator==0){
-						jQuery("#table_rumus_indikator").hide();
-						for (var i = 1; i <= <?php echo $bulan ?>; i++) {
-							jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','');
-							jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"true");
+					if(res.status == 'success'){
+						jQuery("#monev-nama").html(nama);
+						jQuery("#monev-body-renstra").html(res.body_renstra);
+						jQuery("#id_indikator").val(rinc_kode[2]);
+						jQuery("#type_indikator").val(rinc_kode[3]);
+						var jenis_indikator = 'Tujuan';
+						if(rinc_kode[3] == 2){
+							jenis_indikator = 'Sasaran';
+						}else if(rinc_kode[3] == 3){
+							jenis_indikator = 'Program';
+						}else if(rinc_kode[3] == 4){
+							jenis_indikator = 'Kegiatan';
+						}else if(rinc_kode[3] == 5){
+							jenis_indikator = 'Sub Kegiatan';
 						}
-					} else if (res.hitung_indikator==1){
-						jQuery("#table_rumus_indikator").show();
-						for (var i = 1; i <= <?php echo $bulan ?>; i++) {
-							jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','onlyNumber(event)');
-							jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"false");
-						}
+						jQuery("#jenis-indikator").html(jenis_indikator);
+						jQuery("#indikator-nama").html(res.indikator);
+						jQuery("#satuan-nama").html(res.satuan);
+						jQuery('#modal-monev').modal('show');
+					}else{
+						alert(res.message);
 					}
-
-					setHitungCapaian(res.hitung_indikator);
-					setRumus(res.rumus_indikator);
-					jQuery('#modal-monev').modal('show');
 					jQuery('#wrap-loading').hide();
 				}
 			})
