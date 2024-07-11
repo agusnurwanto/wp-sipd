@@ -1203,24 +1203,24 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 											<td class="text-end text-right"><h2 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['total'],0,",","."); ?></h2></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 1</h4></td>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_1'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['rak_triwulan_1'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 2</h4></td>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_2'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['rak_triwulan_2'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 3</h4></td>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_3'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['rak_triwulan_3'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 4</h4></td>
-											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['rak_triwulan_4'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['rak_triwulan_4'],0,",","."); ?></h4></td>
 										</tr>
 									</table>
 								</div>
@@ -1244,24 +1244,24 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 											<td class="text-end text-right"><h2 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['realisasi'],0,",","."); ?></h2></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 1</h4></td>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_1'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['triwulan_1'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 2</h4></td>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_2'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['triwulan_2'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 3</h4></td>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_3'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['triwulan_3'],0,",","."); ?></h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">TW 4</h4></td>
-											<td><h4 class="font-weight-bolder text-danger py-1 m-0">:</h4></td>
-											<td class="text-end text-right"><h4 class="font-weight-bolder text-danger py-1 m-0"><?php echo number_format($data_all['triwulan_4'],0,",","."); ?></h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
+											<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['triwulan_4'],0,",","."); ?></h4></td>
 										</tr>
 									</table>
 								</div>
@@ -1284,24 +1284,24 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 											<td class="text-end text-center"><h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100); ?>%</h2></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 1</h4></td>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
-											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_1); ?>%</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">TW 1</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_1); ?>%</h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 2</h4></td>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
-											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_2); ?>%</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">TW 2</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_2); ?>%</h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 3</h4></td>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
-											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_3); ?>%</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">TW 3</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_3); ?>%</h4></td>
 										</tr>
 										<tr>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">TW 4</h4></td>
-											<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
-											<td class="text-end text-center"><h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_4); ?>%</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">TW 4</h4></td>
+											<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
+											<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_triwulan_4); ?>%</h4></td>
 										</tr>
 									</table>
 								</div>
@@ -1843,7 +1843,7 @@ foreach ($monev_triwulan as $k => $v) {
 
         var options = {
             title: 'ANGGARAN DAN REALISASI',
-            colors: ['#007bff', '#ffc107'],
+            colors: ['#ffc107', '#007bff'],
             hAxis: {
                 title: 'TRIWULAN',
                 minValue: 0
