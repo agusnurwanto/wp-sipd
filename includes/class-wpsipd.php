@@ -1107,6 +1107,7 @@ class Wpsipd
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));
 		add_shortcode('monitor_daftar_label_komponen', array($plugin_public, 'monitor_daftar_label_komponen'));
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
+		add_shortcode('monitor_monev_renstra_pemda', array($plugin_public, 'monitor_monev_renstra_pemda'));
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
 		add_shortcode('data_ssh_sipd', array($plugin_public, 'data_ssh_sipd'));
