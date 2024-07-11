@@ -12183,6 +12183,157 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function get_pagu_renstra_keg($opsi){
+		global $wpdb;
+		$ret = $wpdb->get_row($wpdb->prepare("
+			SELECT
+				SUM(pagu_1) as pagu_1,
+				SUM(pagu_2) as pagu_2,
+				SUM(pagu_3) as pagu_3,
+				SUM(pagu_4) as pagu_4,
+				SUM(pagu_5) as pagu_5,
+				SUM(realisasi_pagu_1) as realisasi_pagu_1,
+				SUM(realisasi_pagu_2) as realisasi_pagu_2,
+				SUM(realisasi_pagu_3) as realisasi_pagu_3,
+				SUM(realisasi_pagu_4) as realisasi_pagu_4,
+				SUM(realisasi_pagu_5) as realisasi_pagu_5
+			FROM data_renstra_sub_kegiatan
+			WHERE tahun_anggaran=%d
+				AND active=1
+				AND id_unit=%d
+				AND kode_kegiatan=%s
+				AND id_unik_indikator IS NULL
+		", $opsi['tahun_anggaran'], $opsi['id_skpd'], $opsi['id_unik']), ARRAY_A);
+		// die($wpdb->last_query);
+		return $ret;
+	}
+
+	public function get_pagu_renstra_prog($opsi){
+		global $wpdb;
+		$kegiatan = $wpdb->get_results($wpdb->prepare("
+			SELECT
+				id_unik
+			FROM data_renstra_kegiatan
+			WHERE tahun_anggaran=%d
+				AND active=1
+				AND id_unit=%d
+				AND kode_program=%s
+				AND id_unik_indikator IS NULL
+			GROUP BY id_unik
+		", $opsi['tahun_anggaran'], $opsi['id_skpd'], $opsi['id_unik']), ARRAY_A);
+		$ret = array(
+			'pagu_1' => 0,
+			'pagu_2' => 0,
+			'pagu_3' => 0,
+			'pagu_4' => 0,
+			'pagu_5' => 0,
+			'realisasi_pagu_1' => 0,
+			'realisasi_pagu_2' => 0,
+			'realisasi_pagu_3' => 0,
+			'realisasi_pagu_4' => 0,
+			'realisasi_pagu_5' => 0,
+		);
+		foreach($kegiatan as $v){
+			$opsi['id_unik'] = $v['id_unik'];
+			$pagu = $this->get_pagu_renstra_keg($opsi);
+			$ret['pagu_1'] += $pagu['pagu_1'];
+			$ret['pagu_2'] += $pagu['pagu_2'];
+			$ret['pagu_3'] += $pagu['pagu_3'];
+			$ret['pagu_4'] += $pagu['pagu_4'];
+			$ret['pagu_5'] += $pagu['pagu_5'];
+			$ret['realisasi_pagu_1'] += $pagu['realisasi_pagu_1'];
+			$ret['realisasi_pagu_2'] += $pagu['realisasi_pagu_2'];
+			$ret['realisasi_pagu_3'] += $pagu['realisasi_pagu_3'];
+			$ret['realisasi_pagu_4'] += $pagu['realisasi_pagu_4'];
+			$ret['realisasi_pagu_5'] += $pagu['realisasi_pagu_5'];
+		}
+		return $ret;
+	}
+
+	public function get_pagu_renstra_sasaran($opsi){
+		global $wpdb;
+		$program = $wpdb->get_results($wpdb->prepare("
+			SELECT
+				id_unik
+			FROM data_renstra_program
+			WHERE tahun_anggaran=%d
+				AND active=1
+				AND id_unit=%d
+				AND kode_sasaran=%s
+				AND id_unik_indikator IS NULL
+			GROUP BY id_unik
+		", $opsi['tahun_anggaran'], $opsi['id_skpd'], $opsi['id_unik']), ARRAY_A);
+		$ret = array(
+			'pagu_1' => 0,
+			'pagu_2' => 0,
+			'pagu_3' => 0,
+			'pagu_4' => 0,
+			'pagu_5' => 0,
+			'realisasi_pagu_1' => 0,
+			'realisasi_pagu_2' => 0,
+			'realisasi_pagu_3' => 0,
+			'realisasi_pagu_4' => 0,
+			'realisasi_pagu_5' => 0,
+		);
+		foreach($program as $v){
+			$opsi['id_unik'] = $v['id_unik'];
+			$pagu = $this->get_pagu_renstra_prog($opsi);
+			$ret['pagu_1'] += $pagu['pagu_1'];
+			$ret['pagu_2'] += $pagu['pagu_2'];
+			$ret['pagu_3'] += $pagu['pagu_3'];
+			$ret['pagu_4'] += $pagu['pagu_4'];
+			$ret['pagu_5'] += $pagu['pagu_5'];
+			$ret['realisasi_pagu_1'] += $pagu['realisasi_pagu_1'];
+			$ret['realisasi_pagu_2'] += $pagu['realisasi_pagu_2'];
+			$ret['realisasi_pagu_3'] += $pagu['realisasi_pagu_3'];
+			$ret['realisasi_pagu_4'] += $pagu['realisasi_pagu_4'];
+			$ret['realisasi_pagu_5'] += $pagu['realisasi_pagu_5'];
+		}
+		return $ret;
+	}
+
+	public function get_pagu_renstra_tujuan($opsi){
+		global $wpdb;
+		$sasaran = $wpdb->get_results($wpdb->prepare("
+			SELECT
+				id_unik
+			FROM data_renstra_sasaran
+			WHERE tahun_anggaran=%d
+				AND active=1
+				AND id_unit=%d
+				AND kode_sasaran=%s
+				AND id_unik_indikator IS NULL
+			GROUP BY id_unik
+		", $opsi['tahun_anggaran'], $opsi['id_skpd'], $opsi['id_unik']), ARRAY_A);
+		$ret = array(
+			'pagu_1' => 0,
+			'pagu_2' => 0,
+			'pagu_3' => 0,
+			'pagu_4' => 0,
+			'pagu_5' => 0,
+			'realisasi_pagu_1' => 0,
+			'realisasi_pagu_2' => 0,
+			'realisasi_pagu_3' => 0,
+			'realisasi_pagu_4' => 0,
+			'realisasi_pagu_5' => 0,
+		);
+		foreach($sasaran as $v){
+			$opsi['id_unik'] = $v['id_unik'];
+			$pagu = $this->get_pagu_renstra_sasaran($opsi);
+			$ret['pagu_1'] += $pagu['pagu_1'];
+			$ret['pagu_2'] += $pagu['pagu_2'];
+			$ret['pagu_3'] += $pagu['pagu_3'];
+			$ret['pagu_4'] += $pagu['pagu_4'];
+			$ret['pagu_5'] += $pagu['pagu_5'];
+			$ret['realisasi_pagu_1'] += $pagu['realisasi_pagu_1'];
+			$ret['realisasi_pagu_2'] += $pagu['realisasi_pagu_2'];
+			$ret['realisasi_pagu_3'] += $pagu['realisasi_pagu_3'];
+			$ret['realisasi_pagu_4'] += $pagu['realisasi_pagu_4'];
+			$ret['realisasi_pagu_5'] += $pagu['realisasi_pagu_5'];
+		}
+		return $ret;
+	}
+
 	public function get_monev_renstra()
 	{
 		global $wpdb;
@@ -12194,12 +12345,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$indikator = '';
 				$body_renstra = '';
-				$rumus_indikator = 1;
-				$hitung_indikator = 1;
-				$target_indikator = 0;
-				$capaian_indikator = 0;
+				$sum_anggaran = 0;
 				$sum_realisasi_anggaran = 0;
-				$body_realisasi_renstra = '';
+				$edit_realisasi_pagu = '';
+				$anggaran = array(
+					'pagu_1' => 0,
+					'pagu_2' => 0,
+					'pagu_3' => 0,
+					'pagu_4' => 0,
+					'pagu_5' => 0,
+					'realisasi_pagu_1' => 0,
+					'realisasi_pagu_2' => 0,
+					'realisasi_pagu_3' => 0,
+					'realisasi_pagu_4' => 0,
+					'realisasi_pagu_5' => 0,
+				);
 				switch ($_POST['type_indikator']) {
 					case '5':
 						$indikator = $wpdb->get_row($wpdb->prepare(
@@ -12208,6 +12368,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
 						), ARRAY_A);
+						$edit_realisasi_pagu = 'contenteditable="true"';
+						$anggaran = $wpdb->get_row($wpdb->prepare("
+							SELECT
+								pagu_1,
+								pagu_2,
+								pagu_3,
+								pagu_4,
+								pagu_5,
+								realisasi_pagu_1,
+								realisasi_pagu_2,
+								realisasi_pagu_3,
+								realisasi_pagu_4,
+								realisasi_pagu_5
+							FROM data_renstra_sub_kegiatan
+							WHERE tahun_anggaran=%d
+								AND active=1
+								AND id_unit=%d
+								AND id=%d
+						", $_POST['tahun_anggaran'], $_POST['id_skpd'], $_POST['id']), ARRAY_A);
 						break;
 
 					case '4':
@@ -12217,6 +12396,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
 						), ARRAY_A);
+						$anggaran = $this->get_pagu_renstra_keg(array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_unit' => $_POST['id_skpd'],
+							'id_unik' => $indikator['id_unik']
+						));
 						break;
 
 					case '3':
@@ -12226,6 +12410,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
 						), ARRAY_A);
+						$anggaran = $this->get_pagu_renstra_prog(array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_unit' => $_POST['id_skpd'],
+							'id_unik' => $indikator['id_unik']
+						));
 						break;
 
 					case '2':
@@ -12235,6 +12424,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
 						), ARRAY_A);
+						$anggaran = $this->get_pagu_renstra_sasaran(array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_unit' => $_POST['id_skpd'],
+							'id_unik' => $indikator['id_unik']
+						));
 						break;
 
 					case '1':
@@ -12244,6 +12438,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
 						), ARRAY_A);
+						$anggaran = $this->get_pagu_renstra_tujuan(array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_unit' => $_POST['id_skpd'],
+							'id_unik' => $indikator['id_unik']
+						));
 						break;
 
 					default:
@@ -12273,8 +12472,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$body_renstra .= '
 							<tr>
 								<td class="text-center">' . ($_POST['tahun_awal']+($i-1)) . '</td>
-								<td class="text-right">' . $indikator['pagu_'.$i] . '</td>
-								<td class="text-right" contenteditable="true">' . $indikator['realisasi_pagu_'.$i] . '</td>
+								<td class="text-right">' . $anggaran['pagu_'.$i] . '</td>
+								<td class="text-right" '.$edit_realisasi_pagu.'>' . $anggaran['realisasi_pagu_'.$i] . '</td>
 								<td class="text-center">' . $this->pembulatan($capaian_pagu) . '</td>
 								<td class="text-center">' . $indikator['target_'.$i] . '</td>
 								<td class="text-center" contenteditable="true">' . $indikator['realisasi_target_'.$i] . '</td>
