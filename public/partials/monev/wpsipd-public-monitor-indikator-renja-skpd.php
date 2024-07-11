@@ -536,6 +536,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 		</div>
 	</div>
 </div>
+<div id='aksi-wp-sipd'></div>
 <h4 class="text-center">Tabel Monitoring dan Evaluasi Renja</h4>
 <div id="cetak" title="Monitor Monev Renja" style="padding: 5px; overflow: auto; max-height: 80vh;">
 	<table id="tabel-monitor-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
@@ -593,8 +594,8 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 			packages: ['corechart', 'bar']
 		});
 		google.charts.setOnLoadCallback(drawColColors);
+		run_download_excel('', '#aksi-wp-sipd');
 	});
-	run_download_excel();
 
 	function drawColColors() {
 		var data_cart = [
