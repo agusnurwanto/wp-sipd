@@ -1986,7 +1986,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 			$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 			$body .= '
-					<tr class="tr-program">
+					<tr class="tr-program" data-id="'.$program['id_unik'].'">
 						<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
 						<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 						<td class="atas kanan bawah"></td>
@@ -2113,7 +2113,7 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 				$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 				$body .= '
-						<tr class="tr-kegiatan">
+						<tr class="tr-kegiatan" data-id="'.$kegiatan['id'].'">
 							<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
 							<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 							<td class="atas kanan bawah"></td>
@@ -2227,7 +2227,7 @@ foreach ($data_all['data'] as $tujuan) {
 					$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 					$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 					$body .= '
-							<tr class="tr-sub-kegiatan" style="background:'.$bgIsMutakhir.'">
+							<tr class="tr-sub-kegiatan" style="background:'.$bgIsMutakhir.'" data-id="'.$sub_kegiatan['id'].'">
 								<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
 								<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 								<td class="atas kanan bawah"></td>
@@ -2361,7 +2361,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	.lebar2{
 		width: 20%;
 	}
-	
+
 	#table-renstra thead{
 		position: sticky;
 	    top: -6px;
@@ -7237,7 +7237,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          				'<nav>'
 							  	+'<div class="nav nav-tabs" id="nav-tab" role="tablist">'
 								    +'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-default" role="tab" aria-controls="nav-sub-giat-default" aria-selected="false" onclick="defaultSubgiat('+response.sub_kegiatan.id_sub_giat+', '+id+')">Default</a>'
-								    +'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat('+response.sub_kegiatan.id_sub_giat+', '+response.sub_kegiatan.id_unit+', '+id+')">Lintas Sub Kegiatan</a>'
+								    +'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat('+response.sub_kegiatan.id_sub_giat+', '+response.sub_kegiatan.id_unit+', '+id+')">Lintas Sub Kegiatan Existing</a>'
 							  	+'</div>'
 							+'</nav>'
 							+'<div class="tab-content" id="nav-tab-content">'
@@ -7291,108 +7291,108 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 							      		+'</table>'
 							  	+'</div>'
 							  	+'<div class="tab-pane fade" id="nav-sub-giat-lintas" role="tabpanel" aria-labelledby="nav-sub-giat-lintas">'
-									      		+'<h4 style="text-align:center"><span>EXISTING</span></h4>'
-									  			+'<table class="table">'
-									      			+'<thead>'
-										          		+'<tr>'
-										          			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
-										          			+'<td>'+response.sub_kegiatan.nama_sub_unit+'</td>'
-										          		+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
-									          				+'<td>'+response.sub_kegiatan.nama_bidang_urusan+'</td>'
-									          			+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-									          				+'<td>'+response.sub_kegiatan.tujuan_teks+'</td>'
-									          			+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Sasaran</th>'
-									          				+'<td>'+response.sub_kegiatan.sasaran_teks+'</td>'
-									          			+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Program</th>'
-									          				+'<td>'+response.sub_kegiatan.nama_program+'</td>'
-									          			+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
-									          				+'<td>'+response.sub_kegiatan.nama_giat+'</td>'
-									          			+'</tr>'
-									          			+'<tr>'
-									          				+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
-									          				+'<td>'+response.sub_kegiatan.nama_sub_giat+'</td>'
-									          			+'</tr>'
-									      			+'</thead>'
-									      		+'</table>'
-									      		+'<table class="table">'
-									      			+'<thead>'
-									      				+'<tr>'
-									      					+'<th class="text-center" style="width: 160px;">Pagu</th>'
-									      					+'<td>Usulan</td>'
-									      					+'<td>Penetapan</td>'
-									      				+'</tr>'
-									      				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-														+'<tr>'
-									      					+'<th class="text-center" style="width: 160px;">Tahun '+<?php echo $i; ?>+'</th>'
-									      					+'<td>'+response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan_temp+'</td>'
-									      					+'<td>'+response.sub_kegiatan.pagu_<?php echo $i; ?>_temp+'</td>'
-									      				+'</tr>'
-														<?php }; ?>
-									      			+'</thead>'
-									      		+'</table>'
-									      		+'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>'
-									      		+'<form id="pemutakhiran_subgiat_form">'
-										      		+'<table class="table">'
-										      			+'<thead>'
-										      				+'<tr>'
-										          				+'<th class="text-center" style="width: 160px;">Urusan</th>'
-										          				+'<td colspan="3"><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>'
-										          			+'</tr>'
-										          			+'<tr>'
-										          				+'<th class="text-center" style="width: 160px;">Bidang</th>'
-										          				+'<td colspan="3"><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>'
-										          			+'</tr>'
-										          			+'<tr>'
-										          				+'<th class="text-center" style="width: 160px;">Program</th>'
-										          				+'<td><select id="program-teks" name="id_program"></select></td>'
-										          			+'</tr>'
-										          			+'<tr>'
-										          				+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
-										          				+'<td><select id="list-kegiatan" name="kegiatan"></select></td>'
-										          			+'</tr>'
-										          			+'<tr>'
-										          				+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
-										          				+'<td><select id="select-sub-kegiatan-2" name="sub_kegiatan_2"></select></td>'
-										          			+'</tr>'
-										      			+'</thead>'
-										      		+'</table>'
-										      		+'<table class="table">'
-										      			+'<thead>'
-										      				+'<tr>'
-										      					+'<th class="text-center" style="width: 160px;">Pagu</th>'
-										      					+'<td>Usulan</td>'
-										      					+'<td>Penetapan</td>'
-										      					+'<td>Usulan Asli</td>'
-										      					+'<td>Penetapan Asli</td>'
-										      				+'</tr>'
-										      				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-															+'<tr>'
-										      					+'<th class="text-center" style="width: 160px;">Tahun '+<?php echo $i; ?>+'</th>'
-										      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_usulan"></td>'
-										      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'"></td>'
-										      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_usulan_asli" readonly></td>'
-										      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_asli" readonly></td>'
-										      				+'</tr>'
-															<?php }; ?>
-										      			+'</thead>'
-										      		+'</table>'
-									      		+'</form>'
-									      		+'<div class="row">'
-									      			+'<div class="col-md-12 text-center">'
-									      				+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;"><i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
-									      				+'</button>'
-									      			+'</div>'
-									      		+'</div>'
+						      		+'<h4 style="text-align:center"><span>EXISTING</span></h4>'
+						  			+'<table class="table">'
+						      			+'<thead>'
+							          		+'<tr>'
+							          			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+							          			+'<td>'+response.sub_kegiatan.nama_sub_unit+'</td>'
+							          		+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+						          				+'<td>'+response.sub_kegiatan.nama_bidang_urusan+'</td>'
+						          			+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+						          				+'<td>'+response.sub_kegiatan.tujuan_teks+'</td>'
+						          			+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+						          				+'<td>'+response.sub_kegiatan.sasaran_teks+'</td>'
+						          			+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Program</th>'
+						          				+'<td>'+response.sub_kegiatan.nama_program+'</td>'
+						          			+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+						          				+'<td>'+response.sub_kegiatan.nama_giat+'</td>'
+						          			+'</tr>'
+						          			+'<tr>'
+						          				+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
+						          				+'<td>'+response.sub_kegiatan.nama_sub_giat+'</td>'
+						          			+'</tr>'
+						      			+'</thead>'
+						      		+'</table>'
+						      		+'<table class="table">'
+						      			+'<thead>'
+						      				+'<tr>'
+						      					+'<th class="text-center" style="width: 160px;">Pagu</th>'
+						      					+'<td>Usulan</td>'
+						      					+'<td>Penetapan</td>'
+						      				+'</tr>'
+						      				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+											+'<tr>'
+						      					+'<th class="text-center" style="width: 160px;">Tahun '+<?php echo $i; ?>+'</th>'
+						      					+'<td>'+response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan_temp+'</td>'
+						      					+'<td>'+response.sub_kegiatan.pagu_<?php echo $i; ?>_temp+'</td>'
+						      				+'</tr>'
+											<?php }; ?>
+						      			+'</thead>'
+						      		+'</table>'
+						      		+'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>'
+						      		+'<form id="pemutakhiran_subgiat_form">'
+							      		+'<table class="table">'
+							      			+'<thead>'
+							      				+'<tr>'
+							          				+'<th class="text-center" style="width: 160px;">Urusan</th>'
+							          				+'<td colspan="3"><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>'
+							          			+'</tr>'
+							          			+'<tr>'
+							          				+'<th class="text-center" style="width: 160px;">Bidang</th>'
+							          				+'<td colspan="3"><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>'
+							          			+'</tr>'
+							          			+'<tr>'
+							          				+'<th class="text-center" style="width: 160px;">Program</th>'
+							          				+'<td><select id="program-teks" name="id_program" onchange="listKegiatanByProgram(this.value);"></select></td>'
+							          			+'</tr>'
+							          			+'<tr>'
+							          				+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+							          				+'<td><select id="list-kegiatan" name="kegiatan" onchange="listSubGiat(\''+response.sub_kegiatan.id_unit+'\', '+<?php echo $tahun_anggaran; ?>+');"></select></td>'
+							          			+'</tr>'
+							          			+'<tr>'
+							          				+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
+							          				+'<td><select id="select-sub-kegiatan-2" name="sub_kegiatan_2"></select></td>'
+							          			+'</tr>'
+							      			+'</thead>'
+							      		+'</table>'
+							      		+'<table class="table">'
+							      			+'<thead>'
+							      				+'<tr>'
+							      					+'<th class="text-center" style="width: 160px;">Pagu</th>'
+							      					+'<td>Usulan</td>'
+							      					+'<td>Penetapan</td>'
+							      					+'<td>Usulan Asli</td>'
+							      					+'<td>Penetapan Asli</td>'
+							      				+'</tr>'
+							      				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+												+'<tr>'
+							      					+'<th class="text-center" style="width: 160px;">Tahun '+<?php echo $i; ?>+'</th>'
+							      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_usulan"></td>'
+							      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'"></td>'
+							      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_usulan_asli" readonly></td>'
+							      					+'<td><input type="number" class="form-control" name="pagu_'+<?php echo $i; ?>+'_asli" readonly></td>'
+							      				+'</tr>'
+												<?php }; ?>
+							      			+'</thead>'
+							      		+'</table>'
+						      		+'</form>'
+						      		+'<div class="row">'
+						      			+'<div class="col-md-12 text-center">'
+						      				+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;"><i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+						      				+'</button>'
+						      			+'</div>'
+						      		+'</div>'
 							  	+'</div>'
 							+'</div>');
 
@@ -7407,25 +7407,16 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					jQuery('.btn-mutakhirkan').attr('onclick', 'mutakhirkanSubKegiatan(\''+response.sub_kegiatan.id_sub_giat+'\', \''+id+'\')');
 					jQuery('.nav-tabs a[href="#nav-sub-giat-default"]').tab('show');
 	          		jQuery("#modal-crud-renstra").modal('show');
-	          		// jQuery("#select-sub-kegiatan").select2({width: '100%'});
-	          		// jQuery("#select-sub-kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
+
+	          		jQuery("#program-teks").select2({width: '100%'});
+	          		jQuery("#select-sub-kegiatan").select2({width: '100%'});
+	          		jQuery("#list-kegiatan").select2({'width':'100%'});
+				    jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
 
 	          		get_urusan();
 					get_bidang();
 					get_program();
 	          		jQuery('#bidang-teks').val(response.sub_kegiatan.nama_bidang_urusan).trigger('change');
-
-	          		jQuery(document).on("change", "#program-teks",function(event) {
-						listKegiatanByProgram(event.target.value).then(function(){
-							// jQuery("#list-kegiatan").select2({'width':'100%'});
-				          	jQuery("#list-kegiatan").attr('onchange', `listSubGiat(
-				          		'${response.sub_kegiatan.id_unit}', 
-				          		'<?php echo $tahun_anggaran; ?>'
-				          	)`);
-				          	// jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
-				          	// jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
-				        });
-					});
           		});
           	}
          })
