@@ -289,21 +289,7 @@ foreach ($subkeg as $kk => $sub) {
 		$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2];
 		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
 			select
-				id_indikator,
-				id_rumus_indikator,
-				id_unik_indikator_renstra,
-				realisasi_bulan_1,
-				realisasi_bulan_2,
-				realisasi_bulan_3,
-				realisasi_bulan_4,
-				realisasi_bulan_5,
-				realisasi_bulan_6,
-				realisasi_bulan_7,
-				realisasi_bulan_8,
-				realisasi_bulan_9,
-				realisasi_bulan_10,
-				realisasi_bulan_11,
-				realisasi_bulan_12
+				*
 			from data_realisasi_renja
 			where tahun_anggaran=%d
 				and tipe_indikator=%d
@@ -314,6 +300,7 @@ foreach ($subkeg as $kk => $sub) {
 			'nama'	=> $sub['nama_program'],
 			'indikator' => $capaian_prog,
 			'realisasi_indikator' => $realisasi_renja,
+			'id_program' => $sub['id_program'],
 			'kode_sbl' => $sub['kode_sbl'],
 			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2],
 			'total' => 0,
@@ -344,21 +331,7 @@ foreach ($subkeg as $kk => $sub) {
 		$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2].'.'.$kode_sbl_s[3];
 		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
 			select
-				id_indikator,
-				id_rumus_indikator,
-				id_unik_indikator_renstra,
-				realisasi_bulan_1,
-				realisasi_bulan_2,
-				realisasi_bulan_3,
-				realisasi_bulan_4,
-				realisasi_bulan_5,
-				realisasi_bulan_6,
-				realisasi_bulan_7,
-				realisasi_bulan_8,
-				realisasi_bulan_9,
-				realisasi_bulan_10,
-				realisasi_bulan_11,
-				realisasi_bulan_12
+				*
 			from data_realisasi_renja
 			where tahun_anggaran=%d
 				and tipe_indikator=%d
@@ -369,6 +342,7 @@ foreach ($subkeg as $kk => $sub) {
 			'indikator' => $output_giat,
 			'realisasi_indikator' => $realisasi_renja,
 			'kode_sbl' => $sub['kode_sbl'],
+			'kode_giat' => $sub['kode_giat'],
 			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2].'.'.$kode_sub_giat_asli[3].'.'.$kode_sub_giat_asli[4],
 			'total' => 0,
 			'triwulan_1' => 0,
@@ -393,21 +367,7 @@ foreach ($subkeg as $kk => $sub) {
 
 		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
 			select
-				id_indikator,
-				id_rumus_indikator,
-				id_unik_indikator_renstra,
-				realisasi_bulan_1,
-				realisasi_bulan_2,
-				realisasi_bulan_3,
-				realisasi_bulan_4,
-				realisasi_bulan_5,
-				realisasi_bulan_6,
-				realisasi_bulan_7,
-				realisasi_bulan_8,
-				realisasi_bulan_9,
-				realisasi_bulan_10,
-				realisasi_bulan_11,
-				realisasi_bulan_12
+				*
 			from data_realisasi_renja
 			where tahun_anggaran=%d
 				and tipe_indikator=%d
@@ -418,6 +378,7 @@ foreach ($subkeg as $kk => $sub) {
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 			'nama'	=> implode(' ', $nama),
 			'indikator' => $output_sub_giat,
+			'kode_sub_giat' => $sub['kode_sub_giat'],
 			'realisasi_indikator' => $realisasi_renja,
 			'total' => 0,
 			'triwulan_1' => 0,
@@ -544,12 +505,20 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$satuan_renstra = array();
 			$total_pagu_renstra = array();
 			$total_pagu_renstra_renja = array();
+			$keterangan = array();
 			if(!empty($program['indikator'])){
 				$realisasi_indikator = array();
 				foreach ($program['realisasi_indikator'] as $k_sub => $v_sub) {
 					$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
 				}
 				foreach ($program['indikator'] as $k_sub => $v_sub) {
+					$keterangan_db = array();
+					for($i=1; $i<=12; $i++){
+						if(!empty($v_sub['keterangan_bulan_'.$i])){
+							$keterangan_db[] = $v_sub['keterangan_bulan_'.$i];
+						}
+					}
+					$keterangan[$k_sub] = implode(', ', $keterangan_db);
 					$target_capaian_prog_js[$k_sub] = $v_sub['targetcapaian'];
 					$satuan_capaian_prog_js[$k_sub] = $v_sub['satuancapaian'];
 					$target_capaian_prog[$k_sub] = '<span data-id="'.$k_sub.'">'.$v_sub['targetcapaian'].'</span>';
@@ -690,12 +659,21 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$realisasi_indikator_tw4 = implode('<br>', $realisasi_indikator_tw4);
 			$total_tw = implode('<br>', $total_tw);
 			$capaian_realisasi_indikator = implode('<br>', $capaian_realisasi_indikator);
+			$keterangan = implode('<br>', $keterangan);
 
 			$total_realisasi_target_renstra_tahun_lalu = 0;
 			$total_realisasi_pagu_renstra_tahun_lalu = 0;
 			$total_realisasi_target_renstra_tahun_berjalan = 0;
 			$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-			$renstra = $wpdb->get_results("select * from data_renstra_program where kode_program='$program[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and id_unit='".$unit[0]['id_unit']."'", ARRAY_A);
+			$renstra = $wpdb->get_results($wpdb->prepare("
+				select 
+					* 
+				from data_renstra_program 
+				where id_program=%s 
+					and tahun_anggaran=%d 
+					and active=1 
+					and id_unit=%d
+			", $program['id_program'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 			$data_renstra = $this->get_indikator_renstra_renja(array(
 				'renstra' => $renstra,
 				'type' => 'program',
@@ -743,6 +721,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 	        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
+	        		<td class="kanan bawah text_blok">'.$keterangan.'</td>
 		        </tr>
 			';
 			foreach ($program['data'] as $kd_giat1 => $giat) {
@@ -766,12 +745,20 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$total_tw = array();
 				$capaian_realisasi_indikator = array();
 				$class_rumus_target = array();
+				$keterangan = array();
 				if(!empty($giat['indikator'])){
 					$realisasi_indikator = array();
 					foreach ($giat['realisasi_indikator'] as $k_sub => $v_sub) {
 						$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
 					}
 					foreach ($giat['indikator'] as $k_sub => $v_sub) {
+						$keterangan_db = array();
+						for($i=1; $i<=12; $i++){
+							if(!empty($v_sub['keterangan_bulan_'.$i])){
+								$keterangan_db[] = $v_sub['keterangan_bulan_'.$i];
+							}
+						}
+						$keterangan[$k_sub] = implode(', ', $keterangan_db);
 						$target_output_giat[$k_sub] = '<span data-id="'.$k_sub.'">'.$v_sub['targetoutput'].'</span>';
 						$satuan_output_giat[$k_sub] = '<span data-id="'.$k_sub.'">'.$v_sub['satuanoutput'].'</span>';
 						$target_indikator = $v_sub['targetoutput'];
@@ -871,12 +858,21 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$realisasi_indikator_tw4 = implode('<br>', $realisasi_indikator_tw4);
 				$total_tw = implode('<br>', $total_tw);
 				$capaian_realisasi_indikator = implode('<br>', $capaian_realisasi_indikator);
+				$keterangan = implode('<br>', $keterangan);
 
 				$total_realisasi_target_renstra_tahun_lalu = 0;
 				$total_realisasi_pagu_renstra_tahun_lalu = 0;
 				$total_realisasi_target_renstra_tahun_berjalan = 0;
 				$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-				$renstra = $wpdb->get_results("select * from data_renstra_kegiatan where kode_giat='$giat[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and id_unit='".$unit[0]['id_unit']."'", ARRAY_A);
+				$renstra = $wpdb->get_results($wpdb->prepare("
+					select 
+						* 
+					from data_renstra_kegiatan 
+					where kode_giat=%s 
+						and tahun_anggaran=%d 
+						and active=1 
+						and id_unit=%d
+				", $giat['kode_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 				$data_renstra = $this->get_indikator_renstra_renja(array(
 					'renstra' => $renstra,
 					'type' => 'kegiatan',
@@ -924,6 +920,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
+		        		<td class="kanan bawah">'.$keterangan.'</td>
 			        </tr>
 				';
 				foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
@@ -944,12 +941,20 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$total_tw = array();
 					$capaian_realisasi_indikator = array();
 					$class_rumus_target = array();
+					$keterangan = array();
 					if(!empty($sub_giat['indikator'])){
 						$realisasi_indikator = array();
 						foreach ($sub_giat['realisasi_indikator'] as $k_sub => $v_sub) {
 							$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
 						}
 						foreach ($sub_giat['indikator'] as $k_sub => $v_sub) {
+							$keterangan_db = array();
+							for($i=1; $i<=12; $i++){
+								if(!empty($v_sub['keterangan_bulan_'.$i])){
+									$keterangan_db[] = $v_sub['keterangan_bulan_'.$i];
+								}
+							}
+							$keterangan[$k_sub] = implode(', ', $keterangan_db);
 							$target_output_sub_giat[] = '<span data-id="'.$v_sub['idoutputbl'].'">'.$v_sub['targetoutput'].'</span>';
 							$satuan_output_sub_giat[] = '<span data-id="'.$v_sub['idoutputbl'].'">'.$v_sub['satuanoutput'].'</span>';
 							$target_indikator = $v_sub['targetoutput'];
@@ -1047,6 +1052,24 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4 = implode('<br>', $realisasi_indikator_tw4);
 					$total_tw = implode('<br>', $total_tw);
 					$capaian_realisasi_indikator = implode('<br>', $capaian_realisasi_indikator);
+					$keterangan = implode('<br>', $keterangan);
+
+					$renstra = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_renstra_sub_kegiatan 
+						where kode_sub_giat=%s 
+							and tahun_anggaran=%d 
+							and active=1 
+							and id_unit=%d
+					", $sub_giat['kode_sub_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+					$data_renstra = $this->get_indikator_renstra_renja(array(
+						'renstra' => $renstra,
+						'type' => 'sub_kegiatan',
+						'renja' => $sub_giat,
+						'default_satuan_renstra' => $satuan_output_sub_giat,
+						'tahun_renstra' => $tahun_renstra
+					));
 					$body_monev .= '
 						<tr class="sub_kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'.'.$kd_sub_giat.'">
 				            <td class="kiri kanan bawah">'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
@@ -1087,6 +1110,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan"></td>
 				            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan"></td>
 			        		<td class="kanan bawah">'.$unit[0]['nama_skpd'].'</td>
+			        		<td class="kanan bawah">'.$keterangan.'</td>
 				        </tr>
 					';
 				}
@@ -1370,6 +1394,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun <?php echo $input['tahun_anggaran']; ?> (Akhir Tahun Pelaksanaan Renja SKPD)</th>
 				<th rowspan="2" colspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun <?php echo $input['tahun_anggaran']; ?> (%)</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Unit OPD Penanggung Jawab</th>
+				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Keterangan</th>
 			</tr>
 			<tr>
 				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>I</th>
@@ -1395,6 +1420,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>14 = 6 + 12</th>
 				<th colspan="2" class='atas kanan bawah text_tengah text_blok'>15 = 14/5 x100</th>
 				<th rowspan="3" class='atas kanan bawah text_tengah text_blok'>16</th>
+				<th rowspan="3" class='atas kanan bawah text_tengah text_blok'>17</th>
 			</tr>
 			<tr>
 				<th colspan="2" class='atas kanan bawah text_tengah text_blok'>K</th>
@@ -1457,7 +1483,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 				<th class='atas kanan bawah text_kanan text_blok' colspan="2"><?php echo $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100); ?></th>
 				<th class='atas kanan bawah text_kanan text_blok' colspan="3">0</th>
 				<th class='atas kanan bawah text_kanan text_blok' colspan="2">0</th>
-				<th></th>
+				<th class='atas kanan bawah text_kanan text_blok' colspan="2"></th>
 			</tr>
 		</tfoot>
 	</table>

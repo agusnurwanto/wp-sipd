@@ -12617,6 +12617,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="' . $k_sub . '">' . $v_sub['satuanoutput'] . '</span>';
 			} else if ($options['type'] == 'program') {
 				$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="' . $k_sub . '">' . $v_sub['satuancapaian'] . '</span>';
+			} else if ($options['type'] == 'sub_kegiatan') {
+				$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="' . $k_sub . '">' . $v_sub['satuanoutput'] . '</span>';
 			}
 		}
 
@@ -12629,6 +12631,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			} else if ($options['type'] == 'program') {
 				$ret['renstra_sasaran'][0] = $sasaran_teks[0];
 				$ret['renstra_tujuan'][0] = $tujuan_teks[0];
+			} else if ($options['type'] == 'sub_kegiatan') {
+				$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">' . $sasaran_teks[0] . '</span>';
+				$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">' . $tujuan_teks[0] . '</span>';
 			}
 			$target_indikator_renstra_1 = explode(' ', $v['target_1']);
 			$target_indikator_renstra_2 = explode(' ', $v['target_2']);
@@ -12667,6 +12672,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$v['satuan'] = $v_sub['satuanoutput'];
 						} else if ($options['type'] == 'program') {
 							$v['satuan'] = $v_sub['satuancapaian'];
+						} else if ($options['type'] == 'sub_kegiatan') {
+							$v['satuan'] = $v_sub['satuanoutput'];
 						}
 					}
 					$cek_string = false;
