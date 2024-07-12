@@ -1586,7 +1586,7 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
     <div class="modal-dialog modal-lg" role="document" style="min-width: 1000px;">
         <div class="modal-content"style="min-width: 850px";>
             <div class="modal-header bgpanel-theme">
-                <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Renstra Per Bulan</h4>
+                <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator RENSTRA Per Tahun Anggaran</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
             </div>
             <div class="modal-body">
