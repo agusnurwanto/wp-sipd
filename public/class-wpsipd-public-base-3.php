@@ -4206,14 +4206,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
             	if(in_array('administrator', $this->role())){
-	                $tujuan_all = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						FROM data_renstra_tujuan_lokal 
-						WHERE 
-							id_unit=%d AND 
-							active=1 ORDER BY urut_tujuan
-					", $_POST['id_unit']), ARRAY_A);
             		if(empty($_POST['id_unit'])){
             			$sql = "
 							SELECT 
@@ -4295,6 +4287,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											'target_3' => $program_value['target_3_usulan'],
 											'target_4' => $program_value['target_4_usulan'],
 											'target_5' => $program_value['target_5_usulan'],
+											'pagu_1' => $program_value['pagu_1_usulan'],
+											'pagu_2' => $program_value['pagu_2_usulan'],
+											'pagu_3' => $program_value['pagu_3_usulan'],
+											'pagu_4' => $program_value['pagu_4_usulan'],
+											'pagu_5' => $program_value['pagu_5_usulan'],
 											'target_akhir' => $program_value['target_akhir_usulan'],
 											'catatan' => $program_value['catatan_usulan']
 										);
@@ -4333,41 +4330,41 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												$wpdb->update('data_renstra_kegiatan_lokal', $newData, array(
 													'id' => $kegiatan_value['id']
 												));
-											}
-
-											if(empty($kegiatan_value['id_unik_indikator'])){
-												$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
-													SELECT 
-														*
-													FROM data_renstra_sub_kegiatan_lokal
-													WHERE
-														kode_kegiatan=%s AND
-														kode_program=%s AND
-														kode_sasaran=%s AND
-														kode_tujuan=%s AND
-														active=1 ORDER BY id
-												", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
-												foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
-													$newData = array(
-														'indikator' => $sub_kegiatan_value['indikator_usulan'],
-														'satuan' => $sub_kegiatan_value['satuan_usulan'],
-														'target_awal' => $sub_kegiatan_value['target_awal_usulan'],
-														'target_1' => $sub_kegiatan_value['target_1_usulan'],
-														'target_2' => $sub_kegiatan_value['target_2_usulan'],
-														'target_3' => $sub_kegiatan_value['target_3_usulan'],
-														'target_4' => $sub_kegiatan_value['target_4_usulan'],
-														'target_5' => $sub_kegiatan_value['target_5_usulan'],
-														'pagu_1' => $sub_kegiatan_value['pagu_1_usulan'],
-														'pagu_2' => $sub_kegiatan_value['pagu_2_usulan'],
-														'pagu_3' => $sub_kegiatan_value['pagu_3_usulan'],
-														'pagu_4' => $sub_kegiatan_value['pagu_4_usulan'],
-														'pagu_5' => $sub_kegiatan_value['pagu_5_usulan'],
-														'target_akhir' => $sub_kegiatan_value['target_akhir_usulan'],
-														'catatan' => $sub_kegiatan_value['catatan_usulan']
-													);
-													$wpdb->update('data_renstra_sub_kegiatan_lokal', $newData, array(
-														'id' => $sub_kegiatan_value['id']
-													));
+												
+												if(empty($kegiatan_value['id_unik_indikator'])){
+													$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+														SELECT 
+															*
+														FROM data_renstra_sub_kegiatan_lokal
+														WHERE
+															kode_kegiatan=%s AND
+															kode_program=%s AND
+															kode_sasaran=%s AND
+															kode_tujuan=%s AND
+															active=1 ORDER BY id
+													", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+													foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+														$newData = array(
+															'indikator' => $sub_kegiatan_value['indikator_usulan'],
+															'satuan' => $sub_kegiatan_value['satuan_usulan'],
+															'target_awal' => $sub_kegiatan_value['target_awal_usulan'],
+															'target_1' => $sub_kegiatan_value['target_1_usulan'],
+															'target_2' => $sub_kegiatan_value['target_2_usulan'],
+															'target_3' => $sub_kegiatan_value['target_3_usulan'],
+															'target_4' => $sub_kegiatan_value['target_4_usulan'],
+															'target_5' => $sub_kegiatan_value['target_5_usulan'],
+															'pagu_1' => $sub_kegiatan_value['pagu_1_usulan'],
+															'pagu_2' => $sub_kegiatan_value['pagu_2_usulan'],
+															'pagu_3' => $sub_kegiatan_value['pagu_3_usulan'],
+															'pagu_4' => $sub_kegiatan_value['pagu_4_usulan'],
+															'pagu_5' => $sub_kegiatan_value['pagu_5_usulan'],
+															'target_akhir' => $sub_kegiatan_value['target_akhir_usulan'],
+															'catatan' => $sub_kegiatan_value['catatan_usulan']
+														);
+														$wpdb->update('data_renstra_sub_kegiatan_lokal', $newData, array(
+															'id' => $sub_kegiatan_value['id']
+														));
+													}
 												}
 											}
 										}

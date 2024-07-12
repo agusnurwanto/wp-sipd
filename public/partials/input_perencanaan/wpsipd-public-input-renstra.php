@@ -2361,6 +2361,12 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	.lebar2{
 		width: 20%;
 	}
+	
+	#table-renstra thead{
+		position: sticky;
+	    top: -6px;
+	    background: #ffc491;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <?php echo $table; ?>
