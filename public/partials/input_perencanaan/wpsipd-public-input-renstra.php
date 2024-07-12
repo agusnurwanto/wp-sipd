@@ -858,6 +858,8 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'id' => '',
 		'id_unik' => '',
 		'statusMutakhirSubKeg' => 1,
+		'id_sub_unit' => '',
+		'nama_sub_unit' => '',
 		'sub_kegiatan_teks' => '<span style="color: red">kosong</span>',
 		'catatan' => '',
 		'catatan_usulan' => '',
@@ -1262,6 +1264,8 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 										'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
 										'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
 										'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+										'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
+										'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
 										'indikator' => array(),
 									];
 							}
@@ -1619,6 +1623,8 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 							'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
 							'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
 							'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+							'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
+							'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
 							'indikator' => array(),
 						];
 					}
@@ -1845,6 +1851,8 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 					'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
 					'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
 					'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+					'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
+					'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
 					'indikator' => array(),
 				];
 			}
