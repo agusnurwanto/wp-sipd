@@ -1727,6 +1727,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			'pagu_akumulasi_indikator_3_usulan' => 0,
 			'pagu_akumulasi_indikator_4_usulan' => 0,
 			'pagu_akumulasi_indikator_5_usulan' => 0,
+			'data' => array(),
 			'indikator' => array()
 		];
 	}
