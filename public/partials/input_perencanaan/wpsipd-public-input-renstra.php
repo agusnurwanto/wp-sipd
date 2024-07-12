@@ -749,6 +749,7 @@ if(empty($data_all['data']['tujuan_kosong'])){
 		'id_unik' => '',
 		'tujuan_teks' => '<span style="color: red">kosong</span>',
 		'urut_tujuan' => '',
+		'nama_bidang_urusan' => '',
 		'catatan' => '',
 		'catatan_usulan' => '',
 		'pagu_akumulasi_1' => 0,
@@ -762,7 +763,8 @@ if(empty($data_all['data']['tujuan_kosong'])){
 		'pagu_akumulasi_4_usulan' => 0,
 		'pagu_akumulasi_5_usulan' => 0,
 		'indikator' => array(),
-		'data' => array()
+		'data' => array(),
+		'status_rpjm' => false
 	);
 }
 if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
@@ -945,12 +947,35 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 
 		foreach ($program_all as $keyProgram => $program_value) {
 			if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
+
+				// check program ke master data_prog_keg
+				$checkProgram = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id_program 
+						FROM 
+							data_prog_keg 
+						WHERE 
+							kode_program=%s AND
+							active=%d AND
+							tahun_anggaran=%d
+							", 
+					$program_value['kode_program'],
+					1,
+					$input['tahun_anggaran']
+				), ARRAY_A);
+							
+				$statusMutakhirProgram = 1;
+				if(empty($checkProgram['id_program'])){
+					$statusMutakhirProgram = 0;
+					$data_all['pemutakhiran_program']++;
+				}
 				$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
 						'id' => $program_value['id'],
 						'id_unik' => $program_value['id_unik'],
 						'program_teks' => $program_value['nama_program'],
 						'catatan' => $program_value['catatan'],
 						'catatan_usulan' => $program_value['catatan_usulan'],
+						'statusMutakhirProgram' => $statusMutakhirProgram,
 						'pagu_akumulasi_1' => 0,
 						'pagu_akumulasi_2' => 0,
 						'pagu_akumulasi_3' => 0,
@@ -1041,12 +1066,34 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 										
 					if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
 
+						// check kegiatan ke master data_prog_keg
+						$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									id_giat 
+								FROM 
+									data_prog_keg 
+								WHERE 
+									kode_giat=%s AND
+									active=%d AND
+									tahun_anggaran=%d
+									", 
+							$kegiatan_value['kode_giat'],
+							1,
+							$input['tahun_anggaran']
+						), ARRAY_A);
+									
+						$statusMutakhirKegiatan = 1;
+						if(empty($checkKegiatan['id_giat'])){
+							$statusMutakhirKegiatan = 0;
+							$data_all['pemutakhiran_kegiatan']++;
+						}
 						$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 							'id' => $kegiatan_value['id'],
 							'id_unik' => $kegiatan_value['id_unik'],
 							'kegiatan_teks' => $kegiatan_value['nama_giat'],
 							'catatan' => $kegiatan_value['catatan'],
 							'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+							'statusMutakhirKegiatan' => $statusMutakhirKegiatan,
 							'pagu_akumulasi_1' => 0,
 							'pagu_akumulasi_2' => 0,
 							'pagu_akumulasi_3' => 0,
@@ -1067,7 +1114,8 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 							'pagu_akumulasi_indikator_3_usulan' => 0,
 							'pagu_akumulasi_indikator_4_usulan' => 0,
 							'pagu_akumulasi_indikator_5_usulan' => 0,
-							'indikator' => array()
+							'indikator' => array(),
+							'data' => array()
 						];
 					}
 
@@ -1251,12 +1299,34 @@ $program_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
 foreach ($program_all_kosong as $keyProgram => $program_value) {
 	if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']])){
+		// check program ke master data_prog_keg
+		$checkProgram = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					id_program 
+				FROM 
+					data_prog_keg 
+				WHERE 
+					kode_program=%s AND
+					active=%d AND
+					tahun_anggaran=%d
+					", 
+			$program_value['kode_program'],
+			1,
+			$input['tahun_anggaran']
+		), ARRAY_A);
+					
+		$statusMutakhirProgram = 1;
+		if(empty($checkProgram['id_program'])){
+			$statusMutakhirProgram = 0;
+			$data_all['pemutakhiran_program']++;
+		}
 		$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']] = [
 			'id' => $program_value['id'],
 			'id_unik' => $program_value['id_unik'],
 			'program_teks' => $program_value['nama_program'],
 			'catatan' => $program_value['catatan'],
 			'catatan_usulan' => $program_value['catatan_usulan'],
+			'statusMutakhirProgram' => $statusMutakhirProgram,
 			'pagu_akumulasi_1' => 0,
 			'pagu_akumulasi_2' => 0,
 			'pagu_akumulasi_3' => 0,
