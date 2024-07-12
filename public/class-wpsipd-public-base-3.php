@@ -10406,18 +10406,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					if(empty($cek_jadwal['data'])){
 						throw new Exception("Oops... Jadwal renstra lokal belum dibuka!", 1);
 					}
-					
-					$wpdb->update('data_renstra_tujuan', array('active' => 0), array(
-						'id_unit' => $_POST['id_unit'],
+					$filter_renstra = array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
-					));
+					);
+					$where_skpd = '';
+					if(!empty($_POST['id_unit'])){
+						$filter_renstra['id_unit'] = $_POST['id_unit'];
+						$where_skpd = $wpdb->prepare("AND id_unit=%s", $_POST['id_unit']);
+					}
+
+					$wpdb->update('data_renstra_tujuan', array('active' => 0), $filter_renstra);
 					$tujuan_lokal = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							* 
 						FROM data_renstra_tujuan_lokal 
-						WHERE id_unit=%d 
-							AND active=1
-					", $_POST['id_unit']), ARRAY_A);
+						WHERE active=%d
+							$where_skpd
+					", 1), ARRAY_A);
 					if(!empty($tujuan_lokal)){
 						foreach ($tujuan_lokal as $key => $tujuan_value) {
 							$data = $tujuan_value;
@@ -10441,6 +10446,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									FROM data_renstra_tujuan 
 									WHERE id_unik=%s 
 										AND id_unik_indikator IS NULL
+										$where_skpd
 								", $tujuan_value['id_unik']));
 							}else{
 								$cek_tujuan_renstra = $wpdb->get_var($wpdb->prepare("
@@ -10448,8 +10454,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										id 
 									FROM data_renstra_tujuan 
 									WHERE id_unik=%s 
-										AND id_unik_indikator IS NOT NULL
-								", $tujuan_value['id_unik']));
+										AND id_unik_indikator=%s
+										$where_skpd
+								", $tujuan_value['id_unik'], $tujuan_value['id_unik_indikator']));
 							}
 							if(empty($cek_tujuan_renstra)){
 								$wpdb->insert("data_renstra_tujuan", $data);
@@ -10465,10 +10472,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								SELECT 
 									* 
 								FROM data_renstra_sasaran_lokal 
-								WHERE id_unit=%d 
-									AND kode_tujuan=%s 
+								WHERE kode_tujuan=%s 
 									AND active=1
-							", $_POST['id_unit'], $tujuan_value['id_unik']), ARRAY_A);
+									$where_skpd
+							", $tujuan_value['id_unik']), ARRAY_A);
 							if(!empty($sasaran_lokal)){
 								foreach ($sasaran_lokal as $key => $sasaran_value) {
 									$data = $sasaran_value;
@@ -10492,6 +10499,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											FROM data_renstra_sasaran 
 											WHERE id_unik=%s 
 												AND id_unik_indikator IS NULL
+												$where_skpd
 										", $sasaran_value['id_unik']));
 									}else{
 										$cek_sasaran_renstra = $wpdb->get_var($wpdb->prepare("
@@ -10499,8 +10507,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												id 
 											FROM data_renstra_sasaran 
 											WHERE id_unik=%s 
-												AND id_unik_indikator IS NOT NULL
-										", $sasaran_value['id_unik']));
+												AND id_unik_indikator=%s
+												$where_skpd
+										", $sasaran_value['id_unik'], $sasaran_value['id_unik_indikator']));
 									}
 									if(empty($cek_sasaran_renstra)){
 										$wpdb->insert('data_renstra_sasaran', $data);
@@ -10516,12 +10525,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										SELECT 
 											* 
 										FROM data_renstra_program_lokal 
-										WHERE id_unit=%d 
-											AND kode_sasaran=%s 
+										WHERE kode_sasaran=%s 
 											AND active=1
-									", 
-									$_POST['id_unit'], 
-									$sasaran_value['id_unik']), ARRAY_A);
+											$where_skpd
+									",$sasaran_value['id_unik']), ARRAY_A);
 									if(!empty($program_lokal)){
 										foreach ($program_lokal as $key => $program_value) {
 											$data = $program_value;
@@ -10538,22 +10545,24 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												}
 											}
 
-											if(empty($sasaran_value['id_unik_indikator'])){
+											if(empty($program_value['id_unik_indikator'])){
 												$cek_program = $wpdb->get_var($wpdb->prepare("
 													SELECT 
 														id 
 													FROM data_renstra_program 
 													WHERE id_unik=%s 
 														AND id_unik_indikator IS NULL
-												", $sasaran_value['id_unik']));
+														$where_skpd
+												", $program_value['id_unik']));
 											}else{
 												$cek_program = $wpdb->get_var($wpdb->prepare("
 													SELECT 
 														id 
 													FROM data_renstra_program 
 													WHERE id_unik=%s 
-														AND id_unik_indikator IS NOT NULL
-												", $sasaran_value['id_unik']));
+														AND id_unik_indikator=%s
+														$where_skpd
+												", $program_value['id_unik'], $program_value['id_unik_indikator']));
 											}
 											if(empty($cek_program)){
 												$wpdb->insert('data_renstra_program', $data);
@@ -10571,12 +10580,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												SELECT 
 													* 
 												FROM data_renstra_kegiatan_lokal 
-												WHERE id_unit=%d 
-													AND kode_program=%s 
+												WHERE kode_program=%s 
 													AND active=1
-											", 
-											$_POST['id_unit'], 
-											$program_value['id_unik']), ARRAY_A);
+													$where_skpd
+											",$program_value['id_unik']), ARRAY_A);
 											if(!empty($kegiatan_lokal)){
 												foreach ($kegiatan_lokal as $key => $kegiatan_value) {
 													$data = $kegiatan_value;
@@ -10603,6 +10610,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 															FROM data_renstra_kegiatan 
 															WHERE id_unik=%s 
 																AND id_unik_indikator IS NULL
+																$where_skpd
 														", $kegiatan_value['id_unik']));
 													}else{
 														$cek_kegiatan = $wpdb->get_var($wpdb->prepare("
@@ -10610,8 +10618,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 																id 
 															FROM data_renstra_kegiatan 
 															WHERE id_unik=%s 
-																AND id_unik_indikator IS NOT NULL
-														", $kegiatan_value['id_unik']));
+																AND id_unik_indikator=%s
+																$where_skpd
+														", $kegiatan_value['id_unik'], $kegiatan_value['id_unik_indikator']));
 													}
 													if(empty($cek_kegiatan)){
 														$wpdb->insert('data_renstra_kegiatan', $data);
@@ -10629,12 +10638,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 														SELECT 
 															* 
 														FROM data_renstra_sub_kegiatan_lokal 
-														WHERE id_unit=%d 
-															AND kode_kegiatan=%s 
+														WHERE kode_kegiatan=%s 
 															AND active=1
-													", 
-													$_POST['id_unit'], 
-													$kegiatan_value['id_unik']), ARRAY_A);
+															$where_skpd
+													", $kegiatan_value['id_unik']), ARRAY_A);
 													if(!empty($sub_kegiatan_lokal)){
 														foreach ($sub_kegiatan_lokal as $key => $sub_kegiatan_value) {
 															$data = $sub_kegiatan_value;
@@ -10652,27 +10659,29 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 															}
 
 															if(empty($sub_kegiatan_value['id_unik_indikator'])){
-																$cek_kegiatan = $wpdb->get_var($wpdb->prepare("
+																$cek_sub_kegiatan = $wpdb->get_var($wpdb->prepare("
 																	SELECT 
 																		id 
 																	FROM data_renstra_sub_kegiatan 
 																	WHERE id_unik=%s 
 																		AND id_unik_indikator IS NULL
+																		$where_skpd
 																", $sub_kegiatan_value['id_unik']));
 															}else{
-																$cek_kegiatan = $wpdb->get_var($wpdb->prepare("
+																$cek_sub_kegiatan = $wpdb->get_var($wpdb->prepare("
 																	SELECT 
 																		id 
 																	FROM data_renstra_sub_kegiatan 
 																	WHERE id_unik=%s 
-																		AND id_unik_indikator IS NOT NULL
-																", $sub_kegiatan_value['id_unik']));
+																		AND id_unik_indikator=%s
+																		$where_skpd
+																", $sub_kegiatan_value['id_unik'], $sub_kegiatan_value['id_unik_indikator']));
 															}
-															if(empty($cek_kegiatan)){
+															if(empty($cek_sub_kegiatan)){
 																$wpdb->insert('data_renstra_sub_kegiatan', $data);
 															}else{
 																$wpdb->update("data_renstra_sub_kegiatan", $data, array(
-																	'id' => $cek_kegiatan
+																	'id' => $cek_sub_kegiatan
 																));
 															}
 														}
