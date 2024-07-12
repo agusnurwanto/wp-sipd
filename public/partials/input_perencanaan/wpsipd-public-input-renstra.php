@@ -795,6 +795,7 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'id_unik' => '',
 		'program_teks' => '<span style="color: red">kosong</span>',
 		'catatan' => '',
+		'statusMutakhirProgram' => 1,
 		'catatan_usulan' => '',
 		'pagu_akumulasi_1' => 0,
 		'pagu_akumulasi_2' => 0,
@@ -825,6 +826,7 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'id' => '',
 		'id_unik' => '',
 		'kegiatan_teks' => '<span style="color: red">kosong</span>',
+		'statusMutakhirKegiatan' => 1,
 		'catatan' => '',
 		'catatan_usulan' => '',
 		'pagu_akumulasi_1' => 0,
@@ -855,6 +857,7 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['data']['sub_kegiatan_kosong'] = array(
 		'id' => '',
 		'id_unik' => '',
+		'statusMutakhirSubKeg' => 1,
 		'sub_kegiatan_teks' => '<span style="color: red">kosong</span>',
 		'catatan' => '',
 		'catatan_usulan' => '',
@@ -1221,9 +1224,31 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
 
+								// check sub kegiatan ke master data_prog_keg
+								$checkSubKeg = $wpdb->get_row($wpdb->prepare("
+										SELECT 
+											id_sub_giat 
+										FROM 
+											data_prog_keg 
+										WHERE 
+											kode_sub_giat=%s AND
+											active=%d AND
+											tahun_anggaran=%d
+											", 
+										$sub_kegiatan_value['kode_sub_giat'],
+										1,
+										$input['tahun_anggaran']
+									), ARRAY_A);
+								
+								$statusMutakhirSubKeg = 1;
+								if(empty($checkSubKeg['id_sub_giat'])){
+									$statusMutakhirSubKeg = 0;
+									$data_all['pemutakhiran_sub_kegiatan']++;
+								}
 								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 										'id' => $sub_kegiatan_value['id'],
 										'id_unik' => $sub_kegiatan_value['id_unik'],
+										'statusMutakhirSubKeg' => $statusMutakhirSubKeg,
 										'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
 										'catatan' => $sub_kegiatan_value['catatan'],
 										'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
@@ -1414,12 +1439,34 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 
 		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {								
 			if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
+				// check kegiatan ke master data_prog_keg
+				$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id_giat 
+						FROM 
+							data_prog_keg 
+						WHERE 
+							kode_giat=%s AND
+							active=%d AND
+							tahun_anggaran=%d
+							", 
+					$kegiatan_value['kode_giat'],
+					1,
+					$input['tahun_anggaran']
+				), ARRAY_A);
+							
+				$statusMutakhirKegiatan = 1;
+				if(empty($checkKegiatan['id_giat'])){
+					$statusMutakhirKegiatan = 0;
+					$data_all['pemutakhiran_kegiatan']++;
+				}
 				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 					'id' => $kegiatan_value['id'],
 					'id_unik' => $kegiatan_value['id_unik'],
 					'kegiatan_teks' => $kegiatan_value['nama_giat'],
 					'catatan' => $kegiatan_value['catatan'],
 					'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+					'statusMutakhirKegiatan' => $statusMutakhirKegiatan,
 					'pagu_akumulasi_1' => 0,
 					'pagu_akumulasi_2' => 0,
 					'pagu_akumulasi_3' => 0,
@@ -1440,7 +1487,8 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					'pagu_akumulasi_indikator_3_usulan' => 0,
 					'pagu_akumulasi_indikator_4_usulan' => 0,
 					'pagu_akumulasi_indikator_5_usulan' => 0,
-					'indikator' => array()
+					'indikator' => array(),
+					'data' => array()
 				];
 			}
 
@@ -1533,9 +1581,31 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
 
+						// check sub kegiatan ke master data_prog_keg
+						$checkSubKeg = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									id_sub_giat 
+								FROM 
+									data_prog_keg 
+								WHERE 
+									kode_sub_giat=%s AND
+									active=%d AND
+									tahun_anggaran=%d
+									", 
+								$sub_kegiatan_value['kode_sub_giat'],
+								1,
+								$input['tahun_anggaran']
+							), ARRAY_A);
+						
+						$statusMutakhirSubKeg = 1;
+						if(empty($checkSubKeg['id_sub_giat'])){
+							$statusMutakhirSubKeg = 0;
+							$data_all['pemutakhiran_sub_kegiatan']++;
+						}
 						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 							'id' => $sub_kegiatan_value['id'],
 							'id_unik' => $sub_kegiatan_value['id_unik'],
+							'statusMutakhirSubKeg' => $statusMutakhirSubKeg,
 							'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
 							'catatan' => $sub_kegiatan_value['catatan'],
 							'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
@@ -1609,12 +1679,34 @@ $kegiatan_all = $wpdb->get_results($sql, ARRAY_A);
 
 foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {									
 	if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']])){
+		// check kegiatan ke master data_prog_keg
+		$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					id_giat 
+				FROM 
+					data_prog_keg 
+				WHERE 
+					kode_giat=%s AND
+					active=%d AND
+					tahun_anggaran=%d
+					", 
+			$kegiatan_value['kode_giat'],
+			1,
+			$input['tahun_anggaran']
+		), ARRAY_A);
+					
+		$statusMutakhirKegiatan = 1;
+		if(empty($checkKegiatan['id_giat'])){
+			$statusMutakhirKegiatan = 0;
+			$data_all['pemutakhiran_kegiatan']++;
+		}
 		$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']] = [
 			'id' => $kegiatan_value['id'],
 			'id_unik' => $kegiatan_value['id_unik'],
 			'kegiatan_teks' => $kegiatan_value['nama_giat'],
 			'catatan' => $kegiatan_value['catatan'],
 			'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+			'statusMutakhirKegiatan' => $statusMutakhirKegiatan,
 			'pagu_akumulasi_1' => 0,
 			'pagu_akumulasi_2' => 0,
 			'pagu_akumulasi_3' => 0,
@@ -1717,9 +1809,31 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
 
+				// check sub kegiatan ke master data_prog_keg
+				$checkSubKeg = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id_sub_giat 
+						FROM 
+							data_prog_keg 
+						WHERE 
+							kode_sub_giat=%s AND
+							active=%d AND
+							tahun_anggaran=%d
+							", 
+						$sub_kegiatan_value['kode_sub_giat'],
+						1,
+						$input['tahun_anggaran']
+					), ARRAY_A);
+				
+				$statusMutakhirSubKeg = 1;
+				if(empty($checkSubKeg['id_sub_giat'])){
+					$statusMutakhirSubKeg = 0;
+					$data_all['pemutakhiran_sub_kegiatan']++;
+				}
 				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 					'id' => $sub_kegiatan_value['id'],
 					'id_unik' => $sub_kegiatan_value['id_unik'],
+					'statusMutakhirSubKeg' => $statusMutakhirSubKeg,
 					'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
 					'catatan' => $sub_kegiatan_value['catatan'],
 					'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
