@@ -1787,13 +1787,10 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			SELECT 
 				* 
 			FROM data_renstra_sub_kegiatan_lokal 
-			WHERE 
-				kode_kegiatan=%s AND 
-				kode_program=%s AND 
-				active=1 ORDER BY id_sub_giat",
-				$kegiatan_value['id_unik'],
-				$program_value['id_unik']
-			), ARRAY_A);
+			WHERE kode_kegiatan=%s 
+				AND active=1 
+			ORDER BY id_sub_giat
+		", $kegiatan_value['id_unik']), ARRAY_A);
 
 		foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
 										
