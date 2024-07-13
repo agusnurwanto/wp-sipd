@@ -1064,7 +1064,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 					WHERE 
 						kode_program=%s AND 
 						kode_sasaran=%s AND
-						active=1 ORDER BY id
+						active=1 ORDER BY kode_giat asc
 				", $program_value['id_unik'], $sasaran_value['id_unik'] ), ARRAY_A);
 
 				foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -1179,11 +1179,12 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 							SELECT 
 								* 
 							FROM data_renstra_sub_kegiatan_lokal 
-								WHERE 
-									kode_kegiatan=%s AND 
-									kode_program=%s AND 
-									kode_sasaran=%s AND 
-									active=1 ORDER BY id_sub_giat",
+							WHERE 
+								kode_kegiatan=%s AND 
+								kode_program=%s AND 
+								kode_sasaran=%s AND 
+								active=1 
+							ORDER BY kode_sub_giat asc, id_unik_indikator asc",
 									$kegiatan_value['id_unik'],
 									$program_value['id_unik'],
 									$sasaran_value['id_unik']
