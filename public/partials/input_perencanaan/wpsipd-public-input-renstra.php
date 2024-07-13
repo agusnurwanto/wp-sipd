@@ -7444,14 +7444,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
           	},
           	dataType: "json",
           	success: function(response){
-          		get_list_sub_kegiatan({
-	          		'kode_giat':response.sub_kegiatan.kode_giat,
-	          		'id_unit': response.sub_kegiatan.id_unit,
-				    'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
-	          	}, "select-sub-kegiatan").then(function(){
-	          		jQuery('#wrap-loading').hide();
-	          	});
-
           		get_bidang_urusan().then(function(){
 					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Sub Kegiatan');
 	          		jQuery("#modal-crud-renstra .modal-body").html(
@@ -7629,15 +7621,22 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					jQuery('.nav-tabs a[href="#nav-sub-giat-default"]').tab('show');
 	          		jQuery("#modal-crud-renstra").modal('show');
 
-	          		jQuery("#program-teks").select2({width: '100%'});
-	          		jQuery("#select-sub-kegiatan").select2({width: '100%'});
-	          		jQuery("#list-kegiatan").select2({'width':'100%'});
-				    jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
+	          		get_list_sub_kegiatan({
+		          		'kode_giat':response.sub_kegiatan.kode_giat,
+		          		'id_unit': response.sub_kegiatan.id_unit,
+					    'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+		          	}, "select-sub-kegiatan").then(function(){
+	          			jQuery("#select-sub-kegiatan").select2({width: '100%'});
+		          		jQuery('#wrap-loading').hide();
+		          		jQuery("#program-teks").select2({width: '100%'});
+		          		jQuery("#list-kegiatan").select2({'width':'100%'});
+					    jQuery("#select-sub-kegiatan-2").html('').select2({width: '100%'});
 
-	          		get_urusan();
-					get_bidang();
-					get_program();
-	          		jQuery('#bidang-teks').val(response.sub_kegiatan.nama_bidang_urusan).trigger('change');
+		          		get_urusan();
+						get_bidang();
+						get_program();
+		          		jQuery('#bidang-teks').val(response.sub_kegiatan.nama_bidang_urusan).trigger('change');
+		          	});
           		});
           	}
          })
@@ -7660,8 +7659,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 		}, 'select-indikator-sub-kegiatan').then(function(){
 			jQuery('#wrap-loading').hide();
-	        // jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
-	        // jQuery(".select-indikator-sub-kegiatan").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 		});
 	}
 
@@ -7714,7 +7711,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		}, "select-sub-kegiatan-2").then(function(){
 			jQuery('#wrap-loading').hide();
 			// jQuery("#select-sub-kegiatan-2").select2({width: '100%'});
-			// jQuery("#select-sub-kegiatan-2").select2({width: '100%', dropdownParent: jQuery(this).closest('.modal-body')});
 
 			jQuery(document).on('change', "#select-sub-kegiatan-2", function(event){
 				jQuery('#wrap-loading').show();
