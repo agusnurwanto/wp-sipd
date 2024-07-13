@@ -4330,7 +4330,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												$wpdb->update('data_renstra_kegiatan_lokal', $newData, array(
 													'id' => $kegiatan_value['id']
 												));
-												
+
 												if(empty($kegiatan_value['id_unik_indikator'])){
 													$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
 														SELECT 
@@ -8776,51 +8776,51 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$wpdb->query('START TRANSACTION');
 
 					$subKegiatanRenstraLama = $wpdb->get_row($wpdb->prepare("
-											SELECT 
-												* 
-											FROM data_renstra_sub_kegiatan_lokal
-											WHERE id=%d 
-												AND active=1 
-											order by id ASC
-										", $_POST['id']));
+						SELECT 
+							* 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id=%d 
+							AND active=1 
+						order by id ASC
+					", $_POST['id']));
 
 					if(empty($subKegiatanRenstraLama)){
 						throw new Exception('Sub kegiatan existing tidak ditemukan!');
 					}
 
 					$indikatorSubKegiatanRenstraLama = $wpdb->get_row($wpdb->prepare("
-											SELECT 
-												* 
-											FROM data_renstra_sub_kegiatan_lokal
-											WHERE id_unik=%s 
-												AND id_unik_indikator IS NOT NULL
-												AND active=1 
-											order by id ASC
-										", $subKegiatanRenstraLama->id_unik));
+						SELECT 
+							* 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_unik=%s 
+							AND id_unik_indikator IS NOT NULL
+							AND active=1 
+						order by id ASC
+					", $subKegiatanRenstraLama->id_unik));
 
 					$subKegiatanBaru = $wpdb->get_row($wpdb->prepare("
-											SELECT 
-												* 
-											FROM data_prog_keg 
-											WHERE id_sub_giat=%d 
-												AND tahun_anggaran=%d 
-												AND active=1 
-											order by id ASC
-										", $_POST['id_sub_kegiatan'], $_POST['tahun_anggaran']));
+						SELECT 
+							* 
+						FROM data_prog_keg 
+						WHERE id_sub_giat=%d 
+							AND tahun_anggaran=%d 
+							AND active=1 
+						order by id ASC
+					", $_POST['id_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if(empty($subKegiatanBaru)){
 						throw new Exception('Sub kegiatan pemutakhiran tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
 					}
 
 					$indikatorSubKegiatanBaru = $wpdb->get_row($wpdb->prepare("
-											SELECT 
-												* 
-											FROM data_master_indikator_subgiat 
-											WHERE id=%d 
-												AND tahun_anggaran=%d 
-												AND active=1 
-											order by id ASC
-										", $_POST['id_indikator_sub_kegiatan'], $_POST['tahun_anggaran']));
+						SELECT 
+							* 
+						FROM data_master_indikator_subgiat 
+						WHERE id=%d 
+							AND tahun_anggaran=%d 
+							AND active=1 
+						order by id ASC
+					", $_POST['id_indikator_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if(empty($indikatorSubKegiatanBaru)){
 						throw new Exception('Indikator sub kegiatan pemutakhiran tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
@@ -8879,14 +8879,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					]);
 
 					$subKegiatanRenstraBaru = $wpdb->get_row($wpdb->prepare("
-											SELECT 
-												* 
-											FROM data_renstra_sub_kegiatan_lokal
-											WHERE id_sub_giat=%d 
-												AND active=1
-												AND id_unik_indikator IS NULL 
-											order by id ASC
-										", $_POST['id_sub_kegiatan']));
+						SELECT 
+							* 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_sub_giat=%d 
+							AND active=1
+							AND id_unik_indikator IS NULL 
+						order by id ASC
+					", $_POST['id_sub_kegiatan']));
 
 					if(empty($subKegiatanRenstraBaru)){
 						throw new Exception('Sub kegiatan pemutakhiran tidak ditemukan!');
@@ -8962,24 +8962,30 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					// non aktifkan sub kegiatan lama dan indikatornya
 					$result3=$wpdb->query($wpdb->prepare("
 						UPDATE data_renstra_sub_kegiatan_lokal 
-							SET 
-								active=0,
-								status=0,
-								update_at='".date('Y-m-d H:i:s')."'
-						WHERE 
-							id_unik=%s AND 
-							active=%d", $subKegiatanRenstraLama->id_unik, 1));
+						SET 
+							active=0,
+							status=0,
+							update_at=%s
+						WHERE id_unik=%s AND 
+							active=%d
+					", date('Y-m-d H:i:s'), $subKegiatanRenstraLama->id_unik, 1));
 
 					if($result1 && $result2 && $result3){
 						$wpdb->query('COMMIT');
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses mutakhirkan sub kegiatan!'
+						]);exit();
 					}else{
 						$wpdb->query('ROLLBACK');
+						echo json_encode([
+							'status' => false,
+							'message' => 'Gagal mutakhirkan sub kegiatan. Hubungi admin!',
+							'sql' => $wpdb->last_query,
+							'error' => $wpdb->last_error
+						]);exit();
 					}
 
-					echo json_encode([
-						'status' => true,
-						'message' => 'Sukses mutakhirkan sub kegiatan!'
-					]);exit();
 				}else{
 					throw new Exception("Api key tidak sesuai", 1);
 				}
