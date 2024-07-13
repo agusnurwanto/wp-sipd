@@ -301,6 +301,7 @@ foreach ($subkeg as $kk => $sub) {
 			'indikator' => $capaian_prog,
 			'realisasi_indikator' => $realisasi_renja,
 			'id_program' => $sub['id_program'],
+			'kode_program' => $sub['kode_program'],
 			'kode_sbl' => $sub['kode_sbl'],
 			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2],
 			'total' => 0,
@@ -467,6 +468,51 @@ if(!empty($data_all['rak_triwulan_3']) && !empty($data_all['triwulan_3'])){
 }
 if(!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])){
 	$persen_triwulan_4 = ($data_all['triwulan_4']/$data_all['rak_triwulan_4'])*100;
+}
+
+$renstra_program = $wpdb->get_results($wpdb->prepare("
+	select 
+		* 
+	from data_renstra_program 
+	where tahun_anggaran=%d 
+		and active=1 
+		and id_unit=%d
+", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_program_id = array();
+$renstra_program_kode = array();
+foreach($renstra_program as $prog){
+	$renstra_program_id[$prog['id_program']] = array($prog);
+	$renstra_program_kode[$prog['kode_program']] = array($prog);
+}
+
+$renstra_keg = $wpdb->get_results($wpdb->prepare("
+	select 
+		* 
+	from data_renstra_kegiatan 
+	where tahun_anggaran=%d 
+		and active=1 
+		and id_unit=%d
+", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_keg_id = array();
+$renstra_keg_kode = array();
+foreach($renstra_keg as $giat){
+	$renstra_keg_id[$giat['id_giat']] = array($giat);
+	$renstra_keg_kode[$giat['kode_giat']] = array($giat);
+}
+
+$renstra_sub_keg = $wpdb->get_results($wpdb->prepare("
+	select 
+		* 
+	from data_renstra_sub_kegiatan 
+	where tahun_anggaran=%d 
+		and active=1 
+		and id_unit=%d
+", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_sub_keg_id = array();
+$renstra_sub_keg_kode = array();
+foreach($renstra_sub_keg as $sub_giat){
+	$renstra_sub_keg_id[$sub_giat['id_sub_giat']] = array($sub_giat);
+	$renstra_sub_keg_kode[$sub_giat['kode_sub_giat']] = array($sub_giat);
 }
 
 $body_monev = '';
@@ -667,15 +713,13 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$total_realisasi_pagu_renstra_tahun_lalu = 0;
 			$total_realisasi_target_renstra_tahun_berjalan = 0;
 			$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-			$renstra = $wpdb->get_results($wpdb->prepare("
-				select 
-					* 
-				from data_renstra_program 
-				where id_program=%s 
-					and tahun_anggaran=%d 
-					and active=1 
-					and id_unit=%d
-			", $program['id_program'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+
+			$renstra = array();
+			if(!empty($renstra_program_id[$program['id_program']])){
+				$renstra = $renstra_program_id[$program['id_program']];
+			}else if(!empty($renstra_program_kode[$program['kode_program']])){
+				$renstra = $renstra_program_kode[$program['kode_program']];
+			}
 			$data_renstra = $this->get_indikator_renstra_renja(array(
 				'renstra' => $renstra,
 				'type' => 'program',
@@ -866,15 +910,13 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$total_realisasi_pagu_renstra_tahun_lalu = 0;
 				$total_realisasi_target_renstra_tahun_berjalan = 0;
 				$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-				$renstra = $wpdb->get_results($wpdb->prepare("
-					select 
-						* 
-					from data_renstra_kegiatan 
-					where id_giat=%s 
-						and tahun_anggaran=%d 
-						and active=1 
-						and id_unit=%d
-				", $giat['id_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+
+				$renstra = array();
+				if(!empty($renstra_keg_id[$giat['id_giat']])){
+					$renstra = $renstra_keg_id[$giat['id_giat']];
+				}else if(!empty($renstra_keg_kode[$giat['kode_giat']])){
+					$renstra = $renstra_keg_kode[$giat['kode_giat']];
+				}
 				$data_renstra = $this->get_indikator_renstra_renja(array(
 					'renstra' => $renstra,
 					'type' => 'kegiatan',
@@ -1056,15 +1098,12 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$capaian_realisasi_indikator = implode('<br>', $capaian_realisasi_indikator);
 					$keterangan = implode('<br>', $keterangan);
 
-					$renstra = $wpdb->get_results($wpdb->prepare("
-						select 
-							* 
-						from data_renstra_sub_kegiatan 
-						where id_sub_giat=%s 
-							and tahun_anggaran=%d 
-							and active=1 
-							and id_unit=%d
-					", $sub_giat['id_sub_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+					$renstra = array();
+					if(!empty($renstra_sub_keg_id[$sub_giat['id_sub_giat']])){
+						$renstra = $renstra_sub_keg_id[$sub_giat['id_sub_giat']];
+					}else if(!empty($renstra_sub_keg_kode[$sub_giat['kode_sub_giat']])){
+						$renstra = $renstra_sub_keg_kode[$sub_giat['kode_sub_giat']];
+					}
 					$data_renstra = $this->get_indikator_renstra_renja(array(
 						'renstra' => $renstra,
 						'type' => 'sub_kegiatan',
