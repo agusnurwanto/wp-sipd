@@ -8892,6 +8892,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Sub kegiatan pemutakhiran tidak ditemukan!');
 					}
 
+					$result2 = 1;
+					// $result2 dikasih 1 karena tidak semua sub keg lama ada indikator
 					if(!empty($indikatorSubKegiatanRenstraLama)){
 						// insert indikator sub keg baru
 						$result2 = $wpdb->insert('data_renstra_sub_kegiatan_lokal', [
@@ -8958,6 +8960,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_sub_giat_lama' => $_POST['id_sub_kegiatan_lama']
 						]);
 					}
+					$result2_sql = $wpdb->last_query;
 
 					// non aktifkan sub kegiatan lama dan indikatornya
 					$result3=$wpdb->query($wpdb->prepare("
@@ -8977,11 +8980,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'message' => 'Sukses mutakhirkan sub kegiatan!'
 						]);exit();
 					}else{
+						$last_query = $wpdb->last_query;
 						$wpdb->query('ROLLBACK');
 						echo json_encode([
 							'status' => false,
 							'message' => 'Gagal mutakhirkan sub kegiatan. Hubungi admin!',
-							'sql' => $wpdb->last_query,
+							'sql' => $last_query,
+							'result1' => $result1,
+							'result2' => $result2,
+							'result2_sql' => $result2_sql,
+							'result3' => $result3,
 							'error' => $wpdb->last_error
 						]);exit();
 					}
