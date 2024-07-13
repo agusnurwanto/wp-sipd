@@ -444,19 +444,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 	}
 
-	function get_skpd_db(){
+	function get_skpd_db($id_skpd=false){
 		global $wpdb;
 		$user_id = um_user( 'ID' );
 		$user_meta = get_userdata($user_id);
 		$skpd_db = array();
 		$bidur_db = false;
-		if(
-			in_array("administrator", $user_meta->roles)
-			|| in_array("mitra_bappeda", $user_meta->roles)
-			|| in_array("PLT", $user_meta->roles) 
-			|| in_array("PA", $user_meta->roles) 
-			|| in_array("KPA", $user_meta->roles)
-		){
+		$tahun_anggaran = 0;
+		if(!empty($id_skpd)){
+			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 			$skpd_db = $wpdb->get_results($wpdb->prepare("
 				SELECT 
 					nama_skpd, 
@@ -466,7 +462,29 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				from data_unit 
 				where tahun_anggaran=%d
 					and id_skpd=%d
-				group by id_skpd", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
+				group by id_skpd
+			", $tahun_anggaran, $id_skpd), ARRAY_A);
+		}else{
+			if(
+				in_array("administrator", $user_meta->roles)
+				|| in_array("mitra_bappeda", $user_meta->roles)
+				|| in_array("PLT", $user_meta->roles) 
+				|| in_array("PA", $user_meta->roles) 
+				|| in_array("KPA", $user_meta->roles)
+			){
+				$skpd_db = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_skpd, 
+						id_skpd, 
+						kode_skpd,
+						is_skpd
+					from data_unit 
+					where tahun_anggaran=%d
+						and id_skpd=%d
+					group by id_skpd
+				", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+			}
 		}
 
 		$bidur_penunjang = 'X.XX';
@@ -504,7 +522,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			from data_prog_keg 
 			where kode_bidang_urusan IN ($id_bidur_all)
 				and tahun_anggaran=%d
-		", $_POST['tahun_anggaran']);
+		", $tahun_anggaran);
 		// die($sql);
 		$bidur_db = $wpdb->get_results($sql, ARRAY_A);
 		return array(

@@ -1909,6 +1909,9 @@ if(empty($data_all['data']['tujuan_kosong']['data'])){
 	unset($data_all['data']['tujuan_kosong']);
 }
 
+$bidur_skpd_db = $this->get_skpd_db($input['id_skpd']);
+$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+
 $no_tujuan = 0;
 foreach ($data_all['data'] as $tujuan) {
 	$no_tujuan++;
@@ -2177,51 +2180,55 @@ foreach ($data_all['data'] as $tujuan) {
 			$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 			$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 			$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
+
+			if(strpos($program['program_teks'], 'X.XX') !== false){
+				$program['program_teks'] = str_replace('X.XX', $bidur_skpd, $program['program_teks']);
+			}
 			$body .= '
-					<tr class="tr-program" data-id="'.$program['id_unik'].'">
-						<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
-						<td class="atas kanan bawah'.$bg_rpjm.'"></td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah">'.$program['program_teks']."".$isMutakhir.'</td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
-						<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-						for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-							$class_warning = '';
-							if($program['pagu_akumulasi_'.($i+1)] != $program['pagu_akumulasi_indikator_'.($i+1)]){
-								$class_warning = 'peringatan';
-							}
-							$body.="
-							<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td>
-							<td class=\"atas kanan bawah text_kanan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
+				<tr class="tr-program" data-id="'.$program['id_unik'].'">
+					<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
+					<td class="atas kanan bawah'.$bg_rpjm.'"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah">'.$program['program_teks']."".$isMutakhir.'</td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
+					<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+						$class_warning = '';
+						if($program['pagu_akumulasi_'.($i+1)] != $program['pagu_akumulasi_indikator_'.($i+1)]){
+							$class_warning = 'peringatan';
 						}
-						$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
-						<td class="atas kanan bawah"><br>'.$satuan.'</td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah">'.$program['catatan'].'</td>
-						<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
-						<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
-						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-						for ($i=0; $i < $lama_pelaksanaan; $i++) {
-							$class_warning = '';
-							if($program['pagu_akumulasi_'.($i+1).'_usulan'] != $program['pagu_akumulasi_indikator_'.($i+1).'_usulan']){
-								$class_warning = 'peringatan';
-							} 
-							$body.="
-							<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td>
-							<td class=\"atas kanan bawah text_kanan td-usulan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
-						}
-						$body.='<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
-						<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
-						<td class="atas kanan bawah td-usulan">'.$program['catatan_usulan'].'</td>
-						<td class="atas kanan bawah td-usulan"><br>'.$catatan_indikator_usulan.'</td>
-						<td class="atas kanan bawah td-usulan"></td>
-					</tr>
+						$body.="
+						<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td>
+						<td class=\"atas kanan bawah text_kanan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
+					}
+					$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
+					<td class="atas kanan bawah"><br>'.$satuan.'</td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah">'.$program['catatan'].'</td>
+					<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
+					<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) {
+						$class_warning = '';
+						if($program['pagu_akumulasi_'.($i+1).'_usulan'] != $program['pagu_akumulasi_indikator_'.($i+1).'_usulan']){
+							$class_warning = 'peringatan';
+						} 
+						$body.="
+						<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td>
+						<td class=\"atas kanan bawah text_kanan td-usulan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
+					}
+					$body.='<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
+					<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
+					<td class="atas kanan bawah td-usulan">'.$program['catatan_usulan'].'</td>
+					<td class="atas kanan bawah td-usulan"><br>'.$catatan_indikator_usulan.'</td>
+					<td class="atas kanan bawah td-usulan"></td>
+				</tr>
 			';
 			
 			$no_kegiatan=0;
@@ -2266,7 +2273,6 @@ foreach ($data_all['data'] as $tujuan) {
 						$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilKegiatan(\''.$kegiatan['id'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
 					}
 				}
-
 				foreach($kegiatan['indikator'] as $key => $indikator){
 					$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 					$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -2304,6 +2310,10 @@ foreach ($data_all['data'] as $tujuan) {
 				$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 				$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 				$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
+				
+				if(strpos($kegiatan['kegiatan_teks'], 'X.XX') !== false){
+					$kegiatan['kegiatan_teks'] = str_replace('X.XX', $bidur_skpd, $kegiatan['kegiatan_teks']);
+				}
 				$body .= '
 						<tr class="tr-kegiatan" data-id="'.$kegiatan['id'].'">
 							<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
@@ -2418,6 +2428,10 @@ foreach ($data_all['data'] as $tujuan) {
 
 					$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 					$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
+					
+					if(strpos($sub_kegiatan['sub_kegiatan_teks'], 'X.XX') !== false){
+						$sub_kegiatan['sub_kegiatan_teks'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['sub_kegiatan_teks']);
+					}
 					$body .= '
 							<tr class="tr-sub-kegiatan" style="background:'.$bgIsMutakhir.'" data-id="'.$sub_kegiatan['id'].'">
 								<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
