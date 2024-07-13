@@ -340,6 +340,7 @@ foreach ($subkeg as $kk => $sub) {
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 			'nama'	=> $sub['nama_giat'],
 			'indikator' => $output_giat,
+			'id_giat' => $sub['id_giat'],
 			'realisasi_indikator' => $realisasi_renja,
 			'kode_sbl' => $sub['kode_sbl'],
 			'kode_giat' => $sub['kode_giat'],
@@ -379,6 +380,7 @@ foreach ($subkeg as $kk => $sub) {
 			'nama'	=> implode(' ', $nama),
 			'indikator' => $output_sub_giat,
 			'kode_sub_giat' => $sub['kode_sub_giat'],
+			'id_sub_giat' => $sub['id_sub_giat'],
 			'realisasi_indikator' => $realisasi_renja,
 			'total' => 0,
 			'triwulan_1' => 0,
@@ -868,11 +870,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					select 
 						* 
 					from data_renstra_kegiatan 
-					where kode_giat=%s 
+					where id_giat=%s 
 						and tahun_anggaran=%d 
 						and active=1 
 						and id_unit=%d
-				", $giat['kode_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+				", $giat['id_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 				$data_renstra = $this->get_indikator_renstra_renja(array(
 					'renstra' => $renstra,
 					'type' => 'kegiatan',
@@ -1058,11 +1060,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						select 
 							* 
 						from data_renstra_sub_kegiatan 
-						where kode_sub_giat=%s 
+						where id_sub_giat=%s 
 							and tahun_anggaran=%d 
 							and active=1 
 							and id_unit=%d
-					", $sub_giat['kode_sub_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+					", $sub_giat['id_sub_giat'], $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 					$data_renstra = $this->get_indikator_renstra_renja(array(
 						'renstra' => $renstra,
 						'type' => 'sub_kegiatan',
@@ -1073,16 +1075,16 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$body_monev .= '
 						<tr class="sub_kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'.'.$kd_sub_giat.'">
 				            <td class="kiri kanan bawah">'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
-				            <td class="text_tengah kanan bawah"></td>
-				            <td class="text_tengah kanan bawah"></td>
+				            <td class="kanan bawah">'.$data_renstra['renstra_tujuan'].'</td>
+				            <td class="kanan bawah">'.$data_renstra['renstra_sasaran'].'</td>
 				            <td class="kanan bawah">'.$kd_sub_giat1.'</td>
 				            <td class="kanan bawah nama">'.$sub_giat['nama'].'</td>
 				            <td class="kanan bawah indikator">'.$output_sub_giat.'</td>
-				            <td class="text_tengah kanan bawah total_renstra"></td>
-				            <td class="text_tengah kanan bawah total_renstra">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah total_renstra"></td>
+				            <td class="text_tengah kanan bawah total_renstra">'.$data_renstra['total_target_renstra_text'].'</td>
+				            <td class="text_tengah kanan bawah total_renstra">'.$data_renstra['satuan_renstra'].'</td>
+				            <td class="text_kanan kanan bawah total_renstra">'.$data_renstra['total_pagu_renstra_renja'].'</td>
 				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu"></td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">'.$satuan_output_sub_giat.'</td>
+			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">'.$data_renstra['satuan_renstra'].'</td>
 				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu"></td>
 				            <td class="text_tengah kanan bawah total_renja target_indikator">'.$target_output_sub_giat.'</td>
 				            <td class="text_tengah kanan bawah total_renja satuan_indikator">'.$satuan_output_sub_giat.'</td>
@@ -1105,7 +1107,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				            <td class="text_tengah kanan bawah capaian_renja">'.$capaian_realisasi_indikator.'</td>
 				            <td class="text_kanan kanan bawah capaian_renja">'.$capaian.'</td>
 				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan"></td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">'.$satuan_output_sub_giat.'</td>
+			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
 				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_berjalan"></td>
 				            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan"></td>
 				            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan"></td>

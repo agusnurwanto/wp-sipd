@@ -673,6 +673,9 @@ if(!empty($tujuan)){
 	} 
 }
 
+$bidur_skpd_db = $this->get_skpd_db($input['id_skpd']);
+$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+
 // echo '<pre>';print_r($data_all['data']);echo '</pre>'; die();
 $no_tujuan = 0;
 $no_sasaran = 0;
@@ -764,6 +767,10 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
 	$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#f7d2a1';
 
+	if(strpos($tujuan['nama_bidang_urusan'], 'X.XX') !== false){
+		$tujuan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $tujuan['nama_bidang_urusan']);
+		$tujuan['nama_bidang_urusan_teks'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $tujuan['nama_bidang_urusan_teks']);
+	}
 	$body_monev .= '
 		<tr class="tujuan tr-tujuan" data-kode="" style="background-color:'.$backgroundColor.'">
             <td class="kiri kanan bawah text_blok">'.$no_tujuan.'</td>
@@ -874,6 +881,10 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			$realisasi_pagu_5
 		);
 		$backgroundColor = !empty($sasaran['status']) ? '' : '#ffdbdb';
+
+		if(strpos($sasaran['nama_bidang_urusan'], 'X.XX') !== false){
+			$sasaran['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $sasaran['nama_bidang_urusan']);
+		}
 		$body_monev .= '
 			<tr class="sasaran tr-sasaran" data-kode="" style="background-color:'.$backgroundColor.'">
 	            <td class="kiri kanan bawah text_blok">'.$no_tujuan.".".$no_sasaran.'</td>
@@ -985,6 +996,14 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$realisasi_pagu_5
 			);
 			$backgroundColor = !empty($program['status']) ? '' : '#ffdbdb';
+
+			if(strpos($program['nama_bidang_urusan'], 'X.XX') !== false){
+				$program['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $program['nama_bidang_urusan']);
+			}
+			if(strpos($program['nama'], 'X.XX') !== false){
+				$program['nama'] = str_replace('X.XX', $bidur_skpd, $program['nama']);
+				$program['nama_teks'] = str_replace('X.XX', $bidur_skpd, $program['nama_teks']);
+			}
 			$body_monev .= '
 				<tr class="program tr-program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['kode_tujuan'].'-'.$program['kode_sasaran'].'-'.$program['kode_program'].'" style="background-color:'.$backgroundColor.'">
 		            <td class="kiri kanan bawah text_blok">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
@@ -1099,6 +1118,14 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$realisasi_pagu_5
 				);
 				$backgroundColor = !empty($kegiatan['status']) ? '' : '#ffdbdb';
+
+				if(strpos($kegiatan['nama_bidang_urusan'], 'X.XX') !== false){
+					$kegiatan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $kegiatan['nama_bidang_urusan']);
+				}
+				if(strpos($kegiatan['nama'], 'X.XX') !== false){
+					$kegiatan['nama'] = str_replace('X.XX', $bidur_skpd, $kegiatan['nama']);
+					$kegiatan['nama_teks'] = str_replace('X.XX', $bidur_skpd, $kegiatan['nama_teks']);
+				}
 				$body_monev .= '
 					<tr class="kegiatan tr-kegiatan" data-kode="" style="background-color:'.$backgroundColor.'">
 			            <td class="kiri kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
@@ -1215,6 +1242,14 @@ foreach ($data_all['data'] as $key => $tujuan) {
 						$realisasi_pagu_5
 					);
 					$backgroundColor = !empty($sub_kegiatan['status']) ? '' : '#ffdbdb';
+
+					if(strpos($sub_kegiatan['nama_bidang_urusan'], 'X.XX') !== false){
+						$sub_kegiatan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $sub_kegiatan['nama_bidang_urusan']);
+					}
+					if(strpos($sub_kegiatan['nama'], 'X.XX') !== false){
+						$sub_kegiatan['nama'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['nama']);
+						$sub_kegiatan['nama_teks'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['nama_teks']);
+					}
 					$body_monev .= '
 						<tr class="sub-kegiatan tr-sub-kegiatan" data-kode="" style="background-color:'.$backgroundColor.'">
 				            <td class="kiri kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.".".$no_sub_kegiatan.'</td>

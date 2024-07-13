@@ -1966,6 +1966,9 @@ foreach ($data_all['data'] as $tujuan) {
 	if(!empty($tujuan['sasaran_rpjm'])){
 		$sasaran_rpjm = $tujuan['sasaran_rpjm'];
 	}
+	if(strpos($tujuan['nama_bidang_urusan'], 'X.XX') !== false){
+		$tujuan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $tujuan['nama_bidang_urusan']);
+	}
 	$body .= '
 			<tr class="tr-tujuan">
 				<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'</td>
