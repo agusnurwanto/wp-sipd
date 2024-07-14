@@ -199,6 +199,7 @@ if(!empty($tujuan)){
 					if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])){
 						$nama_bidang_urusan = explode("||", $sasaran_value['nama_bidang_urusan']);
 						$data_all['data'][$tujuan_key]['data'][$sasaran_key] = array(
+							'id' => $sasaran_value['id'],
 							'id_unit' => $sasaran_value['id_unit'],
 							'status' => '1',
 							'nama' => $sasaran_value['sasaran_teks'],
@@ -253,6 +254,7 @@ if(!empty($tujuan)){
 									$nama = explode("||", $p_value['nama_program']);
 									$nama_bidang_urusan = explode("||", $p_value['nama_bidang_urusan']);
 									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']] = array(
+										'id' => $p_value['id'],
 										'id_unit' => $p_value['id_unit'],
 										'status' => '1',
 										'nama' => $p_value['nama_program'],
@@ -308,6 +310,7 @@ if(!empty($tujuan)){
 												$nama = explode("||", $k_value['nama_giat']);
 												$nama_bidang_urusan = explode("||", $k_value['nama_bidang_urusan']);
 												$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']] = array(
+													'id' => $k_value['id'],
 													'id_unit' => $k_value['id_unit'],
 													'status' => '1',
 													'nama' => $k_value['nama_giat'],
@@ -921,6 +924,21 @@ foreach ($data_all['data'] as $key => $tujuan) {
 
 		foreach ($sasaran['data'] as $key => $program){
 			$no_program++;
+
+			// update pagu dan realisasi untuk ditampilkan di monev renja
+			$wpdb->update('data_renstra_program', array(
+				'pagu_1' => $program['pagu_1'],
+				'pagu_2' => $program['pagu_2'],
+				'pagu_3' => $program['pagu_3'],
+				'pagu_4' => $program['pagu_4'],
+				'pagu_5' => $program['pagu_5'],
+				'realisasi_pagu_1' => $program['realisasi_pagu_1'],
+				'realisasi_pagu_2' => $program['realisasi_pagu_2'],
+				'realisasi_pagu_3' => $program['realisasi_pagu_3'],
+				'realisasi_pagu_4' => $program['realisasi_pagu_4'],
+				'realisasi_pagu_5' => $program['realisasi_pagu_5'],
+			), array('id' => $program['id']));
+			
 			$target_1 = '';
 			$target_2 = '';
 			$target_3 = '';
@@ -1042,6 +1060,20 @@ foreach ($data_all['data'] as $key => $tujuan) {
 
 			foreach ($program['data'] as $key => $kegiatan){
 				$no_kegiatan++;
+
+				// update pagu dan realisasi untuk ditampilkan di monev renja
+				$wpdb->update('data_renstra_kegiatan', array(
+					'pagu_1' => $kegiatan['pagu_1'],
+					'pagu_2' => $kegiatan['pagu_2'],
+					'pagu_3' => $kegiatan['pagu_3'],
+					'pagu_4' => $kegiatan['pagu_4'],
+					'pagu_5' => $kegiatan['pagu_5'],
+					'realisasi_pagu_1' => $kegiatan['realisasi_pagu_1'],
+					'realisasi_pagu_2' => $kegiatan['realisasi_pagu_2'],
+					'realisasi_pagu_3' => $kegiatan['realisasi_pagu_3'],
+					'realisasi_pagu_4' => $kegiatan['realisasi_pagu_4'],
+					'realisasi_pagu_5' => $kegiatan['realisasi_pagu_5'],
+				), array('id' => $kegiatan['id']));
 				
 				$target_1 = '';
 				$target_2 = '';

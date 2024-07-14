@@ -12607,9 +12607,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret['renstra_tujuan'] = array();
 		$ret['renstra_indikator'] = array();
 		$ret['total_pagu_renstra'] = array();
+		$ret['total_pagu_renstra_tahun_sebelumnya'] = array();
+		$ret['total_target_renstra_tahun_sebelumnya'] = array();
+		$ret['total_pagu_renstra_tahun_ini'] = array();
+		$ret['total_target_renstra_tahun_ini'] = array();
+		$ret['total_capaian_pagu_renstra_tahun_ini'] = array();
+		$ret['total_capaian_target_renstra_tahun_ini'] = array();
 		$ret['total_target_renstra'] = array();
 		$ret['total_pagu_renstra_renja'] = array();
 		$ret['total_target_renstra_text'] = array();
+
+		$ret['total_pagu_renstra_asli'] = array();
+		$ret['total_pagu_renstra_tahun_sebelumnya_asli'] = array();
+		$ret['total_pagu_renstra_tahun_ini_asli'] = array();
+		$ret['total_capaian_pagu_renstra_tahun_ini_asli'] = array();
 		foreach ($renja['indikator'] as $k_sub => $v_sub) {
 			$ret['total_target_renstra_text'][$k_sub] = '<span class="total_target_renstra" data-id="' . $k_sub . '">0</span>';
 			$ret['total_pagu_renstra_renja'][$k_sub] = '<span class="monev_total_renstra" data-id="' . $k_sub . '">0</span>';
@@ -12622,132 +12633,147 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 		}
 
+		$no_ind = 0;
 		foreach ($renstra as $k => $v) {
-			$sasaran_teks = explode('||', $v['sasaran_teks']);
-			$tujuan_teks = explode('||', $v['tujuan_teks']);
-			if ($options['type'] == 'kegiatan') {
-				$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">' . $sasaran_teks[0] . '</span>';
-				$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">' . $tujuan_teks[0] . '</span>';
-			} else if ($options['type'] == 'program') {
-				$ret['renstra_sasaran'][0] = $sasaran_teks[0];
-				$ret['renstra_tujuan'][0] = $tujuan_teks[0];
-			} else if ($options['type'] == 'sub_kegiatan') {
-				$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">' . $sasaran_teks[0] . '</span>';
-				$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">' . $tujuan_teks[0] . '</span>';
-			}
-			$target_indikator_renstra_1 = explode(' ', $v['target_1']);
-			$target_indikator_renstra_2 = explode(' ', $v['target_2']);
-			$target_indikator_renstra_3 = explode(' ', $v['target_3']);
-			$target_indikator_renstra_4 = explode(' ', $v['target_4']);
-			$target_indikator_renstra_5 = explode(' ', $v['target_5']);
-			$pagu_1 = explode(' ', $v['pagu_1']);
-			$pagu_2 = explode(' ', $v['pagu_2']);
-			$pagu_3 = explode(' ', $v['pagu_3']);
-			$pagu_4 = explode(' ', $v['pagu_4']);
-			$pagu_5 = explode(' ', $v['pagu_5']);
-			if(
-				!empty($pagu_1[0])
-				&& !empty($pagu_2[0])
-				&& !empty($pagu_3[0])
-				&& !empty($pagu_4[0])
-				&& !empty($pagu_5[0])
-			){
-				$ret['total_pagu_renstra'][$k] = $pagu_1[0] + $pagu_2[0] + $pagu_3[0] + $pagu_4[0] + $pagu_5[0];
-			}else{
-				$ret['total_pagu_renstra'][$k] = $v['pagu_1'] + $v['pagu_2'] + $v['pagu_3'] + $v['pagu_4'] + $v['pagu_5'];
-			}
-
-			// debug RENSTRA
-			$ret['renstra_indikator'][] = '<li data-id=' . $v['id_unik_indikator'] . '><span class="indikator_renstra_text_hide">' . $v['indikator'] . '</span> <span class="target_indikator_renstra_text_hide">' . $target_indikator_renstra_1[0] . ' | ' . $target_indikator_renstra_2[0] . ' | ' . $target_indikator_renstra_3[0] . ' | ' . $target_indikator_renstra_4[0] . ' | ' . $target_indikator_renstra_5[0] . '</span> <span class="satuan_indikator_renstra_text_hide">' . $v['satuan'] . '</span> (Rp <span class="pagu_indikator_renstra_text_hide">' . number_format($v['pagu_' . $options['tahun_renstra']], 0, ",", ".") . '</span> / Rp <span class="total_pagu_indikator_renstra_text_hide">' . number_format($ret['total_pagu_renstra'][$k], 0, ",", ".") . '</span>)</li>';
-
-			foreach ($renja['realisasi_indikator'] as $k_sub => $v_sub) {
-				$ret['total_target_renstra'][$k_sub] = 0;
-				if (
-					!empty($v_sub['id_unik_indikator_renstra'])
-					&& $v_sub['id_unik_indikator_renstra'] == $v['id_unik_indikator']
-				) {
-					$rumus_indikator = $v_sub['id_rumus_indikator'];
-					if (empty($v['satuan'])) {
-						if ($options['type'] == 'kegiatan') {
-							$v['satuan'] = $v_sub['satuanoutput'];
-						} else if ($options['type'] == 'program') {
-							$v['satuan'] = $v_sub['satuancapaian'];
-						} else if ($options['type'] == 'sub_kegiatan') {
-							$v['satuan'] = $v_sub['satuanoutput'];
-						}
-					}
-					$cek_string = false;
-					$target_renstra_1 = $this->valid_number($target_indikator_renstra_1[0]);
-					if (!is_numeric($target_renstra_1)) {
-						$cek_string = true;
-					} else {
-						$ret['total_target_renstra'][$k_sub] += $target_renstra_1;
-					}
-					$target_renstra_2 = $this->valid_number($target_indikator_renstra_2[0]);
-					if (!is_numeric($target_renstra_2)) {
-						$cek_string = true;
-					} else {
-						$ret['total_target_renstra'][$k_sub] += $target_renstra_2;
-					}
-					$target_renstra_3 = $this->valid_number($target_indikator_renstra_3[0]);
-					if (!is_numeric($target_renstra_3)) {
-						$cek_string = true;
-					} else {
-						$ret['total_target_renstra'][$k_sub] += $target_renstra_3;
-					}
-					$target_renstra_4 = $this->valid_number($target_indikator_renstra_4[0]);
-					if (!is_numeric($target_renstra_4)) {
-						$cek_string = true;
-					} else {
-						$ret['total_target_renstra'][$k_sub] += $target_renstra_4;
-					}
-					$target_renstra_5 = $this->valid_number($target_indikator_renstra_5[0]);
-					if (!is_numeric($target_renstra_5)) {
-						$cek_string = true;
-					} else {
-						$ret['total_target_renstra'][$k_sub] += $target_renstra_5;
-					}
-
-					if ($rumus_indikator == 1) {
-						if ($cek_string) {
-							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
-						} else {
-							$ret['total_target_renstra'][$k_sub] = number_format($ret['total_target_renstra'][$k_sub], 2, ",", ".");
-						}
-					} else if ($rumus_indikator == 2) {
-						if ($cek_string) {
-							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
-						} else {
-							$ret['total_target_renstra'][$k_sub] = number_format($this->valid_number($target_indikator_renstra_5[0]), 2, ",", ".");
-						}
-					} else if ($rumus_indikator == 3) {
-						if ($cek_string) {
-							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
-						} else {
-							$ret['total_target_renstra'][$k_sub] = number_format($this->valid_number($target_indikator_renstra_5[0]), 2, ",", ".");
-						}
-					}
-					$pagu_1 = explode(' ', $v['pagu_1']);
-					$pagu_2 = explode(' ', $v['pagu_2']);
-					$pagu_3 = explode(' ', $v['pagu_3']);
-					$pagu_4 = explode(' ', $v['pagu_4']);
-					$pagu_5 = explode(' ', $v['pagu_5']);
-					$ret['total_pagu_renstra_renja'][$k_sub] = $pagu_1[0] + $pagu_2[0] + $pagu_3[0] + $pagu_4[0] + $pagu_5[0];
-					$ret['total_target_renstra_text'][$k_sub] = '<span class="total_target_renstra" data-id="' . $k_sub . '">' . $ret['total_target_renstra'][$k_sub] . '</span>';
-					$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="' . $k_sub . '">' . $v['satuan'] . '</span>';
-					$ret['total_pagu_renstra_renja'][$k_sub] = '<span class="monev_total_renstra" data-id="' . $k_sub . '">' . number_format($ret['total_pagu_renstra_renja'][$k_sub], 0, ",", ".") . '</span>';
+			if(empty($v['id_unik_indikator'])){
+				$sasaran_teks = explode('||', $v['sasaran_teks']);
+				$tujuan_teks = explode('||', $v['tujuan_teks']);
+				if ($options['type'] == 'program') {
+					$ret['renstra_sasaran'][0] = $sasaran_teks[0];
+					$ret['renstra_tujuan'][0] = $tujuan_teks[0];
+				}else{
+					$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">' . $sasaran_teks[0] . '</span>';
+					$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">' . $tujuan_teks[0] . '</span>';
 				}
+				$ret['total_pagu_renstra'][$k] = $v['pagu_1'] + $v['pagu_2'] + $v['pagu_3'] + $v['pagu_4'] + $v['pagu_5'];
+				$ret['total_pagu_renstra_asli'][$k] = $ret['total_pagu_renstra'][$k];
+
+				// total pagu renstra tahun sebelumnya
+				$ret['total_pagu_renstra_tahun_sebelumnya'][$k] = 0;
+				if($options['tahun_renstra']-1 > 0){
+					for($i=1; $i<$options['tahun_renstra']-1; $i++){
+						$ret['total_pagu_renstra_tahun_sebelumnya'][$k] += $v['realisasi_pagu_' . $i];
+					}
+				}
+				$ret['total_pagu_renstra_tahun_sebelumnya_asli'][$k] = $ret['total_pagu_renstra_tahun_sebelumnya'][$k];
+
+				// total pagu renstra tahun ini
+				$ret['total_pagu_renstra_tahun_ini'][$k] = $ret['total_pagu_renstra_tahun_sebelumnya'][$k]+$renja['realisasi'];
+				$ret['total_pagu_renstra_tahun_ini_asli'][$k] = $ret['total_pagu_renstra_tahun_ini'][$k];
+
+				// total capaian pagu renstra tahun ini
+				$ret['total_capaian_pagu_renstra_tahun_ini'][$k] = 0;
+				if(
+					!empty($ret['total_pagu_renstra_tahun_ini'][$k]) 
+					&& !empty($ret['total_pagu_renstra'][$k])
+				){
+					$ret['total_capaian_pagu_renstra_tahun_ini'][$k] = $this->pembulatan(($ret['total_pagu_renstra_tahun_ini'][$k]/$ret['total_pagu_renstra'][$k])*100);
+				}
+				$ret['total_capaian_pagu_renstra_tahun_ini_asli'][$k] = $ret['total_capaian_pagu_renstra_tahun_ini'][$k];
+			
+			// data indikator
+			}else{
+				// total target renstra tahun sebelumnya
+				$ret['total_target_renstra_tahun_sebelumnya'][$no_ind] = 0;
+				if($options['tahun_renstra']-1 > 0){
+					$ret['total_target_renstra_tahun_sebelumnya'][$no_ind] += $v['realisasi_target_' . ($options['tahun_renstra']-1)];
+				}else{
+					if(empty($v['target_awal'])){
+						$v['target_awal'] = 0;
+					}
+					$ret['total_target_renstra_tahun_sebelumnya'][$no_ind] = $v['target_awal'];
+				}
+
+				// total target renstra tahun ini
+				$ret['total_target_renstra_tahun_ini'][$no_ind] = $ret['total_target_renstra_tahun_sebelumnya'][$no_ind];
+
+				// total target
+				if(empty($v['target_akhir'])){
+					$v['target_akhir'] = 0;
+				}
+				$ret['total_target_renstra_text'][$no_ind] = $v['target_akhir'];
+
+				// total capaian target renstra tahun ini
+				$ret['total_capaian_target_renstra_tahun_ini'][$no_ind] = 0;
+				if(
+					!empty($ret['total_target_renstra_tahun_sebelumnya'][$no_ind])
+					&& !empty($ret['total_target_renstra_text'][$no_ind])
+				){
+					$ret['total_capaian_target_renstra_tahun_ini'][$no_ind] = $this->pembulatan(($ret['total_target_renstra_tahun_sebelumnya'][$no_ind]/$ret['total_target_renstra_text'][$no_ind])*100);
+				}
+
+				// satuan renstra
+				if(empty($v['satuan'])){
+					$v['satuan'] = str_replace('data-id="', 'class="mod_total_renstra" data-id="', $options['default_satuan_renstra']);
+				}
+				$ret['satuan_renstra'][$no_ind] = $v['satuan'];
+
+				// debug RENSTRA
+				$ret['renstra_indikator'][] = '<li data-id=' . $v['id_unik_indikator'] . '><span class="indikator_renstra_text_hide">' . $v['indikator'] . '</span> <span class="target_indikator_renstra_text_hide">' . $v['target_1'] . ' | ' . $v['target_2'] . ' | ' . $v['target_3'] . ' | ' . $v['target_4'] . ' | ' . $v['target_5'] . '</span> <span class="satuan_indikator_renstra_text_hide">' . $v['satuan'] . '</span></li>';
+				$no_ind++;
 			}
 		}
+
+		// total target indikator renstra
 		$ret['total_target_renstra_text'] = implode('<br>', $ret['total_target_renstra_text']);
+
+		// satuan indikator renstra
 		if (empty($ret['satuan_renstra'])) {
 			$ret['satuan_renstra'] = str_replace('data-id="', 'class="mod_total_renstra" data-id="', $options['default_satuan_renstra']);
 		} else {
 			$ret['satuan_renstra'] = implode('<br>', $ret['satuan_renstra']);
 		}
 		$ret['total_pagu_renstra_renja'] = implode('<br>', $ret['total_pagu_renstra_renja']);
+
+		// total pagu renstra
+		foreach($ret['total_pagu_renstra'] as $k => $pagu){
+			$ret['total_pagu_renstra'][$k] = $this->_number_format($pagu);
+		}
+		if(empty($ret['total_pagu_renstra'])){
+			$ret['total_pagu_renstra'][0] = 0;
+		}
+		$ret['total_pagu_renstra'] = implode('<br>', $ret['total_pagu_renstra']);
+
+		// total realisasi pagu renstra sampai dengan tahun sebelumnya
+		foreach($ret['total_pagu_renstra_tahun_sebelumnya'] as $k => $pagu){
+			$ret['total_pagu_renstra_tahun_sebelumnya'][$k] = $this->_number_format($pagu);
+		}
+		if(empty($ret['total_pagu_renstra_tahun_sebelumnya'])){
+			$ret['total_pagu_renstra_tahun_sebelumnya'][0] = 0;
+		}
+		$ret['total_pagu_renstra_tahun_sebelumnya'] = implode('<br>', $ret['total_pagu_renstra_tahun_sebelumnya']);
+
+		// total realisasi target renstra sampai dengan tahun sebelumnya
+		foreach($ret['total_target_renstra_tahun_sebelumnya'] as $k => $target){
+			$ret['total_target_renstra_tahun_sebelumnya'][$k] = $target;
+		}
+		if(empty($ret['total_target_renstra_tahun_sebelumnya'])){
+			$ret['total_target_renstra_tahun_sebelumnya'][0] = 0;
+		}
+		$ret['total_target_renstra_tahun_sebelumnya'] = implode('<br>', $ret['total_target_renstra_tahun_sebelumnya']);
+
+		// total realisasi pagu renstra sampai dengan tahun sebelumnya
+		foreach($ret['total_pagu_renstra_tahun_ini'] as $k => $pagu){
+			$ret['total_pagu_renstra_tahun_ini'][$k] = $this->_number_format($pagu);
+		}
+		if(empty($ret['total_pagu_renstra_tahun_ini'])){
+			$ret['total_pagu_renstra_tahun_ini'][0] = 0;
+		}
+		$ret['total_pagu_renstra_tahun_ini'] = implode('<br>', $ret['total_pagu_renstra_tahun_ini']);
+
+		// total realisasi target renstra sampai dengan tahun sebelumnya
+		foreach($ret['total_target_renstra_tahun_ini'] as $k => $target){
+			$ret['total_target_renstra_tahun_ini'][$k] = $target;
+		}
+		if(empty($ret['total_target_renstra_tahun_ini'])){
+			$ret['total_target_renstra_tahun_ini'][0] = 0;
+		}
+		$ret['total_target_renstra_tahun_ini'] = implode('<br>', $ret['total_target_renstra_tahun_ini']);
+
 		$ret['renstra_sasaran'] = implode('<br>', $ret['renstra_sasaran']) . ' <ul class="indikator_renstra">' . implode('', $ret['renstra_indikator']) . '</ul>';
 		$ret['renstra_tujuan'] = implode('<br>', $ret['renstra_tujuan']);
+		$ret['total_capaian_pagu_renstra_tahun_ini'] = implode('<br>', $ret['total_capaian_pagu_renstra_tahun_ini']);
+		$ret['total_capaian_target_renstra_tahun_ini'] = implode('<br>', $ret['total_capaian_target_renstra_tahun_ini']);
 		return $ret;
 	}
 
