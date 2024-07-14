@@ -275,3 +275,15 @@ textarea{
 .dataTables_filter {
     float: right;
 }
+.tr-tujuan {
+    background: #0000ff1f;
+}
+.tr-sasaran {
+    background: #ffff0059;
+}
+.tr-program, .tr-ind-program {
+    background: #baffba;
+}
+.tr-kegiatan, .tr-ind-kegiatan {
+    background: #13d0d03d;
+}

@@ -2546,18 +2546,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	.indikator_program { min-height: 40px; }
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow:auto !important;}
-	.tr-tujuan {
-	    background: #0000ff1f;
-	}
-	.tr-sasaran {
-	    background: #ffff0059;
-	}
-	.tr-program {
-	    background: #baffba;
-	}
-	.tr-kegiatan {
-	    background: #13d0d03d;
-	}
 	.tr-total-pagu-opd{
 		background: #83efef;
 	}

@@ -713,6 +713,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$total_realisasi_pagu_renstra_tahun_lalu = 0;
 			$total_realisasi_target_renstra_tahun_berjalan = 0;
 			$total_realisasi_pagu_renstra_tahun_berjalan = 0;
+			$capian_target_renstra_tahun_berjalan = 0;
+			$capian_pagu_renstra_tahun_berjalan = 0;
 
 			$renstra = array();
 			if(!empty($renstra_program_id[$program['id_program']])){
@@ -728,7 +730,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				'tahun_renstra' => $tahun_renstra
 			));
 			$body_monev .= '
-				<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'" data-bidang-urusan="'.$program['kode_urusan_bidang'].'">
+				<tr class="tr-program program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'" data-bidang-urusan="'.$program['kode_urusan_bidang'].'">
 		            <td class="kiri kanan bawah text_blok">'.$no_program.'</td>
 		            <td class="kanan bawah text_blok">'.$data_renstra['renstra_tujuan'].'</td>
 		            <td class="kanan bawah text_blok">'.$data_renstra['renstra_sasaran'].'</td>
@@ -764,8 +766,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
 		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_pagu_renstra_tahun_berjalan.'</td>
-		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan">'.$capian_target_renstra_tahun_berjalan.'</td>
+		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan">'.$capian_pagu_renstra_tahun_berjalan.'</td>
 	        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 	        		<td class="kanan bawah text_blok">'.$keterangan.'</td>
 		        </tr>
@@ -774,9 +776,6 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$no_kegiatan++;
 				$kd_giat = explode('.', $kd_giat1);
 				$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
-				$nama_page = $input['tahun_anggaran'] . ' | ' . $unit[0]['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
-				$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-				$link = $this->get_link_post($custom_post);
 				$capaian = 0;
 				if(!empty($giat['total_simda'])){
 					$capaian = $this->pembulatan(($giat['realisasi']/$giat['total_simda'])*100);
@@ -910,6 +909,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$total_realisasi_pagu_renstra_tahun_lalu = 0;
 				$total_realisasi_target_renstra_tahun_berjalan = 0;
 				$total_realisasi_pagu_renstra_tahun_berjalan = 0;
+				$capian_target_renstra_tahun_berjalan = 0;
+				$capian_pagu_renstra_tahun_berjalan = 0;
 
 				$renstra = array();
 				if(!empty($renstra_keg_id[$giat['id_giat']])){
@@ -925,12 +926,12 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					'tahun_renstra' => $tahun_renstra
 				));
 				$body_monev .= '
-					<tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'" data-kode_giat="'.$kd_giat1.'" data-bidang-urusan="'.$giat['kode_urusan_bidang'].'">
+					<tr class="tr-kegiatan kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'" data-kode_giat="'.$kd_giat1.'" data-bidang-urusan="'.$giat['kode_urusan_bidang'].'">
 			            <td class="kiri kanan bawah text_blok">'.$no_program.'.'.$no_kegiatan.'</td>
 			            <td class="kanan bawah text_blok">'.$data_renstra['renstra_tujuan'].'</td>
 			            <td class="kanan bawah text_blok">'.$data_renstra['renstra_sasaran'].'</td>
 			            <td class="kanan bawah text_blok">'.$kd_giat1.'</td>
-			            <td class="kanan bawah text_blok nama"><a href="'.$link.'" target="_blank">'.$giat['nama'].'</a></td>
+			            <td class="kanan bawah text_blok nama">'.$giat['nama'].'</td>
 			            <td class="kanan bawah text_blok indikator">'.$output_giat.'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['total_target_renstra_text'].'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['satuan_renstra'].'</td>
@@ -961,8 +962,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_pagu_renstra_tahun_berjalan.'</td>
-			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+			            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">'.$capian_target_renstra_tahun_berjalan.'</td>
+			            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">'.$capian_pagu_renstra_tahun_berjalan.'</td>
 		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 		        		<td class="kanan bawah">'.$keterangan.'</td>
 			        </tr>
@@ -1097,6 +1098,16 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$total_tw = implode('<br>', $total_tw);
 					$capaian_realisasi_indikator = implode('<br>', $capaian_realisasi_indikator);
 					$keterangan = implode('<br>', $keterangan);
+					$url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub_giat['data']['kode_sbl'].' | '.$sub_giat['data']['tahun_anggaran'],$sub_giat['data']['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub_giat['data']['id_sub_skpd'].'" kode_sbl="'.$sub_giat['data']['kode_sbl'].'" tahun_anggaran="'.$sub_giat['data']['tahun_anggaran'].'"]');
+
+                    $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.$sub_giat['nama'].'</a>';
+
+					$total_realisasi_target_renstra_tahun_lalu = 0;
+					$total_realisasi_pagu_renstra_tahun_lalu = 0;
+					$total_realisasi_target_renstra_tahun_berjalan = 0;
+					$total_realisasi_pagu_renstra_tahun_berjalan = 0;
+					$capian_target_renstra_tahun_berjalan = 0;
+					$capian_pagu_renstra_tahun_berjalan = 0;
 
 					$renstra = array();
 					if(!empty($renstra_sub_keg_id[$sub_giat['id_sub_giat']])){
@@ -1112,19 +1123,19 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						'tahun_renstra' => $tahun_renstra
 					));
 					$body_monev .= '
-						<tr class="sub_kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'.'.$kd_sub_giat.'">
+						<tr class="tr-sub-kegiatan sub_kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'.'.$kd_sub_giat.'">
 				            <td class="kiri kanan bawah">'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
 				            <td class="kanan bawah">'.$data_renstra['renstra_tujuan'].'</td>
 				            <td class="kanan bawah">'.$data_renstra['renstra_sasaran'].'</td>
 				            <td class="kanan bawah">'.$kd_sub_giat1.'</td>
-				            <td class="kanan bawah nama">'.$sub_giat['nama'].'</td>
+				            <td class="kanan bawah nama">'.$nama_sub.'</td>
 				            <td class="kanan bawah indikator">'.$output_sub_giat.'</td>
 				            <td class="text_tengah kanan bawah total_renstra">'.$data_renstra['total_target_renstra_text'].'</td>
 				            <td class="text_tengah kanan bawah total_renstra">'.$data_renstra['satuan_renstra'].'</td>
 				            <td class="text_kanan kanan bawah total_renstra">'.$data_renstra['total_pagu_renstra_renja'].'</td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">'.$total_realisasi_target_renstra_tahun_lalu.'</td>
 			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">'.$data_renstra['satuan_renstra'].'</td>
-				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu">'.$total_realisasi_pagu_renstra_tahun_lalu.'</td>
 				            <td class="text_tengah kanan bawah total_renja target_indikator">'.$target_output_sub_giat.'</td>
 				            <td class="text_tengah kanan bawah total_renja satuan_indikator">'.$satuan_output_sub_giat.'</td>
 				            <td class="text_kanan kanan bawah total_renja pagu_renja" data-pagu="'.$sub_giat['total_simda'].'">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
@@ -1145,11 +1156,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				            <td class="text_kanan kanan bawah realisasi_renja pagu_renja_realisasi" data-pagu="'.$sub_giat['realisasi'].'"><span class="nilai_realisasi_renja">'.number_format($sub_giat['realisasi'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah capaian_renja">'.$capaian_realisasi_indikator.'</td>
 				            <td class="text_kanan kanan bawah capaian_renja">'.$capaian.'</td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
 			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
-				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_berjalan"></td>
-				            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan"></td>
-				            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan"></td>
+				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_berjalan">'.$total_realisasi_pagu_renstra_tahun_berjalan.'</td>
+				            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">'.$capian_target_renstra_tahun_berjalan.'</td>
+				            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">'.$capian_pagu_renstra_tahun_berjalan.'</td>
 			        		<td class="kanan bawah">'.$unit[0]['nama_skpd'].'</td>
 			        		<td class="kanan bawah">'.$keterangan.'</td>
 				        </tr>
@@ -1654,8 +1665,11 @@ foreach ($monev_triwulan as $k => $v) {
 
 	<h4 style="margin: 30px 0 10px; font-weight: bold;">Dokumentasi:</h4>
 	<ul>
+		<li>Background warna hijau adalah baris program.</li>
+		<li>Background warna biru muda adalah baris kegiatan</li>
+		<li>Background warna putih adalah baris sub kegiatan</li>
 		<li>Nama SKPD berisi url menuju halaman RFK</li>
-		<li>Nama kegiatan berisi url menuju halaman RKA/DPA</li>
+		<li>Nama sub kegiatan berisi url menuju halaman RKA/DPA</li>
 		<li>Nilai realisasi anggaran per triwulan diambil dari data SP2D SIMDA yang diload saat membuka halaman RFK per bulan</li>
 		<li>Untuk mengisi MONEV RENJA per bulan lakukan checked pada <b>Settings > Edit Monev indikator</b></li>
 		<li>Untuk melihat indikator renstra pada laporan MONEV lakukan checked pada <b>Settings > Tampilkan indikator RENSTRA</b></li>

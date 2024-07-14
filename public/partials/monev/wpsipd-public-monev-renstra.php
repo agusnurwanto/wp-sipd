@@ -1370,18 +1370,6 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 	    top: -6px;
 	    background: #ffc491;
 	}
-	.tr-tujuan {
-	    background: #0000ff1f;
-	}
-	.tr-sasaran {
-	    background: #ffff0059;
-	}
-	.tr-program, .tr-ind-program {
-	    background: #baffba;
-	}
-	.tr-kegiatan, .tr-ind-kegiatan {
-	    background: #13d0d03d;
-	}
 	.tr-total-pagu-opd{
 		background: #83efef;
 	}
