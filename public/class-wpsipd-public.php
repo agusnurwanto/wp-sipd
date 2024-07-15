@@ -12635,15 +12635,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		$no_ind = 0;
 		foreach ($renstra as $k => $v) {
+			if(empty($v['sasaran_teks'])){
+				continue;
+			}
 			if(empty($v['id_unik_indikator'])){
 				$sasaran_teks = explode('||', $v['sasaran_teks']);
 				$tujuan_teks = explode('||', $v['tujuan_teks']);
 				if ($options['type'] == 'program') {
-					$ret['renstra_sasaran'][0] = $sasaran_teks[0];
 					$ret['renstra_tujuan'][0] = $tujuan_teks[0];
+					$ret['renstra_sasaran'][0] = $sasaran_teks[0];
 				}else{
+					$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan" data-id="'.$v['id'].'">' . $tujuan_teks[0] . '</span>';
 					$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">' . $sasaran_teks[0] . '</span>';
-					$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">' . $tujuan_teks[0] . '</span>';
 				}
 				$ret['total_pagu_renstra'][$k] = $v['pagu_1'] + $v['pagu_2'] + $v['pagu_3'] + $v['pagu_4'] + $v['pagu_5'];
 				$ret['total_pagu_renstra_asli'][$k] = $ret['total_pagu_renstra'][$k];
