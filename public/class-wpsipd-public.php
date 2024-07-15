@@ -12479,7 +12479,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$body_renstra .= '
 							<tr>
-								<td class="text-center">' . ($_POST['tahun_awal']+($i-1)) . '</td>
+								<td class="text-center">' . ($_POST['tahun_awal']+$i) . '</td>
 								<td class="text-right pagu_'.$i.'">' . $this->_number_format($anggaran['pagu_'.$i]) . '</td>
 								<td class="text-right realisasi_pagu_'.$i.'" '.$edit_realisasi_pagu.' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $this->_number_format($anggaran['realisasi_pagu_'.$i]) . '</td>
 								<td class="text-center capaian_pagu_'.$i.'">' . $this->pembulatan($capaian_pagu) . '</td>

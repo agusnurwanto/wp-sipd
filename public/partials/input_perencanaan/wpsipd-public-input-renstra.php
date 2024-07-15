@@ -2215,7 +2215,6 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah">'.$program['catatan'].'</td>
 					<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 					<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
-					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) {
 						$class_warning = '';
@@ -2344,7 +2343,6 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah">'.$kegiatan['catatan'].'</td>
 							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 							<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
-							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 							for ($i=0; $i < $lama_pelaksanaan; $i++) {
 								$class_warning = '';

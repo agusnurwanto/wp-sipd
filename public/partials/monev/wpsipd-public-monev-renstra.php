@@ -78,7 +78,7 @@ if(!empty($pengaturan))
 	$tahun_anggaran_renstra[5] = $awal_rpjmd+5;
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
-$urut = $input['tahun_anggaran']-$awal_rpjmd;
+$urut = ($input['tahun_anggaran']-$awal_rpjmd)+1;
 $nama_pemda = get_option('_crb_daerah');
 
 $bulan = date('m');
