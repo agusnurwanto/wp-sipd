@@ -521,7 +521,7 @@ foreach($renstra_sub_keg as $sub_giat){
 		$renstra_sub_keg_id[$sub_giat['id_sub_giat']] = array();
 	}
 	$renstra_sub_keg_id[$sub_giat['id_sub_giat']][] = $sub_giat;
-	$renstra_sub_keg_kode[$sub_giat['kode_giat']] = $renstra_sub_keg_id[$giat['id_sub_giat']];
+	$renstra_sub_keg_kode[$sub_giat['kode_giat']] = $renstra_sub_keg_id[$sub_giat['id_sub_giat']];
 }
 
 $body_monev = '';
