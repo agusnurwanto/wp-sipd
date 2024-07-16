@@ -12370,8 +12370,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				);
 				switch ($_POST['type_indikator']) {
 					case '5':
-						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select * from data_renstra_sub_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$indikator = $wpdb->get_row($wpdb->prepare("
+							select 
+								* 
+							from data_renstra_sub_kegiatan 
+							where active=1 
+								and id=%d 
+								and id_unit=%d 
+								and tahun_anggaran=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
@@ -12392,14 +12398,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							FROM data_renstra_sub_kegiatan
 							WHERE tahun_anggaran=%d
 								AND active=1
+								AND id_unik_indikator is NULL
 								AND id_unit=%d
-								AND id=%d
-						", $_POST['tahun_anggaran'], $_POST['id_skpd'], $_POST['id']), ARRAY_A);
+								AND id_unik=%s
+						", $_POST['tahun_anggaran'], $_POST['id_skpd'], $indikator['id_unik']), ARRAY_A);
 						break;
 
 					case '4':
-						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$indikator = $wpdb->get_row($wpdb->prepare("
+							select 
+								* 
+							from data_renstra_kegiatan 
+							where active=1 
+								and id=%d 
+								and id_unit=%d 
+								and tahun_anggaran=%d
+						",
 							$_POST['id'],
 							$_POST['id_skpd'],
 							$_POST['tahun_anggaran']
@@ -12542,11 +12556,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$table = 'data_renstra_kegiatan';
 				}else if($_POST['type_indikator'] == '5'){
 					$table = 'data_renstra_sub_kegiatan';
-					$data['realisasi_pagu_1'] = $_POST['realisasi_anggaran'][1];
-					$data['realisasi_pagu_2'] = $_POST['realisasi_anggaran'][2];
-					$data['realisasi_pagu_3'] = $_POST['realisasi_anggaran'][3];
-					$data['realisasi_pagu_4'] = $_POST['realisasi_anggaran'][4];
-					$data['realisasi_pagu_5'] = $_POST['realisasi_anggaran'][5];
 				}
 				$cek_data = $wpdb->get_row($wpdb->prepare("
 					select 
