@@ -1360,7 +1360,7 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 		<tr>
 			<td><h4 class="font-weight-bolder text-success py-1 m-0">'.$tahun_anggaran_renstra[$no_urut].'</h4></td>
 			<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
-			<td class="text-end text-right"><h4 class="font-weight-bolder text-success py-1 m-0">'.$this->pembulatan($capaian).'</h4></td>
+			<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0">'.$this->pembulatan($capaian).'%</h4></td>
 		</tr>
 	';
 	$data_all_js[] = array(strval($tahun_anggaran_renstra[$no_urut]), $data_all['pagu_'.$no_urut], $data_all['realisasi_pagu_'.$no_urut]);
@@ -1500,9 +1500,6 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 								<div class="card-header bg-primary text-white p-5">
 									<div class="col-12">
 										<div class="row">
-											<div class="col-2">
-												<i class="fas fa-money-bill-wave-alt fa-3x lh-lg"></i>
-											</div>
 											<div class="col">
 												<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
 											</div>
@@ -1879,7 +1876,7 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 
         var options = {
             title: 'ANGGARAN DAN REALISASI',
-            colors: ['#007bff', '#ffc107'],
+            colors: ['#ffc107', '#007bff'],
             hAxis: {
                 title: 'TAHUN',
                 minValue: 0

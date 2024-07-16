@@ -287,12 +287,19 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_monev_sipd_menu != true) {
 			$monev = Container::make('theme_options', __('MONEV SIPD'))
 				->set_page_menu_position(4)
+				->set_icon('dashicons-analytics')
 				->add_fields($this->get_ajax_field(array('type' => 'rfk')));
 
 			if (get_option('_crb_show_menu_monev_rfk_settings') != true) {
 				Container::make('theme_options', __('RFK'))
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'rfk')));
+			}
+
+			if (get_option('_crb_show_menu_jadwal_monev_settings') != true) {
+				Container::make('theme_options', __('Jadwal Monev'))
+					->set_page_parent($monev)
+					->add_fields($this->get_ajax_field(array('type' => 'jadwal_monev')));
 			}
 
 			if (get_option('_crb_show_menu_monev_indi_rpjm_settings') != true) {
@@ -372,6 +379,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_laporan_sipd_menu != true) {
 			$laporan = Container::make('theme_options', __('LAPORAN SIPD'))
 				->set_page_menu_position(4)
+				->set_icon('dashicons-media-spreadsheet')
 				->add_fields($this->generate_tag_sipd());
 
 			if (get_option('_crb_show_menu_laporan_label_subkeg_settings') != true) {
@@ -2016,6 +2024,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_monev_monev_sipd_settings', 'Monev SIPD')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_rfk_settings', 'RFK')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_jadwal_monev_settings', 'Jadwal Monev')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_indi_rpjm_settings', 'Indikator RPJM')
 				->set_option_value('true'),
