@@ -31,36 +31,71 @@ $lama_pelaksanaan = 3;
 
 $no_opd = 0;
 $no_sub_opd = 0;
-$no_program = $wpdb->get_results($wpdb->prepare("
-    SELECT 
-        COUNT(k.id)
-    FROM data_sub_keg_bl k
-    WHERE k.tahun_anggaran = %d
-      AND k.active = 1
-      AND k.pagu > 0
-    GROUP by k.kode_program
-", $input['tahun_anggaran']), ARRAY_A);
-$no_program = count($no_program);
-$no_kegiatan = $wpdb->get_results($wpdb->prepare("
-    SELECT 
-        count(k.id)
-    FROM data_sub_keg_bl k
-    WHERE k.tahun_anggaran = %d
-      AND k.active = 1
-      AND k.pagu > 0
-    GROUP by k.kode_giat
-", $input['tahun_anggaran']), ARRAY_A);
-$no_kegiatan = count($no_kegiatan);
-$no_sub_kegiatan = $wpdb->get_results($wpdb->prepare("
-    SELECT 
-        count(k.id)
-    FROM data_sub_keg_bl k
-    WHERE k.tahun_anggaran = %d
-      AND k.active = 1
-      AND k.pagu > 0
-    GROUP by k.kode_sub_giat
-", $input['tahun_anggaran']), ARRAY_A);
-$no_sub_kegiatan = count($no_sub_kegiatan);
+
+// Get the count of programs
+$program_count = $wpdb->get_var(
+    $wpdb->prepare("
+        SELECT COUNT(*) 
+        FROM data_renstra_program 
+        WHERE active = 1 
+          AND tahun_anggaran = %d 
+          AND id_unik_indikator IS NOT NULL 
+        ",
+        $input['tahun_anggaran']
+    )
+);
+
+// Get the count of activities (kegiatan)
+$kegiatan_count = $wpdb->get_var(
+    $wpdb->prepare("
+        SELECT COUNT(*) 
+        FROM data_renstra_kegiatan 
+        WHERE active = 1
+          AND tahun_anggaran = %d 
+          AND id_unik_indikator IS NOT NULL 
+    ",
+        $input['tahun_anggaran']
+    )
+);
+
+// Get the count of sub-activities (sub_kegiatan)
+$sub_kegiatan_count = $wpdb->get_var(
+    $wpdb->prepare("
+        SELECT COUNT(*) 
+        FROM data_renstra_sub_kegiatan 
+        WHERE active = 1 
+          AND tahun_anggaran = %d
+          AND id_unik_indikator IS NOT NULL 
+    ",
+        $input['tahun_anggaran']
+    )
+);
+
+// Get the count of goals (tujuan)
+$tujuan_count = $wpdb->get_var(
+    $wpdb->prepare("
+        SELECT COUNT(*) 
+        FROM data_renstra_tujuan 
+        WHERE active = 1 
+          AND tahun_anggaran = %d
+          AND id_unik_indikator IS NOT NULL
+    ",
+        $input['tahun_anggaran']
+    )
+);
+
+// Get the count of targets (sasaran)
+$sasaran_count = $wpdb->get_var(
+    $wpdb->prepare("
+        SELECT COUNT(*) 
+        FROM data_renstra_sasaran 
+        WHERE active = 1 
+          AND tahun_anggaran = %d
+          AND id_unik_indikator IS NOT NULL
+    ",
+        $input['tahun_anggaran']
+    )
+);
 
 $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 $no = 1;
@@ -90,23 +125,23 @@ foreach ($unit as $skpd) {
 
     $data_renstra_sub_kegiatan = $wpdb->get_row(
         $wpdb->prepare("
-            SELECT 
-                sum(pagu_1) as pagu_1,
-                sum(pagu_2) as pagu_2,
-                sum(pagu_3) as pagu_3,
-                sum(pagu_4) as pagu_4,
-                sum(pagu_5) as pagu_5,
-                sum(realisasi_pagu_1) as realisasi_pagu_1,
-                sum(realisasi_pagu_2) as realisasi_pagu_2,
-                sum(realisasi_pagu_3) as realisasi_pagu_3,
-                sum(realisasi_pagu_4) as realisasi_pagu_4,
-                sum(realisasi_pagu_5) as realisasi_pagu_5
-            FROM data_renstra_sub_kegiatan
-            WHERE tahun_anggaran = %d
-              AND id_unit = %d
-              AND id_unik_indikator IS NULL
-              AND active = 1
-        ", $input['tahun_anggaran'], $skpd['id_skpd']),
+        SELECT
+            sum(pagu_1) as pagu_1,
+            sum(pagu_2) as pagu_2,
+            sum(pagu_3) as pagu_3,
+            sum(pagu_4) as pagu_4,
+            sum(pagu_5) as pagu_5,
+            sum(realisasi_pagu_1) as realisasi_pagu_1,
+            sum(realisasi_pagu_2) as realisasi_pagu_2,
+            sum(realisasi_pagu_3) as realisasi_pagu_3,
+            sum(realisasi_pagu_4) as realisasi_pagu_4,
+            sum(realisasi_pagu_5) as realisasi_pagu_5
+        FROM data_renstra_sub_kegiatan
+        WHERE tahun_anggaran = %d
+            AND id_unit = %d
+            AND id_unik_indikator IS NULL
+            AND active = 1
+    ", $input['tahun_anggaran'], $skpd['id_skpd']),
         ARRAY_A
     );
 
@@ -149,21 +184,21 @@ foreach ($unit as $skpd) {
 
     $url_skpd = $this->generatePage('MONEV RENSTRA ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
     $body_monev .= '
-        <tr class="' . $warning . '" data-id="' . $skpd['id_skpd'] . '">
-            <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
-            <td class="atas kanan bawah kiri text_kiri"><a target="_blank" href="' . $url_skpd . '">' . $skpd['nama_skpd'] . '</a></td>';
+<tr class="' . $warning . '" data-id="' . $skpd['id_skpd'] . '">
+    <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
+    <td class="atas kanan bawah kiri text_kiri"><a target="_blank" href="' . $url_skpd . '">' . $skpd['nama_skpd'] . '</a></td>';
 
     for ($i = 0; $i < $lama_pelaksanaan; $i++) {
         $body_monev .= '<td class="kanan bawah text_kanan">' . $this->_number_format($pagu_arr[$i]) . '</td>';
-        $body_monev .= '<td class="kanan bawah text_kanan">' .  $this->_number_format($realisasi_pagu_arr[$i]) . '</td>';
+        $body_monev .= '<td class="kanan bawah text_kanan">' . $this->_number_format($realisasi_pagu_arr[$i]) . '</td>';
     }
     $body_monev .= '
-            <td class="kanan bawah text_kanan">' .  $this->_number_format($total_all_pagu_skpd) . '</td>
-            <td class="kanan bawah text_kanan">' .  $this->_number_format($total_all_realisasi_pagu_skpd) . '</td>
-            <td class="kanan bawah text_kanan">' .  $this->_number_format($selisih) . '</td>
-            <td class="kanan bawah text_kanan">' .  $this->pembulatan($persen) . '%</td>
-        </tr>
-    ';
+        <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_pagu_skpd) . '</td>
+        <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_realisasi_pagu_skpd) . '</td>
+        <td class="kanan bawah text_kanan">' . $this->_number_format($selisih) . '</td>
+        <td class="kanan bawah text_kanan">' . $this->pembulatan($persen) . '%</td>
+</tr>
+';
 
     $total_all_pagu_all_skpd += $total_all_pagu_skpd;
     $total_all_realisasi_pagu_all_skpd += $total_all_realisasi_pagu_skpd;
@@ -184,18 +219,18 @@ foreach ($unit as $skpd) {
     $persen_all = $total_all_pagu_all_skpd > 0 ? round($total_all_realisasi_pagu_all_skpd / $total_all_pagu_all_skpd * 100, 2) : 0;
 
 
-	$persen_1 = 0;
-	$persen_2 = 0;
-	$persen_3 = 0;
-	if (!empty($total_all_pagu_1) && !empty($total_all_realisasi_pagu_1)) {
-		$persen_1 = ($total_all_realisasi_pagu_1 / $total_all_pagu_1) * 100;
-	}
-	if (!empty($total_all_pagu_2) && !empty($total_all_realisasi_pagu_2)) {
-		$persen_2 = ($total_all_realisasi_pagu_2 / $total_all_pagu_2) * 100;
-	}
-	if (!empty($total_all_pagu_3) && !empty($total_all_realisasi_pagu_3)) {
-		$persen_3 = ($total_all_realisasi_pagu_3 / $total_all_pagu_3) * 100;
-	}
+    $persen_1 = 0;
+    $persen_2 = 0;
+    $persen_3 = 0;
+    if (!empty($total_all_pagu_1) && !empty($total_all_realisasi_pagu_1)) {
+        $persen_1 = ($total_all_realisasi_pagu_1 / $total_all_pagu_1) * 100;
+    }
+    if (!empty($total_all_pagu_2) && !empty($total_all_realisasi_pagu_2)) {
+        $persen_2 = ($total_all_realisasi_pagu_2 / $total_all_pagu_2) * 100;
+    }
+    if (!empty($total_all_pagu_3) && !empty($total_all_realisasi_pagu_3)) {
+        $persen_3 = ($total_all_realisasi_pagu_3 / $total_all_pagu_3) * 100;
+    }
 }
 ?>
 <style type="text/css">
@@ -435,21 +470,29 @@ foreach ($unit as $skpd) {
                                 </div>
                                 <div class="card-body">
                                     <div class="row mb-5">
-                                        <div class="col-12 text-center" style="font-size:1.3em;">
+                                        <div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
                                             <p>Perangkat Daerah</p>
                                             <p><?php echo $no; ?></p>
                                         </div>
+                                        <div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
+                                            <p>Tujuan</p>
+                                            <p><?php echo $tujuan_count; ?></p>
+                                        </div>
+                                        <div class="col-4 text-center" style="font-size:1.3em;">
+                                            <p>Sasaran</p>
+                                            <p><?php echo $sasaran_count; ?></p>
+                                        </div>
                                         <div class="col-4 text-center mt-3" style="font-size:1.3em; border-right:1px solid #666;">
                                             <p>Program</p>
-                                            <p><?php echo $no_program; ?></p>
+                                            <p><?php echo $program_count; ?></p>
                                         </div>
                                         <div class="col-4 text-center mt-3" style="font-size:1.3em; border-right:1px solid #666;">
                                             <p>Kegiatan</p>
-                                            <p><?php echo $no_kegiatan; ?></p>
+                                            <p><?php echo $kegiatan_count; ?></p>
                                         </div>
                                         <div class="col-4 text-center mt-3" style="font-size:1.3em;">
                                             <p>Sub Kegiatan</p>
-                                            <p><?php echo $no_sub_kegiatan; ?></p>
+                                            <p><?php echo $sub_kegiatan_count; ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -525,12 +568,12 @@ foreach ($unit as $skpd) {
     });
 
     function drawColColors() {
-        var data_cart =  [
-			['Tahun', 'Anggaran', 'Realisasi'],
-			[' 1', <?php echo $total_all_pagu_1; ?>, <?php echo $total_all_realisasi_pagu_1; ?>],
-			[' 2', <?php echo $total_all_pagu_2; ?>, <?php echo $total_all_realisasi_pagu_2; ?>],
-			[' 3', <?php echo $total_all_pagu_3; ?>, <?php echo $total_all_realisasi_pagu_3; ?>],
-		];
+        var data_cart = [
+            ['Tahun', 'Anggaran', 'Realisasi'],
+            [' 1', <?php echo $total_all_pagu_1; ?>, <?php echo $total_all_realisasi_pagu_1; ?>],
+            [' 2', <?php echo $total_all_pagu_2; ?>, <?php echo $total_all_realisasi_pagu_2; ?>],
+            [' 3', <?php echo $total_all_pagu_3; ?>, <?php echo $total_all_realisasi_pagu_3; ?>],
+        ];
 
         var data = new google.visualization.arrayToDataTable(data_cart);
 

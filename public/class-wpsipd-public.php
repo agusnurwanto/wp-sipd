@@ -5488,6 +5488,36 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monitor-update.php';
 	}
 
+	public function jadwal_monev_rpjmd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-rpjmd.php';
+	}
+	
+	public function jadwal_monev_renstra($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-renstra.php';
+	}
+
+	public function jadwal_monev_renja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-renja.php';
+	}
+
 	public function tampilrka($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
