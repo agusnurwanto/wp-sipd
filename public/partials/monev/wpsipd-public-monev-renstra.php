@@ -1498,12 +1498,8 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 						<div class="col-md-6 offset-md-3 offset-sm-0">
 							<div class="card card-primary" style="box-shadow: 1px 1px 5px #666;">
 								<div class="card-header bg-primary text-white p-5">
-									<div class="col-12">
-										<div class="row">
-											<div class="col">
-												<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
-											</div>
-										</div>
+									<div class="col-12 text-center">
+										<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
 									</div>
 								</div>
 								<div class="card-body">
