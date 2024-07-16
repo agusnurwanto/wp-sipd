@@ -299,7 +299,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (get_option('_crb_show_menu_jadwal_monev_settings') != true) {
 				Container::make('theme_options', __('Jadwal Monev'))
 					->set_page_parent($monev)
-					->add_fields($this->get_ajax_field(array('type' => 'jadwal_monev')));
+					->add_fields($this->generate_jadwal_monev());
 			}
 
 			if (get_option('_crb_show_menu_monev_indi_rpjm_settings') != true) {
@@ -2730,7 +2730,55 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
 		$label = array(
+			Field::make('html', 'crb_hide_sidebar')
+			->set_html('
+				<style>
+					.postbox-container { display: none; }
+					#poststuff #post-body.columns-2 { margin: 0 !important; }
+				</style>
+        	'),
 			Field::make('html', 'crb_jadwal_perencanaan')
+				->set_html('
+            		<ol>' . $list_data . '</ol>
+            ')
+		);
+		return $label;
+	}
+
+	public function generate_jadwal_monev()
+	{
+		global $wpdb;
+		$tahun = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran', ARRAY_A);
+		$list_data = '';
+
+		$title = 'Jadwal Monev RPJM/RPD';
+		$shortcode = '[jadwal_monev_rpjmd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+
+		$title = 'Jadwal Monev RENSTRA';
+		$shortcode = '[jadwal_monev_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Monev RENJA | ' . $v['tahun_anggaran'];
+			$shortcode = '[jadwal_monev_renja tahun_anggaran=' . $v['tahun_anggaran'] . ']';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+		}
+		$label = array(
+			Field::make('html', 'crb_hide_sidebar')
+			->set_html('
+				<style>
+					.postbox-container { display: none; }
+					#poststuff #post-body.columns-2 { margin: 0 !important; }
+				</style>
+        	'),
+			Field::make('html', 'crb_jadwal_monev')
 				->set_html('
             		<ol>' . $list_data . '</ol>
             	')
