@@ -447,6 +447,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_input_perencanaan_sipd_menu != true) {
 			$input_perencanaan = Container::make('theme_options', __('Input Perencanaan'))
 				->set_page_menu_position(4)
+				->set_icon('dashicons-welcome-write-blog')
 				->add_fields($this->generate_jadwal_perencanaan());
 
 			if (get_option('_crb_show_menu_input_jadwal_settings') != true) {
@@ -482,6 +483,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_standar_harga_sipd_menu != true) {
 			$satuan_harga = Container::make('theme_options', __('Standar Harga'))
 				->set_page_menu_position(5)
+				->set_icon('dashicons-tag')
 				->add_fields($this->get_ajax_field(array('type' => 'rekap_satuan_harga')));
 
 			if (get_option('_crb_show_menu_standar_usulan_standar_harga_settings') != true) {
@@ -508,6 +510,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_monev_fmis_sipd_menu != true) {
 			$monev_fmis = Container::make('theme_options', __('MONEV FMIS'))
 				->set_page_menu_position(5)
+				->set_icon('dashicons-welcome-widgets-menus')
 				->add_fields($this->get_ajax_field(array('type' => 'register_sp2d_fmis')));
 		}
 
@@ -516,6 +519,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if ($show_keuangan_pemdes_menu != true) {
 			$keu_pemdes = Container::make('theme_options', __('Keuangan PEMDES'))
 				->set_page_menu_position(5)
+				->set_icon('dashicons-admin-multisite')
 				->add_fields($this->get_setting_keu_pemdes());
 
 			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -876,6 +880,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 			Container::make('theme_options', __('Verifikasi RKA'))
 				->set_page_menu_position(5)
+				->set_icon('dashicons-edit-page')
 				->add_fields(
 					array(
 						Field::make('multiselect', 'crb_daftar_user_verifikator', 'Daftar grup user verifikator RKA/DPA yang diaktfikan')
