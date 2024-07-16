@@ -1500,9 +1500,6 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 								<div class="card-header bg-primary text-white p-5">
 									<div class="col-12">
 										<div class="row">
-											<div class="col-2">
-												<i class="fas fa-money-bill-wave-alt fa-3x lh-lg"></i>
-											</div>
 											<div class="col">
 												<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
 											</div>

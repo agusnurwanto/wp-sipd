@@ -104,6 +104,7 @@ foreach ($unit as $skpd) {
             FROM data_renstra_sub_kegiatan
             WHERE tahun_anggaran = %d
               AND id_unit = %d
+              AND id_unik_indikator IS NULL
               AND active = 1
         ", $input['tahun_anggaran'], $skpd['id_skpd']),
         ARRAY_A
@@ -148,7 +149,7 @@ foreach ($unit as $skpd) {
 
     $url_skpd = $this->generatePage('MONEV RENSTRA ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
     $body_monev .= '
-        <tr class="' . $warning . '">
+        <tr class="' . $warning . '" data-id="' . $skpd['id_skpd'] . '">
             <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
             <td class="atas kanan bawah kiri text_kiri"><a target="_blank" href="' . $url_skpd . '">' . $skpd['nama_skpd'] . '</a></td>';
 
@@ -430,9 +431,6 @@ foreach ($unit as $skpd) {
                                 <div class="card-header bg-primary text-white p-5">
                                     <div class="col-12">
                                         <div class="row">
-                                            <div class="col-2">
-                                                <i class="fas fa-money-bill-wave-alt fa-3x lh-lg"></i>
-                                            </div>
                                             <div class="col">
                                                 <h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
                                             </div>
