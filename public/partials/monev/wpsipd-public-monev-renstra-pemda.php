@@ -146,7 +146,7 @@ foreach ($unit as $skpd) {
         $warning = 'bg-danger';
     }
 
-    $url_skpd = $this->generatePage('MONEV ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
+    $url_skpd = $this->generatePage('MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
     $body_monev .= '
         <tr class="' . $warning . '">
             <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
