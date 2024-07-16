@@ -11,7 +11,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitoring-rup.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-monitoring-rup.php';
 	}
 
 	public function renja_sipd_merah($atts)
@@ -498,7 +498,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-input-renja.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-input-renja.php';
 	}
 
 	public function monitor_rak($atts)
@@ -508,7 +508,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		if(!empty($atts['id_skpd'])){
-			require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitor-rak.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-monitor-rak.php';
 		}
 	}
 
@@ -524,7 +524,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'tahun_anggaran' => '2022',
 		), $atts );
 
-		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitor-rkpd-renja.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-monitor-rkpd-renja.php';
 	}
 
 	public function get_sub_unit_by_id(){
