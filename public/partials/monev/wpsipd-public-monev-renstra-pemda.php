@@ -146,7 +146,7 @@ foreach ($unit as $skpd) {
         $warning = 'bg-danger';
     }
 
-    $url_skpd = $this->generatePage('MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+    $url_skpd = $this->generatePage('MONEV RENSTRA ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
     $body_monev .= '
         <tr class="' . $warning . '">
             <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
@@ -268,35 +268,35 @@ foreach ($unit as $skpd) {
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">Tahun 1</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">Tahun 1</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_1, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_1, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">Tahun 2</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">Tahun 2</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_2, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_2, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">Tahun 3</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">Tahun 3</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_3, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($total_all_pagu_3, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                     </table>
@@ -328,35 +328,35 @@ foreach ($unit as $skpd) {
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">Tahun 1</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">Tahun 1</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_1, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_1, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">Tahun 2</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">Tahun 2</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_2, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_2, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">Tahun 3</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">Tahun 3</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-right">
-                                                <h4 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_3, 0, ",", "."); ?></h4>
+                                                <h5 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($total_all_realisasi_pagu_3, 0, ",", "."); ?></h5>
                                             </td>
                                         </tr>
                                     </table>
@@ -387,35 +387,35 @@ foreach ($unit as $skpd) {
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">Tahun 1</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">Tahun 1</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_1); ?>%</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_1); ?>%</h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">Tahun 2</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">Tahun 2</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_2); ?>%</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_2); ?>%</h5>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">Tahun 3</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">Tahun 3</h5>
                                             </td>
                                             <td>
-                                                <h4 class="font-weight-bolder text-success py-1 m-0">:</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h4 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_3); ?>%</h4>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_3); ?>%</h5>
                                             </td>
                                         </tr>
                                     </table>

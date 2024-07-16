@@ -1360,7 +1360,7 @@ for ($i=0; $i < $lama_pelaksanaan; $i++) {
 		<tr>
 			<td><h4 class="font-weight-bolder text-success py-1 m-0">'.$tahun_anggaran_renstra[$no_urut].'</h4></td>
 			<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
-			<td class="text-end text-right"><h4 class="font-weight-bolder text-success py-1 m-0">'.$this->pembulatan($capaian).'</h4></td>
+			<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0">'.$this->pembulatan($capaian).'%</h4></td>
 		</tr>
 	';
 	$data_all_js[] = array(strval($tahun_anggaran_renstra[$no_urut]), $data_all['pagu_'.$no_urut], $data_all['realisasi_pagu_'.$no_urut]);
@@ -1879,7 +1879,7 @@ if(!empty($data_all['total']) && !empty($data_all['realisasi'])){
 
         var options = {
             title: 'ANGGARAN DAN REALISASI',
-            colors: ['#007bff', '#ffc107'],
+            colors: ['#ffc107', '#007bff'],
             hAxis: {
                 title: 'TAHUN',
                 minValue: 0
