@@ -8,7 +8,7 @@ Carbon fields can be used as a composer package for easy creation of custom fiel
 
 Custom fields can be created for post types, taxonomy terms, users, comments, options, navigation menus and even widgets.
 
-Supports PHP5.3 or higher.
+Supports PHP 5.6.20 or higher.
 
 ### Quickstart
 
@@ -17,7 +17,7 @@ See [Quickstart](https://github.com/htmlburger/carbon-fields-docs/tree/master/do
 ### Documentation & Other Resources
 
 * [Website](http://carbonfields.net/)
-* [Documentation (website)](http://carbonfields.net/docs/)
+* [Documentation (website)](https://docs.carbonfields.net/)
 * [Documentation (GitHub)](https://github.com/htmlburger/carbon-fields-docs)
 * [FAQ](http://carbonfields.net/faq/)
 * [Support](http://carbonfields.net/support/)

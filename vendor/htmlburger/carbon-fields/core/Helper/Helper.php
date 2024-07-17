@@ -509,7 +509,7 @@ class Helper {
 		 */
 		$url = apply_filters( 'carbon_fields_attachment_id_base_url', $url );
 
-		$filename = basename( $url );
+		$filename = wp_basename( $url );
 
 		if ( strpos( $url, $dir['baseurl'] . '/' ) !== false ) {
 			$query_args = array(
@@ -530,8 +530,9 @@ class Helper {
 			if ( $query->have_posts() ) {
 				foreach ( $query->posts as $post_id ) {
 					$meta                = wp_get_attachment_metadata( $post_id );
-					$original_file       = basename( $meta['file'] );
-					$cropped_image_files = wp_list_pluck( $meta['sizes'], 'file' );
+					$original_file       = wp_basename( $meta['file'] );
+					$sizes 				 = isset( $meta['sizes'] ) && ! empty( $meta['sizes'] ) ? $meta['sizes'] : array();
+					$cropped_image_files = wp_list_pluck( $sizes, 'file' );
 
 					if ( $original_file === $filename || in_array( $filename, $cropped_image_files ) ) {
 						$attachment_id = intval( $post_id );
@@ -599,7 +600,7 @@ class Helper {
 
 		$attachment_metadata['id']        = intval( $id );
 		$attachment_metadata['file_url']  = is_numeric( $id ) ? wp_get_attachment_url( $id ) : $id;
-		$attachment_metadata['file_name'] = basename( $attachment_metadata['file_url'] );
+		$attachment_metadata['file_name'] = wp_basename( $attachment_metadata['file_url'] );
 		$attachment_metadata['filetype']  = wp_check_filetype( $attachment_metadata['file_url'] );
 		$attachment_metadata['file_type'] = preg_replace( '~\/.+$~', '', $attachment_metadata['filetype']['type'] ); // image, video, etc..
 
@@ -705,4 +706,18 @@ class Helper {
 
 		return $sidebars;
 	}
+
+	public static function get_attachments_urls( $media_files ) {
+		if ( empty( $media_files ) ) {
+            return is_array( $media_files ) ? [] : "";
+        }
+
+        if ( ! is_array( $media_files ) && (int) $media_files > 0 ) {
+            return wp_get_attachment_url( $media_files );
+        }
+
+        return array_map( function( $media_file ) {
+            return wp_get_attachment_url( $media_file );
+        }, $media_files );
+    }
 }

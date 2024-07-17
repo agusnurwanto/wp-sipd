@@ -21,6 +21,8 @@ import { pull, fromPairs } from 'lodash';
  */
 import { fromSelector } from '@carbon-fields/core';
 
+const TAGS_DELIMITER = ',';
+
 /**
  * Applies a monkey patch to the specified method of `window.tagBox` API
  * so we can detect changes of the non-hierarchical taxonomies.
@@ -81,7 +83,7 @@ function getTermsFromChecklist( taxonomy ) {
 function getTermsFromText( taxonomy ) {
 	const node = document.querySelector( `#tagsdiv-${ taxonomy } textarea.the-tags` );
 	const terms = node.value
-		? node.value.split( window.tagsSuggestL10n.tagDelimiter )
+		? node.value.split( TAGS_DELIMITER )
 		: [];
 
 	return {
@@ -132,10 +134,10 @@ function trackNonHierarchicalTaxonomies() {
 		const taxonomy = node.id.replace( 'tagsdiv-', '' );
 
 		return pipe(
-			fromEvent( node.querySelector( 'textarea.the-tags' ), 'change' ),
+			fromEvent.default( node.querySelector( 'textarea.the-tags' ), 'change' ),
 			map( ( { target } ) => ( {
 				[ taxonomy ]: target.value
-					? target.value.split( window.tagsSuggestL10n.tagDelimiter )
+					? target.value.split( TAGS_DELIMITER )
 					: []
 			} ) ),
 			startWith( getTermsFromText( taxonomy ) )

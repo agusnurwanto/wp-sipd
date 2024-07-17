@@ -23,7 +23,6 @@ class Widget_Container extends Container {
 	 */
 	public function init() {
 		$this->_attach();
-		$this->render();
 
 		return $this;
 	}
@@ -43,6 +42,13 @@ class Widget_Container extends Container {
 	 * @return bool True if the container is allowed to be attached
 	 */
 	public function is_valid_attach_for_request() {
+		if ( ( did_action( 'rest_api_init' ) || doing_action( 'rest_api_init' ) ) && ! defined( 'WP_ADMIN' ) ) {
+			// Widgets should be attached in REST API only outside the Administration area
+			// Several 3rd party plugins register REST API in the Administration area, which causes issues
+			// with the widgets initialization
+			return true;
+		}
+
 		$screen = get_current_screen();
 		$input = Helper::input();
 		$request_action = isset( $input['action'] ) ? $input['action'] : '';
