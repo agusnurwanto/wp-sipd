@@ -16630,11 +16630,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 
-							if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra', 'monev_renja'])) {
+							if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra'])) {
+								$report = '';
+							}
+							
+							if (in_array($tipe_perencanaan, ['monev_renja'])) {
 								$report = '';
 								$lock = '';
 							}
-
 							$status = array(
 								0 => 'terbuka',
 								1 => 'dikunci',

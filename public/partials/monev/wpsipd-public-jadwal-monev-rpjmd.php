@@ -59,6 +59,18 @@ $body = '';
                     <input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran" />
                 </div>
                 <div>
+                    <label for='tahun_akhir_anggaran' style='display:inline-block'>Tahun Akhir Anggaran</label>
+                    <input type="number" id='tahun_akhir_anggaran' name="tahun_akhir_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran" />
+                </div>
+                <div>
+                    <label for='jenis_rpjmd_rpd' style='display:inline-block'>Pilih Jenis</label>
+                    <select id='jenis_rpjmd_rpd' name="jenis_rpjmd_rpd" style='display:block;width:100%;' placeholder="Tahun Akhir Anggaran">
+                        <option value="" selected disabled>Pilih Jenis RPJM/RPD</option>
+                        <option value="rpjmd">RPJMD</option>
+                        <option value="rpd">RPD</option>
+                    </select>
+                </div>
+                <div>
                     <label for='lama_pelaksanaan' style='display:inline-block'>Lama Pelaksanaan</label>
                     <input type="number" id='lama_pelaksanaan' name="lama_pelaksanaan" style='display:block;width:100%;' placeholder="Lama Pelaksanaan" />
                 </div>
@@ -287,4 +299,31 @@ $body = '';
             });
         }
     }
+
+    function lock_data_penjadwalan(id_jadwal_lokal){
+		return(alert("Sementera kunci jadwal belum bisa dilakukan"));
+		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
+		if(confirmLocked){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type:'post',
+				data:{
+					'action' : 'submit_lock_schedule_rpjpd',
+					'api_key': jQuery("#api_key").val(),
+					'id_jadwal_lokal': id_jadwal_lokal
+				},
+				dataType: 'json',
+				success:function(response){
+					jQuery('#wrap-loading').hide();
+					if(response.status == 'success'){
+						alert('Data berhasil dikunci!.');
+						penjadwalanTable.ajax.reload();
+					}else{
+						alert(`GAGAL! \n${response.message}`);
+					}
+				}
+			});
+		}
+	}
 </script>
