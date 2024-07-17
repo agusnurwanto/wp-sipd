@@ -301,7 +301,7 @@ foreach ($subkeg as $kk => $sub) {
 			'indikator' => $capaian_prog,
 			'realisasi_indikator' => $realisasi_renja,
 			'id_program' => $sub['id_program'],
-			'kode_program' => $sub['kode_program'],
+			'kode_program' => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_program']),
 			'kode_sbl' => $sub['kode_sbl'],
 			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2],
 			'total' => 0,
@@ -344,7 +344,7 @@ foreach ($subkeg as $kk => $sub) {
 			'id_giat' => $sub['id_giat'],
 			'realisasi_indikator' => $realisasi_renja,
 			'kode_sbl' => $sub['kode_sbl'],
-			'kode_giat' => $sub['kode_giat'],
+			'kode_giat' => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_giat']),
 			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2].'.'.$kode_sub_giat_asli[3].'.'.$kode_sub_giat_asli[4],
 			'total' => 0,
 			'triwulan_1' => 0,
@@ -380,7 +380,7 @@ foreach ($subkeg as $kk => $sub) {
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 			'nama'	=> implode(' ', $nama),
 			'indikator' => $output_sub_giat,
-			'kode_sub_giat' => $sub['kode_sub_giat'],
+			'kode_sub_giat' => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_sub_giat']),
 			'id_sub_giat' => $sub['id_sub_giat'],
 			'realisasi_indikator' => $realisasi_renja,
 			'total' => 0,
@@ -485,7 +485,8 @@ foreach($renstra_program as $prog){
 		$renstra_program_id[$prog['id_program']] = array();
 	}
 	$renstra_program_id[$prog['id_program']][] = $prog;
-	$renstra_program_kode[$prog['kode_program']][] = $renstra_program_id[$prog['id_program']];
+	$kode = str_replace($prog['kode_bidang_urusan'], '', $prog['kode_program']);
+	$renstra_program_kode[$kode] = $renstra_program_id[$prog['id_program']];
 }
 
 $renstra_keg = $wpdb->get_results($wpdb->prepare("
@@ -503,7 +504,8 @@ foreach($renstra_keg as $giat){
 		$renstra_keg_id[$giat['id_giat']] = array();
 	}
 	$renstra_keg_id[$giat['id_giat']][] = $giat;
-	$renstra_keg_kode[$giat['kode_giat']] = $renstra_keg_id[$giat['id_giat']];
+	$kode = str_replace($giat['kode_bidang_urusan'], '', $giat['kode_giat']);
+	$renstra_keg_kode[$kode] = $renstra_keg_id[$giat['id_giat']];
 }
 
 $renstra_sub_keg = $wpdb->get_results($wpdb->prepare("
@@ -521,7 +523,8 @@ foreach($renstra_sub_keg as $sub_giat){
 		$renstra_sub_keg_id[$sub_giat['id_sub_giat']] = array();
 	}
 	$renstra_sub_keg_id[$sub_giat['id_sub_giat']][] = $sub_giat;
-	$renstra_sub_keg_kode[$sub_giat['kode_giat']] = $renstra_sub_keg_id[$sub_giat['id_sub_giat']];
+	$kode = str_replace($sub_giat['kode_bidang_urusan'], '', $sub_giat['kode_sub_giat']);
+	$renstra_sub_keg_kode[$kode] = $renstra_sub_keg_id[$sub_giat['id_sub_giat']];
 }
 
 $body_monev = '';
