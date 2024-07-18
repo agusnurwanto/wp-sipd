@@ -341,7 +341,7 @@ CREATE TABLE `data_stbp_sipd`(
   `created_at` datetime,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`idSpd`,`tahun_anggaran`)
+  PRIMARY KEY (`id`,`id_stbp`,`tahun_anggaran`)
 );
 
 CREATE TABLE `data_stbp_sipd_detail` (
