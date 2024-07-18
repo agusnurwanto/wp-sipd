@@ -16544,7 +16544,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						6 => 'relasi_perencanaan',
 						7 => 'lama_pelaksanaan',
 						8 => 'jenis_jadwal',
-						9 => 'id_tipe'
+						9 => 'id_tipe',
+						10 => 'tahun_akhir_anggaran'
 					);
 					$where = "";
 
@@ -16633,15 +16634,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra'])) {
 								$report = '';
 							}
-							
+
 							if (in_array($tipe_perencanaan, ['monev_renja'])) {
 								$report = '';
 								$lock = '';
 							}
 							$status = array(
-								0 => 'terbuka',
-								1 => 'dikunci',
-								2 => 'selesai'
+								0 => '<span class="badge badge-success" style="font-size:inherit; ">Terbuka</span>',
+								1 => '<span class="badge badge-info" style="font-size:inherit; >Dikunci</span>',
+								2 => '<span class="badge badge-secondary" style="font-size:inherit; >Selesai</span>'
 							);
 
 							$relasi_perencanaan = '-';
@@ -16662,7 +16663,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 
-							$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $recVal['lama_pelaksanaan'] - 1;
+							$tahun_anggaran_selesai = $recVal['tahun_akhir_anggaran'];
 							if ($recVal['id_tipe'] == 13 || $recVal['id_tipe'] == 14) {
 								$report = '';
 							}
@@ -16670,10 +16671,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$queryRecords[$recKey]['waktu_akhir'] = date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
 							$queryRecords[$recKey]['aksi'] = $report . $lock . $edit . $delete;
 							$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
-							$queryRecords[$recKey]['status'] = $status[$recVal['status']];
+							$queryRecords[$recKey]['status'] = ucfirst($status[$recVal['status']]);
 							$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
 							$queryRecords[$recKey]['relasi_perencanaan'] = $relasi_perencanaan;
 							$queryRecords[$recKey]['relasi_perencanaan_renstra'] = $relasi_perencanaan_renstra;
+							$queryRecords[$recKey]['tahun_akhir_anggaran'] = $recVal['tahun_akhir_anggaran'];
+							$queryRecords[$recKey]['jenis_jadwal'] = strtoupper($recVal['jenis_jadwal']);
 						}
 
 						$json_data = array(
@@ -16736,7 +16739,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$nama = trim(htmlspecialchars($_POST['nama'] ?? ''));
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran'] ?? ''));
 					$relasi_perencanaan = !empty($_POST['relasi_perencanaan']) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
-					$lama_pelaksanaan = trim(htmlspecialchars($_POST['lama_pelaksanaan'] ?? ''));;
+					$lama_pelaksanaan = trim(htmlspecialchars($_POST['lama_pelaksanaan'] ?? ''));
+					$tahun_akhir_anggaran = trim(htmlspecialchars($_POST['tahun_akhir_anggaran'] ?? ''));
+					$jenis_jadwal = trim(htmlspecialchars($_POST['jenis_jadwal'] ?? ''));
+
+					$jadwal_mulai = date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_mulai'] ?? ''))));
+					$jadwal_selesai = date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_selesai'] ?? ''))));
+					$jenis_jadwal = trim(htmlspecialchars($_POST['jenis_jadwal'] ?? 'usulan'));
+					$pergeseran_renja = $_POST['pergeseran_renja'] ?? 'false';
+					$id_jadwal_pergeseran_renja = $pergeseran_renja === 'true' ? $_POST['id_jadwal_pergeseran_renja'] : NULL;
+					$status_pergeseran_renja = $pergeseran_renja === 'true' ? 'tampil' : 'tidak_tampil';
 
 					if (in_array($tipe_perencanaan, ['renja', 'penganggaran', 'penganggaran_sipd'])) {
 						$lama_pelaksanaan = 1;
@@ -16754,21 +16766,30 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					);
 					if (!empty($sqlTipe)) {
 						if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra', 'monev_renja'])) {
-							if (!empty($nama) && !empty($tahun_anggaran) && !empty($tipe_perencanaan) && !empty($lama_pelaksanaan)) {
+							if (
+								!empty($nama)
+								&& !empty($tahun_anggaran)
+								&& !empty($tipe_perencanaan)
+								&& !empty($lama_pelaksanaan)
+								&& !empty($tahun_akhir_anggaran)
+								&& !empty($jenis_jadwal)
+							) {
 								$data_jadwal = [
-									'nama'                => $nama,
-									'tahun_anggaran'      => $tahun_anggaran,
-									'relasi_perencanaan'  => $relasi_perencanaan,
-									'id_tipe'  			  => $sqlTipe[0]['id'],
-									'lama_pelaksanaan'    => $lama_pelaksanaan,
-									'status'              => 0,
+									'nama'                 => $nama,
+									'tahun_anggaran'       => $tahun_anggaran,
+									'relasi_perencanaan'   => $relasi_perencanaan,
+									'id_tipe'  			   => $sqlTipe[0]['id'],
+									'lama_pelaksanaan'     => $lama_pelaksanaan,
+									'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
+									'jenis_jadwal'    	   => $jenis_jadwal,
+									'status'               => 0,
 								];
 
 								$wpdb->insert('data_jadwal_lokal', $data_jadwal);
 
 								$return = [
 									'status'        => 'success',
-									'message'       => 'Berhasil Tambah Jadwal!',
+									'message'       => 'Berhasil Tambah Jadwal Monev!',
 									'data_jadwal'   => $data_jadwal,
 								];
 							} else {
@@ -16778,14 +16799,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								];
 							}
 						} else {
-							$jadwal_mulai = date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_mulai'] ?? ''))));
-							$jadwal_selesai = date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_selesai'] ?? ''))));
-							$jenis_jadwal = trim(htmlspecialchars($_POST['jenis_jadwal'] ?? 'usulan'));
-							$pergeseran_renja = $_POST['pergeseran_renja'] ?? 'false';
-							$id_jadwal_pergeseran_renja = $pergeseran_renja === 'true' ? $_POST['id_jadwal_pergeseran_renja'] : NULL;
-							$status_pergeseran_renja = $pergeseran_renja === 'true' ? 'tampil' : 'tidak_tampil';
-
-							if (!empty($nama) && !empty($jadwal_mulai) && !empty($jadwal_selesai) && !empty($tahun_anggaran) && !empty($tipe_perencanaan) && !empty($lama_pelaksanaan)) {
+							if (
+								!empty($nama)
+								&& !empty($jadwal_mulai)
+								&& !empty($jadwal_selesai)
+								&& !empty($tahun_anggaran)
+								&& !empty($tipe_perencanaan)
+								&& !empty($lama_pelaksanaan)
+							) {
 
 								$id_tipe = $sqlTipe[0]['id'];
 								$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
@@ -16954,15 +16975,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						die(json_encode($return));
 					}
 
-					$nama				= trim(htmlspecialchars($_POST['nama'] ?? ''));
-					$tahun_anggaran 	= trim(htmlspecialchars($_POST['tahun_anggaran'] ?? ''));
-					$relasi_perencanaan = !empty($_POST['relasi_perencanaan']) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
-					$lama_pelaksanaan 	= trim(htmlspecialchars($_POST['lama_pelaksanaan'] ?? ''));
-					$jadwal_mulai		= date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_mulai']))));
-					$jadwal_selesai  	= date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_selesai']))));
-					$jenis_jadwal    	= trim(htmlspecialchars($_POST['jenis_jadwal']));
-					$pergeseran_renja 	= $_POST['pergeseran_renja'];
-					$tipe_perencanaan 	= trim(htmlspecialchars($_POST['tipe_perencanaan'] ?? ''));
+					$nama					= trim(htmlspecialchars($_POST['nama'] ?? ''));
+					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran'] ?? ''));
+					$relasi_perencanaan 	= !empty($_POST['relasi_perencanaan']) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
+					$lama_pelaksanaan 		= trim(htmlspecialchars($_POST['lama_pelaksanaan'] ?? ''));
+					$jadwal_mulai			= date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_mulai']))));
+					$jadwal_selesai  		= date('Y-m-d H:i:s', strtotime(trim(htmlspecialchars($_POST['jadwal_selesai']))));
+					$jenis_jadwal    		= trim(htmlspecialchars($_POST['jenis_jadwal']));
+					$pergeseran_renja 		= $_POST['pergeseran_renja'];
+					$tipe_perencanaan 		= trim(htmlspecialchars($_POST['tipe_perencanaan'] ?? ''));
+					$tahun_akhir_anggaran 	= trim(htmlspecialchars($_POST['tahun_akhir_anggaran'] ?? ''));
+					$jenis_jadwal 			= trim(htmlspecialchars($_POST['jenis_jadwal'] ?? ''));
 
 					if (in_array($tipe_perencanaan, ['renja', 'penganggaran', 'penganggaran_sipd'])) {
 						$lama_pelaksanaan = 1;
@@ -16978,7 +17001,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					);
 					if (!empty($sqlTipe)) {
 						if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra', 'monev_renja'])) {
-							if (empty($nama) && empty($tahun_anggaran) && empty($tipe_perencanaan) && empty($lama_pelaksanaan)) {
+							if (
+								empty($nama)
+								&& empty($tahun_anggaran)
+								&& empty($tipe_perencanaan)
+								&& empty($lama_pelaksanaan)
+								&& empty($tahun_akhir_anggaran)
+								&& empty($jenis_jadwal)
+							) {
 								$return = [
 									'status' => 'error',
 									'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
@@ -16986,7 +17016,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								die(json_encode($return));
 							}
 
-							$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d', $id_jadwal_lokal), ARRAY_A);
+							$data_this_id = $wpdb->get_row(
+								$wpdb->prepare('
+									SELECT * 
+									FROM data_jadwal_lokal 
+									WHERE id_jadwal_lokal = %d
+									', $id_jadwal_lokal),
+								ARRAY_A
+							);
 							if (!empty($data_this_id)) {
 								$status_check = array(0, NULL, 2);
 								if (!in_array($data_this_id['status'], $status_check)) {
@@ -16997,10 +17034,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									die(json_encode($return));
 								}
 								$data_jadwal = [
-									'nama'                => $nama,
-									'tahun_anggaran'      => $tahun_anggaran,
-									'relasi_perencanaan'  => $relasi_perencanaan,
-									'lama_pelaksanaan'    => $lama_pelaksanaan
+									'nama'                	=> $nama,
+									'tahun_anggaran'      	=> $tahun_anggaran,
+									'relasi_perencanaan'  	=> $relasi_perencanaan,
+									'lama_pelaksanaan'    	=> $lama_pelaksanaan,
+									'tahun_akhir_anggaran'  => $tahun_akhir_anggaran,
+									'jenis_jadwal'			=> $jenis_jadwal
 								];
 
 								$wpdb->update('data_jadwal_lokal', $data_jadwal, ['id_jadwal_lokal' => $id_jadwal_lokal]);

@@ -29,6 +29,7 @@ $body = '';
                 <tr>
                     <th class="text-center">Nama Tahapan</th>
                     <th class="text-center">Status</th>
+                    <th class="text-center">Jenis Jadwal</th>
                     <th class="text-center">Tahun Mulai Anggaran</th>
                     <th class="text-center">Tahun Selesai Anggaran</th>
                     <th class="text-center" style="width: 150px;">Aksi</th>
@@ -60,11 +61,11 @@ $body = '';
                 </div>
                 <div>
                     <label for='tahun_akhir_anggaran' style='display:inline-block'>Tahun Akhir Anggaran</label>
-                    <input type="number" id='tahun_akhir_anggaran' name="tahun_akhir_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran" />
+                    <input type="number" id='tahun_akhir_anggaran' name="tahun_akhir_anggaran" style='display:block;width:100%;' placeholder="Tahun Akhir Anggaran" />
                 </div>
                 <div>
-                    <label for='jenis_rpjmd_rpd' style='display:inline-block'>Pilih Jenis</label>
-                    <select id='jenis_rpjmd_rpd' name="jenis_rpjmd_rpd" style='display:block;width:100%;' placeholder="Tahun Akhir Anggaran">
+                    <label for='jenis_rpjmd_rpd' style='display:inline-block'>Pilih Jenis Jadwal</label>
+                    <select id='jenis_rpjmd_rpd' name="jenis_rpjmd_rpd" style='display:block;width:100%;'>
                         <option value="" selected disabled>Pilih Jenis RPJM/RPD</option>
                         <option value="rpjmd">RPJMD</option>
                         <option value="rpd">RPD</option>
@@ -119,11 +120,15 @@ $body = '';
                     className: "text-center"
                 },
                 {
+                    "data": "jenis_jadwal",
+                    className: "text-center"
+                },
+                {
                     "data": "tahun_anggaran",
                     className: "text-center"
                 },
                 {
-                    "data": "tahun_anggaran_selesai",
+                    "data": "tahun_akhir_anggaran",
                     className: "text-center"
                 },
                 {
@@ -135,6 +140,7 @@ $body = '';
     }
 
     function tambah_jadwal() {
+        afterSubmitForm()
         jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
         jQuery("#modalTambahJadwal .submitBtn")
             .attr("onclick", 'submitTambahJadwalForm()')
@@ -160,6 +166,8 @@ $body = '';
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
+        let this_jenis_jadwal = jQuery("#jenis_rpjmd_rpd").val()
+        let this_tahun_akhir_anggaran = jQuery("#tahun_akhir_anggaran").val()
         let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
         if (nama.trim() == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == '') {
             jQuery("#wrap-loading").hide()
@@ -175,6 +183,8 @@ $body = '';
                     'api_key': jQuery("#api_key").val(),
                     'nama': nama,
                     'tahun_anggaran': this_tahun_anggaran,
+                    'jenis_jadwal': this_jenis_jadwal,
+                    'tahun_akhir_anggaran': this_tahun_akhir_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
                     'lama_pelaksanaan': this_lama_pelaksanaan
                 },
@@ -220,6 +230,8 @@ $body = '';
                 jQuery('#wrap-loading').hide();
                 jQuery("#jadwal_nama").val(response.data.nama);
                 jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
+                jQuery("#tahun_akhir_anggaran").val(response.data.tahun_akhir_anggaran);
+                jQuery("#jenis_rpjmd_rpd").val(response.data.jenis_jadwal);
                 jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
             }
         })
@@ -229,6 +241,8 @@ $body = '';
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
+        let this_jenis_jadwal = jQuery("#jenis_rpjmd_rpd").val()
+        let this_tahun_akhir_anggaran = jQuery("#tahun_akhir_anggaran").val()
         let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
         if (nama.trim() == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == '') {
             jQuery("#wrap-loading").hide()
@@ -244,6 +258,8 @@ $body = '';
                     'api_key': jQuery("#api_key").val(),
                     'nama': nama,
                     'id_jadwal_lokal': id_jadwal_lokal,
+                    'jenis_jadwal': this_jenis_jadwal,
+                    'tahun_akhir_anggaran': this_tahun_akhir_anggaran,
                     'tahun_anggaran': this_tahun_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
                     'lama_pelaksanaan': this_lama_pelaksanaan
@@ -272,6 +288,9 @@ $body = '';
     function afterSubmitForm() {
         jQuery("#jadwal_nama").val("")
         jQuery("#tahun_mulai_anggaran").val("")
+        jQuery("#jenis_rpjmd_rpd").val("")
+        jQuery("#lama_pelaksanaan").val("")
+        jQuery("#tahun_akhir_anggaran").val("")
     }
 
     function hapus_data_penjadwalan(id_jadwal_lokal) {
