@@ -23507,25 +23507,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$columns = array(
 					0 => 'tahunStbp',
 					1 => 'nomorStbp',
-					2 => 'nilaiStbp',
-					3 => 'tanggalStbp',
-					4 => 'keteranganStbp',
-					5 => 'isVerifikasiStbp',
-					6 => 'isOtorisasiStbp',
-					7 => 'is_validasi_stbp',
-					8 => 'metodePenyetoran',
-					9 => 'keteranganStbpb',					
+					2 => 'nomorRekening',
+					3 => 'nilaiStbp',
+					4 => 'tanggalStbp',
+					5 => 'keteranganStbp',
+					6 => 'isVerifikasiStbp',
+					7 => 'isOtorisasiStbp',
+					8 => 'isValidasiStbp',
+					9 => 'metodePenyetoran',				
 					10 => 'status',
-					27 => 'id',
-					28 => 'idStbp'
+					11 => 'id',
+					12 => 'idStbp'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
 				// check search value exist
 				if (!empty($params['search']['value'])) {
 					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-					$where .= " AND (nomorSpp LIKE " . $search_value;
-					$where .= " OR keteranganSpp LIKE " . $search_value . ")";
+					$where .= " AND (nomorStbp LIKE " . $search_value;
+					$where .= " OR keteranganStbp LIKE " . $search_value . ")";
 				}
 
 				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
@@ -23533,8 +23533,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				// getting total number records without any search
-				$sql_tot = "SELECT count(id) as jml FROM `data_spp_sipd`";
-				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_spp_sipd`";
+				$sql_tot = "SELECT count(id) as jml FROM `data_stbp_sipd`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_stbp_sipd`";
 				$where_first = " WHERE 1=1";
 
 				$sqlTot .= $sql_tot . $where_first;
@@ -23548,17 +23548,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($params['length'] != -1) {
 					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
 				}
-				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_stbp DESC " . $limit;
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nomorSpp'] = '<a href="javascript:void(0);" onclick="modalDetailSpp(' . $recVal['idSpp'] . ')">' . $recVal['nomorSpp'] . '</a>';
+					$queryRecords[$recKey]['nomorSpp'] = '<a href="javascript:void(0);" onclick="modalDetailStbp(' . $recVal['idStbp'] . ')">' . $recVal['nomorStbp'] . '</a>';
 
-					$queryRecords[$recKey]['nilaiSpp'] = number_format($recVal['nilaiSpp'], 0, ",", ".");
-					$queryRecords[$recKey]['nilaiDisetujuiSpp'] = number_format($recVal['nilaiDisetujuiSpp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilaiStbp'] = number_format($recVal['nilaiStbp'], 0, ",", ".");
+					;
 				}
 
 				$json_data = array(
@@ -23583,6 +23583,50 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 		}
 		die(json_encode($return));
+	}
+
+	public function get_data_stbp_sipd_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Get STBP SIPD Detail!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_stbp = $_POST['id_stbp'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$detail_results = $wpdb->get_results(
+					$wpdb->prepare(
+						'
+						SELECT 
+							*
+						FROM data_stbp_sipd_detail
+						WHERE id_spp=%s
+						  AND tahun_anggaran=%d
+						  AND active=1
+						',
+						$id_stbp,
+						$tahun_anggaran
+					),
+					ARRAY_A
+				);
+				$ret['data'] = $detail_results;
+				if (empty($detail_results)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data detail STBP kosong!';
+				}
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
 	}
 
 	public function get_data_sp2d_sipd()
