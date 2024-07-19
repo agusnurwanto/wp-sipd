@@ -23629,6 +23629,162 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	public function get_datatable_data_tbp_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get datatable TBP SIPD!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array(
+					0 => 'tahunTbp',
+					1 => 'nomorTbp',
+					2 => 'nilaiTbp',
+					3 => 'tanggalTbp',
+					4 => 'keteranganTbp',
+					5 => 'nilaiDisetujuiTbp',
+					6 => 'tanggalDisetujuiTbp',
+					7 => 'jenisTbp',
+					8 => 'verifikasiTbp',
+					9 => 'keteranganVerifikasi',
+					10 => 'kunciRekening',
+					11 => 'alamatPenerimaTbp',
+					12 => 'bankPenerimaTbp',
+					13 => 'nomorRekeningPenerimaTbp',
+					14 => 'npwpPenerimaTbp',
+					15 => 'jenisLs',
+					16 => 'statusPerubahan',
+					17 => 'kodeDaerah',
+					18 => 'tanggal_otorisasi',
+					19 => 'bulan_gaji',
+					20 => 'nama_pegawai_pptk',
+					21 => 'nip_pegawai_pptk',
+					22 => 'status_tahap',
+					23 => 'kode_tahap',
+					24 => 'bulan_tpp',
+					25 => 'nomor_pengajuan_tu',
+					26 => 'tipe',
+					27 => 'id',
+					28 => 'idTbp'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if (!empty($params['search']['value'])) {
+					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+					$where .= " AND (nomorTbp LIKE " . $search_value;
+					$where .= " OR keteranganTbp LIKE " . $search_value . ")";
+				}
+
+				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
+					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(id) as jml FROM `data_tbp_sipd`";
+				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_tbp_sipd`";
+				$where_first = " WHERE 1=1";
+
+				$sqlTot .= $sql_tot . $where_first;
+				$sqlRec .= $sql . $where_first;
+				if (isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+				$limit = '';
+				if ($params['length'] != -1) {
+					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
+				}
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach ($queryRecords as $recKey => $recVal) {
+					$queryRecords[$recKey]['nomorTbp'] = '<a href="javascript:void(0);" onclick="modalDetailTbp(' . $recVal['idTbp'] . ')">' . $recVal['nomorTbp'] . '</a>';
+
+					$queryRecords[$recKey]['nilaiTbp'] = number_format($recVal['nilaiTbp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilaiDisetujuiTbp'] = number_format($recVal['nilaiDisetujuiTbp'], 0, ",", ".");
+				}
+
+				$json_data = array(
+					"draw"            => intval($params['draw']),
+					"recordsTotal"    => intval($totalRecords),
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords,
+					"sql"             => $sqlRec
+				);
+
+				die(json_encode($json_data));
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_tbp_sipd_detail()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Get TBP SIPD Detail!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$id_tbp = $_POST['id_tbp'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$detail_results = $wpdb->get_results(
+					$wpdb->prepare(
+						'
+						SELECT 
+							*
+						FROM data_tbp_sipd_detail
+						WHERE id_tbp=%s
+						  AND tahun_anggaran=%d
+						  AND active=1
+						',
+						$id_tbp,
+						$tahun_anggaran
+					),
+					ARRAY_A
+				);
+				$ret['data'] = $detail_results;
+				if (empty($detail_results)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data detail TBP kosong!';
+				}
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
 	public function get_data_sp2d_sipd()
 	{
 		global $wpdb;

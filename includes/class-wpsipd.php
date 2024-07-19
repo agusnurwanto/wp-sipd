@@ -1031,6 +1031,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_datatable_data_stbp_sipd',  $plugin_public, 'get_datatable_data_stbp_sipd');
 
+		$this->loader->add_action('wp_ajax_get_datatable_data_tbp_sipd',  $plugin_public, 'get_datatable_data_tbp_sipd');
+
 		$this->loader->add_action('wp_ajax_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_pembiayaan_sipd',  $plugin_public, 'get_pembiayaan_sipd');
 
