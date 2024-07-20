@@ -377,7 +377,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (get_option('_crb_show_menu_tbp') != true) {
 				Container::make('theme_options', __('Halaman TBP'))
 					->set_page_parent($monev)
-					->add_fields($this->get_ajax_field(array('type' => 'stbp')));
+					->add_fields($this->get_ajax_field(array('type' => 'tbp')));
 			}
 
 			if (get_option('_crb_show_menu_monev_json_rka_settings') != true) {
@@ -1275,7 +1275,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman STBP ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'tbp') {
 							$url_skpd = $this->generatePage('Halaman TBP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_tbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP iki ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><input type="checkbox" value="' . $vv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ') ID = ' . $vv['id_skpd'];
@@ -1464,6 +1464,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'realisasi') {
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'stbp') {
+						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'tbp') {
+						$body_all .= $body_pemda;
 					}
 					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
 						$body_all .= '</div>';
@@ -1528,6 +1532,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'spm'
 					|| $_POST['type'] == 'sp2d'
 					|| $_POST['type'] == 'realisasi'
+					|| $_POST['type'] == 'stbp'
+					|| $_POST['type'] == 'tbp'
 					|| $_POST['type'] == 'rkpd_renja'
 					|| $_POST['type'] == 'pohon_kinerja_renja'
 				) {
