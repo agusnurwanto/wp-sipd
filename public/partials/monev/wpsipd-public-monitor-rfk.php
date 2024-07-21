@@ -472,8 +472,12 @@ foreach ($units as $k => $unit) :
 
 			$url_panjar = $this->generatePage('Daftar Nota Pencairan Dana | Panjar', $sub['tahun_anggaran'], '[daftar_nota_pencairan_dana_panjar]');
 			$url_panjar .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
+
+			$url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub['kode_sbl'].' | '.$sub['tahun_anggaran'],$sub['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub['id_sub_skpd'].'" kode_sbl="'.$sub['kode_sbl'].'" tahun_anggaran="'.$sub['tahun_anggaran'].'"]');
+            $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.implode(' ', $nama).'</a>';
+
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">Buat Panjar</a>',
+				'nama'	=>  $nama_sub. $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -766,9 +770,7 @@ foreach ($units as $k => $unit) :
 						}
 
 						$kode_sbl = $sub_giat['data']['kode_sbl'];
-                        $url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub_giat['data']['kode_sbl'].' | '.$sub_giat['data']['tahun_anggaran'],$sub_giat['data']['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub_giat['data']['id_sub_skpd'].'" kode_sbl="'.$sub_giat['data']['kode_sbl'].'" tahun_anggaran="'.$sub_giat['data']['tahun_anggaran'].'"]');
-
-                        $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.$sub_giat['nama'].'</a>';
+                        $nama_sub = $sub_giat['nama'];
 
 						$body .= '
 					        <tr style="' . $cek_fmis . '" data-kode="' . $kd_sub_giat1 . '" data-kdsbl="' . $sub_giat['data']['kode_sbl'] . '" data-idskpd="' . $sub_giat['data']['id_sub_skpd'] . '" data-pagu="' . $sub_giat['total'] . '">
@@ -859,6 +861,9 @@ foreach ($units as $k => $unit) :
 		}
 		#cetak a {
 			text-decoration: none !important;
+		}
+		.nama_sub_giat span {
+		    cursor: pointer;
 		}
 	</style>
 	<input type="hidden" value="' . get_option('_crb_api_key_extension') . '" id="api_key">

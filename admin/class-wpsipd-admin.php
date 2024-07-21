@@ -907,20 +907,28 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								'verifikator_inspektorat',
 								'verifikator_pupr'
 							)),
-						Field::make('html', 'crb_verifikasi_rka_page')
-							->set_html('
-					<ul>
-						<li><a href="' . $url_user_verifikator . '" target="_blank">Halaman User Verifikasi RKA</a></li>
-					</ul>'),
-						Field::make('html', 'crb_pptk_page')
-							->set_html('
-					<ul>
-						<li><a href="' . $url_user_pptk . '" target="_blank">Halaman User PPTK</a></li>
-					</ul>'),
 						Field::make('html', 'crb_jadwal_verifikasi_rka')
 							->set_html('
-						<ul>' . $list_data_rka . '</ul>
-					')
+								<ul>' . $list_data_rka . '</ul>
+							')
+					)
+				);
+
+			Container::make('theme_options', __('WP-SIPD User'))
+				->set_page_menu_position(6)
+				->set_icon('dashicons-admin-users')
+				->add_fields(
+					array(
+						Field::make('html', 'crb_verifikasi_rka_page')
+							->set_html('
+								<ul>
+									<li><a href="' . $url_user_verifikator . '" target="_blank">Halaman User Verifikasi RKA</a></li>
+								</ul>'),
+						Field::make('html', 'crb_pptk_page')
+							->set_html('
+								<ul>
+									<li><a href="' . $url_user_pptk . '" target="_blank">Halaman User PPTK</a></li>
+								</ul>')
 					)
 				);
 		}
