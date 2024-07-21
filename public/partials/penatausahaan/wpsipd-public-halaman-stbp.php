@@ -148,39 +148,43 @@ if ($skpd_result) {
                         }
                     },
                     {
-                        "data": 'nomorStbp',
+                        "data": 'nomor_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'nomorRekening',
+                        "data": 'no_rekening',
                         className: "text-right"
                     },
                     {
-                        "data": 'nilaiStbp',
+                        "data": 'metode_penyetoran',
                         className: "text-right"
                     },
                     {
-                        "data": 'tanggalStbp',
+                        "data": 'nilai_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'keteranganStbp',
+                        "data": 'keterangan_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'isVerifikasiStbp',
+                        "data": 'is_verifikasi_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'isOtorisasiStbp',
+                        "data": 'is_otorisasi_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'isValidasiStbp',
+                        "data": 'is_validasi_stbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'metodePenyetoran',
+                        "data": 'tanggal_stbp',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'is_sts',
                         className: "text-center"
                     },
                     {
@@ -221,8 +225,7 @@ if ($skpd_result) {
                             '<td class="text-center">' + b.nama_bank + '</td>' +
                             '<td class="text-center">' + b.no_rekening + '</td>' +
                             '<td class="text-center">' + b.nilai_stbp + '</td>' +
-                            '<td class="text-center">' + b.keterangan_stbp + '</td>' +
-                            '<td class="text-center">' + b.created_by + '</td>' +
+                            '<td class="text-center">' + b.keterangan_stbp + '</td>' +                            
                             '<td class="text-center">' + b.bendahara_penerimaan_nama + '</td>' +
                             '<td class="text-center">' + b.bendahara_penerimaan_nip + '</td>' +
                             '<td class="text-center">' + b.nama_skpd + '</td>' +

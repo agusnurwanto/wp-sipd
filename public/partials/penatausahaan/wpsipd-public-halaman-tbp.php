@@ -21,7 +21,7 @@ $skpd_result = $wpdb->get_row(
     ', $input['id_skpd'], $input['tahun_anggaran']),
     ARRAY_A
 );
-// print_r($skpd_result); die($wpdb->last_query);
+
 if ($skpd_result) {
     $kd_nama_skpd = $skpd_result['kode_skpd'] . ' ' . $skpd_result['nama_skpd'];
 } else {
@@ -42,21 +42,27 @@ if ($skpd_result) {
     }
 </style>
 <div class="wrap-table">
-    <h1 class="text-center">Menampilkan Tanda Bukti Penerimaan (TBP)<br> <?php echo $kd_nama_skpd; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+    <h1 class="text-center">Data TBP (Tanda Bukti Pembayaran)<br> <?php echo $kd_nama_skpd; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
     <table id="table-data-tbp" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th class="text-center">Nomor TBP</th>                
+                <th class="text-center">Nomor TBP</th>
                 <th class="text-center">Nilai TBP</th>
                 <th class="text-center">Tanggal TBP</th>
-                <th class="text-center">Keterangan</th>
+                <th class="text-center">Keterangan TBP</th>
+                <th class="text-center">Nilai Materai</th>
                 <th class="text-center">Nomor Kwitansi</th>
-                <th class="text-center">Jenis</th>
-                <th class="text-center">Otorisasi</th>
-                <th class="text-center">Validasi</th>
-                <th class="text-center">Metode Penyetoran</th>
-                <th class="text-center">Status</th>
+                <th class="text-center">Jenis TBP</th>
+                <th class="text-center">Jenis LS TBP</th>
+                <th class="text-center">Nomor Jurnal</th>
+                <th class="text-center">Kunci Rekening</th>
+                <th class="text-center">Panjar</th>
+                <th class="text-center">LPJ</th>
+                <th class="text-center">Rekanan Upload</th>
+                <th class="text-center">Status Aklap</th>
+                <th class="text-center">Metode</th>
+                <th class="text-center">Total Pertanggungajawaban</th>
             </tr>
         </thead>
         <tbody>
@@ -78,16 +84,30 @@ if ($skpd_result) {
                         <thead>
                             <tr>
                                 <th class="text-center">No</th>
-                                <th class="text-center">Nama Penyetor</th>
-                                <th class="text-center">Metode Input</th>
-                                <th class="text-center">Total TBP</th>
+                                <th class="text-center">Nomor TBP</th>
                                 <th class="text-center">Tanggal TBP</th>
-                                <th class="text-center">Keterangan</th>
-                                <th class="text-center">Verifikasi</th>
-                                <th class="text-center">Otorisasi</th>
-                                <th class="text-center">Validasi</th>
-                                <th class="text-center">Metode Penyetoran</th>
-                                <th class="text-center">Status</th>
+                                <th class="text-center">Nilai TBP</th>
+                                <th class="text-center">Nama Tujuan</th>
+                                <th class="text-center">Alamat Perusahaan</th>
+                                <th class="text-center">NPWP</th>
+                                <th class="text-center">Nomor Rekening</th>                                
+                                <th class="text-center">Nama Rekening</th>
+                                <th class="text-center">Nama Bank</th>
+                                <th class="text-center">Keterangan TBP</th>
+                                <th class="text-center">Jenis Transaksi</th>
+                                <th class="text-center">Nomor NPD</th>
+                                <th class="text-center">Jenis Panjar</th>
+                                <th class="text-center">Nama Daerah</th>
+                                <th class="text-center">Nama SKPD</th>   
+                                <th class="text-center">Nama PA KPA</th>
+                                <th class="text-center">Nama BP BPP</th>                                
+                                <th class="text-center">Jabatan PA KPA</th>
+                                <th class="text-center">Jabatan BP BPP</th>
+                                <th class="text-center">Nip PA KPA</th>
+                                <th class="text-center">Nip BP BPP</th>
+                                <th class="text-center">Jenis</th>
+                                <th class="text-center">Potongan Pajak</th>
+                                <th class="text-center">Jenis TBP</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,7 +129,7 @@ if ($skpd_result) {
 
     function get_datatable_tbp() {
         if (typeof tableDataTbp == 'undefined') {
-            window.tableDatTbp = jQuery('#table-data-tbp').on('preXhr.dt', function(e, settings, data) {
+            window.tableDataTbp = jQuery('#table-data-tbp').on('preXhr.dt', function(e, settings, data) {
                 jQuery("#wrap-loading").show();
             }).DataTable({
                 "processing": true,
@@ -148,43 +168,67 @@ if ($skpd_result) {
                         }
                     },
                     {
-                        "data": 'nomorTbp',
+                        "data": 'nomor_tbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'nomorRekening',
+                        "data": 'nilai_tbp',
                         className: "text-right"
                     },
                     {
-                        "data": 'nilaiStbp',
+                        "data": 'tanggal_tbp',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'keterangan_tbp',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'nilai_materai_tbp',
                         className: "text-right"
                     },
                     {
-                        "data": 'tanggalStbp',
+                        "data": 'nomor_kwitansi',
                         className: "text-center"
                     },
                     {
-                        "data": 'keteranganStbp',
+                        "data": 'jenis_tbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'isVerifikasiStbp',
+                        "data": 'jenis_ls_tbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'isOtorisasiStbp',
+                        "data": 'nomor_jurnal',
                         className: "text-center"
                     },
                     {
-                        "data": 'isValidasiStbp',
+                        "data": 'is_kunci_rekening_tbp',
                         className: "text-center"
                     },
                     {
-                        "data": 'metodePenyetoran',
+                        "data": 'is_panjar',
                         className: "text-center"
                     },
                     {
-                        "data": 'status',
+                        "data": 'is_lpj',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'is_rekanan_upload',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'status_aklap',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'metode',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'total_pertanggungjawaban',
                         className: "text-center"
                     },
                 ]
@@ -194,7 +238,7 @@ if ($skpd_result) {
         }
     }
 
-    function modalDetailTbp(id) {
+    function modalDetailSpp(id) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo $url; ?>',
@@ -204,7 +248,7 @@ if ($skpd_result) {
                 'action': 'get_data_tbp_sipd_detail',
                 'api_key': '<?php echo $api_key; ?>',
                 'tahun_anggaran': '<?php echo $input['tahun_anggaran']?>',
-                'id_spp': id
+                'id_tbp': id
             },
             success: function(res) {
                 if (res.status == 'success') {
@@ -213,22 +257,30 @@ if ($skpd_result) {
                         html += '' +
                             '<tr>' +
                             '<td class="text-center">' + (i + 1) + '</td>' +
-                            '<td class="text-center">' + b.nama_penyetor + '</td>' +
-                            '<td class="text-center">' + b.metode_input + '</td>' +
                             '<td class="text-center">' + b.nomor_tbp + '</td>' +
                             '<td class="text-center">' + b.tanggal_tbp + '</td>' +
-                            '<td class="text-center">' + b.id_bank + '</td>' +
-                            '<td class="text-center">' + b.nama_bank + '</td>' +
-                            '<td class="text-center">' + b.no_rekening + '</td>' +
                             '<td class="text-center">' + b.nilai_tbp + '</td>' +
+                            '<td class="text-center">' + b.nama_tujuan + '</td>' +                            
+                            '<td class="text-center">' + b.alamat_perusahaan + '</td>' +
+                            '<td class="text-center">' + b.npwp + '</td>' +
+                            '<td class="text-center">' + b.nomor_rekening + '</td>' +
+                            '<td class="text-center">' + b.nama_rekening + '</td>' +
+                            '<td class="text-center">' + b.nama_bank + '</td>' +
                             '<td class="text-center">' + b.keterangan_tbp + '</td>' +
-                            '<td class="text-center">' + b.created_by + '</td>' +
-                            '<td class="text-center">' + b.bendahara_penerimaan_nama + '</td>' +
-                            '<td class="text-center">' + b.bendahara_penerimaan_nip + '</td>' +
+                            '<td class="text-center">' + b.jenis_transaksi + '</td>' +
+                            '<td class="text-center">' + b.nomor_npd + '</td>' +
+                            '<td class="text-center">' + b.jenis_panjar + '</td>' +
+                            '<td class="text-center">' + b.nama_daerah + '</td>' +
                             '<td class="text-center">' + b.nama_skpd + '</td>' +
-                            '<td class="text-center">' + b.kode_rekening + '</td>' +
-                            '<td class="text-center">' + b.uraian + '</td>' +
-                            '<td class="text-center">' + b.nilai + '</td>' +
+                            '<td class="text-center">' + b.nama_pa_kpa + '</td>' +
+                            '<td class="text-center">' + b.nama_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.jabatan_pa_kpa + '</td>' +
+                            '<td class="text-center">' + b.jabatan_bp_bpp + '</td>' +                            
+                            '<td class="text-center">' + b.nip_pa_kpa + '</td>' +    
+                            '<td class="text-center">' + b.nip_bp_bpp + '</td>' +
+                            '<td class="text-center">' + b.jenis + '</td>' +                                                    
+                            '<td class="text-center">' + b.pajak_potongan + '</td>' +
+                            '<td class="text-center">' + b.jenis_tbp + '</td>' +
                             '</tr>';
                     });
                     jQuery('#table-data-tbp-detail').DataTable().clear();

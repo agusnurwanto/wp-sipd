@@ -23505,31 +23505,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$params = $columns = $totalRecords = $data = array();
 				$params = $_REQUEST;
 				$columns = array(
-					0 => 'tahunStbp',
-					1 => 'nomorStbp',
-					2 => 'nomorRekening',
-					3 => 'nilaiStbp',
-					4 => 'tanggalStbp',
-					5 => 'keteranganStbp',
-					6 => 'isVerifikasiStbp',
-					7 => 'isOtorisasiStbp',
-					8 => 'isValidasiStbp',
-					9 => 'metodePenyetoran',				
+					0 => 'nomor_stbp',
+					1 => 'no_rekening',
+					2 => 'metode_penyetoran',
+					3 => 'nilai_stbp',
+					4 => 'keterangan_stbp',
+					5 => 'is_verifikasi_stbp',
+					6 => 'is_otorisasi_stbp',
+					7 => 'is_validasi_stbp',					
+					8 => 'tanggal_stbp',				
+					9 => 'is_sts',
 					10 => 'status',
 					11 => 'id',
-					12 => 'idStbp'
+					12 => 'id_stbp'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
 				// check search value exist
 				if (!empty($params['search']['value'])) {
 					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-					$where .= " AND (nomorStbp LIKE " . $search_value;
-					$where .= " OR keteranganStbp LIKE " . $search_value . ")";
+					$where .= " AND (nomor_stbp LIKE " . $search_value;
+					$where .= " OR keterangan_stbp LIKE " . $search_value . ")";
 				}
 
 				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
-					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+					$where .= $wpdb->prepare(' AND id_skpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
 				}
 
 				// getting total number records without any search
@@ -23555,9 +23555,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nomorSpp'] = '<a href="javascript:void(0);" onclick="modalDetailStbp(' . $recVal['idStbp'] . ')">' . $recVal['nomorStbp'] . '</a>';
+					$queryRecords[$recKey]['nomor_stbp'] = '<a href="javascript:void(0);" onclick="modalDetailStbp(' . $recVal['id_stbp'] . ')">' . $recVal['nomor_stbp'] . '</a>';
 
-					$queryRecords[$recKey]['nilaiStbp'] = number_format($recVal['nilaiStbp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilai_stbp'] = number_format($recVal['nilai_stbp'], 0, ",", ".");
 					;
 				}
 
@@ -23603,7 +23603,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT 
 							*
 						FROM data_stbp_sipd_detail
-						WHERE id_spp=%s
+						WHERE id_stbp=%s
 						  AND tahun_anggaran=%d
 						  AND active=1
 						',
@@ -23645,47 +23645,41 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$params = $columns = $totalRecords = $data = array();
 				$params = $_REQUEST;
 				$columns = array(
-					0 => 'tahunTbp',
-					1 => 'nomorTbp',
-					2 => 'nilaiTbp',
-					3 => 'tanggalTbp',
-					4 => 'keteranganTbp',
-					5 => 'nilaiDisetujuiTbp',
-					6 => 'tanggalDisetujuiTbp',
-					7 => 'jenisTbp',
-					8 => 'verifikasiTbp',
-					9 => 'keteranganVerifikasi',
-					10 => 'kunciRekening',
-					11 => 'alamatPenerimaTbp',
-					12 => 'bankPenerimaTbp',
-					13 => 'nomorRekeningPenerimaTbp',
-					14 => 'npwpPenerimaTbp',
-					15 => 'jenisLs',
-					16 => 'statusPerubahan',
-					17 => 'kodeDaerah',
-					18 => 'tanggal_otorisasi',
-					19 => 'bulan_gaji',
-					20 => 'nama_pegawai_pptk',
-					21 => 'nip_pegawai_pptk',
-					22 => 'status_tahap',
-					23 => 'kode_tahap',
-					24 => 'bulan_tpp',
-					25 => 'nomor_pengajuan_tu',
-					26 => 'tipe',
-					27 => 'id',
-					28 => 'idTbp'
+					0 => 'tahun_anggaran',
+					1 => 'nomor_tbp',
+					2 => 'nilai_tbp',
+					3 => 'tanggal_tbp',
+					4 => 'keterangan_tbp',
+					5 => 'nilai_materai_tbp',
+					6 => 'nomor_kwitansi',
+					7 => 'jenis_tbp',
+					8 => 'jenis_ls_tbp',
+					9 => 'nomor_jurnal',
+					10 => 'is_kunci_rekening_tbp',
+					11 => 'is_panjar',
+					12 => 'is_lpj',
+					13 => 'is_rekanan_upload',
+					14 => 'status_aklap',
+					15 => 'metode',
+					16 => 'total_pertanggungjawaban',
+					17 => 'kode_skpd',
+					18 => 'nama_skpd',
+					19 => 'kode_sub_skpd',
+					20 => 'nama_sub_skpd',					
+					21 => 'id',
+					22 => 'id_tbp'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
 				// check search value exist
 				if (!empty($params['search']['value'])) {
 					$search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-					$where .= " AND (nomorTbp LIKE " . $search_value;
-					$where .= " OR keteranganTbp LIKE " . $search_value . ")";
+					$where .= " AND (nomor_tbp LIKE " . $search_value;
+					$where .= " OR keterangan_tbp LIKE " . $search_value . ")";
 				}
 
 				if (!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])) {
-					$where .= $wpdb->prepare(' AND idSkpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
+					$where .= $wpdb->prepare(' AND id_skpd=%s AND tahun_anggaran =%d', $_POST['id_skpd'], $_POST['tahun_anggaran']);
 				}
 
 				// getting total number records without any search
@@ -23704,17 +23698,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($params['length'] != -1) {
 					$limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
 				}
-				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_otorisasi DESC " . $limit;
+				$sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])) . ",  tanggal_tbp DESC " . $limit;
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach ($queryRecords as $recKey => $recVal) {
-					$queryRecords[$recKey]['nomorTbp'] = '<a href="javascript:void(0);" onclick="modalDetailTbp(' . $recVal['idTbp'] . ')">' . $recVal['nomorTbp'] . '</a>';
+					$queryRecords[$recKey]['nomor_tbp'] = '<a href="javascript:void(0);" onclick="modalDetailTbp(' . $recVal['id_tbp'] . ')">' . $recVal['nomor_tbp'] . '</a>';
 
-					$queryRecords[$recKey]['nilaiTbp'] = number_format($recVal['nilaiTbp'], 0, ",", ".");
-					$queryRecords[$recKey]['nilaiDisetujuiTbp'] = number_format($recVal['nilaiDisetujuiTbp'], 0, ",", ".");
+					$queryRecords[$recKey]['nilai_tbp'] = number_format($recVal['nilai_tbp'], 0, ",", ".");
+					$queryRecords[$recKey]['total_pertanggungjawaban'] = number_format($recVal['total_pertanggungjawaban'], 0, ",", ".");
 				}
 
 				$json_data = array(
