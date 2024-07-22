@@ -1083,6 +1083,10 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_copy_data_renstra_lokal',  $plugin_public, 'copy_data_renstra_lokal');
 
+		//AKLAP
+		$this->loader->add_action('wp_ajax_singkron_aklap_lra',  $plugin_public, 'singkron_aklap_lra');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_aklap_lra',  $plugin_public, 'singkron_aklap_lra');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));

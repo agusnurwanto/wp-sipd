@@ -7156,6 +7156,72 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data LRA AKLAP dari SIPD Penatausahaan
+	public function singkron_aklap_lra()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi AKLAP LRA'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("aklap_lra_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['idSkpd']
+					));
+				}
+
+				foreach ($data as $i => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						select 
+							nama_rekening 
+						from aklap_lra_sipd 
+						where nama_rekening=%d 
+							and tahun_anggaran=%d
+						", $v["nama_rekening"], $_POST["tahun_anggaran"]));
+					$opsi = array(						
+						"id_skpd" => $v["id_skpd"],
+						"kode_rekening" => $v["kode_rekening"],
+						"level" => $v["level"],
+						"nama_rekening" => $v["nama_rekening"],
+						"nominal" => $v["nominal"],
+						"presentase" => $v["presentase"],
+						"previous_realisasi" => $v["previous_realisasi"],
+						"realisasi" => $v["realisasi"],
+						"active" => 1,
+						"update_at" => current_time('mysql'),
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					);
+					if (!empty($cek)) {
+						//Update data spm ditable data_spm_sipd
+						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek));
+					} else {
+						//insert data spm ditable data_spm_sipd
+						$wpdb->insert("aklap_lra_sipd", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "APIKEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Gagal, Tidak ada parameter yang dikirim dari Chrome Extension";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data LPJ dari SIPD Penatausahaan
 	public function singkron_lpj_bpp()
 	{

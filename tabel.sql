@@ -178,6 +178,21 @@ CREATE TABLE `data_lpj_sipd_detail_rekening` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `aklap_lra_sipd` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_skpd` int(11) DEFAULT NULL,
+  `kode_rekening` text DEFAULT NULL,
+  `level` text DEFAULT NULL,
+  `nama_rekening` text DEFAULT NULL,  
+  `nominal` double(20,0) DEFAULT NULL,
+  `presentase` double(20,0) DEFAULT NULL,
+  `previous_realisasi` double(20,0) DEFAULT NULL,
+  `realisasi` double(20,0) DEFAULT NULL,  
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_npd_sipd_detail` (
   `id` bigint NOT NULL auto_increment,
   `id_skpd` int,
