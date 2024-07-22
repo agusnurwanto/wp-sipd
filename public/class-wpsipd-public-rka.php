@@ -1606,7 +1606,7 @@ class Wpsipd_Public_RKA
                 }
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -1700,7 +1700,7 @@ class Wpsipd_Public_RKA
                 }
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
                     $ret['status'] = 'error';
@@ -1953,7 +1953,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2078,7 +2078,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2205,7 +2205,7 @@ class Wpsipd_Public_RKA
                 $kode_sbl = $_POST['kode_sbl'];
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2221,26 +2221,23 @@ class Wpsipd_Public_RKA
                     }
                 }
 
-                $data_akun = $wpdb->get_results("
+                $data_akun = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-                        dakun.kode_akun,
-                        dakun.nama_akun 
+                        drka.kode_akun,
+                        drka.nama_akun 
 					FROM data_rka".$prefix." as drka 
-                    LEFT JOIN data_akun as dakun
-                    ON drka.kode_akun=dakun.kode_akun
-					WHERE drka.kode_sbl='".$kode_sbl."'
-						AND drka.tahun_anggaran=".$tahun_anggaran."
+					WHERE drka.kode_sbl=%s
+						AND drka.tahun_anggaran=%d
 						AND drka.active=1
-                        AND dakun.tahun_anggaran=".$tahun_anggaran."
-						AND dakun.active=1
 					GROUP BY drka.kode_akun 
-                    ORDER BY drka.kode_akun ASC"
-				, ARRAY_A);
+                    ORDER BY drka.kode_akun ASC
+                ", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
                 $data_akun_options = '<option value="">Pilih Rekening</option>';
                 foreach ($data_akun as $v_akun) {
                     $data_akun_options .= '<option value="' . $v_akun['kode_akun'] . '">'. $v_akun['kode_akun'] .' ' . $v_akun['nama_akun'] . '</option>';
                 }
+                $ret['sql'] = $wpdb->last_query;
                 $ret['data_akun_html'] = $data_akun_options;
             } else {
                 $ret['status'] = 'error';
@@ -2251,6 +2248,19 @@ class Wpsipd_Public_RKA
             $ret['message'] = 'Format Salah!';
         }
         die(json_encode($ret));
+    }
+
+    function allowed_roles_panjar(){
+        return array(
+            'administrator', 
+            'PA', 
+            'KPA', 
+            'PLT', 
+            'pptk', 
+            'KABID', 
+            'kasubid',
+            'staff'
+        );
     }
 
     function tambah_data_rekening_panjar($return_callback = false) {
@@ -2281,7 +2291,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2316,11 +2326,12 @@ class Wpsipd_Public_RKA
                         $data_akun = $wpdb->get_row($wpdb->prepare('
                             SELECT 
                                 *
-                            FROM data_akun
+                            FROM data_rka
                             WHERE kode_akun=%s
+                                AND kode_sbl=%s
                                 AND tahun_anggaran=%d
                                 AND active=1
-                        ', $data['rekening_akun'][$k_rek_akun], $tahun_anggaran));
+                        ', $data['rekening_akun'][$k_rek_akun], $kode_sbl, $tahun_anggaran));
 
                         if(!empty($data_akun)){
                             $cek_ids = $wpdb->get_results($wpdb->prepare('
@@ -2357,7 +2368,7 @@ class Wpsipd_Public_RKA
                             }
                         }else{
                             $ret['status'] = 'error';
-                            $ret['message'] = 'Data rekening tidak ditemukan!';
+                            $ret['message'] = 'Data rekening '.$data['rekening_akun'][$k_rek_akun].' tidak ditemukan di Sub Kegiatan! kode_sbl='.$kode_sbl;
                         }
                     }
                 }
@@ -2584,7 +2595,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2631,29 +2642,23 @@ class Wpsipd_Public_RKA
                     }
 
                     if($data['set_bku'] == 'keluar'){
-                        $data_akun = $wpdb->get_row($wpdb->prepare('
-                                SELECT 
-                                    *
-                                FROM data_akun
-                                WHERE kode_akun=%s
-                                    AND tahun_anggaran=%d
-                                    AND active=1
-                            ', $data['rekening_akun'], $tahun_anggaran));
+                        $data_npd = $wpdb->get_row($wpdb->prepare("
+                            SELECT 
+                                rnpd.*
+                            FROM 
+                                data_rekening_nota_pencairan_dana as rnpd
+                            WHERE rnpd.id_npd=%d
+                                AND rnpd.tahun_anggaran=%d
+                                AND rnpd.active=1
+                                AND rnpd.kode_rekening=%s
+                        ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']), ARRAY_A);
+                        $data_sisa_pagu_npd = $data_npd['pagu_dana'];
+                        $data_akun = array(
+                            'kode_akun' => $data_npd['kode_rekening'], 
+                            'nama_akun' => str_replace($data_npd['kode_rekening'], '', $data_npd['nama_rekening']) 
+                        );
     
                         if(!empty($data_akun)){
-                            /** Cek sisa pagu rekening di npd */
-                            $data_sisa_pagu_npd = $wpdb->get_var($wpdb->prepare("
-                                SELECT 
-                                    rnpd.pagu_dana as pagu_dana_npd
-                                FROM 
-                                    data_rekening_nota_pencairan_dana as rnpd
-                                WHERE rnpd.id_npd=%d
-                                    AND rnpd.tahun_anggaran=%d
-                                    AND rnpd.active=1
-                                    AND rnpd.kode_rekening=%s
-                            ", $id_npd, $_POST['tahun_anggaran'], $data['rekening_akun']));
-                            /** end of cek */
-                            
                             $set_id_bku = !empty($_POST['id']) ? ' AND id != '.$_POST['id'] : '';
                             $data_total_pagu_bku = $wpdb->get_var($wpdb->prepare("
                                 SELECT 
@@ -2670,7 +2675,7 @@ class Wpsipd_Public_RKA
 
                             if($total_pagu_bku > $data_sisa_pagu_npd){
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Data pagu melebihi data pagu di Nota Pencairan Dana di rekening '. $data_akun->kode_akun .' '.$data_akun->nama_akun.'!';  
+                                $ret['message'] = 'Data pagu BKU '.$this->_number_format($total_pagu_bku).' melebihi data pagu di Nota Pencairan Dana sebesar '.$this->_number_format($data_sisa_pagu_npd).' di rekening '. $data_akun['kode_akun'] .' '.$data_akun['nama_akun'].'!';  
                                 die(json_encode($ret));
                             }
     
@@ -2681,8 +2686,8 @@ class Wpsipd_Public_RKA
                                 'tipe' => $tipe_jenis_bku,
                                 'uraian' => $data['uraian_bku'],
                                 'pagu' => $data['pagu_bku'],
-                                'kode_rekening' => $data_akun->kode_akun,
-                                'nama_rekening' => $data_akun->nama_akun,
+                                'kode_rekening' => $data_akun['kode_akun'],
+                                'nama_rekening' => $data_akun['nama_akun'],
                                 'id_npd' => $id_npd,
                                 'tanggal_bkup' => $tanggal,
                                 'tahun_anggaran' => $tahun_anggaran,
@@ -2840,7 +2845,7 @@ class Wpsipd_Public_RKA
                 $id_npd = $_POST['kode_npd'];
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2849,26 +2854,22 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
-                // $data_akun = array();
-                // if(!empty($data_rekening_npd)){
-                    $data_akun = $wpdb->get_results("
-                        SELECT 
-                            dakun.kode_akun,
-                            dakun.nama_akun 
-                        FROM data_rekening_nota_pencairan_dana as daker
-                        LEFT JOIN data_akun as dakun
-                        ON daker.kode_rekening = dakun.kode_akun
-                        WHERE daker.id_npd=". $id_npd ."
-                            AND dakun.tahun_anggaran=". $tahun_anggaran ."
-                            AND dakun.active=1
-                        GROUP BY dakun.kode_akun
-                        ORDER BY dakun.kode_akun ASC"
-                    , ARRAY_A);
-                // }
+                $data_akun = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        daker.kode_rekening,
+                        daker.nama_rekening 
+                    FROM data_rekening_nota_pencairan_dana as daker
+                    WHERE daker.id_npd=%d
+                        AND daker.tahun_anggaran=%d
+                        AND daker.active=1
+                    GROUP BY daker.kode_rekening
+                    ORDER BY daker.kode_rekening ASC
+                ", $id_npd, $tahun_anggaran), ARRAY_A);
 
                 $data_akun_options = '<option value="">Pilih Rekening</option>';
                 foreach ($data_akun as $v_akun) {
-                    $data_akun_options .= '<option value="' . $v_akun['kode_akun'] . '">'. $v_akun['kode_akun'] .' ' . $v_akun['nama_akun'] . '</option>';
+                    $v_akun['nama_rekening'] = str_replace($v_akun['kode_rekening'], '', $v_akun['nama_rekening']);
+                    $data_akun_options .= '<option value="' . $v_akun['kode_rekening'] . '">'. $v_akun['kode_rekening'] .' ' . $v_akun['nama_rekening'] . '</option>';
                 }
                 $ret['data_akun_html'] = $data_akun_options;
             } else {
@@ -2942,7 +2943,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -2995,7 +2996,7 @@ class Wpsipd_Public_RKA
 
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
-                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
@@ -3009,20 +3010,16 @@ class Wpsipd_Public_RKA
                         SELECT 
                             rnpd.pagu_dana as pagu_dana_npd, 
                             SUM(bku.pagu) as total_pagu_bku
-                        FROM 
-                            data_rekening_nota_pencairan_dana as rnpd
-                        LEFT JOIN 
-                            data_buku_kas_umum_pembantu as bku
-                        ON 
-                            rnpd.kode_rekening=bku.kode_rekening
+                        FROM data_rekening_nota_pencairan_dana as rnpd
+                        LEFT JOIN data_buku_kas_umum_pembantu as bku ON rnpd.kode_rekening=bku.kode_rekening
+                            AND bku.id_npd=rnpd.id_npd
+                            AND bku.tahun_anggaran=rnpd.tahun_anggaran
+                            AND bku.active=rnpd.active
                         WHERE rnpd.id_npd=%d
                             AND rnpd.tahun_anggaran=%d
                             AND rnpd.active=1
-                            AND bku.id_npd=%d
-                            AND bku.tahun_anggaran=%d
-                            AND bku.active=1
-                            AND bku.kode_rekening=%s
-                    ", $_POST['kode_npd'], $_POST['tahun_anggaran'], $_POST['kode_npd'], $_POST['tahun_anggaran'], $_POST['kode_rekening']));
+                            AND rnpd.kode_rekening=%s
+                    ", $_POST['kode_npd'], $_POST['tahun_anggaran'], $_POST['kode_rekening']));
 
                     if(!empty($data_sisa_pagu_npd)){
                         $ret['data'] = $data_sisa_pagu_npd;

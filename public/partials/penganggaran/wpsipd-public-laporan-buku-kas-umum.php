@@ -240,6 +240,7 @@ if ($data_rfk) {
     });
 
     function load_data() {
+        jQuery('#wrap-loading').show();
         jQuery.ajax({
             type: 'POST',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -280,6 +281,7 @@ if ($data_rfk) {
     function get_data_akun_rka_per_npd() {
         return new Promise(function(resolve, reject){
             if(typeof dataAkun == 'undefined'){
+                jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     type: "post",
@@ -292,6 +294,7 @@ if ($data_rfk) {
                     },
                     dataType: "json",
                     success: function(data) {
+                        jQuery('#wrap-loading').hide();
                         window.dataAkun = data;
                         // menampilkan popup
                         if (data.status == 'success') {

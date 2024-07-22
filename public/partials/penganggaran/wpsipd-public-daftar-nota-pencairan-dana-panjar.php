@@ -540,6 +540,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
     function get_data_akun_rka_per_sub_keg() {
         return new Promise(function(resolve, reject){
             if(typeof dataRekening == 'undefined'){
+                jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     type: "post",
@@ -551,6 +552,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                     },
                     dataType: "json",
                     success: function(data) {
+                        jQuery('#wrap-loading').hide();
                         window.dataRekening = data;
                         // menampilkan popup
                         if (data.status == 'success') {
@@ -569,6 +571,7 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
     }
 
     function load_data() {
+        jQuery('#wrap-loading').show();
         jQuery.ajax({
 			type: 'POST',
 			url: '<?php echo admin_url('admin-ajax.php'); ?>',

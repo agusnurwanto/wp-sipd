@@ -107,139 +107,79 @@ if ($data_rfk) {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
+$total_pagu_npd = 0;
+$data_pagu_npd = $wpdb->get_var($wpdb->prepare("
+        SELECT
+            SUM(pagu_dana) as total_pagu
+        FROM data_rekening_nota_pencairan_dana
+        WHERE kode_sbl = %s
+        AND tahun_anggaran = %d
+        AND active = 1
+    ", $input['kode_sbl'], $input['tahun_anggaran']));
 
-    // $data_npd = $wpdb->get_results($wpdb->prepare("
-    //     SELECT 
-    //         DISTINCT id
-    //     FROM data_nota_pencairan_dana
-    //     WHERE kode_sbl = %s 
-    //         AND tahun_anggaran = %d
-    //         AND active = 1
-    //         ", $input['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+if(!empty($data_pagu_npd)){
+    $total_pagu_npd = $data_pagu_npd;
+}
 
-    
-    // if(!empty($data_npd)){
-    //     foreach ($data_npd as $v_npd) {
-            /** untuk mendapatkan total pagu di NPD */
-            $total_pagu_npd = 0;
-            $data_pagu_npd = $wpdb->get_var($wpdb->prepare("
-                    SELECT
-                        SUM(pagu_dana) as total_pagu
-                    FROM data_rekening_nota_pencairan_dana
-                    WHERE kode_sbl = %s
-                    AND tahun_anggaran = %d
-                    AND active = 1
-                ", $input['kode_sbl'], $input['tahun_anggaran']));
+if($set_bulan <= 9){
+    $set_bulan = '0'.$set_bulan;
+}
+$bulan_terpilih = $input['tahun_anggaran'].'-'.$set_bulan.'-%';
+$bulan_terpilih_2 = date('Y').'-'.$set_bulan.'-%';
+/** Untuk menampilkan data bku */
+$data_bku = $wpdb->get_results($wpdb->prepare("
+    SELECT 
+        *
+    FROM data_buku_kas_umum_pembantu
+    WHERE kode_sbl = %s
+        AND tahun_anggaran = %d
+        AND active = 1
+        AND (
+            tanggal_bkup like %s
+            OR tanggal_bkup like %s
+        )
+        ORDER BY tanggal_bkup
+", $input['kode_sbl'], $input['tahun_anggaran'], $bulan_terpilih, $bulan_terpilih_2), ARRAY_A);
 
-            if(!empty($data_pagu_npd)){
-                $total_pagu_npd = $data_pagu_npd;
-            }
+$html = '';
+$uraian = '-';
+$id_penerimaan = 0;
+$total_pagu_npd_sekarang = $total_pagu_npd;
+$total_pengeluaran = 0;
+if(!empty($data_bku)){
+    foreach ($data_bku as $v_bku) {
+        $tanggal =  date_format(date_create($v_bku['tanggal_bkup']),"d/m/Y");
+        $uraian = (!empty($v_bku['uraian'])) ? $v_bku['uraian'] : '-';
+        if($v_bku['tipe'] == 'penerimaan'){
 
-            $bulan_terpilih = $input['tahun_anggaran'].'-'.$set_bulan;
-            /** Untuk menampilkan data bku */
-            $data_bku = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    *
-                FROM data_buku_kas_umum_pembantu
-                WHERE kode_sbl = %s
-                    AND tahun_anggaran = %d
-                    AND active = 1
-                    AND DATE_FORMAT(tanggal_bkup,'%Y-%m') = %s
-                    ORDER BY tanggal_bkup", $input['kode_sbl'], $input['tahun_anggaran'],$bulan_terpilih), ARRAY_A);
+            $html .= '
+                <tr>
+                    <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
+                    <td class="kanan bawah text-center"></td>
+                    <td class="kanan bawah text-left">'. $uraian .'</td>
+                    <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
+                    <td class="kanan bawah text-right"></td>
+                    <td class="kanan bawah text-right">0</td>
+                </tr>';
+        }else{
+            $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
+            $total_pagu_npd_sekarang = $saldo;
+            $html .= '
+                <tr>
+                    <td class="kanan bawah kiri text-center id-npd-'.$v_bku['id'].'">'. $tanggal .'</td>
+                    <td class="kanan bawah text-center">'. $v_bku['nomor_bukti'] .'</td>
+                    <td class="kanan bawah text-left">'. $uraian .'</td>
+                    <td class="kanan bawah text-right"></td>
+                    <td class="kanan bawah text-right">'. number_format($v_bku['pagu'], 0, ",", ".") .'</td>
+                    <td class="kanan bawah text-right">'. number_format($saldo, 0, ",", ".") .'</td>
+                </tr>';
 
-            $html = '';
-            $uraian = '-';
-            $id_penerimaan = 0;
-            $total_pagu_npd_sekarang = $total_pagu_npd;
-            $total_pengeluaran = 0;
-            if(!empty($data_bku)){
-                foreach ($data_bku as $v_bku) {
-                    $tanggal =  date_format(date_create($v_bku['tanggal_bkup']),"d/m/Y");
-                    $uraian = (!empty($v_bku['uraian'])) ? $v_bku['uraian'] : '-';
-                    if($v_bku['tipe'] == 'penerimaan'){
+            $total_pengeluaran += $v_bku['pagu'];
+        }
+    }
+}
 
-                        $html .= '
-                            <tr>
-                                <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
-                                <td class="kanan bawah text-center"></td>
-                                <td class="kanan bawah text-left">'. $uraian .'</td>
-                                <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
-                                <td class="kanan bawah text-right"></td>
-                                <td class="kanan bawah text-right">0</td>
-                            </tr>';
-                    }else{
-                        $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
-                        $total_pagu_npd_sekarang = $saldo;
-                        $html .= '
-                            <tr>
-                                <td class="kanan bawah kiri text-center id-npd-'.$v_bku['id'].'">'. $tanggal .'</td>
-                                <td class="kanan bawah text-center">'. $v_bku['nomor_bukti'] .'</td>
-                                <td class="kanan bawah text-left">'. $uraian .'</td>
-                                <td class="kanan bawah text-right"></td>
-                                <td class="kanan bawah text-right">'. number_format($v_bku['pagu'], 0, ",", ".") .'</td>
-                                <td class="kanan bawah text-right">'. number_format($saldo, 0, ",", ".") .'</td>
-                            </tr>';
-
-                        $total_pengeluaran += $v_bku['pagu'];
-                    }
-                }
-            }
-        
-            // $uraian = '-';
-            // $id_penerimaan = 0;
-            // if(!empty($data_bku_penerimaan)){
-            //     $uraian = $data_bku_penerimaan['uraian'];
-            //     $id_penerimaan = $data_bku_penerimaan['id'];
-            // }
-
-            // $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
-            // $html .= '
-            //     <tr>
-            //         <td class="kanan bawah kiri text-center id-npd">-</td>
-            //         <td class="kanan bawah text-center"></td>
-            //         <td class="kanan bawah text-left">'. $uraian .'</td>
-            //         <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
-            //         <td class="kanan bawah text-right"></td>
-            //         <td class="kanan bawah text-right">0</td>
-            //     </tr>';
-
-
-
-            /** Untuk menampilkan kolom pengeluaran */
-            // $data_bku_pengeluaran = $wpdb->get_row($wpdb->prepare("
-            //     SELECT 
-            //         *
-            //     FROM data_buku_kas_umum_pembantu
-            //     WHERE id_npd=%d
-            //         AND kode_sbl = %s
-            //         AND tahun_anggaran = %d
-            //         AND active = 1
-            //         AND tipe=%s",$v_npd['id'], $input['kode_sbl'], $input['tahun_anggaran'],'pengeluaran'), ARRAY_A);
-
-            // if(!empty($data_bku_pengeluaran)){
-            //     print_r($data_bku_pengeluaran);
-            //     die()
-            //     // foreach ($data_bku_pengeluaran as $v_pengeluaran) {
-            //     //     $saldo = $total_pagu_npd_sekarang - $v_pengeluaran['pagu'];
-            //     //             $total_pagu_npd_sekarang = $saldo;
-            //     //             $tanggal =  date_format(date_create($v_pengeluaran['tanggal_bkup']),"d/m/Y");
-            //     //             $html .= '
-            //     //                 <tr>
-            //     //                     <td class="kanan bawah kiri text-center id-npd-'.$v_pengeluaran['id'].'">'. $tanggal .'</td>
-            //     //                     <td class="kanan bawah text-center">'. $v_pengeluaran['nomor_bukti'] .'</td>
-            //     //                     <td class="kanan bawah text-left">'. $v_pengeluaran['uraian'] .'</td>
-            //     //                     <td class="kanan bawah text-right"></td>
-            //     //                     <td class="kanan bawah text-right">'. number_format($v_pengeluaran['pagu'], 0, ",", ".") .'</td>
-            //     //                     <td class="kanan bawah text-right">'. number_format($saldo, 0, ",", ".") .'</td>
-            //     //                 </tr>';
-            //     //             $total_pengeluaran += $v_bku['pagu'];
-            //     // }
-            // }
-        
-        // }
-    // }
-
-    $nama_pemda = get_option('_crb_daerah');
+$nama_pemda = get_option('_crb_daerah');
 ?>
 <style>
     .modal-content label:after {
