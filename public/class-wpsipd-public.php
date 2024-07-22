@@ -7178,7 +7178,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					$wpdb->update("aklap_lra_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"id_skpd" => $_POST['idSkpd']
+						"id_skpd" => $_POST['id_skpd']
 					));
 				}
 
@@ -7191,6 +7191,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							and tahun_anggaran=%d
 						", $v["nama_rekening"], $_POST["tahun_anggaran"]));
 					$opsi = array(						
+						"id_daerah" => $_POST["id_daerah"],
 						"id_skpd" => $v["id_skpd"],
 						"kode_rekening" => $v["kode_rekening"],
 						"level" => $v["level"],
