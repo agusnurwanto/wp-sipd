@@ -59,7 +59,7 @@ class Wpsipd_Public_RKA
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-4.php';
     }
 
     public function rekap_longlist_per_jenis_belanja_all_skpd($atts)

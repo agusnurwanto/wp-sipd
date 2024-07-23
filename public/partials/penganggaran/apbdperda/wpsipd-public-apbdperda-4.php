@@ -313,8 +313,8 @@ foreach ($data_skpd as $skpd) {
                     <td>' . '</td>
                     <td>' . '</td>
                     <td colspan="8">' . $skpd['nama'] . '</td>
-                    <td class="text-right">' . '</td>
-                    <td class="text-right">' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
                 </tr>';
         } else {
             $body .= '
@@ -322,8 +322,13 @@ foreach ($data_skpd as $skpd) {
                     <td>' . '</td>
                     <td>' . '</td>
                     <td colspan="8">' . $skpd['nama'] . '</td>
-                    <td class="text-right">' . '</td>
-                    <td class="text-right">' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
             </tr>';
         }
         foreach ($skpd['data'] as $program) {
@@ -357,6 +362,11 @@ foreach ($data_skpd as $skpd) {
                         <td>' . '</td>
                         <td>' . $program['kode'] . '</td>
                         <td>' . $program['nama'] . '</td>
+                        <td>' . $indikator . '</td>
+                        <td>' . $target . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
                         <td>' . '</td>
                         <td>' . '</td>
                         <td>' . '</td>
@@ -369,14 +379,22 @@ foreach ($data_skpd as $skpd) {
                     </tr>';
             }
             foreach ($program['data'] as $kegiatan) {
+                $indikator = array();
+                $target = array();
+                foreach ($kegiatan['indikator_giat'] as $ind) {
+                    $indikator[] = $ind['outputteks'];
+                    $target[] = $ind['targetoutputteks'];
+                }
+                $indikator = implode('<br>', $indikator);
+                $target = implode('<br>', $target);
                 if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                     $body .= '
                         <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
                             <td class="text-center">' . $counter . '</td>
                             <td>' . $kegiatan['kode'] . '</td>
                             <td>' . $kegiatan['nama'] . '</td>
-                            <td>' . '</td>
-                            <td>' . '</td>
+                            <td>' . $indikator . '</td>
+                            <td>' . $target . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
@@ -467,8 +485,8 @@ foreach ($data_skpd as $skpd) {
                                 <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
-                                <td>' . '</td>
-                                <td>' . '</td>
+                                <td>' . $indikator . '</td>
+                                <td>' . $target . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
@@ -479,7 +497,7 @@ foreach ($data_skpd as $skpd) {
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . '</td>
+                                <td>' . $lokasi . '</td>
                                 <td>' . $sumber_dana . '</td>
                             </tr>
                         ';
@@ -497,23 +515,35 @@ foreach ($data_skpd as $skpd) {
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th class="text-center align-middle" rowspan="5">No</th>
-                    <th class="text-center align-middle" rowspan="5">Kode</th>
-                    <th class="text-center align-middle" rowspan="5">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
-                    <th class="text-center align-middle" rowspan="5">Indikator Program / Kegiatan / Sub Kegiatan</th>
-                </tr>
-                <tr>
+                    <th class="text-center align-middle" rowspan="4">No</th>
+                    <th class="text-center align-middle" rowspan="4">Kode</th>
+                    <th class="text-center align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
+                    <th class="text-center align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                    <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
+                <?php else: ?>
                     <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
+                <?php endif; ?>
                 </tr>
                 <tr>
                     <th class="text-center align-middle" rowspan="3">Target 2024</th>
                 </tr>
                 <tr>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
+                <?php endif; ?>
                     <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
                     <th class="text-center align-middle" rowspan="2">Lokasi</th>
                     <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
                 </tr>
                 <tr>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                    <th class="text-center align-middle">Operasi</th>
+                    <th class="text-center align-middle">Modal</th>
+                    <th class="text-center align-middle">Tidak Terduga</th>
+                    <th class="text-center align-middle">Transfer</th>
+                    <th class="text-center align-middle">Total</th>
+                <?php endif; ?>
                     <th class="text-center align-middle">Operasi</th>
                     <th class="text-center align-middle">Modal</th>
                     <th class="text-center align-middle">Tidak Terduga</th>
@@ -533,6 +563,13 @@ foreach ($data_skpd as $skpd) {
                     <th class="text-center" style="font-size:small;line-height:0pt">10</th>
                     <th class="text-center" style="font-size:small;line-height:0pt">11</th>
                     <th class="text-center" style="font-size:small;line-height:0pt">12</th>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                    <th class="text-center" style="font-size:small;line-height:0pt">13</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">14</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">15</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">16</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">17</th>
+                <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -541,7 +578,7 @@ foreach ($data_skpd as $skpd) {
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-center">Total</th>
-                    <?php if ($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil') : ?>
+                    <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
                         <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
                         <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
                         <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
@@ -553,6 +590,7 @@ foreach ($data_skpd as $skpd) {
                     <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
                     <th class="text-right"><?php echo $this->_number_format($total_transfer); ?></th>
                     <th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
+                    <th colspan="2"></th>
                 </tr>
             </tfoot>
         </table>

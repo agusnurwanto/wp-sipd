@@ -3,17 +3,21 @@
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
+global $wpdb;
 global $total_belanja_murni;
 global $total_belanja;
 global $total_pendapatan_murni;
 global $total_pendapatan;
+
+if(empty($input['id_skpd'])){
+    die('<h1 class="text-center">ID SKPD tidak boleh kosong!</h1>');
+}
 
 $total_belanja_murni = 0;
 $total_belanja = 0;
 $total_pendapatan_murni = 0;
 $total_pendapatan = 0;
 
-// function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
 function generate_body($rek_pendapatan, $nama_table, $type='murni'){
     global $wpdb;
     global $total_belanja_murni;
@@ -522,14 +526,16 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni'){
         $total_belanja_murni = $data_pendapatan['totalmurni'];
     }
     return $body_pendapatan;
-
-    
-
 }
 
-global $wpdb;
-// $skpd = $wpdb->get_row('SELECT * FROM `data_unit` where id_skpd='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
-$skpd = $wpdb->get_row('SELECT * FROM `data_unit` where tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+$skpd = $wpdb->get_row($wpdb->prepare('
+    SELECT 
+        * 
+    FROM `data_unit` 
+    where tahun_anggaran=%d
+        and id_skpd=1
+        and active=1
+', $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
 $kode = explode('.', $skpd['kode_skpd']);
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
