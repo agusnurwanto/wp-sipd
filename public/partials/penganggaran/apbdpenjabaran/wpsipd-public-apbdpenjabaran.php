@@ -624,10 +624,33 @@ $body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pe
 
 $nama_skpd = "";
 $options_skpd = array();
-$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
+$unit = $wpdb->get_results($wpdb->prepare("
+    SELECT 
+        nama_skpd, 
+        id_skpd, 
+        kode_skpd, 
+        nipkepala 
+    from data_unit 
+    where active=1 
+        and tahun_anggaran=%d 
+        and is_skpd=1 
+    order by kode_skpd ASC
+", $input['tahun_anggaran']), ARRAY_A);
 foreach ($unit as $kk => $vv) {
     $options_skpd[] = $vv;
-    $subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
+    $subunit = $wpdb->get_results($wpdb->prepare("
+        SELECT 
+            nama_skpd, 
+            id_skpd, 
+            kode_skpd, 
+            nipkepala 
+        from data_unit 
+        where active=1 
+            and tahun_anggaran=%d 
+            and is_skpd=0 
+            and id_unit=%d 
+        order by kode_skpd ASC
+    ", $input['tahun_anggaran'], $vv["id_skpd"]), ARRAY_A);
     if($input['id_skpd'] == $vv['id_skpd']){
         $nama_skpd = '<br>'.$vv['kode_skpd'].' '.$vv['nama_skpd'];
     }
@@ -792,9 +815,9 @@ foreach ($unit as $kk => $vv) {
     window.dari_simda = url.searchParams.get("dari_simda");
     window.id_skpd = url.searchParams.get("id_skpd");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 1</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 1</a>';
     }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 1</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 1</a>';
     }
     var text = 'Nilai pagu murni dari database SIMDA'
     extend_action += '<div style="margin-top: 15px">';
