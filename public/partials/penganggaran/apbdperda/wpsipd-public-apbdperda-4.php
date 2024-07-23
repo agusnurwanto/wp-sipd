@@ -508,93 +508,91 @@ foreach ($data_skpd as $skpd) {
     }
 }
 ?>
-
-<body>
-    <div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
-        <h2 class="text-center"><?php echo $nama_excel ?></h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th class="text-center align-middle" rowspan="4">No</th>
-                    <th class="text-center align-middle" rowspan="4">Kode</th>
-                    <th class="text-center align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
-                    <th class="text-center align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
-                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                    <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
-                <?php else: ?>
-                    <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
+<div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
+    <h2 class="text-center"><?php echo $nama_excel ?></h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center align-middle" rowspan="4">No</th>
+                <th class="text-center align-middle" rowspan="4">Kode</th>
+                <th class="text-center align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
+                <th class="text-center align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
+            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
+            <?php else: ?>
+                <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
+            <?php endif; ?>
+            </tr>
+            <tr>
+                <th class="text-center align-middle" rowspan="3">Target 2024</th>
+            </tr>
+            <tr>
+            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
+            <?php endif; ?>
+                <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
+                <th class="text-center align-middle" rowspan="2">Lokasi</th>
+                <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
+            </tr>
+            <tr>
+            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                <th class="text-center align-middle">Operasi</th>
+                <th class="text-center align-middle">Modal</th>
+                <th class="text-center align-middle">Tidak Terduga</th>
+                <th class="text-center align-middle">Transfer</th>
+                <th class="text-center align-middle">Total</th>
+            <?php endif; ?>
+                <th class="text-center align-middle">Operasi</th>
+                <th class="text-center align-middle">Modal</th>
+                <th class="text-center align-middle">Tidak Terduga</th>
+                <th class="text-center align-middle">Transfer</th>
+                <th class="text-center align-middle">Total</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="font-size:small;line-height:0pt">1</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">2</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">3</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">4</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">5</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">6</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">7</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">8</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">9</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">10</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">11</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">12</th>
+            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
+                <th class="text-center" style="font-size:small;line-height:0pt">13</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">14</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">15</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">16</th>
+                <th class="text-center" style="font-size:small;line-height:0pt">17</th>
+            <?php endif; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php echo $body; ?>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="5" class="text-center">Total</th>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
+                    <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
                 <?php endif; ?>
-                </tr>
-                <tr>
-                    <th class="text-center align-middle" rowspan="3">Target 2024</th>
-                </tr>
-                <tr>
-                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
-                <?php endif; ?>
-                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
-                    <th class="text-center align-middle" rowspan="2">Lokasi</th>
-                    <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
-                </tr>
-                <tr>
-                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                    <th class="text-center align-middle">Operasi</th>
-                    <th class="text-center align-middle">Modal</th>
-                    <th class="text-center align-middle">Tidak Terduga</th>
-                    <th class="text-center align-middle">Transfer</th>
-                    <th class="text-center align-middle">Total</th>
-                <?php endif; ?>
-                    <th class="text-center align-middle">Operasi</th>
-                    <th class="text-center align-middle">Modal</th>
-                    <th class="text-center align-middle">Tidak Terduga</th>
-                    <th class="text-center align-middle">Transfer</th>
-                    <th class="text-center align-middle">Total</th>
-                </tr>
-                <tr>
-                    <th class="text-center" style="font-size:small;line-height:0pt">1</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">2</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">3</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">4</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">5</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">6</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">7</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">8</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">9</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">10</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">11</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">12</th>
-                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                    <th class="text-center" style="font-size:small;line-height:0pt">13</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">14</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">15</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">16</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">17</th>
-                <?php endif; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php echo $body; ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="5" class="text-center">Total</th>
-                    <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                        <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
-                        <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
-                        <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
-                        <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
-                        <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
-                    <?php endif; ?>
-                    <th class="text-right"><?php echo $this->_number_format($total_operasi); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_modal); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_transfer); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
-                    <th colspan="2"></th>
-                </tr>
-            </tfoot>
-        </table>
-</body>
+                <th class="text-right"><?php echo $this->_number_format($total_operasi); ?></th>
+                <th class="text-right"><?php echo $this->_number_format($total_modal); ?></th>
+                <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
+                <th class="text-right"><?php echo $this->_number_format($total_transfer); ?></th>
+                <th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
+                <th colspan="2"></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 <script type="text/javascript">
     jQuery(document).ready(function() {
         run_download_excel();
