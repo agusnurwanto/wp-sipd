@@ -186,7 +186,7 @@ CREATE TABLE `aklap_lra_sipd` (
   `level` text DEFAULT NULL,
   `nama_rekening` text DEFAULT NULL,  
   `nominal` double(20,0) DEFAULT NULL,
-  `presentase` double(20,0) DEFAULT NULL,
+  `presentase` double(20,10) DEFAULT NULL,
   `previous_realisasi` double(20,0) DEFAULT NULL,
   `realisasi` double(20,0) DEFAULT NULL,  
   `active` tinyint(4) NOT NULL,
