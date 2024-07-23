@@ -238,10 +238,12 @@ $body = '';
 						<option value="penetapan">Penetapan</option>
 					</select>
 				</div>
+			<?php endif; ?>
 				<div class="mt-3 form-input">
 					<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
 					<label for="pergeseran_renja" style="display: inline-block;">Pergeseran/Perubahan</label>
 				</div>
+			<?php if($tipe_perencanaan == 'renja'): ?>
 				<div>
 					<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:inline-block'>Pilih Jadwal RENJA Pergeseran</label>
 					<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:block;width: 100%;'>
@@ -424,13 +426,13 @@ $body = '';
 			let relasi_perencanaan = '';
 			let pergeseran_renja = '';
 			let id_jadwal_pergeseran_renja = false;
+			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
 		<?php if($tipe_perencanaan == 'renja'): ?>
 			jenis_jadwal = jQuery("#jenis_jadwal").val();
 			if(jenis_jadwal == ''){
 				return alert('Jenis jadwal tidak boleh kosong!');
 			}
 			relasi_perencanaan = jQuery("#link_renstra").val();
-			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
 			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
 			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
 				return alert("Jadwal Renja Pergeseran harus dipilih!");
@@ -530,13 +532,13 @@ $body = '';
 			let relasi_perencanaan = '';
 			let pergeseran_renja = '';
 			let id_jadwal_pergeseran_renja = false;
+			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
 		<?php if($tipe_perencanaan == 'renja'): ?>
 			jenis_jadwal = jQuery("#jenis_jadwal").val();
 			if(jenis_jadwal == ''){
 				return alert('Jenis jadwal tidak boleh kosong!');
 			}
 			relasi_perencanaan = jQuery("#link_renstra").val();
-			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
 			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
 			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
 				return alert("Jadwal Renja Pergeseran harus dipilih!");

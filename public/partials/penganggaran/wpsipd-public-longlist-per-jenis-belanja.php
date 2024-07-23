@@ -393,7 +393,7 @@ foreach ($data_all as $skpd) {
 }
 ?>
 <div class="print-btn text-center" style="margin-bottom: 20px;">
-    <button class="btn btn-lg btn-info" onclick="printPage()">
+    <button class="btn btn-info" onclick="printPage()">
         <i class="dashicons dashicons-printer"></i> Print
     </button>
 </div>
