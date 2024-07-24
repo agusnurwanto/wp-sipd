@@ -189,6 +189,8 @@ CREATE TABLE `aklap_lra_sipd` (
   `presentase` double(20,10) DEFAULT NULL,
   `previous_realisasi` double(20,0) DEFAULT NULL,
   `realisasi` double(20,0) DEFAULT NULL,  
+  `mulai_tgl` date NOT NULL,
+  `sampai_tgl` date NOT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,

@@ -7201,7 +7201,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"presentase" => $v["presentase"],
 						"previous_realisasi" => $v["previous_realisasi"],
 						"realisasi" => $v["realisasi"],
-						"active" => 1,
+						"mulai_tgl" => $_POST["mulai_tgl"],
+						"sampai_tgl" => $_POST["sampai_tgl"],
+						"active" => 1,						
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
