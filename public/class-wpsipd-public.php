@@ -7191,7 +7191,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							and level=%d
 							and tahun_anggaran=%d
 						", $v["nama_rekening"], $v["level"], $_POST["tahun_anggaran"]));
-					$opsi = array(						
+					$opsi = array(
 						"id_daerah" => $_POST["id_daerah"],
 						"id_skpd" => $v["id_skpd"],
 						"kode_rekening" => $v["kode_rekening"],
@@ -7203,13 +7203,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"realisasi" => $v["realisasi"],
 						"mulai_tgl" => $_POST["mulai_tgl"],
 						"sampai_tgl" => $_POST["sampai_tgl"],
-						"active" => 1,						
+						"active" => 1,
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"],"tahun_anggaran" => $_POST["tahun_anggaran"]));
+						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"], "tahun_anggaran" => $_POST["tahun_anggaran"]));
 					} else {
 						//insert data spm ditable data_spm_sipd
 						$wpdb->insert("aklap_lra_sipd", $opsi);
@@ -16818,84 +16818,111 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if (!empty($sqlTipe)) {
 						switch ($tipe_perencanaan) {
 							case 'monev_rpjmd':
-							case 'monev_renja':
-								if (!empty($nama) && !empty($tahun_anggaran) && !empty($lama_pelaksanaan)) {
-									if ($tipe_perencanaan === 'monev_rpjmd') {
-										// Tambah Jadwal Monev RPJM RENSTRA
-										if (empty($jenis_jadwal) || empty($tahun_akhir_anggaran)) {
-											$return = [
-												'status'    => 'error',
-												'message'   => 'Harap diisi semua , tidak boleh ada yang kosong!'
-											];
-											die(json_encode($return));
-										}
-										// $cek_jadwal_terbuka = $wpdb->get_var(
-										// 	$wpdb->prepare('
-										// 		SELECT 
-										// 			status
-										// 		FROM data_jadwal_lokal
-										// 		WHERE id_tipe = %d
-										// 		  AND status = %d
-										// 	', 17, 0)
-										// );
-										// if (!empty($cek_jadwal_terbuka)) {
-										// 	$return = [
-										// 		'status'    => 'error',
-										// 		'message'   => 'GAGAL! Masih terdapat jadwal terbuka!'
-										// 	];
-										// 	die(json_encode($return));
-										$data_jadwal_rpjm = [
-											'nama'                 => $nama,
-											'tahun_anggaran'       => $tahun_anggaran,
-											'relasi_perencanaan'   => $relasi_perencanaan,
-											'id_tipe'  			   => $sqlTipe[0]['id'],
-											'lama_pelaksanaan'     => $lama_pelaksanaan,
-											'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
-											'jenis_jadwal'    	   => $jenis_jadwal,
-											'status'               => 0,
-										];
-										$wpdb->insert('data_jadwal_lokal', $data_jadwal_rpjm);
-										$id_jadwal_rpjmd_baru = $wpdb->insert_id;
+								if (
+									!empty($nama)
+									&& !empty($tahun_anggaran)
+									&& !empty($lama_pelaksanaan)
+									&& !empty($jenis_jadwal)
+									&& !empty($tahun_akhir_anggaran)
+								) {
+									// Tambah Jadwal Monev RPJM RENSTRA
 
-										$data_jadwal_renstra = [
-											'nama'                 => 'Jadwal Renstra' . ' ' . $nama,
-											'tahun_anggaran'       => $tahun_anggaran,
-											'relasi_perencanaan'   => $id_jadwal_rpjmd_baru,
-											'id_tipe'  			   => 15,
-											'lama_pelaksanaan'     => $lama_pelaksanaan,
-											'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
-											'status'               => 0,
-										];
-										$wpdb->insert('data_jadwal_lokal', $data_jadwal_renstra);
+									// $cek_jadwal_terbuka = $wpdb->get_var(
+									// 	$wpdb->prepare('
+									// 		SELECT 
+									// 			status
+									// 		FROM data_jadwal_lokal
+									// 		WHERE id_tipe = %d
+									// 		  AND status = %d
+									// 	', 17, 0)
+									// );
+									// if (!empty($cek_jadwal_terbuka)) {
+									// 	$return = [
+									// 		'status'    => 'error',
+									// 		'message'   => 'GAGAL! Masih terdapat jadwal terbuka!'
+									// 	];
+									// 	die(json_encode($return));
+									$data_jadwal_rpjm = [
+										'nama'                 => $nama,
+										'tahun_anggaran'       => $tahun_anggaran,
+										'relasi_perencanaan'   => $relasi_perencanaan,
+										'id_tipe'  			   => $sqlTipe[0]['id'],
+										'lama_pelaksanaan'     => $lama_pelaksanaan,
+										'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
+										'jenis_jadwal'    	   => $jenis_jadwal,
+										'status'               => 0,
+									];
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal_rpjm);
+									$id_jadwal_rpjmd_baru = $wpdb->insert_id;
 
-										$return = [
-											'status'        => 'success',
-											'message'       => 'Berhasil Tambah Jadwal Monev RPJMD dan RENSTRA!',
-										];
-									} else {
-										// Tambah Jadwal Monev Renja
-										$data_jadwal = [
-											'nama'                 => $nama,
-											'tahun_anggaran'       => $tahun_anggaran,
-											'relasi_perencanaan'   => $relasi_perencanaan,
-											'id_tipe'  			   => $sqlTipe[0]['id'],
-											'lama_pelaksanaan'     => 1,
-											'status'               => 0,
-										];
-										$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+									$data_jadwal_renstra = [
+										'nama'                 => 'Jadwal Renstra' . ' ' . $nama,
+										'tahun_anggaran'       => $tahun_anggaran,
+										'relasi_perencanaan'   => $id_jadwal_rpjmd_baru,
+										'id_tipe'  			   => 15,
+										'lama_pelaksanaan'     => $lama_pelaksanaan,
+										'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
+										'status'               => 0,
+									];
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal_renstra);
 
-										$return = [
-											'status'        => 'success',
-											'message'       => 'Berhasil Tambah Jadwal Monev RENJA!',
-											'data_jadwal'   => $data_jadwal,
-										];
-									}
+									$return = [
+										'status'        => 'success',
+										'message'       => 'Berhasil Tambah Jadwal Monev RPJMD dan RENSTRA!',
+									];
 								} else {
 									$return = [
 										'status'    => 'error',
 										'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
 									];
 								}
+								break;
+
+							case 'monev_renja':
+								// Tambah Jadwal Monev Renja
+								if (
+									!empty($nama)
+									&& !empty($tahun_anggaran)
+									&& !empty($relasi_perencanaan)
+								) {
+									$cek_jadwal_terbuka = $wpdb->get_row(
+										$wpdb->prepare('
+											SELECT 
+												*
+											FROM data_jadwal_lokal
+											WHERE id_tipe = %d
+												AND status = %d
+												AND tahun_anggaran = %d
+										', 16, 0, $tahun_anggaran)
+									);
+									if (!empty($cek_jadwal_terbuka)) {
+										$return = [
+											'status'    => 'error',
+											'message'   => 'GAGAL! Masih terdapat jadwal terbuka!'
+										];
+										die(json_encode($return));
+									}
+									$data_jadwal = [
+										'nama'                 => $nama,
+										'tahun_anggaran'       => $tahun_anggaran,
+										'relasi_perencanaan'   => $relasi_perencanaan,
+										'id_tipe'  			   => $sqlTipe[0]['id'],
+										'lama_pelaksanaan'     => 1,
+										'status'               => 0,
+									];
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+
+									$return = [
+										'status'   => 'success',
+										'message'  => 'Berhasil Tambah Jadwal Monev RENJA!',
+									];
+								} else {
+									$return = [
+										'status'    => 'error',
+										'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+								}
+
 								break;
 
 							default:
@@ -23667,8 +23694,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					4 => 'keterangan_stbp',
 					5 => 'is_verifikasi_stbp',
 					6 => 'is_otorisasi_stbp',
-					7 => 'is_validasi_stbp',					
-					8 => 'tanggal_stbp',				
+					7 => 'is_validasi_stbp',
+					8 => 'tanggal_stbp',
 					9 => 'is_sts',
 					10 => 'status',
 					11 => 'id',
@@ -23712,8 +23739,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				foreach ($queryRecords as $recKey => $recVal) {
 					$queryRecords[$recKey]['nomor_stbp'] = '<a href="javascript:void(0);" onclick="modalDetailStbp(' . $recVal['id_stbp'] . ')">' . $recVal['nomor_stbp'] . '</a>';
 
-					$queryRecords[$recKey]['nilai_stbp'] = number_format($recVal['nilai_stbp'], 0, ",", ".");
-					;
+					$queryRecords[$recKey]['nilai_stbp'] = number_format($recVal['nilai_stbp'], 0, ",", ".");;
 				}
 
 				$json_data = array(
@@ -23820,7 +23846,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					17 => 'kode_skpd',
 					18 => 'nama_skpd',
 					19 => 'kode_sub_skpd',
-					20 => 'nama_sub_skpd',					
+					20 => 'nama_sub_skpd',
 					21 => 'id',
 					22 => 'id_tbp'
 				);
