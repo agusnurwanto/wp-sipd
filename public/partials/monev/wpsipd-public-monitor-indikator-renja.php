@@ -39,6 +39,7 @@ $data_jadwal_renstra = $wpdb->get_row(
 if (empty($data_jadwal_renja) || empty($data_jadwal_renstra)) {
 	die('<h1>Jadwal Tidak Tersedia!</h1>');
 }
+
 $awal_renstra = $data_jadwal_renstra['tahun_anggaran']; // 2024
 $akhir_renstra = $data_jadwal_renstra['tahun_akhir_anggaran']; // 2026
 $lama_pelaksanaan = $data_jadwal_renstra['lama_pelaksanaan']; // 3
@@ -423,7 +424,7 @@ if (!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])) {
 	$persen_triwulan_4 = ($data_all['triwulan_4'] / $data_all['rak_triwulan_4']) * 100;
 }
 
-$renstra_program = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_program WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_program = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_program WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_program_id = array();
 $renstra_program_kode = array();
 foreach ($renstra_program as $prog) {
@@ -435,7 +436,7 @@ foreach ($renstra_program as $prog) {
 	$renstra_program_kode[$kode] = $renstra_program_id[$prog['id_program']];
 }
 
-$renstra_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_kegiatan WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_kegiatan WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_keg_id = array();
 $renstra_keg_kode = array();
 foreach ($renstra_keg as $giat) {
@@ -447,7 +448,7 @@ foreach ($renstra_keg as $giat) {
 	$renstra_keg_kode[$kode] = $renstra_keg_id[$giat['id_giat']];
 }
 
-$renstra_sub_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_sub_kegiatan WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_sub_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_sub_kegiatan WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_sub_keg_id = array();
 $renstra_sub_keg_kode = array();
 foreach ($renstra_sub_keg as $sub_giat) {
