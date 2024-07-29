@@ -1805,9 +1805,9 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				url: '<?php echo admin_url("admin-ajax.php") ?>',
 				type: 'post',
 				data: {
-					'action': 'get_monev_renstra',
+					'action': 'get_monev_renstra', 
 					"api_key": "<?php echo $api_key; ?>",
-					'tahun_anggaran': rinc_kode[0],
+					'id_jadwal': rinc_kode[0],
 					'id_skpd': rinc_kode[1],
 					'id': rinc_kode[2],
 					'type_indikator': rinc_kode[3],

@@ -196,7 +196,7 @@ $body = '';
 						<th class="text-center">Jadwal RENSTRA</th>
 						<th class="text-center">Jenis Jadwal</th>
 					<?php endif; ?>
-					<th class="text-center" style="width: 250px;">Aksi</th>
+					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">

@@ -12449,16 +12449,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					case '5':
 						$indikator = $wpdb->get_row($wpdb->prepare(
 							"
-							select 
+							SELECT 
 								* 
-							from data_renstra_sub_kegiatan 
-							where active=1 
-								and id=%d 
-								and id_unit=%d 
-								and tahun_anggaran=%d",
+							FROM data_renstra_sub_kegiatan 
+							WHERE active=1 
+								AND id=%d 
+								AND id_unit=%d 
+								AND id_jadwal=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
-							$_POST['tahun_anggaran']
+							$_POST['id_jadwal']
 						), ARRAY_A);
 						$edit_realisasi_pagu = 'contenteditable="true"';
 						$anggaran = $wpdb->get_row($wpdb->prepare("
@@ -12474,31 +12474,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								realisasi_pagu_4,
 								realisasi_pagu_5
 							FROM data_renstra_sub_kegiatan
-							WHERE tahun_anggaran=%d
+							WHERE id_jadwal=%d
 								AND active=1
 								AND id_unik_indikator is NULL
 								AND id_unit=%d
 								AND id_unik=%s
-						", $_POST['tahun_anggaran'], $_POST['id_skpd'], $indikator['id_unik']), ARRAY_A);
+						", $_POST['id_jadwal'], $_POST['id_skpd'], $indikator['id_unik']), ARRAY_A);
 						break;
 
 					case '4':
 						$indikator = $wpdb->get_row($wpdb->prepare(
 							"
-							select 
+							SELECT 
 								* 
-							from data_renstra_kegiatan 
+							FROM data_renstra_kegiatan 
 							where active=1 
-								and id=%d 
-								and id_unit=%d 
-								and tahun_anggaran=%d
+								AND id=%d 
+								AND id_unit=%d 
+								AND id_jadwal=%d
 						",
 							$_POST['id'],
 							$_POST['id_skpd'],
-							$_POST['tahun_anggaran']
+							$_POST['id_jadwal']
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_keg(array(
-							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_jadwal' => $_POST['id_jadwal'],
 							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
@@ -12506,13 +12506,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					case '3':
 						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							"SELECT * FROM data_renstra_program WHERE active=1 AND id=%d AND id_unit=%d AND id_jadwal=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
-							$_POST['tahun_anggaran']
+							$_POST['id_jadwal']
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_prog(array(
-							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_jadwal' => $_POST['id_jadwal'],
 							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
@@ -12520,13 +12520,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					case '2':
 						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select *, indikator_teks as indikator from data_renstra_sasaran where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							"SELECT *, indikator_teks as indikator FROM data_renstra_sasaran WHERE active=1 AND id=%d AND id_unit=%d AND id_jadwal=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
-							$_POST['tahun_anggaran']
+							$_POST['id_jadwal']
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_sasaran(array(
-							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_jadwal' => $_POST['id_jadwal'],
 							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
@@ -12534,13 +12534,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					case '1':
 						$indikator = $wpdb->get_row($wpdb->prepare(
-							"select *, indikator_teks as indikator from data_renstra_tujuan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+							"SELECT *, indikator_teks as indikator FROM data_renstra_tujuan WHERE active=1 AND id=%d AND id_unit=%d AND id_jadwal=%d",
 							$_POST['id'],
 							$_POST['id_skpd'],
-							$_POST['tahun_anggaran']
+							$_POST['id_jadwal']
 						), ARRAY_A);
 						$anggaran = $this->get_pagu_renstra_tujuan(array(
-							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_jadwal' => $_POST['id_jadwal'],
 							'id_skpd' => $_POST['id_skpd'],
 							'id_unik' => $indikator['id_unik']
 						));
@@ -12655,8 +12655,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id
 							from $table 
 							where id_unik=%s
-								and id_unik_indikator is null
-								and tahun_anggaran=%d
+								AND id_unik_indikator is null
+								AND tahun_anggaran=%d
 						", $cek_data['id_unik'], $_POST['tahun_anggaran']));
 						$wpdb->update($table, array(
 							'realisasi_pagu_1' => $_POST['realisasi_anggaran'][1],

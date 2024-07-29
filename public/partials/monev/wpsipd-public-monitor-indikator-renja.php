@@ -39,15 +39,16 @@ $data_jadwal_renstra = $wpdb->get_row(
 if (empty($data_jadwal_renja) || empty($data_jadwal_renstra)) {
 	die('<h1>Jadwal Tidak Tersedia!</h1>');
 }
-$awal_rpjmd = $data_jadwal_renstra['tahun_anggaran'];
-$tahun_anggaran_1 = $awal_rpjmd + 1;
-$tahun_anggaran_2 = $awal_rpjmd + 2;
-$tahun_anggaran_3 = $awal_rpjmd + 3;
-$tahun_anggaran_4 = $awal_rpjmd + 4;
-$tahun_anggaran_5 = $awal_rpjmd + 5;
-$akhir_rpjmd = $data_jadwal_renstra['tahun_akhir_anggaran'];
+$awal_renstra = $data_jadwal_renstra['tahun_anggaran']; // 2024
+$akhir_renstra = $data_jadwal_renstra['tahun_akhir_anggaran']; // 2026
+$lama_pelaksanaan = $data_jadwal_renstra['lama_pelaksanaan']; // 3
+$body_tahun = '';
+for ($i = 0; $i < $lama_pelaksanaan; $i++) {
+	$tahun = $awal_renstra + $i;
+	$body_tahun .= '<th class="text-center">' . $tahun . '</th>';
+}
 
-$tahun_renstra = ($input['tahun_anggaran'] - $awal_rpjmd) + 1;
+$tahun_renstra = ($input['tahun_anggaran'] - $awal_renstra) + 1;
 
 if ($tahun_renstra > 5) {
 	die('<h1>Tahun awal RPJMD sudah lebih dari 5 tahun. Sesuaikan di halaman admin!</h1>');
@@ -61,24 +62,21 @@ if ($input['tahun_anggaran'] < $tahun_sekarang) {
 	$batas_bulan_input = 12;
 }
 $api_key = get_option('_crb_api_key_extension');
-
 function button_edit_monev($class = false)
 {
 	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
 }
-
 function valid_number($no)
 {
 	$no = str_replace(array(','), array('.'), $no);
 	return $no;
 }
-
 $rumus_indikator_db = $wpdb->get_results(
 	$wpdb->prepare("
-		SELECT 
-			* 
-		FROM data_rumus_indikator 
+		SELECT
+		*
+		FROM data_rumus_indikator
 		WHERE tahun_anggaran = %d
 		AND active = 1
 		", $input['tahun_anggaran']),
@@ -92,14 +90,14 @@ foreach ($rumus_indikator_db as $k => $v) {
 }
 
 $sql = $wpdb->prepare("
-	SELECT 
-		* 
-	FROM data_unit 
-	WHERE tahun_anggaran=%d
-	  AND id_skpd = %d
-	  AND active= 1
-	ORDER BY id_skpd ASC
-", $input['tahun_anggaran'], $input['id_skpd']);
+		SELECT
+		*
+		FROM data_unit
+		WHERE tahun_anggaran=%d
+		AND id_skpd = %d
+		AND active= 1
+		ORDER BY id_skpd ASC
+		", $input['tahun_anggaran'], $input['id_skpd']);
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 $nama_pemda = get_option('_crb_daerah');
@@ -107,16 +105,16 @@ $current_user = wp_get_current_user();
 
 $bulan = date('m');
 $subkeg = $wpdb->get_results($wpdb->prepare("
-		SELECT 
-			k.*,
-			k.id as id_sub_keg
+		SELECT
+		k.*,
+		k.id as id_sub_keg
 		FROM data_sub_keg_bl k
 		WHERE k.tahun_anggaran=%d
-		  AND k.active=1
-		  AND k.id_sub_skpd=%d
-		  AND k.pagu > 0
+		AND k.active=1
+		AND k.id_sub_skpd=%d
+		AND k.pagu > 0
 		ORDER BY k.kode_sub_giat ASC
-	", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
+		", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
 $data_all = array(
 	'total' => 0,
 	'total_simda' => 0,
@@ -151,18 +149,16 @@ foreach ($subkeg as $kk => $sub) {
 	$kode = explode('.', $sub['kode_sbl']);
 
 	$rfk_all = $wpdb->get_results($wpdb->prepare("
-		SELECT 
-			id,
-			realisasi_anggaran,
-			rak,
-			bulan
+		SELECT
+		id,
+		realisasi_anggaran,
+		rak,
+		bulan
 		FROM data_rfk
 		WHERE tahun_anggaran=%d
-		  AND id_skpd=%d
-		  AND kode_sbl=%s
-		  AND bulan<=%d
-		ORDER BY bulan ASC
-	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+		AND id_skpd=%d
+		AND kode_sbl=%s
+		AND bulan<=%d ORDER BY bulan ASC ", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$rak = array();
 	foreach ($rfk_all as $k => $v) {
 		if (empty($rak[$v['bulan']])) {
@@ -199,19 +195,7 @@ foreach ($subkeg as $kk => $sub) {
 
 	// jika ada data rak yang baru diinput maka diselect ulang
 	if ($cek_input == true) {
-		$rfk_all = $wpdb->get_results($wpdb->prepare("
-			SELECT 
-				id,
-				realisasi_anggaran,
-				rak,
-				bulan
-			FROM data_rfk
-			WHERE tahun_anggaran=%d
-				and id_skpd=%d
-				and kode_sbl=%s
-				and bulan<=%d
-			ORDER BY bulan ASC
-		", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+		$rfk_all = $wpdb->get_results($wpdb->prepare(" SELECT id, realisasi_anggaran, rak, bulan FROM data_rfk WHERE tahun_anggaran=%d and id_skpd=%d and kode_sbl=%s and bulan<=%d ORDER BY bulan ASC ", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	}
 
 	$triwulan_1 = 0;
@@ -291,26 +275,10 @@ foreach ($subkeg as $kk => $sub) {
 	}
 
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
-		$capaian_prog = $wpdb->get_results($wpdb->prepare("
-			SELECT 
-				* 
-			FROM data_capaian_prog_sub_keg 
-			WHERE tahun_anggaran=%d
-			  AND active=1
-			  AND kode_sbl=%s
-			  AND capaianteks != ''
-			ORDER BY id ASC
-		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$capaian_prog = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
 		$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
-			SELECT
-				*
-			FROM data_realisasi_renja
-			WHERE tahun_anggaran=%d
-			  AND tipe_indikator=%d
-			  AND kode_sbl=%s
-		", $input['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 			'nama'	=> $sub['nama_program'],
 			'indikator' => $capaian_prog,
@@ -334,25 +302,10 @@ foreach ($subkeg as $kk => $sub) {
 		);
 	}
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
-		$output_giat = $wpdb->get_results($wpdb->prepare("
-			SELECT 
-				* 
-			FROM data_output_giat_sub_keg 
-			WHERE tahun_anggaran=%d
-			  AND kode_sbl=%s
-			  AND active=1
-			ORDER BY id ASC
-		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$output_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_output_giat_sub_keg WHERE tahun_anggaran=%d AND kode_sbl=%s AND active=1 ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
 		$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
-			SELECT
-				*
-			FROM data_realisasi_renja
-			WHERE tahun_anggaran=%d
-			  AND tipe_indikator=%d
-			  AND kode_sbl=%s
-		", $input['tahun_anggaran'], 2, $kode_sbl), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 2, $kode_sbl), ARRAY_A);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 			'nama'	=> $sub['nama_giat'],
 			'indikator' => $output_giat,
@@ -372,24 +325,9 @@ foreach ($subkeg as $kk => $sub) {
 		);
 	}
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
-		$output_sub_giat = $wpdb->get_results($wpdb->prepare("
-			SELECT 
-				* 
-			FROM data_sub_keg_indikator
-			WHERE tahun_anggaran=%d
-			  AND active=1
-			  AND kode_sbl=%s
-			ORDER BY id DESC
-		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$output_sub_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_sub_keg_indikator WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s ORDER BY id DESC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare("
-			SELECT
-				*
-			FROM data_realisasi_renja
-			WHERE tahun_anggaran=%d
-			  AND tipe_indikator=%d
-			  AND kode_sbl=%s
-		", $input['tahun_anggaran'], 1, $sub['kode_sbl']), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 1, $sub['kode_sbl']), ARRAY_A);
 		$nama = explode(' ', $sub['nama_sub_giat']);
 		unset($nama[0]);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
@@ -485,14 +423,7 @@ if (!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])) {
 	$persen_triwulan_4 = ($data_all['triwulan_4'] / $data_all['rak_triwulan_4']) * 100;
 }
 
-$renstra_program = $wpdb->get_results($wpdb->prepare("
-	SELECT 
-		* 
-	FROM data_renstra_program 
-	WHERE tahun_anggaran=%d 
-	  AND active=1 
-	  AND id_unit=%d
-", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_program = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_program WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_program_id = array();
 $renstra_program_kode = array();
 foreach ($renstra_program as $prog) {
@@ -504,14 +435,7 @@ foreach ($renstra_program as $prog) {
 	$renstra_program_kode[$kode] = $renstra_program_id[$prog['id_program']];
 }
 
-$renstra_keg = $wpdb->get_results($wpdb->prepare("
-	SELECT 
-		* 
-	FROM data_renstra_kegiatan 
-	WHERE tahun_anggaran=%d 
-	  AND active=1 
-	  AND id_unit=%d
-", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_kegiatan WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_keg_id = array();
 $renstra_keg_kode = array();
 foreach ($renstra_keg as $giat) {
@@ -523,14 +447,7 @@ foreach ($renstra_keg as $giat) {
 	$renstra_keg_kode[$kode] = $renstra_keg_id[$giat['id_giat']];
 }
 
-$renstra_sub_keg = $wpdb->get_results($wpdb->prepare("
-	SELECT 
-		* 
-	FROM data_renstra_sub_kegiatan 
-	WHERE tahun_anggaran=%d 
-	  AND active=1 
-	  AND id_unit=%d
-", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_sub_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_sub_kegiatan WHERE tahun_anggaran=%d AND active=1 AND id_unit=%d ", $input['tahun_anggaran'], $unit[0]['id_unit']), ARRAY_A);
 $renstra_sub_keg_id = array();
 $renstra_sub_keg_kode = array();
 foreach ($renstra_sub_keg as $sub_giat) {
@@ -615,12 +532,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw3_js[$k_sub] = 0;
 					$realisasi_indikator_tw4_js[$k_sub] = 0;
 					$total_tw_js[$k_sub] = 0;
-					$class_rumus_target[$k_sub] = "positif";
-
-					if (
-						!empty($realisasi_indikator)
-						&& !empty($realisasi_indikator[$k_sub])
-					) {
+					$class_rumus_target[$k_sub] = " positif";
+					if (!empty($realisasi_indikator) && !empty($realisasi_indikator[$k_sub])) {
 						$rumus_indikator = $realisasi_indikator[$k_sub]['id_rumus_indikator'];
 						$max = 0;
 						for ($i = 1; $i <= 12; $i++) {
@@ -752,47 +665,47 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				'tahun_renstra' => $tahun_renstra
 			));
 			$body_monev .= '
-				<tr class="tr-program program" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '" data-bidang-urusan="' . $program['kode_urusan_bidang'] . '">
-		            <td class="kiri kanan bawah text_blok">' . $no_program . '</td>
-		            <td class="kanan bawah text_blok">' . $data_renstra['renstra_tujuan'] . '</td>
-		            <td class="kanan bawah text_blok">' . $data_renstra['renstra_sasaran'] . '</td>
-		            <td class="kanan bawah text_blok">' . $kd_program_asli . '</td>
-		            <td class="kanan bawah text_blok nama">' . $program['nama'] . '</td>
-		            <td class="kanan bawah text_blok indikator">' . $capaian_prog . '</td>
-		            <td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
-		            <td class="text_kanan kanan bawah text_blok total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
-		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">' . $target_capaian_prog . '</td>
-		            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="' . $program['total_simda'] . '">' . number_format($program['total_simda'], 0, ",", ".") . '</td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_1">' . $realisasi_indikator_tw1 . '</td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_1">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($program['triwulan_1'], 0, ",", ".") . '</span></td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_2">' . $realisasi_indikator_tw2 . '</td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_2">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($program['triwulan_2'], 0, ",", ".") . '</span></td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_3">' . $realisasi_indikator_tw3 . '</td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_3">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($program['triwulan_3'], 0, ",", ".") . '</span></td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_4">' . $realisasi_indikator_tw4 . '</td>
-		            <td class="text_tengah kanan bawah text_blok triwulan_4">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($program['triwulan_4'], 0, ",", ".") . '</span></td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renja">' . $total_tw . '</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renja">' . $satuan_capaian_prog . '</td>
-		            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="' . $program['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($program['realisasi'], 0, ",", ".") . '</span></td>
-		            <td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
-		            <td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
-		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
-		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
-		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
-	        		<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
-	        		<td class="kanan bawah text_blok">' . $keterangan . '</td>
-		        </tr>
+			<tr class="tr-program program" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '" data-bidang-urusan="' . $program['kode_urusan_bidang'] . '">
+				<td class="kiri kanan bawah text_blok">' . $no_program . '</td>
+				<td class="kanan bawah text_blok">' . $data_renstra['renstra_tujuan'] . '</td>
+				<td class="kanan bawah text_blok">' . $data_renstra['renstra_sasaran'] . '</td>
+				<td class="kanan bawah text_blok">' . $kd_program_asli . '</td>
+				<td class="kanan bawah text_blok nama">' . $program['nama'] . '</td>
+				<td class="kanan bawah text_blok indikator">' . $capaian_prog . '</td>
+				<td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
+				<td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
+				<td class="text_kanan kanan bawah text_blok total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
+				<td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
+				<td class="text_tengah kanan bawah text_blok total_renja target_indikator">' . $target_capaian_prog . '</td>
+				<td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="' . $program['total_simda'] . '">' . number_format($program['total_simda'], 0, ",", ".") . '</td>
+				<td class="text_tengah kanan bawah text_blok triwulan_1">' . $realisasi_indikator_tw1 . '</td>
+				<td class="text_tengah kanan bawah text_blok triwulan_1">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($program['triwulan_1'], 0, ",", ".") . '</span></td>
+				<td class="text_tengah kanan bawah text_blok triwulan_2">' . $realisasi_indikator_tw2 . '</td>
+				<td class="text_tengah kanan bawah text_blok triwulan_2">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($program['triwulan_2'], 0, ",", ".") . '</span></td>
+				<td class="text_tengah kanan bawah text_blok triwulan_3">' . $realisasi_indikator_tw3 . '</td>
+				<td class="text_tengah kanan bawah text_blok triwulan_3">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($program['triwulan_3'], 0, ",", ".") . '</span></td>
+				<td class="text_tengah kanan bawah text_blok triwulan_4">' . $realisasi_indikator_tw4 . '</td>
+				<td class="text_tengah kanan bawah text_blok triwulan_4">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($program['triwulan_4'], 0, ",", ".") . '</span></td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renja">' . $total_tw . '</td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renja">' . $satuan_capaian_prog . '</td>
+				<td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="' . $program['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($program['realisasi'], 0, ",", ".") . '</span></td>
+				<td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
+				<td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
+				<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
+				<td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
+				<td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
+				<td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
+				<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
+				<td class="kanan bawah text_blok">' . $keterangan . '</td>
+			</tr>
 			';
 			foreach ($program['data'] as $kd_giat1 => $giat) {
 				$no_kegiatan++;
@@ -826,7 +739,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							}
 						}
 						$keterangan[$k_sub] = implode(', ', $keterangan_db);
-						$target_output_giat[$k_sub] = '<span data-id="' . $k_sub . '">' . $v_sub['targetoutput'] . '</span>';
+						$target_output_giat[$k_sub] = ' <span data-id="' . $k_sub . '">' . $v_sub['targetoutput'] . '</span>';
 						$satuan_output_giat[$k_sub] = '<span data-id="' . $k_sub . '">' . $v_sub['satuanoutput'] . '</span>';
 						$target_indikator = $v_sub['targetoutput'];
 						$realisasi_indikator_tw1[$k_sub] = 0;
@@ -942,47 +855,47 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				));
 				$body_monev .= '
 					<tr class="tr-kegiatan kegiatan" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '" data-kode_giat="' . $kd_giat1 . '" data-bidang-urusan="' . $giat['kode_urusan_bidang'] . '">
-			            <td class="kiri kanan bawah text_blok">' . $no_program . '.' . $no_kegiatan . '</td>
-			            <td class="kanan bawah text_blok">' . $data_renstra['renstra_tujuan'] . '</td>
-			            <td class="kanan bawah text_blok">' . $data_renstra['renstra_sasaran'] . '</td>
-			            <td class="kanan bawah text_blok">' . $kd_giat1 . '</td>
-			            <td class="kanan bawah text_blok nama">' . $giat['nama'] . '</td>
-			            <td class="kanan bawah text_blok indikator">' . $output_giat . '</td>
-			            <td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
-			            <td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
-			            <td class="text_kanan kanan bawah text_blok total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
-			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
-			            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">' . $target_output_giat . '</td>
-			            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="' . $giat['total_simda'] . '">' . number_format($giat['total_simda'], 0, ",", ".") . '</td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_1">' . $realisasi_indikator_tw1 . '</td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_1">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($giat['triwulan_1'], 0, ",", ".") . '</span></td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_2">' . $realisasi_indikator_tw2 . '</td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_2">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($giat['triwulan_2'], 0, ",", ".") . '</span></td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_3">' . $realisasi_indikator_tw3 . '</td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_3">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($giat['triwulan_3'], 0, ",", ".") . '</span></td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_4">' . $realisasi_indikator_tw4 . '</td>
-			            <td class="text_tengah kanan bawah text_blok triwulan_4">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($giat['triwulan_4'], 0, ",", ".") . '</span></td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renja">' . $total_tw . '</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renja">' . $satuan_output_giat . '</td>
-			            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="' . $giat['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($giat['realisasi'], 0, ",", ".") . '</span></td>
-			            <td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
-			            <td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
-			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
-			            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
-			            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
-		        		<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
-		        		<td class="kanan bawah">' . $keterangan . '</td>
-			        </tr>
-				';
+						<td class="kiri kanan bawah text_blok">' . $no_program . '.' . $no_kegiatan . '</td>
+						<td class="kanan bawah text_blok">' . $data_renstra['renstra_tujuan'] . '</td>
+						<td class="kanan bawah text_blok">' . $data_renstra['renstra_sasaran'] . '</td>
+						<td class="kanan bawah text_blok">' . $kd_giat1 . '</td>
+						<td class="kanan bawah text_blok nama">' . $giat['nama'] . '</td>
+						<td class="kanan bawah text_blok indikator">' . $output_giat . '</td>
+						<td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
+						<td class="text_tengah kanan bawah text_blok total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
+						<td class="text_kanan kanan bawah text_blok total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
+						<td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
+						<td class="text_tengah kanan bawah text_blok total_renja target_indikator">' . $target_output_giat . '</td>
+						<td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="' . $giat['total_simda'] . '">' . number_format($giat['total_simda'], 0, ",", ".") . '</td>
+						<td class="text_tengah kanan bawah text_blok triwulan_1">' . $realisasi_indikator_tw1 . '</td>
+						<td class="text_tengah kanan bawah text_blok triwulan_1">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($giat['triwulan_1'], 0, ",", ".") . '</span></td>
+						<td class="text_tengah kanan bawah text_blok triwulan_2">' . $realisasi_indikator_tw2 . '</td>
+						<td class="text_tengah kanan bawah text_blok triwulan_2">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($giat['triwulan_2'], 0, ",", ".") . '</span></td>
+						<td class="text_tengah kanan bawah text_blok triwulan_3">' . $realisasi_indikator_tw3 . '</td>
+						<td class="text_tengah kanan bawah text_blok triwulan_3">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($giat['triwulan_3'], 0, ",", ".") . '</span></td>
+						<td class="text_tengah kanan bawah text_blok triwulan_4">' . $realisasi_indikator_tw4 . '</td>
+						<td class="text_tengah kanan bawah text_blok triwulan_4">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($giat['triwulan_4'], 0, ",", ".") . '</span></td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renja">' . $total_tw . '</td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renja">' . $satuan_output_giat . '</td>
+						<td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="' . $giat['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($giat['realisasi'], 0, ",", ".") . '</span></td>
+						<td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
+						<td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
+						<td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
+						<td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
+						<td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
+						<td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
+						<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
+						<td class="kanan bawah">' . $keterangan . '</td>
+					</tr>
+					';
 				foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
 					$no_sub_kegiatan++;
 					$kd_sub_giat = explode('.', $kd_sub_giat1);
@@ -1015,7 +928,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								}
 							}
 							$keterangan[$k_sub] = implode(', ', $keterangan_db);
-							$target_output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '">' . $v_sub['targetoutput'] . '</span>';
+							$target_output_sub_giat[] = ' <span data-id="' . $v_sub['idoutputbl'] . '">' . $v_sub['targetoutput'] . '</span>';
 							$satuan_output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '">' . $v_sub['satuanoutput'] . '</span>';
 							$target_indikator = $v_sub['targetoutput'];
 							$realisasi_indikator_tw1[$k_sub] = 0;
@@ -1130,48 +1043,48 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						'tahun_renstra' => $tahun_renstra
 					));
 					$body_monev .= '
-						<tr class="tr-sub-kegiatan sub_kegiatan" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '.' . $kd_sub_giat . '">
-				            <td class="kiri kanan bawah">' . $no_program . '.' . $no_kegiatan . '.' . $no_sub_kegiatan . '</td>
-				            <td class="kanan bawah">' . $data_renstra['renstra_tujuan'] . '</td>
-				            <td class="kanan bawah">' . $data_renstra['renstra_sasaran'] . '</td>
-				            <td class="kanan bawah">' . $kd_sub_giat1 . '</td>
-				            <td class="kanan bawah nama">' . $nama_sub . '</td>
-				            <td class="kanan bawah indikator">' . $output_sub_giat . '</td>
-				            <td class="text_tengah kanan bawah total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
-				            <td class="text_tengah kanan bawah total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
-				            <td class="text_kanan kanan bawah total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
-			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
-				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
-				            <td class="text_tengah kanan bawah total_renja target_indikator">' . $target_output_sub_giat . '</td>
-				            <td class="text_tengah kanan bawah total_renja satuan_indikator">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah total_renja pagu_renja" data-pagu="' . $sub_giat['total_simda'] . '">' . number_format($sub_giat['total_simda'], 0, ",", ".") . '</td>
-				            <td class="text_tengah kanan bawah triwulan_1">' . $realisasi_indikator_tw1 . '</td>
-				            <td class="text_tengah kanan bawah triwulan_1">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($sub_giat['triwulan_1'], 0, ",", ".") . '</span></td>
-				            <td class="text_tengah kanan bawah triwulan_2">' . $realisasi_indikator_tw2 . '</td>
-				            <td class="text_tengah kanan bawah triwulan_2">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($sub_giat['triwulan_2'], 0, ",", ".") . '</span></td>
-				            <td class="text_tengah kanan bawah triwulan_3">' . $realisasi_indikator_tw3 . '</td>
-				            <td class="text_tengah kanan bawah triwulan_3">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($sub_giat['triwulan_3'], 0, ",", ".") . '</span></td>
-				            <td class="text_tengah kanan bawah triwulan_4">' . $realisasi_indikator_tw4 . '</td>
-				            <td class="text_tengah kanan bawah triwulan_4">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($sub_giat['triwulan_4'], 0, ",", ".") . '</span></td>
-				            <td class="text_tengah kanan bawah realisasi_renja">' . $total_tw . '</td>
-				            <td class="text_tengah kanan bawah realisasi_renja">' . $satuan_output_sub_giat . '</td>
-				            <td class="text_kanan kanan bawah realisasi_renja pagu_renja_realisasi" data-pagu="' . $sub_giat['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($sub_giat['realisasi'], 0, ",", ".") . '</span></td>
-				            <td class="text_tengah kanan bawah capaian_renja">' . $capaian_realisasi_indikator . '</td>
-				            <td class="text_kanan kanan bawah capaian_renja">' . $capaian . '</td>
-				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
-			            	<td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
-				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
-				            <td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
-				            <td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
-			        		<td class="kanan bawah">' . $unit[0]['nama_skpd'] . '</td>
-			        		<td class="kanan bawah">' . $keterangan . '</td>
-				        </tr>
-					';
+							<tr class="tr-sub-kegiatan sub_kegiatan" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '.' . $kd_sub_giat . '">
+								<td class="kiri kanan bawah">' . $no_program . '.' . $no_kegiatan . '.' . $no_sub_kegiatan . '</td>
+								<td class="kanan bawah">' . $data_renstra['renstra_tujuan'] . '</td>
+								<td class="kanan bawah">' . $data_renstra['renstra_sasaran'] . '</td>
+								<td class="kanan bawah">' . $kd_sub_giat1 . '</td>
+								<td class="kanan bawah nama">' . $nama_sub . '</td>
+								<td class="kanan bawah indikator">' . $output_sub_giat . '</td>
+								<td class="text_tengah kanan bawah total_renstra">' . $data_renstra['total_target_renstra_text'] . '</td>
+								<td class="text_tengah kanan bawah total_renstra">' . $data_renstra['satuan_renstra'] . '</td>
+								<td class="text_kanan kanan bawah total_renstra">' . $data_renstra['total_pagu_renstra'] . '</td>
+								<td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['total_target_renstra_tahun_sebelumnya'] . '</td>
+								<td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['satuan_renstra'] . '</td>
+								<td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu">' . $data_renstra['total_pagu_renstra_tahun_sebelumnya'] . '</td>
+								<td class="text_tengah kanan bawah total_renja target_indikator">' . $target_output_sub_giat . '</td>
+								<td class="text_tengah kanan bawah total_renja satuan_indikator">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah total_renja pagu_renja" data-pagu="' . $sub_giat['total_simda'] . '">' . number_format($sub_giat['total_simda'], 0, ",", ".") . '</td>
+								<td class="text_tengah kanan bawah triwulan_1">' . $realisasi_indikator_tw1 . '</td>
+								<td class="text_tengah kanan bawah triwulan_1">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah triwulan_1"><span class="nilai_realisasi_tw1">' . number_format($sub_giat['triwulan_1'], 0, ",", ".") . '</span></td>
+								<td class="text_tengah kanan bawah triwulan_2">' . $realisasi_indikator_tw2 . '</td>
+								<td class="text_tengah kanan bawah triwulan_2">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah triwulan_2"><span class="nilai_realisasi_tw2">' . number_format($sub_giat['triwulan_2'], 0, ",", ".") . '</span></td>
+								<td class="text_tengah kanan bawah triwulan_3">' . $realisasi_indikator_tw3 . '</td>
+								<td class="text_tengah kanan bawah triwulan_3">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah triwulan_3"><span class="nilai_realisasi_tw3">' . number_format($sub_giat['triwulan_3'], 0, ",", ".") . '</span></td>
+								<td class="text_tengah kanan bawah triwulan_4">' . $realisasi_indikator_tw4 . '</td>
+								<td class="text_tengah kanan bawah triwulan_4">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah triwulan_4"><span class="nilai_realisasi_tw4">' . number_format($sub_giat['triwulan_4'], 0, ",", ".") . '</span></td>
+								<td class="text_tengah kanan bawah realisasi_renja">' . $total_tw . '</td>
+								<td class="text_tengah kanan bawah realisasi_renja">' . $satuan_output_sub_giat . '</td>
+								<td class="text_kanan kanan bawah realisasi_renja pagu_renja_realisasi" data-pagu="' . $sub_giat['realisasi'] . '"><span class="nilai_realisasi_renja">' . number_format($sub_giat['realisasi'], 0, ",", ".") . '</span></td>
+								<td class="text_tengah kanan bawah capaian_renja">' . $capaian_realisasi_indikator . '</td>
+								<td class="text_kanan kanan bawah capaian_renja">' . $capaian . '</td>
+								<td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['total_target_renstra_tahun_ini'] . '</td>
+								<td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['satuan_renstra'] . '</td>
+								<td class="text_kanan kanan bawah realisasi_renstra_tahun_berjalan">' . $data_renstra['total_pagu_renstra_tahun_ini'] . '</td>
+								<td class="text_tengah kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_target_renstra_tahun_ini'] . '</td>
+								<td class="text_kanan kanan bawah capaian_renstra_tahun_berjalan">' . $data_renstra['total_capaian_pagu_renstra_tahun_ini'] . '</td>
+								<td class="kanan bawah">' . $unit[0]['nama_skpd'] . '</td>
+								<td class="kanan bawah">' . $keterangan . '</td>
+							</tr>
+							';
 					$total_pagu_renstra_asli += array_sum($data_renstra['total_pagu_renstra_asli']);
 					$total_pagu_renstra_tahun_ini_asli += array_sum($data_renstra['total_pagu_renstra_tahun_ini_asli']);
 					$total_pagu_renstra_tahun_sebelumnya_asli += array_sum($data_renstra['total_pagu_renstra_tahun_sebelumnya_asli']);
@@ -1564,7 +1477,7 @@ if (
 				<th rowspan="2" style="width: 100px;" class='atas kanan bawah text_tengah text_blok'>Kode</th>
 				<th rowspan="2" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Program, Kegiatan, Sub Kegiatan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator Kinerja Tujuan, Sasaran, Program(outcome) dan Kegiatan (output), Sub Kegiatan</th>
-				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Target Renstra SKPD pada Tahun <?php echo $awal_rpjmd; ?> s/d <?php echo $akhir_rpjmd; ?> (periode Renstra SKPD)</th>
+				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Target Renstra SKPD pada Tahun <?php echo $awal_renstra; ?> s/d <?php echo $akhir_renstra; ?> (periode Renstra SKPD)</th>
 				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</th>
 				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Target kinerja dan anggaran Renja SKPD Tahun Berjalan Tahun <?php echo $input['tahun_anggaran']; ?> yang dievaluasi</th>
 				<th colspan="12" style="width: 1200px;" class='atas kanan bawah text_tengah text_blok'>Realisasi Kinerja Pada Triwulan</th>
@@ -1838,16 +1751,12 @@ foreach ($monev_triwulan as $k => $v) {
 											<thead>
 												<tr>
 													<th class="text_tengah" colspan="2" rowspan="2">Indikator RENSTRA</th>
-													<th class="text_tengah" style="width: 100px;" colspan="5">Target</th>
+													<th class="text_tengah" style="width: 100px;" colspan="<?php echo $lama_pelaksanaan; ?>">Target</th>
 													<th class="text_tengah" style="width: 100px;" rowspan="2">Satuan</th>
-													<th class="text_tengah" style="width: 140px;" rowspan="2">Total Pagu (Rp)<br>Tahun <?php echo $tahun_anggaran_1 . '-' . $tahun_anggaran_5; ?></th>
+													<th class="text_tengah" style="width: 140px;" rowspan="2">Total Pagu (Rp)<br>Tahun <?php echo $awal_renstra . '-' . $akhir_renstra; ?></th>
 												</tr>
 												<tr>
-													<th><?php echo $tahun_anggaran_1; ?></th>
-													<th><?php echo $tahun_anggaran_2; ?></th>
-													<th><?php echo $tahun_anggaran_3; ?></th>
-													<th><?php echo $tahun_anggaran_4; ?></th>
-													<th><?php echo $tahun_anggaran_5; ?></th>
+													<?php echo $body_tahun; ?>
 												</tr>
 											</thead>
 											<tbody id="monev-body-renstra">
@@ -2134,6 +2043,7 @@ foreach ($monev_triwulan as $k => $v) {
 
 	jQuery(document).on('ready', function() {
 		run_download_excel('', '#aksi-wp-sipd');
+		let lama_pelaksanaan = <?php echo $lama_pelaksanaan; ?>
 
 		var aksi = '' +
 			'<h3 style="margin-top: 20px;">SETTING</h3>' +
@@ -2211,18 +2121,17 @@ foreach ($monev_triwulan as $k => $v) {
 							if (res.id_unik_indikator_renstra == id_indikator_renstra) {
 								checked = 'checked';
 							}
-							renstra_html += '' +
-								'<tr>' +
+							renstra_html += '<tr>' +
 								'<td class="text_tengah"><input type="radio" ' + checked + ' value="' + id_indikator_renstra + '" name="pilih_indikator_renstra"></td>' +
-								'<td>' + indikator_renstra_text + '</td>' +
-								'<td class="text_tengah target_renstra_1">' + indikator_renstra_target[0] + '</td>' +
-								'<td class="text_tengah target_renstra_2">' + indikator_renstra_target[1] + '</td>' +
-								'<td class="text_tengah target_renstra_3">' + indikator_renstra_target[2] + '</td>' +
-								'<td class="text_tengah target_renstra_4">' + indikator_renstra_target[3] + '</td>' +
-								'<td class="text_tengah target_renstra_5">' + indikator_renstra_target[4] + '</td>' +
-								'<td class="text_tengah mod_satuan_renstra">' + indikator_renstra_satuan + '</td>' +
+								'<td>' + indikator_renstra_text + '</td>';
+							// Menambahkan kolom target secara dinamis berdasarkan lama pelaksanaan
+							for (let i = 0; i < lama_pelaksanaan; i++) {
+								renstra_html += '<td class="text_tengah target_renstra_' + (i + 1) + '">' + indikator_renstra_target[i] + '</td>';
+							}
+							renstra_html += '<td class="text_tengah mod_satuan_renstra">' + indikator_renstra_satuan + '</td>' +
 								'<td class="text_kanan mod_total_renstra">' + total_indikator_renstra_pagu + '</td>' +
 								'</tr>';
+
 						});
 						if (renstra_html == '') {
 							renstra_html = '' +
