@@ -51,7 +51,7 @@ $cek_jadwal = $wpdb->get_results(
         FROM data_jadwal_lokal
         WHERE status = %d
           AND id_tipe = %d
-    ', 0, 17)
+    ', 0, 16)
 );
 if (!empty($cek_jadwal)) {
     $cek_jadwal = false;
