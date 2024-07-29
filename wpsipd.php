@@ -33,6 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
 define( 'WPSIPD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPSIPD_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 define( 'WPSIPD_API_KEY', '_crb_api_key_extension' );
+define( 'WPSIPD_TAHUN_ANGGARAN', '_crb_tahun_anggaran_sipd' );
 
 // Menambahkan filter wp_headers
 add_filter('wp_headers', 'add_xss_protection_header');

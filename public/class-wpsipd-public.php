@@ -11943,27 +11943,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	function get_data_rpjm()
 	{
 		global $wpdb;
-
-
 		if (empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-
 				$id_unik = $_POST['kode_sasaran_rpjm'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$id_unit = $_POST['id_unit'];
 
-				$data_rpjmd = $wpdb->get_results($wpdb->prepare(
-					"
-									SELECT 
-										* 
-									FROM data_rpjmd_sasaran 
-									where 
-										active=1 and 
-										id_unik=%s and 
-										tahun_anggaran=%d",
-					$id_unik,
-					$tahun_anggaran
-				), ARRAY_A);
+				$data_rpjmd = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_rpjmd_sasaran 
+						WHERE active=1 
+						  AND id_unik=%s 
+						  AND tahun_anggaran=%d
+					", $id_unik, $tahun_anggaran),
+					ARRAY_A
+				);
 
 				$return['status'] = 0;
 				$return['body_rpjm'] = '';
@@ -11973,41 +11969,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'data' => array()
 					);
 					foreach ($data_rpjmd as $k => $v) {
-
 						if (empty($data_all['data'][$v['id_visi']])) {
 							$data_all['data'][$v['id_visi']] = array(
 								'nama' => $v['visi_teks'],
 								'data' => array()
 							);
 						}
-
 						if (empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']])) {
 							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']] = array(
 								'nama' => $v['misi_teks'],
 								'data' => array()
 							);
 						}
-
 						if (empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']])) {
 							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']] = array(
 								'nama' => $v['tujuan_teks'],
 								'indikator' => array(),
 								'data' => array(),
 							);
-
-							$indikators = $wpdb->get_results($wpdb->prepare(
-								"
-								select 
-									* 
-								from data_rpjmd_tujuan 
-								where 
-									active=1 and 
-									id_unik=%s and
-									tahun_anggaran=%d
-								",
-								$v['kode_tujuan'],
-								$tahun_anggaran
-							), ARRAY_A);
+							$indikators = $wpdb->get_results(
+								$wpdb->prepare("
+									SELECT 
+										* 
+									FROM data_rpjmd_tujuan 
+									WHERE active=1 
+									AND id_unik=%s 
+									AND tahun_anggaran=%d
+								", $v['kode_tujuan'], $tahun_anggaran),
+								ARRAY_A
+							);
 
 							if (!empty($indikators)) {
 								foreach ($indikators as $key => $indikator) {
@@ -12050,32 +12040,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 						}
 
-						$program = $wpdb->get_results($wpdb->prepare(
-							"
-							select 
-								* 
-							from data_rpjmd_program 
-							where 
-								active=1 and
-								kode_sasaran=%s and
-								id_unit=%d and
-								tahun_anggaran=%d",
-
-							$v['id_unik'],
-							$id_unit,
-							$tahun_anggaran
-						), ARRAY_A);
-						// die($wpdb->last_query);
+						$program = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_rpjmd_program 
+								WHERE active=1 
+								  AND kode_sasaran=%s 
+								  AND id_unit=%d 
+								  AND tahun_anggaran=%d
+							", $v['id_unik'], $id_unit, $tahun_anggaran),
+							ARRAY_A
+						);
 
 						if (!empty($program)) {
 							foreach ($program as $kp => $vp) {
-
 								if (empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']])) {
 									$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']] = array(
 										'nama' => $vp['nama_program'],
 										'indikator' => array(),
 									);
-
 									if (!empty($vp['id_unik_indikator'])) {
 										$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]['indikator'][] = array(
 											'id_unik' => $vp['id_unik'],
@@ -12096,7 +12080,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					// echo '<pre>';print_r($data_all);echo '</pre>';die();
 					$body = '';
 					foreach ($data_all['data'] as $v => $visi) {
 						$body .= '
@@ -12108,7 +12091,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				            <td class="kanan bawah text_blok"></td>
 				            <td class="text_kiri kanan bawah text_blok"></td>
 				        </tr>';
-
 						foreach ($visi['data'] as $m => $misi) {
 							$body .= '
 							<tr class="misi" data-kode="">
@@ -12119,7 +12101,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					            <td class="kanan bawah text_blok"></td>
 					            <td class="text_kiri kanan bawah text_blok"></td>
 					        </tr>';
-
 							foreach ($misi['data'] as $t => $tujuan) {
 								$tujuan_teks = explode("||", $tujuan['nama']);
 								$body .= '
@@ -12131,7 +12112,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						            <td class="kanan bawah text_blok"></td>
 						            <td class="text_kiri kanan bawah text_blok"></td>
 						        </tr>';
-
 								foreach ($tujuan['data'] as $s => $sasaran) {
 									$sasaran_teks = explode("||", $sasaran['nama']);
 									$body .= '
@@ -12143,7 +12123,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							            <td class="kanan bawah text_blok"></td>
 							            <td class="text_kiri kanan bawah text_blok"></td>
 							        </tr>';
-
 									foreach ($sasaran['data'] as $p => $program) {
 										$program_teks = explode("||", $program['nama']);
 										$indikator = array(
@@ -12152,7 +12131,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										foreach ($program['indikator'] as $i => $p_indikator) {
 											$indikator['indikator_teks'][] = $p_indikator['indikator'];
 										}
-
 										$body .= '
 										<tr class="misi" data-kode="">
 								            <td class="kiri kanan bawah text_blok"></td>
@@ -12594,7 +12572,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$body_renstra .= '
 							<tr>
-								<td class="text-center">' . ($_POST['tahun_awal'] + $i) . '</td>
+								<td class="text-center">' . ($_POST['tahun_awal'] + $i - 1) . '</td>
 								<td class="text-right pagu_' . $i . '">' . $this->_number_format($anggaran['pagu_' . $i]) . '</td>
 								<td class="text-right realisasi_pagu_' . $i . '" ' . $edit_realisasi_pagu . ' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $this->_number_format($anggaran['realisasi_pagu_' . $i]) . '</td>
 								<td class="text-center capaian_pagu_' . $i . '">' . $this->pembulatan($capaian_pagu) . '</td>
@@ -16618,15 +16596,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						10 => 'tahun_akhir_anggaran'
 					);
 					$where = "";
-
 					// Check if search value exists
 					if (!empty($params['search']['value'])) {
 						$search_value = "%" . $params['search']['value'] . "%";
 						$where .= $wpdb->prepare(
-							" AND ( nama LIKE %s OR waktu_awal LIKE %s OR waktu_akhir LIKE %s )",
+							" AND ( nama LIKE %s OR waktu_awal LIKE %s OR waktu_akhir LIKE %s AND tahun_anggaran =%d )",
 							$search_value,
 							$search_value,
-							$search_value
+							$search_value,
+							$_POST['tahun_anggaran']
 						);
 					}
 					$tipe_perencanaan = $_POST['tipe_perencanaan'];
@@ -16638,7 +16616,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						", $tipe_perencanaan),
 						ARRAY_A
 					);
-
 					if (empty($sqlTipe)) {
 						$return = array(
 							'status' => 'error',
@@ -16659,7 +16636,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlRec .= $where;
 					}
 
-					$sqlRec .= $wpdb->prepare(" ORDER BY " . $columns[$params['order'][0]['column']] . " " . $params['order'][0]['dir'] . " LIMIT %d, %d", $params['start'], $params['length']);
+					$sqlRec .= $wpdb->prepare(
+						" ORDER BY " . $columns[$params['order'][0]['column']] . " " . $params['order'][0]['dir'] .
+							" LIMIT %d, %d",
+						$params['start'],
+						$params['length']
+					);
 
 					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 					$totalRecords = $queryTot[0]['jml'];
@@ -16668,81 +16650,81 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$is_admin = false;
 					$user_id = um_user('ID');
 					$user_meta = get_userdata($user_id);
-					$js_check_admin = 0;
 					if (in_array("administrator", $user_meta->roles)) {
 						$is_admin = true;
 					}
-
 					$checkOpenedSchedule = 0;
 					if (!empty($queryRecords)) {
 						foreach ($queryRecords as $recKey => $recVal) {
-							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							$report = '<a class="btn btn-sm btn-primary action-btn" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							$edit = '';
 							$delete = '';
 							$lock = '';
+							$status = array(
+								0 => '<span class="badge badge-success" style="font-size:inherit;">Terbuka</span>',
+								1 => '<span class="badge badge-info" style="font-size:inherit;">Dikunci</span>',
+								2 => '<span class="badge badge-secondary" style="font-size:inherit;">Selesai</span>'
+							);
 
-							if ($recVal['status'] == 1) {
-								$lock = '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
-							} else if ($is_admin) {
+							if ($is_admin) {
 								$checkOpenedSchedule++;
-								$lock = '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-								$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-								$delete = '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
-
-								if ($tipe_perencanaan == 'renstra' || $tipe_perencanaan == 'renja') {
-									$delete .= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_usulan(); return false;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+								if ($recVal['status'] == 1) {
+									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+								} else {
+									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+								}
+								$edit = '<a class="btn btn-sm btn-warning action-btn" onclick="edit_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+								$delete = '<a class="btn btn-sm btn-danger action-btn" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								if (in_array($tipe_perencanaan, ['renstra', 'renja'])) {
+									$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_usulan(); return false;" style="display:inline;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if ($tipe_perencanaan == 'renja') {
-										$delete .= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_penetapan(); return false;" href="#" title="Copy Data Penetapan ke Usulan">Copy Data Penetapan</a>';
-										$delete .= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" title="Copy Data RENJA SIPD ke Lokal">Copy Data RENJA SIPD ke Lokal</a>';
+										$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_penetapan(); return false;" href="#" style="display:inline;" title="Copy Data Penetapan ke Usulan">Copy Data Penetapan</a>';
+										$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" data-toggle="modal" data-target="#modal-copy-renja-sipd" style="display:inline;" href="#" title="Copy Data RENJA SIPD ke Lokal">Copy Data RENJA SIPD ke Lokal</a>';
 									}
 									if ($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])) {
-										$delete .= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="copy_data_renstra(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+										$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" style="display:inline;" onclick="copy_data_renstra(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
+								} else if (in_array($tipe_perencanaan, ['monev_renstra', 'monev_renja'])) {
+									$lock = '';
+									$delete = '';
 								}
 							}
-
-							if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra'])) {
+							if (in_array($tipe_perencanaan, ['verifikasi_rka', 'verifikasi_rka_sipd'])) {
 								$report = '';
 							}
-
-							if (in_array($tipe_perencanaan, ['monev_renja'])) {
-								$report = '';
-								$lock = '';
-							}
-							$status = array(
-								0 => '<span class="badge badge-success" style="font-size:inherit; ">Terbuka</span>',
-								1 => '<span class="badge badge-info" style="font-size:inherit; >Dikunci</span>',
-								2 => '<span class="badge badge-secondary" style="font-size:inherit; >Selesai</span>'
-							);
 
 							$relasi_perencanaan = '-';
 							$relasi_perencanaan_renstra = '-';
 							if (!empty($recVal['relasi_perencanaan'])) {
-								$data_relasi_perencanaan = $wpdb->get_results($wpdb->prepare(
-									'SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal=%d',
-									$recVal['relasi_perencanaan']
-								), ARRAY_A);
+								$data_relasi_perencanaan = $wpdb->get_results(
+									$wpdb->prepare('
+										SELECT * 
+										FROM data_jadwal_lokal 
+										WHERE id_jadwal_lokal= %d
+										', $recVal['relasi_perencanaan']),
+									ARRAY_A
+								);
 
 								if (!empty($data_relasi_perencanaan)) {
 									$relasi_perencanaan = $data_relasi_perencanaan[0]['nama'];
-									$nama_tipe = $wpdb->get_results($wpdb->prepare(
-										'SELECT * FROM data_tipe_perencanaan WHERE id=%d',
-										$data_relasi_perencanaan[0]['id_tipe']
-									), ARRAY_A);
-									$relasi_perencanaan_renstra = (!empty($nama_tipe)) ? strtoupper($nama_tipe[0]['nama_tipe']) . ' | ' . $relasi_perencanaan : '-';
+									$nama_tipe = $wpdb->get_results(
+										$wpdb->prepare('
+											SELECT * 
+											FROM data_tipe_perencanaan 
+											WHERE id = %d
+											', $data_relasi_perencanaan[0]['id_tipe']),
+										ARRAY_A
+									);
+									$relasi_perencanaan_renstra = (!empty($nama_tipe)) ? strtoupper($nama_tipe[0]['nama_tipe']) . ' | ' . $relasi_perencanaan . ' | ' . $data_relasi_perencanaan[0]['tahun_anggaran'] . ' - ' . $data_relasi_perencanaan[0]['tahun_akhir_anggaran'] : '-';
 								}
 							}
 
-							$tahun_anggaran_selesai = $recVal['tahun_akhir_anggaran'];
-							if ($recVal['id_tipe'] == 13 || $recVal['id_tipe'] == 14) {
-								$report = '';
-							}
 							$queryRecords[$recKey]['waktu_awal'] = date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 							$queryRecords[$recKey]['waktu_akhir'] = date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
-							$queryRecords[$recKey]['aksi'] = $report . $lock . $edit . $delete;
+							$queryRecords[$recKey]['aksi'] = '<div class="action-buttons">' . $report . $lock . $edit . $delete . '</div>';
 							$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
 							$queryRecords[$recKey]['status'] = ucfirst($status[$recVal['status']]);
-							$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
+							$queryRecords[$recKey]['tahun_anggaran_selesai'] = $recVal['tahun_anggaran'] + $recVal['lama_pelaksanaan'] - 1;
 							$queryRecords[$recKey]['relasi_perencanaan'] = $relasi_perencanaan;
 							$queryRecords[$recKey]['relasi_perencanaan_renstra'] = $relasi_perencanaan_renstra;
 							$queryRecords[$recKey]['tahun_akhir_anggaran'] = $recVal['tahun_akhir_anggaran'];
@@ -16756,7 +16738,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"data" => $queryRecords,
 							"checkOpenedSchedule" => $checkOpenedSchedule
 						);
-
 						die(json_encode($json_data));
 					} else {
 						$json_data = array(
@@ -16767,7 +16748,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"checkOpenedSchedule" => $checkOpenedSchedule,
 							"message" => "Data tidak ditemukan!"
 						);
-
 						die(json_encode($json_data));
 					}
 				} else {
@@ -16834,107 +16814,157 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						", $tipe_perencanaan),
 						ARRAY_A
 					);
+
 					if (!empty($sqlTipe)) {
-						if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra', 'monev_renja'])) {
-							if (
-								!empty($nama)
-								&& !empty($tahun_anggaran)
-								&& !empty($tipe_perencanaan)
-								&& !empty($lama_pelaksanaan)
-								&& !empty($tahun_akhir_anggaran)
-								&& !empty($jenis_jadwal)
-							) {
-								$data_jadwal = [
-									'nama'                 => $nama,
-									'tahun_anggaran'       => $tahun_anggaran,
-									'relasi_perencanaan'   => $relasi_perencanaan,
-									'id_tipe'  			   => $sqlTipe[0]['id'],
-									'lama_pelaksanaan'     => $lama_pelaksanaan,
-									'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
-									'jenis_jadwal'    	   => $jenis_jadwal,
-									'status'               => 0,
-								];
-
-								$wpdb->insert('data_jadwal_lokal', $data_jadwal);
-
-								$return = [
-									'status'        => 'success',
-									'message'       => 'Berhasil Tambah Jadwal Monev!',
-									'data_jadwal'   => $data_jadwal,
-								];
-							} else {
-								$return = [
-									'status'    => 'error',
-									'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
-								];
-							}
-						} else {
-							if (
-								!empty($nama)
-								&& !empty($jadwal_mulai)
-								&& !empty($jadwal_selesai)
-								&& !empty($tahun_anggaran)
-								&& !empty($tipe_perencanaan)
-								&& !empty($lama_pelaksanaan)
-							) {
-
-								$id_tipe = $sqlTipe[0]['id'];
-								$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
-								$sqlSameTipe = $wpdb->get_results(
-									$wpdb->prepare("
-										SELECT * 
-										FROM `data_jadwal_lokal` 
-										WHERE id_tipe = %s
-										$where_renja
-									", $id_tipe),
-									ARRAY_A
-								);
-
-								foreach ($sqlSameTipe as $valTipe) {
-									if ($valTipe['status'] != 1) {
-										$return = [
-											'status'    => 'error',
-											'message'   => 'Masih ada penjadwalan yang terbuka!',
-											'sql'       => $wpdb->last_query
+						switch ($tipe_perencanaan) {
+							case 'monev_rpjmd':
+							case 'monev_renja':
+								if (!empty($nama) && !empty($tahun_anggaran) && !empty($lama_pelaksanaan)) {
+									if ($tipe_perencanaan === 'monev_rpjmd') {
+										// Tambah Jadwal Monev RPJM RENSTRA
+										if (empty($jenis_jadwal) || empty($tahun_akhir_anggaran)) {
+											$return = [
+												'status'    => 'error',
+												'message'   => 'Harap diisi semua , tidak boleh ada yang kosong!'
+											];
+											die(json_encode($return));
+										}
+										// $cek_jadwal_terbuka = $wpdb->get_var(
+										// 	$wpdb->prepare('
+										// 		SELECT 
+										// 			status
+										// 		FROM data_jadwal_lokal
+										// 		WHERE id_tipe = %d
+										// 		  AND status = %d
+										// 	', 17, 0)
+										// );
+										// if (!empty($cek_jadwal_terbuka)) {
+										// 	$return = [
+										// 		'status'    => 'error',
+										// 		'message'   => 'GAGAL! Masih terdapat jadwal terbuka!'
+										// 	];
+										// 	die(json_encode($return));
+										$data_jadwal_rpjm = [
+											'nama'                 => $nama,
+											'tahun_anggaran'       => $tahun_anggaran,
+											'relasi_perencanaan'   => $relasi_perencanaan,
+											'id_tipe'  			   => $sqlTipe[0]['id'],
+											'lama_pelaksanaan'     => $lama_pelaksanaan,
+											'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
+											'jenis_jadwal'    	   => $jenis_jadwal,
+											'status'               => 0,
 										];
-										die(json_encode($return));
-									}
-									if (($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir']) || ($jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir'])) {
-										$return = [
-											'status'    => 'error',
-											'message'   => 'Waktu sudah dipakai jadwal lain!'
+										$wpdb->insert('data_jadwal_lokal', $data_jadwal_rpjm);
+										$id_jadwal_rpjmd_baru = $wpdb->insert_id;
+
+										$data_jadwal_renstra = [
+											'nama'                 => 'Jadwal Renstra' . ' ' . $nama,
+											'tahun_anggaran'       => $tahun_anggaran,
+											'relasi_perencanaan'   => $id_jadwal_rpjmd_baru,
+											'id_tipe'  			   => 15,
+											'lama_pelaksanaan'     => $lama_pelaksanaan,
+											'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
+											'status'               => 0,
 										];
-										die(json_encode($return));
+										$wpdb->insert('data_jadwal_lokal', $data_jadwal_renstra);
+
+										$return = [
+											'status'        => 'success',
+											'message'       => 'Berhasil Tambah Jadwal Monev RPJMD dan RENSTRA!',
+										];
+									} else {
+										// Tambah Jadwal Monev Renja
+										$data_jadwal = [
+											'nama'                 => $nama,
+											'tahun_anggaran'       => $tahun_anggaran,
+											'relasi_perencanaan'   => $relasi_perencanaan,
+											'id_tipe'  			   => $sqlTipe[0]['id'],
+											'lama_pelaksanaan'     => 1,
+											'status'               => 0,
+										];
+										$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+
+										$return = [
+											'status'        => 'success',
+											'message'       => 'Berhasil Tambah Jadwal Monev RENJA!',
+											'data_jadwal'   => $data_jadwal,
+										];
 									}
+								} else {
+									$return = [
+										'status'    => 'error',
+										'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
 								}
+								break;
 
-								$data_jadwal = [
-									'nama'                     => $nama,
-									'waktu_awal'               => $jadwal_mulai,
-									'waktu_akhir'              => $jadwal_selesai,
-									'tahun_anggaran'           => $tahun_anggaran,
-									'status'                   => 0,
-									'id_tipe'                  => $id_tipe,
-									'relasi_perencanaan'       => $relasi_perencanaan,
-									'lama_pelaksanaan'         => $lama_pelaksanaan,
-									'jenis_jadwal'             => $jenis_jadwal,
-									'id_jadwal_pergeseran'     => $id_jadwal_pergeseran_renja,
-									'status_jadwal_pergeseran' => $status_pergeseran_renja
-								];
+							default:
+								if (
+									!empty($nama)
+									&& !empty($jadwal_mulai)
+									&& !empty($jadwal_selesai)
+									&& !empty($tahun_anggaran)
+									&& !empty($tipe_perencanaan)
+									&& !empty($lama_pelaksanaan)
+								) {
+									$id_tipe = $sqlTipe[0]['id'];
+									$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
+									$sqlSameTipe = $wpdb->get_results(
+										$wpdb->prepare("
+											SELECT * 
+											FROM `data_jadwal_lokal` 
+											WHERE id_tipe = %s
+											$where_renja
+										", $id_tipe),
+										ARRAY_A
+									);
 
-								$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+									foreach ($sqlSameTipe as $valTipe) {
+										if ($valTipe['status'] != 1) {
+											$return = [
+												'status'    => 'error',
+												'message'   => 'Masih ada penjadwalan yang terbuka!',
+												'sql'       => $wpdb->last_query
+											];
+											die(json_encode($return));
+										}
+										if (($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir']) || ($jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir'])) {
+											$return = [
+												'status'    => 'error',
+												'message'   => 'Waktu sudah dipakai jadwal lain!'
+											];
+											die(json_encode($return));
+										}
+									}
 
-								$return = [
-									'status'        => 'success',
-									'message'       => 'Berhasil!',
-									'data_jadwal'   => $data_jadwal,
-								];
-							} else {
-								$return = [
-									'status'    => 'error',
-									'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
-								];
-							}
+									$data_jadwal = [
+										'nama'                     => $nama,
+										'waktu_awal'               => $jadwal_mulai,
+										'waktu_akhir'              => $jadwal_selesai,
+										'tahun_anggaran'           => $tahun_anggaran,
+										'status'                   => 0,
+										'id_tipe'                  => $id_tipe,
+										'relasi_perencanaan'       => $relasi_perencanaan,
+										'lama_pelaksanaan'         => $lama_pelaksanaan,
+										'jenis_jadwal'             => $jenis_jadwal,
+										'id_jadwal_pergeseran'     => $id_jadwal_pergeseran_renja,
+										'status_jadwal_pergeseran' => $status_pergeseran_renja
+									];
+
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+
+									$return = [
+										'status'        => 'success',
+										'message'       => 'Berhasil!',
+										'data_jadwal'   => $data_jadwal,
+									];
+								} else {
+									$return = [
+										'status'    => 'error',
+										'message'   => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+								}
+								break;
 						}
 					} else {
 						$return = [
@@ -16964,7 +16994,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 
-	/** get data jadwal by id */
+
 	public function get_data_jadwal_by_id()
 	{
 		global $wpdb;
@@ -17021,7 +17051,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	/** Submit data penjadwalan */
 	public function submit_edit_schedule()
 	{
 		global $wpdb;
@@ -17044,6 +17073,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						];
 						die(json_encode($return));
 					}
+					$data_this_id = $wpdb->get_row(
+						$wpdb->prepare('
+							SELECT * 
+							FROM data_jadwal_lokal 
+							WHERE id_jadwal_lokal = %d
+						', $id_jadwal_lokal),
+						ARRAY_A
+					);
+					if (empty($data_this_id)) {
+						$return = [
+							'status'  => 'error',
+							'message' => 'Data tidak ditemukan!',
+						];
+						die(json_encode($return));
+					}
 
 					$nama					= trim(htmlspecialchars($_POST['nama'] ?? ''));
 					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran'] ?? ''));
@@ -17057,8 +17101,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tahun_akhir_anggaran 	= trim(htmlspecialchars($_POST['tahun_akhir_anggaran'] ?? ''));
 					$jenis_jadwal 			= trim(htmlspecialchars($_POST['jenis_jadwal'] ?? ''));
 
-					if (in_array($tipe_perencanaan, ['renja', 'penganggaran', 'penganggaran_sipd'])) {
-						$lama_pelaksanaan = 1;
+					$status_check = array(0, NULL, 2);
+					if (!in_array($data_this_id['status'], $status_check)) {
+						$return = [
+							'status'  => 'error',
+							'message' => "User tidak diijinkan!\nData sudah dikunci!",
+						];
+						die(json_encode($return));
 					}
 
 					$sqlTipe = $wpdb->get_results(
@@ -17066,95 +17115,135 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT * 
 							FROM `data_tipe_perencanaan` 
 							WHERE nama_tipe = %s
-                    ", $tipe_perencanaan),
+                    	", $tipe_perencanaan),
 						ARRAY_A
 					);
 					if (!empty($sqlTipe)) {
-						if (in_array($tipe_perencanaan, ['monev_rpjmd', 'monev_renstra', 'monev_renja'])) {
-							if (
-								empty($nama)
-								&& empty($tahun_anggaran)
-								&& empty($tipe_perencanaan)
-								&& empty($lama_pelaksanaan)
-								&& empty($tahun_akhir_anggaran)
-								&& empty($jenis_jadwal)
-							) {
-								$return = [
-									'status' => 'error',
-									'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
-								];
-								die(json_encode($return));
-							}
-
-							$data_this_id = $wpdb->get_row(
-								$wpdb->prepare('
-									SELECT * 
-									FROM data_jadwal_lokal 
-									WHERE id_jadwal_lokal = %d
-									', $id_jadwal_lokal),
-								ARRAY_A
-							);
-							if (!empty($data_this_id)) {
-								$status_check = array(0, NULL, 2);
-								if (!in_array($data_this_id['status'], $status_check)) {
+						switch ($tipe_perencanaan) {
+							case 'monev_rpjmd':
+								//Update RPJM sekaligus RENSTRA
+								if (
+									empty($nama)
+									&& empty($tahun_anggaran)
+									&& empty($lama_pelaksanaan)
+									&& empty($tahun_akhir_anggaran)
+									&& empty($jenis_jadwal)
+								) {
 									$return = [
 										'status' => 'error',
-										'message' => "User tidak diijinkan!\nData sudah dikunci!",
+										'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
 									];
 									die(json_encode($return));
 								}
-								$data_jadwal = [
+
+								$data_jadwal_rpjm = [
 									'nama'                	=> $nama,
 									'tahun_anggaran'      	=> $tahun_anggaran,
-									'relasi_perencanaan'  	=> $relasi_perencanaan,
 									'lama_pelaksanaan'    	=> $lama_pelaksanaan,
 									'tahun_akhir_anggaran'  => $tahun_akhir_anggaran,
 									'jenis_jadwal'			=> $jenis_jadwal
 								];
 
-								$wpdb->update('data_jadwal_lokal', $data_jadwal, ['id_jadwal_lokal' => $id_jadwal_lokal]);
+								$data_jadwal_renstra = [
+									'tahun_anggaran'      	=> $tahun_anggaran,
+									'lama_pelaksanaan'    	=> $lama_pelaksanaan,
+									'tahun_akhir_anggaran'  => $tahun_akhir_anggaran
+								];
+
+								$wpdb->update('data_jadwal_lokal', $data_jadwal_rpjm, [
+									'id_jadwal_lokal' => $id_jadwal_lokal,
+									'id_tipe' 		  => 17
+								]);
+								$wpdb->update('data_jadwal_lokal', $data_jadwal_renstra, [
+									'relasi_perencanaan' => $id_jadwal_lokal,
+									'id_tipe' 			 => 15
+								]);
 
 								$return = [
-									'status'        => 'success',
-									'message'       => 'Berhasil Perbarui Jadwal Monev!',
-									'data_jadwal'   => $data_jadwal
+									'status'  => 'success',
+									'message' => 'Berhasil Perbarui Jadwal Monev RPJM RENSTRA!',
 								];
-							} else {
-								$return = [
-									'status' => 'error',
-									'message' => "Data tidak ditemukan!",
-								];
-							}
-						} else {
-							if (empty($_POST['id_jadwal_lokal']) && empty($_POST['nama']) && empty($_POST['jadwal_mulai']) && empty($_POST['jadwal_selesai']) && empty($_POST['tahun_anggaran']) && empty($lama_pelaksanaan)) {
-								$return = [
-									'status' => 'error',
-									'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
-								];
-								die(json_encode($return));
-							}
+								break;
 
-							if ($pergeseran_renja == 'true' && !empty($_POST['id_jadwal_pergeseran_renja'])) {
-								$status_pergeseran_renja = 'tampil';
-								$id_jadwal_pergeseran_renja = $_POST['id_jadwal_pergeseran_renja'];
-							} else {
-								$status_pergeseran_renja = 'tidak_tampil';
-								$id_jadwal_pergeseran_renja = NULL;
-							}
-
-							$arr_jadwal = ['usulan', 'penetapan'];
-							$jenis_jadwal = in_array($jenis_jadwal, $arr_jadwal) ? $jenis_jadwal : 'usulan';
-
-							$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d', $id_jadwal_lokal), ARRAY_A);
-							if (!empty($data_this_id)) {
-								$status_check = array(0, NULL, 2);
-								if (!in_array($data_this_id['status'], $status_check)) {
+							case 'monev_renstra':
+								//Update RENSTRA
+								if (empty($nama)) {
 									$return = [
-										'status' => 'error',
-										'message' => "User tidak diijinkan!\nData sudah dikunci!",
+										'status'  => 'error',
+										'message' => 'Nama RENSTRA Kosong!'
 									];
 									die(json_encode($return));
 								}
+
+								$data_jadwal_renstra = [
+									'nama' => $nama
+								];
+
+								$wpdb->update('data_jadwal_lokal', $data_jadwal_renstra, [
+									'id_jadwal_lokal' => $id_jadwal_lokal
+								]);
+
+								$return = [
+									'status'  => 'success',
+									'message' => 'Berhasil Perbarui Jadwal Monev RENSTRA!',
+								];
+								break;
+
+							case 'monev_renja':
+								//Update RENJA
+								if (empty($nama) || empty($relasi_perencanaan)) {
+									$return = [
+										'status'  => 'error',
+										'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+									die(json_encode($return));
+								}
+
+								$data_jadwal_renja = [
+									'nama'    			 => $nama,
+									'relasi_perencanaan' => $relasi_perencanaan
+								];
+
+								$wpdb->update('data_jadwal_lokal', $data_jadwal_renja, [
+									'id_jadwal_lokal' => $id_jadwal_lokal
+								]);
+
+								$return = [
+									'status'  => 'success',
+									'message' => 'Berhasil Perbarui Jadwal Monev RENJA!',
+								];
+								break;
+
+							default:
+								if (
+									empty($_POST['id_jadwal_lokal'])
+									&& empty($_POST['nama'])
+									&& empty($_POST['jadwal_mulai'])
+									&& empty($_POST['jadwal_selesai'])
+									&& empty($_POST['tahun_anggaran'])
+									&& empty($lama_pelaksanaan)
+								) {
+									$return = [
+										'status' => 'error',
+										'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+									die(json_encode($return));
+								}
+								if (in_array($tipe_perencanaan, ['renja', 'penganggaran', 'penganggaran_sipd'])) {
+									$lama_pelaksanaan = 1;
+								}
+
+								if ($pergeseran_renja == 'true' && !empty($_POST['id_jadwal_pergeseran_renja'])) {
+									$status_pergeseran_renja = 'tampil';
+									$id_jadwal_pergeseran_renja = $_POST['id_jadwal_pergeseran_renja'];
+								} else {
+									$status_pergeseran_renja = 'tidak_tampil';
+									$id_jadwal_pergeseran_renja = NULL;
+								}
+
+								$arr_jadwal = ['usulan', 'penetapan'];
+								$jenis_jadwal = in_array($jenis_jadwal, $arr_jadwal) ? $jenis_jadwal : 'usulan';
+
 								$data_jadwal = [
 									'nama'                    => $nama,
 									'waktu_awal'              => $jadwal_mulai,
@@ -17167,19 +17256,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'status_jadwal_pergeseran' => $status_pergeseran_renja
 								];
 
-								$wpdb->update('data_jadwal_lokal', $data_jadwal, ['id_jadwal_lokal' => $id_jadwal_lokal]);
+								$wpdb->update('data_jadwal_lokal', $data_jadwal, [
+									'id_jadwal_lokal' => $id_jadwal_lokal
+								]);
 
 								$return = [
 									'status'        => 'success',
 									'message'       => 'Berhasil Perbarui Jadwal!',
-									'data_jadwal'   => $data_jadwal
 								];
-							} else {
-								$return = [
-									'status' => 'error',
-									'message' => "Data tidak ditemukan!",
-								];
-							}
+								break;
 						}
 					} else {
 						$return = [
@@ -24207,5 +24292,438 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		die(json_encode($ret));
+	}
+
+	public function submit_lock_schedule_monev()
+	{
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data' => array()
+		);
+		$user_id = um_user('ID');
+		$user_meta = get_userdata($user_id);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id_jadwal'])) {
+					$return = array(
+						'status' => 'error',
+						'message' => 'Id Jadwal Kosong!'
+					);
+				}
+
+				if (in_array("administrator", $user_meta->roles)) {
+					$id_jadwal = trim(htmlspecialchars($_POST['id_jadwal']));
+
+					$data_this_id = $wpdb->get_row(
+						$wpdb->prepare('
+							SELECT * 
+							FROM data_jadwal_lokal 
+							WHERE id_jadwal = %d
+							', $id_jadwal),
+						ARRAY_A
+					);
+
+					$timezone = get_option('timezone_string');
+					if (preg_match("/Asia/i", $timezone)) {
+						date_default_timezone_set($timezone);
+					} else {
+						$return = array(
+							'status' => 'error',
+							'message' => "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain: 'Jakarta', 'Makasar', 'Jayapura'"
+						);
+						die(json_encode($return));
+					}
+
+					$dateTime = new DateTime();
+					$time_now = $dateTime->format('Y-m-d H:i:s');
+					if ($time_now > $data_this_id['waktu_awal']) {
+						$status_check = array(0, NULL, 2);
+						if (in_array($data_this_id['status'], $status_check)) {
+							// kunci jadwal
+							$wpdb->update(
+								'data_jadwal_lokal',
+								array(
+									'waktu_akhir' => $time_now,
+									'status' => 1
+								),
+								array(
+									'id_jadwal_lokal' => $id_jadwal
+								)
+							);
+
+							//backup subkegiatan
+							$this->delete_data_lokal_history('data_renstra_sub_kegiatan', $data_this_id['id_jadwal']);
+							$columns_0 = array(
+								'bidur_lock',
+								'giat_lock',
+								'id_bidang_urusan',
+								'id_sub_giat',
+								'id_giat',
+								'id_misi',
+								'id_program',
+								'id_unik',
+								'id_unik_indikator',
+								'id_unit',
+								'id_sub_unit',
+								'id_visi',
+								'id_indikator',
+								'indikator',
+								'id_indikator_usulan',
+								'indikator_usulan',
+								'is_locked',
+								'is_locked_indikator',
+								'kode_bidang_urusan',
+								'kode_sub_giat',
+								'kode_giat',
+								'kode_program',
+								'kode_sasaran',
+								'kode_skpd',
+								'kode_tujuan',
+								'kode_unik_program',
+								'nama_bidang_urusan',
+								'nama_sub_giat',
+								'nama_giat',
+								'nama_program',
+								'nama_skpd',
+								'nama_sub_unit',
+								'pagu_1',
+								'pagu_2',
+								'pagu_3',
+								'pagu_4',
+								'pagu_5',
+								'pagu_1_usulan',
+								'pagu_2_usulan',
+								'pagu_3_usulan',
+								'pagu_4_usulan',
+								'pagu_5_usulan',
+								'program_lock',
+								'renstra_prog_lock',
+								'sasaran_lock',
+								'sasaran_teks',
+								'satuan',
+								'status',
+								'target_1',
+								'target_2',
+								'target_3',
+								'target_4',
+								'target_5',
+								'target_akhir',
+								'target_awal',
+								'satuan_usulan',
+								'target_1_usulan',
+								'target_2_usulan',
+								'target_3_usulan',
+								'target_4_usulan',
+								'target_5_usulan',
+								'target_akhir_usulan',
+								'target_awal_usulan',
+								'catatan_usulan',
+								'catatan',
+								'tujuan_lock',
+								'tujuan_teks',
+								'urut_sasaran',
+								'urut_tujuan',
+								'active',
+								'update_at',
+								'tahun_anggaran',
+								'kode_kegiatan',
+								'id_sub_giat_lama'
+							);
+							$sql_backup_data_renstra_sub_kegiatan = "
+								INSERT INTO data_renstra_sub_kegiatan_history 
+								(" . implode(',', $columns_0) . ", id_jadwal, id_asli) 
+								SELECT " . implode(', ', $columns_0) . ", " . $data_this_id['id_jadwal'] . ", id as id_asli 
+								FROM data_renstra_sub_kegiatan
+							";
+							$wpdb->query($sql_backup_data_renstra_sub_kegiatan);
+
+							//backup kegiatan
+							$this->delete_data_lokal_history('data_renstra_kegiatan', $data_this_id['id_jadwal']);
+							$columns_1 = array(
+								'bidur_lock',
+								'giat_lock',
+								'id_bidang_urusan',
+								'id_giat',
+								'id_misi',
+								'id_program',
+								'id_unik',
+								'id_unik_indikator',
+								'id_unit',
+								'id_visi',
+								'indikator',
+								'indikator_usulan',
+								'is_locked',
+								'is_locked_indikator',
+								'kode_bidang_urusan',
+								'kode_giat',
+								'kode_program',
+								'kode_sasaran',
+								'kode_skpd',
+								'kode_tujuan',
+								'kode_unik_program',
+								'nama_bidang_urusan',
+								'nama_giat',
+								'nama_program',
+								'nama_skpd',
+								'pagu_1',
+								'pagu_2',
+								'pagu_3',
+								'pagu_4',
+								'pagu_5',
+								'pagu_1_usulan',
+								'pagu_2_usulan',
+								'pagu_3_usulan',
+								'pagu_4_usulan',
+								'pagu_5_usulan',
+								'program_lock',
+								'renstra_prog_lock',
+								'sasaran_lock',
+								'sasaran_teks',
+								'satuan',
+								'status',
+								'target_1',
+								'target_2',
+								'target_3',
+								'target_4',
+								'target_5',
+								'target_akhir',
+								'target_awal',
+								'satuan_usulan',
+								'target_1_usulan',
+								'target_2_usulan',
+								'target_3_usulan',
+								'target_4_usulan',
+								'target_5_usulan',
+								'target_akhir_usulan',
+								'target_awal_usulan',
+								'catatan_usulan',
+								'catatan',
+								'tujuan_lock',
+								'tujuan_teks',
+								'urut_sasaran',
+								'urut_tujuan',
+								'active',
+								'update_at',
+								'tahun_anggaran'
+							);
+							$sql_backup_data_renstra_kegiatan = "
+								INSERT INTO data_renstra_kegiatan_history 
+								(" . implode(', ', $columns_1) . ", id_jadwal, id_asli) 
+								SELECT " . implode(', ', $columns_1) . ", " . $data_this_id['id_jadwal'] . ", id as id_asli 
+								FROM data_renstra_kegiatan";
+							$wpdb->query($sql_backup_data_renstra_kegiatan);
+
+							//backup program
+							$this->delete_data_lokal_history('data_renstra_program', $data_this_id['id_jadwal']);
+							$columns_2 = array(
+								'bidur_lock',
+								'id_bidang_urusan',
+								'id_misi',
+								'id_program',
+								'id_unik',
+								'id_unik_indikator',
+								'id_unit',
+								'id_visi',
+								'indikator',
+								'indikator_usulan',
+								'is_locked',
+								'is_locked_indikator',
+								'kode_bidang_urusan',
+								'kode_program',
+								'kode_sasaran',
+								'kode_skpd',
+								'kode_tujuan',
+								'nama_bidang_urusan',
+								'nama_program',
+								'nama_skpd',
+								'pagu_1',
+								'pagu_2',
+								'pagu_3',
+								'pagu_4',
+								'pagu_5',
+								'pagu_1_usulan',
+								'pagu_2_usulan',
+								'pagu_3_usulan',
+								'pagu_4_usulan',
+								'pagu_5_usulan',
+								'program_lock',
+								'sasaran_lock',
+								'sasaran_teks',
+								'satuan',
+								'status',
+								'target_1',
+								'target_2',
+								'target_3',
+								'target_4',
+								'target_5',
+								'target_akhir',
+								'target_awal',
+								'satuan_usulan',
+								'target_1_usulan',
+								'target_2_usulan',
+								'target_3_usulan',
+								'target_4_usulan',
+								'target_5_usulan',
+								'target_akhir_usulan',
+								'target_awal_usulan',
+								'catatan_usulan',
+								'catatan',
+								'tujuan_lock',
+								'tujuan_teks',
+								'urut_sasaran',
+								'urut_tujuan',
+								'active',
+								'update_at',
+								'tahun_anggaran'
+							);
+							$sql_backup_data_renstra_program = "
+								INSERT INTO data_renstra_program_history (" . implode(', ', $columns_2) . ", id_jadwal, id_asli) 
+								SELECT " . implode(', ', $columns_2) . ", " . $data_this_id['id_jadwal'] . ", id as id_asli 
+								FROM data_renstra_program
+							";
+							$wpdb->query($sql_backup_data_renstra_program);
+
+							//backup sasaran
+							$this->delete_data_lokal_history('data_renstra_sasaran', $data_this_id['id_jadwal']);
+							$columns_3 = array(
+								'bidur_lock',
+								'id_bidang_urusan',
+								'id_misi',
+								'id_unit',
+								'id_unik_indikator',
+								'id_unik',
+								'id_visi',
+								'indikator_teks',
+								'indikator_teks_usulan',
+								'is_locked',
+								'is_locked_indikator',
+								'kode_bidang_urusan',
+								'kode_skpd',
+								'kode_tujuan',
+								'nama_bidang_urusan',
+								'nama_skpd',
+								'sasaran_teks',
+								'satuan',
+								'status',
+								'target_1',
+								'target_2',
+								'target_3',
+								'target_4',
+								'target_5',
+								'target_akhir',
+								'target_awal',
+								'satuan_usulan',
+								'target_1_usulan',
+								'target_2_usulan',
+								'target_3_usulan',
+								'target_4_usulan',
+								'target_5_usulan',
+								'target_akhir_usulan',
+								'target_awal_usulan',
+								'catatan_usulan',
+								'catatan',
+								'tujuan_lock',
+								'tujuan_teks',
+								'urut_sasaran',
+								'urut_tujuan',
+								'active',
+								'update_at',
+								'tahun_anggaran'
+							);
+							$sql_backup_data_renstra_sasaran = "
+								INSERT INTO data_renstra_sasaran_history (" . implode(', ', $columns_3) . ", id_jadwal, id_asli) 
+								SELECT " . implode(', ', $columns_3) . ", " . $data_this_id['id_jadwal'] . ", id as id_asli 
+								FROM data_renstra_sasaran
+							";
+							$wpdb->query($sql_backup_data_renstra_sasaran);
+
+							//backup tujuan
+							$this->delete_data_lokal_history('data_renstra_tujuan', $data_this_id['id_jadwal']);
+							$columns_4 = array(
+								'bidur_lock',
+								'id_bidang_urusan',
+								'id_unik',
+								'id_unik_indikator',
+								'id_unit',
+								'indikator_teks',
+								'indikator_teks_usulan',
+								'is_locked',
+								'is_locked_indikator',
+								'kode_bidang_urusan',
+								'kode_sasaran_rpjm',
+								'kode_skpd',
+								'nama_bidang_urusan',
+								'nama_skpd',
+								'satuan',
+								'status',
+								'target_1',
+								'target_2',
+								'target_3',
+								'target_4',
+								'target_5',
+								'target_akhir',
+								'target_awal',
+								'satuan_usulan',
+								'target_1_usulan',
+								'target_2_usulan',
+								'target_3_usulan',
+								'target_4_usulan',
+								'target_5_usulan',
+								'target_akhir_usulan',
+								'target_awal_usulan',
+								'catatan_usulan',
+								'catatan',
+								'catatan_tujuan',
+								'tujuan_teks',
+								'urut_tujuan',
+								'active',
+								'update_at',
+								'tahun_anggaran'
+							);
+							$sql_backup_data_renstra_tujuan = "
+								INSERT INTO data_renstra_tujuan_history (" . implode(', ', $columns_4) . ", id_jadwal, id_asli) 
+								SELECT " . implode(', ', $columns_4) . ", " . $data_this_id['id_jadwal'] . ", id as id_asli 
+								FROM data_renstra_tujuan
+							";
+							$wpdb->query($sql_backup_data_renstra_tujuan);
+
+							$return = array(
+								'status' => 'success',
+								'message' => 'Berhasil!',
+								'data_input' => $queryRecords1
+							);
+						} else {
+							$return = array(
+								'status' => 'error',
+								'message' => "User tidak diijinkan!\nData sudah dikunci!"
+							);
+						}
+					} else {
+						$return = array(
+							'status' => 'error',
+							'message' => "Penjadwalan belum dimulai!"
+						);
+					}
+				} else {
+					$return = array(
+						'status' => 'error',
+						'message' => "User tidak diijinkan!"
+					);
+				}
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message' => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 }

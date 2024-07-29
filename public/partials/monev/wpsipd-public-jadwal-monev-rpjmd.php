@@ -3,27 +3,31 @@
 if (!defined('WPINC')) {
     die;
 }
-
 global $wpdb;
-
-$body = '';
+// $cek_jadwal = $wpdb->get_results(
+//     $wpdb->prepare('
+//         SELECT *
+//         FROM data_jadwal_lokal
+//         WHERE status = %d
+//           AND id_tipe = %d
+//     ', 0, 17)
+// );
+// if (!empty($cek_jadwal)) {
+//     $cek_jadwal = false;
+// } else {
+//     $cek_jadwal = true;
+// }
 ?>
 <style>
-    .bulk-action {
-        padding: .45rem;
-        border-color: #eaeaea;
-        vertical-align: middle;
-    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Jadwal Monev RPJMD Lokal</h1>
-        <div style="margin-bottom: 25px;">
-            <button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
-        </div>
+        <h1 class="text-center" style="margin:3rem;">Jadwal Monev RPJMD</h1>
+            <div style="margin-bottom: 25px;">
+                <button class="btn btn-primary" onclick="tambah_jadwal();"><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>
+            </div>
         <table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
             <thead id="data_header">
                 <tr>
@@ -51,29 +55,42 @@ $body = '';
                 </button>
             </div>
             <div class="modal-body">
-                <div>
-                    <label for='jadwal_nama' style='display:inline-block'>Nama Tahapan</label>
-                    <input type='text' id='jadwal_nama' style='display:block;width:100%;' placeholder='Nama Tahapan'>
+                <div class="form-group">
+                    <label for='jadwal_nama'>Nama Tahapan</label>
+                    <input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
                 </div>
-                <div>
-                    <label for='tahun_mulai_anggaran' style='display:inline-block'>Tahun Mulai Anggaran</label>
-                    <input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran" />
-                </div>
-                <div>
-                    <label for='tahun_akhir_anggaran' style='display:inline-block'>Tahun Akhir Anggaran</label>
-                    <input type="number" id='tahun_akhir_anggaran' name="tahun_akhir_anggaran" style='display:block;width:100%;' placeholder="Tahun Akhir Anggaran" />
-                </div>
-                <div>
-                    <label for='jenis_rpjmd_rpd' style='display:inline-block'>Pilih Jenis Jadwal</label>
-                    <select id='jenis_rpjmd_rpd' name="jenis_rpjmd_rpd" style='display:block;width:100%;'>
+                <div class="form-group">
+                    <label for='jenis_rpjmd_rpd'>Pilih Jenis Jadwal</label>
+                    <select id='jenis_rpjmd_rpd' name="jenis_rpjmd_rpd" class="form-control">
                         <option value="" selected disabled>Pilih Jenis RPJM/RPD</option>
                         <option value="rpjmd">RPJMD</option>
                         <option value="rpd">RPD</option>
                     </select>
                 </div>
-                <div>
-                    <label for='lama_pelaksanaan' style='display:inline-block'>Lama Pelaksanaan</label>
-                    <input type="number" id='lama_pelaksanaan' name="lama_pelaksanaan" style='display:block;width:100%;' placeholder="Lama Pelaksanaan" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for='tahun_mulai_anggaran'>Tahun Mulai Anggaran</label>
+                        <input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" class="form-control" placeholder="Tahun Mulai Anggaran" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for='tahun_akhir_anggaran'>Tahun Akhir Anggaran</label>
+                        <input type="number" id='tahun_akhir_anggaran' name="tahun_akhir_anggaran" class="form-control" placeholder="Tahun Akhir Anggaran" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
+                        <div class="input-group">
+                            <input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2">Tahun</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-warning" role="alert" id="alert-edit">
+                    Perubahan detail Jadwal Monev RPJMD juga akan mempengaruhi detail Jadwal Monev RENSTRA. Mohon pastikan perubahan dilakukan dengan teliti.
+                </div>
+                <div class="alert alert-info" role="alert" id="alert-tambah">
+                    Menambahkan Jadwal Monev RPJMD baru juga akan menambahkan Jadwal Monev RENSTRA baru. Pastikan data yang Anda masukkan benar.
                 </div>
             </div>
             <div class="modal-footer">
@@ -93,7 +110,6 @@ $body = '';
         get_data_penjadwalan();
     });
 
-    /** get data penjadwalan */
     function get_data_penjadwalan() {
         jQuery("#wrap-loading").show();
         globalThis.penjadwalanTable = jQuery('#data_penjadwalan_table').DataTable({
@@ -142,6 +158,8 @@ $body = '';
     function tambah_jadwal() {
         afterSubmitForm()
         jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
+        jQuery("#alert-tambah").show()
+        jQuery("#alert-edit").hide()
         jQuery("#modalTambahJadwal .submitBtn")
             .attr("onclick", 'submitTambahJadwalForm()')
             .attr("disabled", false)
@@ -210,6 +228,8 @@ $body = '';
     }
 
     function edit_data_penjadwalan(id_jadwal_lokal) {
+        jQuery("#alert-tambah").hide()
+        jQuery("#alert-edit").show()
         jQuery('#modalTambahJadwal').modal('show');
         jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
         jQuery("#modalTambahJadwal .submitBtn")
@@ -319,30 +339,128 @@ $body = '';
         }
     }
 
-    function lock_data_penjadwalan(id_jadwal_lokal){
-		return(alert("Sementera kunci jadwal belum bisa dilakukan"));
-		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
-		if(confirmLocked){
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: thisAjaxUrl,
-				type:'post',
-				data:{
-					'action' : 'submit_lock_schedule_rpjpd',
-					'api_key': jQuery("#api_key").val(),
-					'id_jadwal_lokal': id_jadwal_lokal
-				},
-				dataType: 'json',
-				success:function(response){
-					jQuery('#wrap-loading').hide();
-					if(response.status == 'success'){
-						alert('Data berhasil dikunci!.');
-						penjadwalanTable.ajax.reload();
-					}else{
-						alert(`GAGAL! \n${response.message}`);
-					}
-				}
-			});
-		}
-	}
+    function lock_data_penjadwalan(id_jadwal_lokal) {
+        return (alert("Sementera kunci jadwal belum bisa dilakukan"));
+        // let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
+        // if (confirmLocked) {
+        //     jQuery('#wrap-loading').show();
+        //     jQuery.ajax({
+        //         url: thisAjaxUrl,
+        //         type: 'post',
+        //         data: {
+        //             'action': 'submit_lock_schedule_rpjpd',
+        //             'api_key': jQuery("#api_key").val(),
+        //             'id_jadwal_lokal': id_jadwal_lokal
+        //         },
+        //         dataType: 'json',
+        //         success: function(response) {
+        //             jQuery('#wrap-loading').hide();
+        //             if (response.status == 'success') {
+        //                 alert('Data berhasil dikunci!.');
+        //                 penjadwalanTable.ajax.reload();
+        //             } else {
+        //                 alert(`GAGAL! \n${response.message}`);
+        //             }
+        //         }
+        //     });
+        // }
+    }
+
+    function report(id_jadwal_lokal) {
+        return (alert("Sementera laporan belum bisa dilakukan"));
+
+        all_skpd();
+
+        // let modal = `
+        //     <div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+        //     <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
+        //         <div class="modal-content">
+        //         <div class="modal-header">
+        //             <h5 class="modal-title">Export Data</h5>
+        //             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        //             <span aria-hidden="true">&times;</span>
+        //             </button>
+        //         </div>
+
+        //         <div class="modal-body">
+        //             <div class="container-fluid">
+        //                 <div class="row">
+        //                     <div class="col-md-2">Unit Kerja</div>
+        //                     <div class="col-md-6">
+        //                         <select class="form-control list_opd" id="list_opd"></select>
+        //                     </div>
+        //                 </div></br>
+        //                 <div class="row">
+        //                     <div class="col-md-2">Jenis Laporan</div>
+        //                     <div class="col-md-6">
+        //                         <select class="form-control jenis" id="jenis" onchange="jenisLaporan(this)">
+        //                             <option value="-">Pilih Jenis</option>
+        //                             <option value="rekap">Format Rekap Renstra</option>
+        //                             <option value="tc27">Format TC 27</option>
+        //                             <option value="pagu_akumulasi">Format Pagu Akumulasi Per Unit Kerja</option>
+        //                             <option value="total_prog_keg">Total Program Kegiatan</option>
+        //                         </select>
+        //                     </div>
+        //                 </div></br>
+        //                 <div class="row">
+        //                     <div class="col-md-2">Pagu</div>
+        //                     <div class="col-md-6">
+        //                         <select class="jenis_pagu" id="jenis_pagu" disabled>
+        //                             <option value="-">Pilih jenis pagu</option>
+        //                             <option value="0">Usulan</option>
+        //                             <option value="1">Penetapan</option>
+        //                         </select>
+        //                     </div>
+        //                 </div></br>
+        //                 <div class="row">
+        //                     <div class="col-md-2"></div>
+        //                     <div class="col-md-6">
+        //                         <button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')" data-jadwal="${id_jadwal_lokal}">Preview</button>
+        //                         <button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
+        //                     </div>
+        //                 </div></br>
+        //             </div>
+        //         </div>
+
+        //         <div class="modal-preview" style="padding:10px"></div>
+
+        //         </div>
+        //     </div>
+        //     </div>`;
+
+        // jQuery("body .report").html(modal);
+        // jQuery("#modal-report").modal('show');
+        // jQuery('.jenis').select2({
+        //     width: '100%'
+        // });
+    }
+
+    function all_skpd() {
+        return (alert("Sementera laporan belum bisa dilakukan"));
+
+        // jQuery('#wrap-loading').show();
+        // jQuery.ajax({
+        //     url: ajax.url,
+        //     type: 'post',
+        //     dataType: 'json',
+        //     data: {
+        //         action: 'get_list_skpd',
+        //         tahun_anggaran: tahunAnggaran
+        //     },
+        //     success: function(response) {
+        //         let list_opd = `<option value="">Pilih Unit Kerja</option><option value="all">Semua Unit Kerja</option>`;
+        //         response.map(function(v, i) {
+        //             list_opd += `<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
+        //         });
+        //         jQuery("#list_opd").html(list_opd);
+        //         jQuery('.list_opd').select2({
+        //             width: '100%'
+        //         });
+        //         jQuery('.jenis_pagu').select2({
+        //             width: '100%'
+        //         });
+        //         jQuery('#wrap-loading').hide();
+        //     }
+        // })
+    }
 </script>

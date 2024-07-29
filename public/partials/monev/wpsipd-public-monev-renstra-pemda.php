@@ -7,11 +7,13 @@ if (!defined('WPINC')) {
 global $wpdb;
 $input = shortcode_atts(array(
     'id_skpd' => '',
-    'tahun_anggaran' => '2022'
+    'id_jadwal' => '',
 ), $atts);
+// die(print_r($input['id_jadwal']));
 
 $nama_pemda = get_option('_crb_daerah');
 $bulan = date('m');
+$tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
 
 $sql = $wpdb->prepare("
 	SELECT 
@@ -21,80 +23,78 @@ $sql = $wpdb->prepare("
 	  AND active = 1
 	  AND is_skpd = 1
 	ORDER BY kode_skpd ASC
-", $input['tahun_anggaran']);
+", $tahun_anggaran_sipd);
 
 $unit = $wpdb->get_results($sql, ARRAY_A);
+$count_unit = count($unit);
 
-$tahun_awal_jadwal = 2024;
-$tahun_akhir_jadwal = 2026;
-$lama_pelaksanaan = 3;
+$data_jadwal = $wpdb->get_row(
+    $wpdb->prepare("
+        SELECT *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal = %d
+          AND status = %d
+          AND id_tipe = %d
+    ", $input['id_jadwal'], 0, 15),
+    ARRAY_A
+);
 
-$no_opd = 0;
-$no_sub_opd = 0;
+if (empty($data_jadwal)) {
+    die("<h1>Jadwal Tidak Tersedia</h1>");
+}
+$tahun_awal_jadwal = $data_jadwal['tahun_anggaran'];
+$tahun_akhir_jadwal = $data_jadwal['tahun_akhir_anggaran'];
+$lama_pelaksanaan = $data_jadwal['lama_pelaksanaan'];
 
-// Get the count of programs
+// Get the count of various entities
 $program_count = $wpdb->get_var(
     $wpdb->prepare("
         SELECT COUNT(*) 
         FROM data_renstra_program 
         WHERE active = 1 
-          AND tahun_anggaran = %d 
           AND id_unik_indikator IS NOT NULL 
-        ",
-        $input['tahun_anggaran']
-    )
+          AND id_jadwal = %d
+    ", $input['id_jadwal'])
 );
 
-// Get the count of activities (kegiatan)
 $kegiatan_count = $wpdb->get_var(
     $wpdb->prepare("
         SELECT COUNT(*) 
         FROM data_renstra_kegiatan 
         WHERE active = 1
-          AND tahun_anggaran = %d 
           AND id_unik_indikator IS NOT NULL 
-    ",
-        $input['tahun_anggaran']
-    )
+          AND id_jadwal = %d
+    ", $input['id_jadwal'])
 );
 
-// Get the count of sub-activities (sub_kegiatan)
 $sub_kegiatan_count = $wpdb->get_var(
     $wpdb->prepare("
         SELECT COUNT(*) 
         FROM data_renstra_sub_kegiatan 
         WHERE active = 1 
-          AND tahun_anggaran = %d
-          AND id_unik_indikator IS NOT NULL 
-    ",
-        $input['tahun_anggaran']
-    )
+          AND id_unik_indikator IS NOT NULL
+          AND id_jadwal = %d
+    ", $input['id_jadwal'])
 );
 
-// Get the count of goals (tujuan)
 $tujuan_count = $wpdb->get_var(
     $wpdb->prepare("
         SELECT COUNT(*) 
         FROM data_renstra_tujuan 
         WHERE active = 1 
-          AND tahun_anggaran = %d
           AND id_unik_indikator IS NOT NULL
-    ",
-        $input['tahun_anggaran']
-    )
+          AND id_jadwal = %d
+    ", $input['id_jadwal'])
 );
 
-// Get the count of targets (sasaran)
 $sasaran_count = $wpdb->get_var(
     $wpdb->prepare("
         SELECT COUNT(*) 
         FROM data_renstra_sasaran 
         WHERE active = 1 
-          AND tahun_anggaran = %d
           AND id_unik_indikator IS NOT NULL
-    ",
-        $input['tahun_anggaran']
-    )
+          AND id_jadwal = %d
+    ", $input['id_jadwal'])
 );
 
 $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
@@ -125,26 +125,27 @@ foreach ($unit as $skpd) {
 
     $data_renstra_sub_kegiatan = $wpdb->get_row(
         $wpdb->prepare("
-        SELECT
-            sum(pagu_1) as pagu_1,
-            sum(pagu_2) as pagu_2,
-            sum(pagu_3) as pagu_3,
-            sum(pagu_4) as pagu_4,
-            sum(pagu_5) as pagu_5,
-            sum(realisasi_pagu_1) as realisasi_pagu_1,
-            sum(realisasi_pagu_2) as realisasi_pagu_2,
-            sum(realisasi_pagu_3) as realisasi_pagu_3,
-            sum(realisasi_pagu_4) as realisasi_pagu_4,
-            sum(realisasi_pagu_5) as realisasi_pagu_5
-        FROM data_renstra_sub_kegiatan
-        WHERE tahun_anggaran = %d
-            AND id_unit = %d
-            AND id_unik_indikator IS NULL
-            AND active = 1
-    ", $input['tahun_anggaran'], $skpd['id_skpd']),
+            SELECT
+                SUM(pagu_1) AS pagu_1,
+                SUM(pagu_2) AS pagu_2,
+                SUM(pagu_3) AS pagu_3,
+                SUM(pagu_4) AS pagu_4,
+                SUM(pagu_5) AS pagu_5,
+                SUM(realisasi_pagu_1) AS realisasi_pagu_1,
+                SUM(realisasi_pagu_2) AS realisasi_pagu_2,
+                SUM(realisasi_pagu_3) AS realisasi_pagu_3,
+                SUM(realisasi_pagu_4) AS realisasi_pagu_4,
+                SUM(realisasi_pagu_5) AS realisasi_pagu_5
+            FROM data_renstra_sub_kegiatan
+            WHERE id_unit = %d
+              AND id_jadwal = %d
+              AND id_unik_indikator IS NULL
+              AND active = 1
+        ", $skpd['id_skpd'], $input['id_jadwal']),
         ARRAY_A
     );
 
+    // die(print_r($wpdb->last_query));
     $pagu_1 = $data_renstra_sub_kegiatan['pagu_1'] ?? 0;
     $pagu_2 = $data_renstra_sub_kegiatan['pagu_2'] ?? 0;
     $pagu_3 = $data_renstra_sub_kegiatan['pagu_3'] ?? 0;
@@ -181,24 +182,27 @@ foreach ($unit as $skpd) {
     if ($persen > 100) {
         $warning = 'bg-danger';
     }
-
-    $url_skpd = $this->generatePage('MONEV RENSTRA ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $input['tahun_anggaran'] . '" id_skpd="' . $skpd['id_skpd'] . '"]');
+    $url_skpd = $this->generatePage(
+        'Monitoring dan Evaluasi RENSTRA ' . $skpd['nama_skpd'] . ' ' . $skpd['kode_skpd'] . ' | ' . $data_jadwal['nama'],
+        '',
+        '[monitor_monev_renstra id_skpd="' . $skpd['id_skpd'] . '" id_jadwal="' . $data_jadwal['id_jadwal_lokal'] . '"]'
+    );
+    
     $body_monev .= '
-<tr class="' . $warning . '" data-id="' . $skpd['id_skpd'] . '">
-    <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
-    <td class="atas kanan bawah kiri text_kiri"><a target="_blank" href="' . $url_skpd . '">' . $skpd['nama_skpd'] . '</a></td>';
-
+        <tr class="' . $warning . '" data-id="' . $skpd['id_skpd'] . '">
+            <td class="atas kanan bawah kiri text_tengah">' . $no++ . '</td>
+            <td class="atas kanan bawah kiri text_kiri"><a target="_blank" href="' . $url_skpd . '">' . $skpd['nama_skpd'] . '</a></td>';
     for ($i = 0; $i < $lama_pelaksanaan; $i++) {
         $body_monev .= '<td class="kanan bawah text_kanan">' . $this->_number_format($pagu_arr[$i]) . '</td>';
         $body_monev .= '<td class="kanan bawah text_kanan">' . $this->_number_format($realisasi_pagu_arr[$i]) . '</td>';
     }
     $body_monev .= '
-        <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_pagu_skpd) . '</td>
-        <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_realisasi_pagu_skpd) . '</td>
-        <td class="kanan bawah text_kanan">' . $this->_number_format($selisih) . '</td>
-        <td class="kanan bawah text_kanan">' . $this->pembulatan($persen) . '%</td>
-</tr>
-';
+                <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_pagu_skpd) . '</td>
+                <td class="kanan bawah text_kanan">' . $this->_number_format($total_all_realisasi_pagu_skpd) . '</td>
+                <td class="kanan bawah text_kanan">' . $this->_number_format($selisih) . '</td>
+                <td class="kanan bawah text_kanan">' . $this->pembulatan($persen) . '%</td>
+        </tr>
+    ';
 
     $total_all_pagu_all_skpd += $total_all_pagu_skpd;
     $total_all_realisasi_pagu_all_skpd += $total_all_realisasi_pagu_skpd;
@@ -218,10 +222,12 @@ foreach ($unit as $skpd) {
     $total_all_selisih += $selisih;
     $persen_all = $total_all_pagu_all_skpd > 0 ? round($total_all_realisasi_pagu_all_skpd / $total_all_pagu_all_skpd * 100, 2) : 0;
 
-
     $persen_1 = 0;
     $persen_2 = 0;
     $persen_3 = 0;
+    $persen_4 = 0;
+    $persen_5 = 0;
+
     if (!empty($total_all_pagu_1) && !empty($total_all_realisasi_pagu_1)) {
         $persen_1 = ($total_all_realisasi_pagu_1 / $total_all_pagu_1) * 100;
     }
@@ -230,6 +236,12 @@ foreach ($unit as $skpd) {
     }
     if (!empty($total_all_pagu_3) && !empty($total_all_realisasi_pagu_3)) {
         $persen_3 = ($total_all_realisasi_pagu_3 / $total_all_pagu_3) * 100;
+    }
+    if (!empty($total_all_pagu_4) && !empty($total_all_realisasi_pagu_4)) {
+        $persen_4 = ($total_all_realisasi_pagu_4 / $total_all_pagu_4) * 100;
+    }
+    if (!empty($total_all_pagu_5) && !empty($total_all_realisasi_pagu_5)) {
+        $persen_5 = ($total_all_realisasi_pagu_5 / $total_all_pagu_5) * 100;
     }
 }
 ?>
@@ -263,7 +275,7 @@ foreach ($unit as $skpd) {
         background: #ffc491;
     }
 </style>
-<h1 class="text-center">Monitor dan Evaluasi Renstra<br><?php echo 'Tahun ' . $input['tahun_anggaran'] . '<br>' . $nama_pemda; ?></h1>
+<h1 class="text-center">Monitor dan Evaluasi Renstra<br><?php echo $data_jadwal['nama'] . ' ( ' . $tahun_awal_jadwal . ' - ' . $tahun_akhir_jadwal . ' )' . '<br>' . $nama_pemda; ?></h1>
 <h4 class="text-center"><?php echo $string_hari_ini; ?></h4>
 <div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
     <div class="row gy-5 g-xl-8 mb-5">
@@ -418,7 +430,15 @@ foreach ($unit as $skpd) {
                                                 <h2 class="font-weight-bolder text-success py-1 m-0">:</h2>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($total_all_realisasi_pagu_all_skpd / $total_all_pagu_all_skpd) * 100); ?>%</h2>
+                                                <h2 class="font-weight-bolder text-success py-1 m-0">
+                                                    <?php
+                                                    if ($total_all_pagu_all_skpd != 0) {
+                                                        echo $this->pembulatan(($total_all_realisasi_pagu_all_skpd / $total_all_pagu_all_skpd) * 100) . '%';
+                                                    } else {
+                                                        echo '0%';
+                                                    }
+                                                    ?>
+                                                </h2>
                                             </td>
                                         </tr>
                                         <tr>
@@ -429,7 +449,15 @@ foreach ($unit as $skpd) {
                                                 <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_1); ?>%</h5>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">
+                                                    <?php
+                                                    if (isset($persen_1)) {
+                                                        echo $this->pembulatan($persen_1) . '%';
+                                                    } else {
+                                                        echo '0%';
+                                                    }
+                                                    ?>
+                                                </h5>
                                             </td>
                                         </tr>
                                         <tr>
@@ -440,7 +468,15 @@ foreach ($unit as $skpd) {
                                                 <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_2); ?>%</h5>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">
+                                                    <?php
+                                                    if (isset($persen_2)) {
+                                                        echo $this->pembulatan($persen_2) . '%';
+                                                    } else {
+                                                        echo '0%';
+                                                    }
+                                                    ?>
+                                                </h5>
                                             </td>
                                         </tr>
                                         <tr>
@@ -451,11 +487,20 @@ foreach ($unit as $skpd) {
                                                 <h5 class="font-weight-bolder text-success py-1 m-0">:</h5>
                                             </td>
                                             <td class="text-end text-center">
-                                                <h5 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($persen_3); ?>%</h5>
+                                                <h5 class="font-weight-bolder text-success py-1 m-0">
+                                                    <?php
+                                                    if (isset($persen_3)) {
+                                                        echo $this->pembulatan($persen_3) . '%';
+                                                    } else {
+                                                        echo '0%';
+                                                    }
+                                                    ?>
+                                                </h5>
                                             </td>
                                         </tr>
                                     </table>
                                 </div>
+
                                 <!--end::Title-->
                             </div>
                         </div>
@@ -472,7 +517,7 @@ foreach ($unit as $skpd) {
                                     <div class="row mb-5">
                                         <div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
                                             <p>Perangkat Daerah</p>
-                                            <p><?php echo $no; ?></p>
+                                            <p><?php echo $count_unit; ?></p>
                                         </div>
                                         <div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
                                             <p>Tujuan</p>

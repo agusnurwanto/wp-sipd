@@ -2013,6 +2013,7 @@ CREATE TABLE `data_mapping_kemiskinan_subgiat` (
 
 CREATE TABLE `data_renstra_tujuan` (
   `id` int(11) NOT NULL auto_increment,
+  `id_jadwal` int(11) NOT NULL,
   `bidur_lock` int(11) DEFAULT NULL,
   `id_bidang_urusan` int(11) DEFAULT NULL,
   `id_unik` text DEFAULT NULL,
@@ -2062,6 +2063,7 @@ CREATE TABLE `data_renstra_tujuan` (
 
 CREATE TABLE `data_renstra_sasaran` (
   `id` int(11) NOT NULL auto_increment,
+  `id_jadwal` int(11) NOT NULL,
   `bidur_lock` int(11) DEFAULT NULL,
   `id_bidang_urusan` int(11) DEFAULT NULL,
   `id_misi` int(11) DEFAULT NULL,
@@ -2115,6 +2117,7 @@ CREATE TABLE `data_renstra_sasaran` (
 
 CREATE TABLE `data_renstra_program` (
   `id` int(11) NOT NULL auto_increment,
+  `id_jadwal` int(11) NOT NULL,
   `bidur_lock` int(11) DEFAULT NULL,
   `id_bidang_urusan` int(11) DEFAULT NULL,
   `id_misi` int(11) DEFAULT NULL,
@@ -2186,6 +2189,7 @@ CREATE TABLE `data_renstra_program` (
 
 CREATE TABLE `data_renstra_kegiatan` (
   `id` int(11) NOT NULL auto_increment,
+  `id_jadwal` int(11) NOT NULL,
   `bidur_lock` tinyint(4) DEFAULT NULL,
   `giat_lock` tinyint(4) DEFAULT NULL,
   `id_bidang_urusan` int(11) DEFAULT NULL,
@@ -5096,6 +5100,7 @@ CREATE TABLE `data_label_giat` (
 
 CREATE TABLE `data_renstra_sub_kegiatan` (
   `id` int(11) NOT NULL auto_increment,
+  `id_jadwal` int(11) NOT NULL,
   `bidur_lock` tinyint(4) DEFAULT NULL,
   `giat_lock` tinyint(4) DEFAULT NULL,
   `id_bidang_urusan` int(11) DEFAULT NULL,
