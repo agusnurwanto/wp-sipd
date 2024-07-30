@@ -54,6 +54,14 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-longlist-per-jenis-belanja.php';
     }
     
+    public function apbd_perda_lampiran_3($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-3.php';
+    }
+
     public function apbd_perda_lampiran_4($atts)
     {
         if (!empty($_GET) && !empty($_GET['post'])) {
