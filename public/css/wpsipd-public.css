@@ -287,3 +287,29 @@ textarea{
 .tr-kegiatan, .tr-ind-kegiatan {
     background: #13d0d03d;
 }
+
+a {
+    text-decoration: none !important;
+}
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center; 
+}
+
+.action-btn {
+    flex: 0 1 45%;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn.copy-data {
+    display: inline-block;
+    padding: 5px 10px; 
+    width: auto; 
+    white-space: nowrap; 
+}
+

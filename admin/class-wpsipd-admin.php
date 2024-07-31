@@ -117,34 +117,34 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		));
 	}
 
-    function gen_key($key_db = false, $options = array())
-    {
-        $now = time() * 1000;
-        if (empty($key_db)) {
-            $key_db = md5(get_option('_crb_api_key_extension'));
-        }
-        $tambahan_url = '';
-        $cek_param_get = [];
-        if (!empty($options['custom_url'])) {
-            $custom_url = array();
-            foreach ($options['custom_url'] as $k => $v) {
-                if(
-                    !empty($v['key']) 
-                    && !empty($v['value'])
-                ){
-                    $custom_url[] = $v['key'] . '=' . $v['value'];
-                }else{
-                    $cek_param_get[] = $k . '=' . $v;
-                }
-            }
-            $tambahan_url = $key_db . implode('&', $custom_url);
-        }
-        $key = base64_encode($now . $key_db . $now . $tambahan_url);
-        if(!empty($cek_param_get)){
-            $key .= '&'.implode('&', $cek_param_get);
-        }
-        return $key;
-    }
+	function gen_key($key_db = false, $options = array())
+	{
+		$now = time() * 1000;
+		if (empty($key_db)) {
+			$key_db = md5(get_option('_crb_api_key_extension'));
+		}
+		$tambahan_url = '';
+		$cek_param_get = [];
+		if (!empty($options['custom_url'])) {
+			$custom_url = array();
+			foreach ($options['custom_url'] as $k => $v) {
+				if (
+					!empty($v['key'])
+					&& !empty($v['value'])
+				) {
+					$custom_url[] = $v['key'] . '=' . $v['value'];
+				} else {
+					$cek_param_get[] = $k . '=' . $v;
+				}
+			}
+			$tambahan_url = $key_db . implode('&', $custom_url);
+		}
+		$key = base64_encode($now . $key_db . $now . $tambahan_url);
+		if (!empty($cek_param_get)) {
+			$key .= '&' . implode('&', $cek_param_get);
+		}
+		return $key;
+	}
 
 	public function get_link_post($custom_post)
 	{
@@ -434,19 +434,21 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (get_option('_crb_show_menu_pohon_kinerja_rpd') != true) {
 				Container::make('theme_options', __('Pohon Kinerja RPD'))
 					->set_page_parent($laporan)
-					->add_fields(array(
-						Field::make('html', 'crb_pohon_kinerja_rpd')
-							->set_html('
+					->add_fields(
+						array(
+							Field::make('html', 'crb_pohon_kinerja_rpd')
+								->set_html('
 							<style>
 								.postbox-container { display: none; }
 								#poststuff #post-body.columns-2 { margin: 0 !important; }
 							</style>
 							<h5>HALAMAN TERKAIT</h5>
 							<ol>
-								<li><a target="_blank" href="'.$this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]').'">Laporan Pohon Kinerja RPD</a></li>
+								<li><a target="_blank" href="' . $this->generatePage('Pohon Kinerja RPD', false, '[pohon_kinerja_rpd]') . '">Laporan Pohon Kinerja RPD</a></li>
 							</ol>
-							'))
-				);
+							')
+						)
+					);
 			}
 
 			if (get_option('_crb_show_menu_pohon_kinerja_renja') != true) {
@@ -954,7 +956,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$pemda = get_option('_crb_daerah');
 			$api_key_server = get_option('_crb_server_wp_sipd_api_key');
 			if (
-				!empty($server) 
+				!empty($server)
 				&& !empty($no_wa)
 				&& !empty($pemda)
 				&& !empty($api_key_server)
@@ -1191,7 +1193,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$url_nilai_dpa = '&pagu_dpa=simda';
 				if ($sumber_pagu_dpa == 2) {
 					$url_nilai_dpa = '&pagu_dpa=fmis';
-				}else if ($sumber_pagu_dpa == 3) {
+				} else if ($sumber_pagu_dpa == 3) {
 					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
@@ -1200,6 +1202,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if ($_POST['type'] == 'input_renstra') {
 					$limit = ' LIMIT 1';
 				}
+				$type = $_POST['type'] ?? '';
+				$tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
+
 				$tahun = $wpdb->get_results(
 					'
 					select 
@@ -1241,12 +1246,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						if ($_POST['type'] == 'rfk') {
 							$url_skpd = $this->generatePage('RFK ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . $url_nilai_dpa . '">Halaman RFK ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-						} else if ($_POST['type'] == 'monev_renja') {
-							$url_skpd = $this->generatePage('MONEV ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-						} else if ($_POST['type'] == 'monev_renstra') {
-							$url_skpd = $this->generatePage('MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV RENSTRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'sumber_dana') {
 							$this->generatePage('Sumber Dana ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 						} else if ($_POST['type'] == 'label_komponen') {
@@ -1305,9 +1304,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							if ($_POST['type'] == 'rfk') {
 								$url_skpd = $this->generatePage('RFK ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . $url_nilai_dpa . '">Halaman RFK ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
-							} else if ($_POST['type'] == 'monev_renja') {
-								$url_skpd = $this->generatePage('MONEV ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
 							} else if ($_POST['type'] == 'sumber_dana') {
 								$this->generatePage('Sumber Dana ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 							} else if ($_POST['type'] == 'label_komponen') {
@@ -1360,7 +1356,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 					$body_pemda .= '</ul>';
 
-					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
+					if (
+						$_POST['type'] != 'input_renstra'
+						&& $_POST['type'] != 'pohon_kinerja_renja'
+						&& $_POST['type'] != 'monev_renstra'
+						&& $_POST['type'] != 'monev_renja'
+					) {
 						$body_all .= '
 			            	<h3 class="header-tahun" tahun="' . $v['tahun_anggaran'] . '">Tahun Anggaran ' . $v['tahun_anggaran'] . '</h3>
 			            	<div class="body-tahun" tahun="' . $v['tahun_anggaran'] . '">';
@@ -1371,12 +1372,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'spd') {
 						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
-					} else if ($_POST['type'] == 'monev_renja') {
-						$url_monev = $this->generatePage('MONITOR MONEV RENJA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja_skpd tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a class="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_monev . '">Dashboard MONEV RENJA Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
-					} else if ($_POST['type'] == 'monev_renstra') {
-						$url_pemda = $this->generatePage('Dashboard MONEV RENSTRA Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra_pemda tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a class ="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENSTRA Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_rpjm') {
 						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RPJM Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
@@ -1482,40 +1477,186 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 				}
 
-				if($_POST['type'] == 'pohon_kinerja_renja'){
+				if ($_POST['type'] == 'pohon_kinerja_renja') {
 					$data_label = $wpdb->get_results($wpdb->prepare("select distinct namalabel, tahun_anggaran from data_tag_sub_keg where idlabelgiat !=%d and namalabel is not null", 0), ARRAY_A);
 
 					$arr_label = [];
 					foreach ($data_label as $label) {
-						if(empty($arr_label[$label['tahun_anggaran']])){
+						if (empty($arr_label[$label['tahun_anggaran']])) {
 							$arr_label[$label['tahun_anggaran']] = [
 								'tahun_anggaran' => $label['tahun_anggaran'],
 								'data' => [],
 							];
 						}
 
-						if(empty($arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']])){
+						if (empty($arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']])) {
 							$arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']] = $label['namalabel'];
 						}
 					}
 
 					foreach ($arr_label as $label) {
-
 						$body_all .= '
 			            	<h3 class="header-tahun" tahun="' . $label['tahun_anggaran'] . '">Tahun Anggaran ' . $label['tahun_anggaran'] . '</h3>
 			            	<div class="body-tahun" tahun="' . $label['tahun_anggaran'] . '">';
 
-			            foreach ($label['data'] as $namalabel) {
+						foreach ($label['data'] as $namalabel) {
+							$url_label = $this->generatePage('POHON KINERJA RENJA ' . $namalabel . ' ' . $label['tahun_anggaran'], $label['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $label['tahun_anggaran'] . '" namalabel="' . $namalabel . '"]');
+							$body_all .= '<a target="_blank" href="' . $url_label . '">POHON KINERJA RENJA ' . $namalabel . '</a></br>';
+						}
 
-			            	// $url_skpd = $this->generatePage('Input RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'], null, '[input_renstra id_skpd="' . $vv['id_skpd'] . '"]');
-
-			            	$url_label = $this->generatePage('POHON KINERJA RENJA ' . $namalabel . ' ' . $label['tahun_anggaran'], $label['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $label['tahun_anggaran'] . '" namalabel="' . $namalabel . '"]');
-								$body_all .= '<a target="_blank" href="'.$url_label.'">POHON KINERJA RENJA ' . $namalabel . '</a></br>';
-			            }
-
-			            $body_all .= '</div>';
-
+						$body_all .= '</div>';
 					}
+				}
+
+				switch ($type) {
+					case 'monev_renstra':
+						$data_jadwal_renstra = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT * 
+								FROM `data_jadwal_lokal` 
+								WHERE id_tipe = %d 
+								  AND `status` = %d
+								ORDER BY tahun_anggaran DESC
+							', 15, 0),
+							ARRAY_A
+						);
+
+						$body_pemda = '<ul style="margin-left: 20px;">';
+						if (!empty($data_jadwal_renstra)) {
+							foreach ($data_jadwal_renstra as $jadwal) {
+								$body_all .= '
+									<h3 class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $jadwal['tahun_akhir_anggaran']  . '</h3>
+									<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">
+								';
+
+								$url_pemda = $this->generatePage(
+									'Dashboard MONEV RENSTRA Pemerintah Daerah | ' . $jadwal['tahun_anggaran'] . ' - ' . $jadwal['tahun_akhir_anggaran'],
+									$jadwal['tahun_anggaran'],
+									'[monitor_monev_renstra_pemda id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+								);
+								$body_all .= '<a class ="button button-primary button-large" style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENSTRA Pemerintah Daerah</a>';
+
+								$body_pemda .= '<ul>';
+								$data_unit = $wpdb->get_results("
+										SELECT 
+											nama_skpd, 
+											id_skpd, 
+											kode_skpd, 
+											nipkepala 
+										FROM data_unit 
+										WHERE active=1 
+											and tahun_anggaran=" . $tahun_anggaran_sipd . ' 
+											and is_skpd=1 
+										ORDER BY kode_skpd ASC
+									', ARRAY_A);
+								$body_pemda = '<ul style="margin-left: 20px;">';
+								foreach ($data_unit as $kk => $vv) {
+									$url_skpd = $this->generatePage(
+										'Monitoring Evaluasi RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'],
+										'',
+										'[monitor_monev_renstra id_skpd="' . $vv['id_skpd'] . '" id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+									);
+									$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV RENSTRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . '</a> (NIP: ' . $vv['nipkepala'] . ')</li>';
+								}
+								$body_pemda .= '</ul>';
+
+								$body_all .= $body_pemda . '</div>';
+							}
+						} else {
+							$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; background-color:#758694; border: 0;">Jadwal Belum Dibuat</a>';
+						}
+
+						break;
+
+					case 'monev_renja':
+						$data_jadwal_renja = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT * 
+								FROM `data_jadwal_lokal` 
+								WHERE id_tipe = %d 
+								  AND `status` = %d
+								ORDER BY tahun_anggaran DESC
+							', 16, 0),
+							ARRAY_A
+						);
+
+						if (!empty($data_jadwal_renja)) {
+							foreach ($data_jadwal_renja as $jadwal) {
+								$body_all .= '
+									<h3 class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . '</h3>
+									<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">
+								';
+
+								$url_pemda = $this->generatePage(
+									'MONITOR MONEV RENJA | ' . $jadwal['tahun_anggaran'],
+									$jadwal['tahun_anggaran'],
+									'[monitor_monev_renja_skpd id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+								);
+								$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; margin-bottom:10px" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENJA | ' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . '</a>';
+
+								$unit = $wpdb->get_results(
+									$wpdb->prepare("
+										SELECT 
+											nama_skpd, 
+											id_skpd, 
+											kode_skpd, 
+											nipkepala 
+										FROM data_unit 
+										WHERE active = 1 
+										  AND tahun_anggaran = %d 
+										  AND is_skpd = 1 
+										ORDER BY kode_skpd ASC
+									", $jadwal['tahun_anggaran']),
+									ARRAY_A
+								);
+
+								$body_pemda = '<ul style="margin-left: 20px;">';
+								foreach ($unit as $vv) {
+									$subunit = $wpdb->get_results(
+										$wpdb->prepare("
+											SELECT 
+												nama_skpd, 
+												id_skpd, 
+												kode_skpd, 
+												nipkepala 
+											FROM data_unit 
+											WHERE active = 1 
+											  AND tahun_anggaran = %d 
+											  AND is_skpd = 0 
+											  AND id_unit = %d 
+											ORDER BY kode_skpd ASC
+										", $jadwal['tahun_anggaran'], $vv['id_skpd']),
+										ARRAY_A
+									);
+									$url_skpd = $this->generatePage(
+										'MONEV ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['tahun_anggaran'],
+										$jadwal['tahun_anggaran'],
+										'[monitor_monev_renja tahun_anggaran="' . $jadwal['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]'
+									);
+									$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $jadwal['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')</li>';
+
+									if (!empty($subunit)) {
+										$body_pemda .= '<ul style="margin: 5px 0px 5px 20px;">';
+										foreach ($subunit as $vvv) {
+											$url_skpd = $this->generatePage(
+												'MONEV ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $jadwal['tahun_anggaran'],
+												$jadwal['tahun_anggaran'],
+												'[monitor_monev_renja tahun_anggaran="' . $jadwal['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]'
+											);
+											$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $jadwal['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
+										}
+										$body_pemda .= '</ul>';
+									}
+								}
+
+								$body_pemda .= '</ul>';
+								$body_all .= $body_pemda . '</div>';
+							}
+						} else {
+							$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; background-color:#758694; border: 0;">Jadwal Belum Dibuat</a>';
+						}
+
+						break;
 				}
 
 				if (
@@ -1876,7 +2017,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$default_val = $this->simda->CurlSimda(array(
 					'query' => 'select * from ref_bidang_mapping where kd_urusan90=' . $kd[0] . ' and kd_bidang90=' . ((int)$kd[1])
 				));
-				if (!empty($default_val)){
+				if (!empty($default_val)) {
 					$default = $default_val[0]->kd_urusan . '.' . $default_val[0]->kd_bidang;
 					update_option('_crb_unit_' . $v['id_skpd'], $default);
 				}
@@ -2775,7 +2916,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
-			->set_html('
+				->set_html('
 				<style>
 					.postbox-container { display: none; }
 					#poststuff #post-body.columns-2 { margin: 0 !important; }
@@ -2792,7 +2933,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_jadwal_monev()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran', ARRAY_A);
+		$tahun = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran ORDER BY tahun_anggaran DESC', ARRAY_A);
 		$list_data = '';
 
 		$title = 'Jadwal Monev RPJM/RPD';
@@ -2816,7 +2957,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
-			->set_html('
+				->set_html('
 				<style>
 					.postbox-container { display: none; }
 					#poststuff #post-body.columns-2 { margin: 0 !important; }
@@ -3120,103 +3261,103 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	}
 
 	public function decode_key($value)
-    {
-        $key = base64_decode($value);
-        $key_db = md5(get_option('_crb_api_key_extension'));
-        $key = explode($key_db, $key);
-        $get = array();
-        if (!empty($key[2])) {
-            $all_get = explode('&', $key[2]);
-            foreach ($all_get as $k => $v) {
-                $current_get = explode('=', $v);
-                $get[$current_get[0]] = $current_get[1];
-            }
-        }
-        return $get;
-    }
+	{
+		$key = base64_decode($value);
+		$key_db = md5(get_option('_crb_api_key_extension'));
+		$key = explode($key_db, $key);
+		$get = array();
+		if (!empty($key[2])) {
+			$all_get = explode('&', $key[2]);
+			foreach ($all_get as $k => $v) {
+				$current_get = explode('=', $v);
+				$get[$current_get[0]] = $current_get[1];
+			}
+		}
+		return $get;
+	}
 
 	function allow_access_private_post()
-    {
-        if (
-            !empty($_GET)
-            && !empty($_GET['key'])
-        ) {
-            $key = base64_decode($_GET['key']);
-            $decode = $this->decode_key($_GET['key']);
-            if (!empty($decode['skip'])) {
-                return;
-            }
-            unset($_GET['key']);
+	{
+		if (
+			!empty($_GET)
+			&& !empty($_GET['key'])
+		) {
+			$key = base64_decode($_GET['key']);
+			$decode = $this->decode_key($_GET['key']);
+			if (!empty($decode['skip'])) {
+				return;
+			}
+			unset($_GET['key']);
 
-            $key_db = md5(get_option('_crb_api_key_extension'));
-            $key = explode($key_db, $key);
-            $valid = 0;
-            if (
-                !empty($key[1])
-                && $key[0] == $key[1]
-                && is_numeric($key[1])
-            ) {
-                $tgl1 = new DateTime();
-                $date = substr($key[1], 0, strlen($key[1]) - 3);
-                $tgl2 = new DateTime(date('Y-m-d', $date));
-                $valid = $tgl2->diff($tgl1)->days + 1;
-            }
-            if ($valid == 1) {
-                global $wp_query;
-                // print_r($wp_query);
-                // print_r($wp_query->queried_object); die('tes');
-                if (!empty($wp_query->queried_object)) {
-                    if ($wp_query->queried_object->post_status == 'private') {
-                        wp_update_post(array(
-                            'ID'    =>  $wp_query->queried_object->ID,
-                            'post_status'   =>  'publish'
-                        ));
-                        $custom_post = get_page($wp_query->queried_object->ID);
-                        $custom_post->custom_url = $_GET;
-                        $link = $this->get_link_post($custom_post);
-                        if (!empty($_GET['private'])) {
-                            die('<script>window.location =  "' . $link . '";</script>');
-                        } else {
-                            die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
-                        }
-                    } else if (!empty($_GET['private'])) {
-                        wp_update_post(array(
-                            'ID'    =>  $wp_query->queried_object->ID,
-                            'post_status'   =>  'private'
-                        ));
-                    }
-                } else if ($wp_query->found_posts >= 1) {
-                    global $wpdb;
-                    $sql = $wp_query->request;
-                    $post = $wpdb->get_results($sql, ARRAY_A);
-                    if (!empty($post)) {
-                        if (empty($post[0]['post_status'])) {
-                            return;
-                        }
-                        if ($post[0]['post_status'] == 'private') {
-                            wp_update_post(array(
-                                'ID'    =>  $post[0]['ID'],
-                                'post_status'   =>  'publish'
-                            ));
-                            $custom_post = get_page($post[0]['ID']);
-                            $custom_post->custom_url = $_GET;
-                            $link = $this->get_link_post($custom_post);
-                            if (!empty($_GET['private'])) {
-                                die('<script>window.location =  "' . $link . '";</script>');
-                            } else {
-                                die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
-                            }
-                        } else if (!empty($_GET['private'])) {
-                            wp_update_post(array(
-                                'ID'    =>  $post[0]['ID'],
-                                'post_status'   =>  'private'
-                            ));
-                        }
-                    }
-                }
-            }
-        }
-    }
+			$key_db = md5(get_option('_crb_api_key_extension'));
+			$key = explode($key_db, $key);
+			$valid = 0;
+			if (
+				!empty($key[1])
+				&& $key[0] == $key[1]
+				&& is_numeric($key[1])
+			) {
+				$tgl1 = new DateTime();
+				$date = substr($key[1], 0, strlen($key[1]) - 3);
+				$tgl2 = new DateTime(date('Y-m-d', $date));
+				$valid = $tgl2->diff($tgl1)->days + 1;
+			}
+			if ($valid == 1) {
+				global $wp_query;
+				// print_r($wp_query);
+				// print_r($wp_query->queried_object); die('tes');
+				if (!empty($wp_query->queried_object)) {
+					if ($wp_query->queried_object->post_status == 'private') {
+						wp_update_post(array(
+							'ID'    =>  $wp_query->queried_object->ID,
+							'post_status'   =>  'publish'
+						));
+						$custom_post = get_page($wp_query->queried_object->ID);
+						$custom_post->custom_url = $_GET;
+						$link = $this->get_link_post($custom_post);
+						if (!empty($_GET['private'])) {
+							die('<script>window.location =  "' . $link . '";</script>');
+						} else {
+							die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
+						}
+					} else if (!empty($_GET['private'])) {
+						wp_update_post(array(
+							'ID'    =>  $wp_query->queried_object->ID,
+							'post_status'   =>  'private'
+						));
+					}
+				} else if ($wp_query->found_posts >= 1) {
+					global $wpdb;
+					$sql = $wp_query->request;
+					$post = $wpdb->get_results($sql, ARRAY_A);
+					if (!empty($post)) {
+						if (empty($post[0]['post_status'])) {
+							return;
+						}
+						if ($post[0]['post_status'] == 'private') {
+							wp_update_post(array(
+								'ID'    =>  $post[0]['ID'],
+								'post_status'   =>  'publish'
+							));
+							$custom_post = get_page($post[0]['ID']);
+							$custom_post->custom_url = $_GET;
+							$link = $this->get_link_post($custom_post);
+							if (!empty($_GET['private'])) {
+								die('<script>window.location =  "' . $link . '";</script>');
+							} else {
+								die('<script>window.location =  "' . $link . '"+"&private=1";</script>');
+							}
+						} else if (!empty($_GET['private'])) {
+							wp_update_post(array(
+								'ID'    =>  $post[0]['ID'],
+								'post_status'   =>  'private'
+							));
+						}
+					}
+				}
+			}
+		}
+	}
 
 	function get_label_komponen()
 	{
@@ -3913,10 +4054,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 				$ret['status'] = $response->status;
 				if ($response->status == 'success') {
-					if(empty($response->order)){
+					if (empty($response->order)) {
 						$ret['status'] = 'success';
 						$ret['message'] = 'Lisensi gagal create order ke server';
-					}else{
+					} else {
 						$ret['api_key'] = $response->lisensi;
 						$ret['status_key'] = $response->order->bn_status_wpsipd;
 						$ret['pesan_key'] = $response->order->bn_status_wpsipd_message;
@@ -3926,7 +4067,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$ret['message'] = $ret['pesan_key'];
 						}
 					}
-				} else if($_POST['api_key'] == 'xxxxxxxx-xxxx-xxxx-xxxx'){
+				} else if ($_POST['api_key'] == 'xxxxxxxx-xxxx-xxxx-xxxx') {
 					$ret['status'] = 'success';
 					$ret['message'] = 'Lisensi belum terkoneksi ke server';
 				} else {

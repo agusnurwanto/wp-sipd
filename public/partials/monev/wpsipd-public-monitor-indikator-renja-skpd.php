@@ -7,8 +7,19 @@ if (!defined('WPINC')) {
 global $wpdb;
 $input = shortcode_atts(array(
 	'id_skpd' => '',
-	'tahun_anggaran' => '2022'
+	'tahun_anggaran' => ''
 ), $atts);
+
+$data_jadwal = $wpdb->get_row(
+    $wpdb->prepare("
+        SELECT *
+        FROM data_jadwal_lokal
+        WHERE status = %d
+          AND id_tipe = %d
+		  AND tahun_anggaran = %d
+    ", 0, 16, $input['tahun_anggaran']),
+    ARRAY_A
+);
 
 $api_key = get_option('_crb_api_key_extension');
 $nama_pemda = get_option('_crb_daerah');
@@ -259,7 +270,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 		background: #ffc491;
 	}
 </style>
-<h1 class="text-center">Monitor dan Evaluasi Renja<br><?php echo 'Tahun ' . $input['tahun_anggaran'] . '<br>' . $nama_pemda; ?></h1>
+<h1 class="text-center">Monitor dan Evaluasi Renja<br><?php echo $data_jadwal['nama'] . ' Tahun ' . $data_jadwal['tahun_anggaran'] . '<br>' . $nama_pemda; ?></h1>
 <h4 class="text-center"><?php echo $string_hari_ini; ?></h4>
 <div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
 	<div class="row gy-5 g-xl-8 mb-5">

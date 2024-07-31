@@ -21,7 +21,7 @@ $body = '';
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 	<h1 class="text-center" style="margin:3rem;">Jadwal Input Perencanaan RPJPD Lokal</h1>
 		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
+			<button class="btn btn-primary" onclick="tambah_jadwal();"><span class="dashicons dashicons-plus"></span> Tambah Jadwal</button>
 		</div>
 		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
@@ -51,21 +51,30 @@ $body = '';
 				</button>
 			</div>
 			<div class="modal-body">
-				<div>
-					<label for='jadwal_nama' style='display:inline-block'>Nama Tahapan</label>
-					<input type='text' id='jadwal_nama' style='display:block;width:100%;' placeholder='Nama Tahapan'>
+				<div class="form-group">
+					<label for='jadwal_nama'>Nama Tahapan</label>
+					<input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
 				</div>
-				<div>
-					<label for='tahun_mulai_anggaran' style='display:inline-block'>Tahun Mulai Anggaran</label>
-					<input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran"/>
-				</div>
-				<div>
-					<label for='lama_pelaksanaan' style='display:inline-block'>Lama Pelaksanaan</label>
-					<input type="number" id='lama_pelaksanaan' name="lama_pelaksanaan" style='display:block;width:100%;' placeholder="Lama Pelaksanaan"/>
-				</div>
-				<div>
-					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
-					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
+				<div class="form-row">
+					<div class="form-group col-md-3">
+						<label for='tahun_mulai_anggaran'>Tahun Mulai Anggaran</label>
+						<input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" class="form-control" placeholder="Tahun Mulai Anggaran"/>
+					</div>
+					<div class="form-group col-md-3">
+							<div class="form-group">
+								<label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
+								<div class="input-group">
+									<input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
+									<div class="input-group-append">
+										<span class="input-group-text" id="basic-addon2">Tahun</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					<div class="form-group col-md-6">
+						<label for='jadwal_tanggal'>Jadwal Pelaksanaan</label>
+						<input type="text" id='jadwal_tanggal' name="jadwal_tanggal" class="form-control"/>
+					</div>
 				</div>
 			</div> 
 			<div class="modal-footer">

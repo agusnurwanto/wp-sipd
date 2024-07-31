@@ -508,7 +508,7 @@ foreach ($data_skpd as $skpd) {
     }
 }
 ?>
-<div id="cetak" title="<?php echo $nama_excel; ?>" style="padding: 5px; overflow: auto;">
+<div id="cetak" title="APBD Perda Lampiran IV" style="padding: 5px; overflow: auto;">
     <h2 class="text-center"><?php echo $nama_excel ?></h2>
     <table class="table table-bordered">
         <thead>

@@ -331,7 +331,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						'catatan_indikator_usulan' => $sasaran_value['catatan_usulan']
 					];
 				}
-			}
+			} 
 
 			if(empty($sasaran_value['id_unik_indikator'])){
 

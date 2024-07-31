@@ -157,6 +157,10 @@ $title = $input['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 2';
 $shortcode = '[apbdpenjabaran tahun_anggaran="' . $input['tahun_anggaran'] . '" lampiran="2"]';
 $apbd_penjabaran_lampiran_2 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'APBD Perda Lampiran 3 | ' . $input['tahun_anggaran'];
+$shortcode = '[apbd_perda_lampiran_3 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
+$apbd_perda_lampiran_3 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'APBD Perda Lampiran 4 | ' . $input['tahun_anggaran'];
 $shortcode = '[apbd_perda_lampiran_4 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $apbd_perda_lampiran_4 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -181,7 +185,7 @@ $body = '';
 		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan <?php echo $judul; ?> <?php echo $input['tahun_anggaran']; ?></h1>
 		<?php if ($is_admin) : ?>
 			<div style="margin-bottom: 25px;">
-				<button class="btn btn-primary tambah_jadwal tambah_ssh" onclick="tambah_jadwal();" hidden>Tambah Jadwal</button>
+				<button class="btn btn-primary tambah_jadwal" onclick="tambah_jadwal();" hidden><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>
 			</div>
 		<?php endif; ?>
 		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
@@ -192,11 +196,11 @@ $body = '';
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Anggaran</th>
-				<?php if($tipe_perencanaan == 'renja'): ?>
-					<th class="text-center">Jadwal RENSTRA</th>
-					<th class="text-center">Jenis Jadwal</th>
-				<?php endif; ?>
-					<th class="text-center" style="width: 250px;">Aksi</th>
+					<?php if ($tipe_perencanaan == 'renja') : ?>
+						<th class="text-center">Jadwal RENSTRA</th>
+						<th class="text-center">Jenis Jadwal</th>
+					<?php endif; ?>
+					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
@@ -215,42 +219,40 @@ $body = '';
 				</button>
 			</div>
 			<div class="modal-body">
-				<div>
-					<label for='jadwal_nama' style='display:inline-block'>Nama Tahapan</label>
-					<input type='text' id='jadwal_nama' style='display:block;width:100%;' placeholder='Nama Tahapan'>
+				<div class="form-group">
+					<label for='jadwal_nama'>Nama Tahapan</label>
+					<input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
 				</div>
-				<div>
-					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
-					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;' />
+				<div class="form-group">
+					<label for='jadwal_tanggal'>Jadwal Pelaksanaan</label>
+					<input type="text" id='jadwal_tanggal' class="form-control" name="jadwal_tanggal" />
 				</div>
-			<?php if($tipe_perencanaan == 'renja'): ?>
-				<div>
-					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
-					<select id="link_renstra" style='display:block;width: 100%;'>
-						<option value="">Pilih RENSTRA</option>
-						<?php echo $select_renstra; ?>
-					</select>
-				</div>
-				<div>
-					<label for="jenis_jadwal" style='display:inline-block'>Pilih Jenis Jadwal</label>
-					<select id="jenis_jadwal" style='display:block;width: 100%;'>
-						<option value="usulan" selected>Usulan</option>
-						<option value="penetapan">Penetapan</option>
-					</select>
-				</div>
-			<?php endif; ?>
-				<div class="mt-3 form-input">
-					<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
-					<label for="pergeseran_renja" style="display: inline-block;">Pergeseran/Perubahan</label>
-				</div>
-			<?php if($tipe_perencanaan == 'renja'): ?>
-				<div>
-					<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:inline-block'>Pilih Jadwal RENJA Pergeseran</label>
-					<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:block;width: 100%;'>
-						<?php echo $select_renja_pergeseran; ?>
-					</select>
-				</div>
-			<?php endif; ?>
+				<?php if ($tipe_perencanaan == 'renja') : ?>
+					<div class="form-group">
+						<label for="link_renstra">Pilih Jadwal RENSTRA</label>
+						<select id="link_renstra" class="form-control">
+							<option value="">Pilih RENSTRA</option>
+							<?php echo $select_renstra; ?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="jenis_jadwal">Pilih Jenis Jadwal</label>
+						<select id="jenis_jadwal" class="form-control">
+							<option value="usulan" selected>Usulan</option>
+							<option value="penetapan">Penetapan</option>
+						</select>
+					</div>
+					<div class="mt-3 form-input">
+						<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
+						<label for="pergeseran_renja">Pergeseran/Perubahan</label>
+					</div>
+					<div class="form-group">
+						<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran">Pilih Jadwal RENJA Pergeseran</label>
+						<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran form-control">
+							<?php echo $select_renja_pergeseran; ?>
+						</select>
+					</div>
+				<?php endif; ?>
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary submitBtn" onclick="submitTambahJadwalForm()">Simpan</button>
@@ -344,9 +346,9 @@ $body = '';
 			},
 			"initComplete": function(settings, json) {
 				jQuery("#wrap-loading").hide();
-				if(json.status=='error'){
+				if (json.status == 'error') {
 					alert(json.message);
-				}else{
+				} else {
 					if (json.checkOpenedSchedule != 'undefined' && json.checkOpenedSchedule > 0) {
 						jQuery(".tambah_jadwal").prop('hidden', true);
 					} else {
@@ -374,17 +376,15 @@ $body = '';
 					"data": "tahun_anggaran",
 					className: "text-center"
 				},
-			<?php if($tipe_perencanaan == 'renja'): ?>
-				{
-					"data": "relasi_perencanaan",
-					className: "text-center"
-				},
-				{
-					"data": "jenis_jadwal",
-					className: "text-center"
-				},
-			<?php endif; ?>
-				{
+				<?php if ($tipe_perencanaan == 'renja') : ?> {
+						"data": "relasi_perencanaan",
+						className: "text-center"
+					},
+					{
+						"data": "jenis_jadwal",
+						className: "text-center"
+					},
+				<?php endif; ?> {
 					"data": "aksi",
 					className: "text-center"
 				}
@@ -411,15 +411,15 @@ $body = '';
 		function submitTambahJadwalForm() {
 			let this_tahun_anggaran = tahun_anggaran;
 			let nama = jQuery('#jadwal_nama').val();
-			if(nama.trim() == ''){
+			if (nama.trim() == '') {
 				return alert("Nama jadwal tidak boleh kosong!");
 			}
 			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss');
-			if(jadwalMulai == ''){
+			if (jadwalMulai == '') {
 				return alert('Jadwal mulai tidak boleh kosong!');
 			}
 			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss');
-			if(jadwalSelesai == ''){
+			if (jadwalSelesai == '') {
 				return alert('Jadwal selesai tidak boleh kosong!');
 			}
 			let jenis_jadwal = 1;
@@ -438,6 +438,18 @@ $body = '';
 				return alert("Jadwal Renja Pergeseran harus dipilih!");
 			}
 		<?php endif; ?>
+			<?php if ($tipe_perencanaan == 'renja') : ?>
+				jenis_jadwal = jQuery("#jenis_jadwal").val();
+				if (jenis_jadwal == '') {
+					return alert('Jenis jadwal tidak boleh kosong!');
+				}
+				relasi_perencanaan = jQuery("#link_renstra").val();
+				pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
+				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+					return alert("Jadwal Renja Pergeseran harus dipilih!");
+				}
+			<?php endif; ?>
 			jQuery("#wrap-loading").show();
 			jQuery.ajax({
 				url: thisAjaxUrl,
@@ -468,7 +480,7 @@ $body = '';
 						jQuery("#link_renstra").val('');
 						penjadwalanTable.ajax.reload();
 						jQuery(".tambah_jadwal").prop('hidden', true);
-					}else{
+					} else {
 						jQuery('.submitBtn').attr('disabled', false);
 					}
 				}
@@ -517,33 +529,33 @@ $body = '';
 		function submitEditJadwalForm(id_jadwal_lokal) {
 			let this_tahun_anggaran = tahun_anggaran;
 			let nama = jQuery('#jadwal_nama').val();
-			if(nama.trim() == ''){
+			if (nama.trim() == '') {
 				return alert("Nama jadwal tidak boleh kosong!");
 			}
 			let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss');
-			if(jadwalMulai == ''){
+			if (jadwalMulai == '') {
 				return alert('Jadwal mulai tidak boleh kosong!');
 			}
 			let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss');
-			if(jadwalSelesai == ''){
+			if (jadwalSelesai == '') {
 				return alert('Jadwal selesai tidak boleh kosong!');
 			}
 			let jenis_jadwal = 1;
 			let relasi_perencanaan = '';
 			let pergeseran_renja = '';
 			let id_jadwal_pergeseran_renja = false;
-			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
-		<?php if($tipe_perencanaan == 'renja'): ?>
-			jenis_jadwal = jQuery("#jenis_jadwal").val();
-			if(jenis_jadwal == ''){
-				return alert('Jenis jadwal tidak boleh kosong!');
-			}
-			relasi_perencanaan = jQuery("#link_renstra").val();
-			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-				return alert("Jadwal Renja Pergeseran harus dipilih!");
-			}
-		<?php endif; ?>
+			<?php if ($tipe_perencanaan == 'renja') : ?>
+				jenis_jadwal = jQuery("#jenis_jadwal").val();
+				if (jenis_jadwal == '') {
+					return alert('Jenis jadwal tidak boleh kosong!');
+				}
+				relasi_perencanaan = jQuery("#link_renstra").val();
+				pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
+				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+					return alert("Jadwal Renja Pergeseran harus dipilih!");
+				}
+			<?php endif; ?>
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: thisAjaxUrl,
@@ -768,9 +780,10 @@ $body = '';
 									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
 									<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
-									<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran 1</option>
-									<option value="apbd_penjabaran_lampiran_2">APBD Penjabaran Lampiran 2</option>
-									<option value="apbd_perda_lampiran_4">APBD Perda Lampiran 4</option>
+									<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran I</option>
+									<option value="apbd_penjabaran_lampiran_2">APBD Penjabaran Lampiran II</option>
+									<option value="apbd_perda_lampiran_3">APBD Perda Lampiran III</option>
+									<option value="apbd_perda_lampiran_4">APBD Perda Lampiran IV</option>
 									<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
 				      			</select>
 					    	</div>
@@ -829,8 +842,8 @@ $body = '';
 
 		switch (jenis) {
 			case 'laporan_konsistensi_rpjm':
-				let id_jadwal_rpjm=jQuery("#opt_jenis_jadwal").val() ?? '';
-				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal+'&id_jadwal_rpjm='+id_jadwal_rpjm,'_blank');
+				let id_jadwal_rpjm = jQuery("#opt_jenis_jadwal").val() ?? '';
+				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&id_jadwal_rpjm=' + id_jadwal_rpjm, '_blank');
 				break;
 			case 'pagu_total':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
@@ -865,16 +878,16 @@ $body = '';
 				window.open('<?php echo $url_analisis_belanja_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_sumber_dana_per_skpd':
-				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_program':
-				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_sub_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal+'&sumber_dana='+jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_rekening':
 				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
@@ -887,6 +900,9 @@ $body = '';
 				break;
 			case 'apbd_penjabaran_lampiran_2':
 				window.open('<?php echo $apbd_penjabaran_lampiran_2; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_perda_lampiran_3':
+				window.open('<?php echo $apbd_perda_lampiran_3; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_4':
 				window.open('<?php echo $apbd_perda_lampiran_4; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
@@ -1080,8 +1096,8 @@ $body = '';
 		}
 	}
 
-	function jenis_laporan(that){
-		switch (jQuery(that).val()){
+	function jenis_laporan(that) {
+		switch (jQuery(that).val()) {
 			case 'rekap_sumber_dana_per_skpd':
 			case 'rekap_sumber_dana_per_program':
 			case 'rekap_sumber_dana_per_kegiatan':
@@ -1102,8 +1118,8 @@ $body = '';
 					},
 					success: function(response) {
 						jQuery('#wrap-loading').hide();
-						if(response.status){
-							response.data.map(function(value, index){
+						if (response.status) {
+							response.data.map(function(value, index) {
 								option += `<option value="${value.id_jadwal_lokal}">${value.nama}</option>`;
 							});
 						}
