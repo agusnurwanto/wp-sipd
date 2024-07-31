@@ -1799,8 +1799,8 @@ class Wpsipd_Simda
 	}
 
 	function RemoveSpecialChar($str){
-      	$res = preg_replace('/[^a-zA-Z0-9_ -]/s',' ',$str);
-      	return $res;
+      	$str = preg_replace('/[^a-zA-Z0-9_ - | \/ \, \.]/s',' ',$str);
+      	return $str;
   	}
 
 	public function get_id_sumber_dana_simda($options=array()){
