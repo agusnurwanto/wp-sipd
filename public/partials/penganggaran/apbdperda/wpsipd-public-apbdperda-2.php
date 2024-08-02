@@ -9,7 +9,7 @@ global $total_belanja;
 global $total_pendapatan_murni;
 global $total_pendapatan;
 
-if(empty($input['id_skpd'])){
+if(empty($_GET['id_unit'])){
     die('<h1 class="text-center">ID SKPD tidak boleh kosong!</h1>');
 }
 
@@ -535,7 +535,7 @@ $skpd = $wpdb->get_row($wpdb->prepare('
     where tahun_anggaran=%d
         and id_skpd=1
         and active=1
-', $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
+', $input['tahun_anggaran'], $_GET['id_unit']), ARRAY_A);
 $kode = explode('.', $skpd['kode_skpd']);
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
@@ -548,8 +548,8 @@ if($skpd['is_skpd'] == 1){
             id_skpd 
         FROM `data_unit` 
         where (
-                idinduk='.$input['id_skpd'].' 
-                or id_unit='.$input['id_skpd'].' 
+                idinduk='.$_GET['id_unit'].' 
+                or id_unit='.$_GET['id_unit'].' 
             )
             and tahun_anggaran='.$input['tahun_anggaran'].' 
             and active=1
@@ -558,7 +558,7 @@ if($skpd['is_skpd'] == 1){
         $id_skpd_all[] = $v['id_skpd'];
     }
 }else{
-    $id_skpd_all[0] = $input['id_skpd'];
+    $id_skpd_all[0] = $_GET['id_unit'];
 }
 
 $sql = $wpdb->prepare("

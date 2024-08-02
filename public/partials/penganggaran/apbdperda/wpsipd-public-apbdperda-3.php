@@ -11,7 +11,7 @@ $type = $_GET['type'] ?? '';
 $dari_simda = $_GET['dari_simda'] ?? '';
 
 if (empty($id_jadwal_lokal)) {
-    die('<h1 class="text-center">ID Jadwal Lokal Tidak Boleh Kosong!</h1>');
+    die('<h1 class="text_tengah">ID Jadwal Lokal Tidak Boleh Kosong!</h1>');
 }
 
 $input = shortcode_atts(array(
@@ -41,6 +41,7 @@ if (strpos($jadwal_lokal->nama_tipe, '_sipd') == false) {
 }
 
 $nama_skpd = '';
+
 if (
     !empty($input['id_skpd'])
     && $input['id_skpd'] != 'all'
@@ -59,10 +60,10 @@ if (
             and s.id_skpd=%d
     ", $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
     if (!empty($data_skpd)) {
-        $nama_skpd = $data_skpd[0]['kode_skpd'].' '.$data_skpd[0]['nama_skpd'];
+        $nama_skpd = $data_skpd[0]['kode_skpd'] . ' ' . $data_skpd[0]['nama_skpd'];
         $nama_skpd = '<br>' . $nama_skpd;
     } else {
-        die('<h1 class="text-center">SKPD tidak ditemukan!</h1>');
+        die('<h1 class="text_tengah">SKPD tidak ditemukan!</h1>');
     }
 } else {
     $data_skpd = $wpdb->get_results($wpdb->prepare("
@@ -79,6 +80,20 @@ if (
     order by kode_skpd ASC
 ", $input['tahun_anggaran']), ARRAY_A);
 }
+$options_skpd = array();
+$options_skpd = $wpdb->get_results($wpdb->prepare("
+    select 
+        s.*,
+        u.kode_skpd AS kode_unit,
+        u.nama_skpd AS nama_unit
+    FROM data_unit s
+    JOIN data_unit u on u.id_skpd = s.id_unit
+        AND u.active=s.active
+        AND u.tahun_anggaran=s.tahun_anggaran
+    WHERE s.tahun_anggaran=%d
+        and s.active=1
+    order by kode_skpd ASC
+", $input['tahun_anggaran']), ARRAY_A);
 
 function ubah_minus($nilai)
 {
@@ -93,14 +108,6 @@ function ubah_minus($nilai)
 function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $dari_simda)
 {
     global $wpdb;
-    global $pendapatan_murni;
-    global $pendapatan_pergeseran;
-    global $belanja_murni;
-    global $belanja_pergeseran;
-    global $pembiayaan_penerimaan_murni;
-    global $pembiayaan_penerimaan_pergeseran;
-    global $pembiayaan_pengeluaran_murni;
-    global $pembiayaan_pengeluaran_pergeseran;
 
     if (empty($baris_kosong)) {
         $baris_kosong = false;
@@ -225,34 +232,49 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
     foreach ($data_pendapatan['data'] as $k => $v) {
         $murni = '';
         $selisih = '';
-        if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah text_kanan text_blok'></td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'></td>";
+        $total = '"<td class="kanan bawah text_kanan"></td>';
+
+        if ($type == 'pergeseran' && $nama_rekening != 'Belanja') {
+            $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($v['totalmurni']) . "</td>";
+            $selisih = "<td class='kanan bawah text_kanan'>" . ubah_minus(($v['total'] - $v['totalmurni'])) . "</td>";
+        } else if ($type == 'pergeseran' && $nama_rekening == 'Belanja') {
+            $murni = "<td class='kanan bawah text_kanan'></td>";
+            $selisih = "<td class='kanan bawah text_kanan'></td>";
+        }
+        if ($nama_rekening != 'Belanja') {
+            $total = "<td class='kanan bawah text_kanan'>" . ubah_minus($v['total']) . "</td>";
         }
         $body_pendapatan .= "
             <tr class='rek_1'>
-                <td class='kiri kanan bawah text_blok'>" . $k . "</td>
-                <td class='kanan bawah text_blok'>" . $v['nama'] . "</td>
+                <td class='kiri kanan bawah'>" . $k . "</td>
+                <td class='kanan bawah'>" . $v['nama'] . "</td>
                 " . $murni . "
-                <td class='kanan bawah text_kanan text_blok'></td>
+                " . $total . "
                 " . $selisih . "
-                <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
+                <td class='kanan bawah text_kanan'></td>
             </tr>";
         foreach ($v['data'] as $kk => $vv) {
             $murni = '';
             $selisih = '';
-            if ($type == 'pergeseran') {
-                $murni = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus($vv['totalmurni']) . "</td>";
-                $selisih = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus(($vv['total'] - $vv['totalmurni'])) . "</td>";
+            $total = '"<td class="kanan bawah text_kanan"></td>';
+            if ($type == 'pergeseran' && $nama_rekening != 'Belanja') {
+                $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($vv['totalmurni']) . "</td>";
+                $selisih = "<td class='kanan bawah text_kanan'>" . ubah_minus(($vv['total'] - $vv['totalmurni'])) . "</td>";
+            } else if ($type == 'pergeseran' && $nama_rekening == 'Belanja') {
+                $murni = "<td class='kanan bawah text_kanan'></td>";
+                $selisih = "<td class='kanan bawah text_kanan'></td>";
+            } 
+            if ($nama_rekening != 'Belanja') {
+                $total = "<td class='kanan bawah text_kanan'>" . ubah_minus($vv['total']) . "</td>";
             }
             $body_pendapatan .= "
                 <tr class='rek_2'>
-                    <td class='kiri kanan bawah text_blok'>" . $kk . "</td>
-                    <td class='kanan bawah text_blok'>" . $vv['nama'] . "</td>
+                    <td class='kiri kanan bawah'>" . $kk . "</td>
+                    <td class='kanan bawah'>" . $vv['nama'] . "</td>
                     " . $murni . "
-                    <td class='kanan bawah text_kanan text_blok'>" . ubah_minus($vv['total']) . "</td>
+                    " . $total . "
                     " . $selisih . "
-                    <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
+                    <td class='kanan bawah text_kanan'></td>
                 </tr>";
             foreach ($vv['data'] as $kkk => $vvv) {
                 $murni = '';
@@ -268,104 +290,12 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
                         " . $murni . "
                         <td class='kanan bawah text_kanan'>" . ubah_minus($vvv['total']) . "</td>
                         " . $selisih . "
-                        <td class='kanan bawah text_kanan realisasi_simda'></td>
+                        <td class='kanan bawah text_kanan'></td>
                     </tr>";
-                foreach ($vvv['data'] as $kkkk => $vvvv) {
-                    $murni = '';
-                    $selisih = '';
-                    if ($type == 'pergeseran') {
-                        $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($vvvv['totalmurni']) . "</td>";
-                        $selisih = "<td class='kanan bawah text_kanan'>" . ubah_minus(($vvvv['total'] - $vvvv['totalmurni'])) . "</td>";
-                    }
-                    $body_pendapatan .= "
-                        <tr class='rek_4'>
-                            <td class='kiri kanan bawah'>" . $kkkk . "</td>
-                            <td class='kanan bawah'>" . $vvvv['nama'] . "</td>
-                            " . $murni . "
-                            <td class='kanan bawah text_kanan'>" . ubah_minus($vvvv['total']) . "</td>
-                            " . $selisih . "
-                            <td class='kanan bawah text_kanan realisasi_simda'></td>
-                        </tr>";
-                }
             }
         }
     }
-
-    $murni = '';
-    $selisih = '';
-    if ($type == 'pergeseran') {
-        $murni = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus($data_pendapatan['totalmurni']) . "</td>";
-        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus(($data_pendapatan['totalmurni'] - $data_pendapatan['total'])) . "</td>";
-    }
-    $body_pendapatan .= "
-    <tr>
-        <td class='kiri kanan bawah'></td>
-        <td class='kanan bawah text_kanan text_blok'>Jumlah " . $nama_rekening . "</td>
-        " . $murni . "
-        <td class='kanan bawah text_kanan text_blok'>" . ubah_minus($data_pendapatan['total']) . "</td>
-        " . $selisih . "
-        <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
-    </tr>";
-    if ($nama_rekening == 'Pendapatan') {
-        $pendapatan_murni = $data_pendapatan['totalmurni'];
-        $pendapatan_pergeseran = $data_pendapatan['total'];
-    } else if ($nama_rekening == 'Belanja') {
-        $belanja_murni = $data_pendapatan['totalmurni'];
-        $belanja_pergeseran = $data_pendapatan['total'];
-        $murni = '';
-        $selisih = '';
-        if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus($pendapatan_murni - $belanja_murni) . "</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus(($pendapatan_murni - $belanja_murni) - ($pendapatan_pergeseran - $belanja_pergeseran)) . "</td>";
-        }
-        $body_pendapatan .= "
-        <tr>
-            <td class='kiri kanan bawah'></td>
-            <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
-            " . $murni . "
-            <td class='kanan bawah text_kanan text_blok'>" . ubah_minus($pendapatan_pergeseran - $belanja_pergeseran) . "</td>
-            " . $selisih . "
-            <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
-        </tr>";
-    } else if ($nama_rekening == 'Penerimaan Pembiayaan') {
-        $pembiayaan_penerimaan_murni = $data_pendapatan['totalmurni'];
-        $pembiayaan_penerimaan_pergeseran = $data_pendapatan['total'];
-    } else if ($nama_rekening == 'Pengeluaran Pembiayaan') {
-        $pembiayaan_pengeluaran_murni = $data_pendapatan['totalmurni'];
-        $pembiayaan_pengeluaran_pergeseran = $data_pendapatan['total'];
-        $murni = '';
-        $selisih = '';
-        if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus($pembiayaan_penerimaan_murni - $pembiayaan_pengeluaran_murni) . "</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . ubah_minus(($pembiayaan_penerimaan_murni - $pembiayaan_pengeluaran_murni) - ($pembiayaan_penerimaan_pergeseran - $pembiayaan_pengeluaran_pergeseran)) . "</td>";
-        }
-        $body_pendapatan .= "
-        <tr>
-            <td class='kiri kanan bawah'></td>
-            <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
-            " . $murni . "
-            <td class='kanan bawah text_kanan text_blok'>" . ubah_minus($pembiayaan_penerimaan_pergeseran - $pembiayaan_pengeluaran_pergeseran) . "</td>
-            " . $selisih . "
-            <td class='kanan bawah text_kanan text_blok realisasi_simda'></td>
-        </tr>";
-    }
-    if ($baris_kosong) {
-        $murni = '';
-        $selisih = '';
-        if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah'></td>";
-            $selisih = "<td class='kanan bawah'></td>";
-        }
-        $body_pendapatan .= "
-        <tr>
-            <td class='kiri kanan bawah' style='color: #fff;'>.</td>
-            <td class='kanan bawah'></td>
-            " . $murni . "
-            <td class='kanan bawah'></td>
-            " . $selisih . "
-            <td class='kanan bawah realisasi_simda'></td>
-        </tr>";
-    }
+    
     return $body_pendapatan;
 }
 
@@ -387,7 +317,7 @@ if (!empty($_GET) && !empty($_GET['id_jadwal_lokal'])) {
             $tabel_history = '_history';
             $where_jadwal = $wpdb->prepare(' AND id_jadwal=%d', $input['id_jadwal_lokal']);
         }
-        $nama_jadwal = '<h1 class="text-center">Jadwal: ' . $cek_jadwal['nama'] . '</h1>';
+        $nama_jadwal = '<h1 class="text_tengah">Jadwal: ' . $cek_jadwal['nama'] . '</h1>';
     }
 }
 
@@ -523,12 +453,10 @@ foreach ($data_skpd as $skpd) {
             ORDER BY kode_giat ASC, kode_sub_giat ASC";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     foreach ($subkeg as $kk => $sub) {
-        $where_jadwal_new = '';
-        if (!empty($where_jadwal)) {
-            $where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
-        }
         $rincian_all = $wpdb->get_results($wpdb->prepare("
             SELECT 
+                r.kode_akun,
+                r.nama_akun,
                 r.rincian_murni,
                 r.rincian,
                 r.kode_akun
@@ -536,7 +464,7 @@ foreach ($data_skpd as $skpd) {
             WHERE r.tahun_anggaran=%d
                 AND r.active=1
                 AND r.kode_sbl=%s
-                " . $where_jadwal_new . "
+                " . $where_jadwal . "
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         $dana_query = $wpdb->prepare("
@@ -695,11 +623,12 @@ foreach ($data_skpd as $skpd) {
                     'tak_terduga_murni' => 0,
                     'transfer_murni' => 0,
                     'total_murni' => 0,
-                    'data' => array(),
+                    'nama_akun' => 0,
                     'sub' => $sub,
                     'sumber_dana' => $dana_result,
                     'indikator_sub_giat' => $indikator_sub_giat,
-                    'lokasi' => $lokasi_result
+                    'lokasi' => $lokasi_result,
+                    'data' => array()
                 );
             }
 
@@ -722,13 +651,24 @@ foreach ($data_skpd as $skpd) {
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_murni'] += $rincian['rincian_murni'];
 
             $data_all[$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['data'][] = $rincian;
-
-            $rek = explode('.', $rincian['kode_akun']);
-            $tipe_belanja = $rek[0] . '.' . $rek[1];
         }
     }
-    // die(print_r($data_all));
-    $body_urusan_subkeg = '<tr><td colspan=4 class="text-bold text-center">Belanja Daerah</td></tr>';
+    //colspan
+    $body_urusan_subkeg = '<tr><td colspan=4 class="text_blok text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
+    $colspan = 3;
+    $colspan_header = '';
+    $colspan_header_2 = 4;
+    $murni = "";
+    $selisih = "";
+
+    if ($type == 'pergeseran') {
+        $body_urusan_subkeg = '<tr><td colspan=6 class="text_blok text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
+        $murni = "<td class='kanan bawah text_tengah text_blok'>JUMLAH SEBELUM</td>";
+        $selisih = "<td class='kanan bawah text_tengah text_blok'>SELISIH</td>";
+        $colspan = 5;
+        $colspan_header = 2;
+        $colspan_header_2 = 6;
+    }
 
     $total_all = 0;
     $counter = 1;
@@ -736,24 +676,24 @@ foreach ($data_skpd as $skpd) {
         foreach ($skpd['data'] as $urusan) {
             $body_urusan_subkeg .= '
             <tr data-id="' . $urusan['id'] . '">
-                <td>Urusan Pemerintahan</td>
-                <td colspan=3>' . $urusan['kode'] . ' ' . $urusan['nama'] . '</td>
+                <td class="kiri kanan bawah">Urusan Pemerintahan</td>
+                <td class="kiri kanan bawah" colspan=' . $colspan . '>' . $urusan['kode'] . ' ' . $urusan['nama'] . '</td>
             </tr>';
             foreach ($urusan['data'] as $bidang_urusan) {
                 $body_urusan_subkeg .= '
                 <tr data-id="' . $bidang_urusan['id'] . '">
-                    <td>Bidang Urusan Pemerintahan</td>
-                    <td colspan=3>' . $bidang_urusan['kode'] . ' ' . $bidang_urusan['nama'] . '</td>
+                    <td class="kiri kanan bawah">Bidang Urusan Pemerintahan</td>
+                    <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $bidang_urusan['kode'] . ' ' . $bidang_urusan['nama'] . '</td>
                 </tr>';
                 $body_urusan_subkeg .= '
                 <tr data-id="' . $skpd['id'] . '">
-                    <td>Organisasi</td>
-                    <td colspan=3>' . $skpd['kode'] . ' ' . $skpd['nama'] . '</td>
+                    <td class="kiri kanan bawah">Organisasi</td>
+                    <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $skpd['kode_unit'] . ' ' . $skpd['nama_unit'] . '</td>
                 </tr>';
                 $body_urusan_subkeg .= '
                 <tr data-id="' . $skpd['id_unit'] . '">
-                    <td>Unit Organisasi</td>
-                    <td colspan=3>' . $skpd['kode_unit'] . ' ' . $skpd['nama_unit'] . '</td>
+                    <td class="kiri kanan bawah">Unit Organisasi</td>
+                    <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $skpd['kode'] . ' ' . $skpd['nama'] . '</td>
                 </tr>';
                 foreach ($bidang_urusan['data'] as $program) {
                     $indikator = array();
@@ -764,16 +704,16 @@ foreach ($data_skpd as $skpd) {
                     }
                     $indikator = implode('<br>', $indikator);
                     $target = implode('<br>', $target);
-                        $body_urusan_subkeg .= '
-                            <tr data-id="' . $program['id'] . '">
-                                <td>Program</td>
-                                <td colspan=3>' . $program['kode'] . ' ' . $program['nama'] . '</td>
-                            </tr>';
-                        $body_urusan_subkeg .= '
-                            <tr data-id="' . $program['id'] . '">
-                                <td>Indikator Hasil</td>
-                                <td colspan=3>' . $indikator . '</td>
-                            </tr>';
+                    $body_urusan_subkeg .= '
+                        <tr data-id="' . $program['id'] . '">
+                            <td class="kiri kanan bawah">Program</td>
+                            <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $program['kode'] . ' ' . $program['nama'] . '</td>
+                        </tr>';
+                    $body_urusan_subkeg .= '
+                        <tr>
+                            <td class="kiri kanan bawah">Indikator Hasil</td>
+                            <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $indikator . '</td>
+                        </tr>';
                     foreach ($program['data'] as $kegiatan) {
                         $indikator = array();
                         $target = array();
@@ -785,9 +725,14 @@ foreach ($data_skpd as $skpd) {
                         $target = implode('<br>', $target);
                         $body_urusan_subkeg .= '
                         <tr data-id="' . $kegiatan['id'] . '">
-                            <td>Kegiatan</td>
-                            <td colspan=3>' . $kegiatan['kode'] . ' ' . $kegiatan['nama'] . '</td>
-                        </tr>';                    
+                            <td class="kiri kanan bawah">Kegiatan</td>
+                            <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $kegiatan['kode'] . ' ' . $kegiatan['nama'] . '</td>
+                        </tr>';
+                        $body_urusan_subkeg .= '
+                        <tr>
+                            <td class="kiri kanan bawah">Indikator Keluaran</td>
+                            <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $indikator . '</td>
+                        </tr>';
                         foreach ($kegiatan['data'] as $kode => $data) {
                             $total_all += $data['total'];
                             $parts = explode(' ', $data['sub']['nama_sub_giat'], 2);
@@ -816,10 +761,38 @@ foreach ($data_skpd as $skpd) {
 
                             $body_urusan_subkeg .= '
                             <tr data-id="' . $data['id'] . '">
-                                <td>Sub Kegiatan</td>
-                                <td colspan=3>' . $data['kode'] . ' ' . $data['nama'] . '</td>
-                            </tr>';  
-                            
+                                <td class="kiri kanan bawah">Sub Kegiatan</td>
+                                <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $data['kode'] . ' ' . $nama_sub_giat . '</td>
+                            </tr>';
+                            $body_urusan_subkeg .= '
+                            <tr>
+                                <td class="kiri kanan bawah">Indikator Keluaran</td>
+                                <td colspan=' . $colspan . ' class="align-middle kiri kanan bawah ">' . $indikator . '</td>
+                            </tr>';
+                            $body_urusan_subkeg .= '
+                            <tr>
+                                <td class="kiri kanan bawah text_blok text_tengah">KODE REKENING</td>
+                                <td class="kiri kanan bawah text_blok text_tengah">URAIAN</td>
+                                ' . $murni . '
+                                <td class="kiri kanan bawah text_blok text_tengah">JUMLAH</td>
+                                ' . $selisih . '
+                                <td class="kiri kanan bawah text_blok text_tengah">DASAR HUKUM</td>
+                            </tr>';
+                            $rka_sub_all = array();
+                            foreach ($data['data'] as $rincian) {
+                                if (empty($rka_sub_all[$rincian['kode_akun']])) {
+                                    $rka_sub_all[$rincian['kode_akun']] = array(
+                                        'realisasi' => 0,
+                                        'kode_akun' => $rincian['kode_akun'],
+                                        'nama_akun' => $rincian['nama_akun'],
+                                        'total' => 0,
+                                        'totalmurni' => 0
+                                    );
+                                }
+                                $rka_sub_all[$rincian['kode_akun']]['total'] += $rincian['rincian'];
+                                $rka_sub_all[$rincian['kode_akun']]['totalmurni'] += $rincian['rincian_murni'];
+                            }
+                            $body_urusan_subkeg .= generate_body($rka_sub_all, true, $type, 'Belanja', $dari_simda);
                         }
                     }
                 }
@@ -829,6 +802,16 @@ foreach ($data_skpd as $skpd) {
 }
 ?>
 <style>
+    @media print {
+        #cetak {
+            max-width: auto !important;
+            height: auto !important;
+        }
+
+        #print_laporan {
+            display: none;
+        }
+    }
 </style>
 
 <body>
@@ -854,22 +837,28 @@ foreach ($data_skpd as $skpd) {
                 <td class="text-start" contenteditable="true">&nbsp;xx Desember xxx</td>
             </tr>
         </table>
-        <h3 class="text-center text-uppercase">
+        <h3 class="text_tengah text-uppercase">
             <?php echo $nama_pemda; ?><br>
-            rincian apbd menurut urusan pemerintahan daerah, organisasi, program, kegiatan,<br>
-            sub kegiatan, kelompok, jenis pendapatan, belanja, dan pembiayaan<br>
-            tahun anggaran <?php echo $input['tahun_anggaran']; ?>
+            RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN,<br>
+            SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>
+            TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>
         </h3>
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th class="text-center text-uppercase" colspan="4">pendapatan daerah</th>
+                    <th class="text_tengah kiri kanan bawah atas" colspan="<?php echo $colspan_header_2; ?>">PENDAPATAN DAERAH</th>
                 </tr>
                 <tr>
-                    <th class="text-center text-uppercase">kode rekening</th>
-                    <th class="text-center text-uppercase">uraian</th>
-                    <th class="text-center text-uppercase">jumlah</th>
-                    <th class="text-center text-uppercase">dasar hukum</th>
+                    <th class="text_tengah kiri kanan bawah text_blok">KODE REKENING</th>
+                    <th class="text_tengah kiri kanan bawah text_blok">URAIAN</th>
+                    <?php if ($type == 'pergeseran') : ?>
+                        <th class="text_tengah kiri kanan bawah text_blok">JUMLAH SEBELUM</th>
+                    <?php endif; ?>
+                    <th class="text_tengah kiri kanan bawah text_blok">JUMLAH</th>
+                    <?php if ($type == 'pergeseran') : ?>
+                        <th class="text_tengah kiri kanan bawah text_blok">SELISIH</th>
+                    <?php endif; ?>
+                    <th class="text_tengah kiri kanan bawah text_blok">DASAR HUKUM</th>
                 </tr>
             </thead>
             <tbody>
@@ -881,5 +870,67 @@ foreach ($data_skpd as $skpd) {
     </div>
 </body>
 <script>
+    jQuery(document).ready(function() {
+        run_download_excel();
 
+        var list_skpd = <?php echo json_encode($options_skpd); ?>;
+        window._url = new URL(window.location.href);
+        window.new_url = changeUrl({
+            url: _url.href,
+            key: 'key',
+            value: '<?php echo $this->gen_key(); ?>'
+        });
+        window.type = _url.searchParams.get("type");
+        window.dari_simda = _url.searchParams.get("dari_simda");
+        window.id_skpd = _url.searchParams.get("id_unit");
+
+        var extend_action = '';
+        if (type && type === 'pergeseran') {
+            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran III</a>';
+        } else {
+            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran III</a>';
+        }
+
+        var options = '<option value="">Semua SKPD</option>';
+        list_skpd.map(function(b) {
+            var selected = (id_skpd && id_skpd == b.id_skpd) ? 'selected' : '';
+            options += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
+        });
+
+        extend_action += '<button class="btn btn-info m-3" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<label for="options_skpd" class="mr-3">Pilih Perangkat Daerah</label>';
+        extend_action += '<select id="pilih_skpd" name="options_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
+        extend_action += '</div>';
+
+        jQuery('#action-sipd').append(extend_action);
+        jQuery('#pilih_skpd').select2();
+    });
+
+    function ubah_skpd() {
+        var pilih_id_skpd = jQuery('#pilih_skpd').val();
+        var updated_url = _url.href;
+
+        if (type) {
+            updated_url = changeUrl({
+                url: updated_url,
+                key: 'type',
+                value: type
+            });
+        }
+        if (dari_simda) {
+            updated_url = changeUrl({
+                url: updated_url,
+                key: 'dari_simda',
+                value: dari_simda
+            });
+        }
+        updated_url = changeUrl({
+            url: updated_url,
+            key: 'id_unit',
+            value: pilih_id_skpd
+        });
+
+        window.open(updated_url);
+        jQuery('#pilih_skpd').val(id_skpd);
+    }
 </script>

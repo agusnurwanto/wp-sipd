@@ -40,7 +40,7 @@ function to_number(text){
 
 function run_download_excel(type, tag_html='body'){
 	var current_url = window.location.href;
-	var body = '<a id="excel" onclick="return false;" href="#" class="btn btn-primary">DOWNLOAD EXCEL</a>';
+	var body = '<a id="excel" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-media-spreadsheet"></span> DOWNLOAD EXCEL</a>';
 	if(type == 'apbd'){
 		body += ''
 			+'<div style="padding-top: 20px;">'
