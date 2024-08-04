@@ -7226,6 +7226,81 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data Buku Jurnal Aklap SIPD Penatausahaan
+	public function singkron_jurnal()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Singkron Buku Jurnal',
+			'action' => $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				if (
+					empty($_POST['page'])
+					|| $_POST['page'] == 1
+				) {
+					$wpdb->update("data_buku_jurnal_sipd", array('active' => 0), array(
+						"tahun_anggaran" => $_POST["tahun_anggaran"],
+						"id_skpd" => $_POST['id_skpd']
+					));
+				}
+
+				//Insert atau update data spd
+				$cek = $wpdb->get_var($wpdb->prepare("select id_jurnal from data_buku_jurnal_sipd where id_jurnal=%d and tahun_anggaran=%d", $_POST["id_jurnal"], $_POST["tahun_anggaran"]));
+				$opsi = array(
+					"id_jurnal" => $data["id_jurnal"],
+					"tanggal_jurnal" => $data["tanggal_jurnal"],
+					"skpd_id" => $data["skpd_id"],
+					"nama_skpd" => $data["nama_skpd"],
+					"nomor_jurnal" => $data["nomor_jurnal"],
+					"dokumen_sumber" => $data["dokumen_sumber"],
+					"active" => 1,
+					"tahun_anggaran" => $data["tahun_anggaran"],
+					"update_at" => current_time('mysql')
+				);
+				if (!empty($cek)) {
+					$wpdb->update("data_buku_jurnal_sipd", $opsi, array("id_jurnal" => $data["id_jurnal"]));
+				} else {
+					$wpdb->insert("data_buku_jurnal_sipd", $opsi);
+				}
+				//Insert atau update data detail spd
+				foreach ($data as $k => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("select id_detail from data_buku_jurnal_sipd_detail where id_detail=%d and tahun_anggaran=%d", $v["id_detail"], $_POST['tahun_anggaran']));
+					$opsi = array(
+						'id_detail' => $v["id_detail"],
+						'account_id' => $v["account_id"],
+						"amount" => $v["amount"],
+						"kode_rekening" => $v["kode_rekening"],
+						"nama_rekening" => $v["nama_rekening"],
+						"position" => $v["position"],
+						"update_at" => current_time('mysql'),
+						'active' => 1,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_spd_sipd_detail', $opsi, array("id_detail" => $v["id_detail"]));
+					} else {
+						$wpdb->insert("data_spd_sipd_detail", $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "API KEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
+
 	//Import data LPJ dari SIPD Penatausahaan
 	public function singkron_lpj_bpp()
 	{

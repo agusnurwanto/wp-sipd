@@ -178,6 +178,36 @@ CREATE TABLE `data_lpj_sipd_detail_rekening` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_buku_jurnal_sipd` (
+  `id` bigint NOT NULL auto_increment,
+  `id_skpd` int DEFAULT NULL,
+  `id_jurnal` int(11) DEFAULT NULL,  
+  `nama_skpd` text DEFAULT NULL,
+  `nama_sub_skpd` text DEFAULT NULL,
+  `nomor_jurnal` varchar(255) DEFAULT NULL,
+  `tanggal_jurnal` date DEFAULT NULL,  
+  `dokumen_sumber` text DEFAULT NULL,
+  `active` tinyint,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_buku_jurnal_sipd_detail` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_jurnal` int(11) DEFAULT NULL,
+  `id_detail` int(11) DEFAULT NULL,
+  `account_id` int(11) DEFAULT NULL,  
+  `amount` double(20,0) DEFAULT NULL,
+  `kode_rekening` text DEFAULT NULL,
+  `nama_rekening` text DEFAULT NULL,
+  `position` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `aklap_lra_sipd` (
   `id` int(11) NOT NULL auto_increment,
   `id_daerah` int,

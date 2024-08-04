@@ -1087,6 +1087,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_aklap_lra',  $plugin_public, 'singkron_aklap_lra');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_aklap_lra',  $plugin_public, 'singkron_aklap_lra');
 
+		$this->loader->add_action('wp_ajax_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
