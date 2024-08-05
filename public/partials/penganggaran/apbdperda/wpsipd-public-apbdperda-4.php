@@ -517,31 +517,31 @@ foreach ($data_skpd as $skpd) {
                 <th class="text-center align-middle" rowspan="4">Kode</th>
                 <th class="text-center align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
                 <th class="text-center align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
-            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
-            <?php else: ?>
-                <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
+                    <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
+                <?php else : ?>
+                    <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
+                <?php endif; ?>
             </tr>
             <tr>
                 <th class="text-center align-middle" rowspan="3">Target 2024</th>
             </tr>
             <tr>
-            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
+                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
+                <?php endif; ?>
                 <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
                 <th class="text-center align-middle" rowspan="2">Lokasi</th>
                 <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
             </tr>
             <tr>
-            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                <th class="text-center align-middle">Operasi</th>
-                <th class="text-center align-middle">Modal</th>
-                <th class="text-center align-middle">Tidak Terduga</th>
-                <th class="text-center align-middle">Transfer</th>
-                <th class="text-center align-middle">Total</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
+                    <th class="text-center align-middle">Operasi</th>
+                    <th class="text-center align-middle">Modal</th>
+                    <th class="text-center align-middle">Tidak Terduga</th>
+                    <th class="text-center align-middle">Transfer</th>
+                    <th class="text-center align-middle">Total</th>
+                <?php endif; ?>
                 <th class="text-center align-middle">Operasi</th>
                 <th class="text-center align-middle">Modal</th>
                 <th class="text-center align-middle">Tidak Terduga</th>
@@ -561,13 +561,13 @@ foreach ($data_skpd as $skpd) {
                 <th class="text-center" style="font-size:small;line-height:0pt">10</th>
                 <th class="text-center" style="font-size:small;line-height:0pt">11</th>
                 <th class="text-center" style="font-size:small;line-height:0pt">12</th>
-            <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil'): ?>
-                <th class="text-center" style="font-size:small;line-height:0pt">13</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">14</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">15</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">16</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">17</th>
-            <?php endif; ?>
+                <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
+                    <th class="text-center" style="font-size:small;line-height:0pt">13</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">14</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">15</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">16</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">17</th>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody>

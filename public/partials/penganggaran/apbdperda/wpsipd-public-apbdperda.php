@@ -3,6 +3,41 @@
 if (!defined('WPINC')) {
     die;
 }
+global $wpdb;
+
+$id_unit = '';
+if (!empty($_GET) && !empty($_GET['id_unit'])) {
+    $id_unit = $_GET['id_unit'];
+}
+
+$id_jadwal_lokal = '';
+if (!empty($_GET) && !empty($_GET['id_jadwal_lokal'])) {
+    $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
+} else {
+    die('<h1 class="text-center">ID Jadwal Lokal Tidak Boleh Kosong!</h1>');
+}
+
+$input = shortcode_atts(array(
+    'id_skpd' => $id_unit,
+    'id_jadwal_lokal' => $id_jadwal_lokal,
+    'tahun_anggaran' => '2022'
+), $atts);
+
+$data_jadwal = $wpdb->get_row(
+    $wpdb->prepare("
+        SELECT *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal = %d
+        AND status =0
+        ", $id_jadwal_lokal),
+    ARRAY_A
+);
+// die(print_r($wpdb->last_query));
+if(!empty($data_jadwal)) {
+    $tahun_anggaran = $data_jadwal['tahun_anggaran'] ;
+} else {
+    die('<h1>Jadwal Tidak Tersedia</h1>');
+}
 function ubah_minus($nilai)
 {
     if ($nilai < 0) {
@@ -333,7 +368,7 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
     return $body_pendapatan;
 }
 
-function get_belanja_simda($rek_belanja, $input, $kd_rek_simda, $kd_rek_simda2 = false)
+function get_belanja_simda($rek_belanja, $tahun_anggaran , $kd_rek_simda, $kd_rek_simda2 = false)
 {
     global $wpdb;
     global $simdadb;
@@ -358,7 +393,7 @@ function get_belanja_simda($rek_belanja, $input, $kd_rek_simda, $kd_rek_simda2 =
                 $query_where
             group by kd_rek_1, kd_rek_2, kd_rek_3, kd_rek_4, kd_rek_5
             order by  kd_rek_1 ASC, kd_rek_2 ASC, kd_rek_3 ASC, kd_rek_4 ASC, kd_rek_5 ASC
-        ", $input['tahun_anggaran'], $kd_rek_simda)
+        ", $tahun_anggaran , $kd_rek_simda)
     );
     $rek_belanja_simda = $simdadb->CurlSimda($options);
     $rek_belanja_simda2 = array();
@@ -436,7 +471,7 @@ if (!empty($id_unit)) {
             and id_skpd=%d
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran'], $id_unit);
+    ", $tahun_anggaran , $id_unit);
 } else {
     $sql = $wpdb->prepare("
         select 
@@ -450,7 +485,7 @@ if (!empty($id_unit)) {
             and active=1
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran']);
+    ", $tahun_anggaran );
 }
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
 
@@ -477,7 +512,7 @@ if (!empty($id_unit)) {
             and s.id_sub_skpd=%d
         group by r.kode_akun
         order by r.kode_akun ASC
-    ", $input['tahun_anggaran'], $id_unit);
+    ", $tahun_anggaran , $id_unit);
 } else {
     $sql = $wpdb->prepare("
         select 
@@ -491,7 +526,7 @@ if (!empty($id_unit)) {
             and active=1
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran']);
+    ", $tahun_anggaran );
 }
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
@@ -509,7 +544,7 @@ foreach ($rek_belanja as $k => $v) {
                 and tahun_anggaran=%d
                 and id_skpd=%d
             group by kode_akun
-        ", $input['tahun_anggaran'], $id_unit);
+        ", $tahun_anggaran , $id_unit);
     } else {
         $sql = $wpdb->prepare("
             select
@@ -519,7 +554,7 @@ foreach ($rek_belanja as $k => $v) {
                 and active=1
                 and tahun_anggaran=%d
             group by kode_akun
-        ", $input['tahun_anggaran']);
+        ", $tahun_anggaran );
     }
     $rek_belanja[$k]['realisasi'] = $wpdb->get_var($sql);
 }
@@ -545,7 +580,7 @@ if (!empty($id_unit)) {
             and id_skpd=%d
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran'], $id_unit);
+    ", $tahun_anggaran , $id_unit);
 } else {
     $sql = $wpdb->prepare("
         select 
@@ -560,7 +595,7 @@ if (!empty($id_unit)) {
             and active=1
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran']);
+    ", $tahun_anggaran );
 }
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
@@ -585,7 +620,7 @@ if (!empty($id_unit)) {
             and id_skpd=%d
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran'], $id_unit);
+    ", $tahun_anggaran , $id_unit);
 } else {
     $sql = $wpdb->prepare("
         select 
@@ -600,7 +635,7 @@ if (!empty($id_unit)) {
             and active=1
         group by kode_akun
         order by kode_akun ASC
-    ", $input['tahun_anggaran']);
+    ", $tahun_anggaran );
 }
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
@@ -623,7 +658,7 @@ $unit = $wpdb->get_results($wpdb->prepare("
         and tahun_anggaran=%d 
         and is_skpd=1 
     order by kode_skpd ASC
-", $input['tahun_anggaran']), ARRAY_A);
+", $tahun_anggaran ), ARRAY_A);
 foreach ($unit as $kk => $vv) {
     $options_skpd[] = $vv;
     $subunit = $wpdb->get_results($wpdb->prepare("
@@ -638,7 +673,7 @@ foreach ($unit as $kk => $vv) {
             and is_skpd=0 
             and id_unit=%d 
         order by kode_skpd ASC
-    ", $input['tahun_anggaran'], $vv["id_skpd"]), ARRAY_A);
+    ", $tahun_anggaran , $vv["id_skpd"]), ARRAY_A);
     if ($id_unit == $vv['id_skpd']) {
         $nama_skpd = '<br>' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'];
     }
@@ -656,7 +691,7 @@ foreach ($unit as $kk => $vv) {
         display: none;
     }
 </style>
-<div id="cetak" title="Laporan APBD PERDA Lampiran 1 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
+<div id="cetak" title="Laporan APBD PERDA Lampiran 1 Tahun Anggaran <?php echo $tahun_anggaran ; ?>">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
             <td width="80" valign="top">Lampiran I </td>
@@ -679,7 +714,7 @@ foreach ($unit as $kk => $vv) {
         </tr>
     </table>
     <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>RINGKASAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN
-        PEMBIAYAAN<?php echo $nama_skpd; ?><br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+        PEMBIAYAAN<?php echo $nama_skpd; ?><br>TAHUN ANGGARAN <?php echo $tahun_anggaran ; ?></h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -833,9 +868,9 @@ foreach ($unit as $kk => $vv) {
     window.dari_simda = url.searchParams.get("dari_simda");
     window.id_skpd = url.searchParams.get("id_skpd");
     if (type && type == 'pergeseran') {
-        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Print APBD Perda Lampiran 1</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran 1</a>';
     } else {
-        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Perda Lampiran 1</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran 1</a>';
     }
     var text = 'Nilai pagu murni dari database SIMDA'
     extend_action += '<div style="margin-top: 15px">';
@@ -852,7 +887,8 @@ foreach ($unit as $kk => $vv) {
         }
         options += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
     });
-    extend_action += '<select id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
+    extend_action += '<label for="options_skpd" class="ml-3 mr-3">Pilih Perangkat Daerah</label>';
+    extend_action += '<select name="options_skpd" id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
     extend_action += '<label style="margin-left:25px;"><input type="checkbox" onclick="tampil_realisasi(this);"> Tampilkan Realisasi SIMDA</label>';
     extend_action += '<h4 style="margin-top: 10px;">Tampilkan Baris Rekening</h4>';
     extend_action += '<label><input type="checkbox" onclick="tampil_rekening(this);" checked id="rek_2"> Rekening 2</label>';
@@ -862,4 +898,5 @@ foreach ($unit as $kk => $vv) {
     extend_action += '<label style="margin-left:25px;"><input type="checkbox" onclick="tampil_rekening(this);" checked id="rek_6"> Rekening 6</label>';
     extend_action += '</div>';
     jQuery('#action-sipd').append(extend_action);
+    jQuery('#pilih_skpd').select2();
 </script>

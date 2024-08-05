@@ -263,7 +263,7 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
             } else if ($type == 'pergeseran' && $nama_rekening == 'Belanja') {
                 $murni = "<td class='kanan bawah text_kanan'></td>";
                 $selisih = "<td class='kanan bawah text_kanan'></td>";
-            } 
+            }
             if ($nama_rekening != 'Belanja') {
                 $total = "<td class='kanan bawah text_kanan'>" . ubah_minus($vv['total']) . "</td>";
             }
@@ -295,7 +295,7 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
             }
         }
     }
-    
+
     return $body_pendapatan;
 }
 
@@ -348,7 +348,7 @@ if (
             nama_akun,
             SUM(total) AS total,
             SUM(nilaimurni) AS totalmurni
-        FROM data_pendapatan" . $tabel_history . "
+        FROM data_pendapatan" . $tabel_history . " 
         WHERE tahun_anggaran=%d
             AND active=1
             " . $where_jadwal . "
@@ -838,10 +838,10 @@ foreach ($data_skpd as $skpd) {
             </tr>
         </table>
         <h3 class="text_tengah text-uppercase">
-            <?php echo $nama_pemda; ?><br>
+            <?php echo htmlspecialchars($nama_pemda, ENT_QUOTES, 'UTF-8'); ?><br>
             RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN,<br>
             SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>
-            TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>
+            TAHUN ANGGARAN <?php echo htmlspecialchars($input['tahun_anggaran'], ENT_QUOTES, 'UTF-8'); ?>
         </h3>
         <table class="table table-bordered">
             <thead>
