@@ -2006,20 +2006,63 @@ class Wpsipd_Simda
         return $ret;
     }
 
+    public function get_simda_mapping($options, $no_remove = false){
+		global $wpdb;
+		if ($options['name'] == '_crb_custom_mapping_rekening_simda') {
+			$mapping = get_option($options['name']);
+			$mapping = explode(',', $mapping);
+			$ret = array();
+			foreach ($mapping as $map) {
+				$map = explode('-', $map);
+				$ret[$map[0]] = $map[1];
+			}
+		}
+		return $ret;
+	}
+
     function cekRekMapping($options){
     	global $wpdb;
-    	$mapping_rek = $this->CurlSimda(array(
-			'query' => "
-				SELECT 
-					* 
-				from ref_rek_mapping
-				where kd_rek90_1=".((int)$options['kd_rek_0'])
-                    .' and kd_rek90_2='.((int)$options['kd_rek_1'])
-                    .' and kd_rek90_3='.((int)$options['kd_rek_2'])
-                    .' and kd_rek90_4='.((int)$options['kd_rek_3'])
-                    .' and kd_rek90_5='.((int)$options['kd_rek_4'])
-                    .' and kd_rek90_6='.((int)$options['kd_rek_5'])
+    	$rek_mapping = $this->get_simda_mapping(array(
+			'name' => '_crb_custom_mapping_rekening_simda'
 		));
+		$_kode_akun = explode('.', $options['kode_akun']);
+		$kode_akun = array();
+		foreach ($_kode_akun as $vv) {
+			$kode_akun[] = (int)$vv;
+		}
+		$kode_akun = implode('.', $kode_akun);
+
+		$mapping_rek = false;
+		if (!empty($rek_mapping[$kode_akun])) {
+			$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+			if(!empty($_kode_akun[4])){
+		    	$mapping_rek = $this->CurlSimda(array(
+					'query' => "
+						SELECT 
+							* 
+						from ref_rek_mapping
+						where kd_rek_1=".((int)$_kode_akun[0])
+		                    .' and kd_rek_2='.((int)$_kode_akun[1])
+		                    .' and kd_rek_3='.((int)$_kode_akun[2])
+		                    .' and kd_rek_4='.((int)$_kode_akun[3])
+		                    .' and kd_rek_5='.((int)$_kode_akun[4])
+				));
+		    }
+		}else{
+	    	$mapping_rek = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_mapping
+					where kd_rek90_1=".((int)$options['kd_rek_0'])
+	                    .' and kd_rek90_2='.((int)$options['kd_rek_1'])
+	                    .' and kd_rek90_3='.((int)$options['kd_rek_2'])
+	                    .' and kd_rek90_4='.((int)$options['kd_rek_3'])
+	                    .' and kd_rek90_5='.((int)$options['kd_rek_4'])
+	                    .' and kd_rek90_6='.((int)$options['kd_rek_5'])
+			));
+		}
+
 		$rek90_1 = $options['kd_rek_0'];
 		$rek90_2 = $rek90_1.'.'.$options['kd_rek_1'];
 		$rek90_3 = $rek90_2.'.'.$options['kd_rek_2'];

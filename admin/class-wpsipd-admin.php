@@ -1994,7 +1994,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_default_value('1')
 				->set_help_text('Pilihan ini untuk dipakai saat jadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.'),
 			Field::make('textarea', 'crb_custom_mapping_sub_keg_simda', 'Custom Mapping Sub Kegiatan SIPD ke SIMDA')
-				->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-4.04.01.02_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeSubUnitSimda_kodeRefKegiatan</b>.')
+				->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-4.04.01.02_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeSubUnitSimda_kodeRefKegiatan</b>.'),
+			Field::make('textarea', 'crb_custom_mapping_rekening_simda', 'Custom Mapping Rekening Antara SIPD dan SIMDA')
+				->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan SIMDA. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_simda</b>')
 		);
 
 		$cek_status_koneksi_simda = $this->simda->CurlSimda(array(
