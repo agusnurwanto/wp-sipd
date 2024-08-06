@@ -880,13 +880,14 @@ foreach ($data_skpd as $skpd) {
             key: 'key',
             value: '<?php echo $this->gen_key(); ?>'
         });
+
         window.type = _url.searchParams.get("type");
         window.dari_simda = _url.searchParams.get("dari_simda");
         window.id_skpd = _url.searchParams.get("id_unit");
 
         var extend_action = '';
         if (type && type === 'pergeseran') {
-            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran III</a>';
+            extend_action += '<a class="btn btn-primary" target="_blank" href="' + removeTypeParam(new_url) + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran III</a>';
         } else {
             extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran III</a>';
         }
@@ -905,6 +906,13 @@ foreach ($data_skpd as $skpd) {
         jQuery('#action-sipd').append(extend_action);
         jQuery('#pilih_skpd').select2();
     });
+
+    function removeTypeParam(url) {
+        let urlObj = new URL(url);
+        urlObj.searchParams.delete("type");
+        return urlObj.href;
+    }
+
 
     function ubah_skpd() {
         var pilih_id_skpd = jQuery('#pilih_skpd').val();

@@ -14,7 +14,7 @@ $id_jadwal_lokal = '';
 if (!empty($_GET) && !empty($_GET['id_jadwal_lokal'])) {
     $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
 } else {
-    die('<h1 class="text-center">ID Jadwal Lokal Tidak Boleh Kosong!</h1>');
+    die('<h1 class="text_tengah">ID Jadwal Lokal Tidak Boleh Kosong!</h1>');
 }
 
 $input = shortcode_atts(array(
@@ -70,9 +70,24 @@ if ($input['id_skpd'] == 'all') {
     if (!empty($nama_skpd)) {
         $nama_skpd = '<br>' . $nama_skpd;
     } else {
-        die('<h1 class="text-center">SKPD tidak ditemukan!</h1>');
+        die('<h1 class="text_tengah">SKPD tidak ditemukan!</h1>');
     }
 }
+
+$options_skpd = array();
+$options_skpd = $wpdb->get_results($wpdb->prepare("
+    select 
+        s.*,
+        u.kode_skpd AS kode_unit,
+        u.nama_skpd AS nama_unit
+    FROM data_unit s
+    JOIN data_unit u on u.id_skpd = s.id_unit
+        AND u.active=s.active
+        AND u.tahun_anggaran=s.tahun_anggaran
+    WHERE s.tahun_anggaran=%d
+        and s.active=1
+    order by kode_skpd ASC
+", $input['tahun_anggaran']), ARRAY_A);
 $nama_pemda = get_option('_crb_daerah');
 $nama_excel = 'REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAH DAERAH, ORGANISASI, PROGRAM, KEGIATAN BESERTA HASIL DAN SUB KELUARAN<br>TAHUN ANGGARAN ' . $input['tahun_anggaran'] . '<br>' . strtoupper($nama_pemda) . $nama_skpd . '<br>' . $jadwal_lokal->nama_jadwal;
 
@@ -310,25 +325,25 @@ foreach ($data_skpd as $skpd) {
         if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
             $body .= '
                 <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td colspan="8">' . $skpd['nama'] . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri" colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
                 </tr>';
         } else {
             $body .= '
                     <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td colspan="8">' . $skpd['nama'] . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
-                    <td>' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri" colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
             </tr>';
         }
         foreach ($skpd['data'] as $program) {
@@ -343,39 +358,39 @@ foreach ($data_skpd as $skpd) {
             if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                 $body .= '
                     <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
-                        <td>' . '</td>
-                        <td>' . $program['kode'] . '</td>
-                        <td>' . $program['nama'] . '</td>
-                        <td>' . $indikator . '</td>
-                        <td>' . $target . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $program['kode'] . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $program['nama'] . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $indikator . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $target . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
                     </tr>';
             } else {
                 $body .= '
                     <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
-                        <td>' . '</td>
-                        <td>' . $program['kode'] . '</td>
-                        <td>' . $program['nama'] . '</td>
-                        <td>' . $indikator . '</td>
-                        <td>' . $target . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
-                        <td>' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $program['kode'] . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $program['nama'] . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . $indikator . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $target . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                        <td class="atas kanan bawah kiri text_kiri">' . '</td>
                     </tr>';
             }
             foreach ($program['data'] as $kegiatan) {
@@ -390,40 +405,40 @@ foreach ($data_skpd as $skpd) {
                 if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                     $body .= '
                         <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
-                            <td class="text-center">' . $counter . '</td>
-                            <td>' . $kegiatan['kode'] . '</td>
-                            <td>' . $kegiatan['nama'] . '</td>
-                            <td>' . $indikator . '</td>
-                            <td>' . $target . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
-                            <td>' . '</td>
-                            <td>' . '</td>
+                            <td class="atas kanan bawah kiri text_tengah">' . $counter . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . $kegiatan['kode'] . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . $kegiatan['nama'] . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . $indikator . '</td>
+                            <td class="atas kanan bawah kiri text_tengah">' . $target . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
                         </tr>';
                     $counter++;
                 } else {
                     $body .= '
                         <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
-                            <td>' . $counter . '</td>
-                            <td>' . $kegiatan['kode'] . '</td>
-                            <td>' . $kegiatan['nama'] . '</td>
-                            <td>' . '</td>
-                            <td>' . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['operasi_murni']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['modal_murni']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga_murni']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['transfer_murni']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['total_murni']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
-                            <td class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
-                            <td>' . '</td>
-                            <td>' . '</td>
+                            <td class="atas kanan bawah kiri text_tengah">' . $counter . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . $kegiatan['kode'] . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . $kegiatan['nama'] . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['operasi_murni']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['modal_murni']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['tak_terduga_murni']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['transfer_murni']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['total_murni']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
+                            <td class="atas kanan bawah kiri text_kanan" class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                            <td class="atas kanan bawah kiri text_kiri">' . '</td>
                         </tr>';
                     $counter++;
                 }
@@ -465,18 +480,18 @@ foreach ($data_skpd as $skpd) {
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
                             <tr data-kode="' . $kode . '">
-                                <td>' . '</td>
-                                <td>' . $data['sub']['kode_sub_giat'] . '</td>
-                                <td>' . $nama_sub_giat . '</td>
-                                <td>' . $indikator . '</td>
-                                <td>' . $target . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total']) . '</td>
-                                <td>' . $lokasi . '</td>
-                                <td>' . $sumber_dana . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $data['sub']['kode_sub_giat'] . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $nama_sub_giat . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $indikator . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $target . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['operasi']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['modal']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['tak_terduga']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['transfer']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['total']) . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $lokasi . '</td>
+                                <td atas kanan bawah kiri text_kiri>' . $sumber_dana . '</td>
                             </tr>
                         ';
                     } else {
@@ -487,16 +502,16 @@ foreach ($data_skpd as $skpd) {
                                 <td>' . $nama_sub_giat . '</td>
                                 <td>' . $indikator . '</td>
                                 <td>' . $target . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total_murni']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
-                                <td class="text-right">' . $this->_number_format($data['total']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['operasi_murni']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['modal_murni']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['transfer_murni']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['total_murni']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['operasi']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['modal']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['tak_terduga']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['transfer']) . '</td>
+                                <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['total']) . '</td>
                                 <td>' . $lokasi . '</td>
                                 <td>' . $sumber_dana . '</td>
                             </tr>
@@ -509,64 +524,64 @@ foreach ($data_skpd as $skpd) {
 }
 ?>
 <div id="cetak" title="APBD Perda Lampiran IV" style="padding: 5px; overflow: auto;">
-    <h2 class="text-center"><?php echo $nama_excel ?></h2>
+    <h2 class="text_tengah"><?php echo $nama_excel ?></h2>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th class="text-center align-middle" rowspan="4">No</th>
-                <th class="text-center align-middle" rowspan="4">Kode</th>
-                <th class="text-center align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
-                <th class="text-center align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="4">No</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="4">Kode</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="4">Urusan / Bidang Urusan / Program / Kegiatan / Sub Kegiatan</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="4">Indikator Program / Kegiatan / Sub Kegiatan</th>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="text-center align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle" colspan="13">Capaian Kinerja dan Kerangka Pendanaan</th>
                 <?php else : ?>
-                    <th class="text-center align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle" colspan="8">Capaian Kinerja dan Kerangka Pendanaan</th>
                 <?php endif; ?>
             </tr>
             <tr>
-                <th class="text-center align-middle" rowspan="3">Target 2024</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="3">Target 2024</th>
             </tr>
             <tr>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle" colspan="5">Pagu Indikatif Belanja(Rp) Sebelum</th>
                 <?php endif; ?>
-                <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
-                <th class="text-center align-middle" rowspan="2">Lokasi</th>
-                <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="2">Lokasi</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="2">Sumber Dana</th>
             </tr>
             <tr>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="text-center align-middle">Operasi</th>
-                    <th class="text-center align-middle">Modal</th>
-                    <th class="text-center align-middle">Tidak Terduga</th>
-                    <th class="text-center align-middle">Transfer</th>
-                    <th class="text-center align-middle">Total</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle">Operasi</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle">Modal</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle">Tidak Terduga</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle">Transfer</th>
+                    <th class="atas kanan bawah kiri text_tengah align-middle">Total</th>
                 <?php endif; ?>
-                <th class="text-center align-middle">Operasi</th>
-                <th class="text-center align-middle">Modal</th>
-                <th class="text-center align-middle">Tidak Terduga</th>
-                <th class="text-center align-middle">Transfer</th>
-                <th class="text-center align-middle">Total</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle">Operasi</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle">Modal</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle">Tidak Terduga</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle">Transfer</th>
+                <th class="atas kanan bawah kiri text_tengah align-middle">Total</th>
             </tr>
             <tr>
-                <th class="text-center" style="font-size:small;line-height:0pt">1</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">2</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">3</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">4</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">5</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">6</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">7</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">8</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">9</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">10</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">11</th>
-                <th class="text-center" style="font-size:small;line-height:0pt">12</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">1</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">2</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">3</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">4</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">5</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">6</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">7</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">8</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">9</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">10</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">11</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">12</th>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="text-center" style="font-size:small;line-height:0pt">13</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">14</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">15</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">16</th>
-                    <th class="text-center" style="font-size:small;line-height:0pt">17</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">13</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">14</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">15</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">16</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">17</th>
                 <?php endif; ?>
             </tr>
         </thead>
@@ -575,7 +590,7 @@ foreach ($data_skpd as $skpd) {
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="5" class="text-center">Total</th>
+                <th colspan="5" class="text_tengah">Total</th>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
                     <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
                     <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
@@ -596,5 +611,56 @@ foreach ($data_skpd as $skpd) {
 <script type="text/javascript">
     jQuery(document).ready(function() {
         run_download_excel();
-    });
+
+        var list_skpd = <?php echo json_encode($options_skpd); ?>;
+        window._url = new URL(window.location.href);
+        window.new_url = changeUrl({
+            url: _url.href,
+            key: 'key',
+            value: '<?php echo $this->gen_key(); ?>'
+        });
+        window.id_skpd = _url.searchParams.get("id_unit");
+        var extend_action = '';
+
+        extend_action += '<button class="btn btn-info m-3" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+
+        var options = '<option value="">Semua SKPD</option>';
+        list_skpd.map(function(b, i) {
+            var selected = "";
+            if (id_skpd && id_skpd == b.id_skpd) {
+                selected = "selected";
+            }
+            options += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
+        });
+        extend_action += '<label for="options_skpd" class="ml-3 mr-3">Pilih Perangkat Daerah</label>';
+        extend_action += '<select name="options_skpd" id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
+        extend_action += '</div>';
+        jQuery('#action-sipd').append(extend_action);
+        jQuery('#pilih_skpd').select2();
+    })
+
+    function ubah_skpd() {
+        var pilih_id_skpd = jQuery('#pilih_skpd').val();
+        if (type) {
+            _url = changeUrl({
+                url: _url,
+                key: 'type',
+                value: type
+            });
+        }
+        if (dari_simda) {
+            _url = changeUrl({
+                url: _url,
+                key: 'dari_simda',
+                value: dari_simda
+            });
+        }
+        _url = changeUrl({
+            url: _url,
+            key: 'id_skpd',
+            value: pilih_id_skpd
+        });
+        window.open(_url);
+        jQuery('#pilih_skpd').val(id_skpd);
+    }
 </script>
