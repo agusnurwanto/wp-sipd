@@ -423,7 +423,7 @@ foreach ($data_skpd as $skpd) {
         <br>RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI
         <br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>
     </h3>
-    <table cellpadding="3" cellspacing="0" class="table table-bordered" width="100%">
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="3" rowspan="2">Kode</td>

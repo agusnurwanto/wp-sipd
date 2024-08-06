@@ -480,28 +480,28 @@ foreach ($data_skpd as $skpd) {
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
                             <tr data-kode="' . $kode . '">
-                                <td atas kanan bawah kiri text_kiri>' . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $data['sub']['kode_sub_giat'] . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $nama_sub_giat . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $indikator . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $target . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $data['sub']['kode_sub_giat'] . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $nama_sub_giat . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $indikator . '</td>
+                                <td class="atas kanan bawah kiri text_tengah">' . $target . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['operasi']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['modal']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['total']) . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $lokasi . '</td>
-                                <td atas kanan bawah kiri text_kiri>' . $sumber_dana . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $lokasi . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $sumber_dana . '</td>
                             </tr>
                         ';
                     } else {
                         $body .= '
                             <tr data-kode="' . $kode . '">
-                                <td>' . '</td>
-                                <td>' . $data['sub']['kode_sub_giat'] . '</td>
-                                <td>' . $nama_sub_giat . '</td>
-                                <td>' . $indikator . '</td>
-                                <td>' . $target . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $data['sub']['kode_sub_giat'] . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $nama_sub_giat . '</td>
+                                <td class="atas kanan bawah kiri text_kiri">' . $indikator . '</td>
+                                <td class="atas kanan bawah kiri text_tengah">' . $target . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['operasi_murni']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['modal_murni']) . '</td>
                                 <td class="atas kanan bawah kiri text_kanan">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
@@ -590,20 +590,20 @@ foreach ($data_skpd as $skpd) {
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="5" class="text_tengah">Total</th>
+                <th colspan="5" class="atas kanan bawah kiri text_tengah">Total</th>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
-                    <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
+                    <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_operasi_murni); ?></th>
+                    <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_modal_murni); ?></th>
+                    <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
+                    <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_transfer_murni); ?></th>
+                    <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_all_murni); ?></th>
                 <?php endif; ?>
-                <th class="text-right"><?php echo $this->_number_format($total_operasi); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_modal); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_transfer); ?></th>
-                <th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
-                <th colspan="2"></th>
+                <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_operasi); ?></th>
+                <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_modal); ?></th>
+                <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_tak_terduga); ?></th>
+                <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_transfer); ?></th>
+                <th class="atas kanan bawah kiri text_kanan"><?php echo $this->_number_format($total_all); ?></th>
+                <th class="atas kanan bawah kiri text_kanan" colspan="2"></th>
             </tr>
         </tfoot>
     </table>
