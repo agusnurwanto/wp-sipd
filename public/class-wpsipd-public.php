@@ -6641,7 +6641,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
 				foreach ($data['detail_belanja'] as $i => $v) {
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
@@ -7733,7 +7737,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						select 
 							id 
 						from data_stbp_sipd 
-						where idSpm=%d 
+						where id_stbp=%d 
 							and tahun_anggaran=%d
 						", $v["id_stbp"], $_POST["tahun_anggaran"]));
 					$opsi = array(
@@ -7789,8 +7793,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
-				foreach ($data['detail'] as $i => $v) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				// print_r($data);exit;
+				// foreach ($data as $i => $v) {					
+					// print_r($data['data_detail'][0]['id_rekening']);exit;
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
 							id 
@@ -7801,9 +7811,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							and nilai_stbp=%s
 							and kode_rekening=%s
 							and tahun_anggaran=%d
-					", $_POST['idSkpd'], $_POST['id_stbp'], $v["uraian"], $v["nilai_stbp"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+					", $_POST['idSkpd'], $_POST['id_stbp'], $data["uraian"], $data["nilai_stbp"], $data["kode_rekening"], $_POST["tahun_anggaran"]));
 					$opsi = array(
-						"id_stbp" => $_POST['id_spm'],
+						"id_stbp" => $_POST['id_stbp'],
 						"id_skpd" => $_POST['idSkpd'],
 						"nama_penyetor" => $data['nama_penyetor'],
 						"metode_input" => $data['metode_input'],
@@ -7811,6 +7821,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"tanggal_stbp" => $data['tanggal_stbp'],
 						"id_bank" => $data['id_bank'],
 						"nama_bank" => $data['nama_bank'],
+						"no_rekening" => $data['no_rekening'],
 						"nilai_stbp" => $data['nilai_stbp'],
 						"keterangan_stbp" => $data['keterangan_stbp'],
 						"created_by" => $data['created_by'],
@@ -7821,10 +7832,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"id_skpd" => $data['id_skpd'],
 						"id_sub_skpd" => $data['id_sub_skpd'],
 						"nama_daerah" => $data['nama_daerah'],
-						"id_rekening" => $data['data_detail']["id_rekening"],
-						"kode_rekening" => $data['data_detail']["kode_rekening"],
-						"uraian" => $data['data_detail']["uraian"],
-						"nilai" => $data['data_detail']["nilai"],
+						"id_rekening" => $data['data_detail'][0]['id_rekening'],
+						"kode_rekening" => $data['data_detail'][0]['kode_rekening'],
+						"uraian" => $data['data_detail'][0]['uraian'],
+						"nilai" => $data['data_detail'][0]['nilai'],
 						"active" => 1,
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
@@ -7838,7 +7849,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						//insert data spp ditable data_spm_sipd_detail
 						$wpdb->insert("data_stbp_sipd_detail", $opsi);
 					}
-				}
+				// }
 			} else {
 				$ret["status"] = "error";
 				$ret["message"] = "APIKEY tidak sesuai";

@@ -394,8 +394,7 @@ CREATE TABLE `data_stbp_sipd`(
 );
 
 CREATE TABLE `data_stbp_sipd_detail` (
-  `id` int(11) NOT NULL auto_increment,
-  `id_skpd` int,
+  `id` int(11) NOT NULL auto_increment,  
   `id_stbp` int(11) DEFAULT NULL,
   `nama_penyetor` text DEFAULT NULL,
   `metode_input` text DEFAULT NULL,
@@ -5705,6 +5704,12 @@ CREATE TABLE `data_sp2d_sipd_ri` (
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
   PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_sp2d_sipd_detail_ri` (
+   `id` int(11) NOT NULL auto_increment,
+   `id_skpd` int(11) DEFAULT NULL,
+   `id_sp_2_d` int(11) DEFAULT NULL,
 );
 
 CREATE TABLE `data_spm_sipd` (
