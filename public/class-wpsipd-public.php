@@ -16753,7 +16753,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							);
 
 							if ($is_admin) {
-								$checkOpenedSchedule++;
 								$edit = '<a class="btn btn-sm btn-warning action-btn" onclick="edit_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete = '<a class="btn btn-sm btn-danger action-btn" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 								if ($recVal['status'] == 1) {
@@ -16761,6 +16760,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$delete = '';
 									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								} else {
+									$checkOpenedSchedule++;
 									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								}
 								if (in_array($tipe_perencanaan, ['renstra', 'renja'])) {
