@@ -112,8 +112,8 @@ $total_modal = 0;
 $total_tak_terduga = 0;
 $total_transfer = 0;
 $total_all = 0;
-$total_pendapatan = 0;
-$total_pendapatan_murni = 0;
+$total_all_pendapatan = 0;
+$total_all_pendapatan_murni = 0;
 $total_operasi_murni = 0;
 $total_modal_murni = 0;
 $total_tak_terduga_murni = 0;
@@ -160,7 +160,7 @@ foreach ($data_skpd as $skpd) {
                 WHERE tahun_anggaran=%d
                     AND active=1
                     AND id_skpd=%d
-                    " . $where_jadwal_new . "
+                    " . $where_jadwal . "
                 GROUP BY kode_akun
                 ORDER BY kode_akun ASC
             ", $input['tahun_anggaran'], $sub['id_sub_skpd']),
@@ -360,8 +360,8 @@ foreach ($data_skpd as $skpd) {
                 $total_tak_terduga_murni += $skpd['tak_terduga_murni'];
                 $total_transfer_murni += $skpd['transfer_murni'];
                 $total_all_murni += $skpd['total_murni'];
-                $total_pendapatan += $skpd['pendapatan'];
-                $total_pendapatan_murni += $skpd['pendapatan_murni'];
+                $total_all_pendapatan += $skpd['pendapatan'];
+                $total_all_pendapatan_murni += $skpd['pendapatan_murni'];
 
                 $body .= '
                 <tr data-id="' . $skpd['id'] . '">
@@ -396,6 +396,14 @@ foreach ($data_skpd as $skpd) {
     }
 }
 ?>
+<style>
+    @media print {
+        #cetak {
+            max-width: auto !important;
+            height: auto !important;
+        }
+    }
+</style>
 <div id="cetak" title="Laporan APBD PERDA Lampiran II Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" style="width:280px; font-size: 12px;">
         <tr>
@@ -423,63 +431,65 @@ foreach ($data_skpd as $skpd) {
         <br>RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI
         <br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>
     </h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="3" rowspan="2">Kode</td>
-                <td class="atas kanan bawah text_tengah text_blok" rowspan="2">Urusan Pemerintah Daerah</td>
-
-                <?php if ($type == 'pergeseran') : ?>
-                    <td class="atas kanan bawah text_tengah text_blok" rowspan="2">Pendapatan Sebelum</td>
-                    <td class="atas kanan bawah text_tengah text_blok" colspan="5">Belanja Sebelum</td>
-                <?php endif; ?>
-
-                <td class="atas kanan bawah text_tengah text_blok" rowspan="2">Pendapatan</td>
-                <td class="atas kanan bawah text_tengah text_blok" colspan="5">Belanja</td>
-            </tr>
-            <tr>
-                <?php if ($type == 'pergeseran') : ?>
-                    <th class="atas kanan bawah text_tengah text_blok">Operasi</th>
-                    <th class="atas kanan bawah text_tengah text_blok">Modal</th>
-                    <th class="atas kanan bawah text_tengah text_blok">Tidak Terduga</th>
-                    <th class="atas kanan bawah text_tengah text_blok">Transfer</th>
-                    <th class="atas kanan bawah text_tengah text_blok">Total</th>
-                <?php endif; ?>
-
-                <td class="atas kanan bawah text_tengah text_blok">Operasi</td>
-                <td class="atas kanan bawah text_tengah text_blok">Modal</td>
-                <td class="atas kanan bawah text_tengah text_blok">Tidak Terduga</td>
-                <td class="atas kanan bawah text_tengah text_blok">Transfer</td>
-                <td class="atas kanan bawah text_tengah text_blok">Jumlah Belanja</td>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            echo $body;
-            ?>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="4" class="atas kiri kanan bawah text_tengah text_blok text_tengah">Total</th>
-
-                <?php if ($type == 'pergeseran') : ?>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_pendapatan_murni); ?></th>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_operasi_murni); ?></th>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_modal_murni); ?></th>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_transfer_murni); ?></th>
-                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all_murni); ?></th>
-                <?php endif; ?>
-
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_pendapatan); ?></th>
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_operasi); ?></th>
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_modal); ?></th>
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_tak_terduga); ?></th>
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_transfer); ?></th>
-                <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all); ?></th>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="wrap-table">
+        <table class="table table-bordered ">
+            <thead>
+                <tr>
+                    <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang align-middle" colspan="3" rowspan="2">Kode</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle" rowspan="2">Urusan Pemerintah Daerah</td>
+    
+                    <?php if ($type == 'pergeseran') : ?>
+                        <td class="atas kanan bawah kiri text_tengah text_blok align-middle" rowspan="2">Pendapatan Sebelum</td>
+                        <td class="atas kanan bawah text_tengah text_blok align-middle" colspan="5">Belanja Sebelum</td>
+                    <?php endif; ?>
+    
+                    <td class="atas kanan bawah kiri text_tengah text_blok align-middle" rowspan="2">Pendapatan</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle" colspan="5">Belanja</td>
+                </tr>
+                <tr>
+                    <?php if ($type == 'pergeseran') : ?>
+                        <th class="atas kanan bawah text_tengah text_blok align-middle">Operasi</th>
+                        <th class="atas kanan bawah text_tengah text_blok align-middle">Modal</th>
+                        <th class="atas kanan bawah text_tengah text_blok align-middle">Tidak Terduga</th>
+                        <th class="atas kanan bawah text_tengah text_blok align-middle">Transfer</th>
+                        <th class="atas kanan bawah text_tengah text_blok align-middle">Total</th>
+                    <?php endif; ?>
+    
+                    <td class="atas kanan bawah text_tengah text_blok align-middle">Operasi</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle">Modal</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle">Tidak Terduga</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle">Transfer</td>
+                    <td class="atas kanan bawah text_tengah text_blok align-middle">Jumlah Belanja</td>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                echo $body;
+                ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4" class="atas kiri kanan bawah text_tengah text_blok text_tengah">Total</th>
+    
+                    <?php if ($type == 'pergeseran') : ?>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all_pendapatan_murni); ?></th>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_operasi_murni); ?></th>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_modal_murni); ?></th>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_transfer_murni); ?></th>
+                        <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all_murni); ?></th>
+                    <?php endif; ?>
+    
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all_pendapatan); ?></th>
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_operasi); ?></th>
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_modal); ?></th>
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_tak_terduga); ?></th>
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_transfer); ?></th>
+                    <th class="atas kanan bawah text_tengah text_blok text_kanan"><?php echo $this->_number_format($total_all); ?></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
     <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
         <tr>
             <td colspan="3" class="text_tengah" height="20px"></td>
@@ -505,21 +515,21 @@ foreach ($data_skpd as $skpd) {
 
         var list_skpd = <?php echo json_encode($options_skpd); ?>;
         window._url = new URL(window.location.href);
+        window.type = _url.searchParams.get("type");
+        window.id_skpd = _url.searchParams.get("id_unit");
         window.new_url = changeUrl({
             url: _url.href,
             key: 'key',
             value: '<?php echo $this->gen_key(); ?>'
         });
-        window.type = _url.searchParams.get("type");
-        window.id_skpd = _url.searchParams.get("id_unit");
 
         var extend_action = '';
         if (type && type === 'pergeseran') {
-            extend_action += '<a class="btn btn-primary" target="_blank" href="' + removeTypeParam(new_url) + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran II</a>';
+            extend_action += '<a class="btn btn-primary m-2" target="_blank" href="' + removeTypeParam(new_url) + '"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran II</a>';
         } else {
-            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran II</a>';
+            extend_action += '<a class="btn btn-primary m-2" target="_blank" href="' + new_url + '&type=pergeseran"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran II</a>';
         }
-        extend_action += '<button class="btn btn-info m-3" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
 
         var options = '<option value="">Semua SKPD</option>';
         list_skpd.map(function(b) {

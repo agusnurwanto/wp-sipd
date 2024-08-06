@@ -312,4 +312,8 @@ a {
     width: auto; 
     white-space: nowrap; 
 }
-
+.wrap-table {
+    overflow: auto;
+    max-height: 100vh;
+    width: 100%;
+}

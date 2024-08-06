@@ -325,25 +325,25 @@ foreach ($data_skpd as $skpd) {
         if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
             $body .= '
                 <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri" colspan="8">' . $skpd['nama'] . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas" colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
                 </tr>';
         } else {
             $body .= '
-                    <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri" colspan="8">' . $skpd['nama'] . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
-                    <td class="atas kanan bawah kiri text_kiri">' . '</td>
+                <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas" colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
+                    <td class="bawah kiri kanan atas"></td>
             </tr>';
         }
         foreach ($skpd['data'] as $program) {
@@ -523,9 +523,38 @@ foreach ($data_skpd as $skpd) {
     }
 }
 ?>
-<div id="cetak" title="APBD Perda Lampiran IV" style="padding: 5px; overflow: auto;">
+<style>
+    @media print {
+        #cetak {
+            max-width: auto !important;
+            height: auto !important;
+        }
+    }
+</style>
+<div id="cetak" title="APBD Perda Lampiran IV">
     <h2 class="text_tengah"><?php echo $nama_excel ?></h2>
-    <table class="table table-bordered">
+    <table align="right" class="no-border no-padding" style="width:280px; font-size: 12px;">
+        <tr>
+            <td width="80" class="align-top">Lampiran IV </td>
+            <td width="10" class="align-top">:</td>
+            <td colspan="3" class="align-top" contenteditable="true"> Peraturan Daerah xxxxx </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td width="10">&nbsp;</td>
+            <td width="60" class="text-start">Nomor</td>
+            <td width="10">:</td>
+            <td class="text-start" contenteditable="true">&nbsp;xx Desember xxxx</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td width="10">&nbsp;</td>
+            <td width="60" class="text-start">Tanggal</td>
+            <td width="10">:</td>
+            <td class="text-start" contenteditable="true">&nbsp;xx Desember xxx</td>
+        </tr>
+    </table>
+    <table class="apbd-perda">
         <thead>
             <tr>
                 <th class="atas kanan bawah kiri text_tengah align-middle" rowspan="4">No</th>
@@ -564,24 +593,24 @@ foreach ($data_skpd as $skpd) {
                 <th class="atas kanan bawah kiri text_tengah align-middle">Total</th>
             </tr>
             <tr>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">1</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">2</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">3</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">4</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">5</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">6</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">7</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">8</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">9</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">10</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">11</th>
-                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">12</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">1</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">2</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">3</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">4</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">5</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">6</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">7</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">8</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">9</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">10</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">11</th>
+                <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">12</th>
                 <?php if ($jadwal_lokal->status_jadwal_pergeseran == 'tampil') : ?>
-                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">13</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">14</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">15</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">16</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt">17</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">13</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">14</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">15</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">16</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="font-size:small;line-height:0pt;">17</th>
                 <?php endif; ?>
             </tr>
         </thead>
@@ -607,6 +636,23 @@ foreach ($data_skpd as $skpd) {
             </tr>
         </tfoot>
     </table>
+    <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
+        <tr>
+            <td colspan="3" class="text_tengah" height="20px"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX </td>
+        </tr>
+        <tr>
+            <td colspan="3" height="80">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text_tengah" contenteditable="true">XXXXXXXXXXX</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text_tengah"></td>
+        </tr>
+    </table>
 </div>
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -614,15 +660,15 @@ foreach ($data_skpd as $skpd) {
 
         var list_skpd = <?php echo json_encode($options_skpd); ?>;
         window._url = new URL(window.location.href);
+        window.id_skpd = _url.searchParams.get("id_unit");
         window.new_url = changeUrl({
             url: _url.href,
             key: 'key',
             value: '<?php echo $this->gen_key(); ?>'
         });
-        window.id_skpd = _url.searchParams.get("id_unit");
         var extend_action = '';
 
-        extend_action += '<button class="btn btn-info m-3" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
 
         var options = '<option value="">Semua SKPD</option>';
         list_skpd.map(function(b, i) {
@@ -632,8 +678,8 @@ foreach ($data_skpd as $skpd) {
             }
             options += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
         });
-        extend_action += '<label for="options_skpd" class="ml-3 mr-3">Pilih Perangkat Daerah</label>';
-        extend_action += '<select name="options_skpd" id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
+        extend_action += '<label for="options_skpd" class="mr-3">Pilih Perangkat Daerah</label>';
+        extend_action += '<select name="options_skpd" id="pilih_skpd" onchange="ubah_skpd();" style="width:450px; margin-left:25px;margin-top:5px;">' + options + '</select>';
         extend_action += '</div>';
         jQuery('#action-sipd').append(extend_action);
         jQuery('#pilih_skpd').select2();
@@ -641,26 +687,15 @@ foreach ($data_skpd as $skpd) {
 
     function ubah_skpd() {
         var pilih_id_skpd = jQuery('#pilih_skpd').val();
-        if (type) {
-            _url = changeUrl({
-                url: _url,
-                key: 'type',
-                value: type
-            });
-        }
-        if (dari_simda) {
-            _url = changeUrl({
-                url: _url,
-                key: 'dari_simda',
-                value: dari_simda
-            });
-        }
-        _url = changeUrl({
-            url: _url,
-            key: 'id_skpd',
+        var updated_url = _url.href;
+
+        updated_url = changeUrl({
+            url: updated_url,
+            key: 'id_unit',
             value: pilih_id_skpd
         });
-        window.open(_url);
+
+        window.open(updated_url);
         jQuery('#pilih_skpd').val(id_skpd);
     }
 </script>
