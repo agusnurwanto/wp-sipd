@@ -8,7 +8,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-input-batasan-pagu-per-sumber-dana.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-input-batasan-pagu-per-sumber-dana.php';
 	}
     
     public function jadwal_verifikasi_rka($atts){
@@ -16,7 +16,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-setting-jadwal-verifikasi-rka.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penjadwalan/wpsipd-public-setting-jadwal-verifikasi-rka.php';
 	}
 
     public function jadwal_verifikasi_rka_sipd($atts){
@@ -27,7 +27,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
         $tipe_jadwal = "sipd";
 
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-setting-jadwal-verifikasi-rka.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penjadwalan/wpsipd-public-setting-jadwal-verifikasi-rka.php';
 	}
 
     public function singkron_rpjpd_sipd_lokal(){
