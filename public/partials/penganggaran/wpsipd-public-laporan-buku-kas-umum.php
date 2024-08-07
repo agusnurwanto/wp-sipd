@@ -11,7 +11,9 @@ $input = shortcode_atts( array(
 ), $atts );
 
 $kode_npd = (!empty($_GET['kodenpd'])) ? $_GET['kodenpd'] : 0;
-
+if(!empty($_GET['kode_sbl'])){
+    $input['kode_sbl'] = $_GET['kode_sbl'];
+}
 $data_sbl = explode(".", $input['kode_sbl']);
 
 $unit = array();

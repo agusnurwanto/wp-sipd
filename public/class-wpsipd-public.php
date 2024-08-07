@@ -13697,12 +13697,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-global-header-display', 'disabled');
-		} else if ($update) {
+		} else if ($update || get_post_status($custom_post->ID) == 'public') {
 			$_post['ID'] = $custom_post->ID;
 			wp_update_post($_post);
 			$_post['update'] = 1;
 		}
 		return $this->get_link_post($custom_post);
+	}
+
+	function add_param_get($url, $param){
+		$data = explode('?', $url);
+		if(count($data) >= 1){
+			$url .= $param;
+		}else{
+			$url .= '?'.$param;
+		}
+		return $url;
 	}
 
 	public function get_sub_keg_sipd()

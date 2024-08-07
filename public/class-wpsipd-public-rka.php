@@ -1870,7 +1870,9 @@ class Wpsipd_Public_RKA
                     GROUP BY nomor_npd", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
                 $data_all = array(
+                    'total_pencairan_bku' => 0,
                     'total_pencairan_all' => 0,
+                    'total_pencairan_all_non_panjar' => 0,
                     'data' => array()
                 );
                 
@@ -1881,23 +1883,62 @@ class Wpsipd_Public_RKA
                             'nomor_npd' => $v_npd['nomor_npd'],
                             'jenis_panjar' => $v_npd['jenis_panjar'],
                             'id_user_pptk' => $v_npd['id_user_pptk'],
-                            'total_pagu' => 0
+                            'total_bku' => 0,
+                            'total_pagu' => 0,
+                            'total_pagu_non_panjar' => 0
                         );
                     }
 
                     $total_pagu_npd = $wpdb->get_var($wpdb->prepare("
                         SELECT
-                            SUM(pagu_dana) as total_pagu
-                        FROM data_rekening_nota_pencairan_dana
-                        WHERE id_npd = %d
-                        AND kode_sbl = %s
-                        AND tahun_anggaran = %d
-                        AND active = 1
+                            SUM(r.pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana r
+                        INNER JOIN data_nota_pencairan_dana p ON r.kode_sbl=p.kode_sbl
+                            AND p.active=r.active
+                            AND p.tahun_anggaran=r.tahun_anggaran
+                            AND p.jenis_panjar='set_panjar'
+                        WHERE r.id_npd = %d
+                            AND r.kode_sbl = %s
+                            AND r.tahun_anggaran = %d
+                            AND r.active = 1
                     ", $v_npd['id'], $v_npd['kode_sbl'], $v_npd['tahun_anggaran']));
 
                     if(!empty($total_pagu_npd)){
                         $data_all['data'][$v_npd['nomor_npd']]['total_pagu'] = $total_pagu_npd;
                         $data_all['total_pencairan_all'] += $total_pagu_npd;
+                    }
+
+                    $total_pagu_npd_non_panjar = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            SUM(r.pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana r
+                        INNER JOIN data_nota_pencairan_dana p ON r.kode_sbl=p.kode_sbl
+                            AND p.active=r.active
+                            AND p.tahun_anggaran=r.tahun_anggaran
+                            AND p.jenis_panjar='not_set_panjar'
+                        WHERE r.id_npd = %d
+                            AND r.kode_sbl = %s
+                            AND r.tahun_anggaran = %d
+                            AND r.active = 1
+                    ", $v_npd['id'], $v_npd['kode_sbl'], $v_npd['tahun_anggaran']));
+
+                    if(!empty($total_pagu_npd_non_panjar)){
+                        $data_all['data'][$v_npd['nomor_npd']]['total_pagu_non_panjar'] = $total_pagu_npd_non_panjar;
+                        $data_all['total_pencairan_all_non_panjar'] += $total_pagu_npd_non_panjar;
+                    }
+
+                    $total_bku = $wpdb->get_var($wpdb->prepare("
+                        SELECT 
+                            SUM(bku.pagu) as total_pagu_bku
+                        FROM data_buku_kas_umum_pembantu as bku
+                        WHERE bku.id_npd=%d
+                            AND bku.tahun_anggaran=%d
+                            AND bku.active=1
+                    ", $v_npd['id'], $v_npd['tahun_anggaran']));
+
+                    if(!empty($total_bku)){
+                        $data_all['data'][$v_npd['nomor_npd']]['total_bku'] = $total_bku;
+                        $data_all['total_pencairan_bku'] += $total_bku;
                     }
                 }
 
@@ -1910,7 +1951,9 @@ class Wpsipd_Public_RKA
                             <td class="kanan bawah kiri id-npd-'.$v_all_npd['id'].'">' . $v_all_npd['nomor_npd'] . '</td>
                             <td class="kanan bawah text-center">'. $jenis_panjar .'</td>
                             <td class="kanan bawah text-left">'. $current_user->display_name .'</td>
+                            <td class="kanan bawah text-right">'. number_format($v_all_npd['total_bku'], 0, ",", ".") .'</td>
                             <td class="kanan bawah text-right">'. number_format($v_all_npd['total_pagu'], 0, ",", ".") .'</td>
+                            <td class="kanan bawah text-right">'. number_format($v_all_npd['total_pagu_non_panjar'], 0, ",", ".") .'</td>
                             <td class="kanan bawah text-right text-center">';
                                 // tampilkan tombol edit dan hapus
                                 $ret['html'] .= '
@@ -1922,13 +1965,121 @@ class Wpsipd_Public_RKA
                             $ret['html'] .='</td>
                         </tr>';
                 }
+
+                $jml_pencairan = $data_all['total_pencairan_all']+$data_all['total_pencairan_all_non_panjar'];
                 $ret['html'] .='
                 <tr>
                     <td colspan="3" class="kanan bawah text-right kiri text_blok">Jumlah</td>
+                    <td class="kanan bawah text_blok text-right total_all">'.number_format($data_all['total_pencairan_bku'], 0, ",", ".").'</td>
                     <td class="kanan bawah text_blok text-right total_all">'.number_format($data_all['total_pencairan_all'], 0, ",", ".").'</td>
-                    <td class="kanan bawah"></td>
+                    <td class="kanan bawah text_blok text-right total_all">'.number_format($data_all['total_pencairan_all_non_panjar'], 0, ",", ".").'</td>
+                    <td class="kanan bawah text_blok text-right total_all">'.number_format($jml_pencairan, 0, ",", ".").'</td>
                 </tr>';
                 $ret['data'] = $data_all;
+
+                // rekap panjar per sub kegiatan
+                $total_pagu_rka_sub_keg = 0;
+                $data_rekening_html = '
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="atas kanan bawah kiri text-center" width="150px;">Kode</th>
+                            <th class="atas kanan bawah text-center">Rekening</th>
+                            <th class="atas kanan bawah text-center" width="150px;">Pagu</th>
+                            <th class="atas kanan bawah text-center" width="150px;">Realisasi SIPD</th>
+                            <th class="atas kanan bawah text-center" width="150px;">Panjar</th>
+                            <th class="atas kanan bawah text-center" width="150px;">Non Panjar</th>
+                            <th class="atas kanan bawah text-center" width="150px;">Sisa Pagu</th>
+                        </tr>
+                        <tr>
+                            <th class="atas kanan bawah kiri text-center">1</th>
+                            <th class="atas kanan bawah text-center">2</th>
+                            <th class="atas kanan bawah text-center">3</th>
+                            <th class="atas kanan bawah text-center">4</th>
+                            <th class="atas kanan bawah text-center">5</th>
+                            <th class="atas kanan bawah text-center">6</th>
+                            <th class="atas kanan bawah text-center">7=3-(5+6)</th>
+                        </tr>
+                    </thead>';
+                $total_realisasi_sipd = 0;
+                $total_realisasi_panjar = 0;
+                $total_realisasi_non_panjar = 0;
+                $data_rekening = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        SUM(total_harga) as total_harga,
+                        kode_akun,
+                        nama_akun
+                    from data_rka 
+                    where kode_sbl=%s
+                        AND tahun_anggaran=%d
+                        AND active=1
+                    GROUP by kode_akun
+                ", $kode_sbl, $tahun_anggaran), ARRAY_A);
+                $data_rekening_obj = array();
+                foreach($data_rekening as $k => $rek){
+                    $realisasi_panjar = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            SUM(r.pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana r
+                        INNER JOIN data_nota_pencairan_dana p ON r.kode_sbl=p.kode_sbl
+                            AND p.active=r.active
+                            AND p.tahun_anggaran=r.tahun_anggaran
+                            AND p.jenis_panjar='set_panjar'
+                        WHERE r.kode_rekening = %s
+                            AND r.kode_sbl = %s
+                            AND r.tahun_anggaran = %d
+                            AND r.active = 1
+                    ", $rek['kode_akun'], $kode_sbl, $tahun_anggaran));
+                    $realisasi_non_panjar = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            SUM(r.pagu_dana) as total_pagu
+                        FROM data_rekening_nota_pencairan_dana r
+                        INNER JOIN data_nota_pencairan_dana p ON r.kode_sbl=p.kode_sbl
+                            AND p.active=r.active
+                            AND p.tahun_anggaran=r.tahun_anggaran
+                            AND p.jenis_panjar='not_set_panjar'
+                        WHERE r.kode_rekening = %s
+                            AND r.kode_sbl = %s
+                            AND r.tahun_anggaran = %d
+                            AND r.active = 1
+                    ", $rek['kode_akun'], $kode_sbl, $tahun_anggaran));
+
+                    $total_pagu_rka_sub_keg += $rek['total_harga'];
+                    $total_realisasi_panjar += $realisasi_panjar;
+                    $total_realisasi_non_panjar += $realisasi_non_panjar;
+                    $realisasi_sipd = 0;
+                    $total_realisasi_sipd += $realisasi_sipd;
+                    $sisa = $rek['total_harga']-($realisasi_panjar+$realisasi_non_panjar);
+                    $data_rekening_html .= '
+                        <tr>
+                            <td class="atas kanan bawah kiri text-center">'.$rek['kode_akun'].'</td>
+                            <td class="atas kanan bawah">'.str_replace($rek['kode_akun'].' ', '', $rek['nama_akun']).'</td>
+                            <td class="atas kanan bawah text-right">'.number_format($rek['total_harga'], 0, ",", ".").'</td>
+                            <td class="atas kanan bawah text-right">'.number_format($realisasi_sipd, 0, ",", ".").'</td>
+                            <td class="atas kanan bawah text-right">'.number_format($realisasi_panjar, 0, ",", ".").'</td>
+                            <td class="atas kanan bawah text-right">'.number_format($realisasi_non_panjar, 0, ",", ".").'</td>
+                            <td class="atas kanan bawah text-right">'.number_format($sisa, 0, ",", ".").'</td>
+                        </tr>
+                    ';
+                    $data_rekening[$k]['sisa'] = $sisa;
+                    $data_rekening[$k]['realisasi'] = ($realisasi_panjar+$realisasi_non_panjar);
+                    $data_rekening[$k]['realisasi_sipd'] = $realisasi_sipd;
+                    $data_rekening_obj[$rek['kode_akun']] = $data_rekening[$k];
+                }
+                $total_sisa = $total_pagu_rka_sub_keg-($total_realisasi_panjar+$total_realisasi_non_panjar);
+                $data_rekening_html .= '
+                    <tfoot>
+                        <th class="atas kanan bawah kiri text-center" colspan="2" class="text-center">Total</th>
+                        <th class="atas kanan bawah text-right">'.number_format($total_pagu_rka_sub_keg, 0, ",", ".").'</th>
+                        <th class="atas kanan bawah text-right">'.number_format($total_realisasi_sipd, 0, ",", ".").'</th>
+                        <th class="atas kanan bawah text-right">'.number_format($total_realisasi_panjar, 0, ",", ".").'</th>
+                        <th class="atas kanan bawah text-right">'.number_format($total_realisasi_non_panjar, 0, ",", ".").'</th>
+                        <th class="atas kanan bawah text-right">'.number_format($total_sisa, 0, ",", ".").'</th>
+                    </tfoot>
+                </table>
+                ';
+                $ret['detail_sub_keg'] = $data_rekening_html;
+                $ret['detail_rekening'] = $data_rekening_obj;
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
@@ -2169,30 +2320,28 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'Nota Panjar tidak ditemukan!';
                 }
 
-                $data_rekening_nota_panjar = $wpdb->get_results($wpdb->prepare("
-                    SELECT 
-                        rnpd.*, 
-                        SUM(bku.pagu) as total_pagu_bku
-                    FROM 
-                        data_rekening_nota_pencairan_dana as rnpd
-                    LEFT JOIN 
-                        data_buku_kas_umum_pembantu as bku
-                    ON 
-                        rnpd.kode_rekening=bku.kode_rekening
-                    WHERE rnpd.id_npd=%d
-                        AND rnpd.tahun_anggaran=%d
-                        AND rnpd.active=1
-                        AND bku.id_npd=%d
-                        AND bku.tahun_anggaran=%d
-                        AND bku.active=1
-                    GROUP BY 
-                        bku.kode_rekening
-                    ORDER BY bku.kode_rekening ASC
-                ", $_POST['id'], $_POST['tahun_anggaran'], $_POST['id'], $_POST['tahun_anggaran']));
+                if($ret['status'] != 'error'){
+                    $data_rekening_nota_panjar = $wpdb->get_results($wpdb->prepare("
+                        SELECT 
+                            rnpd.*, 
+                            SUM(bku.pagu) as total_pagu_bku
+                        FROM data_rekening_nota_pencairan_dana as rnpd
+                        LEFT JOIN data_buku_kas_umum_pembantu as bku ON rnpd.kode_rekening=bku.kode_rekening
+                        WHERE rnpd.id_npd=%d
+                            AND rnpd.tahun_anggaran=%d
+                            AND rnpd.active=1
+                            AND bku.id_npd=%d
+                            AND bku.tahun_anggaran=%d
+                            AND bku.active=1
+                        GROUP BY 
+                            bku.kode_rekening
+                        ORDER BY bku.kode_rekening ASC
+                    ", $_POST['id'], $_POST['tahun_anggaran'], $_POST['id'], $_POST['tahun_anggaran']));
 
-                $ret['data']['rekening_npd'] = array();
-                if (!empty($data_rekening_nota_panjar)) {
-                    $ret['data']['rekening_npd'] = $data_rekening_nota_panjar;
+                    $ret['data']['rekening_npd'] = array();
+                    if (!empty($data_rekening_nota_panjar)) {
+                        $ret['data']['rekening_npd'] = $data_rekening_nota_panjar;
+                    }
                 }
             } else {
                 $ret['status'] = 'error';
@@ -2259,7 +2408,7 @@ class Wpsipd_Public_RKA
 
                 $data_akun_options = '<option value="">Pilih Rekening</option>';
                 foreach ($data_akun as $v_akun) {
-                    $data_akun_options .= '<option value="' . $v_akun['kode_akun'] . '">'. $v_akun['kode_akun'] .' ' . $v_akun['nama_akun'] . '</option>';
+                    $data_akun_options .= '<option value="' . $v_akun['kode_akun'] . '">'. $v_akun['kode_akun'] .' ' . str_replace($v_akun['kode_akun'].' ', '', $v_akun['nama_akun']) . '</option>';
                 }
                 $ret['sql'] = $wpdb->last_query;
                 $ret['data_akun_html'] = $data_akun_options;

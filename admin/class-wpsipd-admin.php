@@ -207,7 +207,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-		} else if ($update) {
+		} else if (
+			$update 
+			|| (
+				$post_status == 'private'
+				&& get_post_status($custom_post->ID) == 'public'
+			)
+		) {
 			$_post['ID'] = $custom_post->ID;
 			wp_update_post($_post);
 			$_post['update'] = 1;
@@ -217,6 +223,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		} else {
 			return $this->get_link_post($custom_post);
 		}
+	}
+
+	function add_param_get($url, $param){
+		$data = explode('?', $url);
+		if(count($data) >= 1){
+			$url .= $param;
+		}else{
+			$url .= '?'.$param;
+		}
+		return $url;
 	}
 
 	function wp_sipd_admin_notice()
@@ -1245,7 +1261,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 						if ($_POST['type'] == 'rfk') {
 							$url_skpd = $this->generatePage('RFK ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . $url_nilai_dpa . '">Halaman RFK ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
+							$body_pemda .= '<li><a target="_blank" href="' . $this->add_param_get($url_skpd, $url_nilai_dpa) . '">Halaman RFK ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'sumber_dana') {
 							$this->generatePage('Sumber Dana ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 						} else if ($_POST['type'] == 'label_komponen') {
@@ -1303,7 +1319,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						foreach ($subunit as $kkk => $vvv) {
 							if ($_POST['type'] == 'rfk') {
 								$url_skpd = $this->generatePage('RFK ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . $url_nilai_dpa . '">Halaman RFK ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
+								$body_pemda .= '<li><a target="_blank" href="' . $this->add_param_get($url_skpd, $url_nilai_dpa) . '">Halaman RFK ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')</li>';
 							} else if ($_POST['type'] == 'sumber_dana') {
 								$this->generatePage('Sumber Dana ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 							} else if ($_POST['type'] == 'label_komponen') {
@@ -1368,10 +1384,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 					if ($_POST['type'] == 'rfk') {
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $this->add_param_get($url_pemda, $url_nilai_dpa) . '">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'spd') {
 						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . $url_nilai_dpa . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $this->add_param_get($url_pemda, $url_nilai_dpa) . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'monev_rpjm') {
 						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RPJM Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
