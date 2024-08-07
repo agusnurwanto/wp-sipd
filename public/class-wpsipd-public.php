@@ -6641,7 +6641,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
 				foreach ($data['detail_belanja'] as $i => $v) {
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
@@ -7733,7 +7737,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						select 
 							id 
 						from data_stbp_sipd 
-						where idSpm=%d 
+						where id_stbp=%d 
 							and tahun_anggaran=%d
 						", $v["id_stbp"], $_POST["tahun_anggaran"]));
 					$opsi = array(
@@ -7789,9 +7793,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
-				foreach ($data['detail'] as $i => $v) {
-					$cek_id = $wpdb->get_var($wpdb->prepare("
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				// print_r($data);exit;
+				// foreach ($data as $i => $v) {					
+				// print_r($data['data_detail'][0]['id_rekening']);exit;
+				$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
 							id 
 						from data_stbp_sipd_detail 
@@ -7801,44 +7811,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							and nilai_stbp=%s
 							and kode_rekening=%s
 							and tahun_anggaran=%d
-					", $_POST['idSkpd'], $_POST['id_stbp'], $v["uraian"], $v["nilai_stbp"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
-					$opsi = array(
-						"id_stbp" => $_POST['id_spm'],
-						"id_skpd" => $_POST['idSkpd'],
-						"nama_penyetor" => $data['nama_penyetor'],
-						"metode_input" => $data['metode_input'],
-						"nomor_stbp" => $data['nomor_stbp'],
-						"tanggal_stbp" => $data['tanggal_stbp'],
-						"id_bank" => $data['id_bank'],
-						"nama_bank" => $data['nama_bank'],
-						"nilai_stbp" => $data['nilai_stbp'],
-						"keterangan_stbp" => $data['keterangan_stbp'],
-						"created_by" => $data['created_by'],
-						"bendahara_penerimaan_nama" => $data['bendahara_penerimaan_nama'],
-						"bendahara_penerimaan_nip" => $data['bendahara_penerimaan_nip'],
-						"nama_skpd" => $data['nama_skpd'],
-						"id_unit" => $data['id_unit'],
-						"id_skpd" => $data['id_skpd'],
-						"id_sub_skpd" => $data['id_sub_skpd'],
-						"nama_daerah" => $data['nama_daerah'],
-						"id_rekening" => $data['data_detail']["id_rekening"],
-						"kode_rekening" => $data['data_detail']["kode_rekening"],
-						"uraian" => $data['data_detail']["uraian"],
-						"nilai" => $data['data_detail']["nilai"],
-						"active" => 1,
-						"update_at" => current_time('mysql'),
-						"tahun_anggaran" => $_POST["tahun_anggaran"]
-					);
-					if (!empty($cek_id)) {
-						//Update data spp ditable data_spm_sipd_detail
-						$wpdb->update("data_stbp_sipd_detail", $opsi, array(
-							"id" => $cek_id
-						));
-					} else {
-						//insert data spp ditable data_spm_sipd_detail
-						$wpdb->insert("data_stbp_sipd_detail", $opsi);
-					}
+					", $_POST['idSkpd'], $_POST['id_stbp'], $data["uraian"], $data["nilai_stbp"], $data["kode_rekening"], $_POST["tahun_anggaran"]));
+				$opsi = array(
+					"id_stbp" => $_POST['id_stbp'],
+					"id_skpd" => $_POST['idSkpd'],
+					"nama_penyetor" => $data['nama_penyetor'],
+					"metode_input" => $data['metode_input'],
+					"nomor_stbp" => $data['nomor_stbp'],
+					"tanggal_stbp" => $data['tanggal_stbp'],
+					"id_bank" => $data['id_bank'],
+					"nama_bank" => $data['nama_bank'],
+					"no_rekening" => $data['no_rekening'],
+					"nilai_stbp" => $data['nilai_stbp'],
+					"keterangan_stbp" => $data['keterangan_stbp'],
+					"created_by" => $data['created_by'],
+					"bendahara_penerimaan_nama" => $data['bendahara_penerimaan_nama'],
+					"bendahara_penerimaan_nip" => $data['bendahara_penerimaan_nip'],
+					"nama_skpd" => $data['nama_skpd'],
+					"id_unit" => $data['id_unit'],
+					"id_skpd" => $data['id_skpd'],
+					"id_sub_skpd" => $data['id_sub_skpd'],
+					"nama_daerah" => $data['nama_daerah'],
+					"id_rekening" => $data['data_detail'][0]['id_rekening'],
+					"kode_rekening" => $data['data_detail'][0]['kode_rekening'],
+					"uraian" => $data['data_detail'][0]['uraian'],
+					"nilai" => $data['data_detail'][0]['nilai'],
+					"active" => 1,
+					"update_at" => current_time('mysql'),
+					"tahun_anggaran" => $_POST["tahun_anggaran"]
+				);
+				if (!empty($cek_id)) {
+					//Update data spp ditable data_spm_sipd_detail
+					$wpdb->update("data_stbp_sipd_detail", $opsi, array(
+						"id" => $cek_id
+					));
+				} else {
+					//insert data spp ditable data_spm_sipd_detail
+					$wpdb->insert("data_stbp_sipd_detail", $opsi);
 				}
+				// }
 			} else {
 				$ret["status"] = "error";
 				$ret["message"] = "APIKEY tidak sesuai";
@@ -16741,10 +16752,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$checkOpenedSchedule = 0;
 					if (!empty($queryRecords)) {
 						foreach ($queryRecords as $recKey => $recVal) {
-							$report = '<a class="btn btn-sm btn-primary action-btn" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							$edit = '';
 							$delete = '';
 							$lock = '';
+							$report = '<a class="btn btn-sm btn-primary action-btn" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							$status = array(
 								0 => '<span class="badge badge-success" style="font-size:inherit;">Terbuka</span>',
 								1 => '<span class="badge badge-info" style="font-size:inherit;">Dikunci</span>',
@@ -16752,14 +16763,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							);
 
 							if ($is_admin) {
-								$checkOpenedSchedule++;
-								if ($recVal['status'] == 1) {
-									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
-								} else {
-									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-								}
 								$edit = '<a class="btn btn-sm btn-warning action-btn" onclick="edit_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete = '<a class="btn btn-sm btn-danger action-btn" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								if ($recVal['status'] == 1) {
+									$edit = '';
+									$delete = '';
+									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+								} else {
+									$checkOpenedSchedule++;
+									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+								}
 								if (in_array($tipe_perencanaan, ['renstra', 'renja'])) {
 									$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_usulan(); return false;" style="display:inline;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if ($tipe_perencanaan == 'renja') {

@@ -308,9 +308,6 @@ $body = '';
 
 		get_data_penjadwalan();
 
-		// let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
-		// jQuery("#data_penjadwalan_table_length").append(html_filter);
-
 		jQuery('#selectYears').on('change', function(e) {
 			let selectedVal = jQuery(this).find('option:selected').val();
 			if (selectedVal != '') {
@@ -336,7 +333,6 @@ $body = '';
 		jQuery(".class_renja_pergeseran").hide();
 	});
 
-	/** get data penjadwalan */
 	function get_data_penjadwalan() {
 		jQuery("#wrap-loading").show();
 		globalThis.penjadwalanTable = jQuery('#data_penjadwalan_table').DataTable({
@@ -435,17 +431,17 @@ $body = '';
 			let pergeseran_renja = '';
 			let id_jadwal_pergeseran_renja = false;
 			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
-		<?php if($tipe_perencanaan == 'renja'): ?>
-			jenis_jadwal = jQuery("#jenis_jadwal").val();
-			if(jenis_jadwal == ''){
-				return alert('Jenis jadwal tidak boleh kosong!');
-			}
-			relasi_perencanaan = jQuery("#link_renstra").val();
-			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-				return alert("Jadwal Renja Pergeseran harus dipilih!");
-			}
-		<?php endif; ?>
+			<?php if ($tipe_perencanaan == 'renja') : ?>
+				jenis_jadwal = jQuery("#jenis_jadwal").val();
+				if (jenis_jadwal == '') {
+					return alert('Jenis jadwal tidak boleh kosong!');
+				}
+				relasi_perencanaan = jQuery("#link_renstra").val();
+				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+					return alert("Jadwal Renja Pergeseran harus dipilih!");
+				}
+			<?php endif; ?>
 			<?php if ($tipe_perencanaan == 'renja') : ?>
 				jenis_jadwal = jQuery("#jenis_jadwal").val();
 				if (jenis_jadwal == '') {
@@ -749,82 +745,82 @@ $body = '';
 
 	function report(id_jadwal_lokal) {
 		let modal = `
-			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
-			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title">Laporan</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-			      
-			      <div class="modal-body">
-				    <div class="container-fluid">
-					    <div class="row">
-						    <div class="col-md-2">Unit Kerja</div>
-						    <div class="col-md-6">
-						    	<select class="form-control list_perangkat_daerah" id="list_perangkat_daerah"></select>
-						    </div>
-					    </div></br>
-					    <div class="row">
-					    	<div class="col-md-2">Jenis Laporan</div>
-					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="jenis" onchange="jenis_laporan(this)">
-					      			<option value="-">Pilih Jenis</option>
-									<option value="laporan_konsistensi_rpjm">Laporan Konsistensi RPJM</option>
-					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
-					      			<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
-					      			<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
-					      			<option value="analisis_belanja_program">Analisis Belanja Pagu per-Program</option>
-					      			<option value="analisis_belanja_kegiatan">Analisis Belanja Pagu per-Kegiatan</option>
-					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
-									<option value="analisis_belanja_bidang_urusan">Analisis Belanja Pagu per-Bidang Urusan</option>
-									<option value="analisis_belanja_sumber_dana">Analisis Belanja Pagu per-Sumber Dana</option>
-									<option value="analisis_belanja_rekening">Analisis Belanja Pagu per-Rekening</option>
-									<option value="rekap_sumber_dana_per_skpd">Rekap Sumber Dana Per SKPD</option>
-									<option value="rekap_sumber_dana_per_program">Rekap Sumber Dana Per Program</option>
-									<option value="rekap_sumber_dana_per_kegiatan">Rekap Sumber Dana Per Kegiatan</option>
-									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
-									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
-									<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
-									<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran I</option>
-									<option value="apbd_penjabaran_lampiran_2">APBD Penjabaran Lampiran II</option>
-									<option value="apbd_perda_lampiran_1">APBD Perda Lampiran I</option>
-									<option value="apbd_perda_lampiran_2">APBD Perda Lampiran II</option>
-									<option value="apbd_perda_lampiran_3">APBD Perda Lampiran III</option>
-									<option value="apbd_perda_lampiran_4">APBD Perda Lampiran IV</option>
-									<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
-				      			</select>
-					    	</div>
-					    </div></br>
-					    <div class="row" style="display:none" id="opt_jenis_sumber_dana_div">
-					    	<div class="col-md-2">Sumber Data</div>
-					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="opt_jenis_sumber_dana">
-					      			<option value="1">Sumber Dana dari Rincian Belanja</option>
-					      			<option value="2">Sumber Dana dari Sub Kegiatan</option>
-					      		</select>
-					    	</div>
-					    </div></br>
-					    <div class="row" style="display:none" id="opt_jenis_jadwal_div">
-					    	<div class="col-md-2">Jenis Jadwal</div>
-					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="opt_jenis_jadwal"></select>
-					    	</div>
-					    </div></br>
-					    <div class="row">
-					    	<div class="col-md-2"></div>
-					    	<div class="col-md-6 action-footer">
-					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
-					    	</div>
-					    </div></br>
+		<div class="modal fade" id="modal-report" tabindex="-1" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
+		<div class="modal-dialog modal-xl" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Laporan Jadwal Tahap Testing</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+				<div class="row mb-3">
+					<div class="col-md-2 font-weight-bold">Unit Kerja</div>
+					<div class="col-md-10">
+					<select class="form-control list_perangkat_daerah w-100" id="list_perangkat_daerah"></select>
 					</div>
-			      </div>
-			      <div class="modal-preview" style="padding:10px"></div>
-			    </div>
-			  </div>
-			</div>`;
+				</div>
+				<div class="row mb-3">
+					<div class="col-md-2 font-weight-bold">Jenis Laporan</div>
+					<div class="col-md-10">
+					<select class="form-control jenis w-100" id="jenis" onchange="jenis_laporan(this)">
+						<option value="-">Pilih Jenis</option>
+						<option value="laporan_konsistensi_rpjm">Laporan Konsistensi RPJM</option>
+						<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
+						<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
+						<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
+						<option value="analisis_belanja_program">Analisis Belanja Pagu per-Program</option>
+						<option value="analisis_belanja_kegiatan">Analisis Belanja Pagu per-Kegiatan</option>
+						<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
+						<option value="analisis_belanja_bidang_urusan">Analisis Belanja Pagu per-Bidang Urusan</option>
+						<option value="analisis_belanja_sumber_dana">Analisis Belanja Pagu per-Sumber Dana</option>
+						<option value="analisis_belanja_rekening">Analisis Belanja Pagu per-Rekening</option>
+						<option value="rekap_sumber_dana_per_skpd">Rekap Sumber Dana Per SKPD</option>
+						<option value="rekap_sumber_dana_per_program">Rekap Sumber Dana Per Program</option>
+						<option value="rekap_sumber_dana_per_kegiatan">Rekap Sumber Dana Per Kegiatan</option>
+						<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
+						<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
+						<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
+						<option value="apbd_penjabaran_lampiran_1">APBD Penjabaran Lampiran I</option>
+						<option value="apbd_penjabaran_lampiran_2">APBD Penjabaran Lampiran II</option>
+						<option value="apbd_perda_lampiran_1">APBD Perda Lampiran I</option>
+						<option value="apbd_perda_lampiran_2">APBD Perda Lampiran II</option>
+						<option value="apbd_perda_lampiran_3">APBD Perda Lampiran III</option>
+						<option value="apbd_perda_lampiran_4">APBD Perda Lampiran IV</option>
+						<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
+					</select>
+					</div>
+				</div>
+				<div class="row mb-3" style="display:none" id="opt_jenis_sumber_dana_div">
+					<div class="col-md-2 font-weight-bold">Sumber Data</div>
+					<div class="col-md-10">
+					<select class="form-control jenis w-100" id="opt_jenis_sumber_dana">
+						<option value="1">Sumber Dana dari Rincian Belanja</option>
+						<option value="2">Sumber Dana dari Sub Kegiatan</option>
+					</select>
+					</div>
+				</div>
+				<div class="row mb-3" style="display:none" id="opt_jenis_jadwal_div">
+					<div class="col-md-2 font-weight-bold">Jenis Jadwal</div>
+					<div class="col-md-10">
+					<select class="form-control jenis w-100" id="opt_jenis_jadwal"></select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-2"></div>
+					<div class="col-md-10 action-footer">
+					<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
+					</div>
+				</div>
+				</div>
+			</div>
+			<div class="modal-preview p-3"></div>
+			</div>
+		</div>
+		</div>`;
+
 
 		jQuery("body .report").html(modal);
 		get_jadwal_by_id(id_jadwal_lokal)

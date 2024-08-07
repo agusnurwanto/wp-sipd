@@ -230,9 +230,9 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
     $body_pendapatan = '';
 
     foreach ($data_pendapatan['data'] as $k => $v) {
-        $murni = '';
-        $selisih = '';
-        $total = '"<td class="kanan bawah text_kanan"></td>';
+        $murni = "";
+        $selisih = "";
+        $total = "<td class='kanan bawah text_kanan'></td>";
 
         if ($type == 'pergeseran' && $nama_rekening != 'Belanja') {
             $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($v['totalmurni']) . "</td>";
@@ -254,16 +254,16 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
                 <td class='kanan bawah text_kanan'></td>
             </tr>";
         foreach ($v['data'] as $kk => $vv) {
-            $murni = '';
-            $selisih = '';
-            $total = '"<td class="kanan bawah text_kanan"></td>';
+            $murni = "";
+            $selisih = "";
+            $total = "<td class='kanan bawah text_kanan'></td>";
             if ($type == 'pergeseran' && $nama_rekening != 'Belanja') {
                 $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($vv['totalmurni']) . "</td>";
                 $selisih = "<td class='kanan bawah text_kanan'>" . ubah_minus(($vv['total'] - $vv['totalmurni'])) . "</td>";
             } else if ($type == 'pergeseran' && $nama_rekening == 'Belanja') {
                 $murni = "<td class='kanan bawah text_kanan'></td>";
                 $selisih = "<td class='kanan bawah text_kanan'></td>";
-            } 
+            }
             if ($nama_rekening != 'Belanja') {
                 $total = "<td class='kanan bawah text_kanan'>" . ubah_minus($vv['total']) . "</td>";
             }
@@ -277,8 +277,8 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
                     <td class='kanan bawah text_kanan'></td>
                 </tr>";
             foreach ($vv['data'] as $kkk => $vvv) {
-                $murni = '';
-                $selisih = '';
+                $murni = "";
+                $selisih = "";
                 if ($type == 'pergeseran') {
                     $murni = "<td class='kanan bawah text_kanan'>" . ubah_minus($vvv['totalmurni']) . "</td>";
                     $selisih = "<td class='kanan bawah text_kanan'>" . ubah_minus(($vvv['total'] - $vvv['totalmurni'])) . "</td>";
@@ -295,7 +295,7 @@ function generate_body($rek_pendapatan, $baris_kosong, $type, $nama_rekening, $d
             }
         }
     }
-    
+
     return $body_pendapatan;
 }
 
@@ -348,7 +348,7 @@ if (
             nama_akun,
             SUM(total) AS total,
             SUM(nilaimurni) AS totalmurni
-        FROM data_pendapatan" . $tabel_history . "
+        FROM data_pendapatan" . $tabel_history . " 
         WHERE tahun_anggaran=%d
             AND active=1
             " . $where_jadwal . "
@@ -364,33 +364,33 @@ if (
     && $input['id_skpd'] != 'all'
 ) {
     $sql = $wpdb->prepare("
-        select 
+        SELECT 
             0 as realisasi,
             kode_akun,
             nama_akun,
-            sum(total) as total,
-            sum(nilaimurni) as totalmurni
-        from data_pembiayaan" . $tabel_history . "
-        where tahun_anggaran=%d
-            and type='penerimaan'
-            and active=1
-            and id_skpd=%d
+            SUM(total) as total,
+            SUM(nilaimurni) as totalmurni
+        FROM data_pembiayaan" . $tabel_history . "
+        WHERE tahun_anggaran=%d
+            AND type='penerimaan'
+            AND active=1
+            AND id_skpd=%d
             " . $where_jadwal . "
         group by kode_akun
         order by kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
 } else {
     $sql = $wpdb->prepare("
-        select 
+        SELECT 
             0 as realisasi,
             kode_akun,
             nama_akun,
-            sum(total) as total,
-            sum(nilaimurni) as totalmurni
-        from data_pembiayaan" . $tabel_history . "
-        where tahun_anggaran=%d
-            and type='penerimaan'
-            and active=1
+            SUM(total) as total,
+            SUM(nilaimurni) as totalmurni
+        FROM data_pembiayaan" . $tabel_history . "
+        WHERE tahun_anggaran=%d
+            AND type='penerimaan'
+            AND active=1
             " . $where_jadwal . "
         group by kode_akun
         order by kode_akun ASC
@@ -405,36 +405,36 @@ if (
     && $input['id_skpd'] != 'all'
 ) {
     $sql = $wpdb->prepare("
-        select 
+        SELECT 
             0 as realisasi,
             kode_akun,
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan" . $tabel_history . "
-        where tahun_anggaran=%d
-            and type='pengeluaran'
-            and active=1
-            and id_skpd=%d
+        FROM data_pembiayaan" . $tabel_history . "
+        WHERE tahun_anggaran=%d
+            AND type='pengeluaran'
+            AND active=1
+            AND id_skpd=%d
             " . $where_jadwal . "
-        group by kode_akun
-        order by kode_akun ASC
+        GROUP BY kode_akun
+        ORDER BY kode_akun ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
 } else {
     $sql = $wpdb->prepare("
-        select 
+        SELECT 
             0 as realisasi,
             kode_akun,
             nama_akun,
             sum(total) as total,
             sum(nilaimurni) as totalmurni
-        from data_pembiayaan" . $tabel_history . "
-        where tahun_anggaran=%d
-            and type='pengeluaran'
-            and active=1
+        FROM data_pembiayaan" . $tabel_history . "
+        WHERE tahun_anggaran=%d
+            AND type='pengeluaran'
+            AND active=1
             " . $where_jadwal . "
-        group by kode_akun
-        order by kode_akun ASC
+        GROUP BY kode_akun
+        ORDER BY kode_akun ASC
     ", $input['tahun_anggaran']);
 }
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
@@ -838,10 +838,10 @@ foreach ($data_skpd as $skpd) {
             </tr>
         </table>
         <h3 class="text_tengah text-uppercase">
-            <?php echo $nama_pemda; ?><br>
+            <?php echo htmlspecialchars($nama_pemda, ENT_QUOTES, 'UTF-8'); ?><br>
             RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN,<br>
             SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>
-            TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>
+            TAHUN ANGGARAN <?php echo htmlspecialchars($input['tahun_anggaran'], ENT_QUOTES, 'UTF-8'); ?>
         </h3>
         <table class="table table-bordered">
             <thead>
@@ -880,15 +880,16 @@ foreach ($data_skpd as $skpd) {
             key: 'key',
             value: '<?php echo $this->gen_key(); ?>'
         });
+
         window.type = _url.searchParams.get("type");
         window.dari_simda = _url.searchParams.get("dari_simda");
         window.id_skpd = _url.searchParams.get("id_unit");
 
         var extend_action = '';
         if (type && type === 'pergeseran') {
-            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran III</a>';
+            extend_action += '<a class="btn btn-primary ml-2" target="_blank" href="' + removeTypeParam(new_url) + '"><span class="dashicons dashicons-controls-back"></span> Halaman APBD Perda Lampiran III</a>';
         } else {
-            extend_action += '<a class="btn btn-primary" target="_blank" href="' + new_url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran III</a>';
+            extend_action += '<a class="btn btn-primary ml-2" target="_blank" href="' + new_url + '&type=pergeseran"><span class="dashicons dashicons-controls-forward"></span> Halaman Pergeseran/Perubahan APBD Perda Lampiran III</a>';
         }
 
         var options = '<option value="">Semua SKPD</option>';
@@ -897,7 +898,7 @@ foreach ($data_skpd as $skpd) {
             options += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
         });
 
-        extend_action += '<button class="btn btn-info m-3" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
         extend_action += '<label for="options_skpd" class="mr-3">Pilih Perangkat Daerah</label>';
         extend_action += '<select id="pilih_skpd" name="options_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">' + options + '</select>';
         extend_action += '</div>';
@@ -905,6 +906,13 @@ foreach ($data_skpd as $skpd) {
         jQuery('#action-sipd').append(extend_action);
         jQuery('#pilih_skpd').select2();
     });
+
+    function removeTypeParam(url) {
+        let urlObj = new URL(url);
+        urlObj.searchParams.delete("type");
+        return urlObj.href;
+    }
+
 
     function ubah_skpd() {
         var pilih_id_skpd = jQuery('#pilih_skpd').val();
