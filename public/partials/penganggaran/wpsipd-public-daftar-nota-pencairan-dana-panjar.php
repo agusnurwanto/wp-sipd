@@ -44,7 +44,7 @@ if ($data_rfk) {
     $nama_sub_kegiatan = $data_rfk['nama_sub_giat'];
     $kode_sub_kegiatan = $data_rfk['kode_sub_giat'];
     $nama_sub_kegiatan = str_replace('X.XX', $kode_bidang_urusan, $nama_sub_kegiatan);
-    $pagu_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
+    $pagu_sub_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
     $id_sub_skpd = $data_rfk['id_sub_skpd'];
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
@@ -65,6 +65,10 @@ $url_print_laporan_detail_kegiatan = $this->generatePage($title, $tahun_anggaran
 $title = 'Daftar Buku Kas Umum Pembantu | ' . $tahun_anggaran;
 $shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'"]';
 $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
+$title = 'Data RKA SIPD | '.$kode_sbl.' | '.$tahun_anggaran;
+$shortcode = '[input_rka_sipd id_skpd="'.$id_sub_skpd.'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$tahun_anggaran.'"]';
+$url_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
 
 ?>
 <style>
@@ -114,20 +118,24 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
                 <td>:</td>
                 <td><?php echo $kode_sub_kegiatan . '  ' . str_replace($kode_sub_kegiatan, '', $nama_sub_kegiatan); ?></td>
             </tr>
+            <tr>
+                <td>Pagu Belanja</td>
+                <td>:</td>
+                <td>Rp <?php echo $pagu_sub_kegiatan; ?></td>
+            </tr>
         </tbody>
     </table>
-    <div id="detail_sub_keg"></div>
+
+    <div class="text-center">
+        <button class="btn btn-primary" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
+        <button class="btn btn-info" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
+        <button class="btn btn-info" onclick="print_laporan_kegiatan();"><i class="dashicons dashicons-printer"></i> Print Laporan Kegiatan</button>
+        <a class="btn btn-warning" href="<?php echo $url_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Rincian Belanja</a>
+    </div>
 </div>
 
-<!-- table -->
-<div style="padding: 15px;margin:0 0 3rem 0;">
-
-    <!-- Button trigger modal -->
-    <button class="btn btn-primary m-3" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
-    <button class="btn btn-info m-3" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
-    <button class="btn btn-info m-3" onclick="print_laporan_kegiatan();"><i class="dashicons dashicons-printer"></i> Print Laporan Kegiatan</button>
-
-    <table id="table_daftar_panjar">
+<div style="padding: 0 15px; margin:0 0 3rem 0;">
+    <table id="table_daftar_panjar" class="table table-bordered">
         <thead>
             <tr>
                 <th class="atas kanan bawah kiri text-center" width="300px">Nomor NPD</th>
@@ -142,6 +150,10 @@ $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, fal
         <tbody>
         </tbody>
     </table>
+
+    <!-- detail rekening sub kegiatan -->
+    <h2 class="text-center" style="margin-top: 50px;">Detail Rekening Belanja</h2>
+    <div id="detail_sub_keg"></div>
 </div>
 
 <!-- Modal Tambah Data-->

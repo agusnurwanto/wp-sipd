@@ -1957,7 +1957,7 @@ class Wpsipd_Public_RKA
                             <td class="kanan bawah text-right text-center">';
                                 // tampilkan tombol edit dan hapus
                                 $ret['html'] .= '
-                                <a class="btn btn-sm btn-dark" onclick="buku_kas_umum_pembantu('. $v_all_npd['id'] .'); return false;" href="#" title="Buku Kas Umum Pembantu"><i class="dashicons dashicons-search"></i></a>
+                                <a class="btn btn-sm btn-dark" onclick="buku_kas_umum_pembantu('. $v_all_npd['id'] .'); return false;" href="#" title="Buku Kas Umum Pembantu"><i class="dashicons dashicons-book"></i></a>
                                 <a class="btn btn-sm btn-info" onclick="print('. $v_all_npd['id'] .'); return false;" href="#" title="Print"><i class="dashicons dashicons-printer"></i></a>
                                 <a class="btn btn-sm btn-success" onclick="tambah_rekening('. $v_all_npd['id'] .'); return false;" href="#" title="Tambah Rekening"><i class="dashicons dashicons-plus"></i></a>
                                 <a class="btn btn-sm btn-warning" onclick="edit_data('. $v_all_npd['id'] .'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
@@ -2044,10 +2044,20 @@ class Wpsipd_Public_RKA
                             AND r.active = 1
                     ", $rek['kode_akun'], $kode_sbl, $tahun_anggaran));
 
+                    $realisasi_sipd = $wpdb->get_var($wpdb->prepare("
+                        select
+                            sum(realisasi) as realisasi
+                        from data_realisasi_akun_sipd
+                        where active=1
+                            and tahun_anggaran=%d
+                            and kode_akun=%s
+                            and kode_sbl=%s
+                        group by kode_akun
+                    ", $tahun_anggaran, $rek['kode_akun'], $kode_sbl));
+
                     $total_pagu_rka_sub_keg += $rek['total_harga'];
                     $total_realisasi_panjar += $realisasi_panjar;
                     $total_realisasi_non_panjar += $realisasi_non_panjar;
-                    $realisasi_sipd = 0;
                     $total_realisasi_sipd += $realisasi_sipd;
                     $sisa = $rek['total_harga']-($realisasi_panjar+$realisasi_non_panjar);
                     $data_rekening_html .= '
