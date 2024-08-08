@@ -2044,6 +2044,8 @@ class Wpsipd_Public_RKA
                             AND r.active = 1
                     ", $rek['kode_akun'], $kode_sbl, $tahun_anggaran));
 
+                    $kode_sbls = explode('.', $kode_sbl);
+
                     $realisasi_sipd = $wpdb->get_var($wpdb->prepare("
                         select
                             sum(realisasi) as realisasi
@@ -2054,6 +2056,22 @@ class Wpsipd_Public_RKA
                             and kode_sbl=%s
                         group by kode_akun
                     ", $tahun_anggaran, $rek['kode_akun'], $kode_sbl));
+                    if(empty($realisasi_sipd) && !empty($kode_sbls[4])){
+                        $realisasi_sipd = $wpdb->get_var($wpdb->prepare("
+                            select
+                                sum(realisasi) as realisasi
+                            from data_realisasi_akun_sipd
+                            where active=1
+                                and tahun_anggaran=%d
+                                and kode_akun=%s
+                                and id_skpd=%d
+                                and id_sub_skpd=%d
+                                and id_program=%d
+                                and id_giat=%d
+                                and id_sub_giat=%d
+                            group by kode_akun
+                        ", $tahun_anggaran, $rek['kode_akun'], $kode_sbls[0], $kode_sbls[1], $kode_sbls[2], $kode_sbls[3], $kode_sbls[4]));
+                    }
 
                     $total_pagu_rka_sub_keg += $rek['total_harga'];
                     $total_realisasi_panjar += $realisasi_panjar;
@@ -2074,6 +2092,7 @@ class Wpsipd_Public_RKA
                     $data_rekening[$k]['sisa'] = $sisa;
                     $data_rekening[$k]['realisasi'] = ($realisasi_panjar+$realisasi_non_panjar);
                     $data_rekening[$k]['realisasi_sipd'] = $realisasi_sipd;
+                    $data_rekening[$k]['sql_realisasi_sipd'] = $wpdb->last_query;
                     $data_rekening_obj[$rek['kode_akun']] = $data_rekening[$k];
                 }
                 $total_sisa = $total_pagu_rka_sub_keg-($total_realisasi_panjar+$total_realisasi_non_panjar);
