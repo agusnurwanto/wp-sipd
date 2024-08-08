@@ -122,7 +122,7 @@ if ($data_rfk) {
 
     $user_pptk = get_userdata($data_npd['id_user_pptk']);
     $jenis_panjar = $data_npd['jenis_panjar'] == 'set_panjar' ? 'Panjar' : 'Tanpa Panjar';
-    if($jenis_panjar == 'set_panjar'){
+    if($data_npd['jenis_panjar'] == 'set_panjar'){
         $dengan_panjar = 'checked';
         $tanpa_panjar = '';
     }else{
