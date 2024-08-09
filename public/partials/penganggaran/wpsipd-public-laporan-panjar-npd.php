@@ -89,6 +89,7 @@ if ($data_rfk) {
     $total_sisa = 0;
     foreach ($data_rek_npd as $v_rek) {
         $total_harga_akun = 0;
+        $sisa = 0;
         $total_harga_akun_rka = $wpdb->get_var($wpdb->prepare("
                                     SELECT 
                                         SUM(total_harga)
@@ -103,24 +104,25 @@ if ($data_rfk) {
         if(!empty($total_harga_akun_rka)){
             $total_harga_akun = $total_harga_akun_rka;
         }
+        $sisa = $total_harga_akun - $v_rek['pagu_dana'];
         $ret['html'] .= '
             <tr>
                 <td class="kanan bawah kiri text-center">'. $no .'</td>
                 <td class="kanan bawah">' . $v_rek['kode_rekening'] . '</td>
                 <td class="kanan bawah text-left">'. $v_rek['nama_rekening'] .'</td>
                 <td class="kanan bawah text-right">'. number_format($total_harga_akun,0,",",".") .'</td>
-                <td class="kanan bawah text-right">'. number_format($total_harga_akun,0 ,"," , ".") .'</td>
+                <td class="kanan bawah text-right">'. number_format($sisa,0 ,"," , ".") .'</td>
                 <td class="kanan bawah text-right">'. number_format($v_rek['pagu_dana'],0,",",".") .'</td>
             </tr>';
         $no++;
         $total_anggaran += $total_harga_akun;
-        $total_sisa     += $total_harga_akun;
+        $total_sisa     += $sisa;
         $total_pagu     += $v_rek['pagu_dana'];
     }
 
     $user_pptk = get_userdata($data_npd['id_user_pptk']);
     $jenis_panjar = $data_npd['jenis_panjar'] == 'set_panjar' ? 'Panjar' : 'Tanpa Panjar';
-    if($jenis_panjar == 'set_panjar'){
+    if($data_npd['jenis_panjar'] == 'set_panjar'){
         $dengan_panjar = 'checked';
         $tanpa_panjar = '';
     }else{
