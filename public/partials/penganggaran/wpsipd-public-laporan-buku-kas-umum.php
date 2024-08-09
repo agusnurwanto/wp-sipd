@@ -74,23 +74,27 @@ if ($data_rfk) {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
-    $data_npd = $wpdb->get_row($wpdb->prepare("
-        SELECT 
-            *
-        FROM data_nota_pencairan_dana
-        WHERE id=%d
-            AND kode_sbl = %s
-            AND tahun_anggaran = %d
-            AND active = 1", $kode_npd, $input['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
+$data_npd = $wpdb->get_row($wpdb->prepare("
+    SELECT 
+        *
+    FROM data_nota_pencairan_dana
+    WHERE id=%d
+        AND kode_sbl = %s
+        AND tahun_anggaran = %d
+        AND active = 1", $kode_npd, $input['kode_sbl'], $input['tahun_anggaran']), ARRAY_A);
 
-    $nama_pemda = get_option('_crb_daerah');
+$nama_pemda = get_option('_crb_daerah');
+
+$rka = $wpdb->get_results($wpdb->prepare("
+    SELECT
+        *
+    FROM data_rka
+    WHERE active=1
+        AND tahun_anggaran=%d
+        AND kode_sbl=%s
+", $input['tahun_anggaran'], $input['kode_sbl']), ARRAY_A);
 ?>
 <style>
-    .modal-content label:after {
-        content: ' *';
-        color: red;
-        margin-right: 5px;
-    }
     #tabel_detail_nota,
     #tabel_detail_nota td,
     #tabel_detail_nota th {
@@ -125,9 +129,9 @@ if ($data_rfk) {
 
 <!-- table -->
 <div style="padding: 15px;margin:0 0 3rem 0;">
-
-    <!-- Button trigger modal -->
-    <button class="btn btn-primary m-3" onclick="tambah_data_bku();"><i class="dashicons dashicons-plus-alt"></i> Tambah Kas Umum Pembantu</button>
+    <div class="text-center" style="margin-bottom: 10px;">
+        <button class="btn btn-primary" onclick="tambah_data_bku();"><i class="dashicons dashicons-plus-alt"></i> Tambah Kas Umum Pembantu</button>
+    </div>
     
     <table id="table_daftar_bku">
         <thead>
@@ -142,6 +146,9 @@ if ($data_rfk) {
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td colspan="7" class="kiri bawah kanan text-center">Data kosong</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -158,54 +165,89 @@ if ($data_rfk) {
             </div>
             <div class="modal-body">
                 <form id="tambah-bku">
-                    <div class="form-group">
-                        <label>Nomor NPD</label>
-                        <input type="text" class="form-control" id="nomor_npd_bku" name="nomor_npd_bku" disabled>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Nomor NPD</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="nomor_npd_bku" name="nomor_npd_bku" disabled>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="d-block">Jenis Buku Kas Umum Pembantu</label>
-                        <input type="radio" class="ml-2 jenis_bku" id="penerimaan_bku" name="set_bku" value="terima" >
-                        <label for="penerimaan_bku">Penerimaan</label>
-                        <input type="radio" class="jenis_bku" id="pengeluaran_bku" name="set_bku" value="keluar" checked>
-                        <label for="pengeluaran_bku">Pengeluaran</label>
+                    <div class="form-group row">
+                        <label class="d-block col-sm-3">Jenis Transaksi</label>
+                        <div class="col-sm-9">
+                            <label for="penerimaan_bku"><input type="radio" class="ml-2 jenis_bku" id="penerimaan_bku" name="set_bku" value="terima" > Penerimaan</label>
+                            <label style="margin-left: 30px;" for="pengeluaran_bku"><input type="radio" class="jenis_bku" id="pengeluaran_bku" name="set_bku" value="keluar" checked> Pengeluaran</label>
+                        </div>
                     </div>
-                    <div>
-                        <label for='set_tanggal' style='display:inline-block'>Pilih Tanggal</label>
-                        <input type="text" id='set_tanggal' name="set_tanggal" style='display:block;width:100%;' />
+                    <div class="form-group row">
+                        <label class="col-sm-3" for='set_tanggal' style='display:inline-block'>Pilih Tanggal</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id='set_tanggal' name="set_tanggal" style='display:block;width:100%;' />
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Nomor Rekening</label>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Rekening Belanja</label>
+                        <div class="col-sm-9">
                             <select class="form-control input_select_2 rekening_akun" id="rekening_akun" name="rekening_akun" onchange="get_data_sisa_pagu_per_akun_npd(this.value);">
                                 <option value="">Pilih Rekening</option>
                             </select>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Nomor Bukti</label>
-                        <input type="text" class="form-control" id="nomor_bukti_bku" name="nomor_bukti_bku" required>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Nomor Bukti</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="nomor_bukti_bku" name="nomor_bukti_bku" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Uraian</label>
-                        <textarea id="uraian_bku" name="uraian_bku" rows="4" cols="50"></textarea>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Rincian Belanja RKA</label>
+                        <div class="col-sm-9">
+                            <select id="rincian_rka" name="rincian_rka" class="form-control" onchange="set_uraian_bku();">
+                                <option value="">Pilih Rincian Belanja</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Sisa Pagu Rekening NPD</label>
-                        <span id="sisa_pagu_rekening_bku" style="display: block; font-weight: 600; font-size: 1.3em;">Rp. 0</span>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Uraian BKU</label>
+                        <div class="col-sm-9">
+                            <textarea id="uraian_bku" name="uraian_bku" rows="4" cols="50"></textarea>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Pagu</label>
-                        <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Sisa Pagu Rekening NPD</label>
+                        <div class="col-sm-9">
+                            <span id="sisa_pagu_rekening_bku" style="display: block; font-weight: 600; font-size: 1.3em;">Rp. 0</span>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Nama Pemegang Rekening Bank</label>
-                        <input type="text" class="form-control" id="nama_pemilik_rekening_bank_bku" name="nama_pemilik_rekening_bank_bku" required>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Nilai</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>Nama Rekening Bank</label>
-                        <input type="text" class="form-control" id="nama_rekening_bank_bku" name="nama_rekening_bank_bku" required>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Jenis Transaksi</label>
+                        <div class="col-sm-9">
+                            <label><input type="radio" name="jenis_transkasi" value="1"> Tunai</label>
+                            <label style="margin-left: 30px;"><input type="radio" name="jenis_transkasi" value="2" checked> Non Tunai</label>
+                        </div>
                     </div>
-                    <div class="form-group set_keluar">
-                        <label>No Rekening Bank</label>
-                        <input type="number" class="form-control" id="no_rekening_bank_bku" name="no_rekening_bank_bku" required>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Nama Pemegang Rekening Bank</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="nama_pemilik_rekening_bank_bku" name="nama_pemilik_rekening_bank_bku" required>
+                        </div>
+                    </div>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Nama Rekening Bank</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="nama_rekening_bank_bku" name="nama_rekening_bank_bku" required>
+                        </div>
+                    </div>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">No Rekening Bank</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="no_rekening_bank_bku" name="no_rekening_bank_bku" required>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -221,6 +263,8 @@ if ($data_rfk) {
 <script>
     jQuery(document).ready(function(){
         load_data(); 
+        window.rka_all = <?php echo json_encode($rka); ?>;
+        jQuery('#rincian_rka').select2({width: '100%'});
         jQuery('.jenis_bku').click (function (){
             let val_check = jQuery("input[name='set_bku']:checked").val()
                 if(val_check == 'terima'){
@@ -239,6 +283,19 @@ if ($data_rfk) {
 				format: 'DD-MM-YYYY'
 			}
 		});
+
+        jQuery('input[type="radio"][name="jenis_transkasi"]').on('click', function(){
+            var jenis_transaksi = jQuery('input[type="radio"][name="jenis_transkasi"]:checked').val();
+            if(jenis_transaksi == 1){
+                jQuery('#nama_pemilik_rekening_bank_bku').closest('.set_keluar').hide();
+                jQuery('#nama_rekening_bank_bku').closest('.set_keluar').hide();
+                jQuery('#no_rekening_bank_bku').closest('.set_keluar').hide();
+            }else{
+                jQuery('#nama_pemilik_rekening_bank_bku').closest('.set_keluar').show();
+                jQuery('#nama_rekening_bank_bku').closest('.set_keluar').show();
+                jQuery('#no_rekening_bank_bku').closest('.set_keluar').show();
+            }
+        });
     });
 
     function load_data() {
@@ -315,26 +372,36 @@ if ($data_rfk) {
     }
 
     function get_data_sisa_pagu_per_akun_npd(kode_rekening) {
-            jQuery.ajax({
-                url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                type: "post",
-                data: {
-                    "action": "get_data_sisa_pagu_per_akun_npd",
-                    "api_key": '<?php echo $api_key; ?>',
-                    "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
-                    "kode_sbl": "<?php echo $input['kode_sbl']; ?>",
-                    "kode_npd": "<?php echo $kode_npd; ?>",
-                    "kode_rekening": kode_rekening
-                },
-                dataType: "json",
-                success: function(data) {
-                    // menampilkan popup
-                    if (data.status == 'success') {
-                        let sisa = data.data.pagu_dana_npd - data.data.total_pagu_bku;
-                        jQuery("#sisa_pagu_rekening_bku").html("Rp. "+sisa)
-                    }
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: "<?php echo admin_url('admin-ajax.php'); ?>",
+            type: "post",
+            data: {
+                "action": "get_data_sisa_pagu_per_akun_npd",
+                "api_key": '<?php echo $api_key; ?>',
+                "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+                "kode_sbl": "<?php echo $input['kode_sbl']; ?>",
+                "kode_npd": "<?php echo $kode_npd; ?>",
+                "kode_rekening": kode_rekening
+            },
+            dataType: "json",
+            success: function(data) {
+                jQuery('#wrap-loading').hide();
+                // menampilkan popup
+                if (data.status == 'success') {
+                    let sisa = data.data.pagu_dana_npd - data.data.total_pagu_bku;
+                    jQuery("#sisa_pagu_rekening_bku").html("Rp. "+sisa);
+
+                    var opsi_rincian = '<option value="">Pilih rincian belanja</option>';
+                    rka_all.map(function(b, i){
+                        if(b.kode_akun == kode_rekening){
+                            opsi_rincian += '<option value="'+b.id_rinci_sub_bl+'" nilai="'+b.rincian+'" koefisien="'+b.koefisien+'">'+b.nama_komponen+' '+b.spek_komponen+'</option>';
+                        }
+                    });
+                    jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
                 }
-            });
+            }
+        });
     }
     
     function submit_data(that) {
@@ -510,4 +577,12 @@ if ($data_rfk) {
         })
         return data;
 	}
+
+    function set_uraian_bku(){
+        var koefisien = jQuery('#rincian_rka option:checked').attr('koefisien');
+        var nilai = jQuery('#rincian_rka option:checked').attr('nilai');
+        var komponen = jQuery('#rincian_rka option:checked').text();
+        jQuery('#uraian_bku').val(komponen+' '+koefisien);
+        jQuery('#pagu_bku').val(nilai);
+    }
 </script>

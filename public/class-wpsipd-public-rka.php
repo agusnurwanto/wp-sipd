@@ -2663,23 +2663,23 @@ class Wpsipd_Public_RKA
                 if(!empty($data_bku_penerimaan)){
                     $uraian = $data_bku_penerimaan['uraian'];
                     $id_penerimaan = $data_bku_penerimaan['id'];
+                    $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
+                    $ret['html'] .= '
+                        <tr>
+                            <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
+                            <td class="kanan bawah text-center"></td>
+                            <td class="kanan bawah text-left">'. $uraian .'</td>
+                            <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
+                            <td class="kanan bawah text-right"></td>
+                            <td class="kanan bawah text-right">0</td>
+                            <td class="kanan bawah text-center">';
+                                // tampilkan tombol edit dan hapus
+                                $ret['html'] .= '
+                                <a class="btn btn-sm btn-warning" onclick="edit_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                <a class="btn btn-sm btn-danger" onclick="delete_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
+                            $ret['html'] .='</td>
+                        </tr>';
                 }
-                $tanggal =  date_format(date_create($data_bku_penerimaan['tanggal_bkup']),"d/m/Y");
-                $ret['html'] .= '
-                    <tr>
-                        <td class="kanan bawah kiri text-center id-npd">'. $tanggal .'</td>
-                        <td class="kanan bawah text-center"></td>
-                        <td class="kanan bawah text-left">'. $uraian .'</td>
-                        <td class="kanan bawah text-right">'. number_format($total_pagu_npd, 0, ",", ".") .'</td>
-                        <td class="kanan bawah text-right"></td>
-                        <td class="kanan bawah text-right">0</td>
-                        <td class="kanan bawah text-center">';
-                            // tampilkan tombol edit dan hapus
-                            $ret['html'] .= '
-                            <a class="btn btn-sm btn-warning" onclick="edit_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
-                            <a class="btn btn-sm btn-danger" onclick="delete_data('. $id_penerimaan .', \'terima\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
-                        $ret['html'] .='</td>
-                    </tr>';
 
                 $total_pagu_npd_sekarang = $total_pagu_npd;
                 $total_pengeluaran = 0;
@@ -2714,6 +2714,9 @@ class Wpsipd_Public_RKA
                             <td class="kanan bawah text_blok text-right">'. number_format($saldo, 0, ",", ".") .'</td>
                             <td class="kanan bawah"></td>
                         </tr>';
+                }
+                if(empty($ret['html'])){
+                    $ret['html'] = '<tr><td colspan="7" class="kiri bawah kanan text-center">Data kosong</td></tr>';
                 }
                 $ret['data_bku'] = $data_bku;
             } else {
@@ -2772,15 +2775,21 @@ class Wpsipd_Public_RKA
                     }elseif(empty($data['set_tanggal'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Set tanggal tidak boleh kosong!';
-                    }elseif(empty($data['nama_pemilik_rekening_bank_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Nama Pemegang Rekening tidak boleh kosong!';
-                    }elseif(empty($data['nama_rekening_bank_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Nama Rekening Bank tidak boleh kosong!';
-                    }elseif(empty($data['no_rekening_bank_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'No Rekening Bank tidak boleh kosong!';
+                    }
+
+                    if($data['jenis_transkasi'] == '2'){
+                        if(empty($data['nama_pemilik_rekening_bank_bku'])){
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Nama Pemegang Rekening tidak boleh kosong!';
+                        }elseif(empty($data['nama_rekening_bank_bku'])){
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Nama Rekening Bank tidak boleh kosong!';
+                        }elseif(empty($data['no_rekening_bank_bku'])){
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'No Rekening Bank tidak boleh kosong!';
+                        }
+                    }else{
+                        $data['nama_pemilik_rekening_bank_bku'] = 'Tunai';
                     }
                 }else{
                     if(empty($data['uraian_bku'])){
