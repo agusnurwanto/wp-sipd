@@ -7182,7 +7182,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					$wpdb->update("aklap_lra_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"id_skpd" => $_POST['id_skpd']
+						"id_skpd" => $_POST['id_skpd'],
+						"mulai_tgl" => $_POST['mulai_tgl'],
+						"sampai_tgl" => $_POST['sampai_tgl']
 					));
 				}
 
@@ -7194,7 +7196,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						where nama_rekening=%d 
 							and level=%d
 							and tahun_anggaran=%d
-						", $v["nama_rekening"], $v["level"], $_POST["tahun_anggaran"]));
+							and mulai_tgl=%d
+							and sampai_tgl=%d
+						", $v["nama_rekening"], $v["level"], $_POST["tahun_anggaran"], $_POST['mulai_tgl'], $_POST['sampai_tgl']));
 					$opsi = array(
 						"id_daerah" => $_POST["id_daerah"],
 						"id_skpd" => $v["id_skpd"],
@@ -7213,7 +7217,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					);
 					if (!empty($cek)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"], "tahun_anggaran" => $_POST["tahun_anggaran"]));
+						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"], "tahun_anggaran" => $_POST["tahun_anggaran"], "mulai_tgl" => $_POST["mulai_tgl"], "sampai_tgl" => $_POST["sampai_tgl"],));
 					} else {
 						//insert data spm ditable data_spm_sipd
 						$wpdb->insert("aklap_lra_sipd", $opsi);
