@@ -11197,6 +11197,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$_kd_bidang = $kd_unit_simda[1];
 				$kd_unit = $kd_unit_simda[2];
 				$kd_sub_unit = $kd_unit_simda[3];
+				$simda = get_option( '_crb_singkron_simda' );
 
 				$skpd = $wpdb->get_row($wpdb->prepare(
 					"
@@ -11220,7 +11221,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'realisasi' => 0,
 						'realisasi_rp' => 'Rp 0'
 					);
-					$sub_db = $wpdb->get_results($wpdb->prepare("select * from data_sub_keg_bl where active=1 and tahun_anggaran=%d and kode_sbl=%s", $_POST['tahun_anggaran'], $kode_sbl), ARRAY_A);
+					$sub_db = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_sub_keg_bl 
+						where active=1 
+							and tahun_anggaran=%d 
+							and kode_sbl=%s
+					", $_POST['tahun_anggaran'], $kode_sbl), ARRAY_A);
 					if (!empty($sub_db)) {
 						$sub = $sub_db[0];
 						$kd = explode('.', $sub['kode_sub_giat']);
@@ -11232,15 +11240,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_keg = explode(' ', $sub['nama_sub_giat']);
 						unset($nama_keg[0]);
 						$nama_keg = implode(' ', $nama_keg);
-						$mapping = $this->simda->cekKegiatanMapping(array(
-							'kd_urusan90' => $kd_urusan90,
-							'kd_bidang90' => $kd_bidang90,
-							'kd_program90' => $kd_program90,
-							'kd_kegiatan90' => $kd_kegiatan90,
-							'kd_sub_kegiatan' => $kd_sub_kegiatan,
-							'nama_program' => $sub['nama_giat'],
-							'nama_kegiatan' => $nama_keg
-						));
+						$mapping = false;
+						if($simda == 1){
+							$mapping = $this->simda->cekKegiatanMapping(array(
+								'kd_urusan90' => $kd_urusan90,
+								'kd_bidang90' => $kd_bidang90,
+								'kd_program90' => $kd_program90,
+								'kd_kegiatan90' => $kd_kegiatan90,
+								'kd_sub_kegiatan' => $kd_sub_kegiatan,
+								'nama_program' => $sub['nama_giat'],
+								'nama_kegiatan' => $nama_keg
+							));
+						}
 
 						$kd_urusan = 0;
 						$kd_bidang = 0;
@@ -11315,11 +11326,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'kd_keg' => $kd_keg
 						);
 						// $data_realisasi['opsi'] = $opsi;
-						$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
+
+						$data_realisasi['realisasi'] = 0;
+						$data_realisasi['rak'] = 0;
+						if($simda == 1){
+							$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
+							$data_realisasi['rak'] = $this->get_rak_simda($opsi);
+						}
 						$data_realisasi['realisasi_rp'] = 'Rp ' . number_format($data_realisasi['realisasi'], 0, ",", ".");
 
 						$opsi['rak'] = $rak_db_total;
-						$data_realisasi['rak'] = $this->get_rak_simda($opsi);
 						$data_realisasi['rak_rp'] = 'Rp ' . number_format($data_realisasi['rak'], 0, ",", ".");
 					}
 					$ret['data'][] = $data_realisasi;

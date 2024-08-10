@@ -68,7 +68,7 @@ if ($data_rfk) {
     $nama_sub_kegiatan = $data_rfk['nama_sub_giat'];
     $kode_sub_kegiatan = $data_rfk['kode_sub_giat'];
     $nama_sub_kegiatan = str_replace('X.XX', $kode_bidang_urusan, $nama_sub_kegiatan);
-    $pagu_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
+    $pagu_sub_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
     $id_sub_skpd = $data_rfk['id_sub_skpd'];
 } else {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
@@ -110,9 +110,24 @@ $rka = $wpdb->get_results($wpdb->prepare("
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div style="padding: 15px;">    
-    <h3 class="text-center" style="margin-top: 50px;">PEMERINTAH <?php echo strtoupper($nama_pemda) ?></br><?php echo $nama_skpd; ?></br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h3>
+    <h1 class="text-center" style="margin-top: 50px;">BUKU KAS UMUM PEMBANTU</br><?php echo $nama_skpd; ?></br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h1>
     <table id="tabel_detail_nota" style="margin-top: 30px;">
         <tbody>
+            <tr>
+                <td>Urusan</td>
+                <td>:</td>
+                <td><?php echo $kode_urusan . '  ' . $nama_urusan ?></td>
+            </tr>
+            <tr>
+                <td>Bidang Urusan</td>
+                <td>:</td>
+                <td><?php echo $kode_bidang_urusan . '  ' . $nama_bidang_urusan ?></td>
+            </tr>
+            <tr>
+                <td>Program</td>
+                <td>:</td>
+                <td><?php echo $kode_program . '  ' . $nama_program ?></td>
+            </tr>
             <tr>
                 <td>Kegiatan</td>
                 <td>:</td>
@@ -121,7 +136,12 @@ $rka = $wpdb->get_results($wpdb->prepare("
             <tr>
                 <td>Sub Kegiatan</td>
                 <td>:</td>
-                <td><?php echo $kode_sub_kegiatan . '  ' . $nama_sub_kegiatan ?></td>
+                <td><?php echo $kode_sub_kegiatan . '  ' . str_replace($kode_sub_kegiatan, '', $nama_sub_kegiatan); ?></td>
+            </tr>
+            <tr>
+                <td>Pagu Belanja</td>
+                <td>:</td>
+                <td>Rp <?php echo $pagu_sub_kegiatan; ?></td>
             </tr>
         </tbody>
     </table>
@@ -136,13 +156,13 @@ $rka = $wpdb->get_results($wpdb->prepare("
     <table id="table_daftar_bku">
         <thead>
             <tr>
-                <th class="atas kanan bawah kiri text-center">Tanggal</th>
-                <th class="atas kanan bawah text-center">Nomor Bukti</th>
+                <th class="atas kanan bawah kiri text-center" width="130px">Tanggal</th>
+                <th class="atas kanan bawah text-center" width="250px">Nomor Bukti</th>
                 <th class="atas kanan bawah text-center">Uraian</th>
-                <th class="atas kanan bawah text-center" style="width: 10em;">Penerimaan</th>
-                <th class="atas kanan bawah text-center" style="width: 10em;">Pengeluaran</th>
-                <th class="atas kanan bawah text-center" style="width: 10em;">Saldo</th>
-                <th class="atas kanan bawah text-center" style="width: 12em;">Aksi</th>
+                <th class="atas kanan bawah text-center" style="width: 150px;">Penerimaan</th>
+                <th class="atas kanan bawah text-center" style="width: 150px;">Pengeluaran</th>
+                <th class="atas kanan bawah text-center" style="width: 150px;">Saldo</th>
+                <th class="atas kanan bawah text-center" style="width: 100px;">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -185,6 +205,12 @@ $rka = $wpdb->get_results($wpdb->prepare("
                         </div>
                     </div>
                     <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Nomor Bukti</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="nomor_bukti_bku" name="nomor_bukti_bku" required>
+                        </div>
+                    </div>
+                    <div class="form-group set_keluar row">
                         <label class="col-sm-3">Rekening Belanja</label>
                         <div class="col-sm-9">
                             <select class="form-control input_select_2 rekening_akun" id="rekening_akun" name="rekening_akun" onchange="get_data_sisa_pagu_per_akun_npd(this.value);">
@@ -193,9 +219,9 @@ $rka = $wpdb->get_results($wpdb->prepare("
                         </div>
                     </div>
                     <div class="form-group set_keluar row">
-                        <label class="col-sm-3">Nomor Bukti</label>
+                        <label class="col-sm-3">Sisa Pagu Rekening NPD</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="nomor_bukti_bku" name="nomor_bukti_bku" required>
+                            <span id="sisa_pagu_rekening_bku" style="display: block; font-weight: 600; font-size: 1.3em;">Rp 0</span>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -206,16 +232,16 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             </select>
                         </div>
                     </div>
+                    <div class="form-group set_keluar row">
+                        <label class="col-sm-3">Sisa Pagu Rincian Belanja</label>
+                        <div class="col-sm-9">
+                            <span id="sisa_pagu_rincian_belanja" style="display: block; font-weight: 600; font-size: 1.3em;">Rp 0</span>
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3">Uraian BKU</label>
                         <div class="col-sm-9">
                             <textarea id="uraian_bku" name="uraian_bku" rows="4" cols="50"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group set_keluar row">
-                        <label class="col-sm-3">Sisa Pagu Rekening NPD</label>
-                        <div class="col-sm-9">
-                            <span id="sisa_pagu_rekening_bku" style="display: block; font-weight: 600; font-size: 1.3em;">Rp. 0</span>
                         </div>
                     </div>
                     <div class="form-group set_keluar row">
@@ -372,6 +398,12 @@ $rka = $wpdb->get_results($wpdb->prepare("
     }
 
     function get_data_sisa_pagu_per_akun_npd(kode_rekening) {
+        var opsi_rincian = '<option value="">Pilih rincian belanja</option>';
+        if(kode_rekening == ''){
+            jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(0, true));
+            jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
+            return;
+        }
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -390,9 +422,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 // menampilkan popup
                 if (data.status == 'success') {
                     let sisa = data.data.pagu_dana_npd - data.data.total_pagu_bku;
-                    jQuery("#sisa_pagu_rekening_bku").html("Rp. "+sisa);
+                    jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa, true));
 
-                    var opsi_rincian = '<option value="">Pilih rincian belanja</option>';
                     rka_all.map(function(b, i){
                         if(b.kode_akun == kode_rekening){
                             opsi_rincian += '<option value="'+b.id_rinci_sub_bl+'" nilai="'+b.rincian+'" koefisien="'+b.koefisien+'">'+b.nama_komponen+' '+b.spek_komponen+'</option>';
@@ -537,6 +568,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 data: {
                     'action': 'delete_data_buku_kas_umum_pembantu',
                     'api_key':'<?php echo $api_key; ?>',
+                    'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                     'id': id
                 },
                 dataType: 'json',
@@ -579,10 +611,40 @@ $rka = $wpdb->get_results($wpdb->prepare("
 	}
 
     function set_uraian_bku(){
+        var id_rinci_sub_bl = jQuery('#rincian_rka').val();
+        if(id_rinci_sub_bl == ''){
+            jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(0, true));
+            return;
+        }
         var koefisien = jQuery('#rincian_rka option:checked').attr('koefisien');
-        var nilai = jQuery('#rincian_rka option:checked').attr('nilai');
+        var nilai = +jQuery('#rincian_rka option:checked').attr('nilai');
         var komponen = jQuery('#rincian_rka option:checked').text();
         jQuery('#uraian_bku').val(komponen+' '+koefisien);
         jQuery('#pagu_bku').val(nilai);
+        jQuery('#wrap-loading').show();
+        var id_unik = 'kode_sbl-rekening_belanja-kelompok-keterangan-'+id_rinci_sub_bl;
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'post',
+            data: {
+                "action": "get_mapping",
+                "api_key": "<?php echo $api_key; ?>",
+                "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+                "id_mapping": [id_unik]
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                if (response.status == 'success') {
+                    var sisa_rincian = 0;
+                    if(response.data[0]){
+                        sisa_rincian = nilai-response.data[0].data_realisasi;
+                    }
+                    jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(sisa_rincian, true));
+                } else {
+                    alert(`GAGAL! \n${response.message}`);
+                }
+            }
+        });
     }
 </script>
