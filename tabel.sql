@@ -6933,6 +6933,7 @@ CREATE TABLE `data_buku_kas_umum_pembantu` (
     `nama_pemilik_rekening_bank` varchar(50) DEFAULT NULL,
     `nama_rekening_bank` varchar(50) DEFAULT NULL,
     `no_rekening_bank` int(11) DEFAULT NULL,
+    `id_rinci_sub_bl` int(11) DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),

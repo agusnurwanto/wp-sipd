@@ -247,7 +247,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     <div class="form-group set_keluar row">
                         <label class="col-sm-3">Nilai</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required>
+                            <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required onchange="cek_nilai();">
                         </div>
                     </div>
                     <div class="form-group set_keluar row">
@@ -421,8 +421,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 // menampilkan popup
                 if (data.status == 'success') {
-                    let sisa = data.data.pagu_dana_npd - data.data.total_pagu_bku;
-                    jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa, true));
+                    window.sisa_rekening = data.data.pagu_dana_npd - data.data.total_pagu_bku;
+                    jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
 
                     rka_all.map(function(b, i){
                         if(b.kode_akun == kode_rekening){
@@ -620,7 +620,6 @@ $rka = $wpdb->get_results($wpdb->prepare("
         var nilai = +jQuery('#rincian_rka option:checked').attr('nilai');
         var komponen = jQuery('#rincian_rka option:checked').text();
         jQuery('#uraian_bku').val(komponen+' '+koefisien);
-        jQuery('#pagu_bku').val(nilai);
         jQuery('#wrap-loading').show();
         var id_unik = 'kode_sbl-rekening_belanja-kelompok-keterangan-'+id_rinci_sub_bl;
         jQuery.ajax({
@@ -635,16 +634,29 @@ $rka = $wpdb->get_results($wpdb->prepare("
             dataType: 'json',
             success: function(response) {
                 jQuery('#wrap-loading').hide();
+                var sisa_rincian_asli = 0;
+                var sisa_rincian = 0;
                 if (response.status == 'success') {
-                    var sisa_rincian = 0;
                     if(response.data[0]){
-                        sisa_rincian = nilai-response.data[0].data_realisasi;
+                        sisa_rincian_asli = nilai-response.data[0].data_realisasi;
+                        if(sisa_rincian_asli > sisa_rekening){
+                            sisa_rincian = sisa_rekening;
+                        }
                     }
-                    jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(sisa_rincian, true));
+                    jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(sisa_rincian_asli, true));
                 } else {
                     alert(`GAGAL! \n${response.message}`);
                 }
+                jQuery('#pagu_bku').val(sisa_rincian);
             }
         });
+    }
+
+    function cek_nilai(){
+        var nilai = jQuery('#pagu_bku').val();
+        if(nilai > sisa_rekening){
+            alert('Nilai transaksi BKU tidak boleh lebih besar dari sisa rekening belanja '+formatRupiah(sisa_rekening, true));
+            jQuery('#pagu_bku').val(sisa_rekening);
+        }
     }
 </script>
