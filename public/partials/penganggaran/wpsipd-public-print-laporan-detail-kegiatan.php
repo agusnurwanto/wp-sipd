@@ -8,7 +8,7 @@ global $wpdb;
 $id_npd = '';
 if (!empty($_GET) ) {
     if(!empty($_GET['bulan'])){
-        $set_bulan = $_GET['bulan'];
+        $set_bulan = $_GET['bulan']*1;
     }else{
         die('<h1 class="text-center">Ada data yang kosong!</h1>');    
     }
@@ -20,6 +20,9 @@ $input = shortcode_atts( array(
     'kode_sbl' => 'undefined',
 	'tahun_anggaran' => '2022'
 ), $atts );
+if(!empty($_GET['kode_sbl'])){
+    $input['kode_sbl'] = $_GET['kode_sbl'];
+}
 
 $bulan = "kosong";
 if(!empty($set_bulan)){

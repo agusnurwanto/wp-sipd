@@ -8,7 +8,7 @@ global $wpdb;
 $id_npd = '';
 if (!empty($_GET) ) {
     if(!empty($_GET['bulan'])){
-        $set_bulan = $_GET['bulan'];
+        $set_bulan = $_GET['bulan']*1;
     }else{
         die('<h1 class="text-center">Ada data yang kosong!</h1>');    
     }
@@ -143,6 +143,7 @@ $data_bku = $wpdb->get_results($wpdb->prepare("
         )
         ORDER BY tanggal_bkup
 ", $input['kode_sbl'], $input['tahun_anggaran'], $bulan_terpilih, $bulan_terpilih_2), ARRAY_A);
+// print_r($wpdb->last_query);
 
 $html = '';
 $uraian = '-';

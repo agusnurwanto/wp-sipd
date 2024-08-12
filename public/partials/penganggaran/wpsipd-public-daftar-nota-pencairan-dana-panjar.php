@@ -779,7 +779,7 @@ $url_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
 
         switch (jenis) {
             case 'npd':
-                window.open('<?php echo $url_laporan_panjar_npd; ?>'+'&id_npd='+id_npd,'_blank');
+                window.open('<?php echo $this->add_param_get($url_laporan_panjar_npd, '&1=1'); ?>'+'&id_npd='+id_npd,'_blank');
                 break;
         
             default:
