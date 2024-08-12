@@ -6655,4 +6655,143 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		$button_mapping = '<span style="display: none;" data-id="'.$class.'" '.$data_akun.' class="edit-mapping"><i class="dashicons dashicons-edit"></i></span>';
 		return $button_mapping;
 	}
+
+	public function get_cascading_renstra()
+	{
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get tujuan dan sasaran renstra!'
+		);
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+					if(empty($_POST['jenis']) || empty($_POST['tahun_anggaran']) || empty($_POST['id_skpd'])){
+						throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+					}
+
+					$jenis = $_POST['jenis'];
+					if($jenis == 'tujuan'){
+						$data_tujuan_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							from 
+								data_renstra_tujuan 
+							where 
+								id_unit=%d and 
+								active=1 and 
+								tahun_anggaran=%d order by id",
+								$_POST['id_skpd'], $_POST['tahun_anggaran']
+						), ARRAY_A);
+		
+						if(!empty($data_tujuan_renstra)){
+							$ret['data'] = $data_tujuan_renstra;
+						}
+					}else if($jenis == 'sasaran'){
+						$data_sasaran_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							from 
+								data_renstra_sasaran 
+							where 
+								id_unit=%d and 
+								active=1 and 
+								tahun_anggaran=%d order by kode_bidang_urusan",
+								$_POST['id_skpd'], $_POST['tahun_anggaran']
+						), ARRAY_A);
+		
+						if(!empty($data_sasaran_renstra)){
+							$ret['data'] = $data_sasaran_renstra;
+						}
+					}else if($jenis == 'program'){
+						$data_program_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_sub_keg_bl 
+							WHERE
+								id_sub_skpd=%d AND 
+								active=1 AND 
+								tahun_anggaran=%d 
+							GROUP BY 
+								kode_program 
+							ORDER BY 
+								kode_program",
+								$_POST['id_skpd'], $_POST['tahun_anggaran']
+						), ARRAY_A);
+		
+						if(!empty($data_program_renstra)){
+							$ret['data'] = $data_program_renstra;
+							$ret['message'] = 'Berhasil get program renja!';
+						}
+					}else if($jenis == 'kegiatan'){
+						if(empty($_POST['parent_cascading'])){
+							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+						$data_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_sub_keg_bl 
+							WHERE
+								id_sub_skpd=%d AND 
+								active=1 AND 
+								tahun_anggaran=%d AND
+								kode_program=%s
+							GROUP BY 
+								kode_giat 
+							ORDER BY 
+								kode_giat",
+								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']
+						), ARRAY_A);
+		
+						if(!empty($data_kegiatan_renja)){
+							$ret['data'] = $data_kegiatan_renja;
+							$ret['message'] = 'Berhasil get kegiatan renja!';
+						}
+					}else if($jenis == 'sub_kegiatan'){
+						if(empty($_POST['parent_cascading'])){
+							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+						$data_sub_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_sub_keg_bl 
+							WHERE
+								id_sub_skpd=%d AND 
+								active=1 AND 
+								tahun_anggaran=%d AND
+								kode_giat=%s
+							GROUP BY 
+								kode_sub_giat 
+							ORDER BY 
+								kode_sub_giat",
+								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']
+						), ARRAY_A);
+		
+						if(!empty($data_sub_kegiatan_renja)){
+							$ret['data'] = $data_sub_kegiatan_renja;
+							$ret['message'] = 'Berhasil get sub kegiatan renja!';
+						}
+					}
+				} else {
+					throw new Exception("APIKEY tidak sesuai!", 1);
+				}
+			}
+			die(json_encode($ret));
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);
+			exit();
+		}
+	}
 }
