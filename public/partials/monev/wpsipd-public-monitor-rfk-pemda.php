@@ -577,17 +577,17 @@ $body .='
 	echo $body;
 ?>
 
-<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
-	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
-	<ul>
-		<li>Laporan RFK secara default menampilkan data pada bulan berjalan.</li>
-		<li>Catatan Ka.Adbang di bulan bejalan <b>TIDAK AKAN MUNCUL</b> jika data RFK bulan berjalan <b>BELUM PERNAH DIAKSES/DIBUKA</b> meski catatan sudah pernah diinput.</li>
-		<li>Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format excel.</li>
-		<li>Tombol <b>AKSES RFK ALL OPD</b> digunakan untuk mengakses halaman RFK seluruh OPD sesuai dengan waktu yang ditentukan user.</li>
-		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
-		<li>Tombol <b>SIMPAN CATATAN</b> digunakan untuk menyimpan catatan yang sudah diinput atau diedit oleh Kabag Adbang.</li>
-		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan bulan berjalan sesuai dengan catatan di bulan sebelumnya.</li>
-	</ul>
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1000px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f8f9fa;">
+    <h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
+    <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6; color: #555;">
+        <li><strong>Laporan RFK:</strong> Secara default menampilkan data pada bulan berjalan.</li>
+        <li><strong>Catatan Ka. Adbang:</strong> Tidak akan muncul di bulan berjalan jika data RFK bulan berjalan belum pernah diakses/dibuka, meskipun catatan sudah pernah diinput.</li>
+        <li><strong>Download Excel:</strong> Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format Excel.</li>
+        <li><strong>Akses RFK SEMUA OPD:</strong> Tombol <b>AKSES RFK SEMUA OPD</b> digunakan untuk mengakses halaman RFK seluruh OPD sesuai dengan waktu yang ditentukan user.</li>
+        <li><strong>Pilihan Bulan Realisasi:</strong> Digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
+        <li><strong>Simpan Catatan:</strong> Tombol <b>SIMPAN CATATAN</b> digunakan untuk menyimpan catatan yang sudah diinput atau diedit oleh Kabag Adbang.</li>
+        <li><strong>Reset Catatan:</strong> Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan bulan berjalan sesuai dengan catatan di bulan sebelumnya.</li>
+    </ul>
 </div>
 
 <script type="text/javascript">
@@ -659,9 +659,9 @@ $body .='
 		    });
 
 		    <?php if(empty($public)){ ?>
-			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
-			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
-			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="reset-rfk-pemda">Reset Catatan</a>').insertAfter("#simpan-catatan-rfk-unit");
+			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="btn btn-primary m-2"><span class="dashicons dashicons-controls-forward"></span> Akses RFK Semua OPD</a>').insertAfter("#excel");
+			jQuery('<a href="javascript:void(0)" class="btn btn-info m-2" id="simpan-catatan-rfk-unit"><span class="dashicons dashicons-database-import"></span> Simpan Catatan</a>').insertAfter("#open_all_skpd");
+			jQuery('<a href="javascript:void(0)" class="btn btn-warning m-2" id="reset-rfk-pemda"><span class="dashicons dashicons-image-rotate"></span> Reset Catatan</a>').insertAfter("#simpan-catatan-rfk-unit");
 		    jQuery('<label><input type="checkbox" id="cb-nilai-realisasi" onclick="tampil_nilai_fisik()"> Tampilkan Nilai Realisasi Fisik</label>').insertAfter("#opt-bulan");
 			<?php } ?>
 

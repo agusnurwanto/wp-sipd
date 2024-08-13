@@ -82,16 +82,16 @@ $options_skpd = $wpdb->get_results($wpdb->prepare("
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th class="text_tengah atas kiri kanan bawah text_blok align-middle" rowspan="2">Kode</th>
-                    <th class="text_tengah atas kiri kanan bawah text_blok align-middle" rowspan="2">Uraian</th>
-                    <th class="text_tengah atas kiri kanan bawah text_blok" colspan="4">Kelompok Belanja</th>
-                    <th class="text_tengah atas kiri kanan bawah text_blok align-middle" rowspan="2">Jumlah</th>
+                    <th class="text_tengah atas kiri kanan bawah text_block align-middle" rowspan="2">Kode</th>
+                    <th class="text_tengah atas kiri kanan bawah text_block align-middle" rowspan="2">Uraian</th>
+                    <th class="text_tengah atas kiri kanan bawah text_block" colspan="4">Kelompok Belanja</th>
+                    <th class="text_tengah atas kiri kanan bawah text_block align-middle" rowspan="2">Jumlah</th>
                 </tr>
                 <tr>
-                    <th class="text_tengah kiri kanan bawah text_blok">Operasi</th>
-                    <th class="text_tengah kiri kanan bawah text_blok">Modal</th>
-                    <th class="text_tengah kiri kanan bawah text_blok">Tidak Terduga</th>
-                    <th class="text_tengah kiri kanan bawah text_blok">Transfer</th>
+                    <th class="text_tengah kiri kanan bawah text_block">Operasi</th>
+                    <th class="text_tengah kiri kanan bawah text_block">Modal</th>
+                    <th class="text_tengah kiri kanan bawah text_block">Tidak Terduga</th>
+                    <th class="text_tengah kiri kanan bawah text_block">Transfer</th>
                 </tr>
             </thead>
             <tbody>

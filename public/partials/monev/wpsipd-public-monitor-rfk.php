@@ -953,8 +953,8 @@ foreach ($units as $k => $unit) :
 </div>';
 endforeach;
 
-$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-verifikator-rfk">Reset Catatan Verifikator RFK Bulan Sebelumnya</button>';
-$simpan_rfk = '<button style="margin-left: 20px;" class="components-button button button-primary" id="simpan-rfk">Simpan Data</button>';
+$reset_rfk = '<button class="btn btn-warning m-2" id="reset-verifikator-rfk"><span class="dashicons dashicons-image-rotate"></span> Reset Catatan Verifikator RFK Bulan Sebelumnya</button>';
+$simpan_rfk = '<button class="btn btn-info m-2" id="simpan-rfk"><span class="dashicons dashicons-database-import"></span> Simpan Data</button>';
 if (
 	in_array("mitra_bappeda", $current_user->roles)
 	|| true == $cek_verifiktor
@@ -963,7 +963,7 @@ if (
 	$reset_rfk = '';
 	$simpan_rfk = '';
 } else if (!current_user_can('administrator')) {
-	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
+	$reset_rfk = '<button class="btn btn-warning m-2" id="reset-rfk"><span class="dashicons dashicons-image-rotate"></span> Reset RFK Bulan Sebelumnya</button>';
 }
 
 $cekbox_set_pptk = '';
@@ -986,20 +986,20 @@ if (
 
 ?>
 
-<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
-	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
-	<ul>
-		<li>Laporan RFK secara default menampilkan data pada bulan berjalan</li>
-		<li>Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format excel</li>
-		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih</li>
-		<li>Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator</li>
-		<li>Tombol <b>Reset RFK bulan sebelumnya</b> digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal</li>
-		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
-		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
-		<li style="display: none;">Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
-		<li style="display: none;">Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program dan bidang urusan klik pada kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default akumulasi tidak ditampilkan agar tidak membuat bingung user dalam memahami nilai total realisasi fisik.</li>
-		<li>Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD</li>
-	</ul>
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 900px; margin: 40px auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; background-color: #f9f9f9;">
+    <h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
+    <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6; color: #555;">
+        <li><strong>Laporan RFK:</strong> Secara default menampilkan data pada bulan berjalan.</li>
+        <li><strong>Download Excel:</strong> Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format Excel.</li>
+        <li><strong>Pilihan Bulan Realisasi:</strong> Digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
+        <li><strong>Simpan Data:</strong> Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator.</li>
+        <li><strong>Reset RFK Bulan Sebelumnya:</strong> Tombol ini digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal.</li>
+        <li><strong>Catatan Kesimpulan KABAG ADBANG:</strong> Berisi kesimpulan dari catatan verifikator yang diisi oleh KABAG ADBANG.</li>
+        <li><strong>Tombol Simpan Merah:</strong> Pada sub kegiatan, tombol <b>SIMPAN</b> berwarna merah akan muncul jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator.</li>
+        <li style="display: none;"><strong>Total Realisasi Fisik:</strong> Perhitungan total realisasi fisik adalah akumulasi realisasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu SIMDAnya.</li>
+        <li style="display: none;"><strong>Detail Akumulasi Realisasi Fisik:</strong> Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program, dan bidang urusan, klik kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default, akumulasi tidak ditampilkan agar tidak membingungkan user dalam memahami nilai total realisasi fisik.</li>
+        <li><strong>Background Kuning:</strong> Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD.</li>
+    </ul>
 </div>
 
 <!-- Modal -->
@@ -1272,6 +1272,8 @@ if (
 		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
 	?>
 	var extend_action = '' +
+	'<?php echo $simpan_rfk; ?>' +
+	'<?php echo $reset_rfk; ?>' +
 		'<div style="margin-top: 20px;">' +
 			'<label style="display:none;">Sumber Pagu Indikatif: ' +
 				'<select id="pilih_sumber_pagu" style="padding: 5px;">' +
@@ -1287,8 +1289,6 @@ if (
 					'<?php echo $opsi_bulan; ?>' +
 				'</select>' +
 			'</label>' +
-			'<?php echo $simpan_rfk; ?>' +
-			'<?php echo $reset_rfk; ?>' +
 			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>' +
 			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
 			'<label style="margin-left: 20px;">Pagu DPA: ' +
