@@ -1725,7 +1725,11 @@ foreach ($bl as $k => $sub_bl) {
 	                		order by no_urut',
 						ARRAY_A
 					);
-					for ($i = 0; $i < 8; $i++) {
+					$jml_tapd = 8;
+					if(!empty($tapd)){
+						$jml_tapd = count($tapd);
+					}
+					for ($i = 0; $i < $jml_tapd; $i++) {
 						$no = $i + 1;
 						$nama = '&nbsp;';
 						$nip = '&nbsp;';

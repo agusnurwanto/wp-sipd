@@ -56,17 +56,19 @@ if($jadwal_terpilih == 0 || $jadwal_terpilih == $jadwal_lokal[0]['id_jadwal_loka
 		}
 	}
 }else{
-		$data_jadwal_lokal = $wpdb->get_results(
-			"SELECT * 
-			FROM data_jadwal_lokal
-			WHERE id_jadwal_lokal=".$jadwal_terpilih."
-			AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
+	$data_jadwal_lokal = $wpdb->get_results($wpdb->prepare("
+		SELECT 
+			* 
+		FROM data_jadwal_lokal
+		WHERE id_jadwal_lokal=%d
+			AND tahun_anggaran=%d
+	", $jadwal_terpilih, $tahun_anggaran), ARRAY_A);
 
-		$tahun_anggaran = $data_jadwal_lokal[0]['tahun_anggaran'];
-		$namaJadwal = $data_jadwal_lokal[0]['nama'];
-		$mulaiJadwal = '-';
-		$selesaiJadwal = '-';
-		$setting_waktu = 0;
+	$tahun_anggaran = $data_jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = $data_jadwal_lokal[0]['nama'];
+	$mulaiJadwal = '-';
+	$selesaiJadwal = '-';
+	$setting_waktu = 0;
 }
 
 $sql_tipe = $wpdb->get_row("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$jadwal_rka."'", ARRAY_A);

@@ -227,7 +227,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	function add_param_get($url, $param){
 		$data = explode('?', $url);
-		if(count($data) >= 1){
+		if(count($data) > 1){
 			$url .= $param;
 		}else{
 			$url .= '?'.$param;
@@ -908,7 +908,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$shortcode = '[jadwal_verifikasi_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" sipd="1"]';
 				$update = false;
 				$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-				$list_data_rka .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+				$list_data_rka .= '<li><a href="' . $page_url . '" target="_blank">' . $title . ' ( Input RKA di Lokal )</a></li>';
 			}
 			Container::make('theme_options', __('Verifikasi RKA'))
 				->set_page_menu_position(5)
