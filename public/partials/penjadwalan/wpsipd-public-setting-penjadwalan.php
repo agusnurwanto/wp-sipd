@@ -173,6 +173,10 @@ $title = 'APBD Perda Lampiran 4 | ' . $input['tahun_anggaran'];
 $shortcode = '[apbd_perda_lampiran_4 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $apbd_perda_lampiran_4 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'APBD Perda Lampiran 5 | ' . $input['tahun_anggaran'];
+$shortcode = '[apbd_perda_lampiran_5 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
+$apbd_perda_lampiran_5 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'Rekap Longlist Per Jenis Belanja Semua SKPD | ' . $input['tahun_anggaran'];
 $shortcode = '[rekap_longlist_per_jenis_belanja_all_skpd tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $rekap_longlist_per_jenis_belanja_all_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -789,6 +793,7 @@ $body = '';
 						<option value="apbd_perda_lampiran_2">APBD Perda Lampiran II</option>
 						<option value="apbd_perda_lampiran_3">APBD Perda Lampiran III</option>
 						<option value="apbd_perda_lampiran_4">APBD Perda Lampiran IV</option>
+						<option value="apbd_perda_lampiran_5">APBD Perda Lampiran V</option>
 						<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
 					</select>
 					</div>
@@ -837,7 +842,6 @@ $body = '';
 	}
 
 	function preview(id_jadwal_lokal) {
-
 		let jenis = jQuery("#jenis").val();
 		let id_unit = jQuery("#list_perangkat_daerah").val();
 
@@ -918,6 +922,9 @@ $body = '';
 				break;
 			case 'apbd_perda_lampiran_4':
 				window.open('<?php echo $apbd_perda_lampiran_4; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_perda_lampiran_5':
+				window.open('<?php echo $apbd_perda_lampiran_5; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_longlist_per_jenis_belanja_all_skpd':
 				window.open('<?php echo $rekap_longlist_per_jenis_belanja_all_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');

@@ -654,7 +654,7 @@ foreach ($data_skpd as $skpd) {
         }
     }
     //colspan
-    $body_urusan_subkeg = '<tr><td colspan=4 class="text_blok text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
+    $body_urusan_subkeg = '<tr><td colspan=4 class="text_block text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
     $colspan = 3;
     $colspan_header = '';
     $colspan_header_2 = 4;
@@ -662,9 +662,9 @@ foreach ($data_skpd as $skpd) {
     $selisih = "";
 
     if ($type == 'pergeseran') {
-        $body_urusan_subkeg = '<tr><td colspan=6 class="text_blok text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
-        $murni = "<td class='kanan bawah text_tengah text_blok'>JUMLAH SEBELUM</td>";
-        $selisih = "<td class='kanan bawah text_tengah text_blok'>SELISIH</td>";
+        $body_urusan_subkeg = '<tr><td colspan=6 class="text_block text_tengah kiri kanan bawah">BELANJA DAERAH</td></tr>';
+        $murni = "<td class='kanan bawah text_tengah text_block'>JUMLAH SEBELUM</td>";
+        $selisih = "<td class='kanan bawah text_tengah text_block'>SELISIH</td>";
         $colspan = 5;
         $colspan_header = 2;
         $colspan_header_2 = 6;
@@ -771,12 +771,12 @@ foreach ($data_skpd as $skpd) {
                             </tr>';
                             $body_urusan_subkeg .= '
                             <tr>
-                                <td class="kiri kanan bawah text_blok text_tengah">KODE REKENING</td>
-                                <td class="kiri kanan bawah text_blok text_tengah">URAIAN</td>
+                                <td class="kiri kanan bawah text_block text_tengah">KODE REKENING</td>
+                                <td class="kiri kanan bawah text_block text_tengah">URAIAN</td>
                                 ' . $murni . '
-                                <td class="kiri kanan bawah text_blok text_tengah">JUMLAH</td>
+                                <td class="kiri kanan bawah text_block text_tengah">JUMLAH</td>
                                 ' . $selisih . '
-                                <td class="kiri kanan bawah text_blok text_tengah">DASAR HUKUM</td>
+                                <td class="kiri kanan bawah text_block text_tengah">DASAR HUKUM</td>
                             </tr>';
                             $rka_sub_all = array();
                             foreach ($data['data'] as $rincian) {
@@ -838,10 +838,10 @@ foreach ($data_skpd as $skpd) {
             </tr>
         </table>
         <h3 class="text_tengah text-uppercase">
-            <?php echo htmlspecialchars($nama_pemda, ENT_QUOTES, 'UTF-8'); ?><br>
+            <?php echo htmlspecialchars($nama_pemda); ?><br>
             RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN,<br>
             SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>
-            TAHUN ANGGARAN <?php echo htmlspecialchars($input['tahun_anggaran'], ENT_QUOTES, 'UTF-8'); ?>
+            TAHUN ANGGARAN <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
         </h3>
         <table class="table table-bordered">
             <thead>
@@ -849,16 +849,16 @@ foreach ($data_skpd as $skpd) {
                     <th class="text_tengah kiri kanan bawah atas" colspan="<?php echo $colspan_header_2; ?>">PENDAPATAN DAERAH</th>
                 </tr>
                 <tr>
-                    <th class="text_tengah kiri kanan bawah text_blok">KODE REKENING</th>
-                    <th class="text_tengah kiri kanan bawah text_blok">URAIAN</th>
+                    <th class="text_tengah kiri kanan bawah text_block">KODE REKENING</th>
+                    <th class="text_tengah kiri kanan bawah text_block">URAIAN</th>
                     <?php if ($type == 'pergeseran') : ?>
-                        <th class="text_tengah kiri kanan bawah text_blok">JUMLAH SEBELUM</th>
+                        <th class="text_tengah kiri kanan bawah text_block">JUMLAH SEBELUM</th>
                     <?php endif; ?>
-                    <th class="text_tengah kiri kanan bawah text_blok">JUMLAH</th>
+                    <th class="text_tengah kiri kanan bawah text_block">JUMLAH</th>
                     <?php if ($type == 'pergeseran') : ?>
-                        <th class="text_tengah kiri kanan bawah text_blok">SELISIH</th>
+                        <th class="text_tengah kiri kanan bawah text_block">SELISIH</th>
                     <?php endif; ?>
-                    <th class="text_tengah kiri kanan bawah text_blok">DASAR HUKUM</th>
+                    <th class="text_tengah kiri kanan bawah text_block">DASAR HUKUM</th>
                 </tr>
             </thead>
             <tbody>
@@ -866,6 +866,23 @@ foreach ($data_skpd as $skpd) {
                 <?php echo $body_pembiayaan; ?>
                 <?php echo $body_urusan_subkeg; ?>
             </tbody>
+        </table>
+        <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
+            <tr>
+                <td colspan="3" class="text_tengah" height="20px"></td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX </td>
+            </tr>
+            <tr>
+                <td colspan="3" height="80">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text_tengah" contenteditable="true">XXXXXXXXXXX</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text_tengah"></td>
+            </tr>
         </table>
     </div>
 </body>

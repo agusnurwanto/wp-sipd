@@ -1205,6 +1205,7 @@ class Wpsipd
 		add_shortcode('apbd_perda_lampiran_2', array($plugin_public, 'apbd_perda_lampiran_2'));
 		add_shortcode('apbd_perda_lampiran_3', array($plugin_public, 'apbd_perda_lampiran_3'));
 		add_shortcode('apbd_perda_lampiran_4', array($plugin_public, 'apbd_perda_lampiran_4'));
+		add_shortcode('apbd_perda_lampiran_5', array($plugin_public, 'apbd_perda_lampiran_5'));
 		
 		add_shortcode('rekap_longlist_per_jenis_belanja', array($plugin_public, 'rekap_longlist_per_jenis_belanja'));
 		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
