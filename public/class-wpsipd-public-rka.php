@@ -86,6 +86,14 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-4.php';
     }
 
+    public function apbd_perda_lampiran_5($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/apbdperda/wpsipd-public-apbdperda-5.php';
+    }
+
     public function rekap_longlist_per_jenis_belanja_all_skpd($atts)
     {
         if (!empty($_GET) && !empty($_GET['post'])) {
@@ -2756,28 +2764,33 @@ class Wpsipd_Public_RKA
                 $kode_sbl = $_POST['kode_sbl'];
                 $id_npd = $_POST['kode_npd'];
                 $data = json_decode(stripslashes($_POST['data']), true);
-                if($data['set_bku'] == 'keluar'){
+                if(empty($data['uraian_bku'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Uraian tidak boleh kosong!';
+                }elseif(empty($data['set_bku'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Jenis BKU tidak boleh kosong!';
+                }elseif(empty($data['set_tanggal'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Set tanggal tidak boleh kosong!';
+                }elseif(empty($data['rincian_rka'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Rincian RKA tidak boleh kosong!';
+                }
+
+                if($ret['status']!='error' && $data['set_bku'] == 'keluar'){
                     if(empty($data['nomor_bukti_bku'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Nomor bukti tidak boleh kosong!';
-                    }elseif(empty($data['uraian_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Uraian tidak boleh kosong!';
                     }elseif(empty($data['pagu_bku'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Pagu tidak boleh kosong!';
                     }elseif(empty($data['rekening_akun'])){
                         $ret['status'] = 'error';
                         $ret['message'] = 'Rekening tidak boleh kosong!';
-                    }elseif(empty($data['set_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Jenis BKU tidak boleh kosong!';
-                    }elseif(empty($data['set_tanggal'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
                     }
 
-                    if($data['jenis_transkasi'] == '2'){
+                    if($ret['status']!='error' && $data['jenis_transkasi'] == '2'){
                         if(empty($data['nama_pemilik_rekening_bank_bku'])){
                             $ret['status'] = 'error';
                             $ret['message'] = 'Nama Pemegang Rekening tidak boleh kosong!';
@@ -2790,17 +2803,6 @@ class Wpsipd_Public_RKA
                         }
                     }else{
                         $data['nama_pemilik_rekening_bank_bku'] = 'Tunai';
-                    }
-                }else{
-                    if(empty($data['uraian_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Uraian tidak boleh kosong!';
-                    }elseif(empty($data['set_bku'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Jenis BKU tidak boleh kosong!';
-                    }elseif(empty($data['set_tanggal'])){
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Set tanggal tidak boleh kosong!';
                     }
                 }
 
@@ -2905,6 +2907,7 @@ class Wpsipd_Public_RKA
                                 'active' => 1,
                                 'created_at' => current_time('mysql'),
                                 'update_at' => current_time('mysql'),
+                                'id_rinci_sub_bl' => $data['rincian_rka'],
                                 'nama_pemilik_rekening_bank' => $data['nama_pemilik_rekening_bank_bku'],
                                 'nama_rekening_bank' => $data['nama_rekening_bank_bku'],
                                 'no_rekening_bank' => $data['no_rekening_bank_bku']
@@ -2961,6 +2964,7 @@ class Wpsipd_Public_RKA
                             'id_npd' => $id_npd,
                             'tanggal_bkup' => $tanggal,
                             'tahun_anggaran' => $tahun_anggaran,
+                            'id_rinci_sub_bl' => $data['rincian_rka'],
                             'active' => 1,
                             'created_at' => current_time('mysql'),
                             'update_at' => current_time('mysql')
@@ -3003,6 +3007,41 @@ class Wpsipd_Public_RKA
                         }else{
                             $wpdb->insert('data_buku_kas_umum_pembantu', $input_options);
                             $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                        }
+                    }
+
+                    // update reaisasi rincian belanja
+                    if($ret['status'] != 'error'){
+                        $total_rincian_bku = $wpdb->get_var($wpdb->prepare('
+                            SELECT
+                                SUM(pagu)
+                            FROM data_buku_kas_umum_pembantu
+                            WHERE id_rinci_sub_bl=%d
+                                AND tahun_anggaran=%d
+                                AND active=1
+                        ', $data['rincian_rka'], $tahun_anggaran));
+                        $input_options = array(
+                            'id_rinci_sub_bl' => $data['rincian_rka'],
+                            'realisasi' => $total_rincian_bku,
+                            'user' => $current_user->display_name,
+                            'active' => 1,
+                            'update_at' => current_time('mysql'),
+                            'tahun_anggaran' => $tahun_anggaran
+                        );
+                        $cek_rinci = $wpdb->get_row($wpdb->prepare('
+                            SELECT
+                                id,
+                                realisasi
+                            FROM data_realisasi_rincian
+                            WHERE id_rinci_sub_bl=%d
+                                AND tahun_anggaran=%d
+                                AND active=1
+                        ', $data['rincian_rka'], $tahun_anggaran), ARRAY_A);
+                        if(!empty($cek_rinci)){
+                            $wpdb->insert('data_realisasi_rincian', $input_options);
+                        }else{
+                            $data['realisasi'] += $cek_rinci['realisasi'];
+                            $wpdb->update('data_realisasi_rincian', $input_options, array('id' => $cek_rinci['id']));
                         }
                     }
                 }

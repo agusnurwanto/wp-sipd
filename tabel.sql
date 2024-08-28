@@ -8,7 +8,7 @@ CREATE TABLE `data_catatan_rfk_unit` (
   `created_at` datetime NOT NULL,
   `updated_by` text NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rekanan_sipd`(
@@ -35,7 +35,7 @@ CREATE TABLE `data_rekanan_sipd`(
   `created_by` int DEFAULT NULL,
   `updated_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spd_sipd`(
@@ -49,7 +49,7 @@ CREATE TABLE `data_spd_sipd`(
   `active` tinyint,
   `created_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`idSpd`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_npd_sipd`(
@@ -99,7 +99,7 @@ CREATE TABLE `data_npd_sipd`(
   `created_at` datetime,
   `update_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_npd`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lpj_bpp_sipd`(
@@ -137,7 +137,7 @@ CREATE TABLE `data_lpj_bpp_sipd`(
   `created_at` datetime,
   `update_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_lpj_bpp`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lpj_sipd_detail` (
@@ -159,7 +159,7 @@ CREATE TABLE `data_lpj_sipd_detail` (
   `active` tinyint,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lpj_sipd_detail_rekening` (
@@ -175,7 +175,7 @@ CREATE TABLE `data_lpj_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_buku_jurnal_sipd` (
@@ -190,7 +190,7 @@ CREATE TABLE `data_buku_jurnal_sipd` (
   `active` tinyint,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_buku_jurnal_sipd_detail` (
@@ -205,7 +205,7 @@ CREATE TABLE `data_buku_jurnal_sipd_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `aklap_lra_sipd` (
@@ -224,7 +224,7 @@ CREATE TABLE `aklap_lra_sipd` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_npd_sipd_detail` (
@@ -258,7 +258,7 @@ CREATE TABLE `data_npd_sipd_detail` (
   `active` tinyint,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_npd_sipd_detail_rekening` (
@@ -273,7 +273,7 @@ CREATE TABLE `data_npd_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tbp_sipd`(
@@ -318,7 +318,7 @@ CREATE TABLE `data_tbp_sipd`(
   `created_at` datetime,
   `update_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_tbp`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tbp_sipd_detail` (
@@ -352,7 +352,7 @@ CREATE TABLE `data_tbp_sipd_detail` (
   `active` tinyint,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tbp_sipd_detail_rekening` (
@@ -365,7 +365,7 @@ CREATE TABLE `data_tbp_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_stbp_sipd`(
@@ -390,7 +390,7 @@ CREATE TABLE `data_stbp_sipd`(
   `created_at` datetime,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`id_stbp`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_stbp_sipd_detail` (
@@ -420,7 +420,7 @@ CREATE TABLE `data_stbp_sipd_detail` (
   `active` tinyint,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spd_sipd_detail`(
@@ -434,15 +434,15 @@ CREATE TABLE `data_spd_sipd_detail`(
   `id_sub_giat` int,
   `id_akun` int,
   `kode_standar_harga` text DEFAULT NULL,
-  `nama_standar_harga` text DEFAULT NULL,    
-  `koefisien` text DEFAULT NULL,  
+  `nama_standar_harga` text DEFAULT NULL,
+  `koefisien` text DEFAULT NULL,
   `harga_satuan` double DEFAULT NULL,
   `pajak` text DEFAULT NULL,  
   `nilai` double,
   `active` tinyint,
   `created_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`id`,`idDetailSpd`,`tahun_anggaran`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_up_sipd` (
@@ -497,7 +497,7 @@ CREATE TABLE `data_unit` (
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_akun` (
@@ -540,7 +540,7 @@ CREATE TABLE `data_akun` (
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rka` (
@@ -608,7 +608,7 @@ CREATE TABLE `data_rka` (
   `idkomponen` double(20, 0) DEFAULT NULL,
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg` (
@@ -622,7 +622,7 @@ CREATE TABLE `data_capaian_prog_sub_keg` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
@@ -642,7 +642,7 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
   `targetcapaian_usulan` int(11) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_dana_sub_keg` (
@@ -657,7 +657,7 @@ CREATE TABLE `data_dana_sub_keg` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 
@@ -672,7 +672,7 @@ CREATE TABLE `data_output_giat_sub_keg` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_output_giat_sub_keg_lokal` (
@@ -692,7 +692,7 @@ CREATE TABLE `data_output_giat_sub_keg_lokal` (
   `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_keg_indikator_hasil` (
@@ -706,7 +706,7 @@ CREATE TABLE `data_keg_indikator_hasil` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_ssh` (
@@ -733,7 +733,7 @@ CREATE TABLE `data_ssh` (
   `jenis_produk` varchar(32) DEFAULT NULL,
   `active` tinyint(4) DEFAULT 1,
   `tkdn` double(20, 0) DEFAULT NULL,
-  PRIMARY KEY  (id),
+  PRIMARY KEY (id),
   KEY `id_standar_harga` (`id_standar_harga`)
 );
 
@@ -746,7 +746,7 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id),
+  PRIMARY KEY (id),
   KEY `id_standar_harga` (`id_standar_harga`),
   CONSTRAINT `data_ssh_rek_belanja_ibfk_1` FOREIGN KEY (`id_standar_harga`) REFERENCES `data_ssh` (`id_standar_harga`)
 );
@@ -763,7 +763,7 @@ CREATE TABLE `data_sub_keg_indikator` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_indikator_lokal` (
@@ -783,7 +783,7 @@ CREATE TABLE `data_sub_keg_indikator_lokal` (
   `satuanoutput_usulan` text DEFAULT NULL,
   `targetoutputteks_usulan` text DEFAULT NULL,
   `id_indikator_sub_giat` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_unit_pagu` (
@@ -817,7 +817,7 @@ CREATE TABLE `data_unit_pagu` (
   `totalgiat` double(20, 0) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_prog_keg` (
@@ -856,7 +856,7 @@ CREATE TABLE `data_prog_keg` (
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd` (
@@ -890,7 +890,7 @@ CREATE TABLE `data_rpjmd` (
   `visi_teks` text NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_alamat` (
@@ -906,7 +906,7 @@ CREATE TABLE `data_alamat` (
   `is_kel` tinyint(4) NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun` year(4) NOT NULL,
-  PRIMARY KEY  (id),
+  PRIMARY KEY (id),
   KEY `id_alamat` (`id_alamat`),
   KEY `id_prov` (`id_prov`),
   KEY `id_kab` (`id_kab`),
@@ -926,7 +926,7 @@ CREATE TABLE `data_profile_penerima_bantuan` (
   `jenis_penerima` text NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_desa_kelurahan` (
@@ -986,7 +986,7 @@ CREATE TABLE `data_desa_kelurahan` (
   `npwp` varchar(50) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_dewan` (
@@ -1048,7 +1048,7 @@ CREATE TABLE `data_dewan` (
   `update_at` datetime NOT NULL,
   `status` varchar(50) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tag_sub_keg` (
@@ -1061,7 +1061,7 @@ CREATE TABLE `data_tag_sub_keg` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pengaturan_sipd` (
@@ -1093,7 +1093,7 @@ CREATE TABLE `data_pengaturan_sipd` (
   `status_kd` int(11) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sumber_dana` (
@@ -1114,7 +1114,7 @@ CREATE TABLE `data_sumber_dana` (
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `updated_user` int(11) DEFAULT NULL DEFAULT '0',
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_user_penatausahaan` (
@@ -1156,7 +1156,7 @@ CREATE TABLE `data_user_penatausahaan` (
   `updated_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra` (
@@ -1213,7 +1213,7 @@ CREATE TABLE `data_renstra` (
   `active` tinyint(4) NOT NULL DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lokasi_sub_keg` (
@@ -1230,7 +1230,7 @@ CREATE TABLE `data_lokasi_sub_keg` (
   `active` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lokasi_sub_keg_lokal` (
@@ -1254,7 +1254,7 @@ CREATE TABLE `data_lokasi_sub_keg_lokal` (
   `idkabkota_usulan` int(11) DEFAULT NULL,
   `idlurah_usulan` int(11) DEFAULT NULL,
   `lurahteks_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_anggaran_kas` (
@@ -1292,7 +1292,7 @@ CREATE TABLE `data_anggaran_kas` (
   `type` varchar(50) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pembiayaan` (
@@ -1331,7 +1331,7 @@ CREATE TABLE `data_pembiayaan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pendapatan` (
@@ -1369,7 +1369,7 @@ CREATE TABLE `data_pendapatan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_asmas` (
@@ -1495,7 +1495,7 @@ CREATE TABLE `data_asmas` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pokir` (
@@ -1612,7 +1612,7 @@ CREATE TABLE `data_pokir` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_user_tapd_sekda` (
@@ -1631,7 +1631,7 @@ CREATE TABLE `data_user_tapd_sekda` (
   `tahun_anggaran` year(4) NOT NULL,
   `singkron_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pangkat_golongan` (
@@ -1642,7 +1642,7 @@ CREATE TABLE `data_pangkat_golongan` (
   `tahun_anggaran` year(4) NOT NULL,
   `singkron_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 
@@ -1662,7 +1662,7 @@ CREATE TABLE `data_rfk` (
   `id_skpd` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_program` (
@@ -1719,7 +1719,7 @@ CREATE TABLE `data_rpjmd_program` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_sasaran` (
@@ -1760,7 +1760,7 @@ CREATE TABLE `data_rpjmd_sasaran` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_tujuan` (
@@ -1796,7 +1796,7 @@ CREATE TABLE `data_rpjmd_tujuan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_bl` (
@@ -1862,7 +1862,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_bl_lokal` (
@@ -1936,7 +1936,7 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `waktu_awal_usulan` int(11) DEFAULT NULL,
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_sumberdana` (
@@ -1947,7 +1947,7 @@ CREATE TABLE `data_mapping_sumberdana` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_komponen` (
@@ -1959,7 +1959,7 @@ CREATE TABLE `data_label_komponen` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_label` (
@@ -1970,7 +1970,7 @@ CREATE TABLE `data_mapping_label` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_spm` (
@@ -1989,7 +1989,7 @@ CREATE TABLE `data_label_spm` (
   `active` tinyint(4) NOT NULL, 
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_spm_subgiat` (
@@ -2007,7 +2007,7 @@ CREATE TABLE `data_mapping_spm_subgiat` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_kemiskinan` (
@@ -2017,7 +2017,7 @@ CREATE TABLE `data_label_kemiskinan` (
   `active` tinyint(4) NOT NULL, 
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_kemiskinan_subgiat` (
@@ -2037,7 +2037,7 @@ CREATE TABLE `data_mapping_kemiskinan_subgiat` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_tujuan` (
@@ -2087,7 +2087,7 @@ CREATE TABLE `data_renstra_tujuan` (
   `keterangan_3` text DEFAULT NULL,
   `keterangan_4` text DEFAULT NULL,
   `keterangan_5` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sasaran` (
@@ -2141,7 +2141,7 @@ CREATE TABLE `data_renstra_sasaran` (
   `keterangan_3` text DEFAULT NULL,
   `keterangan_4` text DEFAULT NULL,
   `keterangan_5` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_program` (
@@ -2213,7 +2213,7 @@ CREATE TABLE `data_renstra_program` (
   `keterangan_3` text DEFAULT NULL,
   `keterangan_4` text DEFAULT NULL,
   `keterangan_5` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_kegiatan` (
@@ -2290,7 +2290,7 @@ CREATE TABLE `data_renstra_kegiatan` (
   `keterangan_3` text DEFAULT NULL,
   `keterangan_4` text DEFAULT NULL,
   `keterangan_5` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_realisasi_akun` (
@@ -2304,7 +2304,7 @@ CREATE TABLE `data_realisasi_akun` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_realisasi_rincian` (
@@ -2315,7 +2315,7 @@ CREATE TABLE `data_realisasi_rincian` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_realisasi_renja` (
@@ -2353,7 +2353,7 @@ CREATE TABLE `data_realisasi_renja` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rumus_indikator` (
@@ -2380,7 +2380,7 @@ CREATE TABLE `data_monev_renja_triwulan` (
   `update_skpd_at` datetime NOT NULL,
   `update_verifikator_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_skpd_mitra_bappeda` (
@@ -2398,7 +2398,7 @@ CREATE TABLE `data_skpd_mitra_bappeda` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT '1',
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_visi` (
@@ -2414,7 +2414,7 @@ CREATE TABLE `data_rpjmd_visi` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_misi` (
@@ -2435,7 +2435,7 @@ CREATE TABLE `data_rpjmd_misi` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_realisasi_renstra` (
@@ -2497,7 +2497,7 @@ CREATE TABLE `data_realisasi_renstra` (
   `created_at` datetime NOT NULL,
   `updated_by` text NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_aktivitas_fmis` (
@@ -2545,7 +2545,7 @@ CREATE TABLE `data_aktivitas_fmis` (
     `volume_renja2` text DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL DEFAULT '1',
-    PRIMARY KEY  (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rincian_fmis` (
@@ -2601,7 +2601,7 @@ CREATE TABLE `data_rincian_fmis` (
     `volume_renja3` TEXT DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL DEFAULT '1',
-    PRIMARY KEY  (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_ssh_usulan` (
@@ -2650,7 +2650,7 @@ CREATE TABLE `data_ssh_usulan` (
   `url_lampiran_foto_1` text DEFAULT NULL,
   `url_lampiran_foto_2` text DEFAULT NULL,
   `url_lampiran_foto_3` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_ssh_rek_belanja_usulan` (
@@ -2660,7 +2660,7 @@ CREATE TABLE `data_ssh_rek_belanja_usulan` (
   `nama_akun` text,
   `id_standar_harga` int(11) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_satuan` (
@@ -2668,7 +2668,7 @@ CREATE TABLE `data_satuan` (
   `id_satuan` int(11) DEFAULT NULL,
   `nama_satuan` varchar(32) DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_kelompok_satuan_harga` (
@@ -2679,7 +2679,7 @@ CREATE TABLE `data_kelompok_satuan_harga` (
   `tipe_kelompok` varchar(20) DEFAULT NULL,
   `active` tinyint(2) NOT NULL DEFAULT '1',
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spd` (
@@ -2692,7 +2692,7 @@ CREATE TABLE `data_spd` (
   `created_at` datetime DEFAULT NULL,
   `active` tinyint(2) NOT NULL DEFAULT '1',
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spd_rinci` (
@@ -2723,7 +2723,7 @@ CREATE TABLE `data_spd_rinci` (
   `id_prog` int(5) DEFAULT NULL,
   `active` tinyint(2) NOT NULL DEFAULT '1',
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_jadwal_lokal` (
@@ -2810,7 +2810,7 @@ CREATE TABLE `data_rka_history` (
   `idsubtitle` int(11) DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_bl_history` (
@@ -2878,7 +2878,7 @@ CREATE TABLE `data_sub_keg_bl_history` (
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_bl_lokal_history` (
@@ -2954,7 +2954,7 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
   `kode_sbl_lama` varchar(50) CHARACTER SET latin1 DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_indikator_history` (
@@ -2971,7 +2971,7 @@ CREATE TABLE `data_sub_keg_indikator_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sub_keg_indikator_lokal_history` (
@@ -2993,7 +2993,7 @@ CREATE TABLE `data_sub_keg_indikator_lokal_history` (
   `satuanoutput_usulan` text DEFAULT NULL,
   `targetoutputteks_usulan` text DEFAULT NULL,
   `id_indikator_sub_giat` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_keg_indikator_hasil_history` (
@@ -3009,7 +3009,7 @@ CREATE TABLE `data_keg_indikator_hasil_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tag_sub_keg_history` (
@@ -3024,7 +3024,7 @@ CREATE TABLE `data_tag_sub_keg_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg_history` (
@@ -3040,7 +3040,7 @@ CREATE TABLE `data_capaian_prog_sub_keg_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg_lokal_history` (
@@ -3062,7 +3062,7 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal_history` (
   `targetcapaian_usulan` int(11) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_output_giat_sub_keg_history` (
@@ -3078,7 +3078,7 @@ CREATE TABLE `data_output_giat_sub_keg_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_output_giat_sub_keg_lokal_history` (
@@ -3100,7 +3100,7 @@ CREATE TABLE `data_output_giat_sub_keg_lokal_history` (
   `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_dana_sub_keg_history` (
@@ -3117,7 +3117,7 @@ CREATE TABLE `data_dana_sub_keg_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lokasi_sub_keg_history` (
@@ -3136,7 +3136,7 @@ CREATE TABLE `data_lokasi_sub_keg_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_lokasi_sub_keg_lokal_history` (
@@ -3162,7 +3162,7 @@ CREATE TABLE `data_lokasi_sub_keg_lokal_history` (
   `idkabkota_usulan` int(11) DEFAULT NULL,
   `idlurah_usulan` int(11) DEFAULT NULL,
   `lurahteks_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_sumberdana_history` (
@@ -3175,7 +3175,7 @@ CREATE TABLE `data_mapping_sumberdana_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_tipe_perencanaan` (
@@ -3183,7 +3183,7 @@ CREATE TABLE `data_tipe_perencanaan` (
   `nama_tipe` varchar(64) NOT NULL,
   `keterangan_tipe` text NOT NULL,
   `lama_pelaksanaan` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_visi_lokal` (
@@ -3195,7 +3195,7 @@ CREATE TABLE `data_rpjmd_visi_lokal` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_misi_lokal` (
@@ -3212,7 +3212,7 @@ CREATE TABLE `data_rpjmd_misi_lokal` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_tujuan_lokal` (
@@ -3244,7 +3244,7 @@ CREATE TABLE `data_rpjmd_tujuan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_sasaran_lokal` (
@@ -3279,7 +3279,7 @@ CREATE TABLE `data_rpjmd_sasaran_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_program_lokal` (
@@ -3327,7 +3327,7 @@ CREATE TABLE `data_rpjmd_program_lokal` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_tujuan_lokal` (
@@ -3371,7 +3371,7 @@ CREATE TABLE `data_renstra_tujuan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sasaran_lokal` (
@@ -3419,7 +3419,7 @@ CREATE TABLE `data_renstra_sasaran_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_program_lokal` (
@@ -3484,7 +3484,7 @@ CREATE TABLE `data_renstra_program_lokal` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_kegiatan_lokal` (
@@ -3555,7 +3555,7 @@ CREATE TABLE `data_renstra_kegiatan_lokal` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_giat_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_visi_lokal_history` (
@@ -3569,7 +3569,7 @@ CREATE TABLE `data_rpjmd_visi_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_misi_lokal_history` (
@@ -3588,7 +3588,7 @@ CREATE TABLE `data_rpjmd_misi_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_tujuan_lokal_history` (
@@ -3622,7 +3622,7 @@ CREATE TABLE `data_rpjmd_tujuan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_sasaran_lokal_history` (
@@ -3660,7 +3660,7 @@ CREATE TABLE `data_rpjmd_sasaran_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_program_lama` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_program_lokal_history` (
@@ -3710,7 +3710,7 @@ CREATE TABLE `data_rpjmd_program_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_tujuan_lokal_history` (
@@ -3756,7 +3756,7 @@ CREATE TABLE `data_renstra_tujuan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sasaran_lokal_history` (
@@ -3806,7 +3806,7 @@ CREATE TABLE `data_renstra_sasaran_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_program_lokal_history` (
@@ -3873,7 +3873,7 @@ CREATE TABLE `data_renstra_program_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_kegiatan_lokal_history` (
@@ -3946,7 +3946,7 @@ CREATE TABLE `data_renstra_kegiatan_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_giat_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_visi_history` (
@@ -3960,7 +3960,7 @@ CREATE TABLE `data_rpjmd_visi_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_misi_history` (
@@ -3979,7 +3979,7 @@ CREATE TABLE `data_rpjmd_misi_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_tujuan_history` (
@@ -4013,7 +4013,7 @@ CREATE TABLE `data_rpjmd_tujuan_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_sasaran_history` (
@@ -4050,7 +4050,7 @@ CREATE TABLE `data_rpjmd_sasaran_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjmd_program_history` (
@@ -4099,7 +4099,7 @@ CREATE TABLE `data_rpjmd_program_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_tujuan_history` (
@@ -4138,7 +4138,7 @@ CREATE TABLE `data_renstra_tujuan_history` (
   `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sasaran_history` (
@@ -4182,7 +4182,7 @@ CREATE TABLE `data_renstra_sasaran_history` (
   `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_program_history` (
@@ -4237,7 +4237,7 @@ CREATE TABLE `data_renstra_program_history` (
   `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_kegiatan_history` (
@@ -4298,7 +4298,7 @@ CREATE TABLE `data_renstra_kegiatan_history` (
   `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_tujuan` (
@@ -4332,7 +4332,7 @@ CREATE TABLE `data_rpd_tujuan` (
   `visi_teks` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_sasaran` (
@@ -4370,7 +4370,7 @@ CREATE TABLE `data_rpd_sasaran` (
   `visi_teks` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_program` (
@@ -4422,7 +4422,7 @@ CREATE TABLE `data_rpd_program` (
   `visi_teks` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_tujuan_lokal` (
@@ -4460,7 +4460,7 @@ CREATE TABLE `data_rpd_tujuan_lokal` (
   `indikator_catatan_teks` text NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_sasaran_lokal` (
@@ -4501,7 +4501,7 @@ CREATE TABLE `data_rpd_sasaran_lokal` (
   `indikator_catatan_teks` text NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_program_lokal` (
@@ -4555,7 +4555,7 @@ CREATE TABLE `data_rpd_program_lokal` (
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_tujuan_history` (
@@ -4591,7 +4591,7 @@ CREATE TABLE `data_rpd_tujuan_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_sasaran_history` (
@@ -4631,7 +4631,7 @@ CREATE TABLE `data_rpd_sasaran_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_program_history` (
@@ -4685,7 +4685,7 @@ CREATE TABLE `data_rpd_program_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_tujuan_lokal_history` (
@@ -4725,7 +4725,7 @@ CREATE TABLE `data_rpd_tujuan_lokal_history` (
   `catatan_teks_tujuan` text NOT NULL,
   `indikator_catatan_teks` text NOT NULL,
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_sasaran_lokal_history` (
@@ -4769,7 +4769,7 @@ CREATE TABLE `data_rpd_sasaran_lokal_history` (
   `indikator_catatan_teks` text NOT NULL,
   `active` tinyint(4) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpd_program_lokal_history` (
@@ -4825,14 +4825,14 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   `id_asli` int(11) NOT NULL,
   `active` tinyint(4) NOT NULL,
   `id_program_lama` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_visi` (
   `id` int(11) NOT NULL auto_increment,
   `visi_teks` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_misi` (
@@ -4841,7 +4841,7 @@ CREATE TABLE `data_rpjpd_misi` (
   `misi_teks` text DEFAULT NULL,
   `urut_misi` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_sasaran` (
@@ -4850,7 +4850,7 @@ CREATE TABLE `data_rpjpd_sasaran` (
   `saspok_teks` text DEFAULT NULL,
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_kebijakan` (
@@ -4859,7 +4859,7 @@ CREATE TABLE `data_rpjpd_kebijakan` (
   `kebijakan_teks` text DEFAULT NULL,
   `urut_kebijakan` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_isu` (
@@ -4868,7 +4868,7 @@ CREATE TABLE `data_rpjpd_isu` (
   `isu_teks` text DEFAULT NULL,
   `urut_isu` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_visi_history` (
@@ -4877,7 +4877,7 @@ CREATE TABLE `data_rpjpd_visi_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_misi_history` (
@@ -4888,7 +4888,7 @@ CREATE TABLE `data_rpjpd_misi_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_sasaran_history` (
@@ -4899,7 +4899,7 @@ CREATE TABLE `data_rpjpd_sasaran_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_kebijakan_history` (
@@ -4910,7 +4910,7 @@ CREATE TABLE `data_rpjpd_kebijakan_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rpjpd_isu_history` (
@@ -4921,7 +4921,7 @@ CREATE TABLE `data_rpjpd_isu_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pendapatan_history` (
@@ -4952,7 +4952,7 @@ CREATE TABLE `data_pendapatan_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pembiayaan_history` (
@@ -4984,7 +4984,7 @@ CREATE TABLE `data_pembiayaan_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 CREATE TABLE `data_realisasi_akun_sipd` (
   `id` int(11) NOT NULL auto_increment,
@@ -5009,7 +5009,7 @@ CREATE TABLE `data_realisasi_akun_sipd` (
   `type` varchar(50) NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sirup_lokal` (
@@ -5034,7 +5034,7 @@ CREATE TABLE `data_sirup_lokal` (
   `tahun_anggaran` year(4) NOT NULL,
   `active` tinyint(4) DEFAULT NULL,
   `update_at` datetime DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_skpd_sirup` (
@@ -5052,7 +5052,7 @@ CREATE TABLE `data_skpd_sirup` (
   `tahun_anggaran` year(4) NOT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_master_indikator_subgiat` (
@@ -5205,7 +5205,7 @@ CREATE TABLE `data_renstra_sub_kegiatan` (
   `keterangan_3` text DEFAULT NULL,
   `keterangan_4` text DEFAULT NULL,
   `keterangan_5` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sub_kegiatan_history` (
@@ -5291,7 +5291,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_history` (
   `keterangan_5` text DEFAULT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sub_kegiatan_lokal` (
@@ -5370,7 +5370,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_sub_giat_lama` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_renstra_sub_kegiatan_lokal_history` (
@@ -5451,7 +5451,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_sub_giat_lama` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_kamus_usulan_pokir` (
@@ -5481,7 +5481,7 @@ CREATE TABLE `data_kamus_usulan_pokir` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_file` (
@@ -5492,7 +5492,7 @@ CREATE TABLE `data_file` (
   `tipe_file` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_fmis` (
@@ -5523,7 +5523,7 @@ CREATE TABLE `data_sp2d_fmis` (
   `updated_id` text DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_sipd` (
@@ -5582,7 +5582,7 @@ CREATE TABLE `data_sp2d_sipd` (
   `namaSkpd` varchar(200) DEFAULT NULL,
   `kodeSkpd` varchar(50) DEFAULT NULL,
   `is_bpk` bit(1) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_sipd_detail` (
@@ -5618,7 +5618,7 @@ CREATE TABLE `data_sp2d_sipd_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_sipd_detail_potongan` (
@@ -5632,7 +5632,7 @@ CREATE TABLE `data_sp2d_sipd_detail_potongan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_sipd_ri` (
@@ -5703,7 +5703,7 @@ CREATE TABLE `data_sp2d_sipd_ri` (
   `verifikasi_sp_2_d_by` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_sp2d_sipd_detail_ri` (
@@ -5775,7 +5775,7 @@ CREATE TABLE `data_spm_sipd` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_dana_sub_keg_lokal` (
@@ -5794,7 +5794,7 @@ CREATE TABLE `data_dana_sub_keg_lokal` (
   `kode_dana_usulan` varchar(50) DEFAULT NULL,
   `id_dana_usulan` int(11) DEFAULT NULL,
   `pagu_dana_usulan` double(20, 0) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_dana_sub_keg_lokal_history` (
@@ -5815,7 +5815,7 @@ CREATE TABLE `data_dana_sub_keg_lokal_history` (
   `kode_dana_usulan` varchar(50) DEFAULT NULL,
   `id_dana_usulan` int(11) DEFAULT NULL,
   `pagu_dana_usulan` double(20, 0) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rka_lokal` (
@@ -5883,7 +5883,7 @@ CREATE TABLE `data_rka_lokal` (
   `idkomponen` double(20, 0) DEFAULT NULL,
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rka_lokal_history` (
@@ -5953,7 +5953,7 @@ CREATE TABLE `data_rka_lokal_history` (
   `idsubtitle` int(11) DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_surat_usulan_ssh` (
@@ -5969,7 +5969,7 @@ CREATE TABLE `data_surat_usulan_ssh` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_nota_dinas_usulan_ssh` (
@@ -5981,7 +5981,7 @@ CREATE TABLE `data_nota_dinas_usulan_ssh` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_keg_indikator_hasil_lokal` (
@@ -6001,7 +6001,7 @@ CREATE TABLE `data_keg_indikator_hasil_lokal` (
   `targethasilteks_usulan` varchar(50) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_keg_indikator_hasil_lokal_history` (
@@ -6023,13 +6023,13 @@ CREATE TABLE `data_keg_indikator_hasil_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_jenis_standar_harga`(
   `id` int(11) NOT NULL auto_increment,
   `jenis_standar_harga` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_sub_keg` (
@@ -6046,7 +6046,7 @@ CREATE TABLE `data_label_sub_keg` (
   `id_label_giat_usulan` int(11) DEFAULT NULL,
   `id_unik_usulan` text DEFAULT NULL,
   `nama_label_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_sub_keg_history` (
@@ -6065,7 +6065,7 @@ CREATE TABLE `data_label_sub_keg_history` (
   `nama_label_usulan` text DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_sub_keg_lokal` (
@@ -6082,7 +6082,7 @@ CREATE TABLE `data_label_sub_keg_lokal` (
   `id_label_giat_usulan` int(11) DEFAULT NULL,
   `id_unik_usulan` text DEFAULT NULL,
   `nama_label_usulan` text DEFAULT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_label_sub_keg_lokal_history` (
@@ -6101,7 +6101,7 @@ CREATE TABLE `data_label_sub_keg_lokal_history` (
   `nama_label_usulan` text DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bkk_desa` (
@@ -6118,7 +6118,7 @@ CREATE TABLE `data_bkk_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bkk_pilkades_desa` ( 
@@ -6182,7 +6182,7 @@ CREATE TABLE `data_pendapatan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pendapatan_lokal_history` (
@@ -6213,7 +6213,7 @@ CREATE TABLE `data_pendapatan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bhpd_desa` (
@@ -6226,7 +6226,7 @@ CREATE TABLE `data_bhpd_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bkk_pilkades_desa` (
@@ -6239,7 +6239,7 @@ CREATE TABLE `data_bkk_pilkades_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bhrd_desa` (
@@ -6252,7 +6252,7 @@ CREATE TABLE `data_bhrd_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bku_dd_desa` (
@@ -6265,7 +6265,7 @@ CREATE TABLE `data_bku_dd_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_bku_add_desa` (
@@ -6278,7 +6278,7 @@ CREATE TABLE `data_bku_add_desa` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pembiayaan_lokal` (
@@ -6317,7 +6317,7 @@ CREATE TABLE `data_pembiayaan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pembiayaan_lokal_history` (
@@ -6349,7 +6349,7 @@ CREATE TABLE `data_pembiayaan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bkk_desa` (
@@ -6375,7 +6375,7 @@ CREATE TABLE `data_pencairan_bkk_desa` (
   `ket_ver_proposal` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bhpd_desa` (
@@ -6401,7 +6401,7 @@ CREATE TABLE `data_pencairan_bhpd_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bkk_pilkades_desa` (
@@ -6414,7 +6414,7 @@ CREATE TABLE `data_pencairan_bkk_pilkades_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bhrd_desa` (
@@ -6440,7 +6440,7 @@ CREATE TABLE `data_pencairan_bhrd_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bku_dd_desa` (
@@ -6460,7 +6460,7 @@ CREATE TABLE `data_pencairan_bku_dd_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pencairan_bku_add_desa` (
@@ -6480,7 +6480,7 @@ CREATE TABLE `data_pencairan_bku_add_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_sumberdana_lokal` (
@@ -6491,7 +6491,7 @@ CREATE TABLE `data_mapping_sumberdana_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_mapping_sumberdana_lokal_history` (
@@ -6504,7 +6504,7 @@ CREATE TABLE `data_mapping_sumberdana_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spp_sipd` (
@@ -6562,7 +6562,7 @@ CREATE TABLE `data_spp_sipd` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spp_sipd_detail` (
@@ -6627,7 +6627,7 @@ CREATE TABLE `data_spp_sipd_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spp_sipd_ri_detail` (
@@ -6666,7 +6666,7 @@ CREATE TABLE `data_spp_sipd_ri_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spm_sipd_detail` (
@@ -6702,7 +6702,7 @@ CREATE TABLE `data_spm_sipd_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_spm_sipd_detail_potongan` (
@@ -6716,7 +6716,7 @@ CREATE TABLE `data_spm_sipd_detail_potongan` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_verifikasi_rka` (
@@ -6732,7 +6732,7 @@ CREATE TABLE `data_verifikasi_rka` (
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
   `update_at` datetime DEFAULT current_timestamp(),
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_verifikasi_rka_lokal` (
@@ -6748,7 +6748,7 @@ CREATE TABLE `data_verifikasi_rka_lokal` (
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
   `update_at` datetime DEFAULT current_timestamp(),
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_verifikasi_rka_history` (
@@ -6766,7 +6766,7 @@ CREATE TABLE `data_verifikasi_rka_history` (
   `active` tinyint(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_verifikasi_rka_lokal_history` (
@@ -6784,7 +6784,7 @@ CREATE TABLE `data_verifikasi_rka_lokal_history` (
   `active` tinyint(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pptk_sub_keg` (
@@ -6794,7 +6794,7 @@ CREATE TABLE `data_pptk_sub_keg` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pptk_sub_keg_lokal` (
@@ -6804,7 +6804,7 @@ CREATE TABLE `data_pptk_sub_keg_lokal` (
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
   `active` tinyint(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pptk_sub_keg_history` (
@@ -6816,7 +6816,7 @@ CREATE TABLE `data_pptk_sub_keg_history` (
   `active` tinyint(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pptk_sub_keg_lokal_history` (
@@ -6828,7 +6828,7 @@ CREATE TABLE `data_pptk_sub_keg_lokal_history` (
   `active` tinyint(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_validasi_verifikasi_rka` (
@@ -6838,7 +6838,7 @@ CREATE TABLE `data_validasi_verifikasi_rka` (
   `nama_bidang` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_validasi_verifikasi_rka_lokal` (
@@ -6848,7 +6848,7 @@ CREATE TABLE `data_validasi_verifikasi_rka_lokal` (
   `nama_bidang` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_validasi_verifikasi_rka_history` (
@@ -6860,7 +6860,7 @@ CREATE TABLE `data_validasi_verifikasi_rka_history` (
   `update_at` datetime DEFAULT current_timestamp(),
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_validasi_verifikasi_rka_lokal_history` (
@@ -6872,7 +6872,7 @@ CREATE TABLE `data_validasi_verifikasi_rka_lokal_history` (
   `update_at` datetime DEFAULT current_timestamp(),
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_batasan_pagu_sd`(
@@ -6900,7 +6900,7 @@ CREATE TABLE `data_nota_pencairan_dana` (
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),
     `update_at` datetime DEFAULT current_timestamp(),
-    PRIMARY KEY  (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_rekening_nota_pencairan_dana` (
@@ -6914,7 +6914,7 @@ CREATE TABLE `data_rekening_nota_pencairan_dana` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_buku_kas_umum_pembantu` (
@@ -6933,11 +6933,12 @@ CREATE TABLE `data_buku_kas_umum_pembantu` (
     `nama_pemilik_rekening_bank` varchar(50) DEFAULT NULL,
     `nama_rekening_bank` varchar(50) DEFAULT NULL,
     `no_rekening_bank` int(11) DEFAULT NULL,
+    `id_rinci_sub_bl` int(11) DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
     `created_at` datetime DEFAULT current_timestamp(),
     `update_at` datetime DEFAULT current_timestamp(),
-    PRIMARY KEY  (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_pohon_kinerja` (
