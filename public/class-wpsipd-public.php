@@ -24870,4 +24870,85 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
+	
+	public function get_data_jadwal_wpsipd()
+	{
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data' => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['tipe_perencanaan'])) {
+					$params = $_REQUEST;
+					$columns = array(
+						0 => 'id_jadwal_lokal',
+						1 => 'nama',
+						2 => 'waktu_awal',
+						3 => 'waktu_akhir',
+						4 => 'status',
+						5 => 'tahun_anggaran',
+						6 => 'relasi_perencanaan',
+						7 => 'lama_pelaksanaan',
+						8 => 'jenis_jadwal',
+						9 => 'id_tipe',
+						10 => 'tahun_akhir_anggaran'
+					);
+					$where = "";
+					$tipe_perencanaan = $_POST['tipe_perencanaan'];
+					$sqlTipe = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT * 
+							FROM `data_tipe_perencanaan` 
+							WHERE nama_tipe=%s
+						", $tipe_perencanaan),
+						ARRAY_A
+					);
+					if (empty($sqlTipe)) {
+						$return = array(
+							'status' => 'error',
+							'message' => 'Data dengan tipe sesuai tidak ditemukan!'
+						);
+						die(json_encode($return));
+					}
+
+					if (!empty($_POST['tahun_anggaran'])) {
+						$where .= $wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
+					}
+
+					// getting total number records without any search
+					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
+					$sqlRec = "SELECT " . implode(', ', $columns) . " FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
+					if (isset($where) && $where != '') {
+						$sqlTot .= $where;
+						$sqlRec .= $where;
+					}
+
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+					$return['data'] = $queryRecords;
+
+					die(json_encode($return));
+				} else {
+					$return = array(
+						'status' => 'error',
+						'message' => 'Tipe Perencanaan Kosong!'
+					);
+				}
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message' => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }
