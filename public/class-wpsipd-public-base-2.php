@@ -6690,6 +6690,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data'] = $data_tujuan_renstra;
 						}
 					}else if($jenis == 'sasaran'){
+						if(empty($_POST['id_jadwal'])){
+							throw new Exception("Parameter Id Jadwal Kosong!", 1);
+						}
 						$data_sasaran_renstra = $wpdb->get_results($wpdb->prepare(
 							"
 							SELECT 
@@ -6699,8 +6702,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							where 
 								id_unit=%d and 
 								active=1 and 
-								tahun_anggaran=%d order by kode_bidang_urusan",
-								$_POST['id_skpd'], $_POST['tahun_anggaran']
+								tahun_anggaran=%d and
+								id_jadwal=%d order by kode_bidang_urusan",
+								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['id_jadwal']
 						), ARRAY_A);
 		
 						if(!empty($data_sasaran_renstra)){
