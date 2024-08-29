@@ -81,9 +81,9 @@ foreach ($rinc as $key => $item) {
     if(empty($item['kode_akun'])){
         continue;
     }
-    if(empty($akun_all[$val['kode_akun']])){
+    if(empty($akun_all[$item['kode_akun']])){
         $nama_akun = str_replace($item['kode_akun'], '', $item['nama_akun']);
-        $akun_all[$val['kode_akun']] = array(
+        $akun_all[$item['kode_akun']] = array(
             'total' => 0,
             'total_murni' => 0,
             'status' => 0,
@@ -91,8 +91,8 @@ foreach ($rinc as $key => $item) {
             'nama_akun' => $nama_akun
         );
     }
-    $akun_all[$val['kode_akun']]['total'] += $item['total_harga'];
-    $akun_all[$val['kode_akun']]['total_murni'] += $item['rincian_murni'];
+    $akun_all[$item['kode_akun']]['total'] += $item['total_harga'];
+    $akun_all[$item['kode_akun']]['total_murni'] += $item['rincian_murni'];
 }
 $body = '';
 foreach ($rinc as $key => $item) {
@@ -138,15 +138,38 @@ foreach ($rinc as $key => $item) {
             $profile_penerima = $lokus_akun_teks.', '.$alamat;
         }
     }
-    if($akun_all[$val['kode_akun']]['status'] == 0){
+
+    if($akun_all[$item['kode_akun']]['status'] == 0){
         $body .='
         <tr>
-            <td>'.$akun_all[$val['kode_akun']]['kode_akun'].'</td>
-            <td>'.$akun_all[$val['kode_akun']]['nama_akun'].'</td>
+            <td>'.$akun_all[$item['kode_akun']]['kode_akun'].'</td>
+            <td>'.$akun_all[$item['kode_akun']]['nama_akun'].'</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
         </tr>';
     }
     $body .='
     <tr>
+        <td></td>
+        <td>
+            <div>'.$item['nama_komponen'].'</div>
+            <div>'.$item['spek_komponen'].'</div>
+            <div>'.$profile_penerima.'</div>
+        </td>
+        <td>'.number_format($item['total_harga'],0,",",".").'</td>
+        <td>'.number_format($item['total_harga'],0,",",".").'</td>
+        <td>'.$item['koefisien'].'</td>
+        <td>'.$item['satuan'].'</td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td></td>
     </tr>
     ';
@@ -230,8 +253,7 @@ foreach ($rinc as $key => $item) {
                 <th class="atas kanan bawah text-center">Rp.</th>
             </tr>
         </thead>
-        <tbody>
-        </tbody>
+        <tbody><?php echo $body; ?></tbody>
     </table>
 </div>
 <script type="text/javascript">
