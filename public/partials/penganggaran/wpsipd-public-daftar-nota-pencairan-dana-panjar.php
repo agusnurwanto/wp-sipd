@@ -70,6 +70,10 @@ $title = 'Data RKA SIPD | '.$kode_sbl.' | '.$tahun_anggaran;
 $shortcode = '[input_rka_sipd id_skpd="'.$id_sub_skpd.'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$tahun_anggaran.'"]';
 $url_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
 
+$title = 'Data Serapan Realisasi RKA SIPD | '.$kode_sbl.' | '.$tahun_anggaran;
+$shortcode = '[serapan_rka_sipd id_skpd="'.$id_sub_skpd.'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$tahun_anggaran.'"]';
+$url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
+
 ?>
 <style>
     .modal-content label:after {
@@ -130,7 +134,8 @@ $url_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
         <button class="btn btn-primary" onclick="tambah_data_npd();"><i class="dashicons dashicons-plus-alt"></i> Tambah Panjar</button>
         <button class="btn btn-info" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
         <button class="btn btn-info" onclick="print_laporan_kegiatan();"><i class="dashicons dashicons-printer"></i> Print Laporan Kegiatan</button>
-        <a class="btn btn-warning" href="<?php echo $url_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Rincian Belanja</a>
+        <a class="btn btn-warning" href="<?php echo $url_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Rincian Belanja (RKA / DPA)</a>
+        <a class="btn btn-success" href="<?php echo $url_serapan_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Serapan Rincian</a>
     </div>
 </div>
 

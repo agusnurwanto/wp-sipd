@@ -1229,6 +1229,8 @@ class Wpsipd
 		// pohon kinerja data SIPD
 		add_shortcode('pohon_kinerja_rpd',array($plugin_public,'pohon_kinerja_rpd'));
 		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
+
+		add_shortcode('serapan_rka_sipd',array($plugin_public,'serapan_rka_sipd'));
 	}
 
 	/**

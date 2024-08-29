@@ -27,6 +27,14 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-input-rka-sipd.php';
     }
 
+    public function serapan_rka_sipd($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-serapan-rka-sipd.php';
+    }
+
     public function verifikasi_rka()
     {
         if (!empty($_GET) && !empty($_GET['post'])) {
