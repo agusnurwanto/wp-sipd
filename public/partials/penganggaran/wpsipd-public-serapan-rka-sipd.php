@@ -95,6 +95,9 @@ foreach ($rinc as $key => $item) {
     $akun_all[$item['kode_akun']]['total_murni'] += $item['rincian_murni'];
 }
 $body = '';
+$total_anggaran = 0;
+$total_sisa = 0;
+$total_relisasi = 0;
 foreach ($rinc as $key => $item) {
     if(empty($item['kode_akun'])){
         continue;
@@ -140,13 +143,12 @@ foreach ($rinc as $key => $item) {
     }
 
     if($akun_all[$item['kode_akun']]['status'] == 0){
+        $akun_all[$item['kode_akun']]['status'] = 1;
         $body .='
-        <tr>
-            <td>'.$akun_all[$item['kode_akun']]['kode_akun'].'</td>
+        <tr style="font-weight: 600;">
+            <td class="text-center">'.$akun_all[$item['kode_akun']]['kode_akun'].'</td>
             <td>'.$akun_all[$item['kode_akun']]['nama_akun'].'</td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td class="text-right">'.number_format($akun_all[$item['kode_akun']]['total'],0,",",".").'</td>
             <td></td>
             <td></td>
             <td></td>
@@ -154,6 +156,11 @@ foreach ($rinc as $key => $item) {
             <td></td>
             <td></td>
         </tr>';
+    }
+    $vol = 0;
+    if(!empty($item['koefisien'])){
+        $vol = explode(' ', $item['koefisien']);
+        $vol = $vol[0];
     }
     $body .='
     <tr>
@@ -163,16 +170,16 @@ foreach ($rinc as $key => $item) {
             <div>'.$item['spek_komponen'].'</div>
             <div>'.$profile_penerima.'</div>
         </td>
-        <td>'.number_format($item['total_harga'],0,",",".").'</td>
-        <td>'.number_format($item['total_harga'],0,",",".").'</td>
-        <td>'.$item['koefisien'].'</td>
-        <td>'.$item['satuan'].'</td>
+        <td class="text-right">'.number_format($item['total_harga'],0,",",".").'</td>
+        <td class="text-center">'.$vol.'</td>
+        <td class="text-center">'.$item['satuan'].'</td>
         <td></td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     ';
+    $total_anggaran += $item['total_harga'];
 }
 ?>
 <style>
@@ -236,28 +243,35 @@ foreach ($rinc as $key => $item) {
     <table id="table_rincian" class="table table-bordered">
         <thead>
             <tr>
-                <th class="atas kanan bawah text-center" width="150px" rowspan="2">Kode Rekening</th>
+                <th class="atas kanan bawah text-center" width="120px" rowspan="2">Kode Rekening</th>
                 <th class="atas kanan bawah text-center" rowspan="2">Uraian</th>
-                <th class="atas kanan bawah text-center" width="150px" rowspan="2">Anggaran DPA</th>
-                <th class="atas kanan bawah text-center" width="150px" rowspan="2">Saldo</th>
-                <th class="atas kanan bawah text-center" width="150px" colspan="2">Volume</th>
-                <th class="atas kanan bawah text-center" width="380px" colspan="3">Periode Bulan <?php echo $nama_bulan; ?></th>
-                <th class="atas kanan bawah text-center" width="150px" rowspan="2">Realisasi</th>
-                <th class="atas kanan bawah text-center" width="150px" rowspan="2">Sisa</th>
+                <th class="atas kanan bawah text-center" width="140px" rowspan="2">Anggaran DPA</th>
+                <th class="atas kanan bawah text-center" width="100px" colspan="2">Volume</th>
+                <th class="atas kanan bawah text-center" width="700px" colspan="3">Periode Bulan <?php echo $nama_bulan; ?></th>
+                <th class="atas kanan bawah text-center" width="140px" rowspan="2">Sisa</th>
             </tr>
             <tr>
                 <th class="atas kanan bawah text-center">Jumlah</th>
                 <th class="atas kanan bawah text-center">Satuan</th>
                 <th class="atas kanan bawah text-center">Nomor Bukti</th>
                 <th class="atas kanan bawah text-center">Uraian</th>
-                <th class="atas kanan bawah text-center">Rp.</th>
+                <th class="atas kanan bawah text-center">Realisasi</th>
             </tr>
         </thead>
         <tbody><?php echo $body; ?></tbody>
+        <tfoot>
+            <tr>
+                <th class="atas kanan bawah text-center" colspan="3">Total</th>
+                <th class="atas kanan bawah text-right"><?php echo number_format($total_anggaran,0,",","."); ?></th>
+                <th class="atas kanan bawah text-right" colspan="3"></th>
+                <th class="atas kanan bawah text-right"><?php echo number_format($total_relisasi,0,",","."); ?></th>
+                <th class="atas kanan bawah text-right"><?php echo number_format($total_sisa,0,",","."); ?></th>
+            </tr>
+        </tfoot>
     </table>
 </div>
 <script type="text/javascript">
 jQuery(document).ready(function(){
-    jQuery('#table_rincian').DataTable();
+    // jQuery('#table_rincian').DataTable();
 });
 </script>
