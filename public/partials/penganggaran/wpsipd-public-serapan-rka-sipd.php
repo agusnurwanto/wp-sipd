@@ -68,15 +68,22 @@ $nama_bulan = $this->get_bulan($bulan);
 
 $rinc = $wpdb->get_results($wpdb->prepare("
     SELECT 
-        * 
-    from data_rka 
-    where kode_sbl=%s
-        AND tahun_anggaran=%d
-        AND active=1
-    Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC
+        r.*,
+        k.nomor_bukti,
+        k.uraian,
+        k.pagu
+    from data_rka r 
+    LEFT JOIN data_buku_kas_umum_pembantu k ON r.id_rinci_sub_bl=k.id_rinci_sub_bl
+        AND k.active=r.active
+        AND k.tahun_anggaran=r.tahun_anggaran
+    where r.kode_sbl=%s
+        AND r.tahun_anggaran=%d
+        AND r.active=1
+    Order by r.kode_akun ASC, r.subs_bl_teks ASC, r.ket_bl_teks ASC, r.id_rinci_sub_bl ASC
 ", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
 $akun_all = array();
+$rinci_all = array();
 foreach ($rinc as $key => $item) {
     if(empty($item['kode_akun'])){
         continue;
@@ -86,23 +93,34 @@ foreach ($rinc as $key => $item) {
         $akun_all[$item['kode_akun']] = array(
             'total' => 0,
             'total_murni' => 0,
+            'realisasi' => 0,
             'status' => 0,
             'kode_akun' => $item['kode_akun'],
             'nama_akun' => $nama_akun
         );
     }
-    $akun_all[$item['kode_akun']]['total'] += $item['total_harga'];
-    $akun_all[$item['kode_akun']]['total_murni'] += $item['rincian_murni'];
+    if(empty($rinci_all[$item['id_rinci_sub_bl']])){
+        $akun_all[$item['kode_akun']]['total'] += $item['total_harga'];
+        $akun_all[$item['kode_akun']]['total_murni'] += $item['rincian_murni'];
+        $rinci_all[$item['id_rinci_sub_bl']] = array(
+            'val' => $item,
+            'bukti' => array()
+        );
+    }
+    $akun_all[$item['kode_akun']]['realisasi'] += $item['pagu'];
+    $rinci_all[$item['id_rinci_sub_bl']]['bukti'][] = $item;
+
 }
+
 $body = '';
 $total_anggaran = 0;
 $total_sisa = 0;
-$total_relisasi = 0;
-foreach ($rinc as $key => $item) {
-    if(empty($item['kode_akun'])){
+$total_realisasi = 0;
+foreach ($rinci_all as $key => $item) {
+    if(empty($item['val']['kode_akun'])){
         continue;
     }
-    $alamat_array = $this->get_alamat($input, $item);
+    $alamat_array = $this->get_alamat($input, $item['val']);
     if(!empty($alamat_array['keterangan'])){
         $keterangan_alamat[] = $alamat_array['keterangan'];
     }
@@ -112,20 +130,20 @@ foreach ($rinc as $key => $item) {
     // jika alamat kosong maka cek id penerima bantuan
     if(empty($alamat)){
         $alamat = array();
-        if(!empty($item['id_lurah_penerima'])){
-            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+        if(!empty($item['val']['id_lurah_penerima'])){
+            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_lurah_penerima']." and is_kel=1", ARRAY_A);
             $alamat[] = $db_alamat['nama'];
         }
-        if(!empty($item['id_camat_penerima'])){
-            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_camat_penerima']." and is_kec=1", ARRAY_A);
+        if(!empty($item['val']['id_camat_penerima'])){
+            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_camat_penerima']." and is_kec=1", ARRAY_A);
             $alamat[] = $db_alamat['nama'];
         }
-        if(!empty($item['id_kokab_penerima'])){
-            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+        if(!empty($item['val']['id_kokab_penerima'])){
+            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_kokab_penerima']." and is_kab=1", ARRAY_A);
             $alamat[] = $db_alamat['nama'];
         }
-        if(!empty($item['id_prop_penerima'])){
-            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_prop_penerima']." and is_prov=1", ARRAY_A);
+        if(!empty($item['val']['id_prop_penerima'])){
+            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_prop_penerima']." and is_prov=1", ARRAY_A);
             $alamat[] = $db_alamat['nama'];
         }
         $profile_penerima = implode(', ', $alamat);
@@ -133,7 +151,7 @@ foreach ($rinc as $key => $item) {
 
         // jika lokus akun teks ada di nama komponen
         if(
-            strpos($item['nama_komponen'], $lokus_akun_teks) !== false
+            strpos($item['val']['nama_komponen'], $lokus_akun_teks) !== false
             || $lokus_akun_teks == $alamat
         ){
             $profile_penerima = $alamat;
@@ -142,45 +160,68 @@ foreach ($rinc as $key => $item) {
         }
     }
 
-    if($akun_all[$item['kode_akun']]['status'] == 0){
-        $akun_all[$item['kode_akun']]['status'] = 1;
+    if($akun_all[$item['val']['kode_akun']]['status'] == 0){
+        $akun_all[$item['val']['kode_akun']]['status'] = 1;
+        $sisa_akun = $akun_all[$item['val']['kode_akun']]['total']-$akun_all[$item['val']['kode_akun']]['total'];
         $body .='
         <tr style="font-weight: 600;">
-            <td class="text-center">'.$akun_all[$item['kode_akun']]['kode_akun'].'</td>
-            <td>'.$akun_all[$item['kode_akun']]['nama_akun'].'</td>
-            <td class="text-right">'.number_format($akun_all[$item['kode_akun']]['total'],0,",",".").'</td>
+            <td class="text-center">'.$akun_all[$item['val']['kode_akun']]['kode_akun'].'</td>
+            <td>'.$akun_all[$item['val']['kode_akun']]['nama_akun'].'</td>
+            <td class="text-right">'.number_format($akun_all[$item['val']['kode_akun']]['total'],0,",",".").'</td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
-            <td></td>
+            <td class="text-right">'.number_format($akun_all[$item['val']['kode_akun']]['total'],0,",",".").'</td>
+            <td class="text-right">'.number_format($sisa_akun,0,",",".").'</td>
         </tr>';
     }
-    $vol = 0;
-    if(!empty($item['koefisien'])){
-        $vol = explode(' ', $item['koefisien']);
-        $vol = $vol[0];
+    $realisasi = 0;
+    foreach($item['bukti'] as $k => $bukti){
+        $realisasi += $bukti['pagu'];
+        if($k == 0){
+            $vol = 0;
+            if(!empty($bukti['koefisien'])){
+                $vol = explode(' ', $bukti['koefisien']);
+                $vol = $vol[0];
+            }
+            $body .='
+            <tr>
+                <td></td>
+                <td>
+                    <div>'.$bukti['nama_komponen'].'</div>
+                    <div>'.$bukti['spek_komponen'].'</div>
+                    <div>'.$profile_penerima.'</div>
+                </td>
+                <td class="text-right">'.number_format($bukti['total_harga'],0,",",".").'</td>
+                <td class="text-center">'.$vol.'</td>
+                <td class="text-center">'.$bukti['satuan'].'</td>
+                <td>'.$bukti['nomor_bukti'].'</td>
+                <td>'.$bukti['uraian'].'</td>
+                <td class="text-right">'.number_format($bukti['pagu'],0,",",".").'</td>
+                <td class="text-right">'.number_format($bukti['pagu']-$realisasi,0,",",".").'</td>
+            </tr>
+            ';
+        }else{
+            $body .='
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="text-right"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td>'.$bukti['nomor_bukti'].'</td>
+                <td>'.$bukti['uraian'].'</td>
+                <td class="text-right">'.number_format($bukti['pagu'],0,",",".").'</td>
+                <td class="text-right">'.number_format($bukti['pagu']-$realisasi,0,",",".").'</td>
+            </tr>
+            ';
+        }
+        $total_realisasi += $bukti['pagu'];
     }
-    $body .='
-    <tr>
-        <td></td>
-        <td>
-            <div>'.$item['nama_komponen'].'</div>
-            <div>'.$item['spek_komponen'].'</div>
-            <div>'.$profile_penerima.'</div>
-        </td>
-        <td class="text-right">'.number_format($item['total_harga'],0,",",".").'</td>
-        <td class="text-center">'.$vol.'</td>
-        <td class="text-center">'.$item['satuan'].'</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    ';
-    $total_anggaran += $item['total_harga'];
+    $total_anggaran += $item['val']['total_harga'];
 }
+$total_sisa = $total_anggaran-$total_realisasi;
 ?>
 <style>
     .modal-content label:after {
@@ -204,7 +245,7 @@ foreach ($rinc as $key => $item) {
     }
 </style>
 <div style="padding: 15px;">
-    <h1 class="text-center" style="margin-top: 50px;">LAPORAN SERAPAN RINCI<br>Bulan <?php echo $nama_bulan; ?></h1>
+    <h1 class="text-center" style="margin-top: 50px;">LAPORAN SERAPAN RINCI<br>Bulan <?php echo $nama_bulan; ?> Tahun <?php echo $tahun_anggaran; ?></h1>
     <table id="tabel_detail_nota">
         <tbody>
             <tr>
@@ -247,7 +288,7 @@ foreach ($rinc as $key => $item) {
                 <th class="atas kanan bawah text-center" rowspan="2">Uraian</th>
                 <th class="atas kanan bawah text-center" width="140px" rowspan="2">Anggaran DPA</th>
                 <th class="atas kanan bawah text-center" width="100px" colspan="2">Volume</th>
-                <th class="atas kanan bawah text-center" width="700px" colspan="3">Periode Bulan <?php echo $nama_bulan; ?></th>
+                <th class="atas kanan bawah text-center" width="700px" colspan="3">Periode Sampai Bulan <?php echo $nama_bulan; ?></th>
                 <th class="atas kanan bawah text-center" width="140px" rowspan="2">Sisa</th>
             </tr>
             <tr>
@@ -264,7 +305,7 @@ foreach ($rinc as $key => $item) {
                 <th class="atas kanan bawah text-center" colspan="3">Total</th>
                 <th class="atas kanan bawah text-right"><?php echo number_format($total_anggaran,0,",","."); ?></th>
                 <th class="atas kanan bawah text-right" colspan="3"></th>
-                <th class="atas kanan bawah text-right"><?php echo number_format($total_relisasi,0,",","."); ?></th>
+                <th class="atas kanan bawah text-right"><?php echo number_format($total_realisasi,0,",","."); ?></th>
                 <th class="atas kanan bawah text-right"><?php echo number_format($total_sisa,0,",","."); ?></th>
             </tr>
         </tfoot>
