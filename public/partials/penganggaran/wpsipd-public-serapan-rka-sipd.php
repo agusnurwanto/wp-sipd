@@ -57,14 +57,20 @@ if ($data_rfk) {
     die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
-$bulan = date('m');
+$set_bulan = date('m');
 if(
     !empty($_GET) 
     && !empty($_GET['bulan'])
 ){
-    $bulan = $_GET['bulan'];
+    $set_bulan = $_GET['bulan']*1;
 }
-$nama_bulan = $this->get_bulan($bulan);
+$nama_bulan = $this->get_bulan($set_bulan);
+
+if($set_bulan <= 9){
+    $set_bulan = '0'.$set_bulan;
+}
+$bulan_terpilih = $input['tahun_anggaran'].'-'.$set_bulan.'-31 23:59:59';
+$bulan_terpilih_2 = date('Y').'-'.$set_bulan.'-31 23:59:59';
 
 $rinc = $wpdb->get_results($wpdb->prepare("
     SELECT 
@@ -91,7 +97,12 @@ foreach ($rinc as $key => $item) {
                 AND tahun_anggaran=%d
                 AND kode_sbl=%s
                 AND kode_rekening=%s
-        ", $tahun_anggaran, $kode_sbl, $item['kode_akun']), ARRAY_A);
+                AND (
+                    tanggal_bkup <= %s
+                    OR tanggal_bkup <= %s
+                )
+            ORDER BY tanggal_bkup
+        ", $tahun_anggaran, $kode_sbl, $item['kode_akun'], $bulan_terpilih, $bulan_terpilih_2), ARRAY_A);
         $akun_all[$item['kode_akun']] = array(
             'total' => 0,
             'total_murni' => 0,
@@ -239,7 +250,7 @@ foreach ($akun_all as $akun) {
                 $vol = $vol[0];
             }
             $body .='
-            <tr data-id="'.$item['val']['id_rinci_sub_bl'].'" data-id-bukti="'.$bukti['id'].'">
+            <tr data-id="'.$item['val']['id_rinci_sub_bl'].'">
                 <td></td>
                 <td>
                     <div>'.$item['val']['nama_komponen'].'</div>

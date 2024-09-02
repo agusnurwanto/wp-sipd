@@ -135,7 +135,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
         <button class="btn btn-info" onclick="print_laporan_bku();"><i class="dashicons dashicons-printer"></i> Print Buku Kas Umum Pembantu</button>
         <button class="btn btn-info" onclick="print_laporan_kegiatan();"><i class="dashicons dashicons-printer"></i> Print Laporan Kegiatan</button>
         <a class="btn btn-warning" href="<?php echo $url_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Rincian Belanja (RKA / DPA)</a>
-        <a class="btn btn-success" href="<?php echo $url_serapan_rka_sipd; ?>" target="_blank"><i class="dashicons dashicons-search"></i> Serapan Rincian</a>
+        <button class="btn btn-success" onclick="print_laporan_serapan_rinci();"><i class="dashicons dashicons-search"></i> Serapan Rincian</button>
     </div>
 </div>
 
@@ -773,6 +773,14 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             .html("Laporan Detail Kegiatan")
     }
 
+    function print_laporan_serapan_rinci() {
+        jQuery('#modal_print_laporan_bku').modal('show');
+        jQuery("#modal_print_laporan_bku .submitBtn")
+            .attr("onclick", `print_preview_serapan_rinci(this)`)
+        jQuery("#modal_print_laporan_bku .modal-title")
+            .html("Laporan Detail Kegiatan")
+    }
+
     function print_preview(that) {
         let id_npd = jQuery('#id_npd_print').val();
         let jenis = jQuery('#jenis_laporan').val();
@@ -813,6 +821,17 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
         }
 
         window.open('<?php echo $this->add_param_get($url_print_laporan_detail_kegiatan, '&kode_sbl='.$kode_sbl); ?>'+'&bulan='+set_bulan,'_blank');
+    }
+
+    function print_preview_serapan_rinci(that) {
+        let set_bulan = jQuery('#set_bulan').val();
+        if(set_bulan == "" || set_bulan == undefined){
+            alert('Ada yang kosong, Harap isi semua input!')
+            jQuery('#modal_print_laporan_bku').modal('hide');
+            return;
+        }
+
+        window.open('<?php echo $this->add_param_get($url_serapan_rka_sipd, '&kode_sbl='.$kode_sbl); ?>'+'&bulan='+set_bulan,'_blank');
     }
 
     function buku_kas_umum_pembantu(that) {
