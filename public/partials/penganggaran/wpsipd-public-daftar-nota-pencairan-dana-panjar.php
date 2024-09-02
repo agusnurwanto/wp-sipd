@@ -760,25 +760,25 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     function print_laporan_bku() {
         jQuery('#modal_print_laporan_bku').modal('show');
         jQuery("#modal_print_laporan_bku .submitBtn")
-            .attr("onclick", `print_preview_bku(this)`)
+            .attr("onclick", `print_preview_bku(this)`);
         jQuery("#modal_print_laporan_bku .modal-title")
-            .html("Laporan Buku Kas Umum Pembantu")
+            .html("Laporan Buku Kas Umum Pembantu");
     }
 
     function print_laporan_kegiatan() {
         jQuery('#modal_print_laporan_bku').modal('show');
         jQuery("#modal_print_laporan_bku .submitBtn")
-            .attr("onclick", `print_preview_laporan_kegiatan(this)`)
+            .attr("onclick", `print_preview_laporan_kegiatan(this)`);
         jQuery("#modal_print_laporan_bku .modal-title")
-            .html("Laporan Detail Kegiatan")
+            .html("Laporan Detail Kegiatan");
     }
 
     function print_laporan_serapan_rinci() {
         jQuery('#modal_print_laporan_bku').modal('show');
         jQuery("#modal_print_laporan_bku .submitBtn")
-            .attr("onclick", `print_preview_serapan_rinci(this)`)
+            .attr("onclick", `print_preview_serapan_rinci(this)`);
         jQuery("#modal_print_laporan_bku .modal-title")
-            .html("Laporan Detail Kegiatan")
+            .html("Laporan Serapan Rincian");
     }
 
     function print_preview(that) {
