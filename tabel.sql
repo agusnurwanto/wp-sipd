@@ -183,7 +183,6 @@ CREATE TABLE `data_buku_jurnal_sipd` (
   `id_skpd` int DEFAULT NULL,
   `id_jurnal` int(11) DEFAULT NULL,  
   `nama_skpd` text DEFAULT NULL,
-  `nama_sub_skpd` text DEFAULT NULL,
   `nomor_jurnal` varchar(255) DEFAULT NULL,
   `tanggal_jurnal` date DEFAULT NULL,  
   `dokumen_sumber` text DEFAULT NULL,
