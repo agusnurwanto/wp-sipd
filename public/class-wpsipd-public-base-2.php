@@ -6667,12 +6667,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		try {
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-					if(empty($_POST['jenis']) || empty($_POST['tahun_anggaran']) || empty($_POST['id_skpd'])){
+					if(empty($_POST['jenis']) || empty($_POST['id_skpd'])){
 						throw new Exception("Ada Parameter Post Yang Kosong!", 1);
 					}
 
 					$jenis = $_POST['jenis'];
 					if($jenis == 'tujuan'){
+						if(empty($_POST['id_jadwal'])){
+							throw new Exception("Parameter Id Jadwal Kosong!", 1);
+						}
 						$data_tujuan_renstra = $wpdb->get_results($wpdb->prepare(
 							"
 							SELECT 
@@ -6682,8 +6685,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							where 
 								id_unit=%d and 
 								active=1 and 
-								tahun_anggaran=%d order by id",
-								$_POST['id_skpd'], $_POST['tahun_anggaran']
+								id_jadwal=%d order by id",
+								$_POST['id_skpd'], $_POST['id_jadwal']
 						), ARRAY_A);
 		
 						if(!empty($data_tujuan_renstra)){
@@ -6702,15 +6705,17 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							where 
 								id_unit=%d and 
 								active=1 and 
-								tahun_anggaran=%d and
 								id_jadwal=%d order by kode_bidang_urusan",
-								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['id_jadwal']
+								$_POST['id_skpd'], $_POST['id_jadwal']
 						), ARRAY_A);
 		
 						if(!empty($data_sasaran_renstra)){
 							$ret['data'] = $data_sasaran_renstra;
 						}
 					}else if($jenis == 'program'){
+						if(empty($_POST['tahun_anggaran'])){
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+						}
 						$data_program_renstra = $wpdb->get_results($wpdb->prepare(
 							"
 							SELECT 
@@ -6735,6 +6740,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}else if($jenis == 'kegiatan'){
 						if(empty($_POST['parent_cascading'])){
 							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+						
+						if(empty($_POST['tahun_anggaran'])){
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
 						$data_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
 							"
@@ -6761,6 +6770,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}else if($jenis == 'sub_kegiatan'){
 						if(empty($_POST['parent_cascading'])){
 							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+						
+						if(empty($_POST['tahun_anggaran'])){
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
 						$data_sub_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
 							"

@@ -24918,6 +24918,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .= $wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
 					}
 
+					if(!empty($_POST['id_jadwal'])){
+						$where .= $wpdb->prepare(" AND id_jadwal_lokal = %d", $_POST['id_jadwal']);
+					}
+
 					// getting total number records without any search
 					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
 					$sqlRec = "SELECT " . implode(', ', $columns) . " FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
