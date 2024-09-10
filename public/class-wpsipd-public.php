@@ -16795,7 +16795,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$checkOpenedSchedule++;
 									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								}
-								if (in_array($tipe_perencanaan, ['renstra', 'renja'])) {
+								if (
+									in_array($tipe_perencanaan, ['renstra', 'renja'])
+									AND $recVal['status'] == 0
+								) {
 									$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_usulan(); return false;" style="display:inline;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if ($tipe_perencanaan == 'renja') {
 										$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_penetapan(); return false;" href="#" style="display:inline;" title="Copy Data Penetapan ke Usulan">Copy Data Penetapan</a>';

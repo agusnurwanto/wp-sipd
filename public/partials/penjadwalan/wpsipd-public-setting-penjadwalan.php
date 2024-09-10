@@ -200,7 +200,7 @@ $body = '';
 				<button class="btn btn-primary tambah_jadwal" onclick="tambah_jadwal();" hidden><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>
 			</div>
 		<?php endif; ?>
-		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0">
 			<thead id="data_header">
 				<tr>
 					<th class="text-center">Nama Tahapan</th>
