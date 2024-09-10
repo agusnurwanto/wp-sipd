@@ -3691,7 +3691,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
                                     $rka_sipd = $wpdb->get_results($wpdb->prepare('
                                         SELECT 
-                                            '.implode(', ', $columns_lokasi).'
+                                            '.implode(', ', $columns_rka).'
                                         FROM data_rka
                                         WHERE active=1
                                             AND tahun_anggaran=%d
