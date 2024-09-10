@@ -179,6 +179,7 @@ foreach ($units as $k => $unit) :
 	$data_all = array(
 		'jml_sub_keg' => 0,
 		'total' => 0,
+		'total_rinci' => 0,
 		'total_simda' => 0,
 		'total_fmis' => 0,
 		'realisasi' => 0,
@@ -253,6 +254,7 @@ foreach ($units as $k => $unit) :
 		}
 
 		$total_pagu = 0;
+		$total_rka = 0;
 		$total_fmis = $sub['pagu_fmis'];
 		if (empty($total_fmis)) {
 			$total_fmis = 0;
@@ -260,7 +262,7 @@ foreach ($units as $k => $unit) :
 		$debug_pagu = '';
 		if ($sumber_pagu == 1) {
 			$total_pagu = $sub['pagu'];
-			$total_rka = $wpdb->get_row($wpdb->prepare(
+			$total_rka = $wpdb->get_var($wpdb->prepare(
 				'
 				select 
 					sum(rincian) as total
@@ -270,12 +272,12 @@ foreach ($units as $k => $unit) :
 					and kode_sbl=%s',
 				$input['tahun_anggaran'],
 				$sub['kode_sbl']
-			), ARRAY_A);
+			));
 			$warning = '';
-			if ($sub['pagu'] != $total_rka['total']) {
+			if ($sub['pagu'] != $total_rka) {
 				$warning = "style='background: #ff00002e;'";
 			}
-			$debug_pagu = ' <span class="detail_simda hide-excel" ' . $warning . '>' . $sub['pagu'] . '==' . $total_rka['total'] . '</span>';
+			$debug_pagu = ' <span class="detail_simda hide-excel" ' . $warning . '>' . $sub['pagu'] . '==' . $total_rka . '</span>';
 		} else if (
 			$sumber_pagu == 4
 			|| $sumber_pagu == 5
@@ -378,6 +380,7 @@ foreach ($units as $k => $unit) :
 			$data_all['data'][$sub['kode_urusan']] = array(
 				'nama'	=> $sub['nama_urusan'],
 				'total' => 0,
+				'total_rinci' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
 				'realisasi' => 0,
@@ -391,6 +394,7 @@ foreach ($units as $k => $unit) :
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
 				'nama'	=> $sub['nama_bidang_urusan'],
 				'total' => 0,
+				'total_rinci' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
 				'realisasi' => 0,
@@ -404,6 +408,7 @@ foreach ($units as $k => $unit) :
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 				'nama'	=> $sub['nama_program'],
 				'total' => 0,
+				'total_rinci' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
 				'realisasi' => 0,
@@ -417,6 +422,7 @@ foreach ($units as $k => $unit) :
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 				'nama'	=> $sub['nama_giat'],
 				'total' => 0,
+				'total_rinci' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
 				'realisasi' => 0,
@@ -479,6 +485,7 @@ foreach ($units as $k => $unit) :
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 				'nama'	=>  $nama_sub. $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
 				'total' => 0,
+				'total_rinci' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
 				'realisasi' => 0,
@@ -509,6 +516,13 @@ foreach ($units as $k => $unit) :
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $total_pagu;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $total_pagu;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $total_pagu;
+		
+		$data_all['total_rinci'] += $total_rka;
+		$data_all['data'][$sub['kode_urusan']]['total_rinci'] += $total_rka;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_rinci'] += $total_rka;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_rinci'] += $total_rka;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_rinci'] += $total_rka;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_rinci'] += $total_rka;
 
 		$data_all['realisasi'] += $realisasi;
 		$data_all['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
@@ -580,7 +594,7 @@ foreach ($units as $k => $unit) :
 			if ($cek_pagu_dpa == 'fmis') {
 				$bidang_dpa = $bidang['total_fmis'];
 			}else if($cek_pagu_dpa == 'sipd') {
-				$bidang_dpa = $bidang['total'];
+				$bidang_dpa = $bidang['total_rinci'];
 			}
 			$body .= '
 				<tr class="bidang" data-kode="' . $kd_urusan . '.' . $kd_bidang . '">
@@ -620,7 +634,7 @@ foreach ($units as $k => $unit) :
 				if ($cek_pagu_dpa == 'fmis') {
 					$prog_dpa = $program['total_fmis'];
 				}else if($cek_pagu_dpa == 'sipd') {
-					$prog_dpa = $program['total'];
+					$prog_dpa = $program['total_rinci'];
 				}
 				$body .= '
 					<tr class="program" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '">
@@ -663,7 +677,7 @@ foreach ($units as $k => $unit) :
 					if ($cek_pagu_dpa == 'fmis') {
 						$keg_dpa = $giat['total_fmis'];
 					}else if($cek_pagu_dpa == 'sipd') {
-						$keg_dpa = $giat['total'];
+						$keg_dpa = $giat['total_rinci'];
 					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '">
@@ -747,7 +761,7 @@ foreach ($units as $k => $unit) :
 						if ($cek_pagu_dpa == 'fmis') {
 							$sub_keg_dpa = $sub_giat['total_fmis'];
 						}else if($cek_pagu_dpa == 'sipd') {
-							$sub_keg_dpa = $sub_giat['total'];
+							$sub_keg_dpa = $sub_giat['total_rinci'];
 						}
 						$cek_fmis = '';
 						if ($sub_keg_dpa != $sub_giat['total']) {
@@ -798,13 +812,26 @@ foreach ($units as $k => $unit) :
 			}
 		}
 	}
+
+	$kolom_dpa = 'DPA SIMDA';
+	$total_dpa = $data_all['total_simda'];
+	if ($cek_pagu_dpa == 'rka_simda') {
+		$kolom_dpa = 'RKA SIMDA';
+	} else if ($cek_pagu_dpa == 'fmis') {
+		$kolom_dpa = 'RKA FMIS';
+		$total_dpa = $data_all['total_fmis'];
+	} else if ($cek_pagu_dpa == 'sipd') {
+		$kolom_dpa = 'RKA SIPD';
+		$total_dpa = $data_all['total_rinci'];
+	}
+
 	$capaian_total = 0;
-	if (!empty($data_all['total_simda'])) {
-		$capaian_total = ($data_all['realisasi'] / $data_all['total_simda']) * 100;
+	if (!empty($total_dpa)) {
+		$capaian_total = ($data_all['realisasi'] / $total_dpa) * 100;
 	}
 	$capaian_rak = 0;
-	if (!empty($data_all['total_simda'])) {
-		$capaian_rak = ($data_all['total_rak_simda'] / $data_all['total_simda']) * 100;
+	if (!empty($total_dpa)) {
+		$capaian_rak = ($data_all['total_rak_simda'] / $total_dpa) * 100;
 	}
 	$deviasi_pemkab = 0;
 	if (!empty($capaian_rak)) {
@@ -823,18 +850,6 @@ foreach ($units as $k => $unit) :
 	);
 	if (!empty($catatan_ka_adbang)) {
 		$catatan_ka_adbang = $catatan_ka_adbang['catatan_ka_adbang'];
-	}
-
-	$kolom_dpa = 'DPA SIMDA';
-	$total_dpa = $data_all['total_simda'];
-	if ($cek_pagu_dpa == 'rka_simda') {
-		$kolom_dpa = 'RKA SIMDA';
-	} else if ($cek_pagu_dpa == 'fmis') {
-		$kolom_dpa = 'RKA FMIS';
-		$total_dpa = $data_all['total_fmis'];
-	} else if ($cek_pagu_dpa == 'sipd') {
-		$kolom_dpa = 'RKA SIPD';
-		$total_dpa = $data_all['total'];
 	}
 
 	echo '

@@ -225,6 +225,10 @@ foreach ($kode_rek as $rek) {
 			){
 				$warning_fmis = 1;
 			}
+
+			if($type_belanja == 'Belanja'){
+				$type_belanja .= ' Rinci';
+			}
 			$data_body[strtotime($update_at['update_at']).$opd['id_skpd'].$rek] = array(
 				'rek' => $rek,
 				'type_belanja' => $type_belanja.' <span class="debug hide">'.$query_rinci.' | '.$query_tanpa_rinci.'</span>',
@@ -251,6 +255,10 @@ foreach ($data_body as $k => $data) {
 	$link = $this->get_link_post($custom_post);
 	if($dpa_rfk == 2){
 		$link .= '&pagu_dpa=fmis';
+	}else if($dpa_rfk == 3){
+		$link .= '&pagu_dpa=sipd';
+	}else{
+		$link .= '&pagu_dpa=simda';
 	}
 	$warning = '';
 	if(!empty($data['warning'])){
@@ -292,7 +300,7 @@ foreach ($data_body as $k => $data) {
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 		<h1 class="text-center">Monitoring Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data Tahun <?php echo $input['tahun_anggaran']; ?></h1>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+		<table cellpadding="2" cellspacing="0" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
 					<th class="text-center">No</th>
