@@ -3156,6 +3156,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
     public function copy_renja_sipd_to_lokal(){
         global $wpdb;
+        global $wpdbx;
         $ret = array(
             'status'    => 'success',
             'message'   => 'Berhasil copy data RENJA SIPD ke lokal!'
@@ -3706,13 +3707,28 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                             AND kode_sbl=%s
                                         ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
 
+                                    $insert_multi = array();
                                     foreach($rka_sipd as $key => $rincian){
                                         // update jika ada
                                         if(!empty($rka_lokal[$key])){
                                             $queryRka = $wpdb->update('data_rka_lokal', $rincian, array('id' => $rka_lokal[$key]['id']));
                                         // insert jika tidak ada
                                         }else{
-                                            $queryRka = $wpdb->insert('data_rka_lokal', $rincian);
+                                            $insert_multi[] = $rincian;
+                                        }
+                                    }
+
+                                    if (!empty($insert_multi)) {
+                                        $new_insert_multi = array();
+                                        foreach($insert_multi as $k => $v){
+                                            $new_insert_multi[] = $v;
+                                            if($k%100 == 0){
+                                                $wpdbx->insert_multiple('data_rka_lokal', $new_insert_multi);
+                                                $new_insert_multi = array();
+                                            }
+                                        }
+                                        if(!empty($new_insert_multi)){
+                                            $wpdbx->insert_multiple('data_rka_lokal', $new_insert_multi);
                                         }
                                     }
     
@@ -3741,6 +3757,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     );
     
                                     if(!empty($data_copy_rka)){
+                                        $insert_multi = array();
                                         foreach ($data_copy_rka as $key_rka => $value_rka) {
                                             $wpdb->update('data_mapping_sumberdana_lokal', array('active'=>0), array('id_rinci_sub_bl' => $value_rka['id_rinci_sub_bl'], 'active' => 1, 'tahun_anggaran' => $tahun_anggaran));
 
@@ -3763,7 +3780,21 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                             if(!empty($cek_id)){
                                                 $query_backup = $wpdb->update('data_mapping_sumberdana_lokal', $sd_sipd, array('id' => $cek_id));
                                             }else{
-                                                $query_backup = $wpdb->insert('data_mapping_sumberdana_lokal', $sd_sipd);
+                                                $insert_multi[] = $sd_sipd;
+                                            }
+                                        }
+
+                                        if (!empty($insert_multi)) {
+                                            $new_insert_multi = array();
+                                            foreach($insert_multi as $k => $v){
+                                                $new_insert_multi[] = $v;
+                                                if($k%100 == 0){
+                                                    $wpdbx->insert_multiple('data_mapping_sumberdana_lokal', $new_insert_multi);
+                                                    $new_insert_multi = array();
+                                                }
+                                            }
+                                            if(!empty($new_insert_multi)){
+                                                $wpdbx->insert_multiple('data_mapping_sumberdana_lokal', $new_insert_multi);
                                             }
                                         }
                                     }
