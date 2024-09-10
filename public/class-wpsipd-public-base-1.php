@@ -3168,30 +3168,28 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         $id_skpd = (!empty($_POST['id_skpd'])) ? $_POST['id_skpd'] : '';
                         $copy_data_sipd = (!empty($_POST['copy_data_option'])) ? $_POST['copy_data_option'] : array();
 
+                        $where_skpd = '';
                         if(!empty($id_skpd)){
-                            $sql_sub_keg_bl = $wpdb->prepare('
-                                SELECT 
-                                    *
-                                FROM data_sub_keg_bl
-                                WHERE active=1
-                                AND tahun_anggaran=%d
-                                AND id_sub_skpd='.$id_skpd.'
-                            ', $tahun_anggaran);
-                        }else{
-                            $sql_sub_keg_bl = $wpdb->prepare('
-                                SELECT 
-                                    *
-                                FROM data_sub_keg_bl
-                                WHERE active=1
-                                AND tahun_anggaran=%d
-                            ', $tahun_anggaran);
+                            $where_skpd = $wpdb->prepare('AND id_sub_skpd=%d', $id_skpd);
                         }
+                        $sql_sub_keg_bl = $wpdb->prepare('
+                            SELECT 
+                                *
+                            FROM data_sub_keg_bl
+                            WHERE active=1
+                                AND tahun_anggaran=%d
+                                '.$where_skpd.'
+                        ', $tahun_anggaran);
 
                         $query_sub_keg_bl = $wpdb->get_results($sql_sub_keg_bl, ARRAY_A);
 
                         if(!empty($query_sub_keg_bl)){
                             /** Update Copy Data Sub Kegiatan */
-                            $update_per_skpd = (!empty($id_skpd)) ? array('id_sub_skpd' => $id_skpd,'active' => 1, 'tahun_anggaran' => $tahun_anggaran) : array('active' => 1, 'tahun_anggaran' => $tahun_anggaran); 
+                            $update_per_skpd = array('active' => 1, 'tahun_anggaran' => $tahun_anggaran);
+                            if(!empty($id_skpd)){
+                                $update_per_skpd['id_sub_skpd'] = $id_skpd;
+                            }
+
                             $wpdb->update('data_sub_keg_bl_lokal', array('active'=>0), $update_per_skpd);
 
                             foreach ($query_sub_keg_bl as $v_sub_keg_bl) {
@@ -3315,8 +3313,22 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                         $columns_sub_keg['label_kokab'] = $data_kokab['nama_label'];
                                     }
                                 }
-        
-                                $querySubKeg = $wpdb->insert('data_sub_keg_bl_lokal', $columns_sub_keg);
+
+                                $cek_id = $wpdb->get_var($wpdb->prepare("
+                                    SELECT
+                                        id
+                                    FROM data_sub_keg_bl_lokal
+                                    WHERE kode_sbl=%s
+                                        AND tahun_anggaran=%d
+                                        ".$where_skpd."
+                                ", $v_sub_keg_bl['kode_sbl'], $tahun_anggaran));
+
+                                // update data jika data sebelumnya sudah ada
+                                if(!empty($cek_id)){
+                                    $querySubKeg = $wpdb->update('data_sub_keg_bl_lokal', $columns_sub_keg, array('id' => $cek_id));
+                                }else{
+                                    $querySubKeg = $wpdb->insert('data_sub_keg_bl_lokal', $columns_sub_keg);
+                                }
                                 
                                 /** copy data indikator sub keg */
                                 $wpdb->update('data_sub_keg_indikator_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
@@ -3363,16 +3375,37 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     $set_id_indikator_sub_giat = ', id_indikator_sub_giat';
                                 }
 
-                                $sql_copy_data_sub_keg_indikator =  "
-                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).", outputteks_usulan, targetoutput_usulan, satuanoutput_usulan, targetoutputteks_usulan".$set_id_indikator_sub_giat.")
+                                $indikator_sipd = $wpdb->get_results($wpdb->prepare('
                                     SELECT 
-                                        ".implode(', ', $columns_indi_lokal).", outputteks, targetoutput, satuanoutput, targetoutputteks".$id_indikator_sub_giat."
-                                    FROM data_sub_keg_indikator 
+                                        '.implode(', ', $columns_indi_lokal).'
+                                    FROM data_sub_keg_indikator
                                     WHERE active=1
-                                    AND tahun_anggaran='".$tahun_anggaran."'
-                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+                                        AND tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
 
-                                $queryIndikatorSubKeg = $wpdb->query($sql_copy_data_sub_keg_indikator);
+                                $indikator_ids_lokal = $wpdb->get_results($wpdb->prepare('
+                                    SELECT 
+                                        *
+                                    FROM data_sub_keg_indikator_lokal
+                                    WHERE tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                foreach($indikator_sipd as $key => $ind){
+                                    $ind['outputteks_usulan'] = $ind['outputteks'];
+                                    $ind['targetoutput_usulan'] = $ind['targetoutput'];
+                                    $ind['satuanoutput_usulan'] = $ind['satuanoutput'];
+                                    $ind['targetoutputteks_usulan'] = $ind['targetoutputteks'];
+                                    // update jika ada
+                                    if(!empty($indikator_ids_lokal[$key])){
+                                        $queryIndikatorSubKeg = $wpdb->update('data_sub_keg_indikator_lokal', $ind, array('id' => $indikator_ids_lokal[$key]['id']));
+                                    // insert jika tidak ada
+                                    }else{
+                                        $queryIndikatorSubKeg = $wpdb->insert('data_sub_keg_indikator_lokal', $ind);
+                                    }
+                                }
+
                                 
                                 /** copy data capaian prog */
                                 $wpdb->update('data_capaian_prog_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
@@ -3389,21 +3422,41 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'tahun_anggaran'
                                 );
 
-                                $sql_copy_data_capaian_prog_sub_keg =  "
-                                    INSERT INTO data_capaian_prog_sub_keg_lokal (".implode(', ', $columns_capaian_prog).",satuancapaian_usulan, targetcapaianteks_usulan, capaianteks_usulan, targetcapaian_usulan)
+                                $capaian_prog_sipd = $wpdb->get_results($wpdb->prepare('
                                     SELECT 
-                                        ".implode(', ', $columns_capaian_prog).", satuancapaian, targetcapaianteks, capaianteks, targetcapaian
+                                        '.implode(', ', $columns_capaian_prog).'
                                     FROM data_capaian_prog_sub_keg
                                     WHERE active=1
-                                    AND tahun_anggaran='".$tahun_anggaran."'
-                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+                                        AND tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
 
-                                $queryCapaianProg = $wpdb->query($sql_copy_data_capaian_prog_sub_keg);
+                                $capaian_prog_ids_lokal = $wpdb->get_results($wpdb->prepare('
+                                    SELECT 
+                                        *
+                                    FROM data_capaian_prog_sub_keg_lokal
+                                    WHERE tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                foreach($capaian_prog_sipd as $key => $ind){
+                                    $ind['satuancapaian_usulan'] = $ind['satuancapaian'];
+                                    $ind['targetcapaianteks_usulan'] = $ind['targetcapaianteks'];
+                                    $ind['capaianteks_usulan'] = $ind['capaianteks'];
+                                    $ind['targetcapaian_usulan'] = $ind['targetcapaian'];
+                                    // update jika ada
+                                    if(!empty($capaian_prog_ids_lokal[$key])){
+                                        $queryCapaianProg = $wpdb->update('data_capaian_prog_sub_keg_lokal', $ind, array('id' => $capaian_prog_ids_lokal[$key]['id']));
+                                    // insert jika tidak ada
+                                    }else{
+                                        $queryCapaianProg = $wpdb->insert('data_capaian_prog_sub_keg_lokal', $ind);
+                                    }
+                                }
                                 
                                 /** copy data output giat */
                                 $wpdb->update('data_output_giat_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
                                 
-                                $oclumns_output_giat = array(
+                                $columns_output_giat = array(
                                     'outputteks',
                                     'satuanoutput',
                                     'targetoutput',
@@ -3415,16 +3468,36 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'tahun_anggaran'
                                 );
 
-                                $sql_copy_data_output_giat_sub_keg =  "
-                                    INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_output_giat).", outputteks_usulan, satuanoutput_usulan, targetoutput_usulan, targetoutputteks_usulan)
+                                $output_giat_sipd = $wpdb->get_results($wpdb->prepare('
                                     SELECT 
-                                        ".implode(', ', $oclumns_output_giat).", outputteks, satuanoutput, targetoutput, targetoutputteks
+                                        '.implode(', ', $columns_output_giat).'
                                     FROM data_output_giat_sub_keg
                                     WHERE active=1
-                                    AND tahun_anggaran='".$tahun_anggaran."'
-                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+                                        AND tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
 
-                                $queryOutputGiat = $wpdb->query($sql_copy_data_output_giat_sub_keg);
+                                $output_giat_ids_lokal = $wpdb->get_results($wpdb->prepare('
+                                    SELECT 
+                                        *
+                                    FROM data_output_giat_sub_keg_lokal
+                                    WHERE tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                foreach($output_giat_sipd as $key => $ind){
+                                    $ind['outputteks_usulan'] = $ind['outputteks'];
+                                    $ind['satuanoutput_usulan'] = $ind['satuanoutput'];
+                                    $ind['targetoutput_usulan'] = $ind['targetoutput'];
+                                    $ind['targetoutputteks_usulan'] = $ind['targetoutputteks'];
+                                    // update jika ada
+                                    if(!empty($output_giat_ids_lokal[$key])){
+                                        $queryOutputGiat = $wpdb->update('data_output_giat_sub_keg_lokal', $ind, array('id' => $output_giat_ids_lokal[$key]['id']));
+                                    // insert jika tidak ada
+                                    }else{
+                                        $queryOutputGiat = $wpdb->insert('data_output_giat_sub_keg_lokal', $ind);
+                                    }
+                                }
                                 
                                 /** copy data sumber dana */
                                 if(in_array("sumber_dana",$copy_data_sipd, TRUE)){
@@ -3476,7 +3549,19 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                                 }  
                                             }
             
-                                            $queryDana = $wpdb->insert('data_dana_sub_keg_lokal', $columns_dana);
+                                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                                SELECT
+                                                    id
+                                                FROM data_dana_sub_keg_lokal
+                                                WHERE kode_sbl=%s
+                                                    AND tahun_anggaran=%d
+                                                    AND iddana=%d
+                                            ", $v_sub_keg_bl['kode_sbl'], $tahun_anggaran, $v_sumber_dana['iddana']));
+                                            if(!empty($cek_id)){
+                                                $queryDana = $wpdb->update('data_dana_sub_keg_lokal', $columns_dana, array('id' => $cek_id));
+                                            }else{
+                                                $queryDana = $wpdb->insert('data_dana_sub_keg_lokal', $columns_dana);
+                                            }
                                         }
                                     }
 
@@ -3500,16 +3585,39 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 									'tahun_anggaran'
                                 );
 
-                                $sql_copy_data_lokasi_sub_keg =  "
-                                    INSERT INTO data_lokasi_sub_keg_lokal (".implode(', ', $columns_lokasi).", camatteks_usulan, daerahteks_usulan, idcamat_usulan, iddetillokasi_usulan, idkabkota_usulan, idlurah_usulan, lurahteks_usulan)
+                                $lokasi_sipd = $wpdb->get_results($wpdb->prepare('
                                     SELECT 
-                                        ".implode(', ', $columns_lokasi).", camatteks, daerahteks, idcamat, iddetillokasi, idkabkota, idlurah, lurahteks
+                                        '.implode(', ', $columns_lokasi).'
                                     FROM data_lokasi_sub_keg
                                     WHERE active=1
-                                    AND tahun_anggaran='".$tahun_anggaran."'
-                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+                                        AND tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
 
-                                $queryLokasi = $wpdb->query($sql_copy_data_lokasi_sub_keg);
+                                $lokasi_ids_lokal = $wpdb->get_results($wpdb->prepare('
+                                    SELECT 
+                                        *
+                                    FROM data_lokasi_sub_keg_lokal
+                                    WHERE tahun_anggaran=%d
+                                        AND kode_sbl=%s
+                                    ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                foreach($lokasi_sipd as $key => $ind){
+                                    // update jika ada
+                                    $ind['camatteks_usulan'] = $ind['camatteks'];
+                                    $ind['daerahteks_usulan'] = $ind['daerahteks'];
+                                    $ind['idcamat_usulan'] = $ind['idcamat'];
+                                    $ind['iddetillokasi_usulan'] = $ind['iddetillokasi'];
+                                    $ind['idkabkota_usulan'] = $ind['idkabkota'];
+                                    $ind['idlurah_usulan'] = $ind['idlurah'];
+                                    $ind['lurahteks_usulan'] = $ind['lurahteks'];
+                                    if(!empty($lokasi_ids_lokal[$key])){
+                                        $queryLokasi = $wpdb->update('data_lokasi_sub_keg_lokal', $ind, array('id' => $lokasi_ids_lokal[$key]['id']));
+                                    // insert jika tidak ada
+                                    }else{
+                                        $queryLokasi = $wpdb->insert('data_lokasi_sub_keg_lokal', $ind);
+                                    }
+                                }
 
                                 /** copy rincian RKA */
                                 if(in_array("rincian_rka",$copy_data_sipd, TRUE)){
@@ -3580,19 +3688,33 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                         'idketerangan',
                                         'idsubtitle'
                                     );
-        
-                                    $sql_backup_data_rka =  "
-                                        INSERT INTO data_rka_lokal (".implode(', ', $columns_rka).")
+
+                                    $rka_sipd = $wpdb->get_results($wpdb->prepare('
                                         SELECT 
-                                            ".implode(', ', $columns_rka)."
-                                        FROM data_rka 
-                                        WHERE
-                                            kode_sbl='".$v_sub_keg_bl['kode_sbl']."' 
-                                            AND tahun_anggaran='".$tahun_anggaran."' 
-                                            AND active=1
-                                    ";
-        
-                                    $query_backup = $wpdb->query($sql_backup_data_rka);
+                                            '.implode(', ', $columns_lokasi).'
+                                        FROM data_rka
+                                        WHERE active=1
+                                            AND tahun_anggaran=%d
+                                            AND kode_sbl=%s
+                                        ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                    $rka_lokal = $wpdb->get_results($wpdb->prepare('
+                                        SELECT 
+                                            *
+                                        FROM data_rka_lokal
+                                        WHERE tahun_anggaran=%d
+                                            AND kode_sbl=%s
+                                        ', $tahun_anggaran, $v_sub_keg_bl['kode_sbl']), ARRAY_A);
+
+                                    foreach($rka_sipd as $key => $rincian){
+                                        // update jika ada
+                                        if(!empty($rka_lokal[$key])){
+                                            $queryRka = $wpdb->update('data_rka_lokal', $rincian, array('id' => $rka_lokal[$key]['id']));
+                                        // insert jika tidak ada
+                                        }else{
+                                            $queryRka = $wpdb->insert('data_rka_lokal', $rincian);
+                                        }
+                                    }
     
                                     /** copy data dari sumber dana 
                                      * mencari id_rinci_sub_bl
@@ -3621,18 +3743,28 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     if(!empty($data_copy_rka)){
                                         foreach ($data_copy_rka as $key_rka => $value_rka) {
                                             $wpdb->update('data_mapping_sumberdana_lokal', array('active'=>0), array('id_rinci_sub_bl' => $value_rka['id_rinci_sub_bl'], 'active' => 1, 'tahun_anggaran' => $tahun_anggaran));
-                                            $sql_backup_data_sumber_dana =  "
-                                                INSERT INTO data_mapping_sumberdana_lokal (".implode(', ', $columns_sumber_dana).")
+
+                                            $sd_sipd = $wpdb->get_row($wpdb->prepare("
                                                 SELECT 
                                                     ".implode(', ', $columns_sumber_dana)."
                                                 FROM data_mapping_sumberdana 
                                                 WHERE
-                                                    id_rinci_sub_bl='".$value_rka['id_rinci_sub_bl']."' 
-                                                    AND tahun_anggaran='".$tahun_anggaran."' 
+                                                    id_rinci_sub_bl=%d 
+                                                    AND tahun_anggaran=%d 
                                                     AND active=1
-                                            ";
-                
-                                            $query_backup = $wpdb->query($sql_backup_data_sumber_dana);
+                                            ", $value_rka['id_rinci_sub_bl'], $tahun_anggaran), ARRAY_A);
+                                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                                SELECT
+                                                    id
+                                                FROM data_mapping_sumberdana_lokal
+                                                WHERE id_rinci_sub_bl=%d
+                                                    AND tahun_anggaran=%d
+                                            ", $value_rka['id_rinci_sub_bl'], $tahun_anggaran));
+                                            if(!empty($cek_id)){
+                                                $query_backup = $wpdb->update('data_mapping_sumberdana_lokal', $sd_sipd, array('id' => $cek_id));
+                                            }else{
+                                                $query_backup = $wpdb->insert('data_mapping_sumberdana_lokal', $sd_sipd);
+                                            }
                                         }
                                     }
                                 }
