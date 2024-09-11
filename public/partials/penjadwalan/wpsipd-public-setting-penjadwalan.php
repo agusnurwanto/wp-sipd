@@ -909,74 +909,74 @@ foreach($data_skpd_db as $skpd){
 				break;
 
 			case 'renja_sipd_merah':
-				window.open('<?php echo $url_renja_merah; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_renja_merah, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case 'renja_sipd_ri':
-				window.open('<?php echo $url_renja_ri; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_renja_ri, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case 'analisis_belanja_program':
-				window.open('<?php echo $url_analisis_belanja_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_program, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case 'analisis_belanja_kegiatan':
-				window.open('<?php echo $url_analisis_belanja_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_kegiatan, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case 'analisis_belanja_sub_kegiatan':
-				window.open('<?php echo $url_analisis_belanja_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_sub_kegiatan, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'analisis_belanja_bidang_urusan':
-				window.open('<?php echo $url_analisis_belanja_bidang_urusan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_bidang_urusan, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'analisis_belanja_sumber_dana':
-				window.open('<?php echo $url_analisis_belanja_sumber_dana; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_sumber_dana, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'analisis_belanja_rekening':
-				window.open('<?php echo $url_analisis_belanja_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_analisis_belanja_rekening, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_sumber_dana_per_skpd':
-				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $this->add_param_get($url_rekap_sumber_dana_per_skpd, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_program':
-				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $this->add_param_get($url_rekap_sumber_dana_per_program, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $this->add_param_get($url_rekap_sumber_dana_per_kegiatan, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_sub_kegiatan':
-				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
+				window.open('<?php echo $this->add_param_get($url_rekap_sumber_dana_per_sub_kegiatan, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal + '&sumber_dana=' + jQuery('#opt_jenis_sumber_dana').val(), '_blank');
 				break;
 			case 'rekap_sumber_dana_per_rekening':
-				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($url_rekap_sumber_dana_per_rekening, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_longlist_per_jenis_belanja':
-				window.open('<?php echo $rekap_longlist_per_jenis_belanja; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($rekap_longlist_per_jenis_belanja, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_penjabaran_lampiran_1':
-				window.open('<?php echo $apbd_penjabaran_lampiran_1; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_penjabaran_lampiran_1, '&1=1'); ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_penjabaran_lampiran_2':
-				window.open('<?php echo $apbd_penjabaran_lampiran_2; ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_penjabaran_lampiran_2, '&1=1'); ?>' + '&id_skpd=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_1':
-				window.open('<?php echo $apbd_perda_lampiran_1; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_1, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_2':
-				window.open('<?php echo $apbd_perda_lampiran_2; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_2, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_3':
-				window.open('<?php echo $apbd_perda_lampiran_3; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_3, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_4':
-				window.open('<?php echo $apbd_perda_lampiran_4; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_4, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'apbd_perda_lampiran_5':
-				window.open('<?php echo $apbd_perda_lampiran_5; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_5, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_longlist_per_jenis_belanja_all_skpd':
-				window.open('<?php echo $rekap_longlist_per_jenis_belanja_all_skpd; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				window.open('<?php echo $this->add_param_get($rekap_longlist_per_jenis_belanja_all_skpd, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 
 			case '-':

@@ -254,11 +254,11 @@ foreach ($data_body as $k => $data) {
 	$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 	$link = $this->get_link_post($custom_post);
 	if($dpa_rfk == 2){
-		$link .= '&pagu_dpa=fmis';
+		$url_nilai_dpa = '&pagu_dpa=fmis';
 	}else if($dpa_rfk == 3){
-		$link .= '&pagu_dpa=sipd';
+		$url_nilai_dpa = '&pagu_dpa=sipd';
 	}else{
-		$link .= '&pagu_dpa=simda';
+		$url_nilai_dpa = '&pagu_dpa=simda';
 	}
 	$warning = '';
 	if(!empty($data['warning'])){
@@ -275,7 +275,7 @@ foreach ($data_body as $k => $data) {
 		<tr data-type-belanja="'.$data['rek'].'" data-id-skpd="'.$data['id_skpd'].'">
 			<td class="text-center">'.$no.'</td>
 			<td class="text-center">'.$data['type_belanja'].'</td>
-			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
+			<td><a href="'.$this->add_param_get($link, $url_nilai_dpa).'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
 			<td class="text-right" style="'.$warning_fmis.'">'.number_format($data['total_fmis'],2,",",".").'</td>
 			<td class="text-right">'.number_format($data['total_murni'],2,",",".").'</td>
