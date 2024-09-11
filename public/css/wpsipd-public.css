@@ -322,3 +322,34 @@ a {
     max-height: 100vh;
     width: 100%;
 }
+
+#persen-loading{
+    text-align: center;
+    position: fixed;
+    height: 64px;
+    top: 50vh;
+    left: 55%;
+    line-height: 1.5;
+    width: 90%;
+    z-index: 99999;
+    margin-top: 80px;
+    color: #fff;
+    font-size: 26px;
+    font-weight: bold;
+    margin-left: -50vw;
+}
+#pesan-loading{
+    text-align: center;
+    position: fixed;
+    height: 64px;
+    top: 50vh;
+    left: 55%;
+    line-height: 1.5;
+    width: 90%;
+    z-index: 99999;
+    margin-top: -90px;
+    color: #fff;
+    font-size: 26px;
+    font-weight: bold;
+    margin-left: -50vw;
+}

@@ -182,6 +182,29 @@ $shortcode = '[rekap_longlist_per_jenis_belanja_all_skpd tahun_anggaran="' . $in
 $rekap_longlist_per_jenis_belanja_all_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
 $body = '';
+
+$data_skpd_db = $wpdb->get_results($wpdb->prepare(
+	"
+	SELECT 
+		* 
+	from data_unit 
+	where tahun_anggaran=%d
+		and active=1",
+	$input['tahun_anggaran']
+), ARRAY_A);
+
+$list_skpd = "";
+$skpd_json = array();
+foreach($data_skpd_db as $skpd){
+	$skpd_json[$skpd['id_skpd']] = $skpd;
+	$list_skpd .= "
+	<tr>
+		<td class='text-center'><input type='checkbox' value='".$skpd['id_skpd']."'></td>
+		<td>".$skpd['kode_skpd']."</td>
+		<td>".$skpd['nama_skpd']."</td>
+	</tr>
+	";
+}
 ?>
 <style>
 	.bulk-action {
@@ -276,7 +299,7 @@ $body = '';
 
 <!-- Modal Copy data renja -->
 <div class="modal fade" id="modal-copy-renja-sipd" data-backdrop="static" role="dialog" aria-labelledby="modal-copy-renja-sipd-label" aria-hidden="true">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Tipe Copy Data RENJA ke Lokal</h5>
@@ -285,10 +308,24 @@ $body = '';
 				</button>
 			</div>
 			<div class="modal-body">
-				<input type="checkbox" id="copyDataRka" name="copyDataSipd" value="rincian_rka">
-				<label for="copyDataRka">Copy Data Rincian RKA</label><br>
-				<input type="checkbox" id="copySumberDana" name="copyDataSipd" value="sumber_dana">
-				<label for="copySumberDana">Copy Sumber Dana</label><br>
+				<div class="text-center" style="margin-bottom: 20px;">
+					<input type="checkbox" id="copyDataRka" name="copyDataSipd" value="rincian_rka">
+					<label for="copyDataRka">Copy Data Rincian RKA</label>
+					<input type="checkbox" id="copySumberDana" name="copyDataSipd" value="sumber_dana" style="margin-left: 30px;">
+					<label for="copySumberDana">Copy Sumber Dana</label>
+				</div>
+				<table class="table table-bordered" id="table-list-skpd">
+					<thead>
+						<tr>
+							<th class="text-center"><input type="checkbox" class="check_all"></th>
+							<th class="text-center">Kode OPD</th>
+							<th class="text-center" width="380px">Nama OPD</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php echo $list_skpd; ?>
+					</tbody>
+				</table>
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary submitBtn" onclick="copy_renja_sipd_to_lokal_all()">Simpan</button>
@@ -309,6 +346,7 @@ $body = '';
 		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
 		globalThis.tipe_perencanaan = '<?php echo $tipe_perencanaan; ?>';
 		globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
+		globalThis.list_skpd = <?php echo json_encode($skpd_json); ?>
 
 		get_data_penjadwalan();
 
@@ -335,6 +373,17 @@ $body = '';
 		});
 
 		jQuery(".class_renja_pergeseran").hide();
+		jQuery('#table-list-skpd').DataTable({
+			"aoColumnDefs": [
+		        { "bSortable": false, "aTargets": [ 0 ] }, 
+		        { "bSearchable": false, "aTargets": [ 0 ] }
+		    ],
+		    "order": [[1, 'asc']],
+			lengthMenu: [[5, 20, 100, -1], [5, 20, 100, "All"]]
+		});
+		jQuery('.check_all').on('click', function(){
+			jQuery(this).closest('table').find('tbody tr td input[type="checkbox"]').prop('checked', jQuery(this).is(':checked'));
+		});
 	});
 
 	function get_data_penjadwalan() {
@@ -1164,22 +1213,71 @@ $body = '';
 				copy_data_option.push(jQuery(this).val());
 			});
 
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: ajax.url,
-				type: 'post',
-				dataType: "json",
-				data: {
-					"action": "copy_renja_sipd_to_lokal",
-					"api_key": jQuery('#api_key').val(),
-					"tahun_anggaran": tahun_anggaran,
-					"copy_data_option": copy_data_option
-				},
-				success: function(res) {
-					alert(res.message);
-					jQuery('#wrap-loading').hide();
+			var data_selected = [];
+			jQuery('#table-list-skpd tbody td input[type="checkbox"]').map(function(i, b){
+				if(jQuery(b).is(':checked')){
+					data_selected.push(jQuery(b).val());
 				}
 			});
+			if(data_selected.length == 0){
+				return alert("Pilih OPD dulu!");
+			}
+
+			jQuery('#wrap-loading').show();
+			jQuery('#persen-loading').attr('persen', 0);
+			jQuery('#persen-loading').html('0%');
+			var last = data_selected.length-1;
+			data_selected.reduce(function(sequence, nextData){
+				return sequence.then(function(id_skpd){
+					return new Promise(function(resolve_reduce, reject_reduce){
+						var pesan = 'Copy data SIPD ke lokal '+list_skpd[id_skpd].nama_skpd;
+						console.log(pesan);
+						jQuery('#pesan-loading').html(pesan);
+						jQuery.ajax({
+							url: ajax.url,
+							type: 'post',
+							dataType: "json",
+							data: {
+								"action": "copy_renja_sipd_to_lokal",
+								"api_key": jQuery('#api_key').val(),
+								"tahun_anggaran": tahun_anggaran,
+								"copy_data_option": copy_data_option,
+								"id_skpd": id_skpd
+							},
+							success: function(res) {
+								var c_persen = +jQuery('#persen-loading').attr('persen');
+								c_persen++;
+								jQuery('#persen-loading').attr('persen', c_persen);
+								jQuery('#persen-loading').html(((c_persen/data_selected.length)*100).toFixed(2)+'%');
+								resolve_reduce(nextData);
+							},
+							error: function(res) {
+								console.log('Error ', id_skpd, res);
+								resolve_reduce(nextData);
+							}
+						});
+					})
+					.catch(function(e){
+						console.log(e);
+						return Promise.resolve(nextData);
+					});
+				})
+				.catch(function(e){
+					console.log(e);
+					return Promise.resolve(nextData);
+				});
+			}, Promise.resolve(data_selected[last]))
+			.then(function(data_last){
+				jQuery('#wrap-loading').hide();
+				jQuery('#modal-copy-renja-sipd').modal('hide');
+				return resolve();
+			})
+			.catch(function(e){
+				console.log(e);
+			});
+		}else{
+			alert(res.message);
+			jQuery('#wrap-loading').hide();
 		}
 	}
 </script>
