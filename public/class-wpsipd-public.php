@@ -24601,7 +24601,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'id_unik_indikator',
 								'id_unit',
 								'id_visi',
-								'indikator',
+								'indikator', 
 								'indikator_usulan',
 								'is_locked',
 								'is_locked_indikator',

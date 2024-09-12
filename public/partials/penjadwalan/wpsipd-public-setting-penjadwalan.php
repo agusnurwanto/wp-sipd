@@ -177,6 +177,14 @@ $title = 'APBD Perda Lampiran 5 | ' . $input['tahun_anggaran'];
 $shortcode = '[apbd_perda_lampiran_5 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $apbd_perda_lampiran_5 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'APBD Perda Lampiran 7 | ' . $input['tahun_anggaran'];
+$shortcode = '[apbd_perda_lampiran_7 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
+$apbd_perda_lampiran_7 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'APBD Perda Lampiran 8 | ' . $input['tahun_anggaran'];
+$shortcode = '[apbd_perda_lampiran_8 tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
+$apbd_perda_lampiran_8 = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'Rekap Longlist Per Jenis Belanja Semua SKPD | ' . $input['tahun_anggaran'];
 $shortcode = '[rekap_longlist_per_jenis_belanja_all_skpd tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 $rekap_longlist_per_jenis_belanja_all_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -843,6 +851,8 @@ foreach($data_skpd_db as $skpd){
 						<option value="apbd_perda_lampiran_3">APBD Perda Lampiran III</option>
 						<option value="apbd_perda_lampiran_4">APBD Perda Lampiran IV</option>
 						<option value="apbd_perda_lampiran_5">APBD Perda Lampiran V</option>
+						<option value="apbd_perda_lampiran_7">APBD Perda Lampiran VII</option>
+						<option value="apbd_perda_lampiran_8">APBD Perda Lampiran VIII</option>
 						<option value="rekap_longlist_per_jenis_belanja_all_skpd">Rekap Longlist Per Jenis Belanja Semua SKPD</option>
 					</select>
 					</div>
@@ -974,6 +984,12 @@ foreach($data_skpd_db as $skpd){
 				break;
 			case 'apbd_perda_lampiran_5':
 				window.open('<?php echo $this->add_param_get($apbd_perda_lampiran_5, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_perda_lampiran_7':
+				window.open('<?php echo $apbd_perda_lampiran_7; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
+				break;
+			case 'apbd_perda_lampiran_8':
+				window.open('<?php echo $apbd_perda_lampiran_8; ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
 				break;
 			case 'rekap_longlist_per_jenis_belanja_all_skpd':
 				window.open('<?php echo $this->add_param_get($rekap_longlist_per_jenis_belanja_all_skpd, '&1=1'); ?>' + '&id_unit=' + id_unit + '&id_jadwal_lokal=' + id_jadwal_lokal, '_blank');
