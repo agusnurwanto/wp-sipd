@@ -2487,16 +2487,17 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$opsi_sub_keg_bl['waktu_awal'] = $data['input_bulan_awal'];
 					$opsi_sub_keg_bl['waktu_akhir'] = $data['input_bulan_akhir'];
 
-					// insert sub kegiatan
+					// cek apakah sub kegiatan sudah ada dan pastikan diorder berdasarkan kolom active, karena yang diprioritaskan ada sub keg yang masih aktive
 					$cek_id = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
 						from data_sub_keg_bl_lokal 
 						where kode_sbl='$kode_sbl' 
 							and tahun_anggaran=%d
-							order by id desc
+						order by active desc, id desc
 					", $tahun_anggaran));
 
+					// insert sub kegiatan jika kosong
 					if(!$cek_id){
 						$wpdb->insert('data_sub_keg_bl_lokal',$opsi_sub_keg_bl);
 					}else{
