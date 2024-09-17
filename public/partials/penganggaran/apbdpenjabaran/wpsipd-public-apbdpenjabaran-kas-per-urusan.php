@@ -9,9 +9,9 @@ global $wpdb;
 function ubah_minus($nilai){
     if($nilai < 0){
         $nilai = abs($nilai);
-        return '('.number_format($nilai,0,",",".").')';
+        return '('.number_format($nilai,2,",",".").')';
     }else{
-        return number_format($nilai,0,",",".");
+        return number_format($nilai,2,",",".");
     }
 }
 

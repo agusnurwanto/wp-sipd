@@ -251,16 +251,16 @@ foreach ($data_all['data'] as $label_tag) {
     $body .= '
         <tr style="background: #f7eb64;">
             <td class="kiri kanan bawah text_blok" colspan="13">'.$label_tag['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],2,",",".").'</td>
             <td class="kanan bawah" colspan="4">&nbsp;</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],2,",",".").'</td>
         </tr>
     ';
     $body_rkpd .= '
         <tr style="background: #f7eb64;">
             <td class="kiri kanan bawah text_blok" colspan="15">'.$label_tag['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],2,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],2,",",".").'</td>
             <td class="kanan bawah"></td>
         </tr>
     ';
@@ -274,9 +274,9 @@ foreach ($data_all['data'] as $label_tag) {
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
                 <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],2,",",".").'</td>
                 <td class="kanan bawah" colspan="4">&nbsp;</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],2,",",".").'</td>
             </tr>
         ';
         $body_rkpd .= '
@@ -288,8 +288,8 @@ foreach ($data_all['data'] as $label_tag) {
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
                 <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],2,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],2,",",".").'</td>
                 <td class="kanan bawah"></td>
             </tr>
         ';
@@ -325,9 +325,9 @@ foreach ($data_all['data'] as $label_tag) {
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],2,",",".").'</td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],2,",",".").'</td>
                     </tr>
                 ';
                 $body_rkpd .= '
@@ -338,8 +338,8 @@ foreach ($data_all['data'] as $label_tag) {
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah text_blok" colspan="10">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],2,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],2,",",".").'</td>
                         <td class="kanan bawah"></td>
                     </tr>
                 ';
@@ -354,9 +354,9 @@ foreach ($data_all['data'] as $label_tag) {
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],2,",",".").'</td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],2,",",".").'</td>
                         </tr>
                     ';
                     $body_rkpd .= '
@@ -367,8 +367,8 @@ foreach ($data_all['data'] as $label_tag) {
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah text_blok" colspan="10">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],2,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],2,",",".").'</td>
                             <td class="kanan bawah"></td>
                         </tr>
                     ';
@@ -383,9 +383,9 @@ foreach ($data_all['data'] as $label_tag) {
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],2,",",".").'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],2,",",".").'</td>
                             </tr>
                         ';
                         $body_rkpd .= '
@@ -396,8 +396,8 @@ foreach ($data_all['data'] as $label_tag) {
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="10">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],2,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],2,",",".").'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
                             </tr>
                         ';
@@ -467,12 +467,12 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],2,",",".").'</td>
                                     <td class="kanan bawah"><br/></td>
                                     <td class="kanan bawah">&nbsp;</td>
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],2,",",".").'</td>
                                 </tr>
                             ';
                             $sasaran_text = '';
@@ -496,8 +496,8 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$output_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],2,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],2,",",".").'</td>
                                     <td class="kanan bawah"></td>
                                 </tr>
                             ';
@@ -569,8 +569,8 @@ if(!empty($format_rkpd)){
                     '.$body_rkpd.'
                     <tr>
                         <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; text-align:right" colspan="15">TOTAL</td>
-                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total'],0,",",".").'</td>
-                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total'],2,",",".").'</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total_n_plus'],2,",",".").'</td>
                         <td style="border:.5pt solid #000; vertical-align:middle;"></td>
                     </tr>
                 </tbody>
@@ -635,9 +635,9 @@ if(!empty($format_rkpd)){
                     '.$body.'
                     <tr>
                         <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],2,",",".").'</td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],2,",",".").'</td>
                     </tr>
                 </tbody>
             </table>

@@ -174,8 +174,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
         $murni = '';
         $selisih = '';
         if($type == 'pergeseran'){
-            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($v['totalmurni'],0,",",".")."</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($v['total']-$v['totalmurni']),0,",",".")."</td>";
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($v['totalmurni'],2,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($v['total']-$v['totalmurni']),2,",",".")."</td>";
         }
         $body_pendapatan .= "
         <tr data-akun='".$k."'>
@@ -193,7 +193,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             <td class='kiri kanan bawah sub_rincian_objek'></td>
             <td class='kanan bawah text_blok'>".$v['nama']."</td>
             ".$murni."
-            <td class='kanan bawah text_kanan text_blok'>".number_format($v['total'],0,",",".")."</td>
+            <td class='kanan bawah text_kanan text_blok'>".number_format($v['total'],2,",",".")."</td>
             ".$selisih."
             <td class='kanan bawah'></td>
             <td class='kanan bawah'></td>
@@ -204,8 +204,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                 $murni = '';
                 $selisih = '';
                 if($type == 'pergeseran'){
-                    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mm['totalmurni'],0,",",".")."</td>";
-                    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mm['total']-$mm['totalmurni']),0,",",".")."</td>";
+                    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mm['totalmurni'],2,",",".")."</td>";
+                    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mm['total']-$mm['totalmurni']),2,",",".")."</td>";
                 }
                 $body_pendapatan .= "
                 <tr data-akun='".$nn."'>
@@ -223,7 +223,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                     <td class='kiri kanan bawah sub_rincian_objek'></td>
                     <td class='kanan bawah text_blok' style='padding-left:".($padding*1)."px;'>".$mm['nama']."</td>
                     ".$murni."
-                    <td class='kanan bawah text_kanan text_blok'>".number_format($mm['total'],0,",",".")."</td>
+                    <td class='kanan bawah text_kanan text_blok'>".number_format($mm['total'],2,",",".")."</td>
                     ".$selisih."
                     <td class='kanan bawah'></td>
                     <td class='kanan bawah'></td>
@@ -235,8 +235,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                     $murni = '';
                     $selisih = '';
                     if($type == 'pergeseran'){
-                        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmm['totalmurni'],0,",",".")."</td>";
-                        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmm['total']-$mmm['totalmurni']),0,",",".")."</td>";
+                        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmm['totalmurni'],2,",",".")."</td>";
+                        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmm['total']-$mmm['totalmurni']),2,",",".")."</td>";
                     }
                     $body_pendapatan .= "
                     <tr data-akun='".$nnn."'>
@@ -254,7 +254,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                         <td class='kiri kanan bawah sub_rincian_objek'></td>
                         <td class='kanan bawah text_blok' style='padding-left:".($padding*2)."px;'>".$mmm['nama']."</td>
                         ".$murni."
-                        <td class='kanan bawah text_kanan text_blok'>".number_format($mmm['total'],0,",",".")."</td>
+                        <td class='kanan bawah text_kanan text_blok'>".number_format($mmm['total'],2,",",".")."</td>
                         ".$selisih."
                         <td class='kanan bawah'></td>
                         <td class='kanan bawah'></td>
@@ -266,8 +266,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                         $murni = '';
                         $selisih = '';
                         if($type == 'pergeseran'){
-                            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['totalmurni'],0,",",".")."</td>";
-                            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmmm['total']-$mmmm['totalmurni']),0,",",".")."</td>";
+                            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['totalmurni'],2,",",".")."</td>";
+                            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmmm['total']-$mmmm['totalmurni']),2,",",".")."</td>";
                         }
                         $body_pendapatan .= "
                         <tr data-akun='".$nnnn."'>
@@ -285,7 +285,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                             <td class='kiri kanan bawah sub_rincian_objek'></td>
                             <td class='kanan bawah text_blok' style='padding-left:".($padding*3)."px;'>".$mmmm['nama']."</td>
                             ".$murni."
-                            <td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['total'],0,",",".")."</td>
+                            <td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['total'],2,",",".")."</td>
                             ".$selisih."
                             <td class='kanan bawah'></td>
                             <td class='kanan bawah'></td>
@@ -298,8 +298,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                             $murni = '';
                             $selisih = '';
                             if($type == 'pergeseran'){
-                                $murni = "<td class='kanan bawah text_kanan'>".number_format($mmmmm['totalmurni'],0,",",".")."</td>";
-                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($mmmmm['total']-$mmmmm['totalmurni']),0,",",".")."</td>";
+                                $murni = "<td class='kanan bawah text_kanan'>".number_format($mmmmm['totalmurni'],2,",",".")."</td>";
+                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($mmmmm['total']-$mmmmm['totalmurni']),2,",",".")."</td>";
                             }
                             $sub_giat = explode(' ', $mmmmm['nama']);
                             $kd_sub_giat = $sub_giat[0];
@@ -326,7 +326,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                 <td class='kiri kanan bawah sub_rincian_objek'></td>
                                 <td class='kanan bawah' style='padding-left:".($padding*4)."px;'>".$sub_giat."</td>
                                 ".$murni."
-                                <td class='kanan bawah text_kanan'>".number_format($mmmmm['total'],0,",",".")."</td>
+                                <td class='kanan bawah text_kanan'>".number_format($mmmmm['total'],2,",",".")."</td>
                                 ".$selisih."
                                 <td class='kanan bawah'></td>
                                 <td class='kanan bawah'></td>
@@ -341,8 +341,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                             $murni = '';
                             $selisih = '';
                             if($type == 'pergeseran'){
-                                $murni = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['totalmurni'],0,",",".")."</td>";
-                                $selisih = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format(($vv['total']-$vv['totalmurni']),0,",",".")."</td>";
+                                $murni = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['totalmurni'],2,",",".")."</td>";
+                                $selisih = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format(($vv['total']-$vv['totalmurni']),2,",",".")."</td>";
                             }
                             $body_pendapatan .= "
                             <tr data-akun='".$kk."'>
@@ -360,7 +360,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                 <td class='kiri kanan bawah ".$text_blok." sub_rincian_objek'></td>
                                 <td class='kanan bawah ".$text_blok."'  style='padding-left:".($padding*5)."px;'>".$vv['nama']."</td>
                                 ".$murni."
-                                <td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['total'],0,",",".")."</td>
+                                <td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['total'],2,",",".")."</td>
                                 ".$selisih."
                                 <td class='kanan bawah ".$text_blok."'></td>
                                 <td class='kanan bawah ".$text_blok."'></td>
@@ -370,8 +370,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                 $murni = '';
                                 $selisih = '';
                                 if($type == 'pergeseran'){
-                                    $murni = "<td class='kanan bawah text_kanan'>".number_format($vvv['totalmurni'],0,",",".")."</td>";
-                                    $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvv['total']-$vvv['totalmurni']),0,",",".")."</td>";
+                                    $murni = "<td class='kanan bawah text_kanan'>".number_format($vvv['totalmurni'],2,",",".")."</td>";
+                                    $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvv['total']-$vvv['totalmurni']),2,",",".")."</td>";
                                 }
                                 $body_pendapatan .= "
                                 <tr data-akun='".$kkk."'>
@@ -389,7 +389,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                     <td class='kiri kanan bawah sub_rincian_objek'></td>
                                     <td class='kanan bawah'  style='padding-left:".($padding*6)."px;'>".$vvv['nama']."</td>
                                     ".$murni."
-                                    <td class='kanan bawah text_kanan'>".number_format($vvv['total'],0,",",".")."</td>
+                                    <td class='kanan bawah text_kanan'>".number_format($vvv['total'],2,",",".")."</td>
                                     ".$selisih."
                                     <td class='kanan bawah'></td>
                                     <td class='kanan bawah'></td>
@@ -399,8 +399,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                     $murni = '';
                                     $selisih = '';
                                     if($type == 'pergeseran'){
-                                        $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvv['totalmurni'],0,",",".")."</td>";
-                                        $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvv['total']-$vvvv['totalmurni']),0,",",".")."</td>";
+                                        $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvv['totalmurni'],2,",",".")."</td>";
+                                        $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvv['total']-$vvvv['totalmurni']),2,",",".")."</td>";
                                     }
                                     $body_pendapatan .= "
                                     <tr data-akun='".$kkkk."'>
@@ -418,7 +418,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                         <td class='kiri kanan bawah sub_rincian_objek'></td>
                                         <td class='kanan bawah'  style='padding-left:".($padding*7)."px;'>".$vvvv['nama']."</td>
                                         ".$murni."
-                                        <td class='kanan bawah text_kanan'>".number_format($vvvv['total'],0,",",".")."</td>
+                                        <td class='kanan bawah text_kanan'>".number_format($vvvv['total'],2,",",".")."</td>
                                         ".$selisih."
                                         <td class='kanan bawah'></td>
                                         <td class='kanan bawah'></td>
@@ -428,8 +428,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                         $murni = '';
                                         $selisih = '';
                                         if($type == 'pergeseran'){
-                                            $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvv['totalmurni'],0,",",".")."</td>";
-                                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvv['total']-$vvvvv['totalmurni']),0,",",".")."</td>";
+                                            $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvv['totalmurni'],2,",",".")."</td>";
+                                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvv['total']-$vvvvv['totalmurni']),2,",",".")."</td>";
                                         }
                                         $body_pendapatan .= "
                                         <tr data-akun='".$kkkkk."' class='rincian_objek'>
@@ -447,7 +447,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                             <td class='kiri kanan bawah sub_rincian_objek'></td>
                                             <td class='kanan bawah'  style='padding-left:".($padding*8)."px;'>".$vvvvv['nama']."</td>
                                             ".$murni."
-                                            <td class='kanan bawah text_kanan'>".number_format($vvvvv['total'],0,",",".")."</td>
+                                            <td class='kanan bawah text_kanan'>".number_format($vvvvv['total'],2,",",".")."</td>
                                             ".$selisih."
                                             <td class='kanan bawah'></td>
                                             <td class='kanan bawah'></td>
@@ -461,8 +461,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                             $murni = '';
                                             $selisih = '';
                                             if($type == 'pergeseran'){
-                                                $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvvv['totalmurni'],0,",",".")."</td>";
-                                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvvv['total']-$vvvvvv['totalmurni']),0,",",".")."</td>";
+                                                $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvvv['totalmurni'],2,",",".")."</td>";
+                                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvvv['total']-$vvvvvv['totalmurni']),2,",",".")."</td>";
                                             }
                                             $body_pendapatan .= "
                                             <tr class='sub_rincian_objek' data-akun='".$kkkkkk."' data-skpd='".json_encode($all_skpd)."'>
@@ -480,7 +480,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                                 <td class='kiri kanan bawah sub_rincian_objek'>".$kode[5]."</td>
                                                 <td class='kanan bawah'  style='padding-left:".($padding*9)."px;'>".$vvvvvv['nama']."</td>
                                                 ".$murni."
-                                                <td class='kanan bawah text_kanan'>".number_format($vvvvvv['total'],0,",",".")."</td>
+                                                <td class='kanan bawah text_kanan'>".number_format($vvvvvv['total'],2,",",".")."</td>
                                                 ".$selisih."
                                                 <td class='kanan bawah'></td>
                                                 <td class='kanan bawah'></td>
@@ -499,14 +499,14 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
     $murni = '';
     $selisih = '';
     if($type == 'pergeseran'){
-        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['totalmurni'],0,",",".")."</td>";
-        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_pendapatan['total']-$data_pendapatan['totalmurni']),0,",",".")."</td>";
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['totalmurni'],2,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_pendapatan['total']-$data_pendapatan['totalmurni']),2,",",".")."</td>";
     }
     $body_pendapatan .= "
     <tr>
         <td class='kiri kanan bawah text_kanan text_blok colspan_kurang' colspan='13'>Jumlah ".$nama_table."</td>
         ".$murni."
-        <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],0,",",".")."</td>
+        <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],2,",",".")."</td>
         ".$selisih."
         <td class='kanan bawah'></td>
         <td class='kanan bawah'></td>
@@ -739,16 +739,16 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
                 $selisih_belanja_murni = $total_pendapatan_murni-$total_belanja_murni;
                 if($type == 'murni'){
                     $kolom_jml = '
-                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,0,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,2,",",".").'</td>
                     ';
                     $kolom_batas = '
                         <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
                     ';
                 }else{
                     $kolom_jml = '
-                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,0,",",".").'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja_murni,0,",",".").'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format(($selisih_belanja-$selisih_belanja_murni),0,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,2,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja_murni,2,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format(($selisih_belanja-$selisih_belanja_murni),2,",",".").'</td>
                     ';
                     $kolom_batas = '
                         <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
