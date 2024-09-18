@@ -6677,18 +6677,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['id_jadwal'])){
 							throw new Exception("Parameter Id Jadwal Kosong!", 1);
 						}
-						$data_tujuan_renstra = $wpdb->get_results($wpdb->prepare(
-							"
+						$data_tujuan_renstra = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
-							from 
-								data_renstra_tujuan 
+							from data_renstra_tujuan 
 							where 
 								id_unit=%d and 
 								active=1 and 
-								id_jadwal=%d order by id",
-								$_POST['id_skpd'], $_POST['id_jadwal']
-						), ARRAY_A);
+								id_jadwal=%d 
+							order by id, id_unik_indikator asc
+						", $_POST['id_skpd'], $_POST['id_jadwal']), ARRAY_A);
 		
 						if(!empty($data_tujuan_renstra)){
 							$ret['data'] = $data_tujuan_renstra;
@@ -6706,12 +6704,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							where 
 								id_unit=%d and 
 								active=1 and 
-								id_jadwal=%d order by kode_bidang_urusan",
+								id_jadwal=%d 
+							order by kode_bidang_urusan, id_unik_indikator asc",
 								$_POST['id_skpd'], $_POST['id_jadwal']
 						), ARRAY_A);
 		
 						if(!empty($data_sasaran_renstra)){
 							$ret['data'] = $data_sasaran_renstra;
+						}
+					}else if($jenis == 'program_renstra'){
+						if(empty($_POST['id_jadwal'])){
+							throw new Exception("Parameter Id Jadwal Kosong!", 1);
+						}
+						$data_program_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_renstra_program
+							WHERE
+								id_unit=%d AND 
+								active=1 AND 
+								id_jadwal=%d 
+							ORDER BY 
+								kode_program, id_unik_indikator asc",
+								$_POST['id_skpd'], $_POST['id_jadwal']
+						), ARRAY_A);
+		
+						if(!empty($data_program_renstra)){
+							$ret['data'] = $data_program_renstra;
+							$ret['message'] = 'Berhasil get program renja!';
 						}
 					}else if($jenis == 'program'){
 						if(empty($_POST['tahun_anggaran'])){
