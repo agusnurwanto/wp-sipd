@@ -7241,6 +7241,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret = array(
 			'status' => 'success',
 			'message' => 'Berhasil Singkron Buku Jurnal',
+			'id_skpd' => $_POST['id_skpd'],
 			'action' => $_POST['action']
 		);
 		if (!empty($_POST)) {
