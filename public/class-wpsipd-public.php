@@ -9322,7 +9322,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_page = 'RFK ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 						$url_rfk = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_rfk . $url_nilai_dpa . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_rfk, $url_nilai_dpa) . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[2])) {

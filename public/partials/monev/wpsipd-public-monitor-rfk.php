@@ -129,10 +129,10 @@ foreach ($units as $k => $unit) :
 				r.permasalahan,
 				r.catatan_verifikator
 			from data_sub_keg_bl k
-				left join data_rfk r on k.kode_sbl=r.kode_sbl
-					AND k.tahun_anggaran=r.tahun_anggaran
-					AND k.id_sub_skpd=r.id_skpd
-					AND r.bulan=%d
+			left join data_rfk r on k.kode_sbl=r.kode_sbl
+				AND k.tahun_anggaran=r.tahun_anggaran
+				AND k.id_sub_skpd=r.id_skpd
+				AND r.bulan=%d
 			where k.tahun_anggaran=%d
 				and k.active=1
 				and k.id_sub_skpd=%d
@@ -356,7 +356,7 @@ foreach ($units as $k => $unit) :
 			));
 		}
 
-		$realisasi = 0;
+		$realisasi = $sub['realisasi_anggaran'];
 		if ($singkron_simda == '1') {
 			$realisasi = $this->get_realisasi_simda(array(
 				'user' => $current_user->display_name,
