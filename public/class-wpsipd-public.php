@@ -7166,7 +7166,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$ret = array(
 			'status' => 'success',
-			'message' => 'Berhasil singkronisasi AKLAP LRA'
+			'message' => 'Berhasil singkronisasi AKLAP LRA',
+			'action' => $_POST['action'],
+			'id_skpd' => $_POST['id_skpd']
 		);
 
 		if (!empty($_POST)) {
@@ -7182,23 +7184,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					$wpdb->update("aklap_lra_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"id_skpd" => $_POST['id_skpd'],
-						"mulai_tgl" => $_POST['mulai_tgl'],
-						"sampai_tgl" => $_POST['sampai_tgl']
+						"id_skpd" => $_POST['id_skpd']
 					));
 				}
 
 				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("
+					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
-							nama_rekening 
+							id 
 						from aklap_lra_sipd 
-						where nama_rekening=%d 
+						where kode_rekening=%d 
+							and id_daerah=%d
+							and id_skpd=%d
 							and level=%d
 							and tahun_anggaran=%d
-							and mulai_tgl=%d
-							and sampai_tgl=%d
-						", $v["nama_rekening"], $v["level"], $_POST["tahun_anggaran"], $_POST['mulai_tgl'], $_POST['sampai_tgl']));
+						", $v["kode_rekening"], $_POST["id_daerah"], $v["id_skpd"], $v["level"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"id_daerah" => $_POST["id_daerah"],
 						"id_skpd" => $v["id_skpd"],
@@ -7215,9 +7215,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
-					if (!empty($cek)) {
+					if (!empty($cek_id)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"], "tahun_anggaran" => $_POST["tahun_anggaran"], "mulai_tgl" => $_POST["mulai_tgl"], "sampai_tgl" => $_POST["sampai_tgl"],));
+						$wpdb->update("aklap_lra_sipd", $opsi, array("id" => $cek_id));
 					} else {
 						//insert data spm ditable data_spm_sipd
 						$wpdb->insert("aklap_lra_sipd", $opsi);

@@ -1493,7 +1493,7 @@ if (
 				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>I</th>
 				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>II</th>
 				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>III</th>
-				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>VI</th>
+				<th colspan="3" class='atas kanan bawah text_tengah text_blok'>IV</th>
 			</tr>
 			<tr>
 				<th rowspan="3" class='atas kanan bawah text_tengah text_blok'>0</th>
