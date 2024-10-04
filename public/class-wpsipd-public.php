@@ -10268,39 +10268,40 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$total_rak += $data_kas['bulan_' . $i];
 			}
 		}
-		if ($total_rak == $options['rak']) {
+		if(
+			empty($options['cek_input']) 
+			&& $total_rak == $options['rak']
+		){
+			return $total_rak;
+		}else{
+			$sql = $wpdb->prepare("
+			    select 
+			        id
+			    from data_rfk
+			    where tahun_anggaran=%d
+			        and bulan=%d
+			        and id_skpd=%d
+			        and kode_sbl=%s
+			", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
+			$cek_id = $wpdb->get_var($sql);
+			$opsi = array(
+				'bulan'	=> $options['bulan'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'rak' => $total_rak,
+				'user_edit'	=> $options['user'],
+				'id_skpd'	=> $options['id_skpd'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			if (!empty($cek_id)) {
+				$wpdb->update('data_rfk', $opsi, array(
+					'id' => $cek_id
+				));
+			} else {
+				$wpdb->insert('data_rfk', $opsi);
+			}
 			return $total_rak;
 		}
-		$sql = $wpdb->prepare("
-		    select 
-		        id
-		    from data_rfk
-		    where tahun_anggaran=%d
-		        and bulan=%d
-		        and id_skpd=%d
-		        and kode_sbl=%s
-		", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
-		$cek = $wpdb->get_results($sql, ARRAY_A);
-		$opsi = array(
-			'bulan'	=> $options['bulan'],
-			'kode_sbl'	=> $options['kode_sbl'],
-			'rak' => $total_rak,
-			'user_edit'	=> $options['user'],
-			'id_skpd'	=> $options['id_skpd'],
-			'tahun_anggaran'	=> $options['tahun_anggaran'],
-			'created_at'	=>  current_time('mysql')
-		);
-		if (!empty($cek)) {
-			$wpdb->update('data_rfk', $opsi, array(
-				'tahun_anggaran' => $options['tahun_anggaran'],
-				'bulan' => $options['bulan'],
-				'id_skpd' => $options['id_skpd'],
-				'kode_sbl' => $options['kode_sbl']
-			));
-		} else {
-			$wpdb->insert('data_rfk', $opsi);
-		}
-		return $total_rak;
 	}
 
 	function get_realisasi_simda($options = array())
@@ -11543,7 +11544,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						        and id_skpd=%d
 						        and kode_sbl=%s
 						", $tahun_anggaran, $bulan, $id_skpd, $kode_sbl);
-						$cek = $wpdb->get_results($sql, ARRAY_A);
+						$cek_id = $wpdb->get_var($sql);
 						$realisasi_anggaran = 0;
 						for ($b = 1; $b <= $bulan; $b++) {
 							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_' . $b];
@@ -11562,12 +11563,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun_anggaran'	=> $tahun_anggaran,
 							'created_at'	=>  current_time('mysql')
 						);
-						if (!empty($cek)) {
+						if (!empty($cek_id)) {
 							$wpdb->update('data_rfk', $opsi, array(
-								'tahun_anggaran' => $tahun_anggaran,
-								'bulan' => $bulan,
-								'id_skpd' => $id_skpd,
-								'kode_sbl' => $kode_sbl
+								'id' => $cek_id
 							));
 						} else {
 							$wpdb->insert('data_rfk', $opsi);
@@ -11772,7 +11770,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tbody .= '
 						<tr>
 							<td>' . $this->get_bulan($i) . '</td>
-							<td class="text_kanan nilai_rak" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_rak_bulan_' . $i . '">' . $rak_bulanan_format . '</td>
+							<td class="text_kanan nilai_rak" onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_rak_bulan_' . $i . '">' . $rak_bulanan_format . '</td>
 							<td class="text_kanan nilai_realisasi" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_realisasi_bulan_' . $i . '">' . $realisasi_bulanan_format . '</td>
 							<td class="text_kanan nilai_selisih">' . $selisih_format . '</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_' . $i . '" ' . $editable . ' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">' . $realisasi_target_bulanan . '</td>

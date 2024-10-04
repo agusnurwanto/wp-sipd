@@ -159,39 +159,44 @@ foreach ($subkeg as $kk => $sub) {
 		WHERE tahun_anggaran=%d
 			AND id_skpd=%d
 			AND kode_sbl=%s
-			AND bulan<=%d ORDER BY bulan ASC
+			AND bulan<=%d 
+		ORDER BY bulan ASC, id ASC
 	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$rak = array();
 	foreach ($rfk_all as $k => $v) {
 		if (empty($rak[$v['bulan']])) {
-			$rak[$v['bulan']] = 0;
+			$v['key'] = $k;
+			$rak[$v['bulan']] = $v;
+		}else{
+			// hapus jika ada bulan yang double
+			$wpdb->delete('data_rfk', array('id' => $v['id']));
 		}
-		$rak[$v['bulan']] += $v['rak'];
 	}
+
 	$cek_input = false;
 	for ($i = 1; $i <= $bulan; $i++) {
-		$cek_rak = $this->get_rak_sipd_rfk(array(
+		$opsi = array(
 			'user' => $current_user->display_name,
 			'id_skpd' => $unit[0]['id_skpd'],
 			'kode_sbl' => $sub['kode_sbl'],
 			'tahun_anggaran' => $input['tahun_anggaran'],
 			'bulan' => $i,
+			'cek_insert' => false,
 			'rak' => 0
-		));
-
-		// jika rak belum ada di data_rfk dan rak kosong maka lakukan insert data dengan nilai rak 0
-		if (!isset($rak[$i]) && $cek_rak == 0) {
+		);
+		if (!isset($rak[$i])) {
 			$cek_input = true;
-			$opsi = array(
-				'bulan'	=> $i,
-				'kode_sbl'	=> $sub['kode_sbl'],
-				'rak' => 0,
-				'user_edit'	=> $current_user->display_name,
-				'id_skpd'	=> $unit[0]['id_skpd'],
-				'tahun_anggaran'	=> $input['tahun_anggaran'],
-				'created_at'	=>  current_time('mysql')
-			);
-			$wpdb->insert('data_rfk', $opsi);
+			$opsi['cek_insert'] = true;
+		}else{
+			$opsi['rak'] = $rak[$i]['rak'];
+		}
+
+		// fungsi untuk mengupdate RAK sesuai RAK SIPD atau menginsert data baru jika data_rfk bulan ini belum ada
+		$cek_rak_sipd = $this->get_rak_sipd_rfk($opsi);
+
+		// setting nilai RAK terbaru SIPD ke variable rfk all
+		if (isset($rak[$i])) {
+			$rfk_all[$rak[$i]['key']]['rak'] = $cek_rak_sipd;
 		}
 	}
 
