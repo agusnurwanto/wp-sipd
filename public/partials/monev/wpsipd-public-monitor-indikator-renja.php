@@ -151,15 +151,16 @@ foreach ($subkeg as $kk => $sub) {
 
 	$rfk_all = $wpdb->get_results($wpdb->prepare("
 		SELECT
-		id,
-		realisasi_anggaran,
-		rak,
-		bulan
+			id,
+			realisasi_anggaran,
+			rak,
+			bulan
 		FROM data_rfk
 		WHERE tahun_anggaran=%d
-		AND id_skpd=%d
-		AND kode_sbl=%s
-		AND bulan<=%d ORDER BY bulan ASC ", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+			AND id_skpd=%d
+			AND kode_sbl=%s
+			AND bulan<=%d ORDER BY bulan ASC
+	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$rak = array();
 	foreach ($rfk_all as $k => $v) {
 		if (empty($rak[$v['bulan']])) {
@@ -196,7 +197,18 @@ foreach ($subkeg as $kk => $sub) {
 
 	// jika ada data rak yang baru diinput maka diselect ulang
 	if ($cek_input == true) {
-		$rfk_all = $wpdb->get_results($wpdb->prepare(" SELECT id, realisasi_anggaran, rak, bulan FROM data_rfk WHERE tahun_anggaran=%d and id_skpd=%d and kode_sbl=%s and bulan<=%d ORDER BY bulan ASC ", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+		$rfk_all = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				id, 
+				realisasi_anggaran, 
+				rak, 
+				bulan 
+			FROM data_rfk 
+			WHERE tahun_anggaran=%d 
+				and id_skpd=%d 
+				and kode_sbl=%s 
+				and bulan<=%d ORDER BY bulan ASC
+		", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	}
 
 	$triwulan_1 = 0;
@@ -987,13 +999,19 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								}
 								if ($rumus_indikator == 1) {
 									$class_rumus_target[$k_sub] = "positif";
-									if (!empty($target_indikator)) {
+									if (
+										!empty($target_indikator) 
+										&& !empty($total_tw[$k_sub])
+									) {
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 									}
 								} else if ($rumus_indikator == 2) {
 									$class_rumus_target[$k_sub] = "negatif";
 									$total_tw[$k_sub] = $max;
-									if (!empty($total_tw[$k_sub])) {
+									if (
+										!empty($target_indikator)
+										&& !empty($total_tw[$k_sub])
+									) {
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator / $total_tw[$k_sub]) * 100);
 									}
 								} else if ($rumus_indikator == 3 || $rumus_indikator == 4) {
@@ -1003,7 +1021,10 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 										$class_rumus_target[$k_sub] = "nilai_akhir";
 									}
 									$total_tw[$k_sub] = $max;
-									if (!empty($target_indikator)) {
+									if (
+										!empty($target_indikator)
+										&& !empty($total_tw[$k_sub])
+									) {
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 									}
 								}
@@ -2067,7 +2088,7 @@ foreach ($monev_triwulan as $k => $v) {
 			jQuery('#wrap-loading').show();
 			var id_unik = jQuery(this).attr('data-id');
 			var tr = jQuery(this).closest('tr');
-			var nama = tr.find('td.nama').text();
+			var nama = tr.find('td.nama').prev().text()+' '+tr.find('td.nama').text();
 			var id_indikator = id_unik.split('-').pop();
 			var indikator_text = tr.find('td.indikator span[data-id="' + id_indikator + '"]').text();
 			if (indikator_text == '') {

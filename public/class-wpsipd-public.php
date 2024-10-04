@@ -11367,29 +11367,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (isset($params['type']) && $params['type'] == 'sub_unit') {
 			$column = 'id_skpd';
 		}
-		$last_update = $wpdb->get_results($wpdb->prepare(
-			"
-							select 
-								min(d.created_at) as last_update
-							from data_sub_keg_bl k 
-							left join data_rfk d 
-								on d.id_skpd=k.id_sub_skpd and 
-								d.kode_sbl=k.kode_sbl and 
-								d.tahun_anggaran=k.tahun_anggaran and 
-								d.bulan=" . $params['bulan'] . " 
-							where 
-								k.tahun_anggaran=%d and 
-								k.id_sub_skpd in (
-									select 
-										id_skpd 
-									from data_unit 
-									where 
-										" . $column . "=" . $params['id_skpd'] . " and 
-										active=1 and 
-										tahun_anggaran=" . $params['tahun_anggaran'] . "
-								) and 
-								k.active=1
-							",
+		$last_update = $wpdb->get_results($wpdb->prepare("
+			select 
+				min(d.created_at) as last_update
+			from data_sub_keg_bl k 
+			left join data_rfk d 
+				on d.id_skpd=k.id_sub_skpd and 
+				d.kode_sbl=k.kode_sbl and 
+				d.tahun_anggaran=k.tahun_anggaran and 
+				d.bulan=" . $params['bulan'] . " 
+			where 
+				k.tahun_anggaran=%d and 
+				k.id_sub_skpd in (
+					select 
+						id_skpd 
+					from data_unit 
+					where 
+						" . $column . "=" . $params['id_skpd'] . " and 
+						active=1 and 
+						tahun_anggaran=" . $params['tahun_anggaran'] . "
+				) and 
+				k.active=1
+			",
 			$params['tahun_anggaran']
 		), ARRAY_A);
 
