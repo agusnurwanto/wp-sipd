@@ -18368,9 +18368,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$status_check = array(0, NULL, 2);
 							if (in_array($data_this_id['status'], $status_check)) {
 
+								$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 								$this->check_total_pagu_penetapan([
 									'lama_pelaksanaan' => $data_this_id['lama_pelaksanaan'],
-									'tahun_anggaran' => $data_this_id['tahun_anggaran']
+									'tahun_anggaran' => $tahun_anggaran
 								]);
 
 								//lock data penjadwalan
@@ -22467,6 +22468,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			// echo '<pre>';print_r($data_all);echo '</pre>';die();
+			$error = '';
 
 			for ($i = 0; $i < $opt['lama_pelaksanaan']; $i++) {
 				if (
@@ -22475,9 +22477,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					($data_all['pagu_' . ($i + 1) . '_kegiatan_kab'] != $data_all['pagu_' . ($i + 1) . '_subkegiatan_kab'])
 				) {
 
-					throw new Exception("
-						<p>Pagu akumulasi total di tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</p>
-						<table>
+					$error .= "
+						<h4>Pagu akumulasi total di tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</h4>
+						<table class='table table-bordered'>
 							<thead>
 								<tr>
 									<th width='50%'>Data Renstra</th>
@@ -22486,20 +22488,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							</thead>
 							<tbody>
 								<tr>
-									<td>Program</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_program_kab']) . "</td>
+									<td class='text-left'>Program</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_program_kab']) . "</td>
 								</tr>
 								<tr>
-									<td>Kegiatan</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_kegiatan_kab']) . "</td>
+									<td class='text-left'>Kegiatan</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_kegiatan_kab']) . "</td>
 								</tr>
 								<tr>
-									<td>Sub Kegiatan</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_subkegiatan_kab']) . "</td>
+									<td class='text-left'>Sub Kegiatan</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_subkegiatan_kab']) . "</td>
 								</tr>
 							</tbody>
 						</table>
-						", true);
+						";
 				}
 			}
 
@@ -22511,10 +22513,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan'] !=
 								$valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']
 							) {
-								throw new Exception("
+								$error .= "
 								<div>
-									<p>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator kegiatan dan pagu sub kegiatannya.</p>
-									<table>
+									<h4>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator kegiatan dan pagu sub kegiatannya.</h4>
+									<table class='table table-bordered'>
 										<thead>
 											<tr>
 												<th width='30%'>Unit Kerja</th>
@@ -22525,14 +22527,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										</thead>
 										<tbody>
 											<tr>
-												<td>" . $unit['unit_kerja'] . "</td>
-												<td>" . $valueKegiatan['nama_kegiatan'] . "</td>
-												<td>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
-												<td>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']) . "</td>
+												<td class='text-left'>" . $unit['unit_kerja'] . "</td>
+												<td class='text-left'>" . $valueKegiatan['nama_kegiatan'] . "</td>
+												<td class='text-right'>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
+												<td class='text-right'>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']) . "</td>
 											</tr>
 										</tbody>
 									</table>
-								</div>", true);
+								</div>";
 							}
 						}
 					}
@@ -22542,10 +22544,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$valueProgram['pagu_akumulasi_' . ($i + 1) . '_program'] !=
 							$valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']
 						) {
-							throw new Exception("
+							$error .= "
 								<div>
-									<p>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program dan pagu indikator kegiatannya.</p>
-									<table>
+									<h4>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program dan pagu indikator kegiatannya.</h4>
+									<table class='table table-bordered'>
 										<thead>
 											<tr>
 												<th width='30%'>Unit Kerja</th>
@@ -22556,17 +22558,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										</thead>
 										<tbody>
 											<tr>
-												<td>" . $unit['unit_kerja'] . "</td>
-												<td>" . $valueProgram['nama_program'] . "</td>
-												<td>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_program']) . "</td>
-												<td>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
+												<td class='text-left'>" . $unit['unit_kerja'] . "</td>
+												<td class='text-left'>" . $valueProgram['nama_program'] . "</td>
+												<td class='text-right'>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_program']) . "</td>
+												<td class='text-right'>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
 											</tr>
 										</tbody>
 									</table>
-								</div>", true);
+								</div>";
 						}
 					}
 				}
+			}
+
+			if(!empty($error)){
+				throw new Exception($error);
 			}
 		} catch (Exception $e) {
 			echo json_encode([
