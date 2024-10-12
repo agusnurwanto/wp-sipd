@@ -1236,6 +1236,7 @@ class Wpsipd
 		add_shortcode('pohon_kinerja_renja',array($plugin_public,'pohon_kinerja_renja'));
 
 		add_shortcode('serapan_rka_sipd',array($plugin_public,'serapan_rka_sipd'));
+		add_shortcode('monev_pemutakhiran',array($plugin_public,'monev_pemutakhiran'));
 	}
 
 	/**

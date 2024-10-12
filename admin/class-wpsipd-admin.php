@@ -402,6 +402,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->add_fields($this->get_ajax_field(array('type' => 'monev_json_rka')));
 			}
 
+			if (get_option('_crb_show_menu_monev_pemutakhiran') != true) {
+				Container::make('theme_options', __('Cek Pemutakhiran'))
+					->set_page_parent($monev)
+					->add_fields($this->get_ajax_field(array('type' => 'monev_pemutakhiran')));
+			}
+
 			
 		}
 		$show_laporan_sipd_menu = get_option('_crb_show_menu_laporan_sipd_settings');
@@ -1469,6 +1475,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_skpd = $this->generatePage('Data JSON RKA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<input type="checkbox" class="select-all"> <a onclick="run_url(this); return false;" target="_blank" href="' . $url_skpd . '">Halaman JSON RKA Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'monev_pemutakhiran') {
+						$url_cek_pemutakhiran = $this->generatePage('Cek Pemutakhiran SIPD | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monev_pemutakhiran tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_cek_pemutakhiran . '">Cek Pemutakhiran SIPD Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'input_renstra') {
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'rkpd_renja') {
@@ -1690,6 +1700,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'
+					|| $_POST['type'] == 'monev_pemutakhiran'
 					|| $_POST['type'] == 'input_renstra'
 					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'spd'
@@ -2258,6 +2269,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_tbp', 'Halaman TBP')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_monev_pemutakhiran', 'Cek Pemutakhiran')
 				->set_option_value('true'),
 
 			Field::make('separator', 'crb_show_menu_laporan_settings', 'Non Aktifkan Menu ( LAPORAN SIPD )'),

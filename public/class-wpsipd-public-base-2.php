@@ -501,6 +501,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/input_perencanaan/wpsipd-public-input-renja.php';
 	}
 
+	public function monev_pemutakhiran($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-monev-pemutakhiran.php';
+	}
+
 	public function monitor_rak($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post

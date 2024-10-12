@@ -4883,6 +4883,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'iddana' => $v['iddana'],
 								'iddanasubbl' => $v['iddanasubbl'],
 								'pagudana' => $v['pagudana'],
+								'is_locked' => $v['is_locked'],
 								'kode_sbl' => $_POST['kode_sbl'],
 								'idsubbl' => $_POST['idsubbl'],
 								'active' => 1,
@@ -5091,6 +5092,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
 							'idsubtitle' => $v['subs_bl_teks']['sumber_dana']['id_subtitle'],
+							'ssh_locked' => $v['ssh_locked'],
+							'akun_locked' => $v['akun_locked'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
