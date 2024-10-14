@@ -43,7 +43,7 @@ foreach($cek_sumber_dana as $sd){
 			<td class="text-left">'.$sd['kodedana'].'</td>
 			<td class="text-left">'.$sd['namadana'].'</td>
 			<td class="text-left">'.$sd['nama_sub_giat'].'</td>
-			<td class="text-left">'.$sd['nama_sub_skpd'].'</td>
+			<td class="text-left">'.$sd['kode_sub_skpd'].' '.$sd['nama_sub_skpd'].'</td>
 			<td class="text-right">'.number_format($sd['pagudana'], 0, ",", ".").'</td>
 			<td class="text-right">'.number_format($sd['pagu'], 0, ",", ".").'</td>
 		</tr>
@@ -81,6 +81,98 @@ foreach($data_all as $sd){
 		</tr>
 	';
 }
+
+$akun_all = $wpdb->get_results($wpdb->prepare('
+	SELECT
+		r.kode_akun,
+		r.nama_akun,
+		SUM(r.total_harga) AS total,
+		a.kode_akun as kode_akun_baru,
+		a.nama_akun as nama_akun_baru,
+		a.id_akun as id_akun_baru
+	FROM data_rka r
+	INNER JOIN data_sub_keg_bl k ON r.kode_sbl=k.kode_sbl
+		AND k.tahun_anggaran=r.tahun_anggaran
+		AND k.active=r.active
+	LEFT JOIN data_akun a ON a.kode_akun=r.kode_akun
+		AND a.tahun_anggaran=r.tahun_anggaran
+		AND a.active=r.active
+	WHERE r.active=1
+		AND r.tahun_anggaran=%d
+		AND r.akun_locked=1
+	GROUP BY r.kode_akun
+	ORDER BY r.kode_akun ASC
+', $input['tahun_anggaran']), ARRAY_A);
+
+$body_akun = '';
+$no = 0;
+foreach($akun_all as $akun){
+	$no++;
+	$body_akun .= '
+		<tr>
+			<td class="text-center">'.$no.'</td>
+			<td class="text-left">'.$akun['kode_akun'].'</td>
+			<td class="text-left">'.str_replace($akun['kode_akun'], '', $akun['nama_akun']).'</td>
+			<td class="text-right">'.number_format($akun['total'], 0, ",", ".").'</td>
+			<td class="text-left">'.$akun['id_akun_baru'].'</td>
+			<td class="text-left">'.$akun['kode_akun_baru'].'</td>
+			<td class="text-left">'.str_replace($akun['kode_akun'], '', $akun['nama_akun_baru']).'</td>
+		</tr>
+	';
+}
+
+$akun_rincian_detail = $wpdb->get_results($wpdb->prepare('
+	SELECT
+		r.kode_akun,
+		r.nama_akun,
+		SUM(r.total_harga) AS total,
+		k.kode_sub_skpd,
+		k.nama_sub_skpd,
+		k.kode_sub_giat,
+		k.nama_sub_giat
+	FROM data_rka r
+	INNER JOIN data_sub_keg_bl k ON r.kode_sbl=k.kode_sbl
+		AND k.tahun_anggaran=r.tahun_anggaran
+		AND k.active=r.active
+	WHERE r.active=1
+		AND r.tahun_anggaran=%d
+		AND r.akun_locked=1
+	GROUP BY r.kode_akun, k.kode_sub_giat
+	ORDER BY r.kode_sbl ASC, r.kode_akun ASC
+', $input['tahun_anggaran']), ARRAY_A);
+
+$body_akun_rinci = '';
+$no = 0;
+foreach($akun_rincian_detail as $akun){
+	$no++;
+	$body_akun_rinci .= '
+		<tr>
+			<td class="text-center">'.$no.'</td>
+			<td class="text-left">'.$akun['kode_akun'].'</td>
+			<td class="text-left">'.str_replace($akun['kode_akun'], '', $akun['nama_akun']).'</td>
+			<td class="text-left">'.$akun['nama_sub_giat'].'</td>
+			<td class="text-left">'.$akun['kode_sub_skpd'].' '.$akun['nama_sub_skpd'].'</td>
+			<td class="text-right">'.number_format($akun['total'], 0, ",", ".").'</td>
+		</tr>
+	';
+}
+
+$ssh_rincian = $wpdb->get_results($wpdb->prepare('
+	SELECT
+		r.*,
+		k.kode_sub_skpd,
+		k.nama_sub_skpd,
+		k.kode_sub_giat,
+		k.nama_sub_giat
+	FROM data_rka r
+	INNER JOIN data_sub_keg_bl k ON r.kode_sbl=k.kode_sbl
+		AND k.tahun_anggaran=r.tahun_anggaran
+		AND k.active=r.active
+	WHERE r.active=1
+		AND r.tahun_anggaran=%d
+		AND r.ssh_locked=1
+', $input['tahun_anggaran']), ARRAY_A);
+
 ?>
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
@@ -126,6 +218,54 @@ foreach($data_all as $sd){
                     <th class="text-center">No</th>
                     <th class="text-center">Kode Sumber Dana</th>
                     <th class="text-center">Sumber Dana</th>
+                    <th class="text-center">Sub Kegiatan</th>
+                    <th class="text-center">Perangkat Daerah</th>
+                    <th class="text-center">Pagu</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+		<h2 class="text-center">Daftar Pemutakhiran Rekening / Akun di Rincian Belanja Sub Kegiantan Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+		<table id="data_sumber_dana_table" cellpadding="2" cellspacing="0">
+            <thead id="data_header">
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Kode Rekening</th>
+                    <th class="text-center">Uraian Rekening</th>
+                    <th class="text-center">Pagu</th>
+                    <th class="text-center">ID Rekening Baru</th>
+                    <th class="text-center">Kode Rekening Baru</th>
+                    <th class="text-center">Uraian Rekening Baru</th>
+                </tr>
+            </thead>
+            <tbody>
+            	<?php echo $body_akun; ?>
+            </tbody>
+        </table>
+		<h2 class="text-center">Detail Pemutakhiran Rekening / Akun di Rincian Belanja Sub Kegiantan Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+		<table id="data_sumber_dana_table" cellpadding="2" cellspacing="0">
+            <thead id="data_header">
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Kode Rekening</th>
+                    <th class="text-center">Uraian Rekening</th>
+                    <th class="text-center">Sub Kegiatan</th>
+                    <th class="text-center">Perangkat Daerah</th>
+                    <th class="text-center">Pagu</th>
+                </tr>
+            </thead>
+            <tbody>
+            	<?php echo $body_akun_rinci; ?>
+            </tbody>
+        </table>
+		<h2 class="text-center">Daftar Pemutakhiran Standar Harga di Rincian Belanja Sub Kegiantan Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+		<table id="data_sumber_dana_table" cellpadding="2" cellspacing="0">
+            <thead id="data_header">
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Kode Standar Harga</th>
+                    <th class="text-center">Nama Standar Harga</th>
                     <th class="text-center">Sub Kegiatan</th>
                     <th class="text-center">Perangkat Daerah</th>
                     <th class="text-center">Pagu</th>
