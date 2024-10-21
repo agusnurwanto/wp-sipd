@@ -474,10 +474,10 @@ foreach ($units as $k => $unit) :
 				$cek_verifikasi = 'badge-success';
 			}
 			$url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan', $sub['tahun_anggaran'], '[verifikasi_rka]');
-			$url_verifikasi .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
+			$url_verifikasi = $this->add_param_get($url_verifikasi, '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl']);
 
 			$url_panjar = $this->generatePage('Daftar Nota Pencairan Dana | Panjar', $sub['tahun_anggaran'], '[daftar_nota_pencairan_dana_panjar]');
-			$url_panjar .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
+			$url_panjar = $this->add_param_get($url_panjar, '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl']);
 
 			$url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub['kode_sbl'].' | '.$sub['tahun_anggaran'],$sub['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub['id_sub_skpd'].'" kode_sbl="'.$sub['kode_sbl'].'" tahun_anggaran="'.$sub['tahun_anggaran'].'"]');
             $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.implode(' ', $nama).'</a>';
@@ -1283,8 +1283,8 @@ if (
 	}
 
 	<?php
-		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
-		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');;
+		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 	?>
 	var extend_action = '' +
 	'<?php echo $simpan_rfk; ?>' +
