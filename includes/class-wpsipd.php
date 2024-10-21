@@ -1224,6 +1224,7 @@ class Wpsipd
 		add_shortcode('laporan_panjar_npd', array($plugin_public, 'laporan_panjar_npd'));
 		add_shortcode('daftar_buku_kas_umum_pembantu', array($plugin_public, 'daftar_buku_kas_umum_pembantu'));
 		add_shortcode('print_laporan_buku_kas_umum_pembantu', array($plugin_public, 'print_laporan_buku_kas_umum_pembantu'));
+		
 		add_shortcode('print_laporan_detail_kegiatan', array($plugin_public, 'print_laporan_detail_kegiatan'));
 		add_shortcode('jadwal_monev_rpjmd', array($plugin_public, 'jadwal_monev_rpjmd'));
 		add_shortcode('jadwal_monev_renstra', array($plugin_public, 'jadwal_monev_renstra'));

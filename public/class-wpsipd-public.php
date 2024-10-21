@@ -24969,4 +24969,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
+
+	public function aklap_lra($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		$input = shortcode_atts(array(
+			'idlabelgiat' => '',			
+			'id_skpd' => false,
+			'tahun_anggaran' => '2021',
+		), $atts);
+
+		// LRA
+		if ($input['lampiran'] == 1) {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-aklap-lra.php';
+		}
+	}
 }
