@@ -2,10 +2,10 @@
 global $wpdb;
 
 if (!empty($_GET) && !empty($_GET['tahun']) && !empty($_GET['kode_sbl'])) {
-	$tahun_anggaran = $_GET['tahun'];
-	$kode_sbl = $_GET['kode_sbl'];
+    $tahun_anggaran = $_GET['tahun'];
+    $kode_sbl = $_GET['kode_sbl'];
 } else {
-	die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
+    die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
 }
 
 $api_key = get_option('_crb_api_key_extension');
@@ -51,27 +51,27 @@ if ($data_rfk) {
 }
 
 $title = 'Laporan Panjar | Nota Pencairan Dana | ' . $tahun_anggaran;
-$shortcode = '[laporan_panjar_npd tahun_anggaran="'. $tahun_anggaran .'"] ';
+$shortcode = '[laporan_panjar_npd tahun_anggaran="' . $tahun_anggaran . '"] ';
 $url_laporan_panjar_npd = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
 $title = 'Laporan Buku Kas Umum Pembantu | Buku Kas Umum Pembantu | ' . $tahun_anggaran;
-$shortcode = '[print_laporan_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'"] ';
+$shortcode = '[print_laporan_buku_kas_umum_pembantu tahun_anggaran="' . $tahun_anggaran . '"] ';
 $url_print_laporan_buku_kas_umum_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
 $title = 'Laporan Detail Kegiatan | Kegiatan | ' . $tahun_anggaran;
-$shortcode = '[print_laporan_detail_kegiatan tahun_anggaran="'. $tahun_anggaran .'"] ';
+$shortcode = '[print_laporan_detail_kegiatan tahun_anggaran="' . $tahun_anggaran . '"] ';
 $url_print_laporan_detail_kegiatan = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
 $title = 'Daftar Buku Kas Umum Pembantu | ' . $tahun_anggaran;
-$shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="'. $tahun_anggaran .'"]';
+$shortcode = '[daftar_buku_kas_umum_pembantu tahun_anggaran="' . $tahun_anggaran . '"]';
 $url_bku_pembantu = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
-$title = 'Data RKA SIPD | '.$kode_sbl.' | '.$tahun_anggaran;
-$shortcode = '[input_rka_sipd id_skpd="'.$id_sub_skpd.'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$tahun_anggaran.'"]';
+$title = 'Data RKA SIPD | ' . $kode_sbl . ' | ' . $tahun_anggaran;
+$shortcode = '[input_rka_sipd id_skpd="' . $id_sub_skpd . '" kode_sbl="' . $kode_sbl . '" tahun_anggaran="' . $tahun_anggaran . '"]';
 $url_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
 
-$title = 'Data Serapan Realisasi RKA SIPD | '.$kode_sbl.' | '.$tahun_anggaran;
-$shortcode = '[serapan_rka_sipd id_skpd="'.$id_sub_skpd.'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$tahun_anggaran.'"]';
+$title = 'Data Serapan Realisasi RKA SIPD | ' . $kode_sbl . ' | ' . $tahun_anggaran;
+$shortcode = '[serapan_rka_sipd id_skpd="' . $id_sub_skpd . '" kode_sbl="' . $kode_sbl . '" tahun_anggaran="' . $tahun_anggaran . '"]';
 $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode);
 
 ?>
@@ -81,14 +81,17 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
         color: red;
         margin-right: 5px;
     }
+
     #tabel_detail_nota,
     #tabel_detail_nota td,
     #tabel_detail_nota th {
-		border: 0;
-	}
+        border: 0;
+    }
+
     .hide-link-decoration {
         text-decoration: none !important;
     }
+
     .warning_color {
         background-color: #f9d9d9;
     }
@@ -241,13 +244,13 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control input_number text-right" id="pagu_sisa_1" type="number" name="pagu_sisa[1]" disabled/>
+                                        <input class="form-control text-right" id="pagu_sisa_1" type="text" name="pagu_sisa[1]" disabled />
                                     </td>
                                     <td>
-                                        <input class="form-control input_number text-right" id="pagu_bukti_1" type="number" name="pagu_bukti[1]" disabled/>
+                                        <input class="form-control text-right" id="pagu_bukti_1" type="text" name="pagu_bukti[1]" disabled />
                                     </td>
                                     <td>
-                                        <input class="form-control input_number text-right" id="pagu_rekening_1" type="number" name="pagu_rekening[1]"/>
+                                        <input class="form-control text-right" id="pagu_rekening_1" type="number" name="pagu_rekening[1]" />
                                     </td>
                                     <td class="text-center detail_tambah">
                                         <button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -364,9 +367,10 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     }
 
     function tambah_data_npd() {
+        clearAllFields();
         jQuery('#wrap-loading').show();
         get_pptk()
-            .then(function(){
+            .then(function() {
                 jQuery('#modal_tambah_data').modal('show');
                 jQuery("#modal_tambah_data .modal-title").html("Tambah Nota Pencairan Dana");
                 jQuery("#modal_tambah_data .submitBtn")
@@ -379,7 +383,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
 
     function tambah_rekening(id) {
         get_data_akun_rka_per_sub_keg()
-            .then(function(){
+            .then(function() {
+                clearAllFields();
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     method: 'post',
@@ -399,34 +404,44 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                             jQuery('#nomor_npd_rek').prop('disabled', true);
 
                             /** Start */
-                            response.data.rekening_npd.map(function(value, index){
-                                let id = index+1;
-                                new Promise(function(resolve, reject){
-                                    if(id > 1){
-                                        tambahRekening()
-                                        .then(function(){
+                            response.data.rekening_npd.map(function(value, index) {
+                                let id = index + 1;
+                                new Promise(function(resolve, reject) {
+                                        if (id > 1) {
+                                            tambahRekening()
+                                                .then(function() {
+                                                    resolve(value);
+                                                })
+                                        } else {
                                             resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    jQuery("#rekening_akun_"+id).val(value.kode_rekening).trigger('change');
-                                    jQuery("#pagu_rekening_"+id).val(value.pagu_dana);
-                                    jQuery("#pagu_bukti_"+id).val(value.total_pagu_bku);
-                                    jQuery("#pagu_sisa_"+id).val(rekening_all[value.kode_rekening].sisa);
+                                        }
+                                    })
+                                    .then(function(value) {
+                                        jQuery("#rekening_akun_" + id).val(value.kode_rekening).trigger('change');
+                                        jQuery("#pagu_rekening_" + id).val(value.pagu_dana);
 
-                                    let total = parseInt(value.total_pagu_bku, 10);
-                                    let pagu_dana = parseInt(value.pagu_dana, 10);
-                                    if(total > pagu_dana){
-                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').addClass("warning_color");
-                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').addClass("warning_color");
-                                    }else{
-                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').removeClass("warning_color");
-                                        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').removeClass("warning_color");
-                                    }
-                                });
+                                        if (value.total_pagu_bku && !isNaN(value.total_pagu_bku)) {
+                                            jQuery("#pagu_bukti_" + id).val(formatAngka(parseInt(value.total_pagu_bku, 10)));
+                                        } else {
+                                            jQuery("#pagu_bukti_" + id).val('0');
+                                        }
+
+                                        if (rekening_all[value.kode_rekening].sisa && !isNaN(rekening_all[value.kode_rekening].sisa)) {
+                                            jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[value.kode_rekening].sisa, 10)));
+                                        } else {
+                                            jQuery("#pagu_sisa_" + id).val('0');
+                                        }
+
+                                        let total = parseInt(value.total_pagu_bku, 10);
+                                        let pagu_dana = parseInt(value.pagu_dana, 10);
+                                        if (total > pagu_dana) {
+                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').addClass("warning_color");
+                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').addClass("warning_color");
+                                        } else {
+                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').removeClass("warning_color");
+                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').removeClass("warning_color");
+                                        }
+                                    });
                             })
                             /** End */
 
@@ -436,6 +451,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                                 .attr("disabled", false)
                                 .text("Simpan");
                         } else {
+                            clearAllFields();
                             alert(response.message);
                         }
                         jQuery('#wrap-loading').hide();
@@ -444,48 +460,52 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             });
     }
 
-    function tambahRekening(){
-        return new Promise(function(resolve, reject){
+    function tambahRekening() {
+        return new Promise(function(resolve, reject) {
             var id = +jQuery('.input_rekening > tbody tr').last().attr('data-id');
-            var newId = id+1;
+            var newId = id + 1;
             var trNew = jQuery('.input_rekening > tbody tr').last().html();
             var html_select = '';
-            jQuery('#rekening_akun_'+id+' option').map(function(i, b){
-                html_select += '<option value="'+jQuery(b).attr('value')+'">'+jQuery(b).html()+'</option>';
+
+            // Mendapatkan opsi select dari rekening yang sudah ada
+            jQuery('#rekening_akun_' + id + ' option').map(function(i, b) {
+                html_select += '<option value="' + jQuery(b).attr('value') + '">' + jQuery(b).html() + '</option>';
             });
-            trNew = ''
-                +'<tr data-id="'+newId+'">'
-                    +trNew
-                +'</tr>';
-            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
-            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
-            var tbody = jQuery('.input_rekening > tbody');
-            tbody.append(trNew);
-            jQuery('.input_rekening > tbody tr[data-id="'+newId+'"] td').first().html('<select id="rekening_akun_'+newId+'" class="form-control" onchange="set_pagu_rek(this);">'+html_select+'</select>');
-            jQuery('.input_rekening > tbody tr[data-id="'+newId+'"] select').select2({width: '550px'});
-            var tr = tbody.find('>tr');
-            var length = tr.length-1;
-            tr.map(function(i, b){
-                if(i==0){
-                    return;
-                }
-                var html = '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                jQuery(b).find('>td').last().html(html);
+
+            // Tambahkan elemen baru dengan ID dan name yang disesuaikan dengan indeks
+            trNew = '' +
+                '<tr data-id="' + newId + '">' +
+                '<td><select id="rekening_akun_' + newId + '" name="rekening_akun[' + newId + ']" class="form-control" onchange="set_pagu_rek(this);">' + html_select + '</select></td>' +
+                '<td><input id="pagu_sisa_' + newId + '" name="pagu_sisa[' + newId + ']" type="text" class="form-control text-right" disabled></td>' +
+                '<td><input id="pagu_bukti_' + newId + '" name="pagu_bukti[' + newId + ']" type="text" class="form-control text-right" disabled></td>' +
+                '<td><input id="pagu_rekening_' + newId + '" name="pagu_rekening[' + newId + ']" type="number" class="form-control text-right"></td>' +
+                '<td class="text-center detail_tambah">' +
+                '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>' +
+                '</td>' +
+                '</tr>';
+
+            // Append elemen baru ke tbody
+            jQuery('.input_rekening > tbody').append(trNew);
+
+            // Update select2 pada elemen baru
+            jQuery('.input_rekening > tbody tr[data-id="' + newId + '"] select').select2({
+                width: '550px'
             });
+
             resolve();
         });
     }
 
-    function hapusRekening(that){
+    function hapusRekening(that) {
         var id = jQuery(that).closest('tr').attr('data-id');
-        jQuery('.input_rekening > tbody').find('tr[data-id="'+id+'"]').remove();
+        jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').remove();
     }
 
     function submit_data_rekening() {
-        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+        if (confirm('Apakah anda yakin untuk menyimpan data ini?')) {
             jQuery('#wrap-loading').show();
             let form = getFormData(jQuery("#tambah-rekening"));
-            if(typeof form.id_user_rek == undefined || form.id_user_rek == ''){
+            if (typeof form.id_user_rek == undefined || form.id_user_rek == '') {
                 alert("Submit gagal, harap refresh halaman!");
                 return false;
             }
@@ -500,7 +520,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                     kode_sbl: '<?php echo $kode_sbl; ?>',
                     tahun_anggaran: <?php echo $tahun_anggaran; ?>,
                     data: JSON.stringify(form)
-                    
+
                 },
                 success: function(response) {
                     jQuery('#wrap-loading').hide();
@@ -517,13 +537,13 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                     console.error('AJAX Error:', status, error);
                 }
             });
-          
+
         }
     }
 
     function get_pptk() {
-        return new Promise(function(resolve, reject){
-            if(typeof dataPptk == 'undefined'){
+        return new Promise(function(resolve, reject) {
+            if (typeof dataPptk == 'undefined') {
                 jQuery.ajax({
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     type: "post",
@@ -540,22 +560,26 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                         if (data.status == 'success') {
                             window.dataPptk = data;
                             jQuery('#set_pptk').html(data.user_pptk_html);
-                            jQuery('#set_pptk').select2({width: '100%'});
+                            jQuery('#set_pptk').select2({
+                                width: '100%'
+                            });
                             resolve()
                         }
                     }
                 });
-            }else{
+            } else {
                 jQuery('#set_pptk').html(dataPptk.user_pptk_html);
-                jQuery('#set_pptk').select2({width: '100%'});
+                jQuery('#set_pptk').select2({
+                    width: '100%'
+                });
                 resolve()
             }
         });
     }
 
     function get_data_akun_rka_per_sub_keg() {
-        return new Promise(function(resolve, reject){
-            if(typeof dataRekening == 'undefined'){
+        return new Promise(function(resolve, reject) {
+            if (typeof dataRekening == 'undefined') {
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -573,14 +597,18 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                         // menampilkan popup
                         if (data.status == 'success') {
                             jQuery('.rekening_akun').html(data.data_akun_html);
-                            jQuery('.rekening_akun').select2({width: '550px'});
+                            jQuery('.rekening_akun').select2({
+                                width: '550px'
+                            });
                             resolve()
                         }
                     }
                 });
-            }else{
+            } else {
                 jQuery('#rekening_akun').html(dataRekening.data_akun_html);
-                jQuery('#rekening_akun').select2({width: '100%'});
+                jQuery('#rekening_akun').select2({
+                    width: '100%'
+                });
                 resolve()
             }
         });
@@ -589,37 +617,39 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     function load_data() {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
-			type: 'POST',
-			url: '<?php echo admin_url('admin-ajax.php'); ?>',
-			data: {
+            type: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            data: {
                 api_key: '<?php echo $api_key; ?>',
                 action: 'get_daftar_panjar',
                 kode_sbl: '<?php echo $kode_sbl; ?>',
                 tahun_anggaran: <?php echo $tahun_anggaran; ?>,
             },
-			success: function(data) {
-				jQuery('#wrap-loading').hide();
-				const response = JSON.parse(data);
+            success: function(data) {
+                jQuery('#wrap-loading').hide();
+                const response = JSON.parse(data);
                 window.rekening_all = response.detail_rekening;
-				if (response.status === 'success') {
-					jQuery('#table_daftar_panjar > tbody').html(response.html);
+                if (response.status === 'success') {
+                    jQuery('#table_daftar_panjar > tbody').html(response.html);
                     jQuery('#detail_sub_keg').html(response.detail_sub_keg);
-				} else {
-					alert('Error: ' + response.message);
-				}
-			}
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            }
 
-		});
+        });
     }
 
-    function set_pagu_rek(that){
+    function set_pagu_rek(that) {
         var kode_rekening = jQuery(that).val();
         var id = jQuery(that).closest('tr').attr('data-id');
-        jQuery("#pagu_sisa_"+id).val(rekening_all[kode_rekening].sisa);
+        if (rekening_all[kode_rekening].sisa && !isNaN(rekening_all[kode_rekening].sisa)) {
+            jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[kode_rekening].sisa, 10)));
+        }
     }
 
     function submit_data(that) {
-        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+        if (confirm('Apakah anda yakin untuk menyimpan data ini?')) {
             jQuery('#wrap-loading').show();
             let form = getFormData(jQuery("#tambah-panjar"));
             jQuery.ajax({
@@ -632,7 +662,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                     kode_sbl: '<?php echo $kode_sbl; ?>',
                     tahun_anggaran: <?php echo $tahun_anggaran; ?>,
                     data: JSON.stringify(form)
-                    
+
                 },
                 success: function(response) {
                     jQuery('#wrap-loading').hide();
@@ -649,7 +679,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                     console.error('AJAX Error:', status, error);
                 }
             });
-          
+
         }
     }
 
@@ -662,7 +692,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                 type: 'post',
                 data: {
                     'action': 'delete_data_panjar',
-                    'api_key':'<?php echo $api_key; ?>',
+                    'api_key': '<?php echo $api_key; ?>',
                     'id': id
                 },
                 dataType: 'json',
@@ -680,8 +710,9 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     }
 
     function edit_data(id) {
+        clearAllFields();
         get_pptk()
-            .then(function(){
+            .then(function() {
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     method: 'post',
@@ -698,7 +729,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                             jQuery('#modal_tambah_data').modal('show');
                             jQuery('#nomor_npd').val(response.data.nomor_npd);
                             jQuery('#nomor_dpa').val(response.data.nomor_dpa);
-                            jQuery('input[name=set_panjar][value="'+response.data.jenis_panjar+'"]').prop('checked', true);
+                            jQuery('input[name=set_panjar][value="' + response.data.jenis_panjar + '"]').prop('checked', true);
 
                             jQuery("#modal_tambah_data .modal-title").html("Edit Nota Pencairan Dana");
                             jQuery("#modal_tambah_data .submitBtn")
@@ -716,7 +747,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     }
 
     function submitEdit(id) {
-        if(confirm('Apakah anda yakin untuk mengubah data ini?')){
+        if (confirm('Apakah anda yakin untuk mengubah data ini?')) {
             jQuery("#wrap-loading").show();
             let form = getFormData(jQuery("#tambah-panjar"));
             jQuery.ajax({
@@ -730,7 +761,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                     kode_sbl: '<?php echo $kode_sbl; ?>',
                     tahun_anggaran: <?php echo $tahun_anggaran; ?>,
                     data: JSON.stringify(form)
-                    
+
                 },
                 success: function(response) {
                     jQuery('#wrap-loading').hide();
@@ -753,10 +784,10 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     function print(id) {
         jQuery('#modal_print_laporan').modal('show');
         jQuery('#id_npd_print').val(id);
-        let nomor_npd = jQuery('.id-npd-'+id).html();
+        let nomor_npd = jQuery('.id-npd-' + id).html();
         jQuery('#nomor_npd_print').val(nomor_npd);
     }
-    
+
     function print_laporan_bku() {
         jQuery('#modal_print_laporan_bku').modal('show');
         jQuery("#modal_print_laporan_bku .submitBtn")
@@ -784,7 +815,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     function print_preview(that) {
         let id_npd = jQuery('#id_npd_print').val();
         let jenis = jQuery('#jenis_laporan').val();
-        if(id_npd == "" || id_npd == undefined){
+        if (id_npd == "" || id_npd == undefined) {
             alert('Ada yang salah saat print preview, Harap refresh halaman!')
             jQuery('#modal_print_laporan').modal('hide');
             return;
@@ -792,9 +823,9 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
 
         switch (jenis) {
             case 'npd':
-                window.open('<?php echo $this->add_param_get($url_laporan_panjar_npd, '&1=1'); ?>'+'&id_npd='+id_npd,'_blank');
+                window.open('<?php echo $this->add_param_get($url_laporan_panjar_npd, '&1=1'); ?>' + '&id_npd=' + id_npd, '_blank');
                 break;
-        
+
             default:
                 alert('Jenis Laporan belum dipilih');
                 break;
@@ -803,65 +834,69 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
 
     function print_preview_bku(that) {
         let set_bulan = jQuery('#set_bulan').val();
-        if(set_bulan == "" || set_bulan == undefined){
+        if (set_bulan == "" || set_bulan == undefined) {
             alert('Ada yang kosong, Harap isi semua input!')
             jQuery('#modal_print_laporan_bku').modal('hide');
             return;
         }
 
-        window.open('<?php echo $this->add_param_get($url_print_laporan_buku_kas_umum_pembantu, '&kode_sbl='.$kode_sbl); ?>'+'&bulan='+set_bulan,'_blank');
+        window.open('<?php echo $this->add_param_get($url_print_laporan_buku_kas_umum_pembantu, '&kode_sbl=' . $kode_sbl); ?>' + '&bulan=' + set_bulan, '_blank');
     }
 
     function print_preview_laporan_kegiatan(that) {
         let set_bulan = jQuery('#set_bulan').val();
-        if(set_bulan == "" || set_bulan == undefined){
+        if (set_bulan == "" || set_bulan == undefined) {
             alert('Ada yang kosong, Harap isi semua input!')
             jQuery('#modal_print_laporan_bku').modal('hide');
             return;
         }
 
-        window.open('<?php echo $this->add_param_get($url_print_laporan_detail_kegiatan, '&kode_sbl='.$kode_sbl); ?>'+'&bulan='+set_bulan,'_blank');
+        window.open('<?php echo $this->add_param_get($url_print_laporan_detail_kegiatan, '&kode_sbl=' . $kode_sbl); ?>' + '&bulan=' + set_bulan, '_blank');
     }
 
     function print_preview_serapan_rinci(that) {
         let set_bulan = jQuery('#set_bulan').val();
-        if(set_bulan == "" || set_bulan == undefined){
+        if (set_bulan == "" || set_bulan == undefined) {
             alert('Ada yang kosong, Harap isi semua input!')
             jQuery('#modal_print_laporan_bku').modal('hide');
             return;
         }
 
-        window.open('<?php echo $this->add_param_get($url_serapan_rka_sipd, '&kode_sbl='.$kode_sbl); ?>'+'&bulan='+set_bulan,'_blank');
+        window.open('<?php echo $this->add_param_get($url_serapan_rka_sipd, '&kode_sbl=' . $kode_sbl); ?>' + '&bulan=' + set_bulan, '_blank');
     }
 
     function buku_kas_umum_pembantu(that) {
-        let link = '<?php echo $this->add_param_get($url_bku_pembantu, '&kode_sbl='.$kode_sbl); ?>&kodenpd='+that;
+        let link = '<?php echo $this->add_param_get($url_bku_pembantu, '&kode_sbl=' . $kode_sbl); ?>&kodenpd=' + that;
         window.open(link, '_blank');
         return false;
     }
 
-    function getFormData($form){
+    function getFormData($form) {
         var disabled = $form.find('[disabled]');
-        disabled.map(function(i, b){
+        disabled.map(function(i, b) {
             jQuery(b).attr('disabled', false);
         });
-	    let unindexed_array = $form.serializeArray();
-        disabled.map(function(i, b){
+
+        // Tangkap semua elemen baru termasuk yang di-generate oleh fungsi dinamis
+        let unindexed_array = $form.find('input, select').serializeArray();
+
+        disabled.map(function(i, b) {
             jQuery(b).attr('disabled', true);
         });
+
         var data = {};
-        unindexed_array.map(function(b, i){
+        unindexed_array.map(function(b, i) {
             var nama_baru = b.name.split('[');
-            if(nama_baru.length > 1){
+            if (nama_baru.length > 1) {
                 nama_baru = nama_baru[0];
-                if(!data[nama_baru]){
+                if (!data[nama_baru]) {
                     data[nama_baru] = [];
                 }
                 data[nama_baru].push(b.value);
-            }else{
+            } else {
                 data[b.name] = b.value;
             }
-        })
+        });
         return data;
-	}
+    }
 </script>

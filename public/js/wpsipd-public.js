@@ -1,10 +1,10 @@
 jQuery(document).ready(function () {
 	var loading = ""
-		+'<div id="wrap-loading">'
-			+'<div class="lds-hourglass"></div>'
-			+'<div id="persen-loading"></div>'
-	        +'<div id="pesan-loading"></div>'
-		+"</div>";
+		+ '<div id="wrap-loading">'
+		+ '<div class="lds-hourglass"></div>'
+		+ '<div id="persen-loading"></div>'
+		+ '<div id="pesan-loading"></div>'
+		+ "</div>";
 	if (jQuery("#wrap-loading").length == 0) {
 		jQuery("body").prepend(loading);
 	}
@@ -483,4 +483,46 @@ function simpan_alamat(id_skpd, api_key, ajaxurl) {
 			return alert(data.message);
 		},
 	});
+}
+
+function validateForm(fields) {
+	const formData = {};
+
+	for (const [name, message] of Object.entries(fields)) {
+		const $field = jQuery(`[name="${name}"]`);
+
+		if ($field.is(':radio')) {
+			const checkedValue = jQuery(`[name="${name}"]:checked`).val();
+			if (!checkedValue) {
+				return { error: message };
+			}
+			formData[name] = checkedValue;
+		} else if ($field.is(':checkbox')) {
+			const isChecked = $field.is(':checked');
+			if (!isChecked) {
+				return { error: message };
+			}
+			formData[name] = isChecked;
+		} else if ($field.is('select') || $field.is('textarea') || $field.is(':input')) {
+			const value = $field.val().trim();
+			if (value === '') {
+				return { error: message };
+			}
+			formData[name] = value;
+		}
+	}
+
+	return { error: null, data: formData };
+}
+
+function clearAllFields() {
+	jQuery('form').find('input[type="text"], input[type="number"], input[type="hidden"], textarea').val('');
+
+	jQuery('form').find('input[type="radio"], input[type="checkbox"]').prop('checked', false);
+
+	jQuery('form').find('select').prop('selectedIndex', 0);
+}
+
+function formatAngka(angka) {
+    return angka.toLocaleString('id-ID');
 }

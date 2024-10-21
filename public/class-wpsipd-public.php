@@ -10271,12 +10271,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$total_rak += $data_kas['bulan_' . $i];
 			}
 		}
-		if(
-			empty($options['cek_input']) 
+		if (
+			empty($options['cek_input'])
 			&& $total_rak == $options['rak']
-		){
+		) {
 			return $total_rak;
-		}else{
+		} else {
 			$sql = $wpdb->prepare("
 			    select 
 			        id
@@ -11208,7 +11208,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$_kd_bidang = $kd_unit_simda[1];
 				$kd_unit = $kd_unit_simda[2];
 				$kd_sub_unit = $kd_unit_simda[3];
-				$simda = get_option( '_crb_singkron_simda' );
+				$simda = get_option('_crb_singkron_simda');
 
 				$skpd = $wpdb->get_row($wpdb->prepare(
 					"
@@ -11252,7 +11252,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						unset($nama_keg[0]);
 						$nama_keg = implode(' ', $nama_keg);
 						$mapping = false;
-						if($simda == 1){
+						if ($simda == 1) {
 							$mapping = $this->simda->cekKegiatanMapping(array(
 								'kd_urusan90' => $kd_urusan90,
 								'kd_bidang90' => $kd_bidang90,
@@ -11340,7 +11340,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_realisasi['realisasi'] = 0;
 						$data_realisasi['rak'] = 0;
-						if($simda == 1){
+						if ($simda == 1) {
 							$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
 							$data_realisasi['rak'] = $this->get_rak_simda($opsi);
 						}
@@ -11371,7 +11371,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (isset($params['type']) && $params['type'] == 'sub_unit') {
 			$column = 'id_skpd';
 		}
-		$last_update = $wpdb->get_results($wpdb->prepare("
+		$last_update = $wpdb->get_results($wpdb->prepare(
+			"
 			select 
 				min(d.created_at) as last_update
 			from data_sub_keg_bl k 
@@ -13739,12 +13740,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $this->get_link_post($custom_post);
 	}
 
-	function add_param_get($url, $param){
+	function add_param_get($url, $param)
+	{
 		$data = explode('?', $url);
-		if(count($data) > 1){
+		if (count($data) > 1) {
 			$url .= $param;
-		}else{
-			$url .= '?'.$param;
+		} else {
+			$url .= '?' . $param;
 		}
 		return $url;
 	}
@@ -16798,7 +16800,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								if (
 									in_array($tipe_perencanaan, ['renstra', 'renja'])
-									AND $recVal['status'] == 0
+									and $recVal['status'] == 0
 								) {
 									$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_usulan(); return false;" style="display:inline;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if ($tipe_perencanaan == 'renja') {
@@ -22574,7 +22576,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}
 
-			if(!empty($error)){
+			if (!empty($error)) {
 				throw new Exception($error);
 			}
 		} catch (Exception $e) {
@@ -24608,7 +24610,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'id_unik_indikator',
 								'id_unit',
 								'id_visi',
-								'indikator', 
+								'indikator',
 								'indikator_usulan',
 								'is_locked',
 								'is_locked_indikator',
@@ -24882,7 +24884,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
-	
+
 	public function get_data_jadwal_wpsipd()
 	{
 		global $wpdb;
@@ -24930,7 +24932,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .= $wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
 					}
 
-					if(!empty($_POST['id_jadwal'])){
+					if (!empty($_POST['id_jadwal'])) {
 						$where .= $wpdb->prepare(" AND id_jadwal_lokal = %d", $_POST['id_jadwal']);
 					}
 
