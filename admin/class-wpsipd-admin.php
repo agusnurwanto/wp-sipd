@@ -1313,8 +1313,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP iki ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 							
 						} else if ($_POST['type'] == 'aklap_lra') {
-							$url_aklap_lra = $this->generatePage($v['tahun_anggaran'] . ' | LAPORAN REALISASI ANGGARAN PENDAPATAN DAN BELANJA DAERAH', $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . ']');
-							$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran1 . '">Halaman LAPORAN REALISASI ANGGARAN PENDAPATAN DAN BELANJA DAERAH Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+							$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Aklap LRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
@@ -1374,6 +1374,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							} else if ($_POST['type'] == 'tbp') {
 								$url_skpd = $this->generatePage('Halaman TBP ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_tbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
+							} else if ($_POST['type'] == 'aklap_lra') {
+								$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
+								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Aklap LRA ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'monev_json_rka') {
 								$url_skpd = $this->generatePage('Data JSON RKA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><input type="checkbox" value="' . $vvv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ') ID = ' . $vvv['id_skpd'];
@@ -1509,8 +1512,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'tbp') {
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'aklap_lra') {
-						$url_aklap_lra = $this->generatePage($v['tahun_anggaran'] . ' | LAPORAN REALISASI ANGGARAN PENDAPATAN DAN BELANJA DAERAH', $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . ']');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_penjabaran1 . '">Halaman LAPORAN REALISASI ANGGARAN PENDAPATAN DAN BELANJA DAERAH Tahun ' . $v['tahun_anggaran'] . '</a><br>';
+						$body_all .= $body_pemda;
 					}
 
 					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
@@ -2283,6 +2285,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_stbp', 'Halaman STBP')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_tbp', 'Halaman TBP')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_aklap_lra', 'Halaman AKLAP LRA')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA')
 				->set_option_value('true'),
