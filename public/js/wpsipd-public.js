@@ -516,13 +516,11 @@ function validateForm(fields) {
 }
 
 function clearAllFields() {
-	jQuery('form').find('input[type="text"], input[type="number"], input[type="hidden"], textarea').val('');
-
-	jQuery('form').find('input[type="radio"], input[type="checkbox"]').prop('checked', false);
-
-	jQuery('form').find('select').prop('selectedIndex', 0);
+    jQuery('form').find('input[type="text"]:not(:disabled), input[type="number"]:not(:disabled), input[type="hidden"]:not(:disabled), textarea:not(:disabled)').val('');
+    jQuery('form').find('input[type="radio"]:not(:disabled), input[type="checkbox"]:not(:disabled)').prop('checked', false);
+    jQuery('form').find('select:not(:disabled), .input_rekening select').prop('selectedIndex', 0).trigger('change');
 }
 
 function formatAngka(angka) {
-    return angka.toLocaleString('id-ID');
+	return angka.toLocaleString('id-ID');
 }

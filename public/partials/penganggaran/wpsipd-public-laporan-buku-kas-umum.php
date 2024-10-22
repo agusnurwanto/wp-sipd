@@ -377,47 +377,44 @@ $rka = $wpdb->get_results($wpdb->prepare("
         jQuery('.jenis_bku').click(function() {
             let val_check = jQuery("input[name='set_bku']:checked").val();
             if (val_check === 'terima') {
-                toggleFormElements(true);
+                toggleFormPenerimaan(true);
             } else {
-                toggleFormElements(false);
+                toggleFormPenerimaan(false);
             }
         });
-
-        // Inisialisasi awal saat halaman pertama kali dimuat (penerimaan/pengeluaran)
-        let initial_val_check = jQuery("input[name='set_bku']:checked").val();
-        if (initial_val_check === 'terima') {
-            toggleFormElements(true);
-        } else {
-            toggleFormElements(false);
-        }
 
         // Manipulasi berdasarkan jenis transaksi (tunai/non-tunai)
         jQuery('input[type="radio"][name="jenis_transkasi"]').on('click', function() {
             var jenis_transaksi = jQuery('input[type="radio"][name="jenis_transkasi"]:checked').val();
             if (jenis_transaksi == 1) { // Tunai
-                jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').hide();
-                jQuery('#nama_rekening_bank_bku').closest('.form-group').hide();
-                jQuery('#no_rekening_bank_bku').closest('.form-group').hide();
+                toggleFormTunai(true)
             } else { // Non-Tunai
-                jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').show();
-                jQuery('#nama_rekening_bank_bku').closest('.form-group').show();
-                jQuery('#no_rekening_bank_bku').closest('.form-group').show();
+                toggleFormTunai(false)
             }
         });
+    });
 
-        // Inisialisasi awal saat halaman pertama kali dimuat (tunai/non-tunai)
-        var initial_jenis_transaksi = jQuery('input[type="radio"][name="jenis_transkasi"]:checked').val();
-        if (initial_jenis_transaksi == 1) {
+    function toggleFormTunai(isTunai) {
+        if (isTunai) {
             jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').hide();
             jQuery('#nama_rekening_bank_bku').closest('.form-group').hide();
             jQuery('#no_rekening_bank_bku').closest('.form-group').hide();
+            jQuery("input[name=jenis_transkasi][value='2']").prop('checked', false).trigger("change");
+            jQuery("input[name=jenis_transkasi][value='1']").prop('checked', true).trigger("change");
+        } else {
+            jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').show();
+            jQuery('#nama_rekening_bank_bku').closest('.form-group').show();
+            jQuery('#no_rekening_bank_bku').closest('.form-group').show();
+            jQuery("input[name=jenis_transkasi][value='2']").prop('checked', true).trigger("change");
+            jQuery("input[name=jenis_transkasi][value='1']").prop('checked', false).trigger("change");
         }
-    });
+    }
 
-    function toggleFormElements(isPenerimaan) {
+    function toggleFormPenerimaan(isPenerimaan) {
+        jQuery(".form-group").hide();
+
         if (isPenerimaan) {
             // Menyembunyikan semua elemen form kecuali yang diperlukan untuk penerimaan
-            jQuery(".form-group").hide();
             jQuery("#nomor_npd_bku").closest('.form-group').show();
             jQuery("input[name='set_bku']").closest('.form-group').show();
             jQuery("#set_tanggal").closest('.form-group').show();
@@ -425,19 +422,22 @@ $rka = $wpdb->get_results($wpdb->prepare("
             jQuery("#bank_card").hide();
             jQuery("#rincian_belanja_card").hide();
             jQuery("#pengeluaran_card").hide();
-            jQuery("input[name='set_bku'][value='terima']").prop('checked', true);
+
             jQuery(".set_keluar").hide();
             jQuery(".set_masuk").show();
+            jQuery("input[name='set_bku'][value='keluar']").prop('checked', false).trigger("change");
+            jQuery("input[name='set_bku'][value='terima']").prop('checked', true).trigger("change");
         } else {
             // Menampilkan semua elemen form untuk pengeluaran
             jQuery("#bank_card").show();
             jQuery("#rincian_belanja_card").show();
             jQuery("#pengeluaran_card").show();
+            jQuery(".form-group").show();
 
-            jQuery("input[name='set_bku'][value='keluar']").prop('checked', true);
             jQuery(".set_keluar").show();
             jQuery(".set_masuk").hide();
-            jQuery(".form-group").show();
+            jQuery("input[name='set_bku'][value='terima']").prop('checked', false).trigger("change");
+            jQuery("input[name='set_bku'][value='keluar']").prop('checked', true).trigger("change");
         }
     }
 
@@ -470,7 +470,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
             .then(function() {
                 jQuery('#wrap-loading').show();
                 clearAllFields();
-                toggleFormElements(false);
+                toggleFormPenerimaan(false);
+                toggleFormTunai(true)
                 jQuery("#modal_tambah_data .modal-title").html("Tambah Buku Kas Umum Pembantu");
                 jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
                 jQuery('#modal_tambah_data').modal('show');
@@ -633,10 +634,11 @@ $rka = $wpdb->get_results($wpdb->prepare("
         get_data_akun_rka_per_npd()
             .then(function() {
                 jQuery('#wrap-loading').show();
+                clearAllFields();
                 if (tipe == 'terima') {
-                    toggleFormElements(true);
+                    toggleFormPenerimaan(true);
                 } else {
-                    toggleFormElements(false);
+                    toggleFormPenerimaan(false);
                 }
                 jQuery.ajax({
                     method: 'post',
@@ -650,7 +652,6 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     },
                     success: function(response) {
                         if (response.status == 'success') {
-                            clearAllFields();
                             jQuery('#id_data').val(response.data.id);
                             jQuery('#nomor_bukti_bku').val(response.data.nomor_bukti);
                             jQuery('#uraian_bku').val(response.data.uraian);
@@ -660,9 +661,24 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             jQuery("#modal_tambah_data .modal-title").html("Edit Buku Kas Umum Pembantu");
                             jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
                             jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
-                            jQuery("#nama_pemilik_rekening_bank_bku").val(response.data.nama_pemilik_rekening_bank);
-                            jQuery("#nama_rekening_bank_bku").val(response.data.nama_rekening_bank);
-                            jQuery("#no_rekening_bank_bku").val(response.data.no_rekening_bank);
+                            if (response.data.jenis_cash == 1) {
+                                //tunai
+                                toggleFormTunai(true)
+                                jQuery("#nama_pemilik_rekening_bank_bku").val(response.data.nama_pemilik_rekening_bank);
+                                jQuery("#nama_rekening_bank_bku").val(response.data.nama_rekening_bank);
+                                jQuery("#no_rekening_bank_bku").val(response.data.no_rekening_bank);
+                            } else if (response.data.jenis_cash == 2) {
+                                //nontunai
+                                toggleFormTunai(false)
+                                jQuery("#nama_pemilik_rekening_bank_bku").val('');
+                                jQuery("#nama_rekening_bank_bku").val('');
+                                jQuery("#no_rekening_bank_bku").val('');
+                            } else {
+                                jQuery("input[name=jenis_transkasi]").prop('checked', false).trigger("change");
+                                jQuery("#nama_pemilik_rekening_bank_bku").val('');
+                                jQuery("#nama_rekening_bank_bku").val('');
+                                jQuery("#no_rekening_bank_bku").val('');
+                            }
                             jQuery('#modal_tambah_data').modal('show');
                         } else {
                             alert(response.message);

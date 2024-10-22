@@ -244,16 +244,16 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control text-right" id="pagu_sisa_1" type="text" name="pagu_sisa[1]" disabled />
+                                        <input class="form-control text-right paguRek" id="pagu_sisa_1" type="text" name="pagu_sisa[1]" disabled />
                                     </td>
                                     <td>
-                                        <input class="form-control text-right" id="pagu_bukti_1" type="text" name="pagu_bukti[1]" disabled />
+                                        <input class="form-control text-right paguRek" id="pagu_bukti_1" type="text" name="pagu_bukti[1]" disabled />
                                     </td>
                                     <td>
-                                        <input class="form-control text-right" id="pagu_rekening_1" type="number" name="pagu_rekening[1]" />
+                                        <input class="form-control text-right paguRek" id="pagu_rekening_1" type="text" name="pagu_rekening[1]" />
                                     </td>
                                     <td class="text-center detail_tambah">
-                                        <button class="btn btn-warning btn-sm" onclick="tambahRekening(); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                        <button class="btn btn-warning btn-sm" onclick="tambahRekeningBaru(); return false;"><i class="dashicons dashicons-plus"></i></button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -344,6 +344,20 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
 
 <script>
     jQuery(document).ready(function() {
+        jQuery('.paguRek').on('input', function() {
+            formatInput(this);
+        });
+
+        // Dynamically generated elements with the "paguRek" class will also be handled
+        jQuery(document).on('input', '.paguRek', function() {
+            formatInput(this);
+        });
+
+        function formatInput(element) {
+            var sanitized = jQuery(element).val().replace(/[^0-9]/g, '');
+            var formatted = formatRupiah(sanitized);
+            jQuery(element).val(formatted);
+        }
         load_data();
     });
 
@@ -382,9 +396,9 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
     }
 
     function tambah_rekening(id) {
+        clearAllFields();
         get_data_akun_rka_per_sub_keg()
             .then(function() {
-                clearAllFields();
                 jQuery('#wrap-loading').show();
                 jQuery.ajax({
                     method: 'post',
@@ -403,48 +417,50 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                             jQuery('#nomor_npd_rek').val(response.data.nomor_npd);
                             jQuery('#nomor_npd_rek').prop('disabled', true);
 
-                            /** Start */
-                            response.data.rekening_npd.map(function(value, index) {
-                                let id = index + 1;
-                                new Promise(function(resolve, reject) {
-                                        if (id > 1) {
-                                            tambahRekening()
-                                                .then(function() {
-                                                    resolve(value);
-                                                })
-                                        } else {
-                                            resolve(value);
-                                        }
-                                    })
-                                    .then(function(value) {
-                                        jQuery("#rekening_akun_" + id).val(value.kode_rekening).trigger('change');
-                                        jQuery("#pagu_rekening_" + id).val(value.pagu_dana);
+                            if (response.data.rekening_npd.length != 0) {
+                                jQuery('.input_rekening > tbody tr[data-id]:gt(0)').remove();
+                                jQuery('#rekening_akun_1').val('').trigger('change');
+                                response.data.rekening_npd.map(function(value, index) {
+                                    let id = index + 1;
+                                    new Promise(function(resolve, reject) {
+                                            if (id > 1) {
+                                                tambahRekeningBaru()
+                                                    .then(function() {
+                                                        resolve(value);
+                                                    });
+                                            } else {
+                                                resolve(value);
+                                            }
+                                        })
+                                        .then(function(value) {
+                                            jQuery("#rekening_akun_" + id).val(value.kode_rekening).trigger('change');
+                                            jQuery("#pagu_rekening_" + id).val(formatAngka(parseInt(value.pagu_dana, 10))).trigger('input');
 
-                                        if (value.total_pagu_bku && !isNaN(value.total_pagu_bku)) {
-                                            jQuery("#pagu_bukti_" + id).val(formatAngka(parseInt(value.total_pagu_bku, 10)));
-                                        } else {
-                                            jQuery("#pagu_bukti_" + id).val('0');
-                                        }
+                                            if (value.total_pagu_bku && !isNaN(value.total_pagu_bku)) {
+                                                jQuery("#pagu_bukti_" + id).val(formatAngka(parseInt(value.total_pagu_bku, 10)));
+                                            } else {
+                                                jQuery("#pagu_bukti_" + id).val('0');
+                                            }
 
-                                        if (rekening_all[value.kode_rekening].sisa && !isNaN(rekening_all[value.kode_rekening].sisa)) {
-                                            jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[value.kode_rekening].sisa, 10)));
-                                        } else {
-                                            jQuery("#pagu_sisa_" + id).val('0');
-                                        }
+                                            if (rekening_all[value.kode_rekening] && rekening_all[value.kode_rekening].sisa && !isNaN(rekening_all[value.kode_rekening].sisa)) {
+                                                jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[value.kode_rekening].sisa, 10)));
+                                            } else {
+                                                jQuery("#pagu_sisa_" + id).val('0');
+                                            }
 
-                                        let total = parseInt(value.total_pagu_bku, 10);
-                                        let pagu_dana = parseInt(value.pagu_dana, 10);
-                                        if (total > pagu_dana) {
-                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').addClass("warning_color");
-                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').addClass("warning_color");
-                                        } else {
-                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').removeClass("warning_color");
-                                            jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').removeClass("warning_color");
-                                        }
-                                    });
-                            })
-                            /** End */
-
+                                            let total = parseInt(value.total_pagu_bku, 10);
+                                            let pagu_dana = parseInt(value.pagu_dana, 10);
+                                            if (total > pagu_dana) {
+                                                jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').addClass("warning_color");
+                                            } else {
+                                                jQuery('.input_rekening > tbody').find('tr[data-id="' + id + '"]').removeClass("warning_color");
+                                            }
+                                        });
+                                });
+                            } else {
+                                jQuery('.input_rekening > tbody tr[data-id]:gt(0)').remove();
+                                jQuery('#rekening_akun_1').val('').trigger('change');
+                            }
                             jQuery("#modal_tambah_rekening .modal-title").html("Tambah Rekening Nota Pencairan Dana");
                             jQuery("#modal_tambah_rekening .submitBtn")
                                 .attr("onclick", `submit_data_rekening('${id}')`)
@@ -460,34 +476,31 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             });
     }
 
-    function tambahRekening() {
+    function tambahRekeningBaru() {
         return new Promise(function(resolve, reject) {
-            var id = +jQuery('.input_rekening > tbody tr').last().attr('data-id');
+            var lastRow = jQuery('.input_rekening > tbody tr').last();
+            var id = lastRow.length ? +lastRow.attr('data-id') : 0;
             var newId = id + 1;
-            var trNew = jQuery('.input_rekening > tbody tr').last().html();
+            var trNew = lastRow.html();
             var html_select = '';
 
-            // Mendapatkan opsi select dari rekening yang sudah ada
             jQuery('#rekening_akun_' + id + ' option').map(function(i, b) {
                 html_select += '<option value="' + jQuery(b).attr('value') + '">' + jQuery(b).html() + '</option>';
             });
 
-            // Tambahkan elemen baru dengan ID dan name yang disesuaikan dengan indeks
             trNew = '' +
                 '<tr data-id="' + newId + '">' +
                 '<td><select id="rekening_akun_' + newId + '" name="rekening_akun[' + newId + ']" class="form-control" onchange="set_pagu_rek(this);">' + html_select + '</select></td>' +
-                '<td><input id="pagu_sisa_' + newId + '" name="pagu_sisa[' + newId + ']" type="text" class="form-control text-right" disabled></td>' +
-                '<td><input id="pagu_bukti_' + newId + '" name="pagu_bukti[' + newId + ']" type="text" class="form-control text-right" disabled></td>' +
-                '<td><input id="pagu_rekening_' + newId + '" name="pagu_rekening[' + newId + ']" type="number" class="form-control text-right"></td>' +
+                '<td><input id="pagu_sisa_' + newId + '" name="pagu_sisa[' + newId + ']" type="text" class="form-control paguRek text-right" disabled></td>' +
+                '<td><input id="pagu_bukti_' + newId + '" name="pagu_bukti[' + newId + ']" type="text" class="form-control paguRek text-right" disabled></td>' +
+                '<td><input id="pagu_rekening_' + newId + '" name="pagu_rekening[' + newId + ']" type="text" class="form-control paguRek text-right"></td>' +
                 '<td class="text-center detail_tambah">' +
                 '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>' +
                 '</td>' +
                 '</tr>';
 
-            // Append elemen baru ke tbody
             jQuery('.input_rekening > tbody').append(trNew);
 
-            // Update select2 pada elemen baru
             jQuery('.input_rekening > tbody tr[data-id="' + newId + '"] select').select2({
                 width: '550px'
             });
@@ -642,6 +655,10 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
 
     function set_pagu_rek(that) {
         var kode_rekening = jQuery(that).val();
+        if (kode_rekening == '') {
+            jQuery('.paguRek').val('');
+            return;
+        }
         var id = jQuery(that).closest('tr').attr('data-id');
         if (rekening_all[kode_rekening].sisa && !isNaN(rekening_all[kode_rekening].sisa)) {
             jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[kode_rekening].sisa, 10)));

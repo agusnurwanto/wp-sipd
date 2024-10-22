@@ -1927,17 +1927,12 @@ class Wpsipd_Public_RKA
                         $total_pagu_npd = $wpdb->get_var(
                             $wpdb->prepare("
                                 SELECT
-                                    SUM(r.pagu_dana) as total_pagu
-                                FROM data_rekening_nota_pencairan_dana r
-                                INNER JOIN data_nota_pencairan_dana p 
-                                    ON r.kode_sbl = p.kode_sbl
-                                    AND r.active = p.active
-                                    AND r.tahun_anggaran = p.tahun_anggaran
-                                WHERE p.jenis_panjar = 'set_panjar'
-                                    AND r.id_npd = %d
-                                    AND r.kode_sbl = %s
-                                    AND r.tahun_anggaran = %d
-                                    AND r.active = 1
+                                    SUM(pagu_dana) as total_pagu
+                                FROM data_rekening_nota_pencairan_dana
+                                WHERE id_npd = %d
+                                  AND kode_sbl = %s
+                                  AND tahun_anggaran = %d
+                                  AND active = 1
                             ", $v_npd['id'], $v_npd['kode_sbl'], $v_npd['tahun_anggaran'])
                         );
 
@@ -1952,17 +1947,12 @@ class Wpsipd_Public_RKA
                         $total_pagu_npd_non_panjar = $wpdb->get_var(
                             $wpdb->prepare("
                                 SELECT
-                                    SUM(r.pagu_dana) as total_pagu
-                                FROM data_rekening_nota_pencairan_dana r
-                                INNER JOIN data_nota_pencairan_dana p 
-                                    ON r.kode_sbl = p.kode_sbl
-                                    AND r.active = p.active
-                                    AND r.tahun_anggaran = p.tahun_anggaran
-                                WHERE p.jenis_panjar = 'not_set_panjar'
-                                    AND r.id_npd = %d
-                                    AND r.kode_sbl = %s
-                                    AND r.tahun_anggaran = %d
-                                    AND r.active = 1
+                                    SUM(pagu_dana) as total_pagu
+                                FROM data_rekening_nota_pencairan_dana
+                                WHERE id_npd = %d
+                                  AND kode_sbl = %s
+                                  AND tahun_anggaran = %d
+                                  AND active = 1
                             ", $v_npd['id'], $v_npd['kode_sbl'], $v_npd['tahun_anggaran'])
                         );
 
@@ -2594,6 +2584,10 @@ class Wpsipd_Public_RKA
                         )
                     );
                     foreach ($data['rekening_akun'] as $k_rek_akun => $v_rek_akun) {
+                        $pagu = 0;
+                        if (!empty($data['pagu_rekening'][$k_rek_akun])) {
+                            $pagu = str_replace('.', '', $data['pagu_rekening'][$k_rek_akun]);
+                        }
                         $data_akun = $wpdb->get_row(
                             $wpdb->prepare('
                                 SELECT 
@@ -2624,7 +2618,7 @@ class Wpsipd_Public_RKA
                                 'nama_rekening' => $data_akun->nama_akun,
                                 'kode_rekening' => $data_akun->kode_akun,
                                 'id_rekening' => $data_akun->id_akun,
-                                'pagu_dana' => $data['pagu_rekening'][$k_rek_akun],
+                                'pagu_dana' => $pagu,
                                 'kode_sbl' => $kode_sbl,
                                 'id_npd' => $data['id_npd_rek'],
                                 'update_at' => current_time('mysql'),
@@ -2747,7 +2741,7 @@ class Wpsipd_Public_RKA
                 );
 
                 $total_pagu_npd = $total_pagu_npd ?: 0;
-                $ret['html'] = ''; 
+                $ret['html'] = '';
 
                 // Tampilkan penerimaan
                 $data_bku_penerimaan = $wpdb->get_row(
@@ -2963,6 +2957,7 @@ class Wpsipd_Public_RKA
                             'id_npd'                     => $postData['kode_npd'],
                             'tanggal_bkup'               => $tanggal,
                             'tahun_anggaran'             => $postData['tahun_anggaran'],
+                            'jenis_cash'                 => $postData['jenis_transkasi'],
                             'active'                     => 1,
                             'created_at'                 => current_time('mysql'),
                             'update_at'                  => current_time('mysql'),
@@ -2972,57 +2967,48 @@ class Wpsipd_Public_RKA
                             'no_rekening_bank'           => $postData['no_rekening_bank_bku']
                         );
 
-                        //insert data bku
-                        if (!empty($postData['id_data'])) {
-                            $cek_id = $wpdb->get_var(
+                        $cek_id = $wpdb->get_var(
+                            $wpdb->prepare('
+                                SELECT
+                                    id
+                                FROM data_buku_kas_umum_pembantu
+                                WHERE id = %d
+                                    AND tahun_anggaran = %d
+                                    AND active = 1
+                            ', $postData['id_data'], $postData['tahun_anggaran'])
+                        );
+
+                        if (!$cek_id) {
+                            //cek nomor npd
+                            $cek_nomor = $wpdb->get_var(
                                 $wpdb->prepare('
                                     SELECT
-                                        id
+                                        nomor_bukti
                                     FROM data_buku_kas_umum_pembantu
-                                    WHERE id = %d
-                                      AND tahun_anggaran = %d
-                                      AND active = 1
-                                ', $postData['id_data'], $postData['tahun_anggaran'])
+                                    WHERE nomor_bukti = %s
+                                        AND tahun_anggaran = %d
+                                        AND active = 1
+                                ', $postData['nomor_bukti_bku'], $postData['tahun_anggaran'])
                             );
 
-                            if (!$cek_id) {
-                                //cek nomor npd
-                                $cek_nomor = $wpdb->get_var(
-                                    $wpdb->prepare('
-                                        SELECT
-                                            nomor_npd
-                                        FROM data_buku_kas_umum_pembantu
-                                        WHERE nomor_bukti = %s
-                                          AND tahun_anggaran = %d
-                                          AND active = 1
-                                    ', $postData['nomor_bukti_bku'], $postData['tahun_anggaran'])
-                                );
-
-                                if (!empty($cek_nomor)) {
-                                    $ret['status'] = 'error';
-                                    $ret['message'] = 'Nomor bukti sudah terpakai!';
-                                    die(json_encode($ret));
-                                }
-
-                                $wpdb->insert(
-                                    'data_buku_kas_umum_pembantu',
-                                    $input_options
-                                );
-                                $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
-                            } else {
-                                $wpdb->update(
-                                    'data_buku_kas_umum_pembantu',
-                                    $input_options,
-                                    array('id' => $cek_id)
-                                );
-                                $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
+                            if (!empty($cek_nomor)) {
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Nomor bukti sudah terpakai!';
+                                die(json_encode($ret));
                             }
-                        } else {
+
                             $wpdb->insert(
                                 'data_buku_kas_umum_pembantu',
                                 $input_options
                             );
                             $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                        } else {
+                            $wpdb->update(
+                                'data_buku_kas_umum_pembantu',
+                                $input_options,
+                                array('id' => $cek_id)
+                            );
+                            $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
                         }
                     } else {
                         $ret['status'] = 'error';
@@ -3121,11 +3107,6 @@ class Wpsipd_Public_RKA
             $ret['message'] = 'Format Salah!';
         }
         die(json_encode($ret));
-    }
-
-    function edit_data_buku_kas_umum_pembantu()
-    {
-        $this->tambah_data_bku();
     }
 
     function get_rka_sub_keg_akun_npd()

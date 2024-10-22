@@ -1009,7 +1009,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_tambah_data_bku',  $plugin_public, 'tambah_data_bku');
 		$this->loader->add_action('wp_ajax_get_rka_sub_keg_akun_npd',  $plugin_public, 'get_rka_sub_keg_akun_npd');
 		$this->loader->add_action('wp_ajax_get_data_buku_kas_umum_by_id',  $plugin_public, 'get_data_buku_kas_umum_by_id');
-		$this->loader->add_action('wp_ajax_edit_data_buku_kas_umum_pembantu',  $plugin_public, 'edit_data_buku_kas_umum_pembantu');
 		$this->loader->add_action('wp_ajax_delete_data_buku_kas_umum_pembantu',  $plugin_public, 'delete_data_buku_kas_umum_pembantu');
 		$this->loader->add_action('wp_ajax_get_data_sisa_pagu_per_akun_npd',  $plugin_public, 'get_data_sisa_pagu_per_akun_npd');
 
