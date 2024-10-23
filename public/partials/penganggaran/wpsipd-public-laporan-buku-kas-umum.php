@@ -241,7 +241,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Rekening Belanja</label>
                                 <div class="col-sm-9">
-                                    <select class="form-control input_select_2 rekening_akun" id="rekening_akun" name="rekening_akun" onchange="get_data_sisa_pagu_per_akun_npd(this.value);">
+                                    <select class="form-control input_select_2 rekening_akun" id="rekening_akun" name="rekening_akun" onchange="get_data_sisa_pagu_per_akun_npd(this.value, false);">
                                         <option value="">Pilih Rekening</option>
                                     </select>
                                 </div>
@@ -259,7 +259,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     <div class="card mb-3" id="rincian_belanja_card">
                         <div class="card-header">
                             <strong>
-                                Rincian Belanja
+                                Rincian Belanja RKA
                             </strong>
                         </div>
                         <div class="card-body">
@@ -284,20 +284,20 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     <div class="card mb-3">
                         <div class="card-header">
                             <strong>
-                                Uraian BKU
+                                Nilai dan Uraian BKU
                             </strong>
                         </div>
                         <div class="card-body">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Uraian BKU</label>
+                                <label class="col-sm-3 col-form-label">Nilai</label>
                                 <div class="col-sm-9">
-                                    <textarea id="uraian_bku" name="uraian_bku" rows="4" class="form-control"></textarea>
+                                    <input type="text" class="form-control paguRek" id="pagu_bku" name="pagu_bku" onchange="cek_nilai(this.value)">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Nilai</label>
+                                <label class="col-sm-3 col-form-label">Uraian BKU</label>
                                 <div class="col-sm-9">
-                                    <input type="number" class="form-control" id="pagu_bku" name="pagu_bku" required onchange="cek_nilai();">
+                                    <textarea id="uraian_bku" name="uraian_bku" rows="4" class="form-control"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -358,7 +358,14 @@ $rka = $wpdb->get_results($wpdb->prepare("
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
     jQuery(document).ready(function() {
+        window.pagu_transaksi = 0;
+        window.id_rinci_sub_bl_global = false;
         load_data();
+
+        jQuery(document).on('input', '.paguRek', function() {
+            formatInput(this);
+        });
+
         window.rka_all = <?php echo json_encode($rka); ?>;
         jQuery('#rincian_rka').select2({
             width: '100%'
@@ -399,14 +406,12 @@ $rka = $wpdb->get_results($wpdb->prepare("
             jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').hide();
             jQuery('#nama_rekening_bank_bku').closest('.form-group').hide();
             jQuery('#no_rekening_bank_bku').closest('.form-group').hide();
-            jQuery("input[name=jenis_transkasi][value='2']").prop('checked', false).trigger("change");
             jQuery("input[name=jenis_transkasi][value='1']").prop('checked', true).trigger("change");
         } else {
             jQuery('#nama_pemilik_rekening_bank_bku').closest('.form-group').show();
             jQuery('#nama_rekening_bank_bku').closest('.form-group').show();
             jQuery('#no_rekening_bank_bku').closest('.form-group').show();
             jQuery("input[name=jenis_transkasi][value='2']").prop('checked', true).trigger("change");
-            jQuery("input[name=jenis_transkasi][value='1']").prop('checked', false).trigger("change");
         }
     }
 
@@ -441,6 +446,12 @@ $rka = $wpdb->get_results($wpdb->prepare("
         }
     }
 
+    function formatInput(element) {
+        var sanitized = jQuery(element).val().replace(/[^0-9]/g, '');
+        var formatted = formatRupiah(sanitized);
+        jQuery(element).val(formatted);
+    }
+
     function load_data() {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
@@ -471,8 +482,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').show();
                 clearAllFields();
                 toggleFormPenerimaan(false);
-                toggleFormTunai(true)
-                jQuery("#modal_tambah_data .modal-title").html("Tambah Buku Kas Umum Pembantu");
+                toggleFormTunai(true);
+                jQuery("#modal_tambah_data .modal-title").html("Tambah Pengeluaran Buku Kas Umum Pembantu");
                 jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
                 jQuery('#modal_tambah_data').modal('show');
                 jQuery('#wrap-loading').hide();
@@ -523,7 +534,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
             if (kode_rekening == '') {
                 jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(0, true));
                 jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
-                return;
+                return resolve();
             }
             jQuery('#wrap-loading').show();
             jQuery.ajax({
@@ -535,21 +546,26 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
                     "kode_sbl": "<?php echo $input['kode_sbl']; ?>",
                     "kode_npd": "<?php echo $kode_npd; ?>",
-                    "kode_rekening": kode_rekening
+                    "kode_rekening": kode_rekening,
+                    "id_data": jQuery('#id_data').val()
                 },
                 dataType: "json",
                 success: function(data) {
                     jQuery('#wrap-loading').hide();
-                    // menampilkan popup
                     if (data.status == 'success') {
                         window.sisa_rekening = data.data.pagu_dana_npd - data.data.total_pagu_bku;
-                        jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
 
+                        jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
                         rka_all.map(function(b, i) {
                             if (b.kode_akun == kode_rekening) {
-                                opsi_rincian += '<option value="' + b.id_rinci_sub_bl + '" nilai="' + b.rincian + '" koefisien="' + b.koefisien + '">' + b.nama_komponen + ' ' + b.spek_komponen + '</option>';
+                                var selected = '';
+                                if (b.id_rinci_sub_bl == id_rinci_sub_bl_global) {
+                                    selected = 'selected';
+                                }
+                                opsi_rincian += '<option value="' + b.id_rinci_sub_bl + '" ' + selected + ' nilai="' + b.rincian + '" koefisien="' + b.koefisien + '">' + b.nama_komponen + ' ' + b.spek_komponen + '</option>';
                             }
                         });
+                        window.id_rinci_sub_bl_global = false;
                         jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
                         resolve()
                     } else {
@@ -658,39 +674,47 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     },
                     success: function(response) {
                         if (response.status == 'success') {
-                            jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
-                            get_data_sisa_pagu_per_akun_npd(response.data.kode_rekening)
-                                .then(function() {
-                                    jQuery('#rincian_rka').val(response.data.id_rinci_sub_bl).trigger('change');
-                                    jQuery('#id_data').val(response.data.id);
-                                    jQuery('#nomor_bukti_bku').val(response.data.nomor_bukti);
-                                    jQuery('#uraian_bku').val(response.data.uraian);
-                                    jQuery('#pagu_bku').val(response.data.pagu);
-                                    jQuery("#set_tanggal").val(response.data.tanggal_bkup);
+                            if (tipe == "keluar") {
+                                jQuery('#id_data').val(response.data.id);
+                                jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
+                                window.id_rinci_sub_bl_global = response.data.id_rinci_sub_bl;
+                                jQuery('#nomor_bukti_bku').val(response.data.nomor_bukti);
+                                jQuery('#uraian_bku').val(response.data.uraian);
+                                jQuery('#pagu_bku').val(response.data.pagu).trigger('input');
+                                jQuery("#set_tanggal").val(response.data.tanggal_bkup);
 
-                                    jQuery("#modal_tambah_data .modal-title").html("Edit Buku Kas Umum Pembantu");
-                                    jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
-                                    if (response.data.jenis_cash == 1) {
-                                        //tunai
-                                        toggleFormTunai(true)
-                                        jQuery("#nama_pemilik_rekening_bank_bku").val(response.data.nama_pemilik_rekening_bank);
-                                        jQuery("#nama_rekening_bank_bku").val(response.data.nama_rekening_bank);
-                                        jQuery("#no_rekening_bank_bku").val(response.data.no_rekening_bank);
-                                    } else if (response.data.jenis_cash == 2) {
-                                        //nontunai
-                                        toggleFormTunai(false)
-                                        jQuery("#nama_pemilik_rekening_bank_bku").val('');
-                                        jQuery("#nama_rekening_bank_bku").val('');
-                                        jQuery("#no_rekening_bank_bku").val('');
-                                    } else {
-                                        jQuery("input[name=jenis_transkasi]").prop('checked', false).trigger("change");
-                                        jQuery("#nama_pemilik_rekening_bank_bku").val('');
-                                        jQuery("#nama_rekening_bank_bku").val('');
-                                        jQuery("#no_rekening_bank_bku").val('');
-                                    }
-                                    jQuery('#modal_tambah_data').modal('show');
-                                    jQuery('#wrap-loading').hide();
-                                })
+                                jQuery("#modal_tambah_data .modal-title").html("Edit Pengeluaran Buku Kas Umum Pembantu");
+                                jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
+                                if (response.data.jenis_cash == 1) {
+                                    //tunai
+                                    toggleFormTunai(true)
+                                    jQuery("#nama_pemilik_rekening_bank_bku").val('');
+                                    jQuery("#nama_rekening_bank_bku").val('');
+                                    jQuery("#no_rekening_bank_bku").val('');
+                                } else if (response.data.jenis_cash == 2) {
+                                    //nontunai
+                                    toggleFormTunai(false)
+                                    jQuery("#nama_pemilik_rekening_bank_bku").val(response.data.nama_pemilik_rekening_bank);
+                                    jQuery("#nama_rekening_bank_bku").val(response.data.nama_rekening_bank);
+                                    jQuery("#no_rekening_bank_bku").val(response.data.no_rekening_bank);
+                                } else {
+                                    jQuery("input[name=jenis_transkasi]").prop('checked', false).trigger("change");
+                                    jQuery("#nama_pemilik_rekening_bank_bku").val('');
+                                    jQuery("#nama_rekening_bank_bku").val('');
+                                    jQuery("#no_rekening_bank_bku").val('');
+                                }
+                                jQuery('#modal_tambah_data').modal('show');
+                            } else if (tipe == "terima") {
+                                jQuery('#id_data').val(response.data.id);
+                                jQuery("#set_tanggal").val(response.data.tanggal_bkup);
+                                jQuery('#uraian_bku').val(response.data.uraian);
+
+                                jQuery("#modal_tambah_data .modal-title").html("Edit Penerimaan Buku Kas Umum Pembantu");
+                                jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
+
+                                jQuery('#modal_tambah_data').modal('show');
+                                jQuery('#wrap-loading').hide();
+                            }
                         } else {
                             alert(response.message);
                             jQuery('#wrap-loading').hide();
@@ -764,16 +788,18 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 } else {
                     alert(`GAGAL! \n${response.message}`);
                 }
-                jQuery('#pagu_bku').val(sisa_rincian);
             }
         });
     }
 
-    function cek_nilai() {
-        var nilai = jQuery('#pagu_bku').val();
-        if (nilai > sisa_rekening) {
-            alert('Nilai transaksi BKU tidak boleh lebih besar dari sisa rekening belanja ' + formatRupiah(sisa_rekening, true));
-            jQuery('#pagu_bku').val(sisa_rekening);
+    function cek_nilai(value) {
+        let rekeningNpd = jQuery("#rekening_akun").val()
+        if (rekeningNpd != '') {
+            let nilaiBku = value.replace(/[^0-9]/g, '');
+            if (nilaiBku > sisa_rekening) {
+                alert('Nilai transaksi BKU tidak boleh lebih besar dari sisa rekening belanja ' + formatRupiah(sisa_rekening, true));
+                jQuery('#pagu_bku').val(sisa_rekening);
+            }
         }
     }
 </script>

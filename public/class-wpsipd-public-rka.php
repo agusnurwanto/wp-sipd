@@ -2801,6 +2801,7 @@ class Wpsipd_Public_RKA
                                 <td class="kanan bawah text-center">
                                     <a class="btn btn-sm btn-warning" onclick="edit_data(' . $v_bku['id'] . '); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
                                     <a class="btn btn-sm btn-danger" onclick="delete_data(' . $v_bku['id'] . '); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>
+                                    <a class="btn btn-sm btn-info" onclick="print_kwitansi(' . $v_bku['id'] . '); return false;" href="#" title="Cetak Kwitansi"><i class="dashicons dashicons-printer"></i></a>
                                 </td>
                             </tr>';
                         $total_pengeluaran += $v_bku['pagu'];
@@ -2865,7 +2866,7 @@ class Wpsipd_Public_RKA
                 // Tambahan validasi untuk pengeluaran
                 if ($postData['set_bku'] == 'keluar') {
                     $validationRules['nomor_bukti_bku'] = 'required';
-                    $validationRules['pagu_bku']        = 'required|numeric';
+                    $validationRules['pagu_bku']        = 'required';
                     $validationRules['rekening_akun']   = 'required';
                     $validationRules['rincian_rka']     = 'required';
                     // Tambahan validasi untuk transaksi non-tunai
@@ -2904,6 +2905,7 @@ class Wpsipd_Public_RKA
                 $tipe_jenis_bku = ($postData['set_bku'] == 'terima') ? 'penerimaan' : 'pengeluaran';
 
                 if ($postData['set_bku'] == 'keluar') {
+                    $pagu_bku = str_replace('.', '', $postData['pagu_bku']);
                     $data_npd = $wpdb->get_row(
                         $wpdb->prepare("
                             SELECT 
@@ -2922,7 +2924,6 @@ class Wpsipd_Public_RKA
                         'kode_akun' => $data_npd['kode_rekening'],
                         'nama_akun' => str_replace($data_npd['kode_rekening'], '', $data_npd['nama_rekening'])
                     );
-
                     if (!empty($data_akun)) {
                         $set_id_bku = !empty($postData['id_data']) ? ' AND id != ' . $postData['id_data'] : '';
                         $data_total_pagu_bku = $wpdb->get_var(
@@ -2937,7 +2938,7 @@ class Wpsipd_Public_RKA
                                   AND bku.active = 1
                                 " . $set_id_bku, $postData['kode_npd'], $postData['tahun_anggaran'], $postData['rekening_akun'])
                         );
-                        $total_pagu_bku = (!empty($data_total_pagu_bku)) ? $data_total_pagu_bku + $postData['pagu_bku'] : $postData['pagu_bku'];
+                        $total_pagu_bku = (!empty($data_total_pagu_bku)) ? $data_total_pagu_bku + $pagu_bku : $pagu_bku;
 
                         if ($total_pagu_bku > $data_sisa_pagu_npd) {
                             $ret['status'] = 'error';
@@ -2951,7 +2952,7 @@ class Wpsipd_Public_RKA
                             'nomor_bukti'                => $postData['nomor_bukti_bku'],
                             'tipe'                       => $tipe_jenis_bku,
                             'uraian'                     => $postData['uraian_bku'],
-                            'pagu'                       => $postData['pagu_bku'],
+                            'pagu'                       => $pagu_bku,
                             'kode_rekening'              => $data_akun['kode_akun'],
                             'nama_rekening'              => $data_akun['nama_akun'],
                             'id_npd'                     => $postData['kode_npd'],
@@ -3276,6 +3277,15 @@ class Wpsipd_Public_RKA
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                // cek role user panjar
+                $current_user = wp_get_current_user();
+                $allowed_roles = $this->allowed_roles_panjar();
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
                 if (empty($_POST['kode_npd'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'kode npd tidak boleh kosong!';
@@ -3286,18 +3296,12 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
-                // cek role user existing harus administrator atau PA, PLT, KPA
-                $current_user = wp_get_current_user();
-                $allowed_roles = $this->allowed_roles_panjar();
-
-                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
-                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
-                    die(json_encode($ret));
-                }
-
                 if ($ret['status'] != 'error') {
+                    $where_edit = '';
+                    if (!empty($_POST['id_data'])) {
+                        $where_edit = $wpdb->prepare('AND bku.id != %d', $_POST['id_data']);
+                    }
+
                     $data_sisa_pagu_npd = $wpdb->get_row($wpdb->prepare("
                         SELECT 
                             rnpd.pagu_dana as pagu_dana_npd, 
@@ -3307,6 +3311,7 @@ class Wpsipd_Public_RKA
                             AND bku.id_npd=rnpd.id_npd
                             AND bku.tahun_anggaran=rnpd.tahun_anggaran
                             AND bku.active=rnpd.active
+                            $where_edit
                         WHERE rnpd.id_npd=%d
                             AND rnpd.tahun_anggaran=%d
                             AND rnpd.active=1
