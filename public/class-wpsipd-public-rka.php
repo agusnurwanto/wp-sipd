@@ -194,6 +194,15 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-buku-kas-umum.php';
     }
 
+    public function cetak_kwitansi_bku($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-cetak-kwitansi-bku.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -2785,6 +2794,12 @@ class Wpsipd_Public_RKA
 
                 if (!empty($data_bku)) {
                     foreach ($data_bku as $v_bku) {
+                        $kwitansi_page = $this->generatePage(
+                            'Cetak Kwitansi BKU',
+                            $_POST['tahun_anggaran'],
+                            '[cetak_kwitansi_bku]',
+                            false
+                        );
                         $saldo = $total_pagu_npd_sekarang - $v_bku['pagu'];
                         $total_pagu_npd_sekarang = $saldo;
                         $tanggal = date_format(date_create($v_bku['tanggal_bkup']), "d/m/Y");
@@ -2801,7 +2816,7 @@ class Wpsipd_Public_RKA
                                 <td class="kanan bawah text-center">
                                     <a class="btn btn-sm btn-warning" onclick="edit_data(' . $v_bku['id'] . '); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
                                     <a class="btn btn-sm btn-danger" onclick="delete_data(' . $v_bku['id'] . '); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>
-                                    <a class="btn btn-sm btn-info" onclick="print_kwitansi(' . $v_bku['id'] . '); return false;" href="#" title="Cetak Kwitansi"><i class="dashicons dashicons-printer"></i></a>
+                                    <a class="btn btn-sm btn-info" onclick="print_kwitansi(\'' . $kwitansi_page . '&id_bku=' . $v_bku['id'] . '&tahun_anggaran=' . $v_bku['tahun_anggaran'] . '\')" href="#" title="Cetak Kwitansi"><i class="dashicons dashicons-printer"></i></a>
                                 </td>
                             </tr>';
                         $total_pengeluaran += $v_bku['pagu'];

@@ -802,4 +802,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
             }
         }
     }
+
+    function print_kwitansi(url) {
+        window.open(url, '_blank');
+    }
 </script>

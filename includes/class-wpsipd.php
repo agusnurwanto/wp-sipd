@@ -1237,6 +1237,8 @@ class Wpsipd
 
 		add_shortcode('serapan_rka_sipd',array($plugin_public,'serapan_rka_sipd'));
 		add_shortcode('monev_pemutakhiran',array($plugin_public,'monev_pemutakhiran'));
+		
+		add_shortcode('cetak_kwitansi_bku',array($plugin_public,'cetak_kwitansi_bku'));
 	}
 
 	/**
