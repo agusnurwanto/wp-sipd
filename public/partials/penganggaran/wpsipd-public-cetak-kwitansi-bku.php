@@ -61,6 +61,7 @@ global $wpdb;
             max-width: auto !important;
             height: auto !important;
         }
+
         #action-sipd {
             display: none;
         }
@@ -138,25 +139,25 @@ global $wpdb;
             <tr>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
-                    <div>Pembina</div>
-                    <div>NIP. xxxxxxxxxxxx</div>
-                </td>
-                <td>
-                    <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div class="signature-name text_uppercase pptk-name "></div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
+                    <div>xxxxxxxxxxxx</div>
+                    <div>NIP. xxxxxxxxxxxx</div>
+                </td>
+                <td>
+                    <div class="signature-line"></div>
+                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
@@ -166,14 +167,13 @@ global $wpdb;
 </body>
 <script>
     jQuery(document).ready(function() {
-        get_bku()
+        window.id_npd = ''
+        get_bku(); // Pemanggilan get_bku lebih dulu
         var extend_action = '';
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
-
         extend_action += '</div>';
-
         jQuery('#action-sipd').append(extend_action);
-    })
+    });
 
     function get_bku() {
         jQuery('#wrap-loading').show();
@@ -191,9 +191,42 @@ global $wpdb;
                 console.log(response);
                 jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
-                    jQuery('.terbilang').text(terbilang(parseInt(response.data.pagu)) + ' Rupiah')
-                    jQuery('.pagu').text('Rp. ' + formatAngka(parseInt(response.data.pagu)))
-                    jQuery('.uraian').text(response.data.uraian)
+                    jQuery('.terbilang').text(terbilang(parseInt(response.data.pagu)) + ' Rupiah');
+                    jQuery('.pagu').text('Rp. ' + formatAngka(parseInt(response.data.pagu)));
+                    jQuery('.uraian').text(response.data.uraian);
+
+                    window.id_npd = response.data.id_npd;
+
+                    get_pptk_by_npd();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function get_pptk_by_npd() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'get_nota_panjar_by_id',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: window.id_npd,
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery('.pptk-name').text(response.data.pptk_name.toUpperCase());
                 } else {
                     alert(response.message);
                 }

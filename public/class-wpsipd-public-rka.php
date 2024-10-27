@@ -203,6 +203,33 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-cetak-kwitansi-bku.php';
     }
 
+    public function spt_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-spt-sppd.php';
+    }
+
+    public function sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-sppd.php';
+    }
+
+    public function sppd_rampung($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-sppd-rampung.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -2394,8 +2421,13 @@ class Wpsipd_Public_RKA
                 );
 
                 if (!empty($data_nota_panjar)) {
+                    // Get user data by user id for kwitansi page
+                    $user = get_userdata($data_nota_panjar['id_user_pptk']);
+
                     $data_nota_panjar['jenis_panjar'] = $data_nota_panjar['jenis_panjar'] == 'set_panjar' ? 'dengan_panjar' : 'tanpa_panjar';
+                    
                     $ret['data'] = $data_nota_panjar;
+                    $ret['data']['pptk_name'] = $user->display_name;
                 } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Nota Panjar tidak ditemukan!';
@@ -3213,7 +3245,7 @@ class Wpsipd_Public_RKA
                         WHERE id = %d
                           AND tahun_anggaran = %d
                           AND active = 1
-                ", $_POST['id'], $_POST['tahun_anggaran']),
+                    ", $_POST['id'], $_POST['tahun_anggaran']),
                     ARRAY_A
                 );
 
