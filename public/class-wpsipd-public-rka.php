@@ -2442,7 +2442,7 @@ class Wpsipd_Public_RKA
                 $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
-                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                if (empty(array_intersect($allowed_roles, $current_user->roles)) && (empty($_POST['jenis_data']) || $_POST['jenis_data'] !== 'sakip')) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
                     die(json_encode($ret));
@@ -2473,6 +2473,7 @@ class Wpsipd_Public_RKA
                 }
                 $ret['sql'] = $wpdb->last_query;
                 $ret['data_akun_html'] = $data_akun_options;
+                $ret['data_akun'] = $data_akun;
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
