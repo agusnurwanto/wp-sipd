@@ -4883,6 +4883,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'iddana' => $v['iddana'],
 								'iddanasubbl' => $v['iddanasubbl'],
 								'pagudana' => $v['pagudana'],
+								'is_locked' => $v['is_locked'],
 								'kode_sbl' => $_POST['kode_sbl'],
 								'idsubbl' => $_POST['idsubbl'],
 								'active' => 1,
@@ -5091,6 +5092,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
 							'idsubtitle' => $v['subs_bl_teks']['sumber_dana']['id_subtitle'],
+							'ssh_locked' => $v['ssh_locked'],
+							'akun_locked' => $v['akun_locked'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -7166,7 +7169,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$ret = array(
 			'status' => 'success',
-			'message' => 'Berhasil singkronisasi AKLAP LRA'
+			'message' => 'Berhasil singkronisasi AKLAP LRA',
+			'action' => $_POST['action'],
+			'id_skpd' => $_POST['id_skpd']
 		);
 
 		if (!empty($_POST)) {
@@ -7182,23 +7187,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					$wpdb->update("aklap_lra_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"id_skpd" => $_POST['id_skpd'],
-						"mulai_tgl" => $_POST['mulai_tgl'],
-						"sampai_tgl" => $_POST['sampai_tgl']
+						"id_skpd" => $_POST['id_skpd']
 					));
 				}
 
 				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("
+					$cek_id = $wpdb->get_var($wpdb->prepare("
 						select 
-							nama_rekening 
+							id 
 						from aklap_lra_sipd 
-						where nama_rekening=%d 
+						where kode_rekening=%d 
+							and id_daerah=%d
+							and id_skpd=%d
 							and level=%d
 							and tahun_anggaran=%d
-							and mulai_tgl=%d
-							and sampai_tgl=%d
-						", $v["nama_rekening"], $v["level"], $_POST["tahun_anggaran"], $_POST['mulai_tgl'], $_POST['sampai_tgl']));
+						", $v["kode_rekening"], $_POST["id_daerah"], $v["id_skpd"], $v["level"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"id_daerah" => $_POST["id_daerah"],
 						"id_skpd" => $v["id_skpd"],
@@ -7215,9 +7218,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
-					if (!empty($cek)) {
+					if (!empty($cek_id)) {
 						//Update data spm ditable data_spm_sipd
-						$wpdb->update("aklap_lra_sipd", $opsi, array("nama_rekening" => $cek, "level" => $v["level"], "tahun_anggaran" => $_POST["tahun_anggaran"], "mulai_tgl" => $_POST["mulai_tgl"], "sampai_tgl" => $_POST["sampai_tgl"],));
+						$wpdb->update("aklap_lra_sipd", $opsi, array("id" => $cek_id));
 					} else {
 						//insert data spm ditable data_spm_sipd
 						$wpdb->insert("aklap_lra_sipd", $opsi);
@@ -7241,6 +7244,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret = array(
 			'status' => 'success',
 			'message' => 'Berhasil Singkron Buku Jurnal',
+			'id_skpd' => $_POST['id_skpd'],
 			'action' => $_POST['action']
 		);
 		if (!empty($_POST)) {
@@ -9321,7 +9325,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_page = 'RFK ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 						$url_rfk = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_rfk . $url_nilai_dpa . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_rfk, $url_nilai_dpa) . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[2])) {
@@ -10267,39 +10271,40 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$total_rak += $data_kas['bulan_' . $i];
 			}
 		}
-		if ($total_rak == $options['rak']) {
+		if (
+			empty($options['cek_input'])
+			&& $total_rak == $options['rak']
+		) {
+			return $total_rak;
+		} else {
+			$sql = $wpdb->prepare("
+			    select 
+			        id
+			    from data_rfk
+			    where tahun_anggaran=%d
+			        and bulan=%d
+			        and id_skpd=%d
+			        and kode_sbl=%s
+			", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
+			$cek_id = $wpdb->get_var($sql);
+			$opsi = array(
+				'bulan'	=> $options['bulan'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'rak' => $total_rak,
+				'user_edit'	=> $options['user'],
+				'id_skpd'	=> $options['id_skpd'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			if (!empty($cek_id)) {
+				$wpdb->update('data_rfk', $opsi, array(
+					'id' => $cek_id
+				));
+			} else {
+				$wpdb->insert('data_rfk', $opsi);
+			}
 			return $total_rak;
 		}
-		$sql = $wpdb->prepare("
-		    select 
-		        id
-		    from data_rfk
-		    where tahun_anggaran=%d
-		        and bulan=%d
-		        and id_skpd=%d
-		        and kode_sbl=%s
-		", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
-		$cek = $wpdb->get_results($sql, ARRAY_A);
-		$opsi = array(
-			'bulan'	=> $options['bulan'],
-			'kode_sbl'	=> $options['kode_sbl'],
-			'rak' => $total_rak,
-			'user_edit'	=> $options['user'],
-			'id_skpd'	=> $options['id_skpd'],
-			'tahun_anggaran'	=> $options['tahun_anggaran'],
-			'created_at'	=>  current_time('mysql')
-		);
-		if (!empty($cek)) {
-			$wpdb->update('data_rfk', $opsi, array(
-				'tahun_anggaran' => $options['tahun_anggaran'],
-				'bulan' => $options['bulan'],
-				'id_skpd' => $options['id_skpd'],
-				'kode_sbl' => $options['kode_sbl']
-			));
-		} else {
-			$wpdb->insert('data_rfk', $opsi);
-		}
-		return $total_rak;
 	}
 
 	function get_realisasi_simda($options = array())
@@ -11203,7 +11208,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$_kd_bidang = $kd_unit_simda[1];
 				$kd_unit = $kd_unit_simda[2];
 				$kd_sub_unit = $kd_unit_simda[3];
-				$simda = get_option( '_crb_singkron_simda' );
+				$simda = get_option('_crb_singkron_simda');
 
 				$skpd = $wpdb->get_row($wpdb->prepare(
 					"
@@ -11247,7 +11252,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						unset($nama_keg[0]);
 						$nama_keg = implode(' ', $nama_keg);
 						$mapping = false;
-						if($simda == 1){
+						if ($simda == 1) {
 							$mapping = $this->simda->cekKegiatanMapping(array(
 								'kd_urusan90' => $kd_urusan90,
 								'kd_bidang90' => $kd_bidang90,
@@ -11335,7 +11340,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_realisasi['realisasi'] = 0;
 						$data_realisasi['rak'] = 0;
-						if($simda == 1){
+						if ($simda == 1) {
 							$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
 							$data_realisasi['rak'] = $this->get_rak_simda($opsi);
 						}
@@ -11368,27 +11373,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		$last_update = $wpdb->get_results($wpdb->prepare(
 			"
-							select 
-								min(d.created_at) as last_update
-							from data_sub_keg_bl k 
-							left join data_rfk d 
-								on d.id_skpd=k.id_sub_skpd and 
-								d.kode_sbl=k.kode_sbl and 
-								d.tahun_anggaran=k.tahun_anggaran and 
-								d.bulan=" . $params['bulan'] . " 
-							where 
-								k.tahun_anggaran=%d and 
-								k.id_sub_skpd in (
-									select 
-										id_skpd 
-									from data_unit 
-									where 
-										" . $column . "=" . $params['id_skpd'] . " and 
-										active=1 and 
-										tahun_anggaran=" . $params['tahun_anggaran'] . "
-								) and 
-								k.active=1
-							",
+			select 
+				min(d.created_at) as last_update
+			from data_sub_keg_bl k 
+			left join data_rfk d 
+				on d.id_skpd=k.id_sub_skpd and 
+				d.kode_sbl=k.kode_sbl and 
+				d.tahun_anggaran=k.tahun_anggaran and 
+				d.bulan=" . $params['bulan'] . " 
+			where 
+				k.tahun_anggaran=%d and 
+				k.id_sub_skpd in (
+					select 
+						id_skpd 
+					from data_unit 
+					where 
+						" . $column . "=" . $params['id_skpd'] . " and 
+						active=1 and 
+						tahun_anggaran=" . $params['tahun_anggaran'] . "
+				) and 
+				k.active=1
+			",
 			$params['tahun_anggaran']
 		), ARRAY_A);
 
@@ -11543,7 +11548,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						        and id_skpd=%d
 						        and kode_sbl=%s
 						", $tahun_anggaran, $bulan, $id_skpd, $kode_sbl);
-						$cek = $wpdb->get_results($sql, ARRAY_A);
+						$cek_id = $wpdb->get_var($sql);
 						$realisasi_anggaran = 0;
 						for ($b = 1; $b <= $bulan; $b++) {
 							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_' . $b];
@@ -11562,12 +11567,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun_anggaran'	=> $tahun_anggaran,
 							'created_at'	=>  current_time('mysql')
 						);
-						if (!empty($cek)) {
+						if (!empty($cek_id)) {
 							$wpdb->update('data_rfk', $opsi, array(
-								'tahun_anggaran' => $tahun_anggaran,
-								'bulan' => $bulan,
-								'id_skpd' => $id_skpd,
-								'kode_sbl' => $kode_sbl
+								'id' => $cek_id
 							));
 						} else {
 							$wpdb->insert('data_rfk', $opsi);
@@ -11772,7 +11774,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tbody .= '
 						<tr>
 							<td>' . $this->get_bulan($i) . '</td>
-							<td class="text_kanan nilai_rak" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_rak_bulan_' . $i . '">' . $rak_bulanan_format . '</td>
+							<td class="text_kanan nilai_rak" onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_rak_bulan_' . $i . '">' . $rak_bulanan_format . '</td>
 							<td class="text_kanan nilai_realisasi" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_realisasi_bulan_' . $i . '">' . $realisasi_bulanan_format . '</td>
 							<td class="text_kanan nilai_selisih">' . $selisih_format . '</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_' . $i . '" ' . $editable . ' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">' . $realisasi_target_bulanan . '</td>
@@ -13738,12 +13740,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $this->get_link_post($custom_post);
 	}
 
-	function add_param_get($url, $param){
+	function add_param_get($url, $param)
+	{
 		$data = explode('?', $url);
-		if(count($data) > 1){
+		if (count($data) > 1) {
 			$url .= $param;
-		}else{
-			$url .= '?'.$param;
+		} else {
+			$url .= '?' . $param;
 		}
 		return $url;
 	}
@@ -16797,7 +16800,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								if (
 									in_array($tipe_perencanaan, ['renstra', 'renja'])
-									AND $recVal['status'] == 0
+									and $recVal['status'] == 0
 								) {
 									$delete .= '<a class="btn btn-sm btn-danger action-btn copy-data" onclick="copy_usulan(); return false;" style="display:inline;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if ($tipe_perencanaan == 'renja') {
@@ -18370,9 +18373,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$status_check = array(0, NULL, 2);
 							if (in_array($data_this_id['status'], $status_check)) {
 
+								$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 								$this->check_total_pagu_penetapan([
 									'lama_pelaksanaan' => $data_this_id['lama_pelaksanaan'],
-									'tahun_anggaran' => $data_this_id['tahun_anggaran']
+									'tahun_anggaran' => $tahun_anggaran
 								]);
 
 								//lock data penjadwalan
@@ -22469,6 +22473,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			// echo '<pre>';print_r($data_all);echo '</pre>';die();
+			$error = '';
 
 			for ($i = 0; $i < $opt['lama_pelaksanaan']; $i++) {
 				if (
@@ -22477,9 +22482,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					($data_all['pagu_' . ($i + 1) . '_kegiatan_kab'] != $data_all['pagu_' . ($i + 1) . '_subkegiatan_kab'])
 				) {
 
-					throw new Exception("
-						<p>Pagu akumulasi total di tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</p>
-						<table>
+					$error .= "
+						<h4>Pagu akumulasi total di tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</h4>
+						<table class='table table-bordered'>
 							<thead>
 								<tr>
 									<th width='50%'>Data Renstra</th>
@@ -22488,20 +22493,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							</thead>
 							<tbody>
 								<tr>
-									<td>Program</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_program_kab']) . "</td>
+									<td class='text-left'>Program</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_program_kab']) . "</td>
 								</tr>
 								<tr>
-									<td>Kegiatan</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_kegiatan_kab']) . "</td>
+									<td class='text-left'>Kegiatan</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_kegiatan_kab']) . "</td>
 								</tr>
 								<tr>
-									<td>Sub Kegiatan</td>
-									<td>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_subkegiatan_kab']) . "</td>
+									<td class='text-left'>Sub Kegiatan</td>
+									<td class='text-right'>" . $this->_number_format($data_all['pagu_' . ($i + 1) . '_subkegiatan_kab']) . "</td>
 								</tr>
 							</tbody>
 						</table>
-						", true);
+						";
 				}
 			}
 
@@ -22513,10 +22518,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan'] !=
 								$valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']
 							) {
-								throw new Exception("
+								$error .= "
 								<div>
-									<p>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator kegiatan dan pagu sub kegiatannya.</p>
-									<table>
+									<h4>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator kegiatan dan pagu sub kegiatannya.</h4>
+									<table class='table table-bordered'>
 										<thead>
 											<tr>
 												<th width='30%'>Unit Kerja</th>
@@ -22527,14 +22532,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										</thead>
 										<tbody>
 											<tr>
-												<td>" . $unit['unit_kerja'] . "</td>
-												<td>" . $valueKegiatan['nama_kegiatan'] . "</td>
-												<td>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
-												<td>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']) . "</td>
+												<td class='text-left'>" . $unit['unit_kerja'] . "</td>
+												<td class='text-left'>" . $valueKegiatan['nama_kegiatan'] . "</td>
+												<td class='text-right'>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
+												<td class='text-right'>" . $this->_number_format($valueKegiatan['pagu_akumulasi_' . ($i + 1) . '_subkegiatan']) . "</td>
 											</tr>
 										</tbody>
 									</table>
-								</div>", true);
+								</div>";
 							}
 						}
 					}
@@ -22544,10 +22549,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$valueProgram['pagu_akumulasi_' . ($i + 1) . '_program'] !=
 							$valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']
 						) {
-							throw new Exception("
+							$error .= "
 								<div>
-									<p>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program dan pagu indikator kegiatannya.</p>
-									<table>
+									<h4>Pagu Akumulasi Tahun ke " . ($i + 1) . " tidak sama antara pagu indikator program dan pagu indikator kegiatannya.</h4>
+									<table class='table table-bordered'>
 										<thead>
 											<tr>
 												<th width='30%'>Unit Kerja</th>
@@ -22558,17 +22563,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										</thead>
 										<tbody>
 											<tr>
-												<td>" . $unit['unit_kerja'] . "</td>
-												<td>" . $valueProgram['nama_program'] . "</td>
-												<td>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_program']) . "</td>
-												<td>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
+												<td class='text-left'>" . $unit['unit_kerja'] . "</td>
+												<td class='text-left'>" . $valueProgram['nama_program'] . "</td>
+												<td class='text-right'>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_program']) . "</td>
+												<td class='text-right'>" . $this->_number_format($valueProgram['pagu_akumulasi_' . ($i + 1) . '_kegiatan']) . "</td>
 											</tr>
 										</tbody>
 									</table>
-								</div>", true);
+								</div>";
 						}
 					}
 				}
+			}
+
+			if (!empty($error)) {
+				throw new Exception($error);
 			}
 		} catch (Exception $e) {
 			echo json_encode([
@@ -24601,7 +24610,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'id_unik_indikator',
 								'id_unit',
 								'id_visi',
-								'indikator', 
+								'indikator',
 								'indikator_usulan',
 								'is_locked',
 								'is_locked_indikator',
@@ -24875,7 +24884,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
-	
+
 	public function get_data_jadwal_wpsipd()
 	{
 		global $wpdb;
@@ -24923,7 +24932,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .= $wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
 					}
 
-					if(!empty($_POST['id_jadwal'])){
+					if (!empty($_POST['id_jadwal'])) {
 						$where .= $wpdb->prepare(" AND id_jadwal_lokal = %d", $_POST['id_jadwal']);
 					}
 
@@ -24960,7 +24969,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($return));
 	}
-	
+
 	function get_data_rincian_belanja_rka()
 	{
 		global $wpdb;
@@ -24997,5 +25006,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	public function aklap_lra($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		$input = shortcode_atts(array(
+			'idlabelgiat' => '',			
+			'id_skpd' => false,
+			'tahun_anggaran' => '2021',
+		), $atts);
+
+		// LRA
+		if ($input['lampiran'] == 1) {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-aklap-lra.php';
+		}
 	}
 }

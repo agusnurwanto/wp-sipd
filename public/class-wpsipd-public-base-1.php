@@ -4012,7 +4012,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 active
                             FROM data_batasan_pagu_sd
                             WHERE kode_dana=%s
-                        ', $kode_dana), ARRAY_A);
+                                AND tahun_anggaran=%d
+                        ', $kode_dana, $tahun_anggaran), ARRAY_A);
                         if(empty($cek_id)){
                             $data['created_at'] = current_time('mysql');
                             $wpdb->insert('data_batasan_pagu_sd', $data);
