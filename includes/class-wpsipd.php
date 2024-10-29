@@ -1087,6 +1087,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_pokin_level1',  $plugin_public, 'update_indikator_pokin_level1');
 		$this->loader->add_action('wp_ajax_delete_indikator_pokin_level1',  $plugin_public, 'delete_indikator_pokin_level1');
 		
+		$this->loader->add_action('wp_ajax_delete_indikator_pokin_level1',  $plugin_public, 'delete_indikator_pokin_level1');
+		
 		$this->loader->add_action('wp_ajax_get_cascading_renstra',  $plugin_public, 'get_cascading_renstra');
 		$this->loader->add_action('wp_ajax_nopriv_get_cascading_renstra',  $plugin_public, 'get_cascading_renstra');
 
@@ -1098,6 +1100,13 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
+		
+		//SPT SPPD
+		$this->loader->add_action('wp_ajax_get_datatable_data_spt',  $plugin_public, 'get_datatable_data_spt');
+		$this->loader->add_action('wp_ajax_hapus_data_spt_by_id',  $plugin_public, 'hapus_data_spt_by_id');
+		$this->loader->add_action('wp_ajax_get_data_spt_by_id',  $plugin_public, 'get_data_spt_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_spt',  $plugin_public, 'tambah_data_spt');
+		$this->loader->add_action('wp_ajax_get_table_pegawai_spt_sppd',  $plugin_public, 'get_table_pegawai_spt_sppd');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

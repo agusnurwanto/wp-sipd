@@ -119,8 +119,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'chart', plugin_dir_url(__FILE__) . 'js/chart.min.js', array('jquery'), $this->version, false);
 		wp_localize_script($this->plugin_name, 'ajax', array(
-			'url' => admin_url('admin-ajax.php'),
-			'site_url' => site_url()
+			'url' 		=> admin_url('admin-ajax.php'),
+			'api_key' 	=> get_option('_crb_api_key_extension'),
+			'site_url' 	=> site_url()
 		));
 	}
 

@@ -962,9 +962,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				);
 
 			if (get_option('_crb_show_menu_sppd_settings') != true) {
-				$url_spt_sppd = $this->generatePage('SPT SPPD', false, '[spt_sppd]');
 				$url_sppd = $this->generatePage('SPPD', false, '[sppd]');
 				$url_sppd_rampung = $this->generatePage('SPT SPPD', false, '[sppd_rampung]');
+
 				$sppd = Container::make('theme_options', __('SPPD'))
 					->set_page_menu_position(7)
 					->set_icon('dashicons-airplane');
@@ -972,19 +972,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if (get_option('_crb_show_submenu_spt_sppd_settings') != true) {
 					Container::make('theme_options', __('SPT (Surat Perintah Tugas)'))
 						->set_page_parent($sppd)
-						->add_fields(
-							array(
-								Field::make('html', 'crb_spt_sppd_page')
-									->set_html('
-										<style>
-											.postbox-container { display: none; }
-											#poststuff #post-body.columns-2 { margin: 0 !important; }
-										</style>
-										<ul>
-											<li><a href="' . $url_spt_sppd . '" target="_blank">Halaman SPT SPPD</a></li>
-										</ul>')
-							)
-						);
+						->add_fields($this->get_ajax_field(array('type' => 'spt_sppd')));
 				}
 				if (get_option('_crb_show_submenu_sppd_settings') != true) {
 					Container::make('theme_options', __('SPPD (Surat Perintah Perjalanan Dinas)'))
@@ -993,10 +981,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							array(
 								Field::make('html', 'crb_sppd_page')
 									->set_html('
-										<style>
-											.postbox-container { display: none; }
-											#poststuff #post-body.columns-2 { margin: 0 !important; }
-										</style>
 										<ul>
 											<li><a href="' . $url_sppd . '" target="_blank">Halaman SPPD</a></li>
 										</ul>')
@@ -1010,10 +994,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							array(
 								Field::make('html', 'crb_sppd_rampung_page')
 									->set_html('
-										<style>
-											.postbox-container { display: none; }
-											#poststuff #post-body.columns-2 { margin: 0 !important; }
-										</style>
 										<ul>
 											<li><a href="' . $url_sppd_rampung . '" target="_blank">Halaman SPPD Rampung</a></li>
 										</ul>')
@@ -1573,6 +1553,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= $body_pemda;
 					}
 
+					if ($_POST['type'] == 'spt_sppd') {
+						$gen_page = $this->generatePage(
+							'Surat Perintah Tugas | ' . $v['tahun_anggaran'],
+							$v['tahun_anggaran'],
+							'[spt_sppd tahun_anggaran="' . $v['tahun_anggaran'] . '"]'
+						);
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $gen_page . '">Halaman SPT (Surat Perintah Tugas) | ' . $v['tahun_anggaran'] . '</a>';
+					}
+
 					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
 						$body_all .= '</div>';
 					}
@@ -1788,6 +1777,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'rkpd_renja'
 					|| $_POST['type'] == 'pohon_kinerja_renja'
 					|| $_POST['type'] == 'aklap_lra'
+					|| $_POST['type'] == 'spt_sppd'
 				) {
 					$ret['message'] = $body_all;
 				}

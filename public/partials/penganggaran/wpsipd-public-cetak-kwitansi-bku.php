@@ -80,14 +80,14 @@ global $wpdb;
                             <td class="font-weight-bold">Sudah Terima</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p contenteditable="true">xxxxxxxxxxxxxxxxx</p>
+                                <p contenteditable="true">Bendahara Pengeluaran Dinas/Badan xxxxxxxxxxxxxxxxx</p>
                             </td>
                         </tr>
                         <tr>
-                            <td class="font-weight-bold">Jumlah Uang</td>
+                            <td class="font-weight-bold">Terbilang</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p class="pagu"></p>
+                                <p class="font-weight-bold terbilang"></p>
                             </td>
                         </tr>
                         <tr>
@@ -97,19 +97,11 @@ global $wpdb;
                                 <p contenteditable="true" class="uraian"></p>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-12">
-                <table id="tableKwitansi">
-                    <tbody>
                         <tr>
-                            <td class="font-weight-bold align-middle text-left">Terbilang</td>
-                            <td class="font-weight-bold align-middle text-left">:</td>
-                            <td class="amount-box p-3 d-inline-block font-weight-bold text-left terbilang" style="font-size: 2rem;">
+                            <td class="font-weight-bold">Jumlah Uang</td>
+                            <td class="font-weight-bold">:</td>
+                            <td>
+                                <p class="font-weight-bold pagu"></p>
                             </td>
                         </tr>
                     </tbody>
@@ -168,7 +160,9 @@ global $wpdb;
 <script>
     jQuery(document).ready(function() {
         window.id_npd = ''
-        get_bku(); // Pemanggilan get_bku lebih dulu
+
+        get_bku();
+
         var extend_action = '';
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
         extend_action += '</div>';

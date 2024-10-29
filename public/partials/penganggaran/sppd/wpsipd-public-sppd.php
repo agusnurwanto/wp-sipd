@@ -1,1 +1,4 @@
-<?php echo "SPPD";
+<?php echo "SPPD" ;
+if (!defined('WPINC')) {
+    die;
+}
