@@ -1106,7 +1106,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_data_spt_by_id',  $plugin_public, 'hapus_data_spt_by_id');
 		$this->loader->add_action('wp_ajax_get_data_spt_by_id',  $plugin_public, 'get_data_spt_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_spt',  $plugin_public, 'tambah_data_spt');
+
 		$this->loader->add_action('wp_ajax_get_table_pegawai_spt_sppd',  $plugin_public, 'get_table_pegawai_spt_sppd');
+		$this->loader->add_action('wp_ajax_tambah_data_sppd',  $plugin_public, 'tambah_data_sppd');
+		$this->loader->add_action('wp_ajax_hapus_data_sppd_by_id',  $plugin_public, 'hapus_data_sppd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_sppd_by_id',  $plugin_public, 'get_data_sppd_by_id');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

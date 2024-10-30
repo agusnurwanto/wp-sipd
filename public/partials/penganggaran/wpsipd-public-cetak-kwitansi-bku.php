@@ -2,10 +2,29 @@
 if (!defined('WPINC')) {
     die;
 }
-if (empty($_GET) || empty($_GET['id_bku']) || empty($_GET['tahun_anggaran'])) {
-    die('<h1 class="text-center">Id BKU / Tahun Anggaran Kosong!</h1>');
+if (
+    empty($_GET)
+    || empty($_GET['id_bku'])
+    || empty($_GET['tahun_anggaran']
+        || empty($_GET['id_skpd']))
+) {
+    die('<h1 class="text-center">Id BKU / Tahun Anggaran / id skpd Kosong!</h1>');
 }
 global $wpdb;
+$data_skpd = $wpdb->get_row(
+    $wpdb->prepare("
+        SELECT * 
+        FROM data_unit 
+        WHERE tahun_anggaran = %d
+          AND id_skpd = %d 
+          AND active = 1
+    ", $_GET['tahun_anggaran'], $_GET['id_skpd']),
+    ARRAY_A
+);
+
+if (empty($data_skpd)) {
+    die('<h1>SKPD tidak ditemukan</h1>');
+}
 ?>
 <style>
     #tableKwitansi,
@@ -80,7 +99,7 @@ global $wpdb;
                             <td class="font-weight-bold">Sudah Terima</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p contenteditable="true">Bendahara Pengeluaran Dinas/Badan xxxxxxxxxxxxxxxxx</p>
+                                <p contenteditable="true">Bendahara Pengeluaran <?php echo $data_skpd['nama_skpd']; ?></p>
                             </td>
                         </tr>
                         <tr>
@@ -114,7 +133,7 @@ global $wpdb;
                 <td>
                     <div class="signature-title">Mengetahui:</div>
                     <div class="signature-role">Pengguna Anggaran/ PPK</div>
-                    <div class="signature-role">Nama Instansi xxxxxx</div>
+                    <div class="signature-role"><?php echo $data_skpd['nama_skpd']; ?></div>
                 </td>
                 <td>
                     <div class="signature-title">Setuju dibayar</div>
@@ -131,9 +150,9 @@ global $wpdb;
             <tr>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
-                    <div>xxxxxxxxxxxx</div>
-                    <div>NIP. xxxxxxxxxxxx</div>
+                    <div class="signature-name text_uppercase"><?php echo $data_skpd['namakepala']; ?></div>
+                    <div><?php echo $data_skpd['pangkatkepala']; ?></div>
+                    <div>NIP. <?php echo $data_skpd['nipkepala']; ?></div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
