@@ -1258,8 +1258,8 @@ class Wpsipd
 		add_shortcode('cetak_kwitansi_bku',array($plugin_public,'cetak_kwitansi_bku'));
 
 		add_shortcode('spt_sppd',array($plugin_public,'spt_sppd'));
-		add_shortcode('sppd',array($plugin_public,'sppd'));
-		add_shortcode('sppd_rampung',array($plugin_public,'sppd_rampung'));
+		add_shortcode('cetak_spt_sppd',array($plugin_public,'cetak_spt_sppd'));
+		add_shortcode('cetak_sppd',array($plugin_public,'cetak_sppd'));
 	}
 
 	/**

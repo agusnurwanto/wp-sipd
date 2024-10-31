@@ -6,7 +6,7 @@ if (
     empty($_GET)
     || empty($_GET['id_bku'])
     || empty($_GET['tahun_anggaran']
-        || empty($_GET['id_skpd']))
+    || empty($_GET['id_skpd']))
 ) {
     die('<h1 class="text-center">Id BKU / Tahun Anggaran / id skpd Kosong!</h1>');
 }
@@ -24,6 +24,8 @@ $data_skpd = $wpdb->get_row(
 
 if (empty($data_skpd)) {
     die('<h1>SKPD tidak ditemukan</h1>');
+} else {
+    $nama_skpd = strtolower($data_skpd['nama_skpd']);
 }
 ?>
 <style>
@@ -99,7 +101,7 @@ if (empty($data_skpd)) {
                             <td class="font-weight-bold">Sudah Terima</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p contenteditable="true">Bendahara Pengeluaran <?php echo $data_skpd['nama_skpd']; ?></p>
+                                <p contenteditable="true">Bendahara Pengeluaran <?php echo ucwords($nama_skpd); ?></p>
                             </td>
                         </tr>
                         <tr>
@@ -150,25 +152,25 @@ if (empty($data_skpd)) {
             <tr>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name text_uppercase"><?php echo $data_skpd['namakepala']; ?></div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase"><?php echo $data_skpd['namakepala']; ?></div>
                     <div><?php echo $data_skpd['pangkatkepala']; ?></div>
                     <div>NIP. <?php echo $data_skpd['nipkepala']; ?></div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name text_uppercase pptk-name "></div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase pptk-name "></div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name text_uppercase">xxxxxxxxxxxx</div>
+                    <div style="font-weight: 700; text-decoration:underline;"class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>

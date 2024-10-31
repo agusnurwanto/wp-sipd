@@ -962,9 +962,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				);
 
 			if (get_option('_crb_show_menu_sppd_settings') != true) {
-				$url_sppd = $this->generatePage('SPPD', false, '[sppd]');
-				$url_sppd_rampung = $this->generatePage('SPT SPPD', false, '[sppd_rampung]');
-
 				$sppd = Container::make('theme_options', __('SPPD'))
 					->set_page_menu_position(7)
 					->set_icon('dashicons-airplane');
@@ -973,32 +970,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					Container::make('theme_options', __('SPT (Surat Perintah Tugas)'))
 						->set_page_parent($sppd)
 						->add_fields($this->get_ajax_field(array('type' => 'spt_sppd')));
-				}
-				if (get_option('_crb_show_submenu_sppd_settings') != true) {
-					Container::make('theme_options', __('SPPD (Surat Perintah Perjalanan Dinas)'))
-						->set_page_parent($sppd)
-						->add_fields(
-							array(
-								Field::make('html', 'crb_sppd_page')
-									->set_html('
-										<ul>
-											<li><a href="' . $url_sppd . '" target="_blank">Halaman SPPD</a></li>
-										</ul>')
-							)
-						);
-				}
-				if (get_option('_crb_show_submenu_sppd_rampung_settings') != true) {
-					Container::make('theme_options', __('SPPD Rampung'))
-						->set_page_parent($sppd)
-						->add_fields(
-							array(
-								Field::make('html', 'crb_sppd_rampung_page')
-									->set_html('
-										<ul>
-											<li><a href="' . $url_sppd_rampung . '" target="_blank">Halaman SPPD Rampung</a></li>
-										</ul>')
-							)
-						);
 				}
 			}
 		}
@@ -2403,10 +2374,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			Field::make('separator', 'crb_show_menu_sppd_settings', 'Non Aktifkan Menu ( SPPD )'),
 			Field::make('checkbox', 'crb_show_submenu_spt_sppd_settings', 'SPT (Surat Perintah Tugas)')
-				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_submenu_sppd_settings', 'SPPD (Surat Perintah Perjalanan Dinas)')
-				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_submenu_sppd_rampung_settings', 'SPPD Rampung')
 				->set_option_value('true'),
 		);
 		return $field;

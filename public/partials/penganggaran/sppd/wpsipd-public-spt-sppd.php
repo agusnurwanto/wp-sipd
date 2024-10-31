@@ -150,7 +150,7 @@ if (empty($input['tahun_anggaran'])) {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalFormLabel"></h5>
+                <h5 class="modal-title title-sppd" id="modalFormLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -330,6 +330,31 @@ if (empty($input['tahun_anggaran'])) {
         }
     }
 
+    function hapus_sppd(id) {
+        let confirmDelete = confirm("Apakah anda yakin akan menghapus data ini?");
+        if (confirmDelete) {
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: ajax.url,
+                type: 'post',
+                data: {
+                    'action': 'hapus_data_sppd_by_id',
+                    'api_key': ajax.api_key,
+                    'id': id
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        get_table_pegawai_spt_sppd(jQuery("#nomor_spt").val()).then(() => {
+                            alert("Berhasil Hapus Data!");
+                        })
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                    }
+                }
+            });
+        }
+    }
 
     function edit_spt(id) {
         jQuery('#wrap-loading').show();
@@ -394,10 +419,10 @@ if (empty($input['tahun_anggaran'])) {
 
                 if (isDetail) {
                     jQuery(".submitBtnSppd").hide();
-                    jQuery(".modal-title").html("Detail Surat Perintah Perjalanan Dinas(SPPD)");
+                    jQuery(".title-sppd").html("Detail Surat Perintah Perjalanan Dinas(SPPD)");
                 } else {
                     jQuery(".submitBtnSppd").show().html("Perbarui");
-                    jQuery(".modal-title").html("Edit Surat Perintah Perjalanan Dinas(SPPD)");
+                    jQuery(".title-sppd").html("Edit Surat Perintah Perjalanan Dinas(SPPD)");
                 }
 
                 jQuery('#modal_form_sppd').modal('show');
@@ -505,8 +530,9 @@ if (empty($input['tahun_anggaran'])) {
                 alert(res.message);
                 jQuery('#wrap-loading').hide();
                 if (res.status === 'success') {
-                    jQuery('#modal_form_sppd').modal('hide');
-                    getDataTable();
+                    get_table_pegawai_spt_sppd(nomor_spt).then(() => {
+                        jQuery('#modal_form_sppd').modal('hide');
+                    })
                 }
             }
         });
@@ -593,5 +619,13 @@ if (empty($input['tahun_anggaran'])) {
                 }
             });
         });
+    }
+
+    function cetak_spt(url) {
+        window.open(url, '_blank');
+    }
+
+    function cetak_sppd(url) {
+        window.open(url, '_blank');
     }
 </script>

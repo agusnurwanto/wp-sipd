@@ -203,6 +203,24 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-cetak-kwitansi-bku.php';
     }
 
+    public function cetak_spt_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-spt-sppd.php';
+    }
+    
+    public function cetak_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-sppd.php';
+    }
+
     public function spt_sppd($atts)
     {
         // untuk disable render shortcode di halaman edit page/post
@@ -210,24 +228,6 @@ class Wpsipd_Public_RKA
             return '';
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-spt-sppd.php';
-    }
-
-    public function sppd($atts)
-    {
-        // untuk disable render shortcode di halaman edit page/post
-        if (!empty($_GET) && !empty($_GET['post'])) {
-            return '';
-        }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-sppd.php';
-    }
-
-    public function sppd_rampung($atts)
-    {
-        // untuk disable render shortcode di halaman edit page/post
-        if (!empty($_GET) && !empty($_GET['post'])) {
-            return '';
-        }
-        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-sppd-rampung.php';
     }
 
     function tambah_user_verifikator()
@@ -3546,7 +3546,7 @@ class Wpsipd_Public_RKA
                     'tempatTujuan'       => 'required',
                     'tanggalSampai'      => 'required',
                     'tanggalKembali'     => 'required',
-                    'alatAngkut'         => 'required|in:Kendaraan Dinas,Kendaraan Pribadi, Kendaraan Umum',
+                    'alatAngkut'         => 'required|in:Kendaraan Dinas,Kendaraan Pribadi,Kendaraan Umum',
                 ];
 
                 // Validate data
@@ -3677,10 +3677,17 @@ class Wpsipd_Public_RKA
 
             // Format data
             foreach ($queryRecords as $record => $recVal) {
+                $spt_page = $this->generatePage(
+                    'Cetak SPT (Surat Perintah Tugas)',
+                    $recVal['tahun_anggaran'],
+                    '[cetak_spt_sppd]',
+                    false
+                );
+
                 $btn = '<a style="margin-left: 2px;" class="btn btn-sm btn-warning" onclick="edit_spt(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                 $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-danger" onclick="hapus_spt(\'' . $recVal['id'] . '\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
                 $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-success" onclick="show_modal_pegawai_spt_sppd(\'' . $recVal['nomor_spt'] . '\'); return false;" href="#" title="Tambah Pegawai"><i class="dashicons dashicons-insert"></i></a>';
-                $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-info" onclick="cetak_spt(\'' . $recVal['id'] . '\'); return false;" href="#" title="Cetak SPT"><i class="dashicons dashicons-printer"></i></a>';
+                $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-info" onclick="cetak_spt(\'' . $spt_page . '&id_spt=' . $recVal['id'] . '&tahun_anggaran=' . $recVal['tahun_anggaran'] . '\'); return false;" href="#" title="Cetak SPT"><i class="dashicons dashicons-printer"></i></a>';
 
                 $queryRecords[$record]['aksi'] = $btn;
             }
@@ -3864,10 +3871,17 @@ class Wpsipd_Public_RKA
                 $counter = 1;
                 if (!empty($data_pegawai_spt_sppd)) {
                     foreach ($data_pegawai_spt_sppd as $data) {
+                        $sppd_page = $this->generatePage(
+                            'Cetak SPPD (Surat Perintah Perjalanan Dinas)',
+                            $data['tahun_anggaran'],
+                            '[cetak_sppd]',
+                            false
+                        );
+
                         $btn = '<button class="btn btn-sm btn-primary m-1" onclick="edit_sppd(\'' . $data['id'] . '\', true); return false;" href="#" title="Detail SPPD"><span class="dashicons dashicons-search"></span></button>';
                         $btn .= '<button class="btn btn-sm btn-warning m-1" onclick="edit_sppd(\'' . $data['id'] . '\', false); return false;" href="#" title="Edit SPPD"><span class="dashicons dashicons-edit"></span></button>';
                         $btn .= '<button class="btn btn-sm btn-danger m-1" onclick="hapus_sppd(\'' . $data['id'] . '\'); return false;" href="#" title="Hapus SPPD"><span class="dashicons dashicons-no-alt"></span></button>';
-                        $btn .= '<button class="btn btn-sm btn-info m-1" onclick="cetak_sppd(\'' . $data['id'] . '\'); return false;" href="#" title="Cetak SPPD"><span class="dashicons dashicons-printer"></span></button>';
+                        $btn .= '<button class="btn btn-sm btn-info m-1" onclick="cetak_sppd(\'' . $sppd_page . '&id_sppd=' . $data['id'] . '&tahun_anggaran=' . $data['tahun_anggaran'] . '\'); return false;" href="#" title="Cetak SPPD"><span class="dashicons dashicons-printer"></span></button>';
 
                         $tbody .= '<tr>';
                         $tbody .= '<td class="text-center">' . $counter++ . '</td>';
