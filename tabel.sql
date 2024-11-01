@@ -6997,6 +6997,7 @@ CREATE TABLE `data_pegawai_spt_sppd` (
   `id_ka_opd` int(11) NOT NULL,
   `tgl_ttd_sppd` DATE NOT NULL,
   `keterangan` TEXT DEFAULT NULL,
+  `maksud_sppd` TEXT DEFAULT NULL,
   `tahun_anggaran` year(4) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),

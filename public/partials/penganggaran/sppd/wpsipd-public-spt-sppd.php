@@ -223,6 +223,16 @@ if (empty($input['tahun_anggaran'])) {
                                 <label for="tanggalKembali">Tanggal Kembali</label>
                                 <input type="date" name="tanggalKembali" class="form-control" id="tanggalKembali">
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-3">
+                        <div class="card-header">Maksud Perjalanan dan Alat Angkut yang digunakan</div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="maksudSppd">Maksud Perjalanan Dinas</label>
+                                <textarea name="maksudSppd" class="form-control" id="maksudSppd"></textarea>
+                            </div>
                             <div class="form-group">
                                 <label for="alatAngkut">Alat Angkut</label>
                                 <select name="alatAngkut" class="form-control" id="alatAngkut">
@@ -231,6 +241,10 @@ if (empty($input['tahun_anggaran'])) {
                                     <option value="Kendaraan Dinas">Kendaraan Dinas</option>
                                     <option value="Kendaraan Umum">Kendaraan Umum</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="keterangan">Keterangan Lain</label>
+                                <textarea name="keterangan" class="form-control" id="keterangan"></textarea>
                             </div>
                         </div>
                     </div>
@@ -241,6 +255,7 @@ if (empty($input['tahun_anggaran'])) {
             </div>
         </div>
     </div>
+</div>
 </div>
 
 
@@ -416,6 +431,8 @@ if (empty($input['tahun_anggaran'])) {
                 jQuery('#tanggalSampai').val(res.data.tgl_sampai).prop('disabled', disabled)
                 jQuery('#tanggalKembali').val(res.data.tgl_kembali).prop('disabled', disabled)
                 jQuery('#alatAngkut').val(res.data.alat_angkut).prop('disabled', disabled)
+                jQuery('#keterangan').val(res.data.keterangan).prop('disabled', disabled)
+                jQuery('#maksudSppd').val(res.data.maksud_sppd).prop('disabled', disabled)
 
                 if (isDetail) {
                     jQuery(".submitBtnSppd").hide();
@@ -472,6 +489,8 @@ if (empty($input['tahun_anggaran'])) {
         jQuery('#tanggalSampai').val('')
         jQuery('#tanggalKembali').val('')
         jQuery('#alatAngkut').val('')
+        jQuery('#keterangan').val('')
+        jQuery('#maksudSppd').val('')
 
         jQuery(".submitBtnSppd").html("Simpan");
         jQuery("#modalFormLabel").html("Tambah Pegawai SPT/SPPD");
@@ -491,6 +510,8 @@ if (empty($input['tahun_anggaran'])) {
             'tanggalSampai': 'Data Tanggal Sampai tidak boleh kosong!',
             'tanggalKembali': 'Data Tanggal Kembali tidak boleh kosong!',
             'alatAngkut': 'Data Alat Angkut tidak boleh kosong!',
+            'keterangan': 'Data Keterangan Lain tidak boleh kosong!',
+            'maksudSppd': 'Data Maksud Perjalanan Dinas tidak boleh kosong!',
             // Tambahkan field lain jika diperlukan
         };
 

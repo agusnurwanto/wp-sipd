@@ -3546,6 +3546,8 @@ class Wpsipd_Public_RKA
                     'tempatTujuan'       => 'required',
                     'tanggalSampai'      => 'required',
                     'tanggalKembali'     => 'required',
+                    'keterangan'         => 'required',
+                    'maksudSppd'         => 'required',
                     'alatAngkut'         => 'required|in:Kendaraan Dinas,Kendaraan Pribadi,Kendaraan Umum',
                 ];
 
@@ -3573,7 +3575,9 @@ class Wpsipd_Public_RKA
                     'tgl_sampai'            => sanitize_text_field($postData['tanggalSampai']),
                     'tgl_kembali'           => sanitize_text_field($postData['tanggalKembali']),
                     'alat_angkut'           => sanitize_text_field($postData['alatAngkut']),
-                    'active'  => 1
+                    'maksud_sppd'           => sanitize_text_field($postData['maksudSppd']),
+                    'keterangan'            => sanitize_text_field($postData['keterangan']),
+                    'active'                => 1
                 );
 
                 // Update or insert

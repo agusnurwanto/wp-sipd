@@ -78,8 +78,8 @@ if (
                         height="100" />
                 </td>
                 <td class="text-center">
-                    <h4 contenteditable="true">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
-                    <h4 contenteditable="true">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
+                    <h4 contenteditable="true" class="mb-1">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
+                    <h4 contenteditable="true" class="mb-1">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
                     <div contenteditable="true">Jl. xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                     <div contenteditable="true">Telp. xxxxxxxxxxxxxxxxxxxxxxxxx</div>
                 </td>
@@ -88,7 +88,7 @@ if (
         <div style="height: 70px;"></div> <!-- Spacer -->
         <div class="text-center mt-4">
             <div class="document-title" contenteditable="true">SURAT PERINTAH TUGAS</div>
-            <div contenteditable="true">Nomor : <span class="nomor_spt"></span></div>
+            <div contenteditable="true">Nomor : <span class="nomor_spt">xxxxxxxxxxxxxxxx</span></div>
         </div>
 
         <table class="mt-4">
@@ -96,7 +96,7 @@ if (
                 <th style="width: 15%;">DASAR</th>
                 <td style="width: 10px;">:</td>
                 <td>
-                    <span contenteditable="true" class="dasar_spt"></span>
+                    <span contenteditable="true" class="dasar_spt">xxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxx</span>
                 </td>
             </tr>
         </table>
@@ -160,39 +160,39 @@ if (
                 <th>UNTUK</th>
                 <td style="width: 10px;">:</td>
                 <td>
-                    <span contenteditable="true" class="tujuan_spt"></span>
+                    <span contenteditable="true" class="tujuan_spt">xxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxx</span>
                 </td>
             </tr>
         </table>
 
         <table class="signature-table" contenteditable="true" style="width: 100%;">
             <tr>
-                <td style="width: 60%;"></td>
-                <td style="width: 40%;">
+                <td style="width: 50%;"></td>
+                <td style="width: 50%;">
                     <table style="width: 100%;">
                         <tr>
-                            <td style="text-align: left;">Dikeluarkan di : <?php echo strtoupper(get_option('_crb_daerah')); ?></td>
+                            <td style="text-align: left; padding-bottom : 0;">Dikeluarkan di : <?php echo strtoupper(get_option('_crb_daerah')); ?></td>
                         </tr>
                         <tr>
-                            <td style="text-align: left;">Pada Tanggal : <span class="tgl_spt"></span></td>
+                            <td style="text-align: left; padding-top : 0;">Pada Tanggal : <span id="tanggalSppd"></span></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0;">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;">Selaku Pengguna Anggaran</td>
+                            <td style="text-align: center; padding-top : 0;">Selaku Pengguna Anggaran</td>
                         </tr>
                         <tr>
                             <td style="height: 80px;"></td> <!-- Space for signature -->
                         </tr>
                         <tr>
-                            <td style="font-weight: 700; text-decoration: underline; text-align: center;" class="signature-name text_uppercase">xxxxxxxxxxxxxxxx</td>
+                            <td style="font-weight: 700; text-decoration: underline; text-align: center; padding-bottom : 0;" class="signature-name text_uppercase">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0; padding-top : 0;">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;">NIP. xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-top : 0;">NIP. xxxxxxxxxxxxxxxx</td>
                         </tr>
                     </table>
                 </td>
