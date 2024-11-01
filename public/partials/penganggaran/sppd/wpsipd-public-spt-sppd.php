@@ -8,6 +8,11 @@ $input = shortcode_atts(array(
 if (empty($input['tahun_anggaran'])) {
     die('tahun anggaran kosong!');
 }
+$validate_user = $this->user_authorization_wpsipd('sppd', $input['tahun_anggaran']);
+if ($validate_user['status'] == 'error') {
+    die('<h1>' . $validate_user['message'] . '</h1>');
+}
+echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );</script>";
 ?>
 <style type="text/css">
     input::-webkit-outer-spin-button,
@@ -63,8 +68,10 @@ if (empty($input['tahun_anggaran'])) {
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-group col-md-12">
-                                <label for="tahunAnggaran">Tahun Anggaran</label>
-                                <input type="number" name="tahunAnggaran" class="form-control" id="tahunAnggaran" value="<?php echo $input['tahun_anggaran']; ?>" disabled>
+                                <label for="idSkpd">Pilih SKPD</label>
+                                <select name="idSkpd" class="form-control" id="idSkpd">
+                                    <?php echo $validate_user['options']; ?>
+                                </select>
                             </div>
                         </div>
                         <div class="form-row">

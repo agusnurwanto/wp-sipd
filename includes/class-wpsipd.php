@@ -1260,6 +1260,7 @@ class Wpsipd
 		add_shortcode('spt_sppd',array($plugin_public,'spt_sppd'));
 		add_shortcode('cetak_spt_sppd',array($plugin_public,'cetak_spt_sppd'));
 		add_shortcode('cetak_sppd',array($plugin_public,'cetak_sppd'));
+		add_shortcode('cetak_sppd_belakang',array($plugin_public,'cetak_sppd_belakang'));
 	}
 
 	/**

@@ -211,7 +211,7 @@ class Wpsipd_Public_RKA
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-spt-sppd.php';
     }
-    
+
     public function cetak_sppd($atts)
     {
         // untuk disable render shortcode di halaman edit page/post
@@ -219,6 +219,15 @@ class Wpsipd_Public_RKA
             return '';
         }
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-sppd.php';
+    }
+
+    public function cetak_sppd_belakang($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-sppd-belakang.php';
     }
 
     public function spt_sppd($atts)
@@ -3913,5 +3922,89 @@ class Wpsipd_Public_RKA
             );
         }
         die(json_encode($ret));
+    }
+
+    function allowed_roles_sppd()
+    {
+        return array(
+            'administrator',
+            'PA',
+            'KPA',
+            'PLT',
+            'pptk'
+        );
+    }
+
+    function user_authorization_wpsipd($page_type = '', $tahun_anggaran = '')
+    {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Anda belum login!'
+            );
+        } else {
+            global $wpdb;
+            $user_data = wp_get_current_user();
+        }
+
+        // should not empty
+        if (empty($page_type) || empty($tahun_anggaran)) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Parameter tidak sesuai!'
+            );
+        }
+
+        //roles validation
+        $allowed_roles = $this->allowed_roles_sppd();
+        if (empty(array_intersect($allowed_roles, $user_data->roles))) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!'
+            );
+        }
+
+        // Page-type-based authorization logic
+        switch ($page_type) {
+            case 'sppd':
+                if ($user_data->roles = 'administrator') {
+                    $data_skpd = $wpdb->get_results(
+                        $wpdb->prepare('
+                            SELECT
+                                id_skpd,
+                                kode_skpd,
+                                nama_skpd
+                            FROM data_unit
+                            WHERE active = 1
+                              AND tahun_anggaran = %d
+                        ', $tahun_anggaran),
+                        ARRAY_A
+                    );
+                    $options = '<option value="">Pilih SKPD</option>';
+                    foreach ($data_skpd as $data) {
+                        $options .= '<option value="' . $data['id_skpd'] . '">' . $data['kode_skpd'] . ' ' . strtoupper($data['nama_skpd']) . '</option>';
+                    }
+                    return array(
+                        'status'  => 'success',
+                        'message' => 'Access Granted! Welcome Administrator!',
+                        'options'  => $options,
+                        'role'    => $user_data->roles
+                    );
+                } else {
+                    return array(
+                        'status'  => 'error',
+                        'message' => 'Access Granted! You are!'
+                    );
+                }
+                break;
+            default:
+                return array(
+                    'status'  => 'error',
+                    'message' => 'Tipe page tidak valid!'
+                );
+        }
+
+        return;
     }
 }

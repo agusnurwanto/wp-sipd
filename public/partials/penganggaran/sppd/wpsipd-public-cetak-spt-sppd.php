@@ -12,7 +12,7 @@ if (
 ?>
 <style>
     .document-container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -205,7 +205,7 @@ if (
         get_spt();
 
         var extend_action = '';
-        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Surat</button><br>';
         extend_action += '</div>';
         jQuery('#action-sipd').append(extend_action);
     })

@@ -9,10 +9,17 @@ if (
 ) {
     die('<h1 class="text-center">Id SPPD / Tahun Anggaran Kosong</h1>');
 }
+
+$sppd_page = $this->generatePage(
+    'Cetak SPPD Belakang (Surat Perintah Perjalanan Dinas)',
+    $_GET['tahun_anggaran'],
+    '[cetak_sppd_belakang]',
+    false
+);
 ?>
 <style>
     .document-container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -102,7 +109,7 @@ if (
 
 <body>
     <div id="action-sipd"></div>
-    <div id="cetak" class="document-container">
+    <div id="cetak" class="document-container" contenteditable="true">
         <table class="header-table">
             <tr>
                 <td style="width: 100px;">
@@ -113,15 +120,15 @@ if (
                         height="100" />
                 </td>
                 <td class="text-center">
-                    <h4 contenteditable="true" class="mb-1">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
-                    <h4 contenteditable="true" class="mb-1">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
-                    <div contenteditable="true">Jl. xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
-                    <div contenteditable="true">Telp. xxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                    <h4 class="mb-1">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
+                    <h4 class="mb-1">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
+                    <div>Jl. xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                    <div>Telp. xxxxxxxxxxxxxxxxxxxxxxxxx</div>
                 </td>
             </tr>
         </table>
 
-        <table class="signature-table" contenteditable="true" style="width: 100%;">
+        <table class="signature-table" style="width: 100%;">
             <tr>
                 <td style="width: 60%;"></td>
                 <td style="width: 40%;">
@@ -152,72 +159,72 @@ if (
             <tr>
                 <td class="number-column">1</td>
                 <td class="label-column">Pengguna Anggaran</td>
-                <td contenteditable="true" id="penggunaAnggaran">xxxxxxxxxxxxx</td>
+                <td id="penggunaAnggaran">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">2</td>
                 <td class="label-column">a. Nama pegawai</td>
-                <td contenteditable="true" id="namaPegawai">xxxxxxxxxxxxx</td>
+                <td id="namaPegawai">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">b. NIP</td>
-                <td contenteditable="true" id="nip">xxxxxxxxxxxxx</td>
+                <td id="nip">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">3</td>
                 <td class="label-column">a. Pangkat dan golongan ruang</td>
-                <td contenteditable="true" id="pangkatGol">xxxxxxxxxxxxx</td>
+                <td id="pangkatGol">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">b. Jabatan</td>
-                <td contenteditable="true" id="jabatan">xxxxxxxxxxxxx</td>
+                <td id="jabatan">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">c. Instansi</td>
-                <td contenteditable="true" id="instansi">xxxxxxxxxxxxx</td>
+                <td id="instansi">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">d. Tingkat menurut Peraturan</td>
-                <td contenteditable="true" id="tingkat">xxxxxxxxxxxxx</td>
+                <td id="tingkat">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">4</td>
                 <td class="label-column">Maksud perjalanan</td>
-                <td contenteditable="true" id="maksudPerjalanan">xxxxxxxxxxxxx</td>
+                <td id="maksudPerjalanan">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">5</td>
                 <td class="label-column">Alat angkut yang dipergunakan</td>
-                <td contenteditable="true" id="alatAngkut">xxxxxxxxxxxxx</td>
+                <td id="alatAngkut">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">6</td>
                 <td class="label-column">a. Tempat berangkat</td>
-                <td contenteditable="true" id="tempatBerangkat">xxxxxxxxxxxxx</td>
+                <td id="tempatBerangkat">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">b. Tempat tujuan</td>
-                <td contenteditable="true" id="tempatTujuan">xxxxxxxxxxxxx</td>
+                <td id="tempatTujuan">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">7</td>
                 <td class="label-column">a. Lamanya perjalanan dinas</td>
-                <td contenteditable="true" id="lamaPerjalanan">xxxxxxxxxxxxx</td>
+                <td id="lamaPerjalanan">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">b. Tanggal berangkat</td>
-                <td contenteditable="true" id="tanggalBerangkat">xxxxxxxxxxxxx</td>
+                <td id="tanggalBerangkat">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">c. Tanggal harus kembali</td>
-                <td contenteditable="true" id="tanggalKembali">xxxxxxxxxxxxx</td>
+                <td id="tanggalKembali">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">8</td>
@@ -226,21 +233,21 @@ if (
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">a. Instansi</td>
-                <td contenteditable="true" id="pembebananInstansi">xxxxxxxxxxxxx</td>
+                <td id="pembebananInstansi">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">b. Mata Anggaran</td>
-                <td contenteditable="true" id="mataAnggaran">xxxxxxxxxxxxx</td>
+                <td id="mataAnggaran">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">9</td>
                 <td class="label-column">Keterangan lain - lain</td>
-                <td contenteditable="true" id="keterangan"></td>
+                <td id="keterangan"></td>
             </tr>
         </table>
 
-        <table class="signature-table" contenteditable="true" style="width: 100%;">
+        <table class="signature-table" style="width: 100%;">
             <tr>
                 <td style="width: 50%;"></td>
                 <td style="width: 50%;">
@@ -277,10 +284,15 @@ if (
 </body>
 <script>
     jQuery(document).ready(function() {
+        window.sppdBelakangUrl = '<?php echo $sppd_page; ?>'
+        window.id_sppd = '<?php echo $_GET['id_sppd']; ?>'
+        window.tahun_anggaran = '<?php echo $_GET['tahun_anggaran']; ?>'
+
         get_sppd()
 
         var extend_action = '';
-        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Surat</button>';
+        extend_action += '<button class="btn btn-primary m-2" id="sppd_belakang" onclick="sppdBelakangPage();"><i class="dashicons dashicons-controls-forward"></i> Cetak SPPD Belakang</button><br>';
         extend_action += '</div>';
         jQuery('#action-sipd').append(extend_action);
     });
@@ -334,5 +346,10 @@ if (
         const selisihHari = Math.round(selisihWaktu / satuHari);
 
         return selisihHari;
+    }
+
+    function sppdBelakangPage() {
+        let newUrl = sppdBelakangUrl + '&id_sppd=' + id_sppd + '&tahun_anggaran=' + tahun_anggaran;
+        window.open(newUrl, '_blank')
     }
 </script>
