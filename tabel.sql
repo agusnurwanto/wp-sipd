@@ -6964,3 +6964,43 @@ CREATE TABLE `data_pohon_kinerja` (
   `update_at` datetime DEFAULT current_timestamp(),
   PRIMARY key (id)
 );
+
+CREATE TABLE `data_spt_sppd` (
+  `id` int(11) NOT NULL auto_increment,
+  `nomor_spt` TEXT NOT NULL,
+  `dasar_spt` TEXT NOT NULL,
+  `tujuan_spt` TEXT NOT NULL,
+  `tgl_spt` DATE NOT NULL,
+  `id_ka_opd` int(11) NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY key (id)
+);
+
+CREATE TABLE `data_pegawai_spt_sppd` (
+  `id` int(11) NOT NULL auto_increment,
+  `nomor_spt` TEXT NOT NULL,
+  `nomor_sppd` TEXT NOT NULL,
+  `id_pegawai` int(11) NOT NULL,
+  `tingkat` TEXT DEFAULT NULL,
+  `alat_angkut` ENUM('Kendaraan Dinas', 'Kendaraan Pribadi', 'Kendaraan Umum') NOT NULL,
+  `tempat_berangkat` TEXT DEFAULT NULL,
+  `tgl_berangkat` DATE NOT NULL,
+  `tempat_tujuan` TEXT DEFAULT NULL,
+  `tgl_sampai` DATE NOT NULL,
+  `tgl_kembali` DATE NOT NULL,
+  `id_skpd_sumber_dana` int(11) NOT NULL,
+  `kode_rincian_belanja` TEXT NOT NULL,
+  `id_ka_opd` int(11) NOT NULL,
+  `tgl_ttd_sppd` DATE NOT NULL,
+  `keterangan` TEXT DEFAULT NULL,
+  `maksud_sppd` TEXT DEFAULT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY key (id)
+);

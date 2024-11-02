@@ -2,10 +2,31 @@
 if (!defined('WPINC')) {
     die;
 }
-if (empty($_GET) || empty($_GET['id_bku']) || empty($_GET['tahun_anggaran'])) {
-    die('<h1 class="text-center">Id BKU / Tahun Anggaran Kosong!</h1>');
+if (
+    empty($_GET)
+    || empty($_GET['id_bku'])
+    || empty($_GET['tahun_anggaran']
+    || empty($_GET['id_skpd']))
+) {
+    die('<h1 class="text-center">Id BKU / Tahun Anggaran / id skpd Kosong!</h1>');
 }
 global $wpdb;
+$data_skpd = $wpdb->get_row(
+    $wpdb->prepare("
+        SELECT * 
+        FROM data_unit 
+        WHERE tahun_anggaran = %d
+          AND id_skpd = %d 
+          AND active = 1
+    ", $_GET['tahun_anggaran'], $_GET['id_skpd']),
+    ARRAY_A
+);
+
+if (empty($data_skpd)) {
+    die('<h1>SKPD tidak ditemukan</h1>');
+} else {
+    $nama_skpd = strtolower($data_skpd['nama_skpd']);
+}
 ?>
 <style>
     #tableKwitansi,
@@ -61,6 +82,7 @@ global $wpdb;
             max-width: auto !important;
             height: auto !important;
         }
+
         #action-sipd {
             display: none;
         }
@@ -79,14 +101,14 @@ global $wpdb;
                             <td class="font-weight-bold">Sudah Terima</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p contenteditable="true">xxxxxxxxxxxxxxxxx</p>
+                                <p contenteditable="true">Bendahara Pengeluaran <?php echo ucwords($nama_skpd); ?></p>
                             </td>
                         </tr>
                         <tr>
-                            <td class="font-weight-bold">Jumlah Uang</td>
+                            <td class="font-weight-bold">Terbilang</td>
                             <td class="font-weight-bold">:</td>
                             <td>
-                                <p class="pagu"></p>
+                                <p class="font-weight-bold terbilang"></p>
                             </td>
                         </tr>
                         <tr>
@@ -96,19 +118,11 @@ global $wpdb;
                                 <p contenteditable="true" class="uraian"></p>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-12">
-                <table id="tableKwitansi">
-                    <tbody>
                         <tr>
-                            <td class="font-weight-bold align-middle text-left">Terbilang</td>
-                            <td class="font-weight-bold align-middle text-left">:</td>
-                            <td class="amount-box p-3 d-inline-block font-weight-bold text-left terbilang" style="font-size: 2rem;">
+                            <td class="font-weight-bold">Jumlah Uang</td>
+                            <td class="font-weight-bold">:</td>
+                            <td>
+                                <p class="font-weight-bold pagu"></p>
                             </td>
                         </tr>
                     </tbody>
@@ -121,7 +135,7 @@ global $wpdb;
                 <td>
                     <div class="signature-title">Mengetahui:</div>
                     <div class="signature-role">Pengguna Anggaran/ PPK</div>
-                    <div class="signature-role">Nama Instansi xxxxxx</div>
+                    <div class="signature-role"><?php echo $data_skpd['nama_skpd']; ?></div>
                 </td>
                 <td>
                     <div class="signature-title">Setuju dibayar</div>
@@ -138,25 +152,25 @@ global $wpdb;
             <tr>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase"><?php echo $data_skpd['namakepala']; ?></div>
+                    <div><?php echo $data_skpd['pangkatkepala']; ?></div>
+                    <div>NIP. <?php echo $data_skpd['nipkepala']; ?></div>
+                </td>
+                <td>
+                    <div class="signature-line"></div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase pptk-name "></div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
-                    <div>Pembina</div>
-                    <div>NIP. xxxxxxxxxxxx</div>
-                </td>
-                <td>
-                    <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div style="font-weight: 700; text-decoration:underline;" class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-name">xxxxxxxxxxxx</div>
+                    <div style="font-weight: 700; text-decoration:underline;"class="signature-name text_uppercase">xxxxxxxxxxxx</div>
                     <div>xxxxxxxxxxxx</div>
                     <div>NIP. xxxxxxxxxxxx</div>
                 </td>
@@ -166,14 +180,15 @@ global $wpdb;
 </body>
 <script>
     jQuery(document).ready(function() {
-        get_bku()
+        window.id_npd = ''
+
+        get_bku();
+
         var extend_action = '';
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
-
         extend_action += '</div>';
-
         jQuery('#action-sipd').append(extend_action);
-    })
+    });
 
     function get_bku() {
         jQuery('#wrap-loading').show();
@@ -191,9 +206,42 @@ global $wpdb;
                 console.log(response);
                 jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
-                    jQuery('.terbilang').text(terbilang(parseInt(response.data.pagu)) + ' Rupiah')
-                    jQuery('.pagu').text('Rp. ' + formatAngka(parseInt(response.data.pagu)))
-                    jQuery('.uraian').text(response.data.uraian)
+                    jQuery('.terbilang').text(terbilang(parseInt(response.data.pagu)) + ' Rupiah');
+                    jQuery('.pagu').text('Rp. ' + formatAngka(parseInt(response.data.pagu)));
+                    jQuery('.uraian').text(response.data.uraian);
+
+                    window.id_npd = response.data.id_npd;
+
+                    get_pptk_by_npd();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function get_pptk_by_npd() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'get_nota_panjar_by_id',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: window.id_npd,
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery('.pptk-name').text(response.data.pptk_name.toUpperCase());
                 } else {
                     alert(response.message);
                 }

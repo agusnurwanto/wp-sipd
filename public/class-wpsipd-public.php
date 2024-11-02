@@ -119,8 +119,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'chart', plugin_dir_url(__FILE__) . 'js/chart.min.js', array('jquery'), $this->version, false);
 		wp_localize_script($this->plugin_name, 'ajax', array(
-			'url' => admin_url('admin-ajax.php'),
-			'site_url' => site_url()
+			'url' 		=> admin_url('admin-ajax.php'),
+			'api_key' 	=> get_option('_crb_api_key_extension'),
+			'site_url' 	=> site_url()
 		));
 	}
 
@@ -24968,6 +24969,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 		}
 		die(json_encode($return));
+	}
+
+	function get_data_rincian_belanja_rka()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['kode_sbl']) && !empty($_POST['tahun_anggaran'])) {
+					$ret['data'] = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT
+        						*
+    						FROM data_rka
+    						WHERE active=1
+							AND tahun_anggaran=%d
+							AND kode_sbl=%s
+							AND kode_akun=%s", $_POST['tahun_anggaran'], $_POST['kode_sbl'], $_POST['kode_akun']),
+						ARRAY_A
+					);
+					// echo $wpdb->last_query;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'param tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 
 	public function aklap_lra($atts)

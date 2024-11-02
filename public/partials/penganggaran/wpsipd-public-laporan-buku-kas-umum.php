@@ -358,6 +358,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
     jQuery(document).ready(function() {
+        window.id_skpd = '<?php echo $data_sbl[1]; ?>'
         window.pagu_transaksi = 0;
         window.id_rinci_sub_bl_global = false;
         load_data();
@@ -804,6 +805,11 @@ $rka = $wpdb->get_results($wpdb->prepare("
     }
 
     function print_kwitansi(url) {
-        window.open(url, '_blank');
+        if (typeof id_skpd === 'undefined' || !id_skpd) {
+            console.error("id_skpd is not defined");
+            return;
+        }
+        let newUrl = url + '&id_skpd=' + id_skpd;
+        window.open(newUrl, '_blank');
     }
 </script>

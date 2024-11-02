@@ -203,6 +203,42 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-cetak-kwitansi-bku.php';
     }
 
+    public function cetak_spt_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-spt-sppd.php';
+    }
+
+    public function cetak_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-sppd.php';
+    }
+
+    public function cetak_sppd_belakang($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-cetak-sppd-belakang.php';
+    }
+
+    public function spt_sppd($atts)
+    {
+        // untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/sppd/wpsipd-public-spt-sppd.php';
+    }
+
     function tambah_user_verifikator()
     {
         global $wpdb;
@@ -2394,8 +2430,13 @@ class Wpsipd_Public_RKA
                 );
 
                 if (!empty($data_nota_panjar)) {
+                    // Get user data by user id for kwitansi page
+                    $user = get_userdata($data_nota_panjar['id_user_pptk']);
+
                     $data_nota_panjar['jenis_panjar'] = $data_nota_panjar['jenis_panjar'] == 'set_panjar' ? 'dengan_panjar' : 'tanpa_panjar';
+
                     $ret['data'] = $data_nota_panjar;
+                    $ret['data']['pptk_name'] = $user->display_name;
                 } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Nota Panjar tidak ditemukan!';
@@ -2465,7 +2506,7 @@ class Wpsipd_Public_RKA
                 $allowed_roles = $this->allowed_roles_panjar();
 
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
-                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                if (empty(array_intersect($allowed_roles, $current_user->roles)) && (empty($_POST['jenis_data']) || $_POST['jenis_data'] !== 'sakip')) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
                     die(json_encode($ret));
@@ -2496,6 +2537,7 @@ class Wpsipd_Public_RKA
                 }
                 $ret['sql'] = $wpdb->last_query;
                 $ret['data_akun_html'] = $data_akun_options;
+                $ret['data_akun'] = $data_akun;
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
@@ -2727,7 +2769,8 @@ class Wpsipd_Public_RKA
                 // Query data buku kas umum pembantu
                 $data_bku = $wpdb->get_results(
                     $wpdb->prepare("
-                        SELECT * FROM data_buku_kas_umum_pembantu 
+                        SELECT * 
+                        FROM data_buku_kas_umum_pembantu 
                         WHERE kode_sbl = %s 
                           AND tahun_anggaran = %d 
                           AND active = 1 
@@ -2755,7 +2798,8 @@ class Wpsipd_Public_RKA
                 // Tampilkan penerimaan
                 $data_bku_penerimaan = $wpdb->get_row(
                     $wpdb->prepare("
-                        SELECT * FROM data_buku_kas_umum_pembantu 
+                        SELECT * 
+                        FROM data_buku_kas_umum_pembantu 
                         WHERE kode_sbl = %s 
                           AND tahun_anggaran = %d 
                           AND active = 1 
@@ -3213,7 +3257,7 @@ class Wpsipd_Public_RKA
                         WHERE id = %d
                           AND tahun_anggaran = %d
                           AND active = 1
-                ", $_POST['id'], $_POST['tahun_anggaran']),
+                    ", $_POST['id'], $_POST['tahun_anggaran']),
                     ARRAY_A
                 );
 
@@ -3394,5 +3438,573 @@ class Wpsipd_Public_RKA
         }
 
         return $errors;
+    }
+
+    function tambah_data_spt()
+    {
+        global $wpdb;
+
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil simpan data SPT!',
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+
+                // $user_data = wp_get_current_user();
+                // if (!in_array('pptk', $user_data->roles)) {
+                //     $ret['status'] = 'error';
+                //     $ret['message'] = 'Aksi ditolak, hanya user tertentu yang dapat mengakses fitur ini!';
+                //     die(json_encode($ret));
+                // }
+
+                $postData = $_POST;
+
+                // Define validation rules
+                $validationRules = [
+                    'tahun_anggaran' => 'required|numeric',
+                    'tanggalSpt'     => 'required',
+                    'nomorSpt'       => 'required',
+                    'dasarSpt'       => 'required',
+                    'tujuanSpt'      => 'required',
+
+                ];
+
+                // Validate data
+                $errors = $this->validate($postData, $validationRules);
+
+                if (!empty($errors)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = implode(" \n ", $errors);
+                    die(json_encode($ret));
+                }
+
+                // Data to be saved
+                $id_data = !empty($postData['id_data']) ? sanitize_text_field($postData['id_data']) : null;
+
+                $data = array(
+                    'tahun_anggaran'     => sanitize_text_field($postData['tahun_anggaran']),
+                    'nomor_spt'          => sanitize_text_field($postData['nomorSpt']),
+                    'dasar_spt'          => sanitize_textarea_field($postData['dasarSpt']),
+                    'tujuan_spt'         => sanitize_textarea_field($postData['tujuanSpt']),
+                    'tgl_spt'            => sanitize_text_field($postData['tanggalSpt']),
+                    'id_ka_opd'          => sanitize_text_field($postData['']),
+                    'id_skpd'            => sanitize_text_field($postData['']),
+                    'active'             => 1
+                );
+
+                // Update or insert
+                if ($id_data) {
+                    $wpdb->update(
+                        'data_spt_sppd',
+                        $data,
+                        array('id' => $id_data)
+                    );
+                    $ret['message'] = 'Berhasil update data!';
+                } else {
+                    $wpdb->insert(
+                        'data_spt_sppd',
+                        $data
+                    );
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function tambah_data_sppd()
+    {
+        global $wpdb;
+
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil simpan data SPPD!',
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+
+                // $user_data = wp_get_current_user();
+                // if (!in_array('pptk', $user_data->roles)) {
+                //     $ret['status'] = 'error';
+                //     $ret['message'] = 'Aksi ditolak, hanya user tertentu yang dapat mengakses fitur ini!';
+                //     die(json_encode($ret));
+                // }
+
+                $postData = $_POST;
+
+                // Define validation rules
+                $validationRules = [
+                    'tahun_anggaran'     => 'required|numeric',
+                    'nomor_spt'          => 'required',
+                    'tanggalSppd'        => 'required',
+                    'nomorSppd'          => 'required',
+                    'namaPegawai'        => 'required',
+                    'nipPegawai'         => 'required',
+                    'golPegawai'         => 'required',
+                    'tempatBerangkat'    => 'required',
+                    'tanggalBerangkat'   => 'required',
+                    'tempatTujuan'       => 'required',
+                    'tanggalSampai'      => 'required',
+                    'tanggalKembali'     => 'required',
+                    'keterangan'         => 'required',
+                    'maksudSppd'         => 'required',
+                    'alatAngkut'         => 'required|in:Kendaraan Dinas,Kendaraan Pribadi,Kendaraan Umum',
+                ];
+
+                // Validate data
+                $errors = $this->validate($postData, $validationRules);
+
+                if (!empty($errors)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = implode(" \n ", $errors);
+                    die(json_encode($ret));
+                }
+
+                // Data to be saved
+                $id_data_sppd = !empty($postData['id_data_sppd']) ? sanitize_text_field($postData['id_data_sppd']) : null;
+
+                $data = array(
+                    'tahun_anggaran'        => sanitize_text_field($postData['tahun_anggaran']),
+                    'nomor_spt'             => sanitize_text_field($postData['nomor_spt']),
+                    'tgl_ttd_sppd'          => sanitize_text_field($postData['tanggalSppd']),
+                    'nomor_sppd'            => sanitize_text_field($postData['nomorSppd']),
+                    'id_pegawai'            => sanitize_text_field($postData['']),
+                    'tempat_berangkat'      => sanitize_text_field($postData['tempatBerangkat']),
+                    'tgl_berangkat'         => sanitize_text_field($postData['tanggalBerangkat']),
+                    'tempat_tujuan'         => sanitize_text_field($postData['tempatTujuan']),
+                    'tgl_sampai'            => sanitize_text_field($postData['tanggalSampai']),
+                    'tgl_kembali'           => sanitize_text_field($postData['tanggalKembali']),
+                    'alat_angkut'           => sanitize_text_field($postData['alatAngkut']),
+                    'maksud_sppd'           => sanitize_text_field($postData['maksudSppd']),
+                    'keterangan'            => sanitize_text_field($postData['keterangan']),
+                    'active'                => 1
+                );
+
+                // Update or insert
+                if ($id_data_sppd) {
+                    $wpdb->update(
+                        'data_pegawai_spt_sppd',
+                        $data,
+                        array('id' => $id_data_sppd)
+                    );
+                    $ret['message'] = 'Berhasil update data!';
+                } else {
+                    $wpdb->insert(
+                        'data_pegawai_spt_sppd',
+                        $data
+                    );
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_datatable_data_spt()
+    {
+        global $wpdb;
+
+        $ret = [
+            'status' => 'success',
+            'message' => 'Berhasil get data!'
+        ];
+
+        if (!empty($_POST['api_key']) && $_POST['api_key'] === get_option(WPSIPD_API_KEY)) {
+            $params = $_REQUEST;
+
+            // Define columns
+            $columns = [
+                'id',
+                'nomor_spt',
+                'dasar_spt',
+                'tujuan_spt',
+                'tgl_spt',
+                'id_ka_opd',
+                'id_skpd',
+                'tahun_anggaran',
+                'active',
+                'created_at',
+                'update_at',
+            ];
+
+            $where = 'WHERE 1=1 AND active = 1';
+            $searchValue = !empty($params['search']['value']) ? $params['search']['value'] : '';
+
+            if (!empty($_POST['id_skpd'])) {
+                $where .= $wpdb->prepare(' AND id_skpd=%s', $_POST['id_skpd']);
+            }
+
+            // Search filter
+            if ($searchValue) {
+                $where .= $wpdb->prepare(
+                    " AND (nomor_spt LIKE %s OR dasar_spt LIKE %s OR tujuan_spt LIKE %s)",
+                    "%$searchValue%",
+                    "%$searchValue%",
+                    "%$searchValue%"
+                );
+            }
+
+            // Total records
+            $sqlTot = "SELECT COUNT(id) as jml FROM data_spt_sppd $where";
+            $totalRecords = $wpdb->get_var($sqlTot);
+
+            // Sorting
+            $orderBy = '';
+            if (!empty($params['order'])) {
+                $orderByColumnIndex = $params['order'][0]['column'];
+                $orderByDirection = strtoupper($params['order'][0]['dir']);
+                if ($orderByDirection === 'ASC' || $orderByDirection === 'DESC') {
+                    $orderByColumn = $columns[$orderByColumnIndex] ?? 'id';
+                    $orderBy = "ORDER BY $orderByColumn $orderByDirection";
+                }
+            }
+
+            // Pagination
+            $limit = '';
+            if ($params['length'] != -1) {
+                $limit = $wpdb->prepare(
+                    "LIMIT %d, %d",
+                    $params['start'],
+                    $params['length']
+                );
+            }
+
+            // Query records
+            $sqlRec = "SELECT " . implode(', ', $columns) . " FROM data_spt_sppd $where $orderBy $limit";
+            $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+            // Format data
+            foreach ($queryRecords as $record => $recVal) {
+                $spt_page = $this->generatePage(
+                    'Cetak SPT (Surat Perintah Tugas)',
+                    $recVal['tahun_anggaran'],
+                    '[cetak_spt_sppd]',
+                    false
+                );
+
+                $btn = '<a style="margin-left: 2px;" class="btn btn-sm btn-warning" onclick="edit_spt(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-danger" onclick="hapus_spt(\'' . $recVal['id'] . '\'); return false;" href="#" title="Delete Data"><i class="dashicons dashicons-trash"></i></a>';
+                $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-success" onclick="show_modal_pegawai_spt_sppd(\'' . $recVal['nomor_spt'] . '\'); return false;" href="#" title="Tambah Pegawai"><i class="dashicons dashicons-insert"></i></a>';
+                $btn .= '<a style="margin-left: 2px;" class="btn btn-sm btn-info" onclick="cetak_spt(\'' . $spt_page . '&id_spt=' . $recVal['id'] . '&tahun_anggaran=' . $recVal['tahun_anggaran'] . '\'); return false;" href="#" title="Cetak SPT"><i class="dashicons dashicons-printer"></i></a>';
+
+                $queryRecords[$record]['aksi'] = $btn;
+            }
+
+            $json_data = [
+                "draw" => intval($params['draw']),
+                "recordsTotal" => intval($totalRecords),
+                "recordsFiltered" => intval($totalRecords),
+                "data" => $queryRecords
+            ];
+            die(json_encode($json_data));
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    function get_data_spt_by_id()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $ret['data'] = $wpdb->get_row(
+                    $wpdb->prepare('
+						SELECT 
+							*
+						FROM data_spt_sppd
+						WHERE id=%d
+                	', $_POST['id']),
+                    ARRAY_A
+                );
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_data_sppd_by_id()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $ret['data'] = $wpdb->get_row(
+                    $wpdb->prepare('
+						SELECT 
+							*
+						FROM data_pegawai_spt_sppd
+						WHERE id=%d
+                	', $_POST['id']),
+                    ARRAY_A
+                );
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function hapus_data_spt_by_id()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil hapus data!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                // $user_data = wp_get_current_user();
+                // if (!in_array('desa', $user_data->roles)) {
+                //     $ret['status'] = 'error';
+                //     $ret['message'] = 'Aksi ditolak, hanya user tertentu yang dapat mengakses fitur ini!';
+                //     die(json_encode($ret));
+                // }
+                $ret['data'] = $wpdb->update(
+                    'data_spt_sppd',
+                    array('active' => 0),
+                    array(
+                        'id' => $_POST['id']
+                    )
+                );
+            } else {
+                $ret['status']    = 'error';
+                $ret['message']    = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']    = 'error';
+            $ret['message']    = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function hapus_data_sppd_by_id()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil hapus data!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                // $user_data = wp_get_current_user();
+                // if (!in_array('desa', $user_data->roles)) {
+                //     $ret['status'] = 'error';
+                //     $ret['message'] = 'Aksi ditolak, hanya user tertentu yang dapat mengakses fitur ini!';
+                //     die(json_encode($ret));
+                // }
+                $ret['data'] = $wpdb->update(
+                    'data_pegawai_spt_sppd',
+                    array('active' => 0),
+                    array(
+                        'id' => $_POST['id']
+                    )
+                );
+            } else {
+                $ret['status']    = 'error';
+                $ret['message']    = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']    = 'error';
+            $ret['message']    = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_table_pegawai_spt_sppd()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get table!',
+            'data' => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                if (!empty($_POST['nomor_spt'])) {
+                    $nomor_spt = $_POST['nomor_spt'];
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Nomor SPT kosong!';
+                    die(json_encode($ret));
+                }
+                $data_pegawai_spt_sppd = $wpdb->get_results(
+                    $wpdb->prepare("
+						SELECT * 
+						FROM data_pegawai_spt_sppd
+						WHERE nomor_spt = %d
+						  AND active = 1
+						", $nomor_spt),
+                    ARRAY_A
+                );
+                $tbody = '';
+                $counter = 1;
+                if (!empty($data_pegawai_spt_sppd)) {
+                    foreach ($data_pegawai_spt_sppd as $data) {
+                        $sppd_page = $this->generatePage(
+                            'Cetak SPPD (Surat Perintah Perjalanan Dinas)',
+                            $data['tahun_anggaran'],
+                            '[cetak_sppd]',
+                            false
+                        );
+
+                        $btn = '<button class="btn btn-sm btn-primary m-1" onclick="edit_sppd(\'' . $data['id'] . '\', true); return false;" href="#" title="Detail SPPD"><span class="dashicons dashicons-search"></span></button>';
+                        $btn .= '<button class="btn btn-sm btn-warning m-1" onclick="edit_sppd(\'' . $data['id'] . '\', false); return false;" href="#" title="Edit SPPD"><span class="dashicons dashicons-edit"></span></button>';
+                        $btn .= '<button class="btn btn-sm btn-danger m-1" onclick="hapus_sppd(\'' . $data['id'] . '\'); return false;" href="#" title="Hapus SPPD"><span class="dashicons dashicons-no-alt"></span></button>';
+                        $btn .= '<button class="btn btn-sm btn-info m-1" onclick="cetak_sppd(\'' . $sppd_page . '&id_sppd=' . $data['id'] . '&tahun_anggaran=' . $data['tahun_anggaran'] . '\'); return false;" href="#" title="Cetak SPPD"><span class="dashicons dashicons-printer"></span></button>';
+
+                        $tbody .= '<tr>';
+                        $tbody .= '<td class="text-center">' . $counter++ . '</td>';
+                        $tbody .= '<td class="text-center">-</td>';
+                        $tbody .= '<td class="text-center">-</td>';
+                        $tbody .= '<td class="text-center">-</td>';
+                        $tbody .= '<td class="text-center">-</td>';
+                        $tbody .= '<td class="text-center">' . $btn . '</td>';
+                        $tbody .= '</tr>';
+                    }
+                } else {
+                    $tbody .= "<tr><td colspan='6' class='text-center'>Tidak ada data tersedia</td></tr>";
+                }
+                $ret['data'] = $tbody;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    function allowed_roles_sppd()
+    {
+        return array(
+            'administrator',
+            'PA',
+            'KPA',
+            'PLT',
+            'pptk'
+        );
+    }
+
+    function user_authorization_wpsipd($page_type = '', $tahun_anggaran = '')
+    {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Anda belum login!'
+            );
+        } else {
+            global $wpdb;
+            $user_data = wp_get_current_user();
+        }
+
+        // should not empty
+        if (empty($page_type) || empty($tahun_anggaran)) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Parameter tidak sesuai!'
+            );
+        }
+
+        //roles validation
+        $allowed_roles = $this->allowed_roles_sppd();
+        if (empty(array_intersect($allowed_roles, $user_data->roles))) {
+            return array(
+                'status'  => 'error',
+                'message' => 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!'
+            );
+        }
+
+        // Page-type-based authorization logic
+        switch ($page_type) {
+            case 'sppd':
+                if ($user_data->roles = 'administrator') {
+                    $data_skpd = $wpdb->get_results(
+                        $wpdb->prepare('
+                            SELECT
+                                id_skpd,
+                                kode_skpd,
+                                nama_skpd
+                            FROM data_unit
+                            WHERE active = 1
+                              AND tahun_anggaran = %d
+                        ', $tahun_anggaran),
+                        ARRAY_A
+                    );
+                    $options = '<option value="">Pilih SKPD</option>';
+                    foreach ($data_skpd as $data) {
+                        $options .= '<option value="' . $data['id_skpd'] . '">' . $data['kode_skpd'] . ' ' . strtoupper($data['nama_skpd']) . '</option>';
+                    }
+                    return array(
+                        'status'  => 'success',
+                        'message' => 'Access Granted! Welcome Administrator!',
+                        'options'  => $options,
+                        'role'    => $user_data->roles
+                    );
+                } else {
+                    return array(
+                        'status'  => 'error',
+                        'message' => 'Access Granted! You are!'
+                    );
+                }
+                break;
+            default:
+                return array(
+                    'status'  => 'error',
+                    'message' => 'Tipe page tidak valid!'
+                );
+        }
+
+        return;
     }
 }

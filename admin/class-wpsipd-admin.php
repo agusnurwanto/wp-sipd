@@ -208,7 +208,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 		} else if (
-			$update 
+			$update
 			|| (
 				$post_status == 'private'
 				&& get_post_status($custom_post->ID) == 'public'
@@ -225,12 +225,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 	}
 
-	function add_param_get($url, $param){
+	function add_param_get($url, $param)
+	{
 		$data = explode('?', $url);
-		if(count($data) > 1){
+		if (count($data) > 1) {
 			$url .= $param;
-		}else{
-			$url .= '?'.$param;
+		} else {
+			$url .= '?' . $param;
 		}
 		return $url;
 	}
@@ -383,7 +384,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'realisasi')));
 			}
-			
+
 			if (get_option('_crb_show_menu_stbp') != true) {
 				Container::make('theme_options', __('Halaman STBP'))
 					->set_page_parent($monev)
@@ -413,8 +414,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'monev_pemutakhiran')));
 			}
-
-			
 		}
 		$show_laporan_sipd_menu = get_option('_crb_show_menu_laporan_sipd_settings');
 
@@ -961,6 +960,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								</ul>')
 					)
 				);
+
+			if (get_option('_crb_show_menu_sppd_settings') != true) {
+				$sppd = Container::make('theme_options', __('SPPD'))
+					->set_page_menu_position(7)
+					->set_icon('dashicons-airplane');
+
+				if (get_option('_crb_show_submenu_spt_sppd_settings') != true) {
+					Container::make('theme_options', __('SPT (Surat Perintah Tugas)'))
+						->set_page_parent($sppd)
+						->add_fields($this->get_ajax_field(array('type' => 'spt_sppd')));
+				}
+			}
 		}
 	}
 
@@ -1304,18 +1315,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'realisasi') {
 							$url_skpd = $this->generatePage('Halaman Realisasi ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_realisasi tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Realisasi ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';						
+							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Realisasi ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'stbp') {
 							$url_skpd = $this->generatePage('Halaman STBP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_stbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman STBP ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'tbp') {
 							$url_skpd = $this->generatePage('Halaman TBP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_tbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP iki ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-							
 						} else if ($_POST['type'] == 'aklap_lra') {
 							$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Aklap LRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-						
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><input type="checkbox" value="' . $vv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ') ID = ' . $vv['id_skpd'];
@@ -1367,7 +1376,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman SP2D ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'realisasi') {
 								$url_skpd = $this->generatePage('Halaman Realisasi ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_realisasi tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Realisasi ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';	
+								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Realisasi ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'stbp') {
 								$url_skpd = $this->generatePage('Halaman STBP ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_stbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman STBP ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
@@ -1513,6 +1522,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'aklap_lra') {
 						$body_all .= $body_pemda;
+					}
+
+					if ($_POST['type'] == 'spt_sppd') {
+						$gen_page = $this->generatePage(
+							'Surat Perintah Tugas | ' . $v['tahun_anggaran'],
+							$v['tahun_anggaran'],
+							'[spt_sppd tahun_anggaran="' . $v['tahun_anggaran'] . '"]'
+						);
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $gen_page . '">Halaman SPT (Surat Perintah Tugas) | ' . $v['tahun_anggaran'] . '</a>';
 					}
 
 					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
@@ -1730,6 +1748,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'rkpd_renja'
 					|| $_POST['type'] == 'pohon_kinerja_renja'
 					|| $_POST['type'] == 'aklap_lra'
+					|| $_POST['type'] == 'spt_sppd'
 				) {
 					$ret['message'] = $body_all;
 				}
@@ -2281,7 +2300,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_sp2d', 'Halaman SP2D')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_realisasi', 'Halaman Realisasi')
-				->set_option_value('true'),			
+				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_stbp', 'Halaman STBP')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_tbp', 'Halaman TBP')
@@ -2351,6 +2370,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			Field::make('separator', 'crb_show_menu_monev_fmis_settings', 'Non Aktifkan Menu ( MONEV FMIS )'),
 			Field::make('checkbox', 'crb_show_menu_monev_fmis_check_settings', 'MONEV FMIS')
+				->set_option_value('true'),
+
+			Field::make('separator', 'crb_show_menu_sppd_settings', 'Non Aktifkan Menu ( SPPD )'),
+			Field::make('checkbox', 'crb_show_submenu_spt_sppd_settings', 'SPT (Surat Perintah Tugas)')
 				->set_option_value('true'),
 		);
 		return $field;
