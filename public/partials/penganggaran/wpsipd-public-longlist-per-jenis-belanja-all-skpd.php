@@ -103,9 +103,6 @@ foreach ($data_skpd as $skpd) {
             ORDER BY kode_giat ASC, kode_sub_giat ASC";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     if (empty($data_all[$skpd['id_skpd']])) {
-        if(!empty($_GET) && !empty($_GET['debug'])){
-            $skpd['nama_skpd'] .= ' '.$wpdb->last_query;
-        }
         $data_all[$skpd['id_skpd']] = array(
             'id' => $skpd['id_skpd'],
             'kode' => $skpd['kode_skpd'],
@@ -120,7 +117,9 @@ foreach ($data_skpd as $skpd) {
             'tak_terduga_murni' => 0,
             'transfer_murni' => 0,
             'total_murni' => 0,
-            'data' => array()
+            'data' => array(),
+            'query_sub' => $wpdb->last_query,
+            'query_rinc' => array()
         );
     }
     foreach ($subkeg as $kk => $sub) {
@@ -139,6 +138,8 @@ foreach ($data_skpd as $skpd) {
                 AND r.kode_sbl=%s
                 " . $where_jadwal_new . "
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+        $data_all[$skpd['id_skpd']]['query_rinc'][] = $wpdb->last_query;
 
         foreach ($rincian_all as $rincian) {
 
@@ -161,6 +162,10 @@ foreach ($data_skpd as $skpd) {
             }
         }
     }
+}
+
+if(!empty($_GET) && !empty($_GET['debug'])){
+    print_r($data_all);
 }
 
 $counter = 1;
