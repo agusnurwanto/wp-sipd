@@ -49,7 +49,9 @@ $nama_skpd = '';
 if ($input['id_skpd'] == 'all') {
     $data_skpd = $wpdb->get_results($wpdb->prepare("
         select 
-            id_skpd 
+            id_skpd,
+            kode_skpd,
+            nama_skpd 
         from data_unit
         where tahun_anggaran=%d
             and active=1
@@ -100,6 +102,27 @@ foreach ($data_skpd as $skpd) {
             " . $where_jadwal . "
             ORDER BY kode_giat ASC, kode_sub_giat ASC";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    if (empty($data_all[$skpd['id_skpd']])) {
+        if(!empty($_GET) && !empty($_GET['debug'])){
+            $skpd['nama_skpd'] .= ' '.$wpdb->last_query;
+        }
+        $data_all[$skpd['id_skpd']] = array(
+            'id' => $skpd['id_skpd'],
+            'kode' => $skpd['kode_skpd'],
+            'nama' => $skpd['nama_skpd'],
+            'operasi' => 0,
+            'modal' => 0,
+            'tak_terduga' => 0,
+            'transfer' => 0,
+            'total' => 0,
+            'operasi_murni' => 0,
+            'modal_murni' => 0,
+            'tak_terduga_murni' => 0,
+            'transfer_murni' => 0,
+            'total_murni' => 0,
+            'data' => array()
+        );
+    }
     foreach ($subkeg as $kk => $sub) {
         $where_jadwal_new = '';
         if (!empty($where_jadwal)) {
@@ -118,41 +141,23 @@ foreach ($data_skpd as $skpd) {
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         foreach ($rincian_all as $rincian) {
-            if (empty($data_all[$sub['id_sub_skpd']])) {
-                $data_all[$sub['id_sub_skpd']] = array(
-                    'id' => $sub['id_sub_skpd'],
-                    'kode' => $sub['kode_sub_skpd'],
-                    'nama' => $sub['nama_sub_skpd'],
-                    'operasi' => 0,
-                    'modal' => 0,
-                    'tak_terduga' => 0,
-                    'transfer' => 0,
-                    'total' => 0,
-                    'operasi_murni' => 0,
-                    'modal_murni' => 0,
-                    'tak_terduga_murni' => 0,
-                    'transfer_murni' => 0,
-                    'total_murni' => 0,
-                    'data' => array()
-                );
-            }
 
-            $data_all[$sub['id_sub_skpd']]['total'] += $rincian['rincian'];
-            $data_all[$sub['id_sub_skpd']]['total_murni'] += $rincian['rincian_murni'];
+            $data_all[$skpd['id_skpd']]['total'] += $rincian['rincian'];
+            $data_all[$skpd['id_skpd']]['total_murni'] += $rincian['rincian_murni'];
             $rek = explode('.', $rincian['kode_akun']);
             $tipe_belanja = $rek[0] . '.' . $rek[1];
             if ($tipe_belanja == '5.1') {
-                $data_all[$sub['id_sub_skpd']]['operasi'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['operasi_murni'] += $rincian['rincian_murni'];
+                $data_all[$skpd['id_skpd']]['operasi'] += $rincian['rincian'];
+                $data_all[$skpd['id_skpd']]['operasi_murni'] += $rincian['rincian_murni'];
             } else if ($tipe_belanja == '5.2') {
-                $data_all[$sub['id_sub_skpd']]['modal'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['modal_murni'] += $rincian['rincian_murni'];
+                $data_all[$skpd['id_skpd']]['modal'] += $rincian['rincian'];
+                $data_all[$skpd['id_skpd']]['modal_murni'] += $rincian['rincian_murni'];
             } else if ($tipe_belanja == '5.3') {
-                $data_all[$sub['id_sub_skpd']]['tak_terduga'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['tak_terduga_murni'] += $rincian['rincian_murni'];
+                $data_all[$skpd['id_skpd']]['tak_terduga'] += $rincian['rincian'];
+                $data_all[$skpd['id_skpd']]['tak_terduga_murni'] += $rincian['rincian_murni'];
             } else if ($tipe_belanja == '5.4') {
-                $data_all[$sub['id_sub_skpd']]['transfer'] += $rincian['rincian'];
-                $data_all[$sub['id_sub_skpd']]['transfer_murni'] += $rincian['rincian_murni'];
+                $data_all[$skpd['id_skpd']]['transfer'] += $rincian['rincian'];
+                $data_all[$skpd['id_skpd']]['transfer_murni'] += $rincian['rincian_murni'];
             }
         }
     }
