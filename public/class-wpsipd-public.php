@@ -4612,36 +4612,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 
 						$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $v['nama_giat'];
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
-						// print_r($custom_post); die();
-
-						$_post = array(
-							'post_title'	=> $nama_page,
-							'post_content'	=> '[tampilrka kode_bl="' . $_POST['kode_bl'] . '" tahun_anggaran="' . $_POST['tahun_anggaran'] . '"]',
-							'post_type'		=> 'post',
-							'post_status'	=> 'private',
-							'comment_status'	=> 'closed'
-						);
-						if (empty($custom_post) || empty($custom_post->ID)) {
-							$id = wp_insert_post($_post);
-							$_post['insert'] = 1;
-							$_post['ID'] = $id;
-						} else {
-							$_post['ID'] = $custom_post->ID;
-							wp_update_post($_post);
-							$_post['update'] = 1;
-						}
-						$ret['post'] = $_post;
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
-						update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
-						update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
-						update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
-						update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
-						update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
-						update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
-						update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
-						update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-						$ret['message'] .= ' URL ' . $custom_post->guid . '?key=' . $this->gen_key($_POST['api_key']);
+						$url_kegiatan = $this->generatePage($nama_page, $_POST['tahun_anggaran'], '[tampilrka kode_bl="' . $_POST['kode_bl'] . '" tahun_anggaran="' . $_POST['tahun_anggaran'] . '"]');
+						$ret['message'] .= ' URL ' . $url_kegiatan;
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -5018,15 +4990,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$rka = json_decode(stripslashes($_POST['rka']), true);
 					} else {
 						$rka = $_POST['rka'];
+						if ($rka == 0) {
+							$rka = array();
+						}
 					}
-					if (!empty($_POST['no_page']) && $_POST['no_page'] == 1) {
-						$wpdb->delete('data_rka', array(
+					if(
+						(
+							empty($rka) 
+							&& $_POST['no_page'] == 0
+						)
+						|| (
+							!empty($_POST['no_page']) 
+							&& $_POST['no_page'] == 1
+						)
+					) {
+						$wpdb->update('data_rka', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
 						), array('%d', '%s'));
-					}
-					if ($rka == 0) {
-						$rka = array();
 					}
 					foreach ($rka as $k => $v) {
 						$cek = $wpdb->get_var($wpdb->prepare("
@@ -5162,7 +5143,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else if ($ret['status'] != 'error') {
 					// untuk menghapus rka subkeg yang dihapus di perubahan
 					if ($_POST['rka'] == 0) {
-						$wpdb->delete('data_rka', array(
+						$wpdb->update('data_rka', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
 						), array('%d', '%s'));
