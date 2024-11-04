@@ -27,6 +27,11 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 </style>
 <div class="pb-4 mb-5">
     <h1 class="text-center my-4">Data Surat Perintah Tugas (SPT)</h1>
+    <?php if ($validate_user['role'] == 'administrator'): ?>
+        <h2 class="text-center my-4">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h2>
+    <?php else:?>
+        <h2 class="text-center my-4"><?php echo strtoupper($validate_user['nama_skpd']); ?></h2>
+    <?php endif; ?>
     <h2 class="text-center my-4">Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
     <div class="m-4">
         <button class="btn btn-primary" onclick="showModalTambahSpt();">
@@ -269,7 +274,12 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 <script>
     window.tahun_anggaran = <?php echo json_encode($input['tahun_anggaran']); ?>;
     jQuery(document).ready(function() {
+        window.id_skpd = '<?php echo $validate_user['id_skpd']; ?>'
         getDataTable();
+        jQuery('#idSkpd').select2({
+            width: '100%',
+            dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
+        });
     });
 
     function getDataTable() {
@@ -289,7 +299,8 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                     data: {
                         'action': 'get_datatable_data_spt',
                         'api_key': ajax.api_key,
-                        'tahun_anggaran': tahun_anggaran
+                        'tahun_anggaran': tahun_anggaran,
+                        'id_skpd': id_skpd
                     }
                 },
                 lengthMenu: [
@@ -392,6 +403,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
             success: function(res) {
                 jQuery('#id_data_spt').val(res.data.id);
 
+                jQuery('#idSkpd').val(res.data.id_skpd).trigger('change');;
                 jQuery('#tanggalSpt').val(res.data.tgl_spt);
                 jQuery('#nomorSpt').val(res.data.nomor_spt);
                 jQuery('#dasarSpt').val(res.data.dasar_spt);
@@ -461,6 +473,8 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
     function showModalTambahSpt() {
         jQuery('#id_data_spt').val('');
 
+        jQuery('#idSkpd').val('').trigger('change');
+        jQuery('#tanggalSpt').val('');
         jQuery('#tanggalSpt').val('');
         jQuery('#nomorSpt').val('');
         jQuery('#dasarSpt').val('');
@@ -568,6 +582,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 
     function submitDataSpt() {
         const validationRules = {
+            'idSkpd': 'Data SKPD tidak boleh kosong!',
             'tanggalSpt': 'Data Tanggal SPT tidak boleh kosong!',
             'nomorSpt': 'Data Nomor SPT tidak boleh kosong!',
             'dasarSpt': 'Data Dasar SPT tidak boleh kosong!',

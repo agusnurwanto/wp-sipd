@@ -3464,6 +3464,7 @@ class Wpsipd_Public_RKA
                 // Define validation rules
                 $validationRules = [
                     'tahun_anggaran' => 'required|numeric',
+                    'idSkpd'         => 'required',
                     'tanggalSpt'     => 'required',
                     'nomorSpt'       => 'required',
                     'dasarSpt'       => 'required',
@@ -3481,7 +3482,7 @@ class Wpsipd_Public_RKA
                 }
 
                 // Data to be saved
-                $id_data = !empty($postData['id_data']) ? sanitize_text_field($postData['id_data']) : null;
+                $id_data = !empty($postData['id_data_spt']) ? sanitize_text_field($postData['id_data_spt']) : null;
 
                 $data = array(
                     'tahun_anggaran'     => sanitize_text_field($postData['tahun_anggaran']),
@@ -3490,7 +3491,7 @@ class Wpsipd_Public_RKA
                     'tujuan_spt'         => sanitize_textarea_field($postData['tujuanSpt']),
                     'tgl_spt'            => sanitize_text_field($postData['tanggalSpt']),
                     'id_ka_opd'          => sanitize_text_field($postData['']),
-                    'id_skpd'            => sanitize_text_field($postData['']),
+                    'id_skpd'            => sanitize_text_field($postData['idSkpd']),
                     'active'             => 1
                 );
 
@@ -3978,24 +3979,68 @@ class Wpsipd_Public_RKA
                             FROM data_unit
                             WHERE active = 1
                               AND tahun_anggaran = %d
+                            ORDER BY kode_skpd ASC
                         ', $tahun_anggaran),
                         ARRAY_A
                     );
-                    $options = '<option value="">Pilih SKPD</option>';
-                    foreach ($data_skpd as $data) {
-                        $options .= '<option value="' . $data['id_skpd'] . '">' . $data['kode_skpd'] . ' ' . strtoupper($data['nama_skpd']) . '</option>';
+                    if (!empty($data_skpd)) {
+                        $options = '<option value="">Pilih SKPD</option>';
+                        foreach ($data_skpd as $data) {
+                            $options .= '<option value="' . $data['id_skpd'] . '">' . $data['kode_skpd'] . ' ' . strtoupper($data['nama_skpd']) . '</option>';
+                        }
+                        return array(
+                            'status'    => 'success',
+                            'message'   => 'Access Granted! Welcome Administrator!',
+                            'options'   => $options,
+                            'id_skpd'   => '',
+                            'nama_skpd' => '',
+                            'role'      => $user_data->roles
+                        );
+                    } else {
+                        return array(
+                            'status'    => 'error',
+                            'message'   => 'Data SKPD tidak ditemukan!',
+                            'options'   => '',
+                            'id_skpd'   => '',
+                            'nama_skpd' => '',
+                            'role'      => $user_data->roles
+                        );
                     }
-                    return array(
-                        'status'  => 'success',
-                        'message' => 'Access Granted! Welcome Administrator!',
-                        'options'  => $options,
-                        'role'    => $user_data->roles
-                    );
                 } else {
-                    return array(
-                        'status'  => 'error',
-                        'message' => 'Access Granted! You are!'
+                    $nipkepala = $user_data->username;
+                    $data_skpd = $wpdb->get_row(
+                        $wpdb->prepare('
+                            SELECT
+                                id_skpd,
+                                kode_skpd,
+                                nama_skpd
+                            FROM data_unit
+                            WHERE active = 1
+                              AND tahun_anggaran = %d
+                              AND nipkepala = %d
+                        ', $tahun_anggaran, $nipkepala),
+                        ARRAY_A
                     );
+                    if (!empty($data_skpd)) {
+                        $options = '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . strtoupper($data_skpd['nama_skpd']) . '</option>';
+                        return array(
+                            'status'    => 'success',
+                            'message'   => 'Access Granted! Welcome SKPD!',
+                            'options'   => $options,
+                            'id_skpd'   => $data_skpd['id_skpd'],
+                            'nama_skpd' => $data_skpd['nama_skpd'],
+                            'role'      => $user_data->roles
+                        );
+                    } else {
+                        return array(
+                            'status'    => 'error',
+                            'message'   => 'Data SKPD tidak ditemukan!',
+                            'options'   => '',
+                            'id_skpd'   => '',
+                            'nama_skpd' => '',
+                            'role'      => $user_data->roles
+                        );
+                    }
                 }
                 break;
             default:
