@@ -9395,6 +9395,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
 						echo '<li><a href="' . $url_menu . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">User PPTK</a></li>';
 					}
+					if (!empty($daftar_tombol_list[12])) {
+						$sppd_page = $this->generatePage(
+							'Surat Perintah Tugas | ' . $tahun,
+							$tahun,
+							'[spt_sppd tahun_anggaran="' . $tahun . '"]'
+						);
+						echo '<li><a href="' . $sppd_page . '" target="_blank" class="btn btn-info">Buat SPT/SPPD</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
@@ -9609,7 +9617,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'kode_skpd' => $v['kode_skpd'],
 					'menu' => array(
 						array('value' => 1), // menu 1 adalah halaman RFK saja
-						array('value' => 9) 	// menu 9 input renja
+						array('value' => 9),	// menu 9 input renja
+						array('value' => 12) 	// menu 12 input spt/sppd
 					)
 				));
 			}

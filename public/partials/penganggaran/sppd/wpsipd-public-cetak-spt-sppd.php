@@ -53,6 +53,11 @@ if (
         font-weight: bold;
     }
 
+    .bottom-kop-line {
+        border-top: 4px solid #000;
+        margin: 20px 0;
+    }
+
     @media print {
         #cetak {
             max-width: auto !important;
@@ -85,7 +90,8 @@ if (
                 </td>
             </tr>
         </table>
-        <div style="height: 70px;"></div> <!-- Spacer -->
+        <div class="bottom-kop-line"></div>
+        <div style="height: 50px;"></div> <!-- Spacer -->
         <div class="text-center mt-4">
             <div class="document-title" contenteditable="true">SURAT PERINTAH TUGAS</div>
             <div contenteditable="true">Nomor : <span class="nomor_spt">xxxxxxxxxxxxxxxx</span></div>
