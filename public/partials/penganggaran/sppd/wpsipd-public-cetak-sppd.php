@@ -16,6 +16,12 @@ $sppd_page = $this->generatePage(
     '[cetak_sppd_belakang]',
     false
 );
+$sppd_rampung = $this->generatePage(
+    'Cetak SPPD Rampung (Surat Perintah Perjalanan Dinas)',
+    $_GET['tahun_anggaran'],
+    '[cetak_sppd_rampung]',
+    false
+);
 ?>
 <style>
     .document-container {
@@ -105,6 +111,11 @@ $sppd_page = $this->generatePage(
     .signature-table {
         border-collapse: collapse;
     }
+
+    .bottom-kop-line {
+        border-top: 4px solid #000;
+        margin: 20px 0;
+    }
 </style>
 
 <body>
@@ -127,6 +138,7 @@ $sppd_page = $this->generatePage(
                 </td>
             </tr>
         </table>
+        <div class="bottom-kop-line"></div>
 
         <table class="signature-table" style="width: 100%;">
             <tr>
@@ -285,6 +297,7 @@ $sppd_page = $this->generatePage(
 <script>
     jQuery(document).ready(function() {
         window.sppdBelakangUrl = '<?php echo $sppd_page; ?>'
+        window.sppdRampungUrl = '<?php echo $sppd_rampung; ?>'
         window.id_sppd = '<?php echo $_GET['id_sppd']; ?>'
         window.tahun_anggaran = '<?php echo $_GET['tahun_anggaran']; ?>'
 
@@ -292,7 +305,8 @@ $sppd_page = $this->generatePage(
 
         var extend_action = '';
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Surat</button>';
-        extend_action += '<button class="btn btn-primary m-2" id="sppd_belakang" onclick="sppdBelakangPage();"><i class="dashicons dashicons-controls-forward"></i> Cetak SPPD Belakang</button><br>';
+        extend_action += '<button class="btn btn-primary m-2" id="sppd_belakang" onclick="sppdBelakangPage();"><i class="dashicons dashicons-controls-forward"></i> Cetak SPPD Belakang</button>';
+        extend_action += '<button class="btn btn-primary m-2" id="sppd_rampung" onclick="sppdRampungPage();"><i class="dashicons dashicons-controls-forward"></i> Cetak SPPD Rampung</button>';
         extend_action += '</div>';
         jQuery('#action-sipd').append(extend_action);
     });
@@ -350,6 +364,11 @@ $sppd_page = $this->generatePage(
 
     function sppdBelakangPage() {
         let newUrl = sppdBelakangUrl + '&id_sppd=' + id_sppd + '&tahun_anggaran=' + tahun_anggaran;
+        window.open(newUrl, '_blank')
+    }
+
+    function sppdRampungPage() {
+        let newUrl = sppdRampungUrl + '&id_sppd=' + id_sppd + '&tahun_anggaran=' + tahun_anggaran;
         window.open(newUrl, '_blank')
     }
 </script>

@@ -12,6 +12,16 @@ $validate_user = $this->user_authorization_wpsipd('sppd', $input['tahun_anggaran
 if ($validate_user['status'] == 'error') {
     die('<h1>' . $validate_user['message'] . '</h1>');
 }
+
+$tittle = '';
+$disabled = '';
+if ($validate_user['role'] == 'administrator') {
+    $tittle = "<h2 class='text-center mb-4'>PEMERINTAH " . strtoupper(get_option('_crb_daerah')) . "</h2>";
+} else {
+    $tittle = "<h2 class='text-center mb-4'>" . strtoupper($validate_user['nama_skpd']) . "</h2>";
+    $disabled = 'disabled';
+}
+
 echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );</script>";
 ?>
 <style type="text/css">
@@ -27,11 +37,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 </style>
 <div class="pb-4 mb-5">
     <h1 class="text-center my-4">Data Surat Perintah Tugas (SPT)</h1>
-    <?php if ($validate_user['role'] == 'administrator'): ?>
-        <h2 class="text-center my-4">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h2>
-    <?php else:?>
-        <h2 class="text-center my-4"><?php echo strtoupper($validate_user['nama_skpd']); ?></h2>
-    <?php endif; ?>
+    <?php echo $tittle; ?>
     <h2 class="text-center my-4">Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
     <div class="m-4">
         <button class="btn btn-primary" onclick="showModalTambahSpt();">
@@ -39,10 +45,11 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
         </button>
     </div>
 </div>
-<div class="wrap-table m-4">
+<div class="wrap-table p-4">
     <table id="tableData">
         <thead>
             <tr>
+                <th class="text-center">Perangkat Daerah</th>
                 <th class="text-center">Nomor SPT</th>
                 <th class="text-center">Dasar SPT</th>
                 <th class="text-center">Tujuan SPT</th>
@@ -60,7 +67,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title" id="title-spt"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -74,7 +81,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="idSkpd">Pilih SKPD</label>
-                                <select name="idSkpd" class="form-control" id="idSkpd">
+                                <select name="idSkpd" class="form-control" id="idSkpd" <?php echo $disabled;?>>
                                     <?php echo $validate_user['options']; ?>
                                 </select>
                             </div>
@@ -312,6 +319,10 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                     jQuery("#wrap-loading").hide();
                 },
                 "columns": [{
+                        "data": 'id_skpd',
+                        className: "text-left"
+                    },
+                    {
                         "data": 'nomor_spt',
                         className: "text-center"
                     },
@@ -410,7 +421,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                 jQuery('#tujuanSpt').val(res.data.tujuan_spt);
 
                 jQuery(".submitBtn").html("Perbarui");
-                jQuery(".modal-title").html("Edit Surat Perintah Tugas (SPT)");
+                jQuery("#title-spt").html("Edit Surat Perintah Tugas (SPT)");
                 jQuery('#modalTambahData').modal('show');
                 jQuery('#wrap-loading').hide();
             },
@@ -473,7 +484,11 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
     function showModalTambahSpt() {
         jQuery('#id_data_spt').val('');
 
-        jQuery('#idSkpd').val('').trigger('change');
+        if (id_skpd == '') {
+            jQuery('#idSkpd').val('').trigger('change');;
+        } else {
+            jQuery('#idSkpd').trigger('change');
+        }
         jQuery('#tanggalSpt').val('');
         jQuery('#tanggalSpt').val('');
         jQuery('#nomorSpt').val('');
@@ -481,7 +496,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
         jQuery('#tujuanSpt').val('');
 
         jQuery(".submitBtn").html("Simpan");
-        jQuery(".modal-title").html("Tambah Surat Perintah Tugas (SPT)");
+        jQuery("#title-spt").html("Tambah Surat Perintah Tugas (SPT)");
         jQuery('#modalTambahData').modal('show');
     }
 
