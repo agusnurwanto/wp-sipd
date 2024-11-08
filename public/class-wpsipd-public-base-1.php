@@ -4134,6 +4134,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             $queryRecords[$recKey]['pagu_terpakai'] = $this->_number_format($sd_unset[$recVal['kode_dana']]['total']);
                             $queryRecords[$recKey]['pagu_selisih'] = $this->_number_format($recVal['nilai_batasan']-$sd_unset[$recVal['kode_dana']]['total']);
                             unset($sd_unset[$recVal['kode_dana']]);
+                        }else{
+                            $queryRecords[$recKey]['pagu_selisih'] = $this->_number_format($recVal['nilai_batasan']);
                         }
 						$queryRecords[$recKey]['aksi'] = $edit.$delete.$pindah;
                         $queryRecords[$recKey]['nilai_batasan'] = $this->_number_format($recVal['nilai_batasan']);
