@@ -2497,20 +2497,33 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$opsi_sub_keg_bl['waktu_akhir'] = $data['input_bulan_akhir'];
 
 					// cek apakah sub kegiatan sudah ada dan pastikan diorder berdasarkan kolom active, karena yang diprioritaskan ada sub keg yang masih aktive
-					$cek_id = $wpdb->get_var($wpdb->prepare("
+					$cek_id = $wpdb->get_row($wpdb->prepare("
 						SELECT 
-							id 
+							id,
+							kode_urusan,
+							kode_bidang_urusan,
+							kode_program,
+							kode_giat,
+							kode_sub_giat 
 						from data_sub_keg_bl_lokal 
 						where kode_sbl='$kode_sbl' 
 							and tahun_anggaran=%d
 						order by active desc, id desc
-					", $tahun_anggaran));
+					", $tahun_anggaran), ARRAY_A);
 
 					// insert sub kegiatan jika kosong
 					if(!$cek_id){
 						$wpdb->insert('data_sub_keg_bl_lokal',$opsi_sub_keg_bl);
 					}else{
-						$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+						// ambil kode bidang urusan dari data existing, bukan dari master data_prog
+						if($opsi_sub_keg_bl['kode_bidang_urusan'] == 'X.XX'){
+							$opsi_sub_keg_bl['kode_urusan'] = $cek_id['kode_urusan'];
+							$opsi_sub_keg_bl['kode_bidang_urusan'] = $cek_id['kode_bidang_urusan'];
+							$opsi_sub_keg_bl['kode_program'] = $cek_id['kode_program'];
+							$opsi_sub_keg_bl['kode_giat'] = $cek_id['kode_giat'];
+							$opsi_sub_keg_bl['kode_sub_giat'] = $cek_id['kode_sub_giat'];
+						}
+						$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id['id']));
 						$ret['message'] = 'Berhasil update data RENJA!';
 					
 						// $ret['status'] = 'error';
