@@ -1168,6 +1168,12 @@ echo '
     						<option value="">Pilih Sub Kegiatan</option>
     					</select>
     				</div>
+                    <div class="form-group">
+                        <label for="bidang_urusan">Pilih Bidang Urusan</label>
+                        <select class="form-control input_select_2" name="input_bidang_urusan" id="bidang_urusan">
+                            <option value="">Pilih Bidang Urusan</option>
+                        </select>
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -1557,6 +1563,8 @@ echo '
                                     jQuery('.input_number').val(0);
                                     jQuery('.input_text').val('');
                                     jQuery('.input_select').val('');
+                                    jQuery('#bidang_urusan').closest('.form-group').hide();
+                                    jQuery('#bidang_urusan').val('').trigger('change');
                                     var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
                                     if(iddf > 1){
                                         for (let index = iddf; index > 1; index--) {
@@ -2119,6 +2127,18 @@ echo '
                         window.dataSubUnit = response;
                         jQuery("#input_sub_unit").html(dataSubUnit.table_content);
         			    jQuery('#input_sub_unit').select2({width: '100%'});
+
+                        var html = '<option value="">Pilih Bidang Urusan</option>';
+                        html += '<option value="'+dataSubUnit.bidur__1+'">'+dataSubUnit.bidur1+'</option>';
+                        if(dataSubUnit.bidur__2 != '0.00'){
+                            html += '<option value="'+dataSubUnit.bidur__2+'">'+dataSubUnit.bidur2+'</option>';
+                        }
+                        if(dataSubUnit.bidur__3 != '0.00'){
+                            html += '<option value="'+dataSubUnit.bidur__3+'">'+dataSubUnit.bidur3+'</option>';
+                        }
+                        jQuery('#bidang_urusan').html(html);
+                        jQuery('#bidang_urusan').select2({width: '100%'});
+
                         console.log(dataSubUnit.table_content);
         				// enable_button();
                         resolve();
@@ -2266,7 +2286,17 @@ echo '
     function get_indikator_sub_keg(that, target=false){
 		let id_sub_keg = jQuery(that).val();
         if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
+            jQuery('#bidang_urusan').val('').trigger('change').prop('disabled', true);
+            jQuery('#bidang_urusan').closest('form-group').hide();
             return;
+        }
+        var kode_sub = jQuery(that).text().split(' ')[0].split('.');
+        if(kode_sub[0] == 'X'){
+            jQuery('#bidang_urusan').val('').trigger('change').prop('disabled', false);
+            jQuery('#bidang_urusan').closest('form-group').show();
+        }else{
+            jQuery('#bidang_urusan').val(kode_sub[0]+'.'+kode_sub[1]).trigger('change').prop('disabled', true);
+            jQuery('#bidang_urusan').closest('form-group').hide();
         }
         if(typeof indikator_sub_keg_all == 'undefined'){
             window.indikator_sub_keg_all = {};
@@ -2623,6 +2653,12 @@ echo '
                                             jQuery('#wrap-loading').hide();
                                             return alert(response.message);
                                         }
+                                        jQuery('#bidang_urusan').val(response.data.kode_bidang_urusan).trigger('change').prop('disabled', false);
+                                        if(response.data.kode_bidang_urusan == 'X.XX'){
+                                            jQuery('#bidang_urusan').closest('.form-group').show();
+                                        }else{
+                                            jQuery('#bidang_urusan').closest('.form-group').hide();
+                                        }
                                         jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
                                         jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
                                         jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
@@ -2881,6 +2917,13 @@ echo '
                                         'tahun_anggaran': tahun_anggaran
                                     },
                                     success: function(response){
+                                        jQuery('#bidang_urusan').val(response.data.kode_bidang_urusan).trigger('change').prop('disabled', true);
+                                        if(response.data.nama_sub_giat.split('')[0] == 'X'){
+                                            jQuery('#bidang_urusan').closest('.form-group').show();
+                                        }else{
+                                            jQuery('#bidang_urusan').closest('.form-group').hide();
+                                        }
+
                                         jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan).prop('disabled', true);
                                         // jQuery('#pagu_sub_kegiatan_usulan').prop('disabled', true);
                                         jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan).prop('disabled', true);

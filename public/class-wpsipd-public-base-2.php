@@ -551,6 +551,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$wpdb->prepare("
 						SELECT 
 							id_skpd,
+							kode_skpd,
 							nama_skpd
 						from data_unit
 						where id_skpd=%d
@@ -558,24 +559,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
-					if(!empty($ret['data']) && $ret['data'][0]['isskpd'] == 0){
+					if(!empty($ret['data']) && $ret['data'][0]['isskpd'] == 1){
 						$ret['data'] = $wpdb->get_results(
 							$wpdb->prepare("
 							SELECT 
 								id_skpd,
-								nama_skpd
-							from data_unit
-							where id_skpd=%d
-								AND tahun_anggaran=%d
-								AND active=1
-							order by id_skpd ASC", $ret['data'][0]['id_skpd'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-					}else if(!empty($ret['data'])){
-						$ret['data'] = $wpdb->get_results(
-							$wpdb->prepare("
-							SELECT 
-								id_skpd,
+								kode_skpd,
 								nama_skpd
 							from data_unit
 							where idinduk=%d
@@ -585,9 +574,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							ARRAY_A
 						);
 					}
-			    	foreach ($ret['data'] as $key => $value) {
-			    		$table_content .= '<option value="'.$value['id_skpd'].'">'.$value['nama_skpd'].'</option>';
-			    	}
+
+					if(!empty($ret['data'])){
+				    	foreach ($ret['data'] as $key => $value) {
+				    		$table_content .= '<option value="'.$value['id_skpd'].'">'.$value['nama_skpd'].'</option>';
+				    	}
+
+			    		$kode_skpd = explode('.', $ret['data'][0]['kode_skpd']);
+						$bidur_1 = $kode_skpd[0] . '.' . $kode_skpd[1];
+						$bidur_2 = $kode_skpd[2] . '.' . $kode_skpd[3];
+						$bidur_3 = $kode_skpd[4] . '.' . $kode_skpd[5];
+						$ret['bidur__1'] = $bidur_1;
+						$ret['bidur__2'] = $bidur_2;
+						$ret['bidur__3'] = $bidur_3;
+						$ret['bidur1'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_1));
+						$ret['bidur2'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_2));
+						$ret['bidur3'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_3));
+					}
+
 					$ret['table_content'] = $table_content;
 					$ret['query'] = $wpdb->last_query;
 					$ret['id_skpd'] = $_POST['id_skpd'];
@@ -2062,6 +2066,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}elseif(empty($data['input_satuan_usulan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong!';
+					}elseif(empty($data['input_bidang_urusan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Bidang urusan tidak boleh kosong!';
 					}
 
 					if(
@@ -2511,6 +2518,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						order by active desc, id desc
 					", $tahun_anggaran), ARRAY_A);
 
+					// ambil kode bidang urusan dari data existing, bukan dari master data_prog
+					if($opsi_sub_keg_bl['kode_bidang_urusan'] == 'X.XX'){
+						$kode = explode('.', $data['input_bidang_urusan']);
+						$opsi_sub_keg_bl['kode_urusan'] = $kode[0];
+						$opsi_sub_keg_bl['kode_bidang_urusan'] = str_replace('X.XX', $data['input_bidang_urusan'], $opsi_sub_keg_bl['kode_bidang_urusan']);
+						$opsi_sub_keg_bl['kode_program'] = str_replace('X.XX', $data['input_bidang_urusan'], $opsi_sub_keg_bl['kode_program']);
+						$opsi_sub_keg_bl['kode_giat'] = str_replace('X.XX', $data['input_bidang_urusan'], $opsi_sub_keg_bl['kode_giat']);
+						$opsi_sub_keg_bl['kode_sub_giat'] = str_replace('X.XX', $data['input_bidang_urusan'], $opsi_sub_keg_bl['kode_sub_giat']);
+					}
+					
 					// insert sub kegiatan jika kosong
 					if(!$cek_id){
 						$wpdb->insert('data_sub_keg_bl_lokal',$opsi_sub_keg_bl);
