@@ -4994,13 +4994,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$rka = array();
 						}
 					}
-					if(
+					if (
 						(
-							empty($rka) 
+							empty($rka)
 							&& $_POST['no_page'] == 0
 						)
 						|| (
-							!empty($_POST['no_page']) 
+							!empty($_POST['no_page'])
 							&& $_POST['no_page'] == 1
 						)
 					) {
@@ -11456,12 +11456,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// sub kegiatan
 				if ($count_kode_sbl == 6) {
 					$type_indikator = 1;
+					$table = "data_sub_keg_indikator"; //table indikator
 					// kegiatan
 				} else if ($count_kode_sbl == 5) {
+					$table = "data_output_giat_sub_keg"; //table indikator
 					$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
 					$type_indikator = 2;
 					// program
 				} else if ($count_kode_sbl == 3) {
+					$table = "data_capaian_prog_sub_keg"; //table indikator
 					$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
 					$type_indikator = 3;
 				}
@@ -11475,46 +11478,46 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl));
 				$ret['data_realisasi_renja'] = $wpdb->last_query;
 				$opsi = array(
-					'id_indikator' => $id_indikator,
+					'id_indikator' 				=> $id_indikator,
 					'id_unik_indikator_renstra' => $_POST['id_indikator_renstra'],
-					'tipe_indikator' => $type_indikator,
-					'id_rumus_indikator' => $_POST['rumus_indikator'],
-					'kode_sbl' => $kode_sbl,
-					'realisasi_bulan_1' => $realisasi_bulan[1],
-					'realisasi_bulan_2' => $realisasi_bulan[2],
-					'realisasi_bulan_3' => $realisasi_bulan[3],
-					'realisasi_bulan_4' => $realisasi_bulan[4],
-					'realisasi_bulan_5' => $realisasi_bulan[5],
-					'realisasi_bulan_6' => $realisasi_bulan[6],
-					'realisasi_bulan_7' => $realisasi_bulan[7],
-					'realisasi_bulan_8' => $realisasi_bulan[8],
-					'realisasi_bulan_9' => $realisasi_bulan[9],
-					'realisasi_bulan_10' => $realisasi_bulan[10],
-					'realisasi_bulan_11' => $realisasi_bulan[11],
-					'realisasi_bulan_12' => $realisasi_bulan[12],
-					'keterangan_bulan_1' => $keterangan_bulan[1],
-					'keterangan_bulan_2' => $keterangan_bulan[2],
-					'keterangan_bulan_3' => $keterangan_bulan[3],
-					'keterangan_bulan_4' => $keterangan_bulan[4],
-					'keterangan_bulan_5' => $keterangan_bulan[5],
-					'keterangan_bulan_6' => $keterangan_bulan[6],
-					'keterangan_bulan_7' => $keterangan_bulan[7],
-					'keterangan_bulan_8' => $keterangan_bulan[8],
-					'keterangan_bulan_9' => $keterangan_bulan[9],
-					'keterangan_bulan_10' => $keterangan_bulan[10],
-					'keterangan_bulan_11' => $keterangan_bulan[11],
-					'keterangan_bulan_12' => $keterangan_bulan[12],
-					'user' => $current_user->display_name,
-					'active' => 1,
-					'update_at' => current_time('mysql'),
-					'tahun_anggaran' => $tahun_anggaran
+					'tipe_indikator' 			=> $type_indikator,
+					'id_rumus_indikator' 		=> $_POST['rumus_indikator'],
+					'kode_sbl' 					=> $kode_sbl,
+					'realisasi_bulan_1' 		=> $realisasi_bulan[1],
+					'realisasi_bulan_2' 		=> $realisasi_bulan[2],
+					'realisasi_bulan_3' 		=> $realisasi_bulan[3],
+					'realisasi_bulan_4' 		=> $realisasi_bulan[4],
+					'realisasi_bulan_5' 		=> $realisasi_bulan[5],
+					'realisasi_bulan_6' 		=> $realisasi_bulan[6],
+					'realisasi_bulan_7' 		=> $realisasi_bulan[7],
+					'realisasi_bulan_8' 		=> $realisasi_bulan[8],
+					'realisasi_bulan_9' 		=> $realisasi_bulan[9],
+					'realisasi_bulan_10' 		=> $realisasi_bulan[10],
+					'realisasi_bulan_11' 		=> $realisasi_bulan[11],
+					'realisasi_bulan_12' 		=> $realisasi_bulan[12],
+					'keterangan_bulan_1' 		=> $keterangan_bulan[1],
+					'keterangan_bulan_2' 		=> $keterangan_bulan[2],
+					'keterangan_bulan_3' 		=> $keterangan_bulan[3],
+					'keterangan_bulan_4' 		=> $keterangan_bulan[4],
+					'keterangan_bulan_5' 		=> $keterangan_bulan[5],
+					'keterangan_bulan_6' 		=> $keterangan_bulan[6],
+					'keterangan_bulan_7' 		=> $keterangan_bulan[7],
+					'keterangan_bulan_8' 		=> $keterangan_bulan[8],
+					'keterangan_bulan_9' 		=> $keterangan_bulan[9],
+					'keterangan_bulan_10' 		=> $keterangan_bulan[10],
+					'keterangan_bulan_11' 		=> $keterangan_bulan[11],
+					'keterangan_bulan_12' 		=> $keterangan_bulan[12],
+					'user' 						=> $current_user->display_name,
+					'active' 					=> 1,
+					'update_at' 				=> current_time('mysql'),
+					'tahun_anggaran' 			=> $tahun_anggaran
 				);
 				if (!empty($cek)) {
 					$wpdb->update('data_realisasi_renja', $opsi, array(
-						'id_indikator' => $id_indikator,
-						'tipe_indikator' => $type_indikator,
-						'kode_sbl' => $kode_sbl,
-						'tahun_anggaran' => $tahun_anggaran
+						'id_indikator' 		=> $id_indikator,
+						'tipe_indikator' 	=> $type_indikator,
+						'kode_sbl' 			=> $kode_sbl,
+						'tahun_anggaran' 	=> $tahun_anggaran
 					));
 				} else {
 					$wpdb->insert('data_realisasi_renja', $opsi);
@@ -11549,14 +11552,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$rak += $_POST['rak']['nilai_rak_bulan_' . $b];
 						}
 						$opsi = array(
-							'bulan'	=> $bulan,
-							'kode_sbl'	=> $kode_sbl,
-							'rak' => $rak,
-							'realisasi_anggaran' => $realisasi_anggaran,
-							'user_edit'	=> $current_user->display_name,
-							'id_skpd'	=> $id_skpd,
-							'tahun_anggaran'	=> $tahun_anggaran,
-							'created_at'	=>  current_time('mysql')
+							'bulan'					=> $bulan,
+							'kode_sbl'				=> $kode_sbl,
+							'rak' 					=> $rak,
+							'realisasi_anggaran' 	=> $realisasi_anggaran,
+							'user_edit'				=> $current_user->display_name,
+							'id_skpd'				=> $id_skpd,
+							'tahun_anggaran'		=> $tahun_anggaran,
+							'created_at'			=> current_time('mysql')
 						);
 						if (!empty($cek_id)) {
 							$wpdb->update('data_rfk', $opsi, array(
@@ -11565,6 +11568,30 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						} else {
 							$wpdb->insert('data_rfk', $opsi);
 						}
+					}
+				}
+
+				//simpan atau update bobot kinerja
+				if (!empty($_POST['bobot_kinerja'])) {
+					$sql = $wpdb->prepare("
+						SELECT 
+							id
+						FROM " . $table . "
+						WHERE tahun_anggaran = %d
+						  AND kode_sbl = %s
+						  AND active = 1
+					", $tahun_anggaran, $ids[3]);
+					$cek_id = $wpdb->get_var($sql);
+
+					$data = array(
+						'bobot_kinerja'	=>  $_POST['bobot_kinerja'],
+						'update_at'		=>  current_time('mysql')
+					);
+					if (!empty($cek_id)) {
+						$wpdb->update($table, $data, array(
+							'id' => $cek_id
+						));
+						$ret['message'] = "Berhasil Update";
 					}
 				}
 			} else {
@@ -11603,12 +11630,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// sub kegiatan
 				if ($count_kode_sbl == 6) {
 					$type_indikator = 1;
+					$table = "data_sub_keg_indikator"; //table indikator
 					// kegiatan
 				} else if ($count_kode_sbl == 5) {
+					$table = "data_output_giat_sub_keg"; //table indikator
 					$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
 					$type_indikator = 2;
 					// program
 				} else if ($count_kode_sbl == 3) {
+					$table = "data_capaian_prog_sub_keg"; //table indikator
 					$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
 					$type_indikator = 3;
 				}
@@ -11738,6 +11768,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						- atau user login adalah mitra bappeda
 						- atau user login adalah tapd bappeda
 					*/
+					$bobot_kinerja_field = '';
 					if (
 						$batas_bulan_input < $i
 						|| current_user_can('administrator')
@@ -11786,7 +11817,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td class="text_tengah text_blok"></td>
 					</tr>
 				';
+
+				//bobot_kinerja
+				$sql = $wpdb->prepare("
+					SELECT 
+						bobot_kinerja
+					FROM " . $table . "
+					WHERE tahun_anggaran = %d
+						AND kode_sbl = %s
+						AND active = 1
+				", $tahun_anggaran, $ids[3]);
+				$bobot_kinerja = $wpdb->get_var($sql);
+
 				$ret['table'] = $tbody;
+				$ret['bobot_kinerja'] = $bobot_kinerja;
 				$ret['tipe_indikator'] = $type_indikator;
 			} else {
 				$ret['status'] = 'error';
@@ -25007,7 +25051,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		$input = shortcode_atts(array(
-			'idlabelgiat' => '',			
+			'idlabelgiat' => '',
 			'id_skpd' => false,
 			'tahun_anggaran' => '2021',
 		), $atts);

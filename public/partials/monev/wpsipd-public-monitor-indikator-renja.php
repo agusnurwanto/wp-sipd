@@ -63,9 +63,9 @@ if ($input['tahun_anggaran'] < $tahun_sekarang) {
 	$batas_bulan_input = 12;
 }
 $api_key = get_option('_crb_api_key_extension');
-function button_edit_monev($class = false)
+function button_edit_monev($class = false, $bobot_kinerja = false)
 {
-	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
+	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev" data-bobot="' . $bobot_kinerja . '"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
 }
 function valid_number($no)
@@ -75,12 +75,11 @@ function valid_number($no)
 }
 $rumus_indikator_db = $wpdb->get_results(
 	$wpdb->prepare("
-		SELECT
-		*
+		SELECT *
 		FROM data_rumus_indikator
 		WHERE tahun_anggaran = %d
-		AND active = 1
-		", $input['tahun_anggaran']),
+			AND active = 1
+	", $input['tahun_anggaran']),
 	ARRAY_A
 );
 $rumus_indikator_html = '';
@@ -91,31 +90,33 @@ foreach ($rumus_indikator_db as $k => $v) {
 }
 
 $sql = $wpdb->prepare("
-		SELECT
-		*
-		FROM data_unit
-		WHERE tahun_anggaran=%d
-		AND id_skpd = %d
-		AND active= 1
-		ORDER BY id_skpd ASC
-		", $input['tahun_anggaran'], $input['id_skpd']);
+	SELECT *
+	FROM data_unit
+	WHERE tahun_anggaran=%d
+	  AND id_skpd = %d
+	  AND active= 1
+	ORDER BY id_skpd ASC
+	", $input['tahun_anggaran'], $input['id_skpd']);
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 $nama_pemda = get_option('_crb_daerah');
 $current_user = wp_get_current_user();
 
 $bulan = date('m');
-$subkeg = $wpdb->get_results($wpdb->prepare("
+$subkeg = $wpdb->get_results(
+	$wpdb->prepare("
 		SELECT
-		k.*,
-		k.id as id_sub_keg
+			k.*,
+			k.id as id_sub_keg
 		FROM data_sub_keg_bl k
 		WHERE k.tahun_anggaran=%d
-		AND k.active=1
-		AND k.id_sub_skpd=%d
-		AND k.pagu > 0
-		ORDER BY k.kode_sub_giat ASC
-		", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
+			AND k.active=1
+			AND k.id_sub_skpd=%d
+			AND k.pagu > 0
+	ORDER BY k.kode_sub_giat ASC
+	", $input['tahun_anggaran'], $unit[0]['id_skpd']),
+	ARRAY_A
+);
 $data_all = array(
 	'total' => 0,
 	'total_simda' => 0,
@@ -157,9 +158,9 @@ foreach ($subkeg as $kk => $sub) {
 			bulan
 		FROM data_rfk
 		WHERE tahun_anggaran=%d
-			AND id_skpd=%d
-			AND kode_sbl=%s
-			AND bulan<=%d 
+		  AND id_skpd=%d
+		  AND kode_sbl=%s
+		  AND bulan<=%d 
 		ORDER BY bulan ASC, id ASC
 	", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	$rak = array();
@@ -167,7 +168,7 @@ foreach ($subkeg as $kk => $sub) {
 		if (empty($rak[$v['bulan']])) {
 			$v['key'] = $k;
 			$rak[$v['bulan']] = $v;
-		}else{
+		} else {
 			// hapus jika ada bulan yang double
 			$wpdb->delete('data_rfk', array('id' => $v['id']));
 		}
@@ -187,7 +188,7 @@ foreach ($subkeg as $kk => $sub) {
 		if (!isset($rak[$i])) {
 			$cek_input = true;
 			$opsi['cek_insert'] = true;
-		}else{
+		} else {
 			$opsi['rak'] = $rak[$i]['rak'];
 		}
 
@@ -536,7 +537,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$keterangan[$k_sub] = implode(', ', $keterangan_db);
 					$target_capaian_prog_js[$k_sub] = $v_sub['targetcapaian'];
 					$satuan_capaian_prog_js[$k_sub] = $v_sub['satuancapaian'];
-					$target_capaian_prog[$k_sub] = '<span data-id="' . $k_sub . '">' . $v_sub['targetcapaian'] . '</span>';
+					$target_capaian_prog[$k_sub] = '<span data-id="' . $k_sub . '" bobot="">' . $v_sub['targetcapaian'] . '</span>';
 					$satuan_capaian_prog[$k_sub] = '<span data-id="' . $k_sub . '">' . $v_sub['satuancapaian'] . '</span>';
 					$target_indikator = $v_sub['targetcapaian'];
 					$realisasi_indikator_tw1[$k_sub] = 0;
@@ -619,10 +620,10 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					}
 
 					$capaian_prog_js[] = $v_sub['capaianteks'];
-					$realisasi_indikator_tw1_js[$k_sub] = $realisasi_indikator_tw1_js[$k_sub];
-					$realisasi_indikator_tw2_js[$k_sub] = $realisasi_indikator_tw2_js[$k_sub];
-					$realisasi_indikator_tw3_js[$k_sub] = $realisasi_indikator_tw3_js[$k_sub];
-					$realisasi_indikator_tw4_js[$k_sub] = $realisasi_indikator_tw4_js[$k_sub];
+					$realisasi_indikator_tw1_js[$k_sub] = $realisasi_indikator_tw1[$k_sub];
+					$realisasi_indikator_tw2_js[$k_sub] = $realisasi_indikator_tw2[$k_sub];
+					$realisasi_indikator_tw3_js[$k_sub] = $realisasi_indikator_tw3[$k_sub];
+					$realisasi_indikator_tw4_js[$k_sub] = $realisasi_indikator_tw4[$k_sub];
 					$total_tw_js[$k_sub] = $total_tw[$k_sub];
 
 					$realisasi_indikator_tw1[$k_sub] = '<span class="realisasi_indikator_tw1-' . $k_sub . '">' . $realisasi_indikator_tw1[$k_sub] . '</span>';
@@ -631,7 +632,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 					$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 					$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
-					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub) . '</span>';
+					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja']) . '</span>';
 				}
 			}
 
@@ -1005,7 +1006,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								if ($rumus_indikator == 1) {
 									$class_rumus_target[$k_sub] = "positif";
 									if (
-										!empty($target_indikator) 
+										!empty($target_indikator)
 										&& !empty($total_tw[$k_sub])
 									) {
 										$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
@@ -1384,7 +1385,7 @@ if (
 						<div class="col-md-4">
 							<div class="row">
 								<div class="col-md-12">
-									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Persentase</h2>
+									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Capaian Kinerja</h2>
 								</div>
 							</div>
 							<div class="d-flex align-items-center mb-9 bg-light-success rounded p-5">
@@ -1622,6 +1623,7 @@ function generate_aksi_triwulan($type)
 	return $ret;
 }
 
+$edit_bobot_kinerja = 'contenteditable="true"';
 $keterangan_skpd_triwulan = 'contenteditable="true"';
 $keterangan_verifikator_triwulan = '';
 $aksi_user = 'skpd';
@@ -1632,6 +1634,7 @@ if (
 	|| in_array("mitra_bappeda", $current_user->roles)
 	|| in_array("tapd_pp", $current_user->roles)
 ) {
+	$edit_bobot_kinerja = '';
 	$edit_monev = '';
 	$upload_monev = '';
 	$keterangan_skpd_triwulan = '';
@@ -1769,7 +1772,7 @@ foreach ($monev_triwulan as $k => $v) {
 						<table class="table table-bordered">
 							<tbody>
 								<tr>
-									<th style="width: 200px;">Program / Kegaitan / Sub Kegiatan</th>
+									<th style="width: 200px;">Program / Kegiatan / Sub Kegiatan</th>
 									<td id="monev-nama"></td>
 								</tr>
 								<tr>
@@ -1855,11 +1858,14 @@ foreach ($monev_triwulan as $k => $v) {
 											<tbody id="monev-body"></tbody>
 											<tfoot>
 												<tr>
-													<th class="text_kiri text_blok">Target Indikator</th>
+													<th class="text_kiri text_blok" colspan="2">Target Indikator</th>
 													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
 													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator. Satuan (%)</th>
 													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
-													<th class="text_tengah text_blok"></th>
+												</tr>
+												<tr>
+													<th class="text_kiri text_blok" colspan="3">Bobot Kinerja<br><small class="text-muted">( Default 1 )</small></th>
+													<th class="text_tengah text_blok" colspan="3" id="bobotKinerja" <?php echo $edit_bobot_kinerja; ?>>0</th>
 												</tr>
 											</tfoot>
 										</table>
@@ -2092,8 +2098,9 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('.edit-monev').on('click', function() {
 			jQuery('#wrap-loading').show();
 			var id_unik = jQuery(this).attr('data-id');
+
 			var tr = jQuery(this).closest('tr');
-			var nama = tr.find('td.nama').prev().text()+' '+tr.find('td.nama').text();
+			var nama = tr.find('td.nama').prev().text() + ' ' + tr.find('td.nama').text();
 			var id_indikator = id_unik.split('-').pop();
 			var indikator_text = tr.find('td.indikator span[data-id="' + id_indikator + '"]').text();
 			if (indikator_text == '') {
@@ -2132,6 +2139,8 @@ foreach ($monev_triwulan as $k => $v) {
 					jQuery('#monev-pagu').attr('data-pagu', pagu_renja).text(pagu_renja_text);
 					jQuery('#monev-body').html(res.table);
 					jQuery('#mod-monev').attr('data-id_unik', id_unik);
+					jQuery('#bobotKinerja').text(res.bobot_kinerja);
+
 					setRumus(res.id_rumus_indikator);
 					jQuery('#monev-body-renstra').html('');
 					if (res.tipe_indikator == 2 || res.tipe_indikator == 3) {
@@ -2274,6 +2283,7 @@ foreach ($monev_triwulan as $k => $v) {
 							"keterangan": keterangan,
 							"rak": nilai_rak,
 							"realisasi": nilai_realisasi,
+							"bobot_kinerja": jQuery('#bobotKinerja').text(),
 							"rumus_indikator": jQuery('#tipe_indikator').val(),
 							"id_indikator_renstra": id_indikator_renstra
 						},
