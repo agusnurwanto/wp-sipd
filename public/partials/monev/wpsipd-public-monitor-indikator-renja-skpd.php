@@ -11,14 +11,14 @@ $input = shortcode_atts(array(
 ), $atts);
 
 $data_jadwal = $wpdb->get_row(
-    $wpdb->prepare("
+	$wpdb->prepare("
         SELECT *
         FROM data_jadwal_lokal
         WHERE status = %d
           AND id_tipe = %d
 		  AND tahun_anggaran = %d
     ", 0, 16, $input['tahun_anggaran']),
-    ARRAY_A
+	ARRAY_A
 );
 
 $api_key = get_option('_crb_api_key_extension');
@@ -241,6 +241,29 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 
 ?>
 <style type="text/css">
+	.no_border tr,
+	.no_border td,
+	.no_border th,
+	.no_border table {
+		border: none !important;
+	}
+
+	.hover-shadow-lg {
+		transition: box-shadow 0.3s ease-in-out;
+	}
+
+	.hover-shadow-lg:hover {
+		box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important;
+	}
+
+	.transition-shadow {
+		transition: transform 0.3s ease;
+	}
+
+	.transition-shadow:hover {
+		transform: translateY(-3px);
+	}
+
 	#tabel-monitor-monev-renja {
 		font-family: \'Open Sans\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;
 		border-collapse: collapse;
@@ -288,7 +311,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-4">
+						<div class="col-md-4 shadow-sm p-3 mb-5 bg-white hover-shadow-lg transition-shadow rounded">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-warning rounded m-0 text-center">Anggaran</h2>
@@ -296,7 +319,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 							</div>
 							<div class="d-flex align-items-center mb-9 bg-light-warning rounded" style="margin-top: 3rem;">
 								<!--begin::Title-->
-								<div class="col-md-12">
+								<div class="col-md-12 no_border">
 									<table class="table">
 										<tr>
 											<td style="width:20px;">
@@ -359,7 +382,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 							</div>
 						</div>
 
-						<div class="col-md-4">
+						<div class="col-md-4 shadow-sm p-3 mb-5 bg-white hover-shadow-lg transition-shadow rounded">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-primary rounded m-0 text-center">Realisasi</h2>
@@ -367,7 +390,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 							</div>
 							<div class="d-flex align-items-center mb-9 bg-light-primary rounded" style="margin-top: 3rem;">
 								<!--begin::Title-->
-								<div class="col-md-12">
+								<div class="col-md-12 no_border">
 									<table class="table">
 										<tr>
 											<td style="width:20px;">
@@ -429,7 +452,8 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 								<!--end::Title-->
 							</div>
 						</div>
-						<div class="col-md-4">
+
+						<div class="col-md-4 shadow-sm p-3 mb-5 bg-white hover-shadow-lg transition-shadow rounded">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Persentase</h2>
@@ -437,7 +461,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 							</div>
 							<div class="d-flex align-items-center mb-9 bg-light-success rounded p-5">
 								<!--begin::Title-->
-								<div class="col-md-12">
+								<div class="col-md-12 no_border">
 									<table class="table">
 										<tr>
 											<td style="width:20px;">
@@ -502,7 +526,7 @@ $string_hari_ini = date('H:i, d') . ' ' . $this->get_bulan() . ' ' . date('Y');
 					</div>
 					<div class="row mb-5">
 						<div class="col-md-6 offset-md-3 offset-sm-0">
-							<div class="card card-primary" style="box-shadow: 1px 1px 5px #666;">
+							<div class="card card-primary shadow-sm hover-shadow-lg transition-shadow rounded">
 								<div class="card-header bg-primary text-white p-5">
 									<div class="col-12">
 										<div class="row">
