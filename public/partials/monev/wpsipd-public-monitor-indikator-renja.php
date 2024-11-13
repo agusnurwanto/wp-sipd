@@ -1624,7 +1624,7 @@ if (
 								<div class="card-body">
 									<div class="row mb-2">
 										<div class="col-12 text-center" style="font-size:1.3em">
-											<h2 class="font-weight-bolder text-primary py-1 m-3"><?php echo $no_urusan; ?> Urusan <?php echo $no_bidang; ?> Bidang</h2>
+											<h2 class="font-weight-bolder text-primary py-1 m-3"><?php echo $no_urusan; ?> Urusan | <?php echo $no_bidang; ?> Bidang</h2>
 										</div>
 									</div>
 									<div class="row mb-4">

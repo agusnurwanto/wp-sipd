@@ -10263,7 +10263,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 		}
 		if (
-			empty($options['cek_input'])
+			empty($options['cek_insert'])
 			&& $total_rak == $options['rak']
 		) {
 			return $total_rak;
