@@ -1113,6 +1113,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_sppd_by_id',  $plugin_public, 'get_data_sppd_by_id');
 
 		$this->loader->add_action('wp_ajax_nopriv_get_serapan_anggaran_capaian_kinerja',  $plugin_public, 'get_serapan_anggaran_capaian_kinerja');
+		$this->loader->add_action('wp_ajax_get_serapan_anggaran_capaian_kinerja',  $plugin_public, 'get_serapan_anggaran_capaian_kinerja');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

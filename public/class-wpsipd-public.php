@@ -25255,101 +25255,41 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'data'                 => array()
 						);
 					}
-					//kegiatan
-					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
-						$output_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_output_giat_sub_keg WHERE tahun_anggaran=%d AND kode_sbl=%s AND active=1 ORDER BY id ASC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-						$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
-						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 2, $kode_sbl), ARRAY_A);
-						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
-							'nama'                => $sub['nama_giat'],
-							'indikator'           => $output_giat,
-							'id_giat'             => $sub['id_giat'],
-							'realisasi_indikator' => $realisasi_renja,
-							'kode_sbl'            => $sub['kode_sbl'],
-							'kode_giat'           => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_giat']),
-							'kode_urusan_bidang'  => $kode_sub_giat_asli[0] . '.' . $kode_sub_giat_asli[1] . '.' . $kode_sub_giat_asli[2] . '.' . $kode_sub_giat_asli[3] . '.' . $kode_sub_giat_asli[4],
-							'total'               => 0,
-							'triwulan_1'          => 0,
-							'triwulan_2'          => 0,
-							'triwulan_3'          => 0,
-							'triwulan_4'          => 0,
-							'total_simda'         => 0,
-							'realisasi'           => 0,
-							'data'                => array()
-						);
-					}
-					//subkegiatan
-					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
-						$output_sub_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_sub_keg_indikator WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s ORDER BY id DESC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-
-						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 1, $sub['kode_sbl']), ARRAY_A);
-						$nama = explode(' ', $sub['nama_sub_giat']);
-						unset($nama[0]);
-						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-							'nama'                => implode(' ', $nama),
-							'indikator'           => $output_sub_giat,
-							'kode_sub_giat'       => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_sub_giat']),
-							'id_sub_giat'         => $sub['id_sub_giat'],
-							'realisasi_indikator' => $realisasi_renja,
-							'total'               => 0,
-							'triwulan_1'          => 0,
-							'triwulan_2'          => 0,
-							'triwulan_3'          => 0,
-							'triwulan_4'          => 0,
-							'total_simda'         => 0,
-							'realisasi'           => 0,
-							'data'                => $sub
-						);
-					}
 					$data_all['total'] += $total_pagu;
 					$data_all['data'][$sub['kode_urusan']]['total'] += $total_pagu;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $total_pagu;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $total_pagu;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $total_pagu;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $total_pagu;
 
 					$data_all['realisasi'] += $realisasi;
 					$data_all['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
 
 					$data_all['total_simda'] += $total_simda;
 					$data_all['data'][$sub['kode_urusan']]['total_simda'] += $total_simda;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_simda'] += $total_simda;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_simda'] += $total_simda;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_simda'] += $total_simda;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_simda'] += $total_simda;
 
 					$data_all['triwulan_1'] += $triwulan_1;
 					$data_all['data'][$sub['kode_urusan']]['triwulan_1'] += $triwulan_1;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_1'] += $triwulan_1;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_1'] += $triwulan_1;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_1'] += $triwulan_1;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_1'] += $triwulan_1;
 
 					$data_all['triwulan_2'] += $triwulan_2;
 					$data_all['data'][$sub['kode_urusan']]['triwulan_2'] += $triwulan_2;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_2'] += $triwulan_2;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_2'] += $triwulan_2;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_2'] += $triwulan_2;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_2'] += $triwulan_2;
 
 					$data_all['triwulan_3'] += $triwulan_3;
 					$data_all['data'][$sub['kode_urusan']]['triwulan_3'] += $triwulan_3;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_3'] += $triwulan_3;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_3'] += $triwulan_3;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_3'] += $triwulan_3;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_3'] += $triwulan_3;
 
 					$data_all['triwulan_4'] += $triwulan_4;
 					$data_all['data'][$sub['kode_urusan']]['triwulan_4'] += $triwulan_4;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_4'] += $triwulan_4;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_4'] += $triwulan_4;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_4'] += $triwulan_4;
-					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_4'] += $triwulan_4;
 
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_1'] += $rak_triwulan_1;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_2'] += $rak_triwulan_2;
@@ -25635,7 +25575,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tw2' => $serapan_tw2 . '%',
 						'tw3' => $serapan_tw3 . '%',
 						'tw4' => $serapan_tw4 . '%'
-					)
+					),
+					'anggaran' => array(
+						'total' => $data_all['total'],
+						'tw1' => $data_all['rak_triwulan_1'],
+						'tw2' => $data_all['rak_triwulan_1'],
+						'tw3' => $data_all['rak_triwulan_1'],
+						'tw4' => $data_all['rak_triwulan_1']
+					),
+					'realisasi_anggaran' => array(
+						'total' => $data_all['realisasi'],
+						'tw1' => $data_all['triwulan_1'],
+						'tw2' => $data_all['triwulan_2'],
+						'tw3' => $data_all['triwulan_3'],
+						'tw4' => $data_all['triwulan_4']
+					),
+					'opd' => $unit
 				);
 			} else {
 				$ret = array(
