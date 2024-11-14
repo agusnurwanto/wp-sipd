@@ -865,6 +865,9 @@
         <li class="scroll-to-link" data-target="content-get-sp2d-by-tahun-anggaran">
             <a>Get SP2D</a>
         </li>
+        <li class="scroll-to-link" data-target="content-get-capaian-kinerja-by-tahun-anggaran">
+            <a>Get Capaian Kinerja & Serapan Anggaran</a>
+        </li>
         <li class="scroll-to-link" data-target="content-errors">
             <a>Errors</a>
         </li>
@@ -1247,7 +1250,8 @@ Result :
 }
                 </code>
             </pre>
-        </div><div class="overflow-hidden content-section" id="content-get-sumberdana">
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-sumberdana">
             <h2>GET REKENING</h2>
             <pre>
                 <code class="bash">
@@ -2177,7 +2181,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_up_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2300,7 +2304,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_rak_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2462,7 +2466,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_spd_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2599,7 +2603,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_pegawai_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2747,7 +2751,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_spp_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2951,7 +2955,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_spm_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -3128,7 +3132,7 @@ curl \
                             String
                         </td>
                         <td>
-                            get_sp2d_sipd
+                            Bidang spesifik yang akan dilakukan
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -3250,6 +3254,130 @@ Result :
             "potongan": []
         }
     ]
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-capaian-kinerja-by-tahun-anggaran">
+            <h2>GET Persentase Capaian Kinerja dan Serapan Anggaran berdasarkan SKPD dan Tahun Anggaran</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_serapan_anggaran_capaian_kinerja' \
+-F 'tahun_anggaran=2024' \
+-F 'id_skpd=3346' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data Persentase Capaian Kinerja dan Serapan Anggaran berdasarkan SKPD dan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            id_skpd
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Bidang spesifik yang akan dilakukan pencarian
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh tahun <b>2023</b> atau <b>2024</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+  "status": "success",
+  "message": "Berhasil Get Serapan Anggaran dan Capaian Kinerja!",
+  "data": {
+    "capaian_kinerja": {
+      "total": "5.88%",
+      "tw1": "5.88%",
+      "tw2": "0%",
+      "tw3": "0%",
+      "tw4": "0%"
+    },
+    "serapan_anggaran": {
+      "total": "35.32%",
+      "tw1": "72.9%",
+      "tw2": "40.24%",
+      "tw3": "0%",
+      "tw4": "0%"
+    }
+  }
 }
                 </code>
             </pre>

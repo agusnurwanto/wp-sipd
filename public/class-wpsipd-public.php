@@ -3635,7 +3635,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$profile = false;
 		if (!empty($rincian['id_penerima'])) {
-			$profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=" . $rincian['id_penerima'] . " and tahun=" . $input['tahun_anggaran'], ARRAY_A);
+			$profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=" . $rincian['id_penerima'] . " and tahun=" . $_POST['tahun_anggaran'], ARRAY_A);
 		}
 		$alamat = '';
 		$keterangan_alamat = '';
@@ -3659,7 +3659,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		            where BINARY nama_teks=%s 
 		                and tahun=%d",
 					$lokus_akun_teks,
-					$input['tahun_anggaran']
+					$_POST['tahun_anggaran']
 				), ARRAY_A);
 				if (!empty($profile)) {
 					$alamat = $profile['alamat_teks'] . ' (' . $profile['jenis_penerima'] . ')';
@@ -20072,7 +20072,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
 				} else {
 
-					$tahun_anggaran = $input['tahun_anggaran'];
+					$tahun_anggaran = $_POST['tahun_anggaran'];
 
 					$sql = $wpdb->prepare("
 						SELECT 
@@ -25060,5 +25060,595 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if ($input['lampiran'] == 1) {
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-aklap-lra.php';
 		}
+	}
+
+	function get_serapan_anggaran_capaian_kinerja()
+	{
+
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Get Serapan Anggaran dan Capaian Kinerja!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran Kosong!';
+					die(json_encode($ret));
+				}
+				if (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id SKPD Kosong!';
+					die(json_encode($ret));
+				}
+
+				$sql = $wpdb->prepare("
+						SELECT *
+						FROM data_unit
+						WHERE tahun_anggaran=%d
+						AND id_skpd = %d
+						AND active= 1
+						ORDER BY id_skpd ASC
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']);
+				$unit = $wpdb->get_results($sql, ARRAY_A);
+
+				$bulan = date('m');
+				$subkeg = $wpdb->get_results(
+					$wpdb->prepare("
+							SELECT
+								k.*,
+								k.id as id_sub_keg
+							FROM data_sub_keg_bl k
+							WHERE k.tahun_anggaran=%d
+							AND k.active=1
+							AND k.id_sub_skpd=%d
+							AND k.pagu > 0
+							ORDER BY k.kode_sub_giat ASC
+						", $_POST['tahun_anggaran'], $unit[0]['id_skpd']),
+					ARRAY_A
+				);
+				$data_all = array(
+					'total'          => 0,
+					'total_simda'    => 0,
+					'triwulan_1'     => 0,
+					'triwulan_2'     => 0,
+					'triwulan_3'     => 0,
+					'triwulan_4'     => 0,
+					'rak_triwulan_1' => 0,
+					'rak_triwulan_2' => 0,
+					'rak_triwulan_3' => 0,
+					'rak_triwulan_4' => 0,
+					'realisasi'      => 0,
+					'data'           => array()
+				);
+				$crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
+				foreach ($subkeg as $kk => $sub) {
+					$nama_keg = explode(' ', $sub['nama_sub_giat']);
+					unset($nama_keg[0]);
+					$nama_keg = implode(' ', $nama_keg);
+					if ($crb_cara_input_realisasi == 1) {
+						$total_simda = $sub['pagu_simda'];
+					} else {
+						$total_simda = $sub['pagu'];
+					}
+					$total_pagu = $sub['pagu'];
+					$kode = explode('.', $sub['kode_sbl']);
+
+					$rfk_all = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id,
+							realisasi_anggaran,
+							rak,
+							bulan
+						FROM data_rfk
+						WHERE tahun_anggaran=%d
+						AND id_skpd=%d
+						AND kode_sbl=%s
+						AND bulan<=%d 
+						ORDER BY bulan ASC, id ASC
+					", $_POST['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+
+
+					$triwulan_1 = 0;
+					$triwulan_2 = 0;
+					$triwulan_3 = 0;
+					$triwulan_4 = 0;
+					$rak_triwulan_1 = 0;
+					$rak_triwulan_2 = 0;
+					$rak_triwulan_3 = 0;
+					$rak_triwulan_4 = 0;
+					$realisasi_bulan_all = array();
+					foreach ($rfk_all as $k => $v) {
+						// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
+						if (
+							$v['bulan'] <= $bulan
+							&& empty($v['realisasi_anggaran'])
+							&& !empty($realisasi_bulan_all[$v['bulan'] - 1])
+						) {
+							$v['realisasi_anggaran'] = $realisasi_bulan_all[$v['bulan'] - 1];
+							$wpdb->update('data_rfk', array(
+								'realisasi_anggaran' => $v['realisasi_anggaran']
+							), array('id' => $v['id']));
+						}
+						$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
+						$rak_bulan_all[$v['bulan']] = $v['rak'];
+						if (!empty($v['realisasi_anggaran'])) {
+							if ($v['bulan'] <= 3) {
+								$triwulan_1 = $v['realisasi_anggaran'];
+								$rak_triwulan_1 = $v['rak'];
+							} else if ($v['bulan'] <= 6) {
+								$triwulan_2 = $v['realisasi_anggaran'] - $realisasi_bulan_all[3];
+								$rak_triwulan_2 = $v['rak'] - $rak_bulan_all[3];
+							} else if ($v['bulan'] <= 9) {
+								$triwulan_3 = $v['realisasi_anggaran'] - $realisasi_bulan_all[6];
+								$rak_triwulan_3 = $v['rak'] - $rak_bulan_all[6];
+							} else if ($v['bulan'] <= 12) {
+								$triwulan_4 = $v['realisasi_anggaran'] - $realisasi_bulan_all[9];
+								$rak_triwulan_4 = $v['rak'] - $rak_bulan_all[9];
+							}
+						}
+					}
+					$realisasi = $triwulan_1 + $triwulan_2 + $triwulan_3 + $triwulan_4;
+
+					$kode_sbl_s = explode('.', $sub['kode_sbl']);
+					if (empty($data_all['data'][$sub['kode_urusan']])) {
+						$data_all['data'][$sub['kode_urusan']] = array(
+							'nama'         => $sub['nama_urusan'],
+							'total'      => 0,
+							'triwulan_1' => 0,
+							'triwulan_2' => 0,
+							'triwulan_3' => 0,
+							'triwulan_4' => 0,
+							'total_simda' => 0,
+							'realisasi'  => 0,
+							'data'         => array()
+						);
+					}
+					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
+						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
+							'nama'         => $sub['nama_bidang_urusan'],
+							'total'      => 0,
+							'triwulan_1' => 0,
+							'triwulan_2' => 0,
+							'triwulan_3' => 0,
+							'triwulan_4' => 0,
+							'total_simda' => 0,
+							'realisasi'  => 0,
+							'data'         => array()
+						);
+					}
+
+					$nama = explode(' ', $sub['nama_sub_giat']);
+					if ($nama[0] !== $sub['kode_sub_giat']) {
+						$kode_sub_giat_asli = explode('.', $sub['kode_sub_giat']);
+					} else {
+						$kode_sub_giat_asli = explode('.', $nama[0]);
+					}
+
+					//program
+					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
+						$capaian_prog = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+						$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
+						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
+						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
+							'nama'                 => $sub['nama_program'],
+							'indikator'            => $capaian_prog,
+							'realisasi_indikator'  => $realisasi_renja,
+							'id_program'           => $sub['id_program'],
+							'kode_program'         => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_program']),
+							'kode_sbl'             => $sub['kode_sbl'],
+							'kode_urusan_bidang'   => $kode_sub_giat_asli[0] . '.' . $kode_sub_giat_asli[1] . '.' . $kode_sub_giat_asli[2],
+							'total'                => 0,
+							'triwulan_1'           => 0,
+							'triwulan_2'           => 0,
+							'triwulan_3'           => 0,
+							'triwulan_4'           => 0,
+							'rak_triwulan_1'       => 0,
+							'rak_triwulan_2'       => 0,
+							'rak_triwulan_3'       => 0,
+							'rak_triwulan_4'       => 0,
+							'total_simda'          => 0,
+							'realisasi'            => 0,
+							'data'                 => array()
+						);
+					}
+					//kegiatan
+					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
+						$output_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_output_giat_sub_keg WHERE tahun_anggaran=%d AND kode_sbl=%s AND active=1 ORDER BY id ASC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+						$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
+						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 2, $kode_sbl), ARRAY_A);
+						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
+							'nama'                => $sub['nama_giat'],
+							'indikator'           => $output_giat,
+							'id_giat'             => $sub['id_giat'],
+							'realisasi_indikator' => $realisasi_renja,
+							'kode_sbl'            => $sub['kode_sbl'],
+							'kode_giat'           => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_giat']),
+							'kode_urusan_bidang'  => $kode_sub_giat_asli[0] . '.' . $kode_sub_giat_asli[1] . '.' . $kode_sub_giat_asli[2] . '.' . $kode_sub_giat_asli[3] . '.' . $kode_sub_giat_asli[4],
+							'total'               => 0,
+							'triwulan_1'          => 0,
+							'triwulan_2'          => 0,
+							'triwulan_3'          => 0,
+							'triwulan_4'          => 0,
+							'total_simda'         => 0,
+							'realisasi'           => 0,
+							'data'                => array()
+						);
+					}
+					//subkegiatan
+					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
+						$output_sub_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_sub_keg_indikator WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s ORDER BY id DESC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 1, $sub['kode_sbl']), ARRAY_A);
+						$nama = explode(' ', $sub['nama_sub_giat']);
+						unset($nama[0]);
+						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
+							'nama'                => implode(' ', $nama),
+							'indikator'           => $output_sub_giat,
+							'kode_sub_giat'       => str_replace($sub['kode_bidang_urusan'], '', $sub['kode_sub_giat']),
+							'id_sub_giat'         => $sub['id_sub_giat'],
+							'realisasi_indikator' => $realisasi_renja,
+							'total'               => 0,
+							'triwulan_1'          => 0,
+							'triwulan_2'          => 0,
+							'triwulan_3'          => 0,
+							'triwulan_4'          => 0,
+							'total_simda'         => 0,
+							'realisasi'           => 0,
+							'data'                => $sub
+						);
+					}
+					$data_all['total'] += $total_pagu;
+					$data_all['data'][$sub['kode_urusan']]['total'] += $total_pagu;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $total_pagu;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $total_pagu;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $total_pagu;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $total_pagu;
+
+					$data_all['realisasi'] += $realisasi;
+					$data_all['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
+
+					$data_all['total_simda'] += $total_simda;
+					$data_all['data'][$sub['kode_urusan']]['total_simda'] += $total_simda;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_simda'] += $total_simda;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_simda'] += $total_simda;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_simda'] += $total_simda;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_simda'] += $total_simda;
+
+					$data_all['triwulan_1'] += $triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['triwulan_1'] += $triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_1'] += $triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_1'] += $triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_1'] += $triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_1'] += $triwulan_1;
+
+					$data_all['triwulan_2'] += $triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['triwulan_2'] += $triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_2'] += $triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_2'] += $triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_2'] += $triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_2'] += $triwulan_2;
+
+					$data_all['triwulan_3'] += $triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['triwulan_3'] += $triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_3'] += $triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_3'] += $triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_3'] += $triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_3'] += $triwulan_3;
+
+					$data_all['triwulan_4'] += $triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['triwulan_4'] += $triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_4'] += $triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_4'] += $triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['triwulan_4'] += $triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['triwulan_4'] += $triwulan_4;
+
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_1'] += $rak_triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_2'] += $rak_triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_3'] += $rak_triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_4'] += $rak_triwulan_4;
+
+					$data_all['rak_triwulan_1'] += $rak_triwulan_1;
+					$data_all['rak_triwulan_2'] += $rak_triwulan_2;
+					$data_all['rak_triwulan_3'] += $rak_triwulan_3;
+					$data_all['rak_triwulan_4'] += $rak_triwulan_4;
+				}
+
+
+				$persen_triwulan_1 = 0;
+				$persen_triwulan_2 = 0;
+				$persen_triwulan_3 = 0;
+				$persen_triwulan_4 = 0;
+				if (!empty($data_all['rak_triwulan_1']) && !empty($data_all['triwulan_1'])) {
+					$persen_triwulan_1 = ($data_all['triwulan_1'] / $data_all['rak_triwulan_1']) * 100;
+				}
+				if (!empty($data_all['rak_triwulan_2']) && !empty($data_all['triwulan_2'])) {
+					$persen_triwulan_2 = ($data_all['triwulan_2'] / $data_all['rak_triwulan_2']) * 100;
+				}
+				if (!empty($data_all['rak_triwulan_3']) && !empty($data_all['triwulan_3'])) {
+					$persen_triwulan_3 = ($data_all['triwulan_3'] / $data_all['rak_triwulan_3']) * 100;
+				}
+				if (!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])) {
+					$persen_triwulan_4 = ($data_all['triwulan_4'] / $data_all['rak_triwulan_4']) * 100;
+				}
+
+				$data_all_js      = array();
+				foreach ($data_all['data'] as $kd_urusan => $urusan) {
+					foreach ($urusan['data'] as $kd_bidang => $bidang) {
+						foreach ($bidang['data'] as $kd_program_asli => $program) {
+							$no_program++;
+							$kd_program = explode('.', $kd_program_asli);
+							$kd_program = $kd_program[count($kd_program) - 1];
+							$capaian = 0;
+							if (!empty($program['total_simda'])) {
+								$capaian = $this->pembulatan(($program['realisasi'] / $program['total_simda']) * 100);
+							}
+							$bobot_kinerja_indikator     = array();
+							$capaian_prog_js             = array();
+							$target_capaian_prog_js      = array();
+							$satuan_capaian_prog_js      = array();
+							$realisasi_indikator_tw1_js  = array();
+							$realisasi_indikator_tw2_js  = array();
+							$realisasi_indikator_tw3_js  = array();
+							$realisasi_indikator_tw4_js  = array();
+							$total_tw_js                 = array();
+							$capaian_prog                = array();
+							$realisasi_indikator_tw1     = array();
+							$realisasi_indikator_tw2     = array();
+							$realisasi_indikator_tw3     = array();
+							$realisasi_indikator_tw4     = array();
+							$total_tw                    = array();
+							$capaian_realisasi_indikator = array();
+							$class_rumus_target          = array();
+							$keterangan                  = array();
+							if (!empty($program['indikator'])) {
+								$realisasi_indikator = array();
+								foreach ($program['realisasi_indikator'] as $k_sub => $v_sub) {
+									$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
+								}
+								foreach ($program['indikator'] as $k_sub => $v_sub) {
+									$keterangan_db = array();
+									for ($i = 1; $i <= 12; $i++) {
+										if (!empty($v_sub['keterangan_bulan_' . $i])) {
+											$keterangan_db[] = $v_sub['keterangan_bulan_' . $i];
+										}
+									}
+
+									$keterangan[$k_sub]                  = implode(', ', $keterangan_db);
+									$target_capaian_prog_js[$k_sub]      = $v_sub['targetcapaian'];
+									$bobot_kinerja_indikator[$k_sub]     = $v_sub['bobot_kinerja'];
+									$satuan_capaian_prog_js[$k_sub]      = $v_sub['satuancapaian'];
+									$target_indikator                    = $v_sub['targetcapaian'];
+									$realisasi_indikator_tw1[$k_sub]     = 0;
+									$realisasi_indikator_tw2[$k_sub]     = 0;
+									$realisasi_indikator_tw3[$k_sub]     = 0;
+									$realisasi_indikator_tw4[$k_sub]     = 0;
+									$total_tw[$k_sub]                    = 0;
+									$capaian_realisasi_indikator[$k_sub] = 0;
+									$realisasi_indikator_tw1_js[$k_sub]  = 0;
+									$realisasi_indikator_tw2_js[$k_sub]  = 0;
+									$realisasi_indikator_tw3_js[$k_sub]  = 0;
+									$realisasi_indikator_tw4_js[$k_sub]  = 0;
+									$total_tw_js[$k_sub]                 = 0;
+									$class_rumus_target[$k_sub]          = " positif";
+
+									if (!empty($realisasi_indikator) && !empty($realisasi_indikator[$k_sub])) {
+										$rumus_indikator = $realisasi_indikator[$k_sub]['id_rumus_indikator'];
+										$max = 0;
+										for ($i = 1; $i <= 12; $i++) {
+											$realisasi_bulan = $realisasi_indikator[$k_sub]['realisasi_bulan_' . $i];
+											if ($max < $realisasi_bulan) {
+												$max = $realisasi_bulan;
+											}
+											$total_tw[$k_sub] += $realisasi_bulan;
+											if ($i <= 3) {
+												if ($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4) {
+													if ($i == 3) {
+														$realisasi_indikator_tw1[$k_sub] = $realisasi_bulan;
+													}
+												} else {
+													$realisasi_indikator_tw1[$k_sub] += $realisasi_bulan;
+												}
+											} else if ($i <= 6) {
+												if ($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4) {
+													if ($i == 6) {
+														$realisasi_indikator_tw2[$k_sub] = $realisasi_bulan;
+													}
+												} else {
+													$realisasi_indikator_tw2[$k_sub] += $realisasi_bulan;
+												}
+											} else if ($i <= 9) {
+												if ($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4) {
+													if ($i == 9) {
+														$realisasi_indikator_tw3[$k_sub] = $realisasi_bulan;
+													}
+												} else {
+													$realisasi_indikator_tw3[$k_sub] += $realisasi_bulan;
+												}
+											} else if ($i <= 12) {
+												if ($rumus_indikator == 3 || $rumus_indikator == 2 || $rumus_indikator == 4) {
+													if ($i == 12) {
+														$realisasi_indikator_tw4[$k_sub] = $realisasi_bulan;
+													}
+												} else {
+													$realisasi_indikator_tw4[$k_sub] += $realisasi_bulan;
+												}
+											}
+										}
+										if ($rumus_indikator == 1) {
+											$class_rumus_target[$k_sub] = "positif";
+											if (!empty($target_indikator[$k_sub])) {
+												$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+											}
+										} else if ($rumus_indikator == 2) {
+											$class_rumus_target[$k_sub] = "negatif";
+											$total_tw[$k_sub] = $max;
+											if (!empty($total_tw[$k_sub])) {
+												$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator[$k_sub] / $total_tw[$k_sub]) * 100);
+											}
+										} else if ($rumus_indikator == 3 || $rumus_indikator == 4) {
+											if ($rumus_indikator == 3) {
+												$class_rumus_target[$k_sub] = "persentase";
+											} else if ($rumus_indikator == 4) {
+												$class_rumus_target[$k_sub] = "nilai_akhir";
+											}
+											$total_tw[$k_sub] = $max;
+											if (!empty($target_indikator[$k_sub])) {
+												$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+											}
+										}
+									}
+
+									$capaian_prog_js[] = $v_sub['capaianteks'];
+									$realisasi_indikator_tw1_js[$k_sub] = $realisasi_indikator_tw1[$k_sub];
+									$realisasi_indikator_tw2_js[$k_sub] = $realisasi_indikator_tw2[$k_sub];
+									$realisasi_indikator_tw3_js[$k_sub] = $realisasi_indikator_tw3[$k_sub];
+									$realisasi_indikator_tw4_js[$k_sub] = $realisasi_indikator_tw4[$k_sub];
+									$total_tw_js[$k_sub] = $total_tw[$k_sub];
+								}
+							}
+
+							$data_all_js[] = array(
+								'nama'                    => $kd_program_asli . ' ' . $program['nama'],
+								'pagu'                    => number_format($program['total_simda'], 0, ",", "."),
+								'realisasi'               => number_format($program['realisasi'], 0, ",", "."),
+								'capaian'                 => $capaian,
+								'rak_tw_1'                => $program['rak_triwulan_1'],
+								'rak_tw_2'                => $program['rak_triwulan_2'],
+								'rak_tw_3'                => $program['rak_triwulan_3'],
+								'rak_tw_4'                => $program['rak_triwulan_4'],
+								'realisasi_tw_1'          => $program['triwulan_1'],
+								'realisasi_tw_2'          => $program['triwulan_2'],
+								'realisasi_tw_3'          => $program['triwulan_3'],
+								'realisasi_tw_4'          => $program['triwulan_4'],
+								'indikator'               => $capaian_prog_js,
+								'satuan'                  => $satuan_capaian_prog_js,
+								'bobot_kinerja_indikator' => $bobot_kinerja_indikator,
+								'target_indikator'        => $target_capaian_prog_js,
+								'realisasi_indikator'     => $total_tw_js,
+								'realisasi_indikator_1'   => $realisasi_indikator_tw1_js,
+								'realisasi_indikator_2'   => $realisasi_indikator_tw2_js,
+								'realisasi_indikator_3'   => $realisasi_indikator_tw3_js,
+								'realisasi_indikator_4'   => $realisasi_indikator_tw4_js,
+							);
+						}
+					}
+				}
+
+
+				$capaian_kinerja = [
+					'total' => 0,
+					'tw_1'  => 0,
+					'tw_2'  => 0,
+					'tw_3'  => 0,
+					'tw_4'  => 0,
+				];
+
+				$total_bobot = 0;
+				$total_capaian = 0;
+				$total_realisasi_tw1 = 0;
+				$total_realisasi_tw2 = 0;
+				$total_realisasi_tw3 = 0;
+				$total_realisasi_tw4 = 0;
+				foreach ($data_all_js as $k => $v) {
+					foreach ($v['bobot_kinerja_indikator'] as $kk => $vv) {
+						$result_by_bobot = $v['realisasi_indikator_1'][$kk] * $vv;
+						$total_realisasi_tw1 += $result_by_bobot;
+
+						$result_by_bobot = $v['realisasi_indikator_2'][$kk] * $vv;
+						$total_realisasi_tw2 += $result_by_bobot;
+
+						$result_by_bobot = $v['realisasi_indikator_3'][$kk] * $vv;
+						$total_realisasi_tw3 += $result_by_bobot;
+
+						$result_by_bobot = $v['realisasi_indikator_4'][$kk] * $vv;
+						$total_realisasi_tw4 += $result_by_bobot;
+
+						$capaian_per_program = $v['realisasi_indikator'][$kk] * $vv;
+
+						$total_capaian += $capaian_per_program; //capaian per program diakumulasi untuk dibagi akumulasi bobot
+						$total_bobot += $vv; //akumulasi bobot untuk membagi capaian per program
+					}
+				}
+
+				$capaian_kinerja['total'] = $total_bobot > 0 ? $total_capaian / $total_bobot : 0;
+
+				if (
+					!empty($total_realisasi_tw1)
+					&& $total_realisasi_tw1 != 0
+					&& !empty($capaian_kinerja['total'])
+					&& $capaian_kinerja['total'] != 0
+				) {
+					$capaian_kinerja['tw_1'] = $total_realisasi_tw1 / $total_bobot;
+				}
+				if (
+					!empty($total_realisasi_tw2)
+					&& $total_realisasi_tw2 != 0
+					&& !empty($capaian_kinerja['total'])
+					&& $capaian_kinerja['total'] != 0
+				) {
+					$capaian_kinerja['tw_2'] = $total_realisasi_tw2 / $total_bobot;
+				}
+				if (
+					!empty($total_realisasi_tw3)
+					&& $total_realisasi_tw3 != 0
+					&& !empty($capaian_kinerja['total'])
+					&& $capaian_kinerja['total'] != 0
+				) {
+					$capaian_kinerja['tw_3'] = $total_realisasi_tw3 / $total_bobot;
+				}
+				if (
+					!empty($total_realisasi_tw4)
+					&& $total_realisasi_tw4 != 0
+					&& !empty($capaian_kinerja['total'])
+					&& $capaian_kinerja['total'] != 0
+				) {
+					$capaian_kinerja['tw_4'] = $total_realisasi_tw4 / $total_bobot;
+				}
+
+				//serapan
+				$total_serapan = $this->pembulatan(($data_all['realisasi'] / $data_all['total']) * 100);
+				$serapan_tw1 = $this->pembulatan($persen_triwulan_1);
+				$serapan_tw2 = $this->pembulatan($persen_triwulan_2);
+				$serapan_tw3 = $this->pembulatan($persen_triwulan_3);
+				$serapan_tw4 = $this->pembulatan($persen_triwulan_4);
+
+				$ret['data'] = array(
+					'capaian_kinerja' => array(
+						'total' => round($capaian_kinerja['total'], 2) . '%',
+						'tw1' => round($capaian_kinerja['tw_1'], 2) . '%',
+						'tw2' => round($capaian_kinerja['tw_2'], 2) . '%',
+						'tw3' => round($capaian_kinerja['tw_3'], 2) . '%',
+						'tw4' => round($capaian_kinerja['tw_4'], 2) . '%'
+					),
+					'serapan_anggaran' => array(
+						'total' => $total_serapan . '%',
+						'tw1' => $serapan_tw1 . '%',
+						'tw2' => $serapan_tw2 . '%',
+						'tw3' => $serapan_tw3 . '%',
+						'tw4' => $serapan_tw4 . '%'
+					)
+				);
+			} else {
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
 	}
 }
