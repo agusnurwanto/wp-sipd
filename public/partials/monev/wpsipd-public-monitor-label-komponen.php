@@ -430,9 +430,9 @@ $body_label .= '
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
     var type = url.searchParams.get("type");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print Monev Murni</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;"><span class="dashicons dashicons-printer"></span> Print Monev Murni</a>';
     }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Monev Pergeseran/Perubahan</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-printer"></span> Print Monev Pergeseran/Perubahan</a>';
     }
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
