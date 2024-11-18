@@ -3131,14 +3131,21 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_label_komponen()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$tahun = $wpdb->get_results('
+			SELECT 
+				tahun_anggaran 
+			FROM data_unit 
+			GROUP BY tahun_anggaran',ARRAY_A
+		);
 		$tahun_anggaran = array();
+		$tahun_anggaran_selected = get_option(WPSIPD_TAHUN_ANGGARAN);
 		foreach ($tahun as $k => $v) {
 			$tahun_anggaran[$v['tahun_anggaran']] = $v['tahun_anggaran'];
 		}
 		$label = array(
 			Field::make('select', 'crb_tahun_anggaran', __('Pilih Tahun Anggaran'))
-				->add_options($tahun_anggaran),
+				->add_options($tahun_anggaran)
+				->set_default_value($tahun_anggaran_selected),
 			Field::make('html', 'crb_daftar_label_komponen')
 				->set_html('
             		<style>

@@ -84,7 +84,7 @@ if (
                 </td>
                 <td class="text-center">
                     <h4 contenteditable="true" class="mb-1">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
-                    <h4 contenteditable="true" class="mb-1">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
+                    <h4 contenteditable="true" class="mb-1 namaSkpd">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
                     <div contenteditable="true">Jl. xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                     <div contenteditable="true">Telp. xxxxxxxxxxxxxxxxxxxxxxxxx</div>
                 </td>
@@ -115,51 +115,8 @@ if (
             <tr>
                 <th style="width: 15%;">KEPADA</th>
                 <td style="width: 10px;">:</td>
-                <td>
-                    <table>
-                        <tr>
-                            <td style="width: 5%;">1</td>
-                            <td style="width: 25%;">Nama</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>NIP</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Pangkat/Gol.Ruang</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Jabatan</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                    </table>
-                    <table class="mt-2">
-                        <tr>
-                            <td style="width: 5%;">2</td>
-                            <td style="width: 25%;">Nama</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>NIP</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Pangkat/Gol.Ruang</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Jabatan</td>
-                            <td>: <span contenteditable="true">xxxxxxxxxxxxxxxxxx</span></td>
-                        </tr>
-                    </table>
+                <td id="list_pegawai">
+                    
                 </td>
             </tr>
             <tr>
@@ -183,7 +140,7 @@ if (
                             <td style="text-align: left; padding-top : 0;">Pada Tanggal : <span id="tanggalSppd"></span></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-bottom : 0;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0;" class="namaSkpd">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
                             <td style="text-align: center; padding-top : 0;">Selaku Pengguna Anggaran</td>
@@ -192,13 +149,13 @@ if (
                             <td style="height: 80px;"></td> <!-- Space for signature -->
                         </tr>
                         <tr>
-                            <td style="font-weight: 700; text-decoration: underline; text-align: center; padding-bottom : 0;" class="signature-name text_uppercase">xxxxxxxxxxxxxxxx</td>
+                            <td style="font-weight: 700; text-decoration: underline; text-align: center; padding-bottom : 0;" class="signature-name text_uppercase namaKepala">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-bottom : 0; padding-top : 0;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0; padding-top : 0;" class="pangkatKepala">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-top : 0;">NIP. xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-top : 0;">NIP. <span class="nipKepala">xxxxxxxxxxxxxx</span></td>
                         </tr>
                     </table>
                 </td>
@@ -208,6 +165,7 @@ if (
 </body>
 <script>
     jQuery(document).ready(function() {
+        window.nomor_spt = ''
         get_spt();
 
         var extend_action = '';
@@ -230,8 +188,10 @@ if (
             dataType: 'json',
             success: function(response) {
                 console.log(response);
-                jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
+                    window.nomor_spt = response.data.nomor_spt
+                    get_sppd()
+
                     jQuery('.nomor_spt').text(response.data.nomor_spt)
                     jQuery('.dasar_spt').text(response.data.dasar_spt)
                     jQuery('.tujuan_spt').text(response.data.tujuan_spt)
@@ -241,6 +201,40 @@ if (
                 }
             },
             error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function get_sppd() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            data: {
+                action: 'get_data_sppd_by_nomor',
+                api_key: ajax.api_key,
+                nomor_spt: nomor_spt,
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                if (response.status === 'success') {
+                    jQuery('.namaSkpd').text(response.data.skpd.nama_skpd)
+                    jQuery('.namaKepala').text(response.data.skpd.namakepala)
+                    jQuery('.pangkatKepala').text(response.data.skpd.pangkatkepala)
+                    jQuery('.nipKepala').text(response.data.skpd.nipkepala)
+                    jQuery('#list_pegawai').html(response.data.html)
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
                 console.error(xhr.responseText);
                 jQuery('#wrap-loading').hide();
                 alert('Terjadi kesalahan saat mengirim data!');

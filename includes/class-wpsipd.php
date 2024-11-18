@@ -1105,12 +1105,14 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_datatable_data_spt',  $plugin_public, 'get_datatable_data_spt');
 		$this->loader->add_action('wp_ajax_hapus_data_spt_by_id',  $plugin_public, 'hapus_data_spt_by_id');
 		$this->loader->add_action('wp_ajax_get_data_spt_by_id',  $plugin_public, 'get_data_spt_by_id');
+		$this->loader->add_action('wp_ajax_get_data_spt_by_nomor',  $plugin_public, 'get_data_spt_by_nomor');
 		$this->loader->add_action('wp_ajax_tambah_data_spt',  $plugin_public, 'tambah_data_spt');
 
 		$this->loader->add_action('wp_ajax_get_table_pegawai_spt_sppd',  $plugin_public, 'get_table_pegawai_spt_sppd');
 		$this->loader->add_action('wp_ajax_tambah_data_sppd',  $plugin_public, 'tambah_data_sppd');
 		$this->loader->add_action('wp_ajax_hapus_data_sppd_by_id',  $plugin_public, 'hapus_data_sppd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_sppd_by_id',  $plugin_public, 'get_data_sppd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_sppd_by_nomor',  $plugin_public, 'get_data_sppd_by_nomor');
 
 		$this->loader->add_action('wp_ajax_nopriv_get_serapan_anggaran_capaian_kinerja',  $plugin_public, 'get_serapan_anggaran_capaian_kinerja');
 		$this->loader->add_action('wp_ajax_get_serapan_anggaran_capaian_kinerja',  $plugin_public, 'get_serapan_anggaran_capaian_kinerja');

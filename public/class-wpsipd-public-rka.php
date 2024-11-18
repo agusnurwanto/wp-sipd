@@ -3584,6 +3584,7 @@ class Wpsipd_Public_RKA
                     'namaPegawai'        => 'required',
                     'nipPegawai'         => 'required',
                     'golPegawai'         => 'required',
+                    'jabatanPegawai'     => 'required',
                     'tempatBerangkat'    => 'required',
                     'tanggalBerangkat'   => 'required',
                     'tempatTujuan'       => 'required',
@@ -3624,12 +3625,20 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
+                // incoming feature
+                // cek postData[namaPegawai] sebelum masuk ke db, jika ada maka itu id pegawai
+                // jika tidak ada maka itu nama pegawai custom
+
                 $data = array(
                     'tahun_anggaran'        => sanitize_text_field($postData['tahun_anggaran']),
                     'nomor_spt'             => sanitize_text_field($postData['nomor_spt']),
                     'tgl_ttd_sppd'          => sanitize_text_field($postData['tanggalSppd']),
                     'nomor_sppd'            => sanitize_text_field($postData['nomorSppd']),
                     'id_pegawai'            => sanitize_text_field($postData['']),
+                    'nama_pegawai'          => sanitize_text_field($postData['namaPegawai']),
+                    'nip_pegawai'           => sanitize_text_field($postData['nipPegawai']),
+                    'pangkat_gol_pegawai'   => sanitize_text_field($postData['golPegawai']),
+                    'jabatan_pegawai'       => sanitize_text_field($postData['jabatanPegawai']),
                     'tempat_berangkat'      => sanitize_text_field($postData['tempatBerangkat']),
                     'tgl_berangkat'         => sanitize_text_field($postData['tanggalBerangkat']),
                     'tempat_tujuan'         => sanitize_text_field($postData['tempatTujuan']),
@@ -3966,8 +3975,13 @@ class Wpsipd_Public_RKA
 
                         $tbody .= '<tr>';
                         $tbody .= '<td class="text-center">' . $counter++ . '</td>';
-                        $tbody .= '<td class="text-center">-</td>';
-                        $tbody .= '<td class="text-center">-</td>';
+
+                        // incoming feature
+                        // cek id pegawai apakah ada di tabel pegawai
+                        // jika tidak ada maka tampilkan nama custom
+                        $tbody .= '<td class="text-left">' . $data['nama_pegawai'] . '</td>';
+                        $tbody .= '<td class="text-center">' . $data['jabatan_pegawai'] . '</td>';
+
                         $tbody .= '<td class="text-center">' . $data['tempat_berangkat'] . '</td>';
                         $tbody .= '<td class="text-center">' . $data['tempat_tujuan'] . '</td>';
                         $tbody .= '<td class="text-center">' . $btn . '</td>';
@@ -4028,15 +4042,26 @@ class Wpsipd_Public_RKA
         // Page-type-based authorization logic
         switch ($page_type) {
             case 'sppd':
-                //roles validation
+                // Default return structure
+                $ret = array(
+                    'status'    => 'error',
+                    'message'   => 'User tidak diijinkan!',
+                    'options'   => '',
+                    'id_skpd'   => '',
+                    'nama_skpd' => '',
+                    'role'      => implode($user_data->roles),
+                    'pegawai'   => ''
+                );
+
+                // Roles validation
                 $allowed_roles = $this->allowed_roles_sppd();
                 if (empty(array_intersect($allowed_roles, $user_data->roles))) {
-                    return array(
-                        'status'  => 'error',
-                        'message' => 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!'
-                    );
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    return $ret;
                 }
+
                 if (in_array('administrator', $user_data->roles)) {
+                    //data skpd
                     $data_skpd = $wpdb->get_results(
                         $wpdb->prepare('
                             SELECT
@@ -4046,32 +4071,46 @@ class Wpsipd_Public_RKA
                             FROM data_unit
                             WHERE active = 1
                               AND tahun_anggaran = %d
+                              AND active = 1
                             ORDER BY kode_skpd ASC
                         ', $tahun_anggaran),
                         ARRAY_A
                     );
+                    // $list_pegawai = array(
+                    //     '01' => array(
+                    //         'nama'    => 'Lorem Ipsum, S.KOM',
+                    //         'nip'     => '190190191091019',
+                    //         'pangkat' => 'Pelaku/VVA',
+                    //         'jabatan' => 'Pemimpn Badan'
+                    //     ),
+                    //     '02' => array(
+                    //         'nama'    => 'dolor sit amet, S.Sos',
+                    //         'nip'     => '190190191091019',
+                    //         'pangkat' => 'Pelaku/VVA',
+                    //         'jabatan' => 'Sekretaris Badan'
+                    //     ),
+                    //     '03' => array(
+                    //         'nama'    => 'consectetur adipisicing elit, S.H',
+                    //         'nip'     => '190190191091019',
+                    //         'pangkat' => 'Pelaku/VVA',
+                    //         'jabatan' => 'Staff Badan'
+                    //     )
+                    // );
+
                     if (!empty($data_skpd)) {
                         $options = '<option value="">Pilih SKPD</option>';
                         foreach ($data_skpd as $data) {
                             $options .= '<option value="' . $data['id_skpd'] . '">' . $data['kode_skpd'] . ' ' . strtoupper($data['nama_skpd']) . '</option>';
                         }
-                        return array(
-                            'status'    => 'success',
-                            'message'   => 'Access Granted! Welcome Administrator!',
-                            'options'   => $options,
-                            'id_skpd'   => '',
-                            'nama_skpd' => '',
-                            'role'      => implode($user_data->roles)
-                        );
+
+                        $ret['status']  = 'success';
+                        $ret['message'] = 'Access Granted! Welcome Administrator!';
+                        $ret['options'] = $options;
+                        $ret['pegawai'] = '';
+                        return $ret;
                     } else {
-                        return array(
-                            'status'    => 'error',
-                            'message'   => 'Data SKPD tidak ditemukan!',
-                            'options'   => '',
-                            'id_skpd'   => '',
-                            'nama_skpd' => '',
-                            'role'      => implode($user_data->roles)
-                        );
+                        $ret['message'] = 'Data SKPD tidak ditemukan!';
+                        return $ret;
                     }
                 } else if (
                     in_array('PA', $user_data->roles)
@@ -4090,40 +4129,29 @@ class Wpsipd_Public_RKA
                             WHERE active = 1
                               AND tahun_anggaran = %d
                               AND nipkepala = %d
+                              AND active = 1
                         ', $tahun_anggaran, $nipkepala),
                         ARRAY_A
                     );
+
                     if (!empty($data_skpd)) {
                         $options = '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . strtoupper($data_skpd['nama_skpd']) . '</option>';
-                        return array(
-                            'status'    => 'success',
-                            'message'   => 'Access Granted! Welcome SKPD!',
-                            'options'   => $options,
-                            'id_skpd'   => $data_skpd['id_skpd'],
-                            'nama_skpd' => $data_skpd['nama_skpd'],
-                            'role'      => implode($user_data->roles)
-                        );
+
+                        $ret['status']    = 'success';
+                        $ret['message']   = 'Access Granted! Welcome SKPD!';
+                        $ret['options']   = $options;
+                        $ret['id_skpd']   = $data_skpd['id_skpd'];
+                        $ret['nama_skpd'] = $data_skpd['nama_skpd'];
+                        return $ret;
                     } else {
-                        return array(
-                            'status'    => 'error',
-                            'message'   => 'Data SKPD tidak ditemukan!',
-                            'options'   => '',
-                            'id_skpd'   => '',
-                            'nama_skpd' => '',
-                            'role'      => implode($user_data->roles)
-                        );
+                        $ret['message'] = 'Data SKPD tidak ditemukan!';
+                        return $ret;
                     }
                 } else {
-                    return array(
-                        'status'    => 'error',
-                        'message'   => 'User tidak diijinkan!',
-                        'options'   => '',
-                        'id_skpd'   => '',
-                        'nama_skpd' => '',
-                        'role'      => implode($user_data->roles)
-                    );
+                    return $ret; // Default error message
                 }
                 break;
+
             default:
                 return array(
                     'status'  => 'error',
@@ -4132,5 +4160,154 @@ class Wpsipd_Public_RKA
         }
 
         return;
+    }
+
+    function get_data_spt_by_nomor()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data' => array()
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $data_spt = $wpdb->get_row(
+                    $wpdb->prepare('
+						SELECT 
+							id_skpd
+						FROM data_spt_sppd
+						WHERE nomor_spt = %s
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                	', $_POST['nomor_spt'], $_POST['tahun_anggaran']),
+                    ARRAY_A
+                );
+                if (!empty($data_spt['id_skpd'])) {
+                    $data_skpd = $wpdb->get_row(
+                        $wpdb->prepare("
+                            SELECT 
+                                nama_skpd,
+                                namakepala,
+                                nipkepala,
+                                pangkatkepala
+                            FROM data_unit 
+                            WHERE id_skpd = %d 
+                              AND tahun_anggaran = %d
+                              AND active = 1
+                        ", $data_spt['id_skpd'], $_POST['tahun_anggaran']),
+                        ARRAY_A
+                    );
+                    $ret['data'] = $data_skpd;
+                } else {
+                    $ret['status']  = 'error';
+                    $ret['message'] = 'SKPD tidak ditemukan!';
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_data_sppd_by_nomor()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data' => array(
+                'skpd' => '',
+                'html' => ''
+            )
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $data_spt = $wpdb->get_row(
+                    $wpdb->prepare('
+						SELECT 
+							id_skpd
+						FROM data_spt_sppd
+						WHERE nomor_spt = %s
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                	', $_POST['nomor_spt'], $_POST['tahun_anggaran']),
+                    ARRAY_A
+                );
+                if (!empty($data_spt['id_skpd'])) {
+                    $data_skpd = $wpdb->get_row(
+                        $wpdb->prepare("
+                            SELECT 
+                                nama_skpd,
+                                namakepala,
+                                nipkepala,
+                                pangkatkepala
+                            FROM data_unit 
+                            WHERE id_skpd = %d 
+                              AND tahun_anggaran = %d
+                              AND active = 1
+                        ", $data_spt['id_skpd'], $_POST['tahun_anggaran']),
+                        ARRAY_A
+                    );
+                    $ret['data']['skpd'] = $data_skpd;
+                } else {
+                    $ret['status']  = 'error';
+                    $ret['message'] = 'SKPD tidak ditemukan!';
+                    die(json_encode($ret));
+                }
+                $data_sppd = $wpdb->get_results(
+                    $wpdb->prepare('
+                        SELECT 
+                            *
+                        FROM data_pegawai_spt_sppd
+                        WHERE nomor_spt = %s
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                	', $_POST['nomor_spt'], $_POST['tahun_anggaran']),
+                    ARRAY_A
+                );
+                $html = '';
+                $no = 1;
+                foreach ($data_sppd as $v) {
+                    $html .= '<table>
+                            <tr>
+                                <td style="width: 5%;">' . $no++ . '</td>
+                                <td style="width: 25%;">Nama</td>
+                                <td>: <span contenteditable="true">' . $v['nama_pegawai'] . '</span></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>NIP</td>
+                                <td>: <span contenteditable="true">' . $v['nip_pegawai'] . '</span></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Pangkat/Gol.Ruang</td>
+                                <td>: <span contenteditable="true">' . $v['pangkat_gol_pegawai'] . '</span></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Jabatan</td>
+                                <td>: <span contenteditable="true">' . $v['jabatan_pegawai'] . '</span></td>
+                            </tr>
+                        </table>';
+                }
+
+                $ret['data']['html'] = $html;
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
     }
 }

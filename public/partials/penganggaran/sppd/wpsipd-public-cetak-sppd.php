@@ -132,7 +132,7 @@ $sppd_rampung = $this->generatePage(
                 </td>
                 <td class="text-center">
                     <h4 class="mb-1">PEMERINTAH <?php echo strtoupper(get_option('_crb_daerah')); ?></h4>
-                    <h4 class="mb-1">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
+                    <h4 class="mb-1 namaSkpd">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</h4>
                     <div>Jl. xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                     <div>Telp. xxxxxxxxxxxxxxxxxxxxxxxxx</div>
                 </td>
@@ -171,7 +171,7 @@ $sppd_rampung = $this->generatePage(
             <tr>
                 <td class="number-column">1</td>
                 <td class="label-column">Pengguna Anggaran</td>
-                <td id="penggunaAnggaran">xxxxxxxxxxxxx</td>
+                <td class="namaKepala">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column">2</td>
@@ -196,7 +196,7 @@ $sppd_rampung = $this->generatePage(
             <tr>
                 <td class="number-column"></td>
                 <td class="label-column">c. Instansi</td>
-                <td id="instansi">xxxxxxxxxxxxx</td>
+                <td class="namaSkpd">xxxxxxxxxxxxx</td>
             </tr>
             <tr>
                 <td class="number-column"></td>
@@ -271,7 +271,7 @@ $sppd_rampung = $this->generatePage(
                             <td style="text-align: left; padding-top : 0;">Pada Tanggal : <span id="tanggalSppd"></span></td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-bottom : 0;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0;">KEPALA <span class="namaSkpd">XXXXXXXXXXXXXXXXXXX</span></td>
                         </tr>
                         <tr>
                             <td style="text-align: center; padding-top : 0;">Selaku Pengguna Anggaran</td>
@@ -280,13 +280,13 @@ $sppd_rampung = $this->generatePage(
                             <td style="height: 80px;"></td> <!-- Space for signature -->
                         </tr>
                         <tr>
-                            <td style="font-weight: 700; text-decoration: underline; text-align: center; padding-bottom : 0;" class="signature-name text_uppercase">xxxxxxxxxxxxxxxx</td>
+                            <td style="font-weight: 700; text-decoration: underline; text-align: center; padding-bottom : 0;" class="signature-name text_uppercase namaKepala">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-bottom : 0; padding-top : 0;">xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-bottom : 0; padding-top : 0;" class="pangkatKepala">xxxxxxxxxxxxxxxx</td>
                         </tr>
                         <tr>
-                            <td style="text-align: center; padding-top : 0;">NIP. xxxxxxxxxxxxxxxx</td>
+                            <td style="text-align: center; padding-top : 0;">NIP. <span class="nipKepala">xxxxxxxxxxxxxxx</span></td>
                         </tr>
                     </table>
                 </td>
@@ -300,6 +300,7 @@ $sppd_rampung = $this->generatePage(
         window.sppdRampungUrl = '<?php echo $sppd_rampung; ?>'
         window.id_sppd = '<?php echo $_GET['id_sppd']; ?>'
         window.tahun_anggaran = '<?php echo $_GET['tahun_anggaran']; ?>'
+        window.nomor_spt = ''
 
         get_sppd()
 
@@ -325,11 +326,16 @@ $sppd_rampung = $this->generatePage(
             dataType: 'json',
             success: function(response) {
                 console.log(response);
-                jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
                     let totalHari = hitungSelisihHari(response.data.tgl_berangkat, response.data.tgl_kembali)
 
+                    window.nomor_spt = response.data.nomor_spt
+                    get_spt_by_nomor()
+
                     jQuery('#nomorSppd').text(response.data.nomor_sppd)
+                    jQuery('#namaPegawai').text(response.data.nama_pegawai)
+                    jQuery('#nip').text(response.data.nip_pegawai)
+                    jQuery('#pangkatGol').text(response.data.pangkat_gol_pegawai)
                     jQuery('#alatAngkut').text(response.data.alat_angkut)
                     jQuery('#tempatBerangkat').text(response.data.tempat_berangkat)
                     jQuery('#tempatTujuan').text(response.data.tempat_tujuan)
@@ -337,8 +343,40 @@ $sppd_rampung = $this->generatePage(
                     jQuery('#tanggalKembali').text(formatTanggal(response.data.tgl_kembali))
                     jQuery('#tanggalSppd').text(formatTanggal(response.data.tgl_ttd_sppd))
                     jQuery('#keterangan').text(response.data.keterangan)
+                    jQuery('#maksudPerjalanan').text(response.data.maksud_sppd)
                     jQuery('#lamaPerjalanan').text(totalHari + ' Hari')
 
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function get_spt_by_nomor() {
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            data: {
+                action: 'get_data_spt_by_nomor',
+                api_key: ajax.api_key,
+                nomor_spt: nomor_spt,
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery('.namaKepala').text(response.data.namakepala)
+                    jQuery('.namaSkpd').text(response.data.nama_skpd)
+                    jQuery('.nipKepala').text(response.data.nipkepala)
+                    jQuery('.pangkatKepala').text(response.data.pangkatkepala)
                 } else {
                     alert(response.message);
                 }
@@ -357,7 +395,11 @@ $sppd_rampung = $this->generatePage(
         const tglAkhir = new Date(tanggalAkhir);
 
         const selisihWaktu = tglAkhir - tglAwal;
-        const selisihHari = Math.round(selisihWaktu / satuHari);
+        let selisihHari = Math.round(selisihWaktu / satuHari);
+        if (selisihHari == 0) {
+            //minimal sehari
+            selisihHari = 1
+        }
 
         return selisihHari;
     }
