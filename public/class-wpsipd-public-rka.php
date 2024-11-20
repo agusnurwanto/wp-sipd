@@ -3859,12 +3859,12 @@ class Wpsipd_Public_RKA
         global $wpdb;
         $ret = array(
             'status' => 'success',
-            'message' => 'Berhasil hapus data!',
-            'data' => array()
+            'message' => 'Berhasil hapus data!'
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
-                //roles validation
+                // Validasi roles
                 $user_data = wp_get_current_user();
                 $allowed_roles = $this->allowed_roles_sppd();
                 if (empty(array_intersect($allowed_roles, $user_data->roles))) {
@@ -3873,24 +3873,61 @@ class Wpsipd_Public_RKA
                         'message' => 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!'
                     );
                 }
-                $ret['data'] = $wpdb->update(
+
+                // Ambil nomor SPT berdasarkan ID
+                $nomor_spt = $wpdb->get_var(
+                    $wpdb->prepare(
+                        'SELECT nomor_spt 
+                         FROM data_spt_sppd 
+                         WHERE id = %d 
+                           AND active = 1',
+                        $_POST['id']
+                    )
+                );
+
+                if (!$nomor_spt) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Nomor SPT tidak ditemukan atau sudah dihapus!';
+                    die(json_encode($ret));
+                }
+
+                // Cek dan hapus data terkait di pegawai
+                $affected_rows_pegawai = $wpdb->update(
+                    'data_pegawai_spt_sppd',
+                    array('active' => 0),
+                    array(
+                        'nomor_spt' => $nomor_spt,
+                        'active'    => 1
+                    )
+                );
+
+                // Hapus data di tabel spt
+                $affected_rows_spt = $wpdb->update(
                     'data_spt_sppd',
                     array('active' => 0),
                     array(
                         'id' => $_POST['id']
                     )
                 );
+
+                if ($affected_rows_spt === false || $affected_rows_pegawai === false) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Terjadi kesalahan saat menghapus data!';
+                } else {
+                    $ret['message'] = 'Berhasil hapus data!';
+                }
             } else {
-                $ret['status']    = 'error';
-                $ret['message']    = 'Api key tidak ditemukan!';
+                $ret['status'] = 'error';
+                $ret['message'] = 'API key tidak ditemukan!';
             }
         } else {
-            $ret['status']    = 'error';
-            $ret['message']    = 'Format Salah!';
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
         }
 
         die(json_encode($ret));
     }
+
 
     function hapus_data_sppd_by_id()
     {
@@ -4308,6 +4345,77 @@ class Wpsipd_Public_RKA
             $ret['message'] = 'Format Salah!';
         }
 
+        die(json_encode($ret));
+    }
+
+    function tambah_label_rinci_bl()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil Tag Rincian Belanja!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $user_data = wp_get_current_user();
+
+                $postData = $_POST;
+                // Define validation rules
+                $validationRules = [
+                    'tahun_anggaran' => 'required|numeric',
+                    'id_label'       => 'required',
+                    'rincianBelanja' => 'required',
+                ];
+
+                // Validate data
+                $errors = $this->validate($postData, $validationRules);
+
+                if (!empty($errors)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = implode(" \n ", $errors);
+                    die(json_encode($ret));
+                }
+
+                $data = array(
+                    'tahun_anggaran'        => sanitize_text_field($postData['tahun_anggaran']),
+                    'id_rinci_sub_bl'       => sanitize_text_field($postData['rincianBelanja']),
+                    'id_label_komponen'     => sanitize_text_field($postData['id_label']),
+                    'user'                  => $user_data->display_name,
+                    'active'                => 1
+                );
+
+                $cek_data = $wpdb->get_var(
+                    $wpdb->prepare('
+                        SELECT id
+                        FROM data_mapping_label
+                        WHERE id_rinci_sub_bl = %d
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                    ', $postData['id_rinci_sub_bl'], $postData['tahun_anggaran']),
+                );
+
+                // Update or insert
+                if ($cek_data) {
+                    $wpdb->update(
+                        'data_mapping_label',
+                        $data,
+                        array('id' => $cek_data)
+                    );
+                    $ret['message'] = 'Berhasil update data!';
+                } else {
+                    $wpdb->insert(
+                        'data_mapping_label',
+                        $data
+                    );
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
         die(json_encode($ret));
     }
 }

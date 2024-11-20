@@ -90,9 +90,9 @@ $sql = $wpdb->prepare("
            AND m.tahun_anggaran=r.tahun_anggaran
            AND m.id_rinci_sub_bl=r.id_rinci_sub_bl
     LEFT JOIN data_realisasi_rincian rr 
-            ON rr.active=r.active
-            AND rr.tahun_anggaran=r.tahun_anggaran
-            AND rr.id_rinci_sub_bl=r.id_rinci_sub_bl
+           ON rr.active=r.active
+          AND rr.tahun_anggaran=r.tahun_anggaran
+          AND rr.id_rinci_sub_bl=r.id_rinci_sub_bl
     WHERE r.active=1 
       AND r.tahun_anggaran=%d
       AND m.id_label_komponen=%d
@@ -508,17 +508,17 @@ $body_label .= '
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-group col-md-12">
+                                <label for="labelTag">Label / Tag Rincian Belanja</label>
+                                <input type="text" name="labelTag" class="form-control" id="labelTag" value="<?php echo $label_db['nama']; ?>" disabled>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
                                 <label for="idSkpd">Pilih SKPD</label>
                                 <select name="idSkpd" class="form-control" id="idSkpd" <?php echo $disabled; ?>>
                                     <option value="">Pilih SKPD</option>
                                     <?php echo $options; ?>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="labelTag">Label / Tag Rincian Belanja</label>
-                                <input type="text" name="labelTag" class="form-control" id="labelTag" value="<?php echo $label_db['nama']; ?>" disabled>
                             </div>
                         </div>
                     </div>
@@ -528,30 +528,36 @@ $body_label .= '
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="program">Program</label>
-                                <select name="program" class="form-control" id="program">
-                                </select>
+                                <input type="text" name="program" class="form-control" id="program" readonly>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="kegiatan">Pilih Kegiatan</label>
-                                <select name="kegiatan" class="form-control" id="kegiatan">
-                                </select>
+                                <input type="text" name="kegiatan" class="form-control" id="kegiatan" readonly>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="subKegiatan">Pilih Sub Kegiatan</label>
-                                <select name="subKegiatan" class="form-control" id="subKegiatan">
+                                <select name="subKegiatan" class="form-control" id="subKegiatan" disabled>
                                 </select>
                             </div>
                         </div>
+                        <div class="form-row text-end">
+                            <button class="btn btn-warning" id="btnPreviewData"><span class="dashicons dashicons-media-document"></span> Preview Rincian Belanja</button>
+                        </div>
                         <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="rincianBelanja">Pilih Rincian Belanja</label>
-                                <select name="rincianBelanja" class="form-control" id="rincianBelanja">
-                                </select>
-                            </div>
+                            <table id="tableRincian" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Rincian</th>
+                                        <th>Kode BL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -579,11 +585,6 @@ $body_label .= '
         }
         jQuery('#action-sipd #excel').after(extend_action);
 
-        jQuery('#idSkpd').select2({
-            width: '100%',
-            dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
-        });
-
         // Event onchange untuk select idSkpd
         jQuery("#idSkpd").change(function() {
             const id_skpd = jQuery(this).val();
@@ -608,63 +609,17 @@ $body_label .= '
                         if (response.status === "success") {
                             const data = response.data;
 
-                            // Kosongkan semua dropdown
-                            jQuery("#program, #kegiatan, #subKegiatan, #rincianBelanja").empty();
+                            jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>');
 
-                            jQuery("#program").append('<option value="">Pilih Program</option>');
-                            jQuery("#kegiatan").append('<option value="">Pilih Kegiatan</option>');
-                            jQuery("#subKegiatan").append('<option value="">Pilih Sub Kegiatan</option>');
-                            jQuery("#rincianBelanja").append('<option value="">Pilih Rincian Belanja</option>');
-
-                            // Validasi untuk menghindari duplikasi berdasarkan kode program
-                            const uniquePrograms = new Set(); // Gunakan Set untuk memastikan unik
                             data.forEach(function(item) {
-                                if (!uniquePrograms.has(item.kode_program)) {
-                                    uniquePrograms.add(item.kode_program); // Tambahkan kode program ke Set
-                                    jQuery("#program").append(
-                                        `<option value="${item.id_program}">${item.kode_program} ${item.nama_program}</option>`
-                                    );
-                                }
+                                jQuery("#subKegiatan").append(
+                                    `<option value="${item.kode_sbl}" data-program="${item.nama_program}" data-kegiatan="${item.nama_giat}">
+                                ${item.kode_sub_giat} ${item.nama_sub_giat} (Pagu: ${item.pagu})
+                            </option>`
+                                );
                             });
 
-                            // Reset dropdown lainnya (jika ada relasi antar dropdown)
-                            jQuery("#program").change(function() {
-                                const id_program = jQuery(this).val();
-                                if (id_program) {
-                                    // Filter data berdasarkan ID Program
-                                    const kegiatan = data.filter((item) => item.id_program === id_program);
-
-                                    // Kosongkan dan isi dropdown Kegiatan
-                                    jQuery("#kegiatan").empty().append('<option value="">Pilih Kegiatan</option>');
-                                    kegiatan.forEach(function(item) {
-                                        jQuery("#kegiatan").append(
-                                            `<option value="${item.id_giat}">${item.kode_giat} ${item.nama_giat}</option>`
-                                        );
-                                    });
-
-                                    // Reset dropdown Sub Kegiatan dan Rincian Belanja
-                                    jQuery("#subKegiatan, #rincianBelanja").empty().append('<option value="">Pilih</option>');
-                                }
-                            });
-
-                            jQuery("#kegiatan").change(function() {
-                                const id_kegiatan = jQuery(this).val();
-                                if (id_kegiatan) {
-                                    // Filter data berdasarkan ID Kegiatan
-                                    const subKegiatan = data.filter((item) => item.id_giat === id_kegiatan);
-
-                                    // Kosongkan dan isi dropdown Sub Kegiatan
-                                    jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>');
-                                    subKegiatan.forEach(function(item) {
-                                        jQuery("#subKegiatan").append(
-                                            `<option value="${item.id_sub_giat}">${item.kode_sub_giat} ${item.nama_sub_giat}</option>`
-                                        );
-                                    });
-
-                                    // Reset dropdown Rincian Belanja
-                                    jQuery("#rincianBelanja").empty().append('<option value="">Pilih</option>');
-                                }
-                            });
+                            jQuery("#subKegiatan").prop("disabled", false);
                         } else {
                             alert(response.message);
                         }
@@ -676,7 +631,77 @@ $body_label .= '
                     },
                 });
             } else {
-                jQuery("#program, #kegiatan, #subKegiatan, #rincianBelanja").empty();
+
+                jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>').prop("disabled", true);
+                jQuery("#program, #kegiatan").val("");
+            }
+        });
+
+
+        jQuery("#subKegiatan").change(function() {
+            const selectedOption = jQuery(this).find(":selected");
+            const program = selectedOption.data("program");
+            const kegiatan = selectedOption.data("kegiatan");
+
+
+            jQuery("#program").val(program || "");
+            jQuery("#kegiatan").val(kegiatan || "");
+
+
+            jQuery("#btnPreviewData").prop("disabled", !selectedOption.val());
+        });
+
+
+        jQuery("#btnPreviewData").click(function() {
+            const kode_sbl = jQuery("#subKegiatan").val();
+
+            if (kode_sbl) {
+                jQuery("#wrap-loading").show();
+
+
+                jQuery.ajax({
+                    url: ajax.url,
+                    type: "POST",
+                    data: {
+                        action: "get_sub_keg_rka_sipd",
+                        api_key: ajax.api_key,
+                        tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
+                        kode_sbl: kode_sbl,
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        jQuery("#wrap-loading").hide();
+                        console.log(response);
+
+                        if (response.status === "success") {
+                            const data = response.data;
+
+
+                            const tableBody = jQuery("#tableRincian tbody");
+                            tableBody.empty();
+
+
+                            data.forEach(function(item) {
+                                tableBody.append(`
+                            <tr>
+                                <td>${item.nama_komponen}</td>
+                                <td>${item.kode_bl}</td>
+                            </tr>
+                        `);
+                            });
+
+
+                            jQuery("#tableRincian").show();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        jQuery("#wrap-loading").hide();
+                        alert("Terjadi kesalahan saat memuat rincian data!");
+                    },
+                });
             }
         });
 
@@ -684,5 +709,67 @@ $body_label .= '
 
     function showModalTambah() {
         jQuery('#modalTambahData').modal('show')
+        jQuery('#idSkpd').val('')
+        jQuery('#program').val('')
+        jQuery('#kegiatan').val('')
+        jQuery('#subKegiatan').val('')
+        jQuery('#rincianBelanja').val('')
+        jQuery('#idSkpd').select2({
+            width: '100%',
+            dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
+        });
+    }
+
+    function submitData() {
+        const validationRules = {
+            'rincianBelanja': 'Data Rincian Belanja tidak boleh kosong!',
+            // Tambahkan field lain jika diperlukan
+        };
+
+        const {
+            error,
+            data
+        } = validateForm(validationRules);
+        if (error) {
+            return alert(error);
+        }
+
+        const id_label = '<?php echo $input['id_label']; ?>';
+        const tahun_anggaran = '<?php echo $input['tahun_anggaran']; ?>';
+
+        const tempData = new FormData();
+        tempData.append('action', 'tambah_label_rinci_bl');
+        tempData.append('api_key', ajax.api_key);
+        tempData.append('id_label', id_label);
+        tempData.append('tahun_anggaran', tahun_anggaran);
+
+        for (const [key, value] of Object.entries(data)) {
+            tempData.append(key, value);
+        }
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'post',
+            url: ajax.url,
+            dataType: 'json',
+            data: tempData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(response) {
+                alert(response.message);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery('#modalTambahData').modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery("#wrap-loading").hide();
+                alert("Terjadi kesalahan saat mengirim data!");
+            },
+        });
     }
 </script>
