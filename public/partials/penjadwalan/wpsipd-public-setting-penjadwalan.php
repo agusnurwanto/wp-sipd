@@ -1249,7 +1249,7 @@ foreach($data_skpd_db as $skpd){
 						var pesan = 'Copy data SIPD ke lokal '+list_skpd[id_skpd].nama_skpd;
 						console.log(pesan);
 						jQuery('#pesan-loading').html(pesan);
-						jQuery.ajax({
+						relayAjax({
 							url: ajax.url,
 							type: 'post',
 							dataType: "json",
