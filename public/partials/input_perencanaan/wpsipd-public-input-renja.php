@@ -776,6 +776,8 @@ foreach ($data_all['data'] as $sub_skpd) {
 
                         // get sumber dana sub kegiatan
                         $dana_sub_giat_array = array();
+                        $pagudana = 0;
+                        $pagudana_usulan = 0;
                         if(!empty($sub_giat['dana_sub_giat'])){
                             foreach($sub_giat['dana_sub_giat'] as $v_dana){
                                 // cek jika ada sumber dana di penetapan
@@ -786,6 +788,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                                     }else{
                                         $dana_sub_giat_array[] = $v_dana['namadana'];
                                     }
+                                    $pagudana += $v_dana['pagudana'];
                                 // cek jika ada sumber dana di usulan
                                 }else if(!empty($v_dana['nama_dana_usulan'])){
                                     $dana_sub_giat = explode('] - ', $v_dana['nama_dana_usulan']);
@@ -794,6 +797,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                                     }else{
                                         $dana_sub_giat_array[] = $v_dana['nama_dana_usulan'];
                                     }
+                                    $pagudana_usulan += $v_dana['pagudana'];
                                 }
                             }
                         }
@@ -843,6 +847,11 @@ foreach ($data_all['data'] as $sub_skpd) {
                             $warning_pemutakhiran = 'mutakhirkan';
                             $total_sub_keg++;
                         }
+
+                        $warning_pagudana = '';
+                        if($sub_giat['total'] != $pagudana){
+                            $warning_pagudana = 'mutakhirkan';
+                        }
                         $body .= '
                             <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
                                 <td class="kiri kanan bawah '.$warning_pemutakhiran.'">'.$kd_urusan.'</td>
@@ -860,7 +869,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah data_target_keg">'.$target_output_giat.'</td>
                                 '.$tbody_pergeseran.'
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
-                                <td class="kanan bawah">'.$dana_sub_giat.'</td>
+                                <td class="kanan bawah '.$warning_pagudana.'">'.$dana_sub_giat.'<br>'.number_format($pagudana,0,",",".").'</td>
                                 <td class="kanan bawah data_catatan">'.$catatan.'</td>
                                 <td class="kanan bawah data_n1_indikator">'.$ind_n_plus.'</td>
                                 <td class="kanan bawah data_n1_target">'.$target_ind_n_plus.'</td>
