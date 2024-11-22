@@ -2577,12 +2577,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								satuan = %s AND
 								spek = %s AND
 								harga = %s AND
-								kode_kel_standar_harga = %s",
+								kode_kel_standar_harga = %s AND
+								tahun_anggaran=%d",
 							$nama_standar_harga,
 							$satuan,
 							$spek,
 							$harga,
-							$data_kategori[0]['kode_kategori']
+							$data_kategori[0]['kode_kategori'],
+							$tahun_anggaran
 						), ARRAY_A);
 
 						if (!empty($data_avoid) || !empty($data_avoid_usulan)) {

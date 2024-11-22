@@ -241,8 +241,8 @@ $body .='
 						$link = $this->get_link_post($custom_post);
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 
-						$target_rak = !empty($rfk['pagu_simda']) ? ($rfk['rak'] / $rfk['pagu_simda']) * 100 : 100;
-						$deviasi = !empty($target_rak) ? (($target_rak-$rfk['capaian'])/$target_rak) * 100 : 100;
+						$target_rak = (!empty($rfk['pagu_simda']) && $rfk['pagu_simda'] != 0) ? ($rfk['rak'] / $rfk['pagu_simda']) * 100 : 100;
+						$deviasi = (!empty($target_rak) && $target_rak != 0) ? (($target_rak - $rfk['capaian']) / $target_rak) * 100 : 100;						
 						
 						$data_all['data'][] = array(
 			    			'id_skpd' => $unit['id_skpd'],
@@ -524,7 +524,7 @@ $body .='
 		}
 
 		// $realisasi_fisik = $value['realisasi_fisik'];
-		$realisasi_fisik = !empty($value['dpa_sipd']) ? $this->pembulatan(($value['nilai_realisasi_fisik']/$value['dpa_sipd'])*100) : 100;
+		$realisasi_fisik = (!empty($value['dpa_sipd']) && $value['dpa_sipd'] != 0) ? $this->pembulatan(($value['nilai_realisasi_fisik'] / $value['dpa_sipd']) * 100) : 100;
 		$body.='
 	    	<tr data-idskpd="'.$idskpd.'">
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].'</td>

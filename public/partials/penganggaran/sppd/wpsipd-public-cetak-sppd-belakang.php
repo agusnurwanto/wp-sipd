@@ -119,26 +119,26 @@ if (
                         <tr>
                             <td>Berangkat dari</td>
                             <td class="colon-spacing">:</td>
-                            <td class="input-field"></td>
+                            <td class="input-field berangkat"></td>
                         </tr>
                         <tr>
                             <td>Ke</td>
                             <td class="colon-spacing">:</td>
-                            <td class="input-field"></td>
+                            <td class="input-field tujuan"></td>
                         </tr>
                         <tr>
                             <td>Pada tanggal</td>
                             <td class="colon-spacing">:</td>
-                            <td class="input-field"></td>
+                            <td class="input-field" id="tglBerangkat"></td>
                         </tr>
                     </table>
                     <div class="signature-section">
-                        <div>xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                        <div class="namaSkpd">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                         <div>Selaku Pengguna Anggaran</div>
                         <br><br>
-                        <div class="signature-name">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
-                        <div>xxxxxxxxxxxxxxxxxxxx</div>
-                        <div>NIP. xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                        <div class="signature-name namaKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                        <div class="pangkatKepala">xxxxxxxxxxxxxxxxxxxx</div>
+                        <div>NIP. <span class="nipKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>
                     </div>
                 </td>
             </tr>
@@ -151,12 +151,12 @@ if (
                         <tr>
                             <td>Tiba di</td>
                             <td class="colon-spacing">:</td>
-                            <td class="input-field"></td>
+                            <td class="input-field tujuan"></td>
                         </tr>
                         <tr>
                             <td>Pada tanggal</td>
                             <td class="colon-spacing">:</td>
-                            <td class="input-field"></td>
+                            <td class="input-field" id="tglSampai"></td>
                         </tr>
                         <tr>
                             <td class="signature-field-2"></td>
@@ -279,26 +279,26 @@ if (
             <tr>
                 <td class="number-column">V</td>
                 <td colspan="2">
-                    <div>Tiba kembali di : &nbsp;</div>
-                    <div>(tempat kedudukan) : &nbsp;</div>
+                    <div>Tiba kembali di : <span id="tglKembali"></span> </div>
+                    <div>(tempat kedudukan) : <span class="berangkat"></span> </div>
                     <div>Telah diperiksa dengan keterangan bahwa perjalanan tersebut diatas benar dilakukan atas perintahnya dan semata-mata untuk kepentingan jabatan dalam waktu yang sesingkat-singkatnya.</div>
                     <table class="full-width mt-4">
                         <tr>
                             <td style="width: 50%; text-align: center;">
-                                <div>xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="namaSkpd">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                                 <div>Selaku Pengguna Anggaran</div>
                                 <br><br>
-                                <div class="signature-name">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
-                                <div>xxxxxxxxxxxxxxxx</div>
-                                <div>NIP. xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="signature-name namaKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="pangkatKepala">xxxxxxxxxxxxxxxx</div>
+                                <div>NIP. <span class="nipKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>
                             </td>
                             <td style="width: 50%; text-align: center;">
-                                <div>xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="namaSkpd">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
                                 <div>Selaku Pengguna Anggaran</div>
                                 <br><br>
-                                <div class="signature-name">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
-                                <div>xxxxxxxxxxxxxxxx</div>
-                                <div>NIP. xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="signature-name namaKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                                <div class="pangkatKepala">xxxxxxxxxxxxxxxx</div>
+                                <div>NIP. <span class="nipKepala">xxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>
                             </td>
                         </tr>
                     </table>
@@ -324,9 +324,79 @@ if (
 </body>
 <script>
     jQuery(document).ready(function() {
+        get_sppd()
         var extend_action = '';
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Surat</button>';
         extend_action += '</div>';
         jQuery('#action-sipd').append(extend_action);
     })
+
+    function get_sppd() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            data: {
+                action: 'get_data_sppd_by_id',
+                api_key: ajax.api_key,
+                id: '<?php echo $_GET['id_sppd']; ?>',
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                if (response.status === 'success') {
+
+                    window.nomor_spt = response.data.nomor_spt
+                    get_spt_by_nomor()
+
+                  
+                    jQuery('.berangkat').text(response.data.tempat_berangkat)
+                    jQuery('.tujuan').text(response.data.tempat_tujuan)
+                    jQuery('#tglBerangkat').text(formatTanggal(response.data.tgl_berangkat))
+                    jQuery('#tglSampai').text(formatTanggal(response.data.tgl_sampai))
+                    jQuery('#tglKembali').text(formatTanggal(response.data.tgl_kembali))
+
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function get_spt_by_nomor() {
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            data: {
+                action: 'get_data_spt_by_nomor',
+                api_key: ajax.api_key,
+                nomor_spt: nomor_spt,
+                tahun_anggaran: '<?php echo $_GET['tahun_anggaran']; ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery('.namaKepala').text(response.data.namakepala)
+                    jQuery('.namaSkpd').text(response.data.nama_skpd)
+                    jQuery('.nipKepala').text(response.data.nipkepala)
+                    jQuery('.pangkatKepala').text(response.data.pangkatkepala)
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
 </script>

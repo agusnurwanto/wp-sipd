@@ -3131,14 +3131,23 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_label_komponen()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$tahun = $wpdb->get_results(
+			'
+			SELECT 
+				tahun_anggaran 
+			FROM data_unit 
+			GROUP BY tahun_anggaran',
+			ARRAY_A
+		);
 		$tahun_anggaran = array();
+		$tahun_anggaran_selected = get_option(WPSIPD_TAHUN_ANGGARAN);
 		foreach ($tahun as $k => $v) {
 			$tahun_anggaran[$v['tahun_anggaran']] = $v['tahun_anggaran'];
 		}
 		$label = array(
 			Field::make('select', 'crb_tahun_anggaran', __('Pilih Tahun Anggaran'))
-				->add_options($tahun_anggaran),
+				->add_options($tahun_anggaran)
+				->set_default_value($tahun_anggaran_selected),
 			Field::make('html', 'crb_daftar_label_komponen')
 				->set_html('
             		<style>
@@ -3444,7 +3453,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data_label_komponen = $wpdb->get_results("select id, nama, keterangan from data_label_komponen where tahun_anggaran=" . $_POST['tahun_anggaran'], ARRAY_A);
+				$data_label_komponen = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							id,
+							nama,
+							keterangan
+						FROM data_label_komponen 
+						WHERE tahun_anggaran = %d
+						  AND active = 1
+					", $_POST['tahun_anggaran']),
+					ARRAY_A
+				);
 				$body = '';
 				foreach ($data_label_komponen as $k => $v) {
 					$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $_POST['tahun_anggaran'];

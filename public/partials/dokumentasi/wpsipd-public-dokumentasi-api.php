@@ -958,7 +958,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_skpd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -999,9 +999,9 @@ Result :
             "id_setup_unit": "0",
             "id_unit": "xxxxx",
             "is_skpd": "0",
-            "kode_skpd": "7.01.0.00.0.00.06.0006",
+            "kode_skpd": "7.01.xxxxxxxxxxxxxxxxx",
             "kunci_skpd": "0",
-            "nama_skpd": "Kelurahan Siring",
+            "nama_skpd": "xxxxxxxxxxxxxxx",
             "posisi": "",
             "status": "Unit SKPD",
             "id_skpd": "xxxxx",
@@ -1013,16 +1013,16 @@ Result :
             "isskpd": "0",
             "kode_skpd_1": "06",
             "kode_skpd_2": "0006",
-            "kodeunit": "7.01.0.00.0.00.06.0006",
+            "kodeunit": "7.01.xxxxxxxxxxxxxxxxx",
             "komisi": "0",
             "namabendahara": "",
             "namakepala": "xxxxxxxxxxx",
-            "namaunit": "Kelurahan Siring",
+            "namaunit": "xxxxxxxxxxxxxxx",
             "nipbendahara": "",
             "nipkepala": "xxxxxx",
-            "pangkatkepala": "Penata",
+            "pangkatkepala": "xxxxxxxxxxx",
             "setupunit": "0",
-            "statuskepala": "PLT",
+            "statuskepala": "xxxxxxxx",
             "update_at": "2023-11-28 11:11:21",
             "tahun_anggaran": "2023",
             "active": "1",
@@ -1252,7 +1252,7 @@ Result :
             </pre>
         </div>
         <div class="overflow-hidden content-section" id="content-get-sumberdana">
-            <h2>GET REKENING</h2>
+            <h2>GET SUMBER DANA DESA</h2>
             <pre>
                 <code class="bash">
 # Here is a curl example
@@ -1404,7 +1404,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_sub_keg_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1500,11 +1500,11 @@ Result :
             "id_label_pusat": "7",
             "nama_giat": "Koordinasi Penyelenggaraan Kegiatan\n\nPemerintahan di Tingkat Kecamatan",
             "kode_skpd": "7.01.0.00.0.00.06.0000",
-            "nama_skpd": "Kecamatan Porong",
+            "nama_skpd": "xxxxxxxxxx xxxxxx",
             "kode_sub_skpd": "7.01.0.00.0.00.06.0000",
             "id_skpd": "529",
             "id_sub_bl": "0",
-            "nama_sub_skpd": "Kecamatan Porong",
+            "nama_sub_skpd": "xxxxxxxxxx xxxxxx",
             "target_1": "",
             "nama_urusan": "UNSUR KEWILAYAHAN",
             "target_2": "",
@@ -1518,8 +1518,8 @@ Result :
             "active": "1",
             "update_at": "2023-11-27 03:19:20",
             "tahun_anggaran": "2023",
-            "nama_skpd_data_unit": "Kecamatan Porong",
-            "nama_skpd_data_unit_utama": "Kecamatan Porong",
+            "nama_skpd_data_unit": "xxxxxxxxxx xxxxxxx",
+            "nama_skpd_data_unit_utama": "xxxxxxxxxx xxxxxxx",
             "sub_keg_indikator": [
                 {
                     "id": "17837",
@@ -1538,7 +1538,7 @@ Result :
             "sub_keg_indikator_hasil": [
                 {
                     "id": "1504",
-                    "hasilteks": "Nilai SAKIP Kecamatan Porong",
+                    "hasilteks": "xxxxxxxxxxxxxxxxxx",
                     "satuanhasil": "Nilai",
                     "targethasil": "8.3",
                     "targethasilteks": "8.3 Nilai",
@@ -1617,8 +1617,8 @@ Result :
             "lokasi_sub_keg": [
                 {
                     "id": "10952",
-                    "camatteks": "Porong",
-                    "daerahteks": "Kab. Sidoarjo",
+                    "camatteks": "xxxxxxx",
+                    "daerahteks": "xxxxxxxxxxxx",
                     "idcamat": "1817",
                     "iddetillokasi": "1127624",
                     "idkabkota": "101",
@@ -1699,7 +1699,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_sub_keg_rka_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -1800,7 +1800,7 @@ Result :
             "updated_user": null,
             "updateddate": null,
             "updatedtime": null,
-            "user1": "WAHIB ACHMADI, ST., MT",
+            "user1": "XXXXXXXXXXXXX, XX, XX",
             "user2": "",
             "active": "1",
             "update_at": "2023-11-27 03:19:31",
@@ -1886,7 +1886,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_pembiayaan_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2034,7 +2034,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_pembiayaan_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2094,18 +2094,18 @@ Result :
             "keterangan": "",
             "kode_akun": "4.1.04.16.01.0001",
             "nama_akun": "Pendapatan BLUD",
-            "nilaimurni": "845456027",
+            "nilaimurni": "xxxxxxxxxxxx",
             "program_koordinator": "0",
             "rekening": "4.1.04.16.01.0001 Pendapatan BLUD",
             "skpd_koordinator": "0",
-            "total": "845456027",
+            "total": "xxxxxxxxxxxx",
             "pagu_fmis": null,
             "updated_user": "0",
             "updateddate": "",
             "updatedtime": "",
             "uraian": "Pendapatan BLUD",
             "urusan_koordinator": "0",
-            "user1": "dr. SULIS RAHADI",
+            "user1": "xxxxxxxxxxxxxxxxxxx",
             "user2": "",
             "id_skpd": "3300",
             "active": "1",
@@ -2181,7 +2181,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_up_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2304,7 +2304,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_rak_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2387,7 +2387,7 @@ Result :
             "bulan_12":"0",
             "id_akun":"8917",
             "id_bidang_urusan":null,
-            "id_daerah":"89",
+            "id_daerah":"xx",
             "id_giat":null,
             "id_program":null,
             "id_skpd":"3283",
@@ -2466,7 +2466,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_spd_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2603,7 +2603,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_pegawai_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2687,7 +2687,7 @@ Result :
             idSubUnit: 0,
             idUser: 100,
             idPegawai: 0,
-            alamat: 'Kab. Madiun',
+            alamat: 'xxxxxxxxxx',
             tahun_anggaran: '2024',
             updated_at: '0001-01-01 00:00:00',
        }
@@ -2751,7 +2751,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_spp_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -2955,7 +2955,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_spm_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -3132,7 +3132,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_sp2d_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -3313,7 +3313,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_serapan_anggaran_capaian_kinerja
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
@@ -3376,7 +3376,62 @@ Result :
       "tw2": "40.24%",
       "tw3": "0%",
       "tw4": "0%"
-    }
+    },
+    "anggaran": {
+      "total": 552258803301,
+      "tw1": 166081537531.96,
+      "tw2": 166081537531.96,
+      "tw3": 166081537531.96,
+      "tw4": 166081537531.96
+    },
+    "realisasi_anggaran": {
+      "total": 195068541627,
+      "tw1": 121066799019,
+      "tw2": 74001742608,
+      "tw3": 0,
+      "tw4": 0
+    },
+    "opd": [
+      {
+        "id": "173",
+        "id_setup_unit": "xxxx",
+        "id_unit": "xxxx",
+        "is_skpd": "1",
+        "kode_skpd": "1.xx.xxx.xxx.xxx.xxx.xxxxxx.xx",
+        "kunci_skpd": "0",
+        "nama_skpd": "DINAS XXXXXXXXXXXXXXX XXXXXXXX",
+        "posisi": "",
+        "status": "SKPD",
+        "id_skpd": "2185",
+        "bidur_1": "x",
+        "bidur_2": "xx",
+        "bidur_3": "x",
+        "idinduk": "xxx",
+        "ispendapatan": "1",
+        "isskpd": "1",
+        "kode_skpd_1": "xxx",
+        "kode_skpd_2": "xxxx",
+        "kodeunit": "1.xx.xxx.xxx.xxx.xxx.xxxxxx.xx",
+        "komisi": null,
+        "namabendahara": "",
+        "namakepala": "xxxxx xxxx xxxxxx",
+        "namaunit": "DINAS XXXXXXXXXXXXXXX XXXXXXXX",
+        "nipbendahara": "",
+        "nipkepala": "xxxxxxxxxxxxxxxxxx",
+        "pangkatkepala": "xxxxxxxxx xxxxxxxx",
+        "setupunit": "1",
+        "statuskepala": "PA",
+        "mapping": "",
+        "id_kecamatan": null,
+        "id_strategi": "xxxxxx",
+        "is_dpa_khusus": "0",
+        "is_ppkd": "0",
+        "set_input": "1",
+        "update_at": "2024-07-04 15:53:45",
+        "tahun_anggaran": "2024",
+        "active": "1"
+      }
+    ]
   }
 }
                 </code>

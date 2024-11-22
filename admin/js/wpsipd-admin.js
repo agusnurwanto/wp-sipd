@@ -138,6 +138,7 @@ function get_list_skpd(tahun, cb){
 function set_analis_komponen(){
 	if(typeof analisa_komponen == 'undefined'){
 		window.analisa_komponen = [];
+		return;
 	}
 	analisa_komponen.map(function(b, i){
 		var tr = jQuery('.edit-label[data-id="'+b.id_label_komponen+'"]').closest('tr');
@@ -728,6 +729,7 @@ function filePickedWpsipd(oEvent) {
 }
 
 jQuery(document).ready(function(){
+	window.analisa_komponen = []
 	window.options_skpd = {};
 	var loading = ''
 		+'<div id="wrap-loading">'

@@ -12,17 +12,27 @@ $validate_user = $this->user_authorization_wpsipd('sppd', $input['tahun_anggaran
 if ($validate_user['status'] == 'error') {
     die('<h1>' . $validate_user['message'] . '</h1>');
 }
+echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );</script>";
 
-$tittle = '';
+//title and list skpd
+$title = '';
 $disabled = '';
 if ($validate_user['role'] == 'administrator') {
-    $tittle = "<h2 class='text-center mb-4'>PEMERINTAH " . strtoupper(get_option('_crb_daerah')) . "</h2>";
+    $title = "<h2 class='text-center mb-4'>PEMERINTAH " . strtoupper(get_option('_crb_daerah')) . "</h2>";
 } else {
-    $tittle = "<h2 class='text-center mb-4'>" . strtoupper($validate_user['nama_skpd']) . "</h2>";
+    $title = "<h2 class='text-center mb-4'>" . strtoupper($validate_user['nama_skpd']) . "</h2>";
     $disabled = 'disabled';
 }
 
-echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );</script>";
+//list pegawai
+$option_pegawai = '<option value="">Pilih Pegawai</option>';
+if (!empty($validate_user['pegawai'])) {
+    foreach ($validate_user['pegawai'] as $id => $data) {
+        $option_pegawai .= '<option value="' . $id . '">' . $data['nama'] . '</option>';
+    }
+} else {
+    $option_pegawai = '<option value="">Data Pegawai tidak tersedia</option>';
+}
 ?>
 <style type="text/css">
     input::-webkit-outer-spin-button,
@@ -37,7 +47,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 </style>
 <div class="pb-4 mb-5">
     <h1 class="text-center my-4">Data Surat Perintah Tugas (SPT)</h1>
-    <?php echo $tittle; ?>
+    <?php echo $title; ?>
     <h2 class="text-center my-4">Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
     <div class="m-4">
         <button class="btn btn-primary" onclick="showModalTambahSpt();">
@@ -81,7 +91,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="idSkpd">Pilih SKPD</label>
-                                <select name="idSkpd" class="form-control" id="idSkpd" <?php echo $disabled;?>>
+                                <select name="idSkpd" class="form-control" id="idSkpd" <?php echo $disabled; ?>>
                                     <?php echo $validate_user['options']; ?>
                                 </select>
                             </div>
@@ -175,99 +185,103 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formTambahSppd">
-                    <input type="hidden" id="nomor_spt" value="">
-                    <input type="hidden" id="id_data_sppd" value="">
+                <input type="hidden" id="nomor_spt" value="">
+                <input type="hidden" id="id_data_sppd" value="">
 
-                    <div class="card bg-light mb-3">
-                        <div class="card-header">Informasi SPPD</div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="tahunAnggaran">Tahun Anggaran</label>
-                                <input type="number" name="tahunAnggaran" class="form-control" id="tahunAnggaran" value="<?php echo $input['tahun_anggaran']; ?>" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="tanggalSppd">Tanggal SPPD</label>
-                                <input type="date" name="tanggalSppd" class="form-control" id="tanggalSppd">
-                            </div>
-                            <div class="form-group">
-                                <label for="nomorSppd">Nomor SPPD</label>
-                                <input type="text" name="nomorSppd" class="form-control" id="nomorSppd">
-                            </div>
+                <div class="card bg-light mb-3">
+                    <div class="card-header">Informasi SPPD</div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="tahunAnggaran">Tahun Anggaran</label>
+                            <input type="number" name="tahunAnggaran" class="form-control" id="tahunAnggaran" value="<?php echo $input['tahun_anggaran']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="tanggalSppd">Tanggal SPPD</label>
+                            <input type="date" name="tanggalSppd" class="form-control" id="tanggalSppd">
+                        </div>
+                        <div class="form-group">
+                            <label for="nomorSppd">Nomor SPPD</label>
+                            <input type="text" name="nomorSppd" class="form-control" id="nomorSppd">
                         </div>
                     </div>
+                </div>
 
-                    <div class="card bg-light mb-3">
-                        <div class="card-header">Pilih Pegawai</div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="namaPegawai">Nama Pegawai</label>
-                                <input type="text" name="namaPegawai" class="form-control" id="namaPegawai">
-                            </div>
-                            <div class="form-group">
-                                <label for="nipPegawai">NIP</label>
-                                <input type="number" name="nipPegawai" class="form-control" id="nipPegawai">
-                            </div>
-                            <div class="form-group">
-                                <label for="golPegawai">Pangkat/Gol</label>
-                                <input type="text" name="golPegawai" class="form-control" id="golPegawai">
-                            </div>
+                <div class="card bg-light mb-3">
+                    <div class="card-header">Pilih Pegawai</div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="namaPegawai">Nama Pegawai</label>
+                            <select name="namaPegawai" class="form-control" id="namaPegawai" onchange="get_nip_gol()">
+                                <?php echo $option_pegawai; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nipPegawai">NIP</label>
+                            <input type="number" name="nipPegawai" class="form-control" id="nipPegawai">
+                        </div>
+                        <div class="form-group">
+                            <label for="golPegawai">Pangkat/Gol</label>
+                            <input type="text" name="golPegawai" class="form-control" id="golPegawai">
+                        </div>
+                        <div class="form-group">
+                            <label for="jabatanPegawai">Jabatan</label>
+                            <input type="text" name="jabatanPegawai" class="form-control" id="jabatanPegawai">
                         </div>
                     </div>
+                </div>
 
-                    <div class="card bg-light mb-3">
-                        <div class="card-header">Tujuan Perjalanan Dinas</div>
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="tempatBerangkat">Tempat Berangkat</label>
-                                    <input type="text" name="tempatBerangkat" class="form-control" id="tempatBerangkat">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="tanggalBerangkat">Tanggal Berangkat</label>
-                                    <input type="date" name="tanggalBerangkat" class="form-control" id="tanggalBerangkat">
-                                </div>
+                <div class="card bg-light mb-3">
+                    <div class="card-header">Tujuan Perjalanan Dinas</div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="tempatBerangkat">Tempat Berangkat</label>
+                                <input type="text" name="tempatBerangkat" class="form-control" id="tempatBerangkat">
                             </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="tempatTujuan">Tempat Tujuan</label>
-                                    <input type="text" name="tempatTujuan" class="form-control" id="tempatTujuan">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="tanggalSampai">Tanggal Sampai</label>
-                                    <input type="date" name="tanggalSampai" class="form-control" id="tanggalSampai">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="tanggalKembali">Tanggal Kembali</label>
-                                <input type="date" name="tanggalKembali" class="form-control" id="tanggalKembali">
+                            <div class="form-group col-md-6">
+                                <label for="tanggalBerangkat">Tanggal Berangkat</label>
+                                <input type="date" name="tanggalBerangkat" class="form-control" id="tanggalBerangkat">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="card bg-light mb-3">
-                        <div class="card-header">Maksud Perjalanan dan Alat Angkut yang digunakan</div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="maksudSppd">Maksud Perjalanan Dinas</label>
-                                <textarea name="maksudSppd" class="form-control" id="maksudSppd"></textarea>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="tempatTujuan">Tempat Tujuan</label>
+                                <input type="text" name="tempatTujuan" class="form-control" id="tempatTujuan">
                             </div>
-                            <div class="form-group">
-                                <label for="alatAngkut">Alat Angkut</label>
-                                <select name="alatAngkut" class="form-control" id="alatAngkut">
-                                    <option value="">Pilih Alat Angkut</option>
-                                    <option value="Kendaraan Pribadi">Kendaraan Pribadi</option>
-                                    <option value="Kendaraan Dinas">Kendaraan Dinas</option>
-                                    <option value="Kendaraan Umum">Kendaraan Umum</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="keterangan">Keterangan Lain</label>
-                                <textarea name="keterangan" class="form-control" id="keterangan"></textarea>
+                            <div class="form-group col-md-6">
+                                <label for="tanggalSampai">Tanggal Sampai</label>
+                                <input type="date" name="tanggalSampai" class="form-control" id="tanggalSampai">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="tanggalKembali">Tanggal Kembali</label>
+                            <input type="date" name="tanggalKembali" class="form-control" id="tanggalKembali">
+                        </div>
                     </div>
-                </form>
+                </div>
+
+                <div class="card bg-light mb-3">
+                    <div class="card-header">Maksud Perjalanan dan Alat Angkut yang digunakan</div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="maksudSppd">Maksud Perjalanan Dinas</label>
+                            <textarea name="maksudSppd" class="form-control" id="maksudSppd"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="alatAngkut">Alat Angkut</label>
+                            <select name="alatAngkut" class="form-control" id="alatAngkut">
+                                <option value="">Pilih Alat Angkut</option>
+                                <option value="Kendaraan Pribadi">Kendaraan Pribadi</option>
+                                <option value="Kendaraan Dinas">Kendaraan Dinas</option>
+                                <option value="Kendaraan Umum">Kendaraan Umum</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan Lain</label>
+                            <textarea name="keterangan" class="form-control" id="keterangan"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary submitBtnSppd" onclick="submitDataSppd(); return false">Simpan</button>
@@ -280,12 +294,21 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 
 <script>
     window.tahun_anggaran = <?php echo json_encode($input['tahun_anggaran']); ?>;
+    window.list_pegawai = JSON.parse('<?php echo json_encode($validate_user['pegawai']); ?>');
+
     jQuery(document).ready(function() {
         window.id_skpd = '<?php echo $validate_user['id_skpd']; ?>'
         getDataTable();
         jQuery('#idSkpd').select2({
             width: '100%',
             dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
+        });
+        jQuery('#namaPegawai').select2({
+            width: '100%',
+            dropdownParent: jQuery('#modal_form_sppd'), // Tentukan modal sebagai parent dropdown agar select2 search tidak error
+            placeholder: 'Pilih Pegawai / Masukan Nama...',
+            tags: true,
+            allowClear: true,
         });
     });
 
@@ -452,9 +475,22 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
 
                 jQuery('#tanggalSppd').val(res.data.tgl_ttd_sppd).prop('disabled', disabled)
                 jQuery('#nomorSppd').val(res.data.nomor_sppd).prop('disabled', disabled)
-                jQuery('#namaPegawai').val('').prop('disabled', disabled)
-                jQuery('#nipPegawai').val('').prop('disabled', disabled)
-                jQuery('#golPegawai').val('').prop('disabled', disabled)
+                if (res.data.id_pegawai != 0) {
+                    jQuery('#namaPegawai').val(res.data.id_pegawai).prop('disabled', disabled).trigger('change')
+                } else {
+                    // Menambahkan nilai baru ke select2 jika belum ada
+                    let newValue = res.data.nama_pegawai;
+                    if (jQuery('#namaPegawai').find("option[value='" + newValue + "']").length === 0) {
+                        var newOption = new Option(newValue, newValue, true, true);
+                        jQuery('#namaPegawai').append(newOption).trigger('change');
+                    } else {
+                        jQuery('#namaPegawai').val(newValue).trigger('change');
+                    }
+                    jQuery('#namaPegawai').prop('disabled', disabled)
+                    jQuery('#nipPegawai').val(res.data.nip_pegawai).prop('disabled', disabled)
+                    jQuery('#golPegawai').val(res.data.pangkat_gol_pegawai).prop('disabled', disabled)
+                    jQuery('#jabatanPegawai').val(res.data.jabatan_pegawai).prop('disabled', disabled)
+                }
                 jQuery('#tempatBerangkat').val(res.data.tempat_berangkat).prop('disabled', disabled)
                 jQuery('#tanggalBerangkat').val(res.data.tgl_berangkat).prop('disabled', disabled)
                 jQuery('#tempatTujuan').val(res.data.tempat_tujuan).prop('disabled', disabled)
@@ -517,8 +553,6 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
         jQuery('#tanggalSppd').val('')
         jQuery('#nomorSppd').val('')
         jQuery('#namaPegawai').val('')
-        jQuery('#nipPegawai').val('')
-        jQuery('#golPegawai').val('')
         jQuery('#tempatBerangkat').val('')
         jQuery('#tanggalBerangkat').val('')
         jQuery('#tempatTujuan').val('')
@@ -540,6 +574,7 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
             'namaPegawai': 'Data Nama Pegawai tidak boleh kosong!',
             'nipPegawai': 'Data NIP Pegawai tidak boleh kosong!',
             'golPegawai': 'Data Golongan Pegawai tidak boleh kosong!',
+            'jabatanPegawai': 'Data Jabatan Pegawai tidak boleh kosong!',
             'tempatBerangkat': 'Data Tempat Berangkat tidak boleh kosong!',
             'tanggalBerangkat': 'Data Tanggal Berangkat tidak boleh kosong!',
             'tempatTujuan': 'Data Tempat Tujuan tidak boleh kosong!',
@@ -678,6 +713,32 @@ echo "<script>console.log('Debug Objects: " . $validate_user['message'] . "' );<
             });
         });
     }
+
+    function get_nip_gol() {
+        jQuery('#wrap-loading').show();
+        const idPegawai = jQuery('#namaPegawai').val();
+
+        // Jika ada data pegawai yang cocok
+        if (list_pegawai[idPegawai]) {
+            jQuery('#nipPegawai').val(list_pegawai[idPegawai].nip);
+            jQuery('#golPegawai').val(list_pegawai[idPegawai].pangkat);
+            jQuery('#jabatanPegawai').val(list_pegawai[idPegawai].jabatan);
+            jQuery('#nipPegawai').prop('disabled', true);
+            jQuery('#golPegawai').prop('disabled', true);
+            jQuery('#jabatanPegawai').prop('disabled', true);
+            jQuery('#wrap-loading').hide();
+        } else {
+            // Reset jika data tidak ditemukan (input manual)
+            jQuery('#nipPegawai').val('');
+            jQuery('#golPegawai').val('');
+            jQuery('#jabatanPegawai').val('');
+            jQuery('#nipPegawai').prop('disabled', false);
+            jQuery('#golPegawai').prop('disabled', false);
+            jQuery('#jabatanPegawai').prop('disabled', false);
+            jQuery('#wrap-loading').hide();
+        }
+    }
+
 
     function cetak_spt(url) {
         window.open(url, '_blank');
