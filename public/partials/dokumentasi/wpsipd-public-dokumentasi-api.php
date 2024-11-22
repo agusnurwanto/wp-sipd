@@ -1699,7 +1699,7 @@ curl \
                             String
                         </td>
                         <td>
-                            Bidang spesifik yang akan dilakukan
+                            get_sub_keg_rka_sipd
                         </td>
                         <td class="text-center">
                             <span class="badge badge-danger">
