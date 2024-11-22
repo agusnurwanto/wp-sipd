@@ -878,8 +878,8 @@ $body_label .= '
 
             jQuery(`.rinci-row[data-parent-id="${ketId}"] .rinci-checkbox`).prop("checked", isChecked);
 
-            updateSelectAllStateKelompok(grandParentId) //kelompok
-            updateSelectAllStateAkun(parentId) //akun
+            updateSelectAllStateKelompok(parentId) //kelompok
+            updateSelectAllStateAkun(grandParentId) //akun
 
             updateParentCheckbox(parentId, ".subs-checkbox", ".ket-checkbox");
             updateSelectAllState();
