@@ -1286,6 +1286,7 @@ foreach($data_skpd_db as $skpd){
 			.then(function(data_last){
 				jQuery('#wrap-loading').hide();
 				jQuery('#modal-copy-renja-sipd').modal('hide');
+				alert('Berhasil copy data RENJA SIPD ke lokal!');
 				return resolve();
 			})
 			.catch(function(e){
