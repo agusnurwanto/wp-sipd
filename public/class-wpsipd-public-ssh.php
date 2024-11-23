@@ -4868,7 +4868,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					'icon' => '<span class="dashicons dashicons-admin-page"></span>',
 					'url' => $url_data_ssh,
 					'text' => 'Rekapitulasi Usulan dan Data Standar Harga SIPD'
-				), array(
+				),
+				array(
 					'icon' => '<span class="dashicons dashicons-admin-comments"></span>',
 					'url' => $url_data_ssh_usulan,
 					'text' => 'Usulan Standar Harga'
@@ -5045,45 +5046,49 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if (!empty($_POST)) {
 			// cek upload lampiran
-			if($_POST['cek_lampiran'] == "photo"){
-				if(empty($_FILES['file_lampiran_usulan_foto1'])
+			if ($_POST['cek_lampiran'] == "photo") {
+				if (
+					empty($_FILES['file_lampiran_usulan_foto1'])
 					|| empty($_FILES['file_lampiran_usulan_foto2'])
-				){
+				) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Lampiran 1 dan 2 wajib terisi!';
 					die(json_encode($ret));
 				}
-			}else{
-				if(empty($_POST['url_lampiran_usulan_foto1'])
-			 		|| empty($_POST['url_lampiran_usulan_foto2'])
-				){
+			} else {
+				if (
+					empty($_POST['url_lampiran_usulan_foto1'])
+					|| empty($_POST['url_lampiran_usulan_foto2'])
+				) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Lampiran 1 dan 2 wajib terisi!';
 					die(json_encode($ret));
-				}else{
+				} else {
 					$home_site_url = plugin_dir_url(__DIR__) . 'public/media/ssh';
-					$nama_url_lampiran_1 = explode("/",$_POST['url_lampiran_usulan_foto1']);
+					$nama_url_lampiran_1 = explode("/", $_POST['url_lampiran_usulan_foto1']);
 					array_pop($nama_url_lampiran_1);
-					$nama_url_lampiran_1 = implode("/",$nama_url_lampiran_1);
-					$nama_url_lampiran_2 = explode("/",$_POST['url_lampiran_usulan_foto2']);
+					$nama_url_lampiran_1 = implode("/", $nama_url_lampiran_1);
+					$nama_url_lampiran_2 = explode("/", $_POST['url_lampiran_usulan_foto2']);
 					array_pop($nama_url_lampiran_2);
-					$nama_url_lampiran_2 = implode("/",$nama_url_lampiran_2);
-					$nama_url_lampiran_3 = explode("/",$_POST['url_lampiran_usulan_foto3']);
+					$nama_url_lampiran_2 = implode("/", $nama_url_lampiran_2);
+					$nama_url_lampiran_3 = explode("/", $_POST['url_lampiran_usulan_foto3']);
 					array_pop($nama_url_lampiran_3);
-					$nama_url_lampiran_3 = implode("/",$nama_url_lampiran_3);
+					$nama_url_lampiran_3 = implode("/", $nama_url_lampiran_3);
 
-					if($home_site_url != $nama_url_lampiran_1 
-						|| $home_site_url != $nama_url_lampiran_2 
-					){
+					if (
+						$home_site_url != $nama_url_lampiran_1
+						|| $home_site_url != $nama_url_lampiran_2
+					) {
 						$ret['status'] = 'error';
 						$ret['message'] = 'URL photo belum pernah diupload ke server!';
 						die(json_encode($ret));
-					}else if(!empty($_POST['url_lampiran_usulan_foto3'])
+					} else if (
+						!empty($_POST['url_lampiran_usulan_foto3'])
 						&& $home_site_url != $nama_url_lampiran_3
-					){
-							$ret['status'] = 'error';
-							$ret['message'] = 'URL photo belum pernah diupload ke server!';
-							die(json_encode($ret));	
+					) {
+						$ret['status'] = 'error';
+						$ret['message'] = 'URL photo belum pernah diupload ke server!';
+						die(json_encode($ret));
 					}
 				}
 			}
@@ -5116,10 +5121,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			$file_lampiran_usulan_foto1 = $_FILES['file_lampiran_usulan_foto1'];
 			$file_lampiran_usulan_foto2 = $_FILES['file_lampiran_usulan_foto2'];
 			$file_lampiran_usulan_foto3 = $_FILES['file_lampiran_usulan_foto3'];
-			$url_lampiran_usulan_foto1 = end(explode("/",$_POST['url_lampiran_usulan_foto1']));
-			$url_lampiran_usulan_foto2 = end(explode("/",$_POST['url_lampiran_usulan_foto2']));
-			$url_lampiran_usulan_foto3 = end(explode("/",$_POST['url_lampiran_usulan_foto3']));
-			
+			$url_lampiran_usulan_foto1 = end(explode("/", $_POST['url_lampiran_usulan_foto1']));
+			$url_lampiran_usulan_foto2 = end(explode("/", $_POST['url_lampiran_usulan_foto2']));
+			$url_lampiran_usulan_foto3 = end(explode("/", $_POST['url_lampiran_usulan_foto3']));
+
 			$json = json_decode(stripslashes(html_entity_decode($_POST['data_excel'])), true);
 			$nama_file_upload_photo_1 = '';
 			$nama_file_upload_photo_2 = '';
@@ -5131,13 +5136,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$newData[trim(preg_replace('/\s+/', ' ', $kk))] = trim(preg_replace('/\s+/', ' ', $vv));
 				}
 
-				if(empty($newData['kode_kel_standar_harga'])
+				if (
+					empty($newData['kode_kel_standar_harga'])
 					|| empty($newData['nama_kel_standar_harga'])
 					|| empty($newData['spek'])
 					|| empty($newData['satuan'])
 					|| empty($newData['harga'])
 					|| empty($newData['nama_standar_harga'])
-				){
+				) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'ada data yang kosong!';
 					die(json_encode($ret));
@@ -5190,7 +5196,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					$ret['pesan_tambahan'] = 'Standar Harga Sudah Ada!';
 					array_push($ret['ssh_yang_sama'], $data_avoid);
-				}else{
+				} else {
 					$last_kode_standar_harga = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							MAX(kode_standar_harga) as kode_standar_harga
@@ -5201,7 +5207,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$last_kode_standar_harga = ((int) end($last_kode_standar_harga)) + 1;
 					$last_kode_standar_harga = sprintf("%05d", $last_kode_standar_harga); // menambahkan angka nol di depan
 					$last_kode_standar_harga = $newData['kode_kel_standar_harga'] . '.' . $last_kode_standar_harga;
-	
+
 					$data_db = array(
 						'id_standar_harga' => ++$id_standar_harga,
 						'kode_standar_harga' => $last_kode_standar_harga,
@@ -5222,10 +5228,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'tkdn' => $newData['tkdn'],
 						'id_sub_skpd' => $id_sub_skpd,
 					);
-	
+
 					// cek jenis lampiran sebelum upload
-					if($ret['data']['insert'] == 0 || empty($nama_file_upload_photo_1) ){
-						if($_POST['cek_lampiran'] == "photo"){
+					if ($ret['data']['insert'] == 0 || empty($nama_file_upload_photo_1)) {
+						if ($_POST['cek_lampiran'] == "photo") {
 							// masih ada bug saat upload gambar ke input 2 dst
 							if (!empty($file_lampiran_usulan_foto1)) {
 								$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto1, ['jpg', 'jpeg', 'png', 'pdf']);
@@ -5234,7 +5240,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									$nama_file_upload_photo_1 = $upload_1['filename'];
 								}
 							}
-			
+
 							if (!empty($file_lampiran_usulan_foto2)) {
 								$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto2, ['jpg', 'jpeg', 'png', 'pdf']);
 								if ($upload_2['status']) {
@@ -5242,7 +5248,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									$nama_file_upload_photo_2 = $upload_2['filename'];
 								}
 							}
-			
+
 							if (!empty($file_lampiran_usulan_foto3)) {
 								$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH . 'public/media/ssh/', $file_lampiran_usulan_foto3, ['jpg', 'jpeg', 'png', 'pdf']);
 								if ($upload_3['status']) {
@@ -5250,24 +5256,24 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									$nama_file_upload_photo_3 = $upload_3['filename'];
 								}
 							}
-						}else{
+						} else {
 							$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
 							$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
 							$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
 						}
-					}else{
-						if($_POST['cek_lampiran'] == "photo"){
+					} else {
+						if ($_POST['cek_lampiran'] == "photo") {
 							$data_db['lampiran_1'] = $nama_file_upload_photo_1;
 							$data_db['lampiran_2'] = $nama_file_upload_photo_2;
 							$data_db['lampiran_3'] = $nama_file_upload_photo_3;
-						}else{
+						} else {
 							$data_db['lampiran_1'] = $url_lampiran_usulan_foto1;
 							$data_db['lampiran_2'] = $url_lampiran_usulan_foto2;
 							$data_db['lampiran_3'] = $url_lampiran_usulan_foto3;
 						}
 					}
-	
-					if(!empty($newData['kode_rekening_akun'])){
+
+					if (!empty($newData['kode_rekening_akun'])) {
 						$data_akun = array();
 						foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
 							$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
@@ -5284,12 +5290,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$ret['message'] = 'data rekening ada yang kosong!';
 						die(json_encode($ret));
 					}
-	
+
 					$wpdb->last_error = "";
 					if (!empty($data_db)) {
 						$wpdb->insert($table_data, $data_db);
 						$ret['data']['insert']++;
-	
+
 						$id_usulan = $wpdb->insert_id;
 						$opsi_akun = [];
 						foreach (explode(",", $newData['kode_rekening_akun']) as $v_akun) {
@@ -5317,4 +5323,56 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($ret));
 	}
+
+	// public function get_akun_by_id_ssh()
+	// {
+	// 	global $wpdb;
+	// 	$ret = array(
+	// 		'status' => 'success',
+	// 		'message' => 'Berhasil get data akun SSH!',
+	// 		'data' => array()
+	// 	);
+
+	// 	if (!empty($_POST)) {
+	// 		if (!empty($_POST['api_key']) && $_POST['api_key'] === get_option('_crb_api_key_extension')) {
+	// 			$ids_ssh = json_decode(stripslashes($_POST['ids_ssh']), true);
+
+	// 			if (empty($ids_ssh) || !is_array($ids_ssh)) {
+	// 				$ret['status'] = 'error';
+	// 				$ret['message'] = 'ID SSH tidak valid!';
+	// 				die(json_encode($ret));
+	// 			}
+
+	// 			foreach ($ids_ssh as $id) {
+	// 				$id = intval($id);
+	// 				$data_akun = $wpdb->get_row(
+	// 					$wpdb->prepare(
+	// 						'SELECT * 
+    //                      	 FROM data_ssh_rek_belanja_usulan 
+    //                      	 WHERE id_standar_harga = %d
+    //                        	   AND active = 1',
+	// 						$id
+	// 					),
+	// 					ARRAY_A
+	// 				);
+
+	// 				if (!empty($data_akun)) {
+	// 					$ret['data'][$data_akun['id_standar_harga']] = $data_akun['nama_akun'];
+	// 				}
+	// 			}
+
+	// 			if (empty($ret['data'])) {
+	// 				$ret['status'] = 'error';
+	// 				$ret['message'] = 'Tidak ada data ditemukan untuk ID SSH yang dikirim.';
+	// 			}
+	// 		} else {
+	// 			$ret['status'] = 'error';
+	// 			$ret['message'] = 'API Key tidak valid!';
+	// 		}
+	// 	} else {
+	// 		$ret['status'] = 'error';
+	// 		$ret['message'] = 'Request tidak sesuai!';
+	// 	}
+	// 	die(json_encode($ret));
+	// }
 }

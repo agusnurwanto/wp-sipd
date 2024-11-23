@@ -202,10 +202,10 @@ echo $this->menu_ssh($input);
 	}
 
 	.nav-pills>li>a {
-      background-color: #6c757d;
-      border-color: #6c757d;
-      color: #FFFFFF;
-    }
+		background-color: #6c757d;
+		border-color: #6c757d;
+		color: #FFFFFF;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -317,14 +317,14 @@ echo $this->menu_ssh($input);
 						<table class="table table-bordered">
 							<thead>
 								<tr>
-									<th>Uraian Kelompok</th>
-									<th>Nama Komponen</th>
-									<th>Spesifikasi</th>
-									<th>Harga</th>
-									<th>Rekening</th>
-									<th>Nomor Surat SKPD</th>
-									<th>Jenis Usulan</th>
-									<th>Aksi</th>
+									<th class="text-center">Uraian Kelompok</th>
+									<th class="text-center">Nama Komponen</th>
+									<th class="text-center">Spesifikasi</th>
+									<th class="text-center">Harga</th>
+									<th class="text-center">Rekening</th>
+									<th class="text-center">Nomor Surat SKPD</th>
+									<th class="text-center">Jenis Usulan</th>
+									<th class="text-center">Aksi</th>
 								</tr>
 							</thead>
 							<tbody id="tbody_data_usulan_nota_dinas"></tbody>
@@ -397,12 +397,12 @@ echo $this->menu_ssh($input);
 						<table class="table table-bordered">
 							<thead>
 								<tr>
-									<th>Uraian Kelompok</th>
-									<th>Nama Komponen</th>
-									<th>Spesifikasi</th>
-									<th>Harga</th>
-									<th>Rekening</th>
-									<th>Jenis Usulan</th>
+									<th class="text-center">Uraian Kelompok</th>
+									<th class="text-center">Nama Komponen</th>
+									<th class="text-center">Spesifikasi</th>
+									<th class="text-center">Harga</th>
+									<th class="text-center">Rekening</th>
+									<th class="text-center">Jenis Usulan</th>
 								</tr>
 							</thead>
 							<tbody id="tbody_data_usulan"></tbody>
@@ -456,21 +456,21 @@ echo $this->menu_ssh($input);
 							<div class="row form-group">
 								<label for="file-lampiran-usulan-foto-1" class="col-md-2">Lampiran 1 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="file" id="file-lampiran-usulan-foto-1"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+									<input type="file" id="file-lampiran-usulan-foto-1" accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
 								</div>
 								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
 							</div>
 							<div class="row form-group">
 								<label for="file-lampiran-usulan-foto-2" class="col-md-2">Lampiran 2 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="file" id="file-lampiran-usulan-foto-2"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+									<input type="file" id="file-lampiran-usulan-foto-2" accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
 								</div>
 								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
 							</div>
 							<div class="row form-group">
 								<label for="file-lampiran-usulan-foto-3" class="col-md-2">Lampiran 3 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="file" id="file-lampiran-usulan-foto-3"  accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
+									<input type="file" id="file-lampiran-usulan-foto-3" accept="image/png, image/jpeg, image/jpg" onchange="checkFileType(this)">
 								</div>
 								<small style="margin-left:15px;">Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
 							</div>
@@ -479,19 +479,19 @@ echo $this->menu_ssh($input);
 							<div class="row form-group">
 								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 1 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="url" class="form-control" id="url-lampiran-usulan-foto-1" >
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-1">
 								</div>
 							</div>
 							<div class="row form-group">
 								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 2 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="url" class="form-control" id="url-lampiran-usulan-foto-2" >
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-2">
 								</div>
 							</div>
 							<div class="row form-group">
 								<label for="url-lampiran-usulan-foto" class="col-md-2">URL Lampiran 3 Usulan SSH</label>
 								<div class="col-md-10">
-									<input type="url" class="form-control" id="url-lampiran-usulan-foto-3" >
+									<input type="url" class="form-control" id="url-lampiran-usulan-foto-3">
 								</div>
 							</div>
 						</div>
@@ -1104,16 +1104,16 @@ echo $this->menu_ssh($input);
 		var file_lampiran_usulan_foto3 = jQuery('#file-lampiran-usulan-foto-3')[0].files[0];
 		let cek_aktif = jQuery('a[data-toggle="pill"].active').attr('data-lampiran');
 
-		if(cek_aktif == "photo"){
+		if (cek_aktif == "photo") {
 			if (typeof file_lampiran_usulan_foto1 == 'undefined') {
 				alert('Lampiran 1 tidak boleh kosong!');
-			}else if (typeof file_lampiran_usulan_foto2 == 'undefined') {
+			} else if (typeof file_lampiran_usulan_foto2 == 'undefined') {
 				alert('Lampiran 2 tidak boleh kosong!');
 			}
-		}else{
+		} else {
 			if (typeof url_lampiran_usulan_foto1 == 'undefined') {
 				alert('Lampiran 1 tidak boleh kosong!');
-			}else if (typeof url_lampiran_usulan_foto2 == 'undefined') {
+			} else if (typeof url_lampiran_usulan_foto2 == 'undefined') {
 				alert('Lampiran 2 tidak boleh kosong!');
 			}
 		}
@@ -1149,68 +1149,68 @@ echo $this->menu_ssh($input);
 			formData.append('tahun_anggaran', tahun_anggaran);
 			formData.append('id_sub_skpd', id_sub_skpd);
 			formData.append('cek_lampiran', cek_aktif);
-			formData.append('file_lampiran_usulan_foto1',file_lampiran_usulan_foto1);
-			formData.append('file_lampiran_usulan_foto2',file_lampiran_usulan_foto2);
-			formData.append('file_lampiran_usulan_foto3',file_lampiran_usulan_foto3);
+			formData.append('file_lampiran_usulan_foto1', file_lampiran_usulan_foto1);
+			formData.append('file_lampiran_usulan_foto2', file_lampiran_usulan_foto2);
+			formData.append('file_lampiran_usulan_foto3', file_lampiran_usulan_foto3);
 			formData.append('url_lampiran_usulan_foto1', url_lampiran_usulan_foto1);
 			formData.append('url_lampiran_usulan_foto2', url_lampiran_usulan_foto2);
 			formData.append('url_lampiran_usulan_foto3', url_lampiran_usulan_foto3);
-			
-			data_all.reduce(function(sequence, nextData) {
-				return sequence.then(function(current_data) {
-					return new Promise(function(resolve_reduce, reject_reduce) {
-						formData.append('data_excel', JSON.stringify(current_data));
 
-						jQuery.ajax({
-							url: "<?php echo admin_url('admin-ajax.php'); ?>",
-							type: 'post',
-							data: formData,
-							dataType: 'json',
-							processData: false,
-							contentType: false,
-							cache: false,
-							success: function(response) {
-								if (response.status == 'success') {
-									alert('Import Data Usulan Sukses!');
-									jQuery('#importModal').modal('hide');
-									usulanSSHTable.ajax.reload();
-								} else {
-									alert(response.message);
-								}
-								jQuery("#wrap-loading").hide();
-								jQuery("#file-import-usulan-excel").val("");
-								jQuery('#data-excel').val("");
-								jQuery('#list-skpd').val("");
-								jQuery('#url-lampiran-usulan-foto-1').val("");
-								jQuery('#url-lampiran-usulan-foto-2').val("");
-								jQuery('#url-lampiran-usulan-foto-3').val("");
-								jQuery('#file-lampiran-usulan-foto-1').val("");
-								jQuery('#file-lampiran-usulan-foto-2').val("");
-								jQuery('#file-lampiran-usulan-foto-3').val("");
-							}
+			data_all.reduce(function(sequence, nextData) {
+					return sequence.then(function(current_data) {
+							return new Promise(function(resolve_reduce, reject_reduce) {
+									formData.append('data_excel', JSON.stringify(current_data));
+
+									jQuery.ajax({
+										url: "<?php echo admin_url('admin-ajax.php'); ?>",
+										type: 'post',
+										data: formData,
+										dataType: 'json',
+										processData: false,
+										contentType: false,
+										cache: false,
+										success: function(response) {
+											if (response.status == 'success') {
+												alert('Import Data Usulan Sukses!');
+												jQuery('#importModal').modal('hide');
+												usulanSSHTable.ajax.reload();
+											} else {
+												alert(response.message);
+											}
+											jQuery("#wrap-loading").hide();
+											jQuery("#file-import-usulan-excel").val("");
+											jQuery('#data-excel').val("");
+											jQuery('#list-skpd').val("");
+											jQuery('#url-lampiran-usulan-foto-1').val("");
+											jQuery('#url-lampiran-usulan-foto-2').val("");
+											jQuery('#url-lampiran-usulan-foto-3').val("");
+											jQuery('#file-lampiran-usulan-foto-1').val("");
+											jQuery('#file-lampiran-usulan-foto-2').val("");
+											jQuery('#file-lampiran-usulan-foto-3').val("");
+										}
+									});
+								})
+								.catch(function(e) {
+									console.log(e);
+									return Promise.resolve(nextData);
+								});
+						})
+						.catch(function(e) {
+							console.log(e);
+							return Promise.resolve(nextData);
 						});
-					})
-					.catch(function(e) {
-						console.log(e);
-						return Promise.resolve(nextData);
-					});
+				}, Promise.resolve(data_all[last]))
+				.then(function(data_last) {
+					jQuery('#wrap-loading').hide();
+					alert('Import Data Usulan Sukses!');
+					jQuery('#importModal').modal('hide');
+					usulanSSHTable.ajax.reload();
 				})
 				.catch(function(e) {
 					console.log(e);
-					return Promise.resolve(nextData);
+					jQuery('#wrap-loading').hide();
+					alert('Error during import!');
 				});
-			}, Promise.resolve(data_all[last]))
-			.then(function(data_last) {
-				jQuery('#wrap-loading').hide();
-				alert('Import Data Usulan Sukses!');
-				jQuery('#importModal').modal('hide');
-				usulanSSHTable.ajax.reload();
-			})
-			.catch(function(e) {
-				console.log(e);
-				jQuery('#wrap-loading').hide();
-				alert('Error during import!');
-			});
 		}
 	}
 
@@ -2273,7 +2273,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_nama_komponent").val('usulan-' + response.data.id).trigger('change');
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga).trigger('input');
+					jQuery("#tambah_akun_komp_harga_satuan").val(parseInt(response.data.harga)).trigger('input');
 					jQuery('input[name="tambah_harga_komp_jenis_produk"][value="' + response.data.jenis_produk + '"]').prop('checked', true);
 					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2328,7 +2328,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_harga_komp_nama_komponent").val('usulan-' + response.data.id).trigger('change');
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga).trigger('input');
+					jQuery("#tambah_harga_komp_harga_satuan").val(parseInt(response.data.harga)).trigger('input');
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked', true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2401,7 +2401,7 @@ echo $this->menu_ssh($input);
 					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
-					jQuery("#u_harga_satuan").val(response.data.harga).trigger('input');
+					jQuery("#u_harga_satuan").val(parseInt(response.data.harga)).trigger('input');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked', true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2409,7 +2409,7 @@ echo $this->menu_ssh($input);
 					response.data_akun_usulan.map(function(b, i) {
 						var myText = b.id_akun + " " + b.nama_akun;
 						var option = new Option(myText, b.id_akun, true, true);
-						jQuery("#u_akun").append(option).trigger('change');
+						jQuery("#u_akun").append(option)
 						jQuery("#u_akun").trigger({
 							type: 'select2:select',
 							params: {
@@ -2997,18 +2997,26 @@ echo $this->menu_ssh($input);
 				jQuery('#wrap-loading').show();
 				var data = '';
 				var data_ids = [];
+				// let ids_ssh = []
+				// ids.forEach(function(item) {
+				// 	ids_ssh.push(item.id);
+				// });
+
 				ids.map(function(b, i) {
+					let hargaFormated = formatNumber(parseInt(b.harga));
 					data_ids.push(b.id);
+
 					data += '' +
 						'<tr>' +
-						'<td>' + b.kelompok + '</td>' +
-						'<td>' + b.komponen + '</td>' +
-						'<td>' + b.spesifikasi + '</td>' +
-						'<td>' + b.harga + '</td>' +
-						'<td>' + b.rekening + '</td>' +
-						'<td>' + b.jenis + '</td>' +
-						'</tr>'
+						'<td class="text-left">' + b.kelompok + '</td>' +
+						'<td class="text-left">' + b.komponen + '</td>' +
+						'<td class="text-left">' + b.spesifikasi + '</td>' +
+						'<td class="text-right">' + hargaFormated + '</td>' +
+						'<td class="text-left">' + b.rekening + '</td>' +
+						'<td class="text-left">' + b.jenis + '</td>' +
+						'</tr>';
 				});
+
 				jQuery('.type-sumber-ssh').prop('checked', false);
 				jQuery('#surat_skpd').val('');
 				jQuery('#catatan_surat').val('');
@@ -3018,6 +3026,7 @@ echo $this->menu_ssh($input);
 				jQuery('#tbody_data_usulan').html(data);
 				jQuery('#tambahSuratUsulan').modal('show');
 				jQuery('#jenis_survey').prop('checked', true);
+
 				<?php
 				if (
 					in_array("administrator", $user_meta->roles)
@@ -3145,12 +3154,13 @@ echo $this->menu_ssh($input);
 
 					var ids = [];
 					res.data.map(function(b, i) {
+						let hargaFormated = formatNumber(parseInt(b.harga))
 						var data = {
 							id: b.id,
 							kelompok: b.nama_kel_standar_harga,
 							komponen: b.nama_standar_harga,
 							spesifikasi: b.spek,
-							harga: b.harga,
+							harga: hargaFormated,
 							rekening: '<ul style="margin-bottom: 0; margin-left: 20px;">',
 							jenis: b.status_jenis_usulan
 						}
@@ -3167,15 +3177,16 @@ echo $this->menu_ssh($input);
 						alert('Usulan standar harga dengan nomor surat ' + nomor_surat + ' tidak ditemukan');
 					} else {
 						ids.map(function(b, i) {
+							let hargaFormated = formatNumber(parseInt(b.harga))
 							data_ids.push(b.id);
 							data += '' +
 								'<tr>' +
-								'<td>' + b.kelompok + '</td>' +
-								'<td>' + b.komponen + '</td>' +
-								'<td>' + b.spesifikasi + '</td>' +
-								'<td>' + b.harga + '</td>' +
-								'<td>' + b.rekening + '</td>' +
-								'<td>' + b.jenis + '</td>' +
+								'<td class="text-left">' + b.kelompok + '</td>' +
+								'<td class="text-left">' + b.komponen + '</td>' +
+								'<td class="text-left">' + b.spesifikasi + '</td>' +
+								'<td class="text-right">' + hargaFormated + '</td>' +
+								'<td class="text-left">' + b.rekening + '</td>' +
+								'<td class="text-left">' + b.jenis + '</td>' +
 								'</tr>'
 						});
 					}
@@ -3200,6 +3211,10 @@ echo $this->menu_ssh($input);
 				}
 			}
 		});
+	}
+
+	function formatNumber(value) {
+		return new Intl.NumberFormat("id-ID").format(value);
 	}
 
 	function edit_nota_dinas(that) {
@@ -3228,12 +3243,13 @@ echo $this->menu_ssh($input);
 
 					var ids = [];
 					res.data.map(function(b, i) {
+						let hargaFormated = formatNumber(parseInt(b.harga))
 						var data = {
 							id: b.id,
 							kelompok: b.nama_kel_standar_harga,
 							komponen: b.nama_standar_harga,
 							spesifikasi: b.spek,
-							harga: b.harga,
+							harga: hargaFormated,
 							rekening: '',
 							nomor_surat: b.no_surat_usulan,
 							jenis: b.status_jenis_usulan
@@ -3244,16 +3260,18 @@ echo $this->menu_ssh($input);
 					var data = '';
 					var data_ids = [];
 					ids.map(function(b, i) {
+						let hargaFormated = formatNumber(parseInt(b.harga))
+
 						data_ids.push(b.id);
 						data += '' +
 							'<tr>' +
-							'<td>' + b.kelompok + '</td>' +
-							'<td>' + b.komponen + '</td>' +
-							'<td>' + b.spesifikasi + '</td>' +
-							'<td>' + b.harga + '</td>' +
-							'<td>' + b.rekening + '</td>' +
-							'<td>' + b.nomor_surat + '</td>' +
-							'<td>' + b.jenis + '</td>' +
+							'<td class="text-left">' + b.kelompok + '</td>' +
+							'<td class="text-left">' + b.komponen + '</td>' +
+							'<td class="text-left">' + b.spesifikasi + '</td>' +
+							'<td class="text-right">' + hargaFormated + '</td>' +
+							'<td class="text-left">' + b.rekening + '</td>' +
+							'<td class="text-left">' + b.nomor_surat + '</td>' +
+							'<td class="text-left">' + b.jenis + '</td>' +
 							'<td><button class="btn btn-sm btn-danger" onclick="hapusItemNotaDinasById(' + b.id + ')"><span class="dashicons dashicons-no"></span></button></td>' +
 							'</tr>';
 					});
