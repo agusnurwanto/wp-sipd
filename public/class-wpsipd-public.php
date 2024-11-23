@@ -3619,8 +3619,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	public function replace_char($str)
 	{
-		// $str = preg_replace("/(\r?\n){2,}/", " ", trim($str));
-		$str = trim($str);
+		$str = is_null($str) ? '' : trim($str);
 		$str = html_entity_decode($str, ENT_QUOTES | ENT_XML1, 'UTF-8');
 		$str = str_replace(
 			array('"', "'", '\\', '&#039'),
@@ -3629,6 +3628,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		return $str;
 	}
+
 
 	public function get_alamat($input, $rincian, $no = 0)
 	{

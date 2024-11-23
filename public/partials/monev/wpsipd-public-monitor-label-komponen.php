@@ -216,23 +216,25 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     $murni = '';
     $selisih = '';
     if ($type == 'pergeseran') {
-        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($skpd['total_murni'], 0, ",", ".") . "</td>";
-        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($skpd['total'] - $skpd['total_murni']), 0, ",", ".") . "</td>";
+        $murni_value = $skpd['total_murni'] ?? 0;
+        $selisih_value = ($skpd['total'] ?? 0) - $murni_value;
+        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($murni_value, 0, ",", ".") . "</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format($selisih_value, 0, ",", ".") . "</td>";
     }
     $penyerapan = 0;
     if (!empty($skpd['total'])) {
-        $penyerapan = $this->pembulatan(($skpd['realisasi'] / $skpd['total']) * 100);
+        $penyerapan = $this->pembulatan(($skpd['realisasi'] ?? 0) / ($skpd['total'] ?? 1) * 100);
     }
     $nama_page = 'RFK ' . $skpd['nama'] . ' ' . $k . ' | ' . $v['tahun_anggaran'];
     $custom_post = get_page_by_title($nama_page, OBJECT, 'page');
     $body_label .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
-            <td class="kanan bawah text_blok" colspan="2"><a href="' . get_permalink($custom_post) . '?key=' . $this->gen_key() . '" target="_blank">' . $k . ' ' . $skpd['nama'] . '</a></td>
+            <td class="kanan bawah text_blok" colspan="2"><a href="' . get_permalink($custom_post) . '?key=' . $this->gen_key() . '&pagu_dpa=sipd" target="_blank">' . $k . ' ' . $skpd['nama'] . '</a></td>
             ' . $murni . '
-            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'], 0, ",", ".") . '</td>
+            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
-            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'], 0, ",", ".") . '</td>
+            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'] ?? 0, 0, ",", ".") . '</td>
             <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
         </tr>
@@ -241,12 +243,14 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $murni = '';
         $selisih = '';
         if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($sub_keg['total_murni'], 0, ",", ".") . "</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($sub_keg['total'] - $sub_keg['total_murni']), 0, ",", ".") . "</td>";
+            $murni_value = $sub_keg['total_murni'] ?? 0;
+            $selisih_value = ($sub_keg['total'] ?? 0) - $murni_value;
+            $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($murni_value, 0, ",", ".") . "</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format($selisih_value, 0, ",", ".") . "</td>";
         }
         $penyerapan = 0;
         if (!empty($sub_keg['total'])) {
-            $penyerapan = $this->pembulatan(($sub_keg['realisasi'] / $sub_keg['total']) * 100);
+            $penyerapan = $this->pembulatan(($sub_keg['realisasi'] ?? 0) / ($sub_keg['total'] ?? 1) * 100);
         }
         $nama_page = $input['tahun_anggaran'] . ' | ' . $k . ' | ' . $sub_keg['kode_giat'] . ' | ' . $sub_keg['nama_giat'];
         $custom_post = get_page_by_title($nama_page, OBJECT, 'post');
@@ -256,9 +260,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a></td>
                 ' . $murni . '
-                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'], 0, ",", ".") . '</td>
+                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
-                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'], 0, ",", ".") . '</td>
+                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
                 <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
                 <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
             </tr>
@@ -267,8 +271,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             $murni = '';
             $selisih = '';
             if ($type == 'pergeseran') {
-                $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($kel['total_murni'], 0, ",", ".") . "</td>";
-                $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($kel['total'] - $kel['total_murni']), 0, ",", ".") . "</td>";
+                $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($kel['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+                $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($kel['total'] - $kel['total_murni']) ?? 0, 0, ",", ".") . "</td>";
             }
             $penyerapan = 0;
             if (!empty($kel['total'])) {
@@ -279,9 +283,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">' . $kel['nama'] . '</td>
                     ' . $murni . '
-                    <td class="kanan bawah text_blok text_kanan">' . number_format($kel['total'], 0, ",", ".") . '</td>
+                    <td class="kanan bawah text_blok text_kanan">' . number_format($kel['total'] ?? 0, 0, ",", ".") . '</td>
                     ' . $selisih . '
-                    <td class="kanan bawah text_blok text_kanan">' . number_format($kel['realisasi'], 0, ",", ".") . '</td>
+                    <td class="kanan bawah text_blok text_kanan">' . number_format($kel['realisasi'] ?? 0, 0, ",", ".") . '</td>
                     <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
                     <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                 </tr>
@@ -290,8 +294,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 $murni = '';
                 $selisih = '';
                 if ($type == 'pergeseran') {
-                    $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($ket['total_murni'], 0, ",", ".") . "</td>";
-                    $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($ket['total'] - $ket['total_murni']), 0, ",", ".") . "</td>";
+                    $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($ket['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+                    $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($ket['total'] - $ket['total_murni']) ?? 0, 0, ",", ".") . "</td>";
                 }
                 $penyerapan = 0;
                 if (!empty($ket['total'])) {
@@ -302,9 +306,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">' . $ket['nama'] . '</td>
                         ' . $murni . '
-                        <td class="kanan bawah text_blok text_kanan">' . number_format($ket['total'], 0, ",", ".") . '</td>
+                        <td class="kanan bawah text_blok text_kanan">' . number_format($ket['total'] ?? 0, 0, ",", ".") . '</td>
                         ' . $selisih . '
-                        <td class="kanan bawah text_blok text_kanan">' . number_format($ket['realisasi'], 0, ",", ".") . '</td>
+                        <td class="kanan bawah text_blok text_kanan">' . number_format($ket['realisasi'] ?? 0, 0, ",", ".") . '</td>
                         <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
                         <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                     </tr>
@@ -314,8 +318,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     $murni = '';
                     $selisih = '';
                     if ($type == 'pergeseran') {
-                        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($akun['total_murni'], 0, ",", ".") . "</td>";
-                        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($akun['total'] - $akun['total_murni']), 0, ",", ".") . "</td>";
+                        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($akun['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+                        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($akun['total'] - $akun['total_murni']) ?? 0, 0, ",", ".") . "</td>";
                     }
                     $penyerapan = 0;
                     if (!empty($akun['total'])) {
@@ -326,9 +330,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">' . $akun['nama'] . '</td>
                             ' . $murni . '
-                            <td class="kanan bawah text_blok text_kanan">' . number_format($akun['total'], 0, ",", ".") . '</td>
+                            <td class="kanan bawah text_blok text_kanan">' . number_format($akun['total'] ?? 0, 0, ",", ".") . '</td>
                             ' . $selisih . '
-                            <td class="kanan bawah text_blok text_kanan">' . number_format($akun['realisasi'], 0, ",", ".") . '</td>
+                            <td class="kanan bawah text_blok text_kanan">' . number_format($akun['realisasi'] ?? 0, 0, ",", ".") . '</td>
                             <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
                             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                         </tr>
@@ -342,8 +346,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $murni = '';
                         $selisih = '';
                         if ($type == 'pergeseran') {
-                            $murni = "<td class='kanan bawah text_kanan'>" . number_format($rincian['rincian_murni'], 0, ",", ".") . "</td>";
-                            $selisih = "<td class='kanan bawah text_kanan'>" . number_format(($rincian['rincian'] - $rincian['rincian_murni']), 0, ",", ".") . "</td>";
+                            $murni = "<td class='kanan bawah text_kanan'>" . number_format($rincian['rincian_murni'] ?? 0, 0, ",", ".") . "</td>";
+                            $selisih = "<td class='kanan bawah text_kanan'>" . number_format(($rincian['rincian'] - $rincian['rincian_murni']) ?? 0, 0, ",", ".") . "</td>";
                         }
                         $penyerapan = 0;
                         if (!empty($rincian['rincian'])) {
@@ -355,9 +359,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                                 <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . '</td>
                                 <td class="kanan bawah">' . $alamat . $rincian['spek_komponen'] . '</td>
                                 ' . $murni . '
-                                <td class="kanan bawah text_kanan">' . number_format($rincian['rincian'], 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
-                                <td class="kanan bawah text_kanan">' . number_format($rincian['realisasi'], 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan">' . number_format($rincian['realisasi'] ?? 0, 0, ",", ".") . '</td>
                                 <td class="kanan bawah text_kanan">' . $penyerapan . '</td>
                                 <td class="kanan bawah text_tengah">' . $rincian['koefisien'] . '</td>
                                 <td class="kanan bawah text_tengah">' . $rincian['satuan'] . '</td>
@@ -370,8 +374,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $murni = '';
         $selisih = '';
         if ($type == 'pergeseran') {
-            $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($sub_keg['total_murni'], 0, ",", ".") . "</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($sub_keg['total'] - $sub_keg['total_murni']), 0, ",", ".") . "</td>";
+            $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($sub_keg['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($sub_keg['total'] - $sub_keg['total_murni']) ?? 0, 0, ",", ".") . "</td>";
         }
         $penyerapan = 0;
         if (!empty($sub_keg['total'])) {
@@ -382,9 +386,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
                 <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada Sub Kegiatan</td>
                 ' . $murni . '
-                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'], 0, ",", ".") . '</td>
+                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
-                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'], 0, ",", ".") . '</td>
+                <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
                 <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
                 <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
             </tr>
@@ -393,8 +397,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     $murni = '';
     $selisih = '';
     if ($type == 'pergeseran') {
-        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($skpd['total_murni'], 0, ",", ".") . "</td>";
-        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($skpd['total'] - $skpd['total_murni']), 0, ",", ".") . "</td>";
+        $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($skpd['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($skpd['total'] - $skpd['total_murni']) ?? 0, 0, ",", ".") . "</td>";
     }
     $penyerapan = 0;
     if (!empty($skpd['total'])) {
@@ -405,9 +409,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
             <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada SKPD</td>
             ' . $murni . '
-            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'], 0, ",", ".") . '</td>
+            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
-            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'], 0, ",", ".") . '</td>
+            <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'] ?? 0, 0, ",", ".") . '</td>
             <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
         </tr>
@@ -416,8 +420,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
 $murni = '';
 $selisih = '';
 if ($type == 'pergeseran') {
-    $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($data_label_shorted['total_murni'], 0, ",", ".") . "</td>";
-    $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($data_label_shorted['total'] - $data_label_shorted['total_murni']), 0, ",", ".") . "</td>";
+    $murni = "<td class='kanan bawah text_kanan text_blok'>" . number_format($data_label_shorted['total_murni'] ?? 0, 0, ",", ".") . "</td>";
+    $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($data_label_shorted['total'] - $data_label_shorted['total_murni']) ?? 0, 0, ",", ".") . "</td>";
 }
 $penyerapan = 0;
 if (!empty($data_label_shorted['total'])) {
@@ -427,9 +431,9 @@ $body_label .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
         ' . $murni . '
-        <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['total'], 0, ",", ".") . '</td>
+        <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['total'] ?? 0, 0, ",", ".") . '</td>
         ' . $selisih . '
-        <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['realisasi'], 0, ",", ".") . '</td>
+        <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", ".") . '</td>
         <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
         <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
     </tr>
@@ -569,7 +573,7 @@ $body_label .= '
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" id="btnSubmitSelected">Simpan</button>
+                <button type="submit" class="btn btn-primary" onclick="simpanTagRinciBl()">Simpan</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Tutup</button>
             </div>
         </div>
@@ -836,6 +840,53 @@ $body_label .= '
         jQuery('#modalTambahData').modal('show')
     }
 
+    function simpanTagRinciBl() {
+        // Ambil semua checkbox rincian yang dicheck
+        let checkedRinci = [];
+        jQuery(".rinci-checkbox:checked").each(function() {
+            checkedRinci.push(jQuery(this).val());
+        });
+
+        if (checkedRinci.length === 0) {
+            return alert("Harap pilih rincian belanja yang akan ditag!");
+        }
+
+        let id_label = <?php echo $input['id_label']; ?>;
+        let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+
+        const tempData = new FormData();
+        tempData.append("action", "tambah_label_rinci_bl");
+        tempData.append("api_key", ajax.api_key);
+        tempData.append("rincian_belanja_ids", JSON.stringify(checkedRinci));
+        tempData.append("id_label", id_label);
+        tempData.append("tahun_anggaran", tahun_anggaran);
+
+        jQuery("#wrap-loading").show();
+
+        jQuery.ajax({
+            method: "post",
+            url: ajax.url,
+            dataType: "json",
+            data: tempData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(res) {
+                alert(res.message);
+                jQuery("#wrap-loading").hide();
+                if (res.status === "success") {
+                    location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery("#wrap-loading").hide();
+                alert("Terjadi kesalahan saat mengirim data!");
+            },
+        });
+    }
+
+
     function handleCheckboxLogic() {
         // Checkbox utama (select all)
         jQuery("#flexCheckDefault").on("change", function() {
@@ -939,7 +990,7 @@ $body_label .= '
         }
 
 
-        // Helper function: Update parent checkbox
+        // Update parent checkbox
         function updateParentCheckbox(parentId, parentSelector, childSelector) {
             const allChildren = jQuery(`${childSelector}[data-parent-id="${parentId}"]`);
             const parentCheckbox = jQuery(`${parentSelector}[data-id="${parentId}"]`);

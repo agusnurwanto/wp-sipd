@@ -4353,18 +4353,18 @@ class Wpsipd_Public_RKA
         global $wpdb;
         $ret = array(
             'status' => 'success',
-            'message' => 'Berhasil Tag Rincian Belanja!'
+            'message' => 'Berhasil tag rincian belanja!'
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
                 $user_data = wp_get_current_user();
-
                 $postData = $_POST;
+
                 // Define validation rules
                 $validationRules = [
-                    'tahun_anggaran' => 'required|numeric',
-                    'id_label'       => 'required',
-                    'rincianBelanja' => 'required',
+                    'tahun_anggaran'      => 'required|numeric',
+                    'id_label'            => 'required'
                 ];
 
                 // Validate data
@@ -4376,46 +4376,61 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
-                $data = array(
-                    'tahun_anggaran'        => sanitize_text_field($postData['tahun_anggaran']),
-                    'id_rinci_sub_bl'       => sanitize_text_field($postData['rincianBelanja']),
-                    'id_label_komponen'     => sanitize_text_field($postData['id_label']),
-                    'user'                  => $user_data->display_name,
-                    'active'                => 1
-                );
+                // Decode rincian_belanja_ids JSON to array
+                $rincianBelanjaIds = json_decode(stripslashes($postData['rincian_belanja_ids']), true);
 
-                $cek_data = $wpdb->get_var(
-                    $wpdb->prepare('
-                        SELECT id
-                        FROM data_mapping_label
-                        WHERE id_rinci_sub_bl = %d
-                          AND tahun_anggaran = %d
-                          AND active = 1
-                    ', $postData['id_rinci_sub_bl'], $postData['tahun_anggaran']),
-                );
+                if (empty($rincianBelanjaIds) || !is_array($rincianBelanjaIds)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Format rincian belanja tidak valid!';
+                    die(json_encode($ret));
+                }
 
-                // Update or insert
-                if ($cek_data) {
-                    $wpdb->update(
-                        'data_mapping_label',
-                        $data,
-                        array('id' => $cek_data)
+                foreach ($rincianBelanjaIds as $idRinciSubBl) {
+                    $data = array(
+                        'tahun_anggaran'    => sanitize_text_field($postData['tahun_anggaran']),
+                        'id_rinci_sub_bl'   => sanitize_text_field($idRinciSubBl),
+                        'id_label_komponen' => sanitize_text_field($postData['id_label']),
+                        'user'              => $user_data->display_name,
+                        'active'            => 1,
                     );
-                    $ret['message'] = 'Berhasil update data!';
-                } else {
-                    $wpdb->insert(
-                        'data_mapping_label',
-                        $data
+
+                    $cek_data = $wpdb->get_var(
+                        $wpdb->prepare(
+                            'SELECT id 
+                             FROM data_mapping_label 
+                             WHERE id_rinci_sub_bl = %d 
+                               AND tahun_anggaran = %d 
+                               AND id_label_komponen = %d 
+                               AND active = 1',
+                            $idRinciSubBl,
+                            $postData['tahun_anggaran'],
+                            $postData['id_label_komponen']
+                        )
                     );
+
+                    // Update or insert
+                    if ($cek_data) {
+                        $wpdb->update(
+                            'data_mapping_label',
+                            $data,
+                            array('id' => $cek_data)
+                        );
+                    } else {
+                        $wpdb->insert(
+                            'data_mapping_label',
+                            $data
+                        );
+                    }
                 }
             } else {
                 $ret['status']  = 'error';
-                $ret['message'] = 'Api key tidak ditemukan!';
+                $ret['message'] = 'API key tidak ditemukan!';
             }
         } else {
             $ret['status']  = 'error';
-            $ret['message'] = 'Format Salah!';
+            $ret['message'] = 'Format salah!';
         }
+
         die(json_encode($ret));
     }
 }
