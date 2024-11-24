@@ -2997,54 +2997,70 @@ echo $this->menu_ssh($input);
 				jQuery('#wrap-loading').show();
 				var data = '';
 				var data_ids = [];
-				// let ids_ssh = []
-				// ids.forEach(function(item) {
-				// 	ids_ssh.push(item.id);
-				// });
+				let ids_ssh = [];
 
-				ids.map(function(b, i) {
-					let hargaFormated = formatNumber(parseInt(b.harga));
-					data_ids.push(b.id);
-
-					data += '' +
-						'<tr>' +
-						'<td class="text-left">' + b.kelompok + '</td>' +
-						'<td class="text-left">' + b.komponen + '</td>' +
-						'<td class="text-left">' + b.spesifikasi + '</td>' +
-						'<td class="text-right">' + hargaFormated + '</td>' +
-						'<td class="text-left">' + b.rekening + '</td>' +
-						'<td class="text-left">' + b.jenis + '</td>' +
-						'</tr>';
+				ids.forEach(function(item) {
+					ids_ssh.push(item.id);
 				});
+				const tempData = new FormData();
+				tempData.append("action", "get_akun_by_id_ssh");
+				tempData.append("api_key", ajax.api_key);
+				tempData.append("tahun_anggaran", tahun);
+				tempData.append("id_ssh", JSON.stringify(ids_ssh));
+				jQuery.ajax({
+					method: "post",
+					url: ajax.url,
+					dataType: "json",
+					data: tempData,
+					processData: false,
+					contentType: false,
+					cache: false,
+					success: function(res) {
+						console.log(res.message);
+						let resArray = res.data;
 
-				jQuery('.type-sumber-ssh').prop('checked', false);
-				jQuery('#surat_skpd').val('');
-				jQuery('#catatan_surat').val('');
-				jQuery('#catatan_verifikator').val('');
-				jQuery('#nomor_surat').val(jQuery('#nomor_surat').attr('placeholder'));
-				jQuery('#ids_surat_usulan').val(data_ids);
-				jQuery('#tbody_data_usulan').html(data);
-				jQuery('#tambahSuratUsulan').modal('show');
-				jQuery('#jenis_survey').prop('checked', true);
+						if (res.status == 'success') {
+							ids.forEach(function(b) {
+								const rekening = resArray[b.id] ? resArray[b.id].join('<br> ') : '-';
+								b.rekening = rekening;
+							});
 
-				<?php
-				if (
-					in_array("administrator", $user_meta->roles)
-					|| in_array("tapd_keu", $user_meta->roles)
-				) {
-					echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
-					echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
-				} else {
-					echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
-					echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
-				}
-				?>
-				jQuery('#wrap-loading').hide();
+							let data = '';
+							let data_ids = [];
+							ids.map(function(b) {
+								let hargaString = b.harga.replace('.', '').replace(',', '.');
+								let hargaFormated = formatNumber(parseFloat(hargaString));
+								data_ids.push(b.id);
+
+								data += '' +
+									'<tr>' +
+									'<td class="text-left">' + b.kelompok + '</td>' +
+									'<td class="text-left">' + b.komponen + '</td>' +
+									'<td class="text-left">' + b.spesifikasi + '</td>' +
+									'<td class="text-right">' + hargaFormated + '</td>' +
+									'<td class="text-left">' + b.rekening + '</td>' +
+									'<td class="text-left">' + b.jenis + '</td>' +
+									'</tr>';
+							});
+
+							jQuery('#ids_surat_usulan').val(data_ids);
+							jQuery('#tbody_data_usulan').html(data);
+							jQuery('#tambahSuratUsulan').modal('show');
+							jQuery('#wrap-loading').hide();
+						} else {
+							jQuery('#wrap-loading').hide();
+						}
+					},
+					error: function(xhr, status, error) {
+						console.error(xhr.responseText);
+						jQuery("#wrap-loading").hide();
+						alert("Terjadi kesalahan saat mengirim data!");
+					},
+				});
 			}
 		} else {
 			alert('Usulan standar harga tidak ditemukan! Pastikan ada data usulan yang akan dibuat surat usulan.');
 		}
-
 	}
 
 	function submitSuratUsulan() {
@@ -3177,14 +3193,13 @@ echo $this->menu_ssh($input);
 						alert('Usulan standar harga dengan nomor surat ' + nomor_surat + ' tidak ditemukan');
 					} else {
 						ids.map(function(b, i) {
-							let hargaFormated = formatNumber(parseInt(b.harga))
 							data_ids.push(b.id);
 							data += '' +
 								'<tr>' +
 								'<td class="text-left">' + b.kelompok + '</td>' +
 								'<td class="text-left">' + b.komponen + '</td>' +
 								'<td class="text-left">' + b.spesifikasi + '</td>' +
-								'<td class="text-right">' + hargaFormated + '</td>' +
+								'<td class="text-right">' + b.harga + '</td>' +
 								'<td class="text-left">' + b.rekening + '</td>' +
 								'<td class="text-left">' + b.jenis + '</td>' +
 								'</tr>'
@@ -3260,15 +3275,13 @@ echo $this->menu_ssh($input);
 					var data = '';
 					var data_ids = [];
 					ids.map(function(b, i) {
-						let hargaFormated = formatNumber(parseInt(b.harga))
-
 						data_ids.push(b.id);
 						data += '' +
 							'<tr>' +
 							'<td class="text-left">' + b.kelompok + '</td>' +
 							'<td class="text-left">' + b.komponen + '</td>' +
 							'<td class="text-left">' + b.spesifikasi + '</td>' +
-							'<td class="text-right">' + hargaFormated + '</td>' +
+							'<td class="text-right">' + b.harga + '</td>' +
 							'<td class="text-left">' + b.rekening + '</td>' +
 							'<td class="text-left">' + b.nomor_surat + '</td>' +
 							'<td class="text-left">' + b.jenis + '</td>' +

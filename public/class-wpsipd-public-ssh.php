@@ -706,6 +706,62 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
+	public function get_akun_by_id_ssh()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data akun SSH!',
+			'data' => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] === get_option('_crb_api_key_extension')) {
+				$ids_ssh = json_decode(stripslashes($_POST['id_ssh']), true);
+
+				if (empty($ids_ssh) || !is_array($ids_ssh)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SSH tidak valid!';
+					die(json_encode($ret));
+				}
+
+				foreach ($ids_ssh as $id) {
+					$id = intval($id);
+					$data_akun = $wpdb->get_results(
+						$wpdb->prepare(
+							'SELECT nama_akun, id_standar_harga 
+                         FROM data_ssh_rek_belanja_usulan 
+                         WHERE id_standar_harga = %d
+                           AND tahun_anggaran = %d',
+							$id,
+							$_POST['tahun_anggaran']
+						),
+						ARRAY_A
+					);
+
+					if (!empty($data_akun)) {
+						$ret['data'][$id] = array_map(function ($item) {
+							return $item['nama_akun'];
+						}, $data_akun);
+					}
+				}
+
+				if (empty($ret['data'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tidak ada data ditemukan untuk ID SSH yang dikirim.';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Request tidak sesuai!';
+		}
+		die(json_encode($ret));
+	}
+
+
 	/** Submit verifikasi usulan SSH */
 	public function submit_verify_ssh()
 	{
@@ -5323,56 +5379,4 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($ret));
 	}
-
-	// public function get_akun_by_id_ssh()
-	// {
-	// 	global $wpdb;
-	// 	$ret = array(
-	// 		'status' => 'success',
-	// 		'message' => 'Berhasil get data akun SSH!',
-	// 		'data' => array()
-	// 	);
-
-	// 	if (!empty($_POST)) {
-	// 		if (!empty($_POST['api_key']) && $_POST['api_key'] === get_option('_crb_api_key_extension')) {
-	// 			$ids_ssh = json_decode(stripslashes($_POST['ids_ssh']), true);
-
-	// 			if (empty($ids_ssh) || !is_array($ids_ssh)) {
-	// 				$ret['status'] = 'error';
-	// 				$ret['message'] = 'ID SSH tidak valid!';
-	// 				die(json_encode($ret));
-	// 			}
-
-	// 			foreach ($ids_ssh as $id) {
-	// 				$id = intval($id);
-	// 				$data_akun = $wpdb->get_row(
-	// 					$wpdb->prepare(
-	// 						'SELECT * 
-    //                      	 FROM data_ssh_rek_belanja_usulan 
-    //                      	 WHERE id_standar_harga = %d
-    //                        	   AND active = 1',
-	// 						$id
-	// 					),
-	// 					ARRAY_A
-	// 				);
-
-	// 				if (!empty($data_akun)) {
-	// 					$ret['data'][$data_akun['id_standar_harga']] = $data_akun['nama_akun'];
-	// 				}
-	// 			}
-
-	// 			if (empty($ret['data'])) {
-	// 				$ret['status'] = 'error';
-	// 				$ret['message'] = 'Tidak ada data ditemukan untuk ID SSH yang dikirim.';
-	// 			}
-	// 		} else {
-	// 			$ret['status'] = 'error';
-	// 			$ret['message'] = 'API Key tidak valid!';
-	// 		}
-	// 	} else {
-	// 		$ret['status'] = 'error';
-	// 		$ret['message'] = 'Request tidak sesuai!';
-	// 	}
-	// 	die(json_encode($ret));
-	// }
 }
