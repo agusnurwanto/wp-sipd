@@ -2340,15 +2340,15 @@ echo $this->menu_ssh($input);
 
 					jQuery("#file_lapiran_usulan_harga_ssh_1").html(response.data.lampiran_1);
 					jQuery("#file_lapiran_usulan_harga_ssh_1").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_harga_ssh_1").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_1);
+					jQuery("#file_lapiran_usulan_harga_ssh_1").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_1);
 
 					jQuery("#file_lapiran_usulan_harga_ssh_2").html(response.data.lampiran_2);
 					jQuery("#file_lapiran_usulan_harga_ssh_2").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_harga_ssh_2").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_2);
+					jQuery("#file_lapiran_usulan_harga_ssh_2").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_2);
 
 					jQuery("#file_lapiran_usulan_harga_ssh_3").html(response.data.lampiran_3);
 					jQuery("#file_lapiran_usulan_harga_ssh_3").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_harga_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_3);
+					jQuery("#file_lapiran_usulan_harga_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_3);
 
 					jQuery("#tambahUsulanHargaByKompSSH .modal-footer").find('.submitBtn').remove();
 					jQuery('#tambah_harga_id_sub_unit').prop('disabled', true);
@@ -2423,15 +2423,15 @@ echo $this->menu_ssh($input);
 
 					jQuery("#file_lapiran_usulan_ssh_1").html(response.data.lampiran_1);
 					jQuery("#file_lapiran_usulan_ssh_1").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_1);
+					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_1);
 
 					jQuery("#file_lapiran_usulan_ssh_2").html(response.data.lampiran_2);
 					jQuery("#file_lapiran_usulan_ssh_2").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_2);
+					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_2);
 
 					jQuery("#file_lapiran_usulan_ssh_3").html(response.data.lampiran_3);
 					jQuery("#file_lapiran_usulan_ssh_3").attr('target', '_blank');
-					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>' + response.data.lampiran_3);
+					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>' + response.data.lampiran_3);
 
 					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
 					jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
@@ -3152,7 +3152,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambahSuratUsulan #u_surat_usulan_ssh").val("").closest('.row').show();
 					var file = '';
 					if (res.surat.nama_file) {
-						file = "<a href='<?php echo esc_url(plugin_dir_url(__DIR__) . 'media/ssh/') ?>" + res.surat.nama_file + "' target='_blank'>" + res.surat.nama_file + "</a>";
+						file = "<a href='<?php echo esc_url(plugin_dir_url(__DIR__) . '../media/ssh/') ?>" + res.surat.nama_file + "' target='_blank'>" + res.surat.nama_file + "</a>";
 					}
 					jQuery("#tambahSuratUsulan #file_surat_usulan_ssh").html(file);
 
