@@ -2406,16 +2406,16 @@ echo $this->menu_ssh($input);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
 
+					jQuery("#u_akun").val("")
 					response.data_akun_usulan.map(function(b, i) {
-						var myText = b.id_akun + " " + b.nama_akun;
-						var option = new Option(myText, b.id_akun, true, true);
+						var option = new Option(b.nama_akun, b.id_akun, false, true);
 						jQuery("#u_akun").append(option)
-						jQuery("#u_akun").trigger({
-							type: 'select2:select',
-							params: {
-								data: b.id_akun
-							}
-						});
+						// jQuery("#u_akun").trigger({
+						// 	type: 'select2:select',
+						// 	params: {
+						// 		data: b.id_akun
+						// 	}
+						// });
 					});
 					jQuery("#u_lapiran_usulan_ssh_1").val(null);
 					jQuery("#u_lapiran_usulan_ssh_2").val(null);
