@@ -2510,6 +2510,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						WHERE set_input = %d
 							AND tahun_anggaran = %d
 							AND kode_akun LIKE '5.%'
+							AND active=1
 							$where
 						LIMIT %d, 20
 					", 1, $tahun_anggaran, $_POST['page'] * 20), ARRAY_A);
