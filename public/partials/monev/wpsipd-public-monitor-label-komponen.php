@@ -618,6 +618,7 @@ $body_label .= '
                         action: "get_sub_keg_sipd",
                         api_key: ajax.api_key,
                         tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
+                        tipe: 'simple',
                         id_skpd: id_skpd,
                     },
                     dataType: "json",

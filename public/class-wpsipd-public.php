@@ -13802,7 +13802,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$column = 's.*, u.nama_skpd as nama_skpd_data_unit, uu.nama_skpd as nama_skpd_data_unit_utama';
 				$tipe = false;
 				if (!empty($_POST['tipe'])) {
-					if ($_POST['tipe'] == 'pt_tati') {
+					if (
+						$_POST['tipe'] == 'pt_tati'
+						|| $_POST['tipe'] == 'simple'
+					) {
 						$tipe = $_POST['tipe'];
 						$column = "
 							s.id_skpd,
@@ -13890,22 +13893,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$data_sub_keg[$k]['nama_sub_kegiatan'] = $this->remove_kode($v['nama_sub_kegiatan']);
 						unset($data_sub_keg[$k]['kode_sbl']);
 					}
-					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
-						SELECT 
-							m.id_sumber_dana,
-							s.kode_dana,
-							s.nama_dana
-						FROM data_mapping_sumberdana m
-						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
-							and s.tahun_anggaran=m.tahun_anggaran
-						INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
-							and r.active=m.active
-							and m.id_rinci_sub_bl=r.id_rinci_sub_bl
-						WHERE m.tahun_anggaran=%d
-							AND m.active=1
-							and r.kode_sbl=%s
-						GROUP BY m.id_sumber_dana
-					', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
+					if ($tipe != 'simple') {
+						$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								m.id_sumber_dana,
+								s.kode_dana,
+								s.nama_dana
+							FROM data_mapping_sumberdana m
+							INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+								and s.tahun_anggaran=m.tahun_anggaran
+							INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
+								and r.active=m.active
+								and m.id_rinci_sub_bl=r.id_rinci_sub_bl
+							WHERE m.tahun_anggaran=%d
+								AND m.active=1
+								and r.kode_sbl=%s
+							GROUP BY m.id_sumber_dana
+						', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
+					}
 				}
 				$ret['data'] = $data_sub_keg;
 			} else {
