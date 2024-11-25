@@ -37,7 +37,6 @@ $data_label = array();
 $where_skpd = '';
 $inner_skpd = '';
 $options    = '';
-$disabled   = '';
 if (!empty($_GET) && !empty($_GET['id_skpd'])) {
     $inner_skpd = '
         INNER JOIN data_sub_keg_bl s 
@@ -56,11 +55,10 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
             WHERE id_skpd = %d 
               AND tahun_anggaran = %d 
               AND active = 1
-        ", $idskpd, $input['tahun_anggaran']),
+        ", $_GET['id_skpd'], $input['tahun_anggaran']),
         ARRAY_A
     );
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
-    $disabled = 'disabled';
 } else {
     $data_skpd = $wpdb->get_results(
         $wpdb->prepare("
@@ -519,7 +517,7 @@ $body_label .= '
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="idSkpd">Pilih SKPD</label>
-                                <select name="idSkpd" class="form-control" id="idSkpd" <?php echo $disabled; ?>>
+                                <select name="idSkpd" class="form-control" id="idSkpd">
                                     <option value="">Pilih SKPD</option>
                                     <?php echo $options; ?>
                                 </select>
@@ -630,7 +628,7 @@ $body_label .= '
                             const data = response.data;
                             jQuery('#subKegiatan').select2({
                                 width: '100%',
-                                dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
+                                dropdownParent: jQuery('#modalTambahData .modal-content') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                             });
 
                             data.forEach(function(item) {
@@ -964,9 +962,6 @@ $body_label .= '
             const allChildren = jQuery(`.subs-row[data-parent-id="${akunId}"] .subs-checkbox`);
             const allChecked = allChildren.length === allChildren.filter(":checked").length;
 
-            console.log(`Kelompok: ${allChildren.length}`);
-            console.log(`Kelompok Checked: ${allChildren.filter(":checked").length}`);
-
             jQuery(`.akun-checkbox[value="${akunId}"]`).prop("checked", allChecked);
         }
 
@@ -974,18 +969,12 @@ $body_label .= '
             const allChildren = jQuery(`.ket-row[data-parent-id="${kelompokId}"] .ket-checkbox`);
             const allChecked = allChildren.length === allChildren.filter(":checked").length;
 
-            console.log(`Keterangan: ${allChildren.length}`);
-            console.log(`Keterangan Checked: ${allChildren.filter(":checked").length}`);
-
             jQuery(`.subs-checkbox[value="${kelompokId}"]`).prop("checked", allChecked);
         }
 
         function updateSelectAllStateKeterangan(keteranganId) {
             const allChildren = jQuery(`.rinci-row[data-parent-id="${keteranganId}"] .rinci-checkbox`);
             const allChecked = allChildren.length === allChildren.filter(":checked").length;
-
-            console.log(`Rinci: ${allChildren.length}`);
-            console.log(`Rinci Checked: ${allChildren.filter(":checked").length}`);
 
             jQuery(`.ket-checkbox[value="${keteranganId}"]`).prop("checked", allChecked);
         }
