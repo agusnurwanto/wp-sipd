@@ -398,7 +398,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 
 			if (get_option('_crb_show_menu_aklap_lra') != true) {
-				Container::make('theme_options', __('Halaman LRA'))
+				Container::make('theme_options', __('Halaman Aklap LRA'))
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'aklap_lra')));
 			}
@@ -1323,7 +1323,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$url_skpd = $this->generatePage('Halaman TBP ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_tbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP iki ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'aklap_lra') {
-							$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
+							$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Aklap LRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
@@ -1384,7 +1384,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								$url_skpd = $this->generatePage('Halaman TBP ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_tbp tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman TBP ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'aklap_lra') {
-								$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
+								$url_skpd = $this->generatePage('Halaman Aklap LRA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[halaman_aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
 								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Aklap LRA ' . $vvv['kode_skpd'] . ' ' . $vvv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vvv['nipkepala'] . ')';
 							} else if ($_POST['type'] == 'monev_json_rka') {
 								$url_skpd = $this->generatePage('Data JSON RKA ' . $vvv['nama_skpd'] . ' ' . $vvv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vvv['id_skpd'] . '"]');
@@ -1521,7 +1521,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'tbp') {
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'aklap_lra') {
-						$body_all .= $body_pemda;
+						$url_pemda = $this->generatePage('AKLAP LRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman LRA AKLAP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					}
 
 					if ($_POST['type'] == 'spt_sppd') {

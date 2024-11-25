@@ -1,430 +1,852 @@
 <?php
-global $wpdb;
-$api_key = get_option('_crb_api_key_extension');
-$url = admin_url('admin-ajax.php');
-
-$kd_nama_skpd = null;
-$input = shortcode_atts(array(
-    'id_skpd' => '',
-    'tahun_anggaran' => ''
-), $atts);
-
-$skpd_result = $wpdb->get_row(
-    $wpdb->prepare('
-        SELECT 
-            kode_skpd,
-            nama_skpd
-        FROM data_unit
-        WHERE id_skpd = %s
-          AND tahun_anggaran = %d
-          AND active = 1
-    ', $input['id_skpd'], $input['tahun_anggaran']),
-    ARRAY_A
-);
-
-if ($skpd_result) {
-    $kd_nama_skpd = $skpd_result['kode_skpd'] . ' ' . $skpd_result['nama_skpd'];
-} else {
-    echo 'Data SKPD tidak ditemukan';
-}
-
-function ubah_minus($nilai){
-    if($nilai < 0){
-        $nilai = abs($nilai);
-        return '('.number_format($nilai,2,",",".").')';
-    }else{
-        return number_format($nilai,2,",",".");
-    }
+print_r('IKI HALAMAN COBA');exit();
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
 }
 
 global $wpdb;
-$GLOBALS['pendapatan'] = 0;
-$GLOBALS['belanja'] = 0;
-$GLOBALS['pembiayaan_penerimaan'] = 0;
-$GLOBALS['pembiayaan_pengeluaran'] = 0;
+global $total_belanja_murni;
+global $total_belanja;
+global $total_pendapatan_murni;
+global $total_pendapatan;
 
-if(!empty($_GET) && !empty($_GET['id_skpd'])){
-    $input['id_skpd'] = $_GET['id_skpd'];
-}
+$total_belanja_murni = 0;
+$total_belanja = 0;
+$total_pendapatan_murni = 0;
+$total_pendapatan = 0;
 
-if(!empty($input['id_skpd'])){
-    $sql = $wpdb->prepare("
-        select             
-            kode_akun,
-            nama_akun,
-            sum(nominal) as nominal,
-            sum(realisasi) as realisasi,
-            sum(presentase) as presentase,
-            sum(previous_realisasi) as realisasi_sebelum
-        from aklap_lra_sipd
-        where tahun_anggaran=%d
-            and active=1
-            and id_skpd=%d
-            ".$where_jadwal."
-        group by kode_rekening
-        order by kode_rekening ASC
-    ", $input['tahun_anggaran'], $input['id_skpd']);
-}else{
-    $sql = $wpdb->prepare("
-        select             
-            kode_rekening,
-            nama_rekening,
-            sum(nominal) as nominal,
-            sum(realisasi) as realisasi,
-            sum(presentase) as presentase,
-            sum(previous_realisasi) as realisasi_sebelum
-        from aklap_lra_sipd
-        where tahun_anggaran=%d
-            and active=1
-            ".$where_jadwal."
-        group by kode_rekening
-        order by kode_rekening ASC
-    ", $input['tahun_anggaran']);
-}
-$rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
-
-$body_pendapatan = generate_body($rek_pendapatan, true, $type, 'Pendapatan', $dari_simda);
-//BELANJA
-if(!empty($input['id_skpd'])){
-    $sql = $wpdb->prepare("
-        select             
-            r.kode_rekening,
-            r.nama_rekening,
-            sum(r.nominal) as total,
-            sum(r.realisasi) as totalmurni,
-            sum(r.presentase) as presentase,
-            sum(r.previous_realisasi) as totalmurni
-        from aklap_lra_sipd
-        inner join data_sub_keg_bl s on s.kode_sbl = r.kode_sbl
-            and s.active = r.active
-            and s.tahun_anggaran = r.tahun_anggaran
-        where r.tahun_anggaran=%d
-            and r.active=1
-            and s.id_sub_skpd=%d
-            ".$where_jadwal_rka."
-            ".$where_sub_keg_bl."
-        group by r.kode_rekening
-        order by r.kode_rekening ASC
-    ", $input['tahun_anggaran'], $input['id_skpd']);
-}else{
-    $sql = $wpdb->prepare("
-        select 
-            0 as realisasi,
-            kode_akun,
-            nama_akun,
-            sum(rincian) as total,
-            sum(rincian_murni) as totalmurni
-        from data_rka".$tabel_history."
-        where tahun_anggaran=%d
-            and active=1
-            ".$where_jadwal."
-        group by kode_akun
-        order by kode_akun ASC
-    ", $input['tahun_anggaran']);
-}
-$rek_belanja = $wpdb->get_results($sql, ARRAY_A);
-
-function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nama_rekening, $dari_simda=0){
+function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
     global $wpdb;
-    global $pendapatan;    
-    global $belanja;    
-    global $pembiayaan_penerimaan;    
-    global $pembiayaan_pengeluaran;
-    
+    global $total_belanja_murni;
+    global $total_belanja;
+    global $total_pendapatan_murni;
+    global $total_pendapatan;
     $data_pendapatan = array(
         'data' => array(),
-        'realisasi' => 0,
-        'total' => 0
+        'total' => 0,
+        'totalmurni' => 0
     );
-
     foreach ($rek_pendapatan as $k => $v) {
-        if($dari_simda!=0 && !empty($v['total_simda'])){
-            $v['totalmurni'] = $v['total_simda'];
-        }
         $rek = explode('.', $v['kode_akun']);
         $kode_akun = $rek[0];
         if(!$kode_akun){
             // print_r($v); die();
             continue;
         }
+        if(empty($v['nama_bidang_urusan'])){
+            $kode_urusan = array('0', '00');
+        }else{
+            $kode_urusan = explode('.', $v['kode_bidang_urusan']);
+        }
         if(empty($data_pendapatan['data'][$kode_akun])){
             $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun."'", ARRAY_A);
             $data_pendapatan['data'][$kode_akun] = array(
                 'data' => array(),
-                'realisasi' => 0,
                 'nama' => $nama_akun[0]['nama_akun'],
+                'kode_skpd' => $skpd['kode_skpd'],
+                'kode_urusan' => $kode_urusan[0],
+                'kode_bidang' => $kode_urusan[1],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']])){
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']] = array(
+                'nama' => $v['nama_bidang_urusan'],
+                'data' => array(),
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']])){
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']] = array(
+                'data' => array(),
+                'nama' => $v['nama_program'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']])){
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']] = array(
+                'data' => array(),
+                'nama' => $v['nama_giat'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']])){
+            $skpd_sub = $wpdb->get_row('SELECT kode_skpd, nama_skpd FROM `data_unit` where id_skpd='.$v['id_skpd'].' and tahun_anggaran='.$v['tahun_anggaran'].' and active=1', ARRAY_A);
+            // echo $skpd_sub['nama_skpd'].' - '.$skpd_sub['kode_skpd'].' - '.$v['id_skpd'].'<br>';
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']] = array(
+                'data' => array(),
+                'kode_skpd' => $skpd_sub['kode_skpd'],
+                'nama_skpd' => $skpd_sub['nama_skpd'],
+                'nama' => $v['nama_sub_giat'],
                 'total' => 0,
                 'totalmurni' => 0
             );
         }
         $kode_akun1 = $kode_akun.'.'.$rek[1];
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1])){
+            $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun1."'", ARRAY_A);
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1] = array(
+                'data' => array(),
+                'nama' => $nama_akun[0]['nama_akun'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        $kode_akun2 = $kode_akun1.'.'.$rek[2];
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2])){
+            $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun2."'", ARRAY_A);
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2] = array(
+                'data' => array(),
+                'nama' => $nama_akun[0]['nama_akun'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        $kode_akun3 = $kode_akun2.'.'.$rek[3];
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3])){
+            $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun3."'", ARRAY_A);
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3] = array(
+                'data' => array(),
+                'nama' => $nama_akun[0]['nama_akun'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        $kode_akun4 = $kode_akun3.'.'.$rek[4];
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4])){
+            $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun4."'", ARRAY_A);
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4] = array(
+                'data' => array(),
+                'nama' => $nama_akun[0]['nama_akun'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        $kode_akun5 = $kode_akun4.'.'.$rek[5];
+        if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5])){
+            $nama_akun = $wpdb->get_results("SELECT nama_akun from data_akun where kode_akun='".$kode_akun5."'", ARRAY_A);
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5] = array(
+                'data' => array(),
+                'nama' => $nama_akun[0]['nama_akun'],
+                'total' => 0,
+                'totalmurni' => 0
+            );
+        }
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['data'][] = $v;
 
-}
-?>
-<style type="text/css">
-    .wrap-table {
-        overflow: auto;
-        max-height: 100vh;
-        width: 100%;
+        $data_pendapatan['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['total'] += $v['total'];
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['total'] += $v['total'];
+
+        // if(!empty($v['totalmurni'])){
+            $data_pendapatan['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['totalmurni'] += $v['totalmurni'];
+            $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['kode_program']]['data'][$v['kode_giat']]['data'][$v['kode_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['totalmurni'] += $v['totalmurni'];
+        // }
     }
+    // print_r($data_pendapatan); die();
 
-    .wrap-table-detail {
-        overflow: auto;
-        max-height: 100vh;
-        width: 100%;
-    }
-</style>
-<div class="wrap-table">
-    <h1 class="text-center"><?php echo $kd_nama_skpd; ?><br>LAPORAN REALISASI ANGGARAN PENDAPATAN DAN BELANJA DAERAH<br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-    <table id="table-data-tbp" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="text-center">No</th>
-                <th class="text-center">Nomor TBP</th>
-                <th class="text-center">Nilai TBP</th>
-                <th class="text-center">Tanggal TBP</th>
-                <th class="text-center">Keterangan TBP</th>
-                <th class="text-center">Nilai Materai</th>
-                <th class="text-center">Nomor Kwitansi</th>
-                <th class="text-center">Jenis TBP</th>
-                <th class="text-center">Jenis LS TBP</th>
-                <th class="text-center">Nomor Jurnal</th>
-                <th class="text-center">Kunci Rekening</th>
-                <th class="text-center">Panjar</th>
-                <th class="text-center">LPJ</th>
-                <th class="text-center">Rekanan Upload</th>
-                <th class="text-center">Status Aklap</th>
-                <th class="text-center">Metode</th>
-                <th class="text-center">Total Pertanggungajawaban</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
-<div class="modal fade" id="modalDetailTbp" tabindex="-1" role="dialog" aria-labelledby="modalDetailTbpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDetailTbpLabel">Detail TBP</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="wrap-table-detail">
-                    <table id="table-data-tbp-detail" cellpadding="2" cellspacing="0" style="font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-collapse: collapse; width: 100%; overflow-wrap: break-word;" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">No</th>
-                                <th class="text-center">Nomor TBP</th>
-                                <th class="text-center">Tanggal TBP</th>
-                                <th class="text-center">Nilai TBP</th>
-                                <th class="text-center">Nama Tujuan</th>
-                                <th class="text-center">Alamat Perusahaan</th>
-                                <th class="text-center">NPWP</th>
-                                <th class="text-center">Nomor Rekening</th>                                
-                                <th class="text-center">Nama Rekening</th>
-                                <th class="text-center">Nama Bank</th>
-                                <th class="text-center">Keterangan TBP</th>
-                                <th class="text-center">Jenis Transaksi</th>
-                                <th class="text-center">Nomor NPD</th>
-                                <th class="text-center">Jenis Panjar</th>
-                                <th class="text-center">Nama Daerah</th>
-                                <th class="text-center">Nama SKPD</th>   
-                                <th class="text-center">Nama PA KPA</th>
-                                <th class="text-center">Nama BP BPP</th>                                
-                                <th class="text-center">Jabatan PA KPA</th>
-                                <th class="text-center">Jabatan BP BPP</th>
-                                <th class="text-center">Nip PA KPA</th>
-                                <th class="text-center">Nip BP BPP</th>
-                                <th class="text-center">Jenis</th>
-                                <th class="text-center">Potongan Pajak</th>
-                                <th class="text-center">Jenis TBP</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    jQuery(document).ready(function() {
-        get_datatable_tbp();
-    });
-
-    function get_datatable_tbp() {
-        if (typeof tableDataTbp == 'undefined') {
-            window.tableDataTbp = jQuery('#table-data-tbp').on('preXhr.dt', function(e, settings, data) {
-                jQuery("#wrap-loading").show();
-            }).DataTable({
-                "processing": true,
-                "serverSide": true,
-                "search": {
-                    return: true
-                },
-                "ajax": {
-                    url: '<?php echo $url; ?>',
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        'action': 'get_datatable_data_tbp_sipd',
-                        'api_key': '<?php echo $api_key; ?>',
-                        'id_skpd': '<?php echo $input['id_skpd']; ?>',
-                        'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+    $kode_skpd = explode('.', $skpd['kode_skpd']);
+    $body_pendapatan = '';
+    $total = 0;
+    $padding = 15;
+    foreach ($data_pendapatan['data'] as $k => $v) {
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($v['totalmurni'],2,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($v['total']-$v['totalmurni']),2,",",".")."</td>";
+        }
+        $body_pendapatan .= "
+        <tr data-akun='".$k."'>
+            <td class='kiri kanan bawah text_blok'>".$v['kode_urusan']."</td>
+            <td class='kiri kanan bawah text_blok'>".$v['kode_bidang']."</td>
+            <td class='kiri kanan bawah text_blok'>".$v['kode_skpd']."</td>
+            <td class='kiri kanan bawah text_blok'>00</td>
+            <td class='kiri kanan bawah text_blok'>0.00</td>
+            <td class='kiri kanan bawah text_blok'>00</td>
+            <td class='kiri kanan bawah text_blok'>".$k."</td>
+            <td class='kiri kanan bawah'></td>
+            <td class='kiri kanan bawah'></td>
+            <td class='kiri kanan bawah'></td>
+            <td class='kiri kanan bawah rincian_objek'></td>
+            <td class='kiri kanan bawah sub_rincian_objek'></td>
+            <td class='kanan bawah text_blok'>".$v['nama']."</td>
+            ".$murni."
+            <td class='kanan bawah text_kanan text_blok'>".number_format($v['total'],2,",",".")."</td>
+            ".$selisih."
+            <td class='kanan bawah'></td>
+            <td class='kanan bawah'></td>
+        </tr>";
+        // urusan
+        foreach ($v['data'] as $nn => $mm) {
+            if(!empty($mm['nama'])){
+                $murni = '';
+                $selisih = '';
+                if($type == 'pergeseran'){
+                    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mm['totalmurni'],2,",",".")."</td>";
+                    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mm['total']-$mm['totalmurni']),2,",",".")."</td>";
+                }
+                $body_pendapatan .= "
+                <tr data-akun='".$nn."'>
+                    <td class='kiri kanan bawah text_blok'>".$v['kode_urusan']."</td>
+                    <td class='kiri kanan bawah text_blok'>".$v['kode_bidang']."</td>
+                    <td class='kiri kanan bawah text_blok'>".$v['kode_skpd']."</td>
+                    <td class='kiri kanan bawah text_blok'>00</td>
+                    <td class='kiri kanan bawah text_blok'>0.00</td>
+                    <td class='kiri kanan bawah text_blok'>00</td>
+                    <td class='kiri kanan bawah'></td>
+                    <td class='kiri kanan bawah'></td>
+                    <td class='kiri kanan bawah'></td>
+                    <td class='kiri kanan bawah'></td>
+                    <td class='kiri kanan bawah rincian_objek'></td>
+                    <td class='kiri kanan bawah sub_rincian_objek'></td>
+                    <td class='kanan bawah text_blok' style='padding-left:".($padding*1)."px;'>".$mm['nama']."</td>
+                    ".$murni."
+                    <td class='kanan bawah text_kanan text_blok'>".number_format($mm['total'],2,",",".")."</td>
+                    ".$selisih."
+                    <td class='kanan bawah'></td>
+                    <td class='kanan bawah'></td>
+                </tr>";
+            }
+            // program
+            foreach ($mm['data'] as $nnn => $mmm) {
+                if(!empty($mmm['nama'])){
+                    $murni = '';
+                    $selisih = '';
+                    if($type == 'pergeseran'){
+                        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmm['totalmurni'],2,",",".")."</td>";
+                        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmm['total']-$mmm['totalmurni']),2,",",".")."</td>";
                     }
-                },
-                lengthMenu: [
-                    [20, 50, 100, -1],
-                    [20, 50, 100, "All"]
-                ],
-                order: [
-                    [0, 'asc']
-                ],
-                "drawCallback": function(settings) {
-                    jQuery("#wrap-loading").hide();
-                },
-                "columns": [{
-                        "data": null,
-                        "className": "text-center",
-                        "orderable": false,
-                        "searchable": false,
-                        "render": function(data, type, full, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
+                    $body_pendapatan .= "
+                    <tr data-akun='".$nnn."'>
+                        <td class='kiri kanan bawah text_blok'>".$v['kode_urusan']."</td>
+                        <td class='kiri kanan bawah text_blok'>".$v['kode_bidang']."</td>
+                        <td class='kiri kanan bawah text_blok'>".$v['kode_skpd']."</td>
+                        <td class='kiri kanan bawah text_blok'>".$nnn."</td>
+                        <td class='kiri kanan bawah text_blok'>0.00</td>
+                        <td class='kiri kanan bawah text_blok'>00</td>
+                        <td class='kiri kanan bawah'></td>
+                        <td class='kiri kanan bawah'></td>
+                        <td class='kiri kanan bawah'></td>
+                        <td class='kiri kanan bawah'></td>
+                        <td class='kiri kanan bawah rincian_objek'></td>
+                        <td class='kiri kanan bawah sub_rincian_objek'></td>
+                        <td class='kanan bawah text_blok' style='padding-left:".($padding*2)."px;'>".$mmm['nama']."</td>
+                        ".$murni."
+                        <td class='kanan bawah text_kanan text_blok'>".number_format($mmm['total'],2,",",".")."</td>
+                        ".$selisih."
+                        <td class='kanan bawah'></td>
+                        <td class='kanan bawah'></td>
+                    </tr>";
+                }
+                // kegiatan
+                foreach ($mmm['data'] as $nnnn => $mmmm) {
+                    if(!empty($mmmm['nama'])){
+                        $murni = '';
+                        $selisih = '';
+                        if($type == 'pergeseran'){
+                            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['totalmurni'],2,",",".")."</td>";
+                            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($mmmm['total']-$mmmm['totalmurni']),2,",",".")."</td>";
                         }
-                    },
-                    {
-                        "data": 'nomor_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'nilai_tbp',
-                        className: "text-right"
-                    },
-                    {
-                        "data": 'tanggal_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'keterangan_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'nilai_materai_tbp',
-                        className: "text-right"
-                    },
-                    {
-                        "data": 'nomor_kwitansi',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'jenis_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'jenis_ls_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'nomor_jurnal',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'is_kunci_rekening_tbp',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'is_panjar',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'is_lpj',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'is_rekanan_upload',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'status_aklap',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'metode',
-                        className: "text-center"
-                    },
-                    {
-                        "data": 'total_pertanggungjawaban',
-                        className: "text-center"
-                    },
-                ]
-            });
-        } else {
-            tableDataSpp.draw();
+                        $body_pendapatan .= "
+                        <tr data-akun='".$nnnn."'>
+                            <td class='kiri kanan bawah text_blok'>".$v['kode_urusan']."</td>
+                            <td class='kiri kanan bawah text_blok'>".$v['kode_bidang']."</td>
+                            <td class='kiri kanan bawah text_blok'>".$v['kode_skpd']."</td>
+                            <td class='kiri kanan bawah text_blok'>".$nnn."</td>
+                            <td class='kiri kanan bawah text_blok'>".$nnnn."</td>
+                            <td class='kiri kanan bawah text_blok'>00</td>
+                            <td class='kiri kanan bawah'></td>
+                            <td class='kiri kanan bawah'></td>
+                            <td class='kiri kanan bawah'></td>
+                            <td class='kiri kanan bawah'></td>
+                            <td class='kiri kanan bawah rincian_objek'></td>
+                            <td class='kiri kanan bawah sub_rincian_objek'></td>
+                            <td class='kanan bawah text_blok' style='padding-left:".($padding*3)."px;'>".$mmmm['nama']."</td>
+                            ".$murni."
+                            <td class='kanan bawah text_kanan text_blok'>".number_format($mmmm['total'],2,",",".")."</td>
+                            ".$selisih."
+                            <td class='kanan bawah'></td>
+                            <td class='kanan bawah'></td>
+                        </tr>";
+                    }
+                    // sub kegiatan
+                    foreach ($mmmm['data'] as $nnnnn => $mmmmm) {
+                        $v['kode_skpd'] = $mmmmm['kode_skpd'];
+                        if(!empty($mmmmm['nama'])){
+                            $murni = '';
+                            $selisih = '';
+                            if($type == 'pergeseran'){
+                                $murni = "<td class='kanan bawah text_kanan'>".number_format($mmmmm['totalmurni'],2,",",".")."</td>";
+                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($mmmmm['total']-$mmmmm['totalmurni']),2,",",".")."</td>";
+                            }
+                            $sub_giat = explode(' ', $mmmmm['nama']);
+                            $kd_sub_giat = $sub_giat[0];
+                            unset($sub_giat[0]);
+                            $sub_giat = implode(' ', $sub_giat);
+
+                            // if($kd_sub_giat == '1.02.02.2.01.01'){
+                            //     print_r($mmmmm); die();
+                            // }
+
+                            $body_pendapatan .= "
+                            <tr data-akun='".$kd_sub_giat."' data-skpd='".$mmmmm['kode_skpd']."' data-nama-skpd='".$mmmmm['nama_skpd']."'>
+                                <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
+                                <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
+                                <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
+                                <td class='kiri kanan bawah'>".$nnn."</td>
+                                <td class='kiri kanan bawah'>".$nnnn."</td>
+                                <td class='kiri kanan bawah'>".$nnnnn."</td>
+                                <td class='kiri kanan bawah'></td>
+                                <td class='kiri kanan bawah'></td>
+                                <td class='kiri kanan bawah'></td>
+                                <td class='kiri kanan bawah'></td>
+                                <td class='kiri kanan bawah rincian_objek'></td>
+                                <td class='kiri kanan bawah sub_rincian_objek'></td>
+                                <td class='kanan bawah' style='padding-left:".($padding*4)."px;'>".$sub_giat."</td>
+                                ".$murni."
+                                <td class='kanan bawah text_kanan'>".number_format($mmmmm['total'],2,",",".")."</td>
+                                ".$selisih."
+                                <td class='kanan bawah'></td>
+                                <td class='kanan bawah'></td>
+                            </tr>";
+                        }
+                        foreach ($mmmmm['data'] as $kk => $vv) {
+                            $text_blok = '';
+                            if(empty($mmmmm['nama'])){
+                                $text_blok = 'text_blok';
+                            }
+                            $kode = explode('.', $kk);
+                            $murni = '';
+                            $selisih = '';
+                            if($type == 'pergeseran'){
+                                $murni = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['totalmurni'],2,",",".")."</td>";
+                                $selisih = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format(($vv['total']-$vv['totalmurni']),2,",",".")."</td>";
+                            }
+                            $body_pendapatan .= "
+                            <tr data-akun='".$kk."'>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_urusan']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_bidang']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_skpd']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnnnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$kode[0]."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$kode[1]."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kiri kanan bawah ".$text_blok." rincian_objek'></td>
+                                <td class='kiri kanan bawah ".$text_blok." sub_rincian_objek'></td>
+                                <td class='kanan bawah ".$text_blok."'  style='padding-left:".($padding*5)."px;'>".$vv['nama']."</td>
+                                ".$murni."
+                                <td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['total'],2,",",".")."</td>
+                                ".$selisih."
+                                <td class='kanan bawah ".$text_blok."'></td>
+                                <td class='kanan bawah ".$text_blok."'></td>
+                            </tr>";
+                            foreach ($vv['data'] as $kkk => $vvv) {
+                                $kode = explode('.', $kkk);
+                                $murni = '';
+                                $selisih = '';
+                                if($type == 'pergeseran'){
+                                    $murni = "<td class='kanan bawah text_kanan'>".number_format($vvv['totalmurni'],2,",",".")."</td>";
+                                    $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvv['total']-$vvv['totalmurni']),2,",",".")."</td>";
+                                }
+                                $body_pendapatan .= "
+                                <tr data-akun='".$kkk."'>
+                                    <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
+                                    <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
+                                    <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
+                                    <td class='kiri kanan bawah'>".$nnn."</td>
+                                    <td class='kiri kanan bawah'>".$nnnn."</td>
+                                    <td class='kiri kanan bawah'>".$nnnnn."</td>
+                                    <td class='kiri kanan bawah'>".$kode[0]."</td>
+                                    <td class='kiri kanan bawah'>".$kode[1]."</td>
+                                    <td class='kiri kanan bawah'>".$kode[2]."</td>
+                                    <td class='kiri kanan bawah'></td>
+                                    <td class='kiri kanan bawah rincian_objek'></td>
+                                    <td class='kiri kanan bawah sub_rincian_objek'></td>
+                                    <td class='kanan bawah'  style='padding-left:".($padding*6)."px;'>".$vvv['nama']."</td>
+                                    ".$murni."
+                                    <td class='kanan bawah text_kanan'>".number_format($vvv['total'],2,",",".")."</td>
+                                    ".$selisih."
+                                    <td class='kanan bawah'></td>
+                                    <td class='kanan bawah'></td>
+                                </tr>";
+                                foreach ($vvv['data'] as $kkkk => $vvvv) {
+                                    $kode = explode('.', $kkkk);
+                                    $murni = '';
+                                    $selisih = '';
+                                    if($type == 'pergeseran'){
+                                        $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvv['totalmurni'],2,",",".")."</td>";
+                                        $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvv['total']-$vvvv['totalmurni']),2,",",".")."</td>";
+                                    }
+                                    $body_pendapatan .= "
+                                    <tr data-akun='".$kkkk."'>
+                                        <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
+                                        <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
+                                        <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
+                                        <td class='kiri kanan bawah'>".$nnn."</td>
+                                        <td class='kiri kanan bawah'>".$nnnn."</td>
+                                        <td class='kiri kanan bawah'>".$nnnnn."</td>
+                                        <td class='kiri kanan bawah'>".$kode[0]."</td>
+                                        <td class='kiri kanan bawah'>".$kode[1]."</td>
+                                        <td class='kiri kanan bawah'>".$kode[2]."</td>
+                                        <td class='kiri kanan bawah'>".$kode[3]."</td>
+                                        <td class='kiri kanan bawah rincian_objek'></td>
+                                        <td class='kiri kanan bawah sub_rincian_objek'></td>
+                                        <td class='kanan bawah'  style='padding-left:".($padding*7)."px;'>".$vvvv['nama']."</td>
+                                        ".$murni."
+                                        <td class='kanan bawah text_kanan'>".number_format($vvvv['total'],2,",",".")."</td>
+                                        ".$selisih."
+                                        <td class='kanan bawah'></td>
+                                        <td class='kanan bawah'></td>
+                                    </tr>";
+                                    foreach ($vvvv['data'] as $kkkkk => $vvvvv) {
+                                        $kode = explode('.', $kkkkk);
+                                        $murni = '';
+                                        $selisih = '';
+                                        if($type == 'pergeseran'){
+                                            $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvv['totalmurni'],2,",",".")."</td>";
+                                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvv['total']-$vvvvv['totalmurni']),2,",",".")."</td>";
+                                        }
+                                        $body_pendapatan .= "
+                                        <tr data-akun='".$kkkkk."' class='rincian_objek'>
+                                            <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
+                                            <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
+                                            <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
+                                            <td class='kiri kanan bawah'>".$nnn."</td>
+                                            <td class='kiri kanan bawah'>".$nnnn."</td>
+                                            <td class='kiri kanan bawah'>".$nnnnn."</td>
+                                            <td class='kiri kanan bawah'>".$kode[0]."</td>
+                                            <td class='kiri kanan bawah'>".$kode[1]."</td>
+                                            <td class='kiri kanan bawah'>".$kode[2]."</td>
+                                            <td class='kiri kanan bawah'>".$kode[3]."</td>
+                                            <td class='kiri kanan bawah rincian_objek'>".$kode[4]."</td>
+                                            <td class='kiri kanan bawah sub_rincian_objek'></td>
+                                            <td class='kanan bawah'  style='padding-left:".($padding*8)."px;'>".$vvvvv['nama']."</td>
+                                            ".$murni."
+                                            <td class='kanan bawah text_kanan'>".number_format($vvvvv['total'],2,",",".")."</td>
+                                            ".$selisih."
+                                            <td class='kanan bawah'></td>
+                                            <td class='kanan bawah'></td>
+                                        </tr>";
+                                        foreach ($vvvvv['data'] as $kkkkkk => $vvvvvv) {
+                                            $all_skpd = array();
+                                            foreach ($vvvvvv['data'] as $kkkkkkk => $vvvvvvv) {
+                                                $all_skpd[] = array($vvvvvvv['id_skpd'], $vvvvvvv['totalmurni'], $vvvvvvv['total']);
+                                            }
+                                            $kode = explode('.', $kkkkkk);
+                                            $murni = '';
+                                            $selisih = '';
+                                            if($type == 'pergeseran'){
+                                                $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvvv['totalmurni'],2,",",".")."</td>";
+                                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvvv['total']-$vvvvvv['totalmurni']),2,",",".")."</td>";
+                                            }
+                                            $body_pendapatan .= "
+                                            <tr class='sub_rincian_objek' data-akun='".$kkkkkk."' data-skpd='".json_encode($all_skpd)."'>
+                                                <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
+                                                <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
+                                                <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
+                                                <td class='kiri kanan bawah'>".$nnn."</td>
+                                                <td class='kiri kanan bawah'>".$nnnn."</td>
+                                                <td class='kiri kanan bawah'>".$nnnnn."</td>
+                                                <td class='kiri kanan bawah'>".$kode[0]."</td>
+                                                <td class='kiri kanan bawah'>".$kode[1]."</td>
+                                                <td class='kiri kanan bawah'>".$kode[2]."</td>
+                                                <td class='kiri kanan bawah'>".$kode[3]."</td>
+                                                <td class='kiri kanan bawah rincian_objek'>".$kode[4]."</td>
+                                                <td class='kiri kanan bawah sub_rincian_objek'>".$kode[5]."</td>
+                                                <td class='kanan bawah'  style='padding-left:".($padding*9)."px;'>".$vvvvvv['nama']."</td>
+                                                ".$murni."
+                                                <td class='kanan bawah text_kanan'>".number_format($vvvvvv['total'],2,",",".")."</td>
+                                                ".$selisih."
+                                                <td class='kanan bawah'></td>
+                                                <td class='kanan bawah'></td>
+                                            </tr>";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    function modalDetailSpp(id) {
-        jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            url: '<?php echo $url; ?>',
-            type: 'POST',
-            dataType: 'JSON',
-            data: {
-                'action': 'get_data_tbp_sipd_detail',
-                'api_key': '<?php echo $api_key; ?>',
-                'tahun_anggaran': '<?php echo $input['tahun_anggaran']?>',
-                'id_tbp': id
-            },
-            success: function(res) {
-                if (res.status == 'success') {
-                    let html = "";
-                    res.data.map(function(b, i) {
-                        html += '' +
-                            '<tr>' +
-                            '<td class="text-center">' + (i + 1) + '</td>' +
-                            '<td class="text-center">' + b.nomor_tbp + '</td>' +
-                            '<td class="text-center">' + b.tanggal_tbp + '</td>' +
-                            '<td class="text-center">' + b.nilai_tbp + '</td>' +
-                            '<td class="text-center">' + b.nama_tujuan + '</td>' +                            
-                            '<td class="text-center">' + b.alamat_perusahaan + '</td>' +
-                            '<td class="text-center">' + b.npwp + '</td>' +
-                            '<td class="text-center">' + b.nomor_rekening + '</td>' +
-                            '<td class="text-center">' + b.nama_rekening + '</td>' +
-                            '<td class="text-center">' + b.nama_bank + '</td>' +
-                            '<td class="text-center">' + b.keterangan_tbp + '</td>' +
-                            '<td class="text-center">' + b.jenis_transaksi + '</td>' +
-                            '<td class="text-center">' + b.nomor_npd + '</td>' +
-                            '<td class="text-center">' + b.jenis_panjar + '</td>' +
-                            '<td class="text-center">' + b.nama_daerah + '</td>' +
-                            '<td class="text-center">' + b.nama_skpd + '</td>' +
-                            '<td class="text-center">' + b.nama_pa_kpa + '</td>' +
-                            '<td class="text-center">' + b.nama_bp_bpp + '</td>' +
-                            '<td class="text-center">' + b.jabatan_pa_kpa + '</td>' +
-                            '<td class="text-center">' + b.jabatan_bp_bpp + '</td>' +                            
-                            '<td class="text-center">' + b.nip_pa_kpa + '</td>' +    
-                            '<td class="text-center">' + b.nip_bp_bpp + '</td>' +
-                            '<td class="text-center">' + b.jenis + '</td>' +                                                    
-                            '<td class="text-center">' + b.pajak_potongan + '</td>' +
-                            '<td class="text-center">' + b.jenis_tbp + '</td>' +
-                            '</tr>';
-                    });
-                    jQuery('#table-data-tbp-detail').DataTable().clear();
-                    jQuery('#table-data-tbp-detail tbody').html(html);
-                    jQuery('#modalDetailTbp').modal('show');
-                    jQuery('#table-data-tbp-detail').DataTable();
-                } else {
-                    alert(res.message);
-                }
-                jQuery('#wrap-loading').hide();
-            }
-        });
+    $murni = '';
+    $selisih = '';
+    if($type == 'pergeseran'){
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['totalmurni'],2,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_pendapatan['total']-$data_pendapatan['totalmurni']),2,",",".")."</td>";
     }
+    $body_pendapatan .= "
+    <tr>
+        <td class='kiri kanan bawah text_kanan text_blok colspan_kurang' colspan='13'>Jumlah ".$nama_table."</td>
+        ".$murni."
+        <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],2,",",".")."</td>
+        ".$selisih."
+        <td class='kanan bawah'></td>
+        <td class='kanan bawah'></td>
+    </tr>";
+
+    if($nama_table == 'Pendapatan'){
+        $total_pendapatan = $data_pendapatan['total'];
+        $total_pendapatan_murni = $data_pendapatan['totalmurni'];
+    }else if($nama_table == 'Belanja'){
+        $total_belanja = $data_pendapatan['total'];
+        $total_belanja_murni = $data_pendapatan['totalmurni'];
+    }
+    return $body_pendapatan;
+}
+
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $input['id_skpd'] = $_GET['id_skpd'];
+}
+$skpd = $wpdb->get_row($wpdb->prepare('
+    SELECT 
+        * 
+    FROM `data_unit` 
+    where id_skpd=%d 
+        and tahun_anggaran=%d 
+        and active=1
+', $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
+if(empty($skpd)){
+    die('<h1 class="text-center">Perangkat Daerah tidak ditemukan!</h1>');
+}
+
+$kode = explode('.', $skpd['kode_skpd']);
+$type = 'murni';
+if(!empty($_GET) && !empty($_GET['type'])){
+    $type = $_GET['type'];
+}
+
+$tabel_history = '';
+$where_jadwal = '';
+$nama_jadwal = '';
+if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
+    $input['id_jadwal_lokal'] = $_GET['id_jadwal_lokal'];
+    $cek_jadwal = $wpdb->get_row($wpdb->prepare("
+        SELECT
+            *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal=%d
+            AND tahun_anggaran=%d
+            AND id_tipe=6
+    ", $input['id_jadwal_lokal'], $input['tahun_anggaran']), ARRAY_A);
+    if(!empty($cek_jadwal)){
+        if($cek_jadwal['status']==1){
+            $tabel_history = '_history';
+            $where_jadwal = $wpdb->prepare(' AND id_jadwal=%d', $input['id_jadwal_lokal']);
+        }
+        $nama_jadwal = '<h1 class="text-center">Jadwal: '.$cek_jadwal['nama'].'</h1>';
+    }
+}
+$where_jadwal_rka = str_replace('id_jadwal=', 'r.id_jadwal=', $where_jadwal);
+$where_sub_keg_bl = str_replace('id_jadwal=', 's.id_jadwal=', $where_jadwal);
+
+$id_skpd_all = array();
+if($skpd['is_skpd'] == 1){
+    $skpd_induk = $wpdb->get_results($wpdb->prepare('
+        SELECT 
+            id_skpd 
+        FROM `data_unit` 
+        where (
+                idinduk=%d 
+                or id_unit=%d 
+            )
+            and tahun_anggaran=%d 
+            and active=1
+    ', $input['id_skpd'], $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    foreach ($skpd_induk as $k => $v) {
+        $id_skpd_all[] = $v['id_skpd'];
+    }
+}else{
+    $id_skpd_all[0] = $input['id_skpd'];
+}
+
+$sql = $wpdb->prepare("
+    select 
+        tahun_anggaran,
+        id_skpd,
+        '' as nama_bidang_urusan,
+        '' as nama_program,
+        '' as nama_giat,
+        '' as nama_sub_giat,
+        '".$kode[0].".".$kode[1]."' as kode_bidang_urusan,
+        '00' as kode_program,
+        '0.00' as kode_giat,
+        '00' as kode_sub_giat,
+        kode_akun,
+        nama_akun,
+        sum(total) as total,
+        sum(nilaimurni) as totalmurni
+    from data_pendapatan".$tabel_history."
+    where tahun_anggaran=%d
+        and id_skpd IN (".implode(',', $id_skpd_all).")
+        and active=1
+        ".$where_jadwal."
+    group by id_skpd, kode_akun
+    order by id_skpd ASC, kode_akun ASC
+", $input['tahun_anggaran']);
+$rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
+// print_r($rek_pendapatan); die($sql);
+
+$body_pendapatan = generate_body($rek_pendapatan, 'Pendapatan', $type, $skpd);
+
+$sql = $wpdb->prepare("
+    select 
+        r.tahun_anggaran,
+        s.id_sub_skpd as id_skpd,
+        s.kode_bidang_urusan,
+        s.nama_bidang_urusan,
+        s.nama_program,
+        s.nama_giat,
+        s.nama_sub_giat,
+        s.kode_program,
+        s.kode_giat,
+        s.kode_sub_giat,
+        r.kode_akun,
+        r.nama_akun,
+        sum(r.rincian) as total,
+        sum(r.rincian_murni) as totalmurni
+    from data_rka".$tabel_history." r
+        left join data_sub_keg_bl".$tabel_history." s ON r.kode_sbl=s.kode_sbl AND s.tahun_anggaran=r.tahun_anggaran
+    where r.tahun_anggaran=%d
+        and s.id_sub_skpd IN (".implode(',', $id_skpd_all).")
+        and r.active=1
+        and s.active=1
+        ".$where_jadwal_rka."
+        ".$where_sub_keg_bl."
+    group by s.kode_sbl, r.kode_akun
+    order by s.kode_sub_giat ASC, r.kode_akun ASC
+", $input['tahun_anggaran']);
+$rek_belanja = $wpdb->get_results($sql, ARRAY_A);
+
+$body_belanja = generate_body($rek_belanja, 'Belanja', $type, $skpd);
+
+$sql = $wpdb->prepare("
+    select 
+        tahun_anggaran,
+        id_skpd,
+        '' as nama_bidang_urusan,
+        '' as nama_program,
+        '' as nama_giat,
+        '' as nama_sub_giat,
+        '".$kode[0].".".$kode[1]."' as kode_bidang_urusan,
+        '00' as kode_program,
+        '0.00' as kode_giat,
+        '00' as kode_sub_giat,
+        kode_akun,
+        nama_akun,
+        sum(total) as total,
+        sum(nilaimurni) as totalmurni
+    from data_pembiayaan".$tabel_history."
+    where tahun_anggaran=%d
+        and id_skpd IN (".implode(',', $id_skpd_all).")
+        and active=1
+        ".$where_jadwal."
+    group by id_skpd, kode_akun
+    order by id_skpd ASC, kode_akun ASC
+", $input['tahun_anggaran']);
+$rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
+
+$body_pembiayaan = generate_body($rek_pembiayaan, 'Pembiayaan', $type, $skpd);
+$urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where kode_bidang_urusan=\''.$kode[0].'.'.$kode[1].'\' and tahun_anggaran='.$input['tahun_anggaran'], ARRAY_A);
+?>
+<?php echo $nama_jadwal; ?>
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 2 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
+    <table align="right" class="table-header no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
+        <tr>
+            <td width="80" valign="top">Lampiran II </td>
+            <td width="10" valign="top">:</td>
+            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxxx   </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td width="10">&nbsp;</td>
+            <td width="60" class="text_kiri" style="padding-left: 0px;">Nomor</td>
+            <td width="10">:</td>
+            <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxxx</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td width="10">&nbsp;</td>
+            <td width="60" class="text_kiri" style="padding-left: 0px;">Tanggal</td>
+            <td width="10">:</td>
+            <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
+        </tr>
+    </table>
+    <h4 class="table-header" style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>PENJABARAN PERUBAHAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS, OBJEK, RINCIAN OBJEK, SUB RINCIAN OBJEK PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+    <table cellspacing="2" cellpadding="0" class="apbd-penjabaran no-border no-padding">
+        <tbody>
+            <tr>
+                <td width="150">Urusan Pemerintahan</td>
+                <td width="10">:</td>
+                <td><?php echo $urusan['nama_bidang_urusan']; ?></td>
+            </tr>
+            <tr>
+                <td width="100">Organisasi</td>
+                <td width="10">:</td>
+                <td><?php echo $skpd['kode_skpd'].'&nbsp;'.$skpd['nama_skpd']; ?></td>
+            </tr>
+        </tbody>
+    </table>
+    <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
+        <thead>
+            <tr>
+                <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="12">Kode Rekening</td>
+                <td class="atas kanan bawah text_tengah text_blok">Uraian</td>
+                <?php if($type == 'murni'): ?>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Jumlah</td>
+                <?php else: ?>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Sebelum Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Sesudah Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Bertambah/(Berkurang)</td>
+                <?php endif; ?>
+                <td class="atas kanan bawah text_tengah text_blok" width="180px">Penjelasan</td>
+                <td class="atas kanan bawah text_tengah text_blok" width="180px">Keterangan</td>
+            </tr>
+        </thead>
+        <tbody>
+            <?php 
+                echo $body_pendapatan; 
+                echo $body_belanja;
+                $selisih_belanja = $total_pendapatan-$total_belanja;
+                $selisih_belanja_murni = $total_pendapatan_murni-$total_belanja_murni;
+                if($type == 'murni'){
+                    $kolom_jml = '
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,2,",",".").'</td>
+                    ';
+                    $kolom_batas = '
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                    ';
+                }else{
+                    $kolom_jml = '
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,2,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja_murni,2,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format(($selisih_belanja-$selisih_belanja_murni),2,",",".").'</td>
+                    ';
+                    $kolom_batas = '
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                    ';
+                }
+                echo '
+                    </tr>
+                        <td colspan="13" class="kiri kanan bawah text_blok text_kanan colspan_kurang">Total Surplus/(Defisit)</td>
+                        '.$kolom_jml.'
+                        <td class="kanan bawah"></td>
+                        <td class="kanan bawah"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="13" class="kiri kanan bawah text_blok colspan_kurang" style="height: 2em;padding:0em;margin:0em;"></td>
+                        '.$kolom_batas.'
+                        <td class="kanan bawah"></td>
+                        <td class="kanan bawah"></td>
+                    </tr>
+                ';
+                echo $body_pembiayaan; 
+            ?>
+        </tbody>
+    </table>
+    <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
+        <tr><td colspan="3" class="text_tengah" height="20px"></td></tr>
+        <tr><td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX  </td></tr>
+        <tr><td colspan="3" height="80">&nbsp;</td></tr>
+        <tr><td colspan="3" class="text_tengah" contenteditable="true">XXXXXXXXXXX</td></tr>
+        <tr><td colspan="3" class="text_tengah"></td></tr>
+    </table>
+</div>
+
+<script type="text/javascript">
+    run_download_excel();
+    function hide_header_ttd(that, type){
+        var checked = jQuery(that).is(':checked');
+        var hide2 = jQuery('#hide2').is(':checked');
+        var hide3 = jQuery('#hide3').is(':checked');
+        jQuery('.table-ttd').show();
+        jQuery('.table-header').show();
+        if(checked){
+            if(type == 1){
+                jQuery('#hide2').prop('checked', false);
+                jQuery('#hide3').prop('checked', false);
+                jQuery('.table-ttd').hide();
+                jQuery('.table-header').hide();
+            }else if(type == 2){
+                jQuery('#hide1').prop('checked', false);
+                if(hide3){
+                    jQuery('.table-ttd').hide();
+                }
+                jQuery('.table-header').hide();
+            }else if(type == 3){
+                jQuery('#hide1').prop('checked', false);
+                if(hide2){
+                    jQuery('.table-header').hide();
+                }
+                jQuery('.table-ttd').hide();
+            }
+        }
+    }
+    function hide_rekening_objek(that){
+        var checked = jQuery(that).is(':checked');
+        if(checked){
+            jQuery('.rincian_objek').hide();
+            jQuery('.sub_rincian_objek').hide();
+            jQuery('.colspan_kurang').map(function(i, b){
+                var colspan = +jQuery(b).attr('colspan');
+                jQuery(b).attr('colspan', colspan-2);
+            });
+        }else{
+            jQuery('.rincian_objek').show();
+            jQuery('.sub_rincian_objek').show();
+            jQuery('.colspan_kurang').map(function(i, b){
+                var colspan = +jQuery(b).attr('colspan');
+                jQuery(b).attr('colspan', colspan+2);
+            });
+        }
+    }
+
+    var _url = window.location.href;
+    var url = new URL(_url);
+    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    var type = url.searchParams.get("type");
+    if(type && type=='pergeseran'){
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 2</a>';
+    }else{
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
+    }
+    extend_action += ''
+        +'<div style="margin-top: 15px">'
+            +'<label><input id="hide1" type="checkbox" onclick="hide_header_ttd(this, 1)"> Sembunyikan header & TTD</label>'
+            +'<label style="margin-left: 25px;"><input id="hide2" type="checkbox" onclick="hide_header_ttd(this, 2)"> Sembunyikan header</label>'
+            +'<label style="margin-left: 25px;"><input id="hide3" type="checkbox" onclick="hide_header_ttd(this, 3)"> Sembunyikan TTD</label>'
+            +'<label style="margin-left: 25px;"><input type="checkbox" onclick="hide_rekening_objek(this)"> Sembunyikan Rekening Objek & Sub Rekening Objek</label>'
+        +'</div>';
+    jQuery('#action-sipd').append(extend_action);
 </script>

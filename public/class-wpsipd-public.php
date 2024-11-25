@@ -25054,7 +25054,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-
+		
 		$input = shortcode_atts(array(
 			'idlabelgiat' => '',
 			'id_skpd' => false,
@@ -25062,9 +25062,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		), $atts);
 
 		// LRA
-		if ($input['lampiran'] == 1) {
+		// if ($input['lampiran'] == 1) {
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-aklap-lra.php';
-		}
+		// }
 	}
 
 	function get_serapan_anggaran_capaian_kinerja()

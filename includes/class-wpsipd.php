@@ -1138,6 +1138,8 @@ class Wpsipd
 		add_shortcode('sp2d', array($plugin_public, 'spp'));
 		add_shortcode('halaman_spm', array($plugin_public, 'halaman_spm'));
 		add_shortcode('spm', array($plugin_public, 'spm'));
+		add_shortcode('aklap_lra', array($plugin_public, 'aklap_lra'));
+		add_shortcode('halaman_aklap_lra', array($plugin_public, 'halaman_aklap_lra'));
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
@@ -1192,7 +1194,7 @@ class Wpsipd
 		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 		add_shortcode('halaman_pembiayaan_penerimaan', array($plugin_public, 'halaman_pembiayaan_penerimaan'));
-		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));
+		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));		
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 		add_shortcode('management_data_bku_add', array($plugin_public, 'management_data_bku_add'));
