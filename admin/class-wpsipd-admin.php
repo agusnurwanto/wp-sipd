@@ -3161,6 +3161,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             				<tr>
             					<th class="text_tengah" style="width: 300px">Nama</th>
             					<th class="text_tengah">Keterangan</th>
+            					<th class="text_tengah">Rencana Pagu</th>
             					<th class="text_tengah" style="width: 170px">Aksi</th>
             				</tr>
             			</thead>
@@ -3171,6 +3172,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             						<input type="hidden" id="id_label">
             					</td>
             					<td><textarea class="cf-text__input" type="text" id="keterangan_label"></textarea></td>
+            					<td><input class="cf-text__input" type="number" id="rencana_pagu_label"></input></td>
             					<td class="text_tengah"><button id="tambah_label_komponen" class="button button-primary" onclick="return false;">Simpan Label Komponen</button></td>
             				</tr>
             			</tbody>
@@ -3183,10 +3185,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             					<th class="text_tengah text_blok" rowspan="2" style="width: 20px">No</th>
             					<th class="text_tengah text_blok" rowspan="2" style="width: 250px">Nama Label</th>
             					<th class="text_tengah text_blok" rowspan="2">Keterangan</th>
-            					<th class="text_tengah text_blok" colspan="3" style="width: 400px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
+            					<th class="text_tengah text_blok" colspan="4" style="width: 400px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
             					<th class="text_tengah text_blok" rowspan="2" style="width: 70px">Aksi</th>
             				</tr>
             				<tr>
+            					<th class="text_tengah text_blok" style="width: 140px">Rencana Pagu</th>
             					<th class="text_tengah text_blok" style="width: 140px">Pagu Rincian</th>
             					<th class="text_tengah text_blok" style="width: 140px">Realisasi</th>
             					<th class="text_tengah text_blok">Jumlah Rincian</th>
@@ -3459,7 +3462,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						SELECT 
 							id,
 							nama,
-							keterangan
+							keterangan,
+							rencana_pagu
 						FROM data_label_komponen 
 						WHERE tahun_anggaran = %d
 						  AND active = 1
@@ -3472,11 +3476,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$shortcode = '[monitor_label_komponen tahun_anggaran="' . $_POST['tahun_anggaran'] . '" id_label="' . $v['id'] . '"]';
 					$update = false;
 					$url_label = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
+					$formatted_number = number_format($v['rencana_pagu'], 0, ',', '.');
+
 					$body .= '
 					<tr>
 						<td class="text_tengah">' . ($k + 1) . '</td>
 						<td><a href="' . $url_label . '" target="_blank">' . $v['nama'] . '</a></td>
 						<td>' . $v['keterangan'] . '</td>
+						<td class="text_kanan rencana-pagu">' . $formatted_number . '</td>
 						<td class="text_kanan pagu-rincian">-</td>
 						<td class="text_kanan realisasi-rincian">-</td>
 						<td class="text_kanan jml-rincian">-</td>
@@ -3567,19 +3574,21 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				) {
 					$current_user = wp_get_current_user();
 					$opsi = array(
-						'nama' => $_POST['nama'],
-						'keterangan' => $_POST['keterangan'],
-						'id_skpd' => '',
-						'user' => $current_user->display_name,
-						'active' => 1,
-						'update_at'	=> current_time('mysql'),
-						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+						'nama' 			 => $_POST['nama'],
+						'keterangan' 	 => $_POST['keterangan'],
+						'rencana_pagu' 	 => $_POST['rencana_pagu_label'],
+						'id_skpd' 		 => '',
+						'user' 			 => $current_user->display_name,
+						'active' 		 => 1,
+						'update_at'		 => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
 					if (!empty($_POST['id_label'])) {
 						$wpdb->update('data_label_komponen', $opsi, array(
-							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-							'id' => $_POST['id_label']
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id' 			 => $_POST['id_label']
 						));
+						$ret['message'] = 'Berhasil Update data label komponen!';
 					} else {
 						$wpdb->insert('data_label_komponen', $opsi);
 					}

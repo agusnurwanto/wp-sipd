@@ -208,7 +208,7 @@ foreach ($data_label as $k => $v) {
     $data_label_shorted['realisasi'] += $v['realisasi'];
 }
 ksort($data_label_shorted['data']);
-
+$jumlah_rincian = 0;
 $body_label = '';
 foreach ($data_label_shorted['data'] as $k => $skpd) {
     $murni = '';
@@ -338,6 +338,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
+                        $jumlah_rincian++;
                         $alamat_array = $this->get_alamat($input, $rincian);
                         $alamat = $alamat_array['alamat'];
                         $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
@@ -438,6 +439,48 @@ $body_label .= '
 ';
 
 ?>
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-body {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+    }
+
+    .icon-container {
+        font-size: 2.5rem;
+        margin-right: 1rem;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .card-content {
+        flex-grow: 1;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+</style>
 <div id="cetak" title="Monitoring dan Evaluasi Label Komponen <?php echo $label_db['nama']; ?> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <h4 style="text-align: center; font-size: 20px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">Monitoring dan Evaluasi Label Komponen<br><?php echo $label_db['nama']; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4>
     <div class="m-4 text-center">
@@ -445,6 +488,64 @@ $body_label .= '
             <span class="dashicons dashicons-insert"></span> Tambah Data
         </button>
     </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-sm-6 col-lg-3 mb-4">
+                <div class="card shadow bg-white">
+                    <div class="card-body">
+                        <div class="icon-container bg-primary text-white">
+                            <span class="dashicons dashicons-chart-bar"></span>
+                        </div>
+                        <div class="card-content">
+                            <h6 class="card-subtitle mb-1 text-primary">Rencana Pagu</h6>
+                            <h5 class="card-title mb-0 text-dark" id="rencanaPagu"><?php echo number_format($label_db['rencana_pagu']?? 0, 0, ",", "."); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 mb-4">
+                <div class="card shadow bg-white">
+                    <div class="card-body">
+                        <div class="icon-container bg-success text-white">
+                            <span class="dashicons dashicons-chart-pie"></span>
+                        </div>
+                        <div class="card-content">
+                            <h6 class="card-subtitle mb-1 text-success">Total Pagu Rincian</h6>
+                            <h5 class="card-title mb-0 text-dark" id="totalPaguRincian"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 mb-4">
+                <div class="card shadow bg-white">
+                    <div class="card-body">
+                        <div class="icon-container bg-warning text-white">
+                            <span class="dashicons dashicons-clipboard"></span>
+                        </div>
+                        <div class="card-content">
+                            <h6 class="card-subtitle mb-1 text-warning">Jumlah Rincian</h6>
+                            <h5 class="card-title mb-0 text-dark" id="jumlahRincian"><?php echo $jumlah_rincian;?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 mb-4">
+                <div class="card shadow bg-white">
+                    <div class="card-body">
+                        <div class="icon-container bg-danger text-white">
+                            <span class="dashicons dashicons-chart-area"></span>
+                        </div>
+                        <div class="card-content">
+                            <h6 class="card-subtitle mb-1 text-danger">Total Realisasi</h6>
+                            <h5 class="card-title mb-0 text-dark" id="totalRealisasi"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -632,16 +733,16 @@ $body_label .= '
                             });
 
                             data.forEach(function(item) {
-                                const namaSubGiat = item.nama_sub_giat.replace(/^\S+(\.\S+)*\s/, "");
+                                const namaSubGiat = item.nama_sub_kegiatan.replace(/^\S+(\.\S+)*\s/, "");
 
                                 const paguFormatted = new Intl.NumberFormat('id-ID', {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
-                                }).format(item.pagu);
+                                }).format(item.pagu_anggaran);
 
                                 jQuery("#subKegiatan").append(
-                                    `<option value="${item.kode_sbl}" data-program="${item.kode_program} ${item.nama_program}" data-kegiatan="${item.kode_giat} ${item.nama_giat}">
-                                        ${item.kode_sub_giat} ${namaSubGiat} (Pagu: ${paguFormatted})
+                                    `<option value="${item.kode_sbl}" data-program="${item.kode_program} ${item.nama_program}" data-kegiatan="${item.kode_kegiatan} ${item.nama_kegiatan}">
+                                        ${item.kode_sub_kegiatan} ${namaSubGiat} (Pagu: ${paguFormatted})
                                     </option>`
                                 );
                             });
