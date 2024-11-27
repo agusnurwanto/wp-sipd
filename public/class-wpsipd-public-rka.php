@@ -4433,4 +4433,44 @@ class Wpsipd_Public_RKA
 
         die(json_encode($ret));
     }
+
+    function hapus_rincian_from_label_by_id()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil hapus rincian dari label!',
+            'data' => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $rows_affected = $wpdb->update(
+                    'data_mapping_label',
+                    array('active' => 0),
+                    array(
+                        'id_rinci_sub_bl' => $_POST['id_rincian'],
+                        'tahun_anggaran' => $_POST['tahun_anggaran'],
+                        'id_label_komponen' => $_POST['id_label']
+                    )
+                );
+
+                // Periksa apakah ada baris yang terpengaruh
+                if ($rows_affected === false) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Terjadi kesalahan pada query database.';
+                } else {
+                    $ret['data'] = $rows_affected;
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'API key tidak ditemukan!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
 }

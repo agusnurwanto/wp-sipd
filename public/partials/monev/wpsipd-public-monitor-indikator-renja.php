@@ -65,7 +65,7 @@ if ($input['tahun_anggaran'] < $tahun_sekarang) {
 $api_key = get_option('_crb_api_key_extension');
 function button_edit_monev($class = false, $bobot_kinerja = false)
 {
-	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
+	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev" title="Edit Monev"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
 }
 function valid_number($no)
@@ -1769,9 +1769,9 @@ if (
 <?php
 function generate_aksi_triwulan($type)
 {
-	$upload = '<span class="edit-monev-file edit-monev-file-grey upload_monev_triwulan"><i class="dashicons dashicons-cloud-upload"></i></span>';
-	$simpan = '<span class="edit-monev-file simpan_monev_triwulan"><i class="dashicons dashicons-saved"></i></span>';
-	$hapus = '<span style="margin-left: 10px;" class="edit-monev-file edit-monev-file-danger hapus_monev_triwulan"><i class="dashicons dashicons-no-alt"></i></span>';
+	$upload = '<span class="edit-monev-file edit-monev-file-grey upload_monev_triwulan" title="Upload Monev"><i class="dashicons dashicons-cloud-upload"></i></span>';
+	$simpan = '<span class="edit-monev-file simpan_monev_triwulan" title="Simpan Monev"><i class="dashicons dashicons-saved"></i></span>';
+	$hapus = '<span style="margin-left: 10px;" class="edit-monev-file edit-monev-file-danger hapus_monev_triwulan" title="Hapus Monev"><i class="dashicons dashicons-no-alt"></i></span>';
 	$ret = '';
 	if ($type == 'skpd') {
 		$ret = $simpan . $hapus;

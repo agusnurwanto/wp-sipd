@@ -149,6 +149,7 @@ foreach ($data_label as $k => $v) {
         $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']] = array(
             'kode_giat'         => $sub_keg['kode_giat'],
             'nama_giat'         => $sub_keg['nama_giat'],
+            'kode_sbl'          => $v['kode_sbl'],
             'nama_sub_giat'     => $sub_keg['nama_sub_giat'],
             'realisasi'         => 0,
             'total_murni'       => 0,
@@ -208,6 +209,7 @@ foreach ($data_label as $k => $v) {
     $data_label_shorted['realisasi'] += $v['realisasi'];
 }
 ksort($data_label_shorted['data']);
+
 $jumlah_rincian = 0;
 $body_label = '';
 foreach ($data_label_shorted['data'] as $k => $skpd) {
@@ -220,9 +222,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format($selisih_value, 0, ",", ".") . "</td>";
     }
     $penyerapan = 0;
-    if (!empty($skpd['total'])) {
-        $penyerapan = $this->pembulatan(($skpd['realisasi'] ?? 0) / ($skpd['total'] ?? 1) * 100);
-    }
+    $penyerapan = (!empty($skpd['total']) && $skpd['total'] != 0)
+        ? $this->pembulatan(($skpd['realisasi'] / $skpd['total']) * 100)
+        : 0;
     $nama_page = 'RFK ' . $skpd['nama'] . ' ' . $k . ' | ' . $v['tahun_anggaran'];
     $custom_post = get_page_by_title($nama_page, OBJECT, 'page');
     $body_label .= '
@@ -240,6 +242,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     foreach ($skpd['data'] as $sub_keg) {
         $murni = '';
         $selisih = '';
+        // die(print_r($sub_keg));
+        $btn_edit = '<span class="actionBtn edit-monev ml-2" onclick="edit_data_subkeg(\'' . $sub_keg['kode_sbl'] . '\');" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit"></i></span>';
         if ($type == 'pergeseran') {
             $murni_value = $sub_keg['total_murni'] ?? 0;
             $selisih_value = ($sub_keg['total'] ?? 0) - $murni_value;
@@ -247,16 +251,16 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format($selisih_value, 0, ",", ".") . "</td>";
         }
         $penyerapan = 0;
-        if (!empty($sub_keg['total'])) {
-            $penyerapan = $this->pembulatan(($sub_keg['realisasi'] ?? 0) / ($sub_keg['total'] ?? 1) * 100);
-        }
+        $penyerapan = (!empty($sub_keg['total']) && $sub_keg['total'] != 0)
+            ? $this->pembulatan(($sub_keg['realisasi'] / $sub_keg['total']) * 100)
+            : 0;
         $nama_page = $input['tahun_anggaran'] . ' | ' . $k . ' | ' . $sub_keg['kode_giat'] . ' | ' . $sub_keg['nama_giat'];
         $custom_post = get_page_by_title($nama_page, OBJECT, 'post');
         $link = $this->get_link_post($custom_post);
         $body_label .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a></td>
+                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a>' . $btn_edit . '</td>
                 ' . $murni . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
@@ -273,9 +277,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($kel['total'] - $kel['total_murni']) ?? 0, 0, ",", ".") . "</td>";
             }
             $penyerapan = 0;
-            if (!empty($kel['total'])) {
-                $penyerapan = $this->pembulatan(($kel['realisasi'] / $kel['total']) * 100);
-            }
+            $penyerapan = (!empty($kel['total']) && $kel['total'] != 0)
+                ? $this->pembulatan(($kel['realisasi'] / $kel['total']) * 100)
+                : 0;
             $body_label .= '
                 <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
@@ -296,9 +300,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($ket['total'] - $ket['total_murni']) ?? 0, 0, ",", ".") . "</td>";
                 }
                 $penyerapan = 0;
-                if (!empty($ket['total'])) {
-                    $penyerapan = $this->pembulatan(($ket['realisasi'] / $ket['total']) * 100);
-                }
+                $penyerapan = (!empty($ket['total']) && $ket['total'] != 0)
+                    ? $this->pembulatan(($ket['realisasi'] / $ket['total']) * 100)
+                    : 0;
                 $body_label .= '
                     <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
@@ -320,9 +324,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($akun['total'] - $akun['total_murni']) ?? 0, 0, ",", ".") . "</td>";
                     }
                     $penyerapan = 0;
-                    if (!empty($akun['total'])) {
-                        $penyerapan = $this->pembulatan(($akun['realisasi'] / $akun['total']) * 100);
-                    }
+                    $penyerapan = (!empty($akun['total']) && $akun['total'] != 0)
+                        ? $this->pembulatan(($akun['realisasi'] / $akun['total']) * 100)
+                        : 0;
                     $body_label .= '
                         <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
@@ -339,6 +343,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     foreach ($akun['data'] as $rincian) {
                         $no++;
                         $jumlah_rincian++;
+                        $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ');" title="Hapus Rincian Belanja"><i class="dashicons dashicons-trash"></i></span>';
                         $alamat_array = $this->get_alamat($input, $rincian);
                         $alamat = $alamat_array['alamat'];
                         $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
@@ -349,13 +354,14 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             $selisih = "<td class='kanan bawah text_kanan'>" . number_format(($rincian['rincian'] - $rincian['rincian_murni']) ?? 0, 0, ",", ".") . "</td>";
                         }
                         $penyerapan = 0;
-                        if (!empty($rincian['rincian'])) {
-                            $penyerapan = $this->pembulatan(($rincian['realisasi'] / $rincian['rincian']) * 100);
-                        }
+                        $penyerapan = (!empty($rincian['rincian']) && $rincian['rincian'] != 0)
+                            ? $this->pembulatan(($rincian['realisasi'] / $rincian['rincian']) * 100)
+                            : 0;
+
                         $body_label .= '
                             <tr class="rincian" data-db="' . $rincian['id_rinci_sub_bl'] . '|' . $rincian['kode_sbl'] . '" data-lokus-teks="' . $lokus_akun_teks . '">
                                 <td class="kanan bawah kiri text_tengah">' . $no . '</td>
-                                <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . '</td>
+                                <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $btn_delete . '</td>
                                 <td class="kanan bawah">' . $alamat . $rincian['spek_komponen'] . '</td>
                                 ' . $murni . '
                                 <td class="kanan bawah text_kanan">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
@@ -377,9 +383,10 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($sub_keg['total'] - $sub_keg['total_murni']) ?? 0, 0, ",", ".") . "</td>";
         }
         $penyerapan = 0;
-        if (!empty($sub_keg['total'])) {
-            $penyerapan = $this->pembulatan(($sub_keg['realisasi'] / $sub_keg['total']) * 100);
-        }
+        $penyerapan = (!empty($sub_keg['total']) && $sub_keg['total'] != 0)
+            ? $this->pembulatan(($sub_keg['realisasi'] / $sub_keg['total']) * 100)
+            : 0;
+
         $body_label .= '
             <tr>
                 <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
@@ -400,9 +407,10 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($skpd['total'] - $skpd['total_murni']) ?? 0, 0, ",", ".") . "</td>";
     }
     $penyerapan = 0;
-    if (!empty($skpd['total'])) {
-        $penyerapan = $this->pembulatan(($skpd['realisasi'] / $skpd['total']) * 100);
-    }
+    $penyerapan = (!empty($skpd['total']) && $skpd['total'] != 0)
+        ? $this->pembulatan(($skpd['realisasi'] / $skpd['total']) * 100)
+        : 0;
+
     $body_label .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
@@ -423,9 +431,9 @@ if ($type == 'pergeseran') {
     $selisih = "<td class='kanan bawah text_kanan text_blok'>" . number_format(($data_label_shorted['total'] - $data_label_shorted['total_murni']) ?? 0, 0, ",", ".") . "</td>";
 }
 $penyerapan = 0;
-if (!empty($data_label_shorted['total'])) {
-    $penyerapan = $this->pembulatan(($data_label_shorted['realisasi'] / $data_label_shorted['total']) * 100);
-}
+$penyerapan = (!empty($data_label_shorted['total']) && $data_label_shorted['total'] != 0)
+    ? $this->pembulatan(($data_label_shorted['realisasi'] / $data_label_shorted['total']) * 100)
+    : 0;
 $body_label .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
@@ -440,105 +448,83 @@ $body_label .= '
 
 ?>
 <style>
-    .card {
-        border: none;
-        border-radius: 10px;
-        transition: transform 0.3s;
-    }
-
-    .card:hover {
+    #infocard:hover {
         transform: translateY(-5px);
     }
 
-    .card-body {
-        display: flex;
-        align-items: center;
-        padding: 1.5rem;
-    }
+    @media print {
+        #cetak {
+            max-width: auto !important;
+            height: auto !important;
+        }
 
-    .icon-container {
-        font-size: 2.5rem;
-        margin-right: 1rem;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    .card-content {
-        flex-grow: 1;
-    }
-
-    .card-subtitle {
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-
-    .card-title {
-        font-size: 1.4rem;
-        font-weight: 700;
+        #action-sipd,
+        #cardsInfo,
+        .btnTambah,
+        .actionBtn,
+        header {
+            display: none;
+        }
     }
 </style>
 <div id="cetak" title="Monitoring dan Evaluasi Label Komponen <?php echo $label_db['nama']; ?> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <h4 style="text-align: center; font-size: 20px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">Monitoring dan Evaluasi Label Komponen<br><?php echo $label_db['nama']; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4>
-    <div class="m-4 text-center">
+    <div class="m-4 text-center btnTambah">
         <button class="btn btn-primary" onclick="showModalTambah();">
             <span class="dashicons dashicons-insert"></span> Tambah Data
         </button>
     </div>
 
-    <div class="container mt-5">
+    <div class="container mt-5" id="cardsInfo">
         <div class="row">
             <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white">
-                    <div class="card-body">
-                        <div class="icon-container bg-primary text-white">
+                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
+                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
+                        <div class="icon-container bg-primary text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #007bff; color: white;">
                             <span class="dashicons dashicons-chart-bar"></span>
                         </div>
-                        <div class="card-content">
-                            <h6 class="card-subtitle mb-1 text-primary">Rencana Pagu</h6>
-                            <h5 class="card-title mb-0 text-dark" id="rencanaPagu"><?php echo number_format($label_db['rencana_pagu']?? 0, 0, ",", "."); ?></h5>
+                        <div class="card-content" style="flex-grow: 1;">
+                            <h6 class="card-subtitle mb-1 text-primary" style="font-size: 0.9rem; font-weight: 600; color: #007bff;">Rencana Pagu</h6>
+                            <h5 class="card-title mb-0 text-dark" id="rencanaPagu" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></h5>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white">
-                    <div class="card-body">
-                        <div class="icon-container bg-success text-white">
+                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
+                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
+                        <div class="icon-container bg-success text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #28a745; color: white;">
                             <span class="dashicons dashicons-chart-pie"></span>
                         </div>
-                        <div class="card-content">
-                            <h6 class="card-subtitle mb-1 text-success">Total Pagu Rincian</h6>
-                            <h5 class="card-title mb-0 text-dark" id="totalPaguRincian"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></h5>
+                        <div class="card-content" style="flex-grow: 1;">
+                            <h6 class="card-subtitle mb-1 text-success" style="font-size: 0.9rem; font-weight: 600; color: #28a745;">Total Pagu Rincian</h6>
+                            <h5 class="card-title mb-0 text-dark" id="totalPaguRincian" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></h5>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white">
-                    <div class="card-body">
-                        <div class="icon-container bg-warning text-white">
+                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
+                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
+                        <div class="icon-container bg-warning text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #ffc107; color: white;">
                             <span class="dashicons dashicons-clipboard"></span>
                         </div>
-                        <div class="card-content">
-                            <h6 class="card-subtitle mb-1 text-warning">Jumlah Rincian</h6>
-                            <h5 class="card-title mb-0 text-dark" id="jumlahRincian"><?php echo $jumlah_rincian;?></h5>
+                        <div class="card-content" style="flex-grow: 1;">
+                            <h6 class="card-subtitle mb-1 text-warning" style="font-size: 0.9rem; font-weight: 600; color: #ffc107;">Jumlah Rincian</h6>
+                            <h5 class="card-title mb-0 text-dark" id="jumlahRincian" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo $jumlah_rincian; ?></h5>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white">
-                    <div class="card-body">
-                        <div class="icon-container bg-danger text-white">
+                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
+                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
+                        <div class="icon-container bg-danger text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #dc3545; color: white;">
                             <span class="dashicons dashicons-chart-area"></span>
                         </div>
-                        <div class="card-content">
-                            <h6 class="card-subtitle mb-1 text-danger">Total Realisasi</h6>
-                            <h5 class="card-title mb-0 text-dark" id="totalRealisasi"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></h5>
+                        <div class="card-content" style="flex-grow: 1;">
+                            <h6 class="card-subtitle mb-1 text-danger" style="font-size: 0.9rem; font-weight: 600; color: #dc3545;">Total Realisasi</h6>
+                            <h5 class="card-title mb-0 text-dark" id="totalRealisasi" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></h5>
                         </div>
                     </div>
                 </div>
@@ -688,10 +674,12 @@ $body_label .= '
         _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
         var type = url.searchParams.get("type");
         if (type && type == 'pergeseran') {
-            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;"><span class="dashicons dashicons-printer"></span> Print Monev Murni</a>';
+            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + _url + '"><span class="dashicons dashicons-printer"></span> Print Monev Murni</a>';
         } else {
-            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=pergeseran" style="margin-left: 10px;"><span class="dashicons dashicons-printer"></span> Print Monev Pergeseran/Perubahan</a>';
+            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + _url + '&type=pergeseran"><span class="dashicons dashicons-printer"></span> Print Monev Pergeseran/Perubahan</a>';
         }
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button>';
+
         jQuery('#action-sipd #excel').after(extend_action);
 
         jQuery('#idSkpd').select2({
@@ -1087,5 +1075,43 @@ $body_label .= '
             const parentCheckbox = jQuery(`${parentSelector}[data-id="${parentId}"]`);
             parentCheckbox.prop("checked", allChildren.length === allChildren.filter(":checked").length);
         }
+    }
+
+
+    function hapus_data_rincian(idSubBl) {
+        let confirmDelete = confirm("Apakah anda yakin akan menghapus rincian ini?");
+        if (confirmDelete) {
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: ajax.url,
+                type: 'post',
+                data: {
+                    'action': 'hapus_rincian_from_label_by_id',
+                    'api_key': ajax.api_key,
+                    'id_rincian': idSubBl,
+                    'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                    'id_label': <?php echo $input['id_label']; ?>,
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    jQuery("#wrap-loading").hide();
+                    alert("Terjadi kesalahan saat mengirim data!");
+                }
+            });
+        }
+    }
+
+    function edit_data_subkeg(kodeSbl) {
+        alert("kd Sbl = " + kodeSbl)
+
     }
 </script>
