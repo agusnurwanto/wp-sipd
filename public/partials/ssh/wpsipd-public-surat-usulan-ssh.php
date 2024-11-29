@@ -94,6 +94,7 @@ foreach ($ssh as $k => $val) {
 		<td>' . $val['satuan'] . '</td>
 		<td class="text-right">' . number_format($val['harga'], 2, ",", ".",) . '</td>
 		<td>' . $akun_belanja . '</td>
+		<td>' . $val['tkdn'] . '</td>
 		<td>' . $val['keterangan_lampiran'] . '</td>
 	</tr>
 	';
@@ -149,6 +150,10 @@ if (empty($alamat)) {
 		text-align: justify;
 		text-indent: 50px;
 	}
+
+	.table thead th.text-center {
+		vertical-align: middle;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -197,14 +202,15 @@ if (empty($alamat)) {
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>
 				<tr>
-					<th class="text-center">NO</th>
-					<th class="text-center">KODE KELOMPOK BARANG</th>
-					<th class="text-center">NAMA KODE KELOMPOK BARANG</th>
+					<th class="text-center" width="42px;">NO</th>
+					<th class="text-center" width="180px;">KODE KELOMPOK BARANG</th>
+					<th class="text-center" width="250px;">NAMA KODE KELOMPOK BARANG</th>
 					<th class="text-center">URAIAN</th>
 					<th class="text-center">SPESIFIKASI</th>
 					<th class="text-center">SATUAN</th>
 					<th class="text-center">HARGA SATUAN</th>
 					<th class="text-center">AKUN BELANJA</th>
+					<th class="text-center" width="110px;">TINGKAT KOMPONEN DALAM NEGRI (TKDN) %</th>
 					<th class="text-center">KETERANGAN</th>
 				</tr>
 				<tr>
@@ -217,6 +223,7 @@ if (empty($alamat)) {
 					<th class="text-center">7</th>
 					<th class="text-center">8</th>
 					<th class="text-center">9</th>
+					<th class="text-center">10</th>
 				</tr>
 			</thead>
 			<tbody>
