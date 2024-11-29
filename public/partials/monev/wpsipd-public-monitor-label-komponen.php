@@ -37,6 +37,7 @@ $data_label = array();
 $where_skpd = '';
 $inner_skpd = '';
 $options    = '';
+$query_params = '';
 if (!empty($_GET) && !empty($_GET['id_skpd'])) {
     $inner_skpd = '
         INNER JOIN data_sub_keg_bl s 
@@ -58,6 +59,8 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
         ", $_GET['id_skpd'], $input['tahun_anggaran']),
         ARRAY_A
     );
+    $query_params = '&id_skpd=' . $_GET['id_skpd'];
+
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
 } else {
     $data_skpd = $wpdb->get_results(
@@ -114,6 +117,7 @@ foreach ($data_label as $k => $v) {
     $skpd = $wpdb->get_row(
         $wpdb->prepare("
             SELECT 
+                id_skpd,
                 nama_skpd,
                 kode_skpd 
             FROM data_unit 
@@ -150,6 +154,7 @@ foreach ($data_label as $k => $v) {
             'kode_giat'         => $sub_keg['kode_giat'],
             'nama_giat'         => $sub_keg['nama_giat'],
             'kode_sbl'          => $v['kode_sbl'],
+            'id_skpd'           => $skpd['id_skpd'],
             'nama_sub_giat'     => $sub_keg['nama_sub_giat'],
             'realisasi'         => 0,
             'total_murni'       => 0,
@@ -231,6 +236,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="2"><a href="' . get_permalink($custom_post) . '?key=' . $this->gen_key() . '&pagu_dpa=sipd" target="_blank">' . $k . ' ' . $skpd['nama'] . '</a></td>
+            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
             ' . $murni . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
@@ -242,8 +248,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     foreach ($skpd['data'] as $sub_keg) {
         $murni = '';
         $selisih = '';
-        // die(print_r($sub_keg));
-        $btn_edit = '<span class="actionBtn edit-monev ml-2" onclick="edit_data_subkeg(\'' . $sub_keg['kode_sbl'] . '\');" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit"></i></span>';
+        $btn_edit = '<span class="actionBtn edit-monev ml-2" onclick="edit_data_subkeg(\'' . $sub_keg['kode_sbl'] . '\', ' . $sub_keg['id_skpd'] . ');" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit"></i></span>';
         if ($type == 'pergeseran') {
             $murni_value = $sub_keg['total_murni'] ?? 0;
             $selisih_value = ($sub_keg['total'] ?? 0) - $murni_value;
@@ -260,7 +265,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $body_label .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a>' . $btn_edit . '</td>
+                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a></td>
+                <td class="kanan bawah kiri text_tengah text_blok actionBtn">' . $btn_edit . '</td>
                 ' . $murni . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
@@ -284,6 +290,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">' . $kel['nama'] . '</td>
+                    <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
                     ' . $murni . '
                     <td class="kanan bawah text_blok text_kanan">' . number_format($kel['total'] ?? 0, 0, ",", ".") . '</td>
                     ' . $selisih . '
@@ -307,6 +314,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">' . $ket['nama'] . '</td>
+                        <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
                         ' . $murni . '
                         <td class="kanan bawah text_blok text_kanan">' . number_format($ket['total'] ?? 0, 0, ",", ".") . '</td>
                         ' . $selisih . '
@@ -331,6 +339,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">' . $akun['nama'] . '</td>
+                            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
                             ' . $murni . '
                             <td class="kanan bawah text_blok text_kanan">' . number_format($akun['total'] ?? 0, 0, ",", ".") . '</td>
                             ' . $selisih . '
@@ -361,8 +370,9 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $body_label .= '
                             <tr class="rincian" data-db="' . $rincian['id_rinci_sub_bl'] . '|' . $rincian['kode_sbl'] . '" data-lokus-teks="' . $lokus_akun_teks . '">
                                 <td class="kanan bawah kiri text_tengah">' . $no . '</td>
-                                <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $btn_delete . '</td>
+                                <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . '</td>
                                 <td class="kanan bawah">' . $alamat . $rincian['spek_komponen'] . '</td>
+                                <td class="kanan bawah kiri text_tengah text_blok actionBtn">' . $btn_delete . '</td>
                                 ' . $murni . '
                                 <td class="kanan bawah text_kanan">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
@@ -391,6 +401,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             <tr>
                 <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
                 <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada Sub Kegiatan</td>
+                <td class="kanan bawah text_blok text_kanan actionBtn"></td>
                 ' . $murni . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
@@ -415,6 +426,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
             <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada SKPD</td>
+            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
             ' . $murni . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
@@ -437,6 +449,7 @@ $penyerapan = (!empty($data_label_shorted['total']) && $data_label_shorted['tota
 $body_label .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
+        <td class="kiri kanan bawah text_blok text_kanan actionBtn"></td>
         ' . $murni . '
         <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['total'] ?? 0, 0, ",", ".") . '</td>
         ' . $selisih . '
@@ -445,7 +458,11 @@ $body_label .= '
         <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
     </tr>
 ';
-
+//set bg if greater than
+$bg_color = 'bg-light';
+if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
+    $bg_color = 'bg-danger';
+}
 ?>
 <style>
     #infocard:hover {
@@ -468,68 +485,45 @@ $body_label .= '
     }
 </style>
 <div id="cetak" title="Monitoring dan Evaluasi Label Komponen <?php echo $label_db['nama']; ?> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
-    <h4 style="text-align: center; font-size: 20px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">Monitoring dan Evaluasi Label Komponen<br><?php echo $label_db['nama']; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h4>
+    <div class="text-center mx-auto my-3" style="min-width: 450px; max-width: 570px;">
+        <h4 class="font-weight-bold mb-2">
+            Monitoring dan Evaluasi Label Komponen
+        </h4>
+        <h5 class="font-weight-bold mb-2">
+            ( <?php echo htmlspecialchars($label_db['nama']); ?> )
+        </h5>
+        <p class="text-muted mb-2">
+            <?php echo htmlspecialchars($label_db['keterangan']); ?>
+        </p>
+        <p class="font-weight-bold">
+            Tahun Anggaran <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
+        </p>
+    </div>
     <div class="m-4 text-center btnTambah">
         <button class="btn btn-primary" onclick="showModalTambah();">
             <span class="dashicons dashicons-insert"></span> Tambah Data
         </button>
     </div>
 
-    <div class="container mt-5" id="cardsInfo">
-        <div class="row">
-            <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
-                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
-                        <div class="icon-container bg-primary text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #007bff; color: white;">
-                            <span class="dashicons dashicons-chart-bar"></span>
-                        </div>
-                        <div class="card-content" style="flex-grow: 1;">
-                            <h6 class="card-subtitle mb-1 text-primary" style="font-size: 0.9rem; font-weight: 600; color: #007bff;">Rencana Pagu</h6>
-                            <h5 class="card-title mb-0 text-dark" id="rencanaPagu" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
-                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
-                        <div class="icon-container bg-success text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #28a745; color: white;">
-                            <span class="dashicons dashicons-chart-pie"></span>
-                        </div>
-                        <div class="card-content" style="flex-grow: 1;">
-                            <h6 class="card-subtitle mb-1 text-success" style="font-size: 0.9rem; font-weight: 600; color: #28a745;">Total Pagu Rincian</h6>
-                            <h5 class="card-title mb-0 text-dark" id="totalPaguRincian" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
-                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
-                        <div class="icon-container bg-warning text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #ffc107; color: white;">
-                            <span class="dashicons dashicons-clipboard"></span>
-                        </div>
-                        <div class="card-content" style="flex-grow: 1;">
-                            <h6 class="card-subtitle mb-1 text-warning" style="font-size: 0.9rem; font-weight: 600; color: #ffc107;">Jumlah Rincian</h6>
-                            <h5 class="card-title mb-0 text-dark" id="jumlahRincian" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo $jumlah_rincian; ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3 mb-4">
-                <div class="card shadow bg-white" style="border: none; border-radius: 10px; transition: transform 0.3s;" id="infocard">
-                    <div class="card-body" style="display: flex; align-items: center; padding: 1rem;">
-                        <div class="icon-container bg-danger text-white" style="font-size: 2.5rem; margin-right: 1rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #dc3545; color: white;">
-                            <span class="dashicons dashicons-chart-area"></span>
-                        </div>
-                        <div class="card-content" style="flex-grow: 1;">
-                            <h6 class="card-subtitle mb-1 text-danger" style="font-size: 0.9rem; font-weight: 600; color: #dc3545;">Total Realisasi</h6>
-                            <h5 class="card-title mb-0 text-dark" id="totalRealisasi" style="font-size: 1.4rem; font-weight: 700; color: #343a40;"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark text-center">
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah">Rencana Pagu</th>
+                    <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    <td class="<?php echo $bg_color; ?> atas kanan bawah kiri text_tengah"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="<?php echo $bg_color; ?> atas kanan bawah kiri text_tengah"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="bg-light atas kanan bawah kiri text_tengah"><?php echo $jumlah_rincian; ?></td>
+                    <td class="bg-light atas kanan bawah kiri text_tengah"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
@@ -538,6 +532,7 @@ $body_label .= '
                 <td rowspan="2" class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td rowspan="2" class="atas kanan bawah text_tengah text_blok">SKPD / Sub Kegiatan / Komponen</td>
                 <td rowspan="2" class="atas kanan bawah text_tengah text_blok">Keterangan</td>
+                <td rowspan="2" class="atas kanan bawah text_tengah text_blok actionBtn">Aksi</td>
                 <?php if ($type == 'murni'): ?>
                     <td rowspan="2" class="atas kanan bawah text_tengah text_blok">Anggaran</td>
                 <?php else: ?>
@@ -557,6 +552,7 @@ $body_label .= '
                 <td class="atas kanan bawah kiri text_tengah text_blok">1</td>
                 <td class="atas kanan bawah text_tengah text_blok">2</td>
                 <td class="atas kanan bawah text_tengah text_blok">3</td>
+                <td class="atas kanan bawah text_tengah text_blok actionBtn">-</td>
                 <?php if ($type == 'murni'): ?>
                     <td class="atas kanan bawah text_tengah text_blok">4</td>
                     <td class="atas kanan bawah text_tengah text_blok">5</td>
@@ -604,7 +600,7 @@ $body_label .= '
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="idSkpd">Pilih SKPD</label>
-                                <select name="idSkpd" class="form-control" id="idSkpd">
+                                <select name="idSkpd" class="form-control" id="idSkpd" onchange="handleSkpdChange()">
                                     <option value="">Pilih SKPD</option>
                                     <?php echo $options; ?>
                                 </select>
@@ -629,12 +625,12 @@ $body_label .= '
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="subKegiatan">Pilih Sub Kegiatan</label>
-                                <select name="subKegiatan" class="form-control" id="subKegiatan" disabled>
+                                <select name="subKegiatan" class="form-control" id="subKegiatan" onchange="handleSubkegChange(this)" disabled>
                                 </select>
                             </div>
                         </div>
                         <div class="mt-2" style="text-align: right;">
-                            <button class="btn btn-warning" id="btnPreviewData">
+                            <button class="btn btn-warning" id="btnPreviewData" onclick="handleViewRinciBtn()">
                                 <span class="dashicons dashicons-visibility"></span> Lihat Rincian Belanja
                             </button>
                         </div>
@@ -671,13 +667,20 @@ $body_label .= '
 
         var _url = window.location.href;
         var url = new URL(_url);
-        _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
+        var baseUrl = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
         var type = url.searchParams.get("type");
-        if (type && type == 'pergeseran') {
-            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + _url + '"><span class="dashicons dashicons-printer"></span> Print Monev Murni</a>';
-        } else {
-            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + _url + '&type=pergeseran"><span class="dashicons dashicons-printer"></span> Print Monev Pergeseran/Perubahan</a>';
+        var id_skpd = url.searchParams.get("id_skpd");
+
+        if (id_skpd) {
+            baseUrl += '&id_skpd=' + id_skpd;
         }
+
+        if (type && type === 'pergeseran') {
+            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + baseUrl + '"><span class="dashicons dashicons-controls-back"></span> Halaman Monev Murni</a>';
+        } else {
+            var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + baseUrl + '&type=pergeseran"><span class="dashicons dashicons-controls-forward"></span> Halaman Monev Pergeseran/Perubahan</a>';
+        }
+
         extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button>';
 
         jQuery('#action-sipd #excel').after(extend_action);
@@ -686,159 +689,81 @@ $body_label .= '
             width: '100%',
             dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
         });
+    });
 
-        // Event onchange untuk select idSkpd
-        jQuery("#idSkpd").change(function() {
-            const id_skpd = jQuery(this).val();
-            jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>');
-            jQuery("#program").val('')
-            jQuery("#kegiatan").val('')
-            jQuery("#tableRincian").hide()
+    function handleViewRinciBtn() {
+        const kode_sbl = jQuery("#subKegiatan").val();
+        if (kode_sbl) {
+            jQuery("#wrap-loading").show();
 
-            if (id_skpd) {
-                jQuery("#wrap-loading").show();
+            jQuery.ajax({
+                url: ajax.url,
+                type: "POST",
+                data: {
+                    action: "get_sub_keg_rka_sipd",
+                    api_key: ajax.api_key,
+                    tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
+                    kode_sbl: kode_sbl,
+                    id_label: '<?php echo $input["id_label"]; ?>' //mapping checked
+                },
+                dataType: "json",
+                success: function(response) {
+                    jQuery("#wrap-loading").hide();
+                    console.log(response);
 
-                jQuery.ajax({
-                    url: ajax.url,
-                    type: "POST",
-                    data: {
-                        action: "get_sub_keg_sipd",
-                        api_key: ajax.api_key,
-                        tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
-                        tipe: 'simple',
-                        id_skpd: id_skpd,
-                    },
-                    dataType: "json",
-                    success: function(response) {
-                        console.log(response);
-                        jQuery("#wrap-loading").hide();
+                    if (response.status === "success") {
+                        const data = response.data;
 
-                        if (response.status === "success") {
-                            const data = response.data;
-                            jQuery('#subKegiatan').select2({
-                                width: '100%',
-                                dropdownParent: jQuery('#modalTambahData .modal-content') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
-                            });
+                        const tableBody = jQuery("#tableRincian tbody");
+                        tableBody.empty();
 
-                            data.forEach(function(item) {
-                                const namaSubGiat = item.nama_sub_kegiatan.replace(/^\S+(\.\S+)*\s/, "");
-
-                                const paguFormatted = new Intl.NumberFormat('id-ID', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }).format(item.pagu_anggaran);
-
-                                jQuery("#subKegiatan").append(
-                                    `<option value="${item.kode_sbl}" data-program="${item.kode_program} ${item.nama_program}" data-kegiatan="${item.kode_kegiatan} ${item.nama_kegiatan}">
-                                        ${item.kode_sub_kegiatan} ${namaSubGiat} (Pagu: ${paguFormatted})
-                                    </option>`
-                                );
-                            });
-
-                            jQuery("#subKegiatan").prop("disabled", false);
-                        } else {
-                            alert(response.message);
+                        function formatNumber(value) {
+                            return new Intl.NumberFormat("id-ID").format(value);
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        jQuery("#wrap-loading").hide();
-                        alert("Terjadi kesalahan saat mengirim data!");
-                    },
-                });
-            } else {
-                jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>').prop("disabled", true);
-                jQuery("#program, #kegiatan").val("");
-            }
-        });
 
+                        // Group data by kode_akun
+                        const groupedData = {};
+                        data.forEach((item) => {
+                            const namaAkun = item.nama_akun.replace(/^\S+(\.\S+)*\s/, ""); // 
+                            const kodeAkun = item.kode_akun;
+                            const subsBl = item.subs_bl_teks;
+                            const ketBl = item.ket_bl_teks;
+                            const totalHarga = parseFloat(item.total_harga) || 0;
 
-        jQuery("#subKegiatan").change(function() {
-            const selectedOption = jQuery(this).find(":selected");
-            const program = selectedOption.data("program");
-            const kegiatan = selectedOption.data("kegiatan");
-
-            jQuery("#tableRincian").hide();
-            jQuery("#program").val(program || "");
-            jQuery("#kegiatan").val(kegiatan || "");
-
-
-            jQuery("#btnPreviewData").prop("disabled", !selectedOption.val());
-        });
-
-
-        jQuery("#btnPreviewData").click(function() {
-            const kode_sbl = jQuery("#subKegiatan").val();
-            if (kode_sbl) {
-                jQuery("#wrap-loading").show();
-
-                jQuery.ajax({
-                    url: ajax.url,
-                    type: "POST",
-                    data: {
-                        action: "get_sub_keg_rka_sipd",
-                        api_key: ajax.api_key,
-                        tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
-                        kode_sbl: kode_sbl,
-                    },
-                    dataType: "json",
-                    success: function(response) {
-                        jQuery("#wrap-loading").hide();
-                        console.log(response);
-
-                        if (response.status === "success") {
-                            const data = response.data;
-
-                            const tableBody = jQuery("#tableRincian tbody");
-                            tableBody.empty();
-
-                            function formatNumber(value) {
-                                return new Intl.NumberFormat("id-ID").format(value);
+                            if (!groupedData[kodeAkun]) {
+                                groupedData[kodeAkun] = {
+                                    namaAkun: namaAkun,
+                                    total: 0,
+                                    subs: {},
+                                };
                             }
 
-                            // Group data by kode_akun
-                            const groupedData = {};
-                            data.forEach((item) => {
-                                const namaAkun = item.nama_akun.replace(/^\S+(\.\S+)*\s/, ""); // 
-                                const kodeAkun = item.kode_akun;
-                                const subsBl = item.subs_bl_teks;
-                                const ketBl = item.ket_bl_teks;
-                                const totalHarga = parseFloat(item.total_harga) || 0;
+                            if (!groupedData[kodeAkun].subs[subsBl]) {
+                                groupedData[kodeAkun].subs[subsBl] = {
+                                    total: 0,
+                                    ket: {},
+                                };
+                            }
 
-                                if (!groupedData[kodeAkun]) {
-                                    groupedData[kodeAkun] = {
-                                        namaAkun: namaAkun,
-                                        total: 0,
-                                        subs: {},
-                                    };
-                                }
+                            if (!groupedData[kodeAkun].subs[subsBl].ket[ketBl]) {
+                                groupedData[kodeAkun].subs[subsBl].ket[ketBl] = {
+                                    total: 0,
+                                    rincian: [],
+                                };
+                            }
 
-                                if (!groupedData[kodeAkun].subs[subsBl]) {
-                                    groupedData[kodeAkun].subs[subsBl] = {
-                                        total: 0,
-                                        ket: {},
-                                    };
-                                }
-
-                                if (!groupedData[kodeAkun].subs[subsBl].ket[ketBl]) {
-                                    groupedData[kodeAkun].subs[subsBl].ket[ketBl] = {
-                                        total: 0,
-                                        rincian: [],
-                                    };
-                                }
-
-                                groupedData[kodeAkun].subs[subsBl].ket[ketBl].rincian.push(item);
-                                groupedData[kodeAkun].subs[subsBl].ket[ketBl].total += totalHarga;
-                                groupedData[kodeAkun].subs[subsBl].total += totalHarga;
-                                groupedData[kodeAkun].total += totalHarga;
-                            });
+                            groupedData[kodeAkun].subs[subsBl].ket[ketBl].rincian.push(item);
+                            groupedData[kodeAkun].subs[subsBl].ket[ketBl].total += totalHarga;
+                            groupedData[kodeAkun].subs[subsBl].total += totalHarga;
+                            groupedData[kodeAkun].total += totalHarga;
+                        });
 
 
-                            Object.keys(groupedData).forEach((kodeAkun) => {
-                                const akunData = groupedData[kodeAkun];
+                        Object.keys(groupedData).forEach((kodeAkun) => {
+                            const akunData = groupedData[kodeAkun];
 
-                                // Baris kode_akun (parent)
-                                tableBody.append(`
+                            // Baris kode_akun (level 1)
+                            tableBody.append(`
                                     <tr class="akun-row" data-id="${kodeAkun}">
                                         <td class="text-center">
                                             <input class="akun-checkbox" type="checkbox" value="${kodeAkun}">
@@ -851,11 +776,11 @@ $body_label .= '
                                 `);
 
 
-                                // Baris subs_bl_teks (level 2)
-                                Object.keys(akunData.subs).forEach((subsBl) => {
-                                    const subsData = akunData.subs[subsBl];
+                            // Baris subs_bl_teks (level 2)
+                            Object.keys(akunData.subs).forEach((subsBl) => {
+                                const subsData = akunData.subs[subsBl];
 
-                                    tableBody.append(`
+                                tableBody.append(`
                                         <tr class="subs-row" data-parent-id="${kodeAkun}" data-id="${subsBl}">
                                             <td class="text-center">
                                                 <input class="subs-checkbox" type="checkbox" value="${subsBl}">
@@ -866,11 +791,11 @@ $body_label .= '
                                         </tr>
                                     `);
 
-                                    // Baris ket_bl_teks (level 3)
-                                    Object.keys(subsData.ket).forEach((ketBl) => {
-                                        const ketData = subsData.ket[ketBl];
+                                // Baris ket_bl_teks (level 3)
+                                Object.keys(subsData.ket).forEach((ketBl) => {
+                                    const ketData = subsData.ket[ketBl];
 
-                                        tableBody.append(`
+                                    tableBody.append(`
                                             <tr class="ket-row" data-parent-id="${subsBl}" data-id="${ketBl}" data-grandparent-id="${kodeAkun}">
                                                 <td class="text-center">
                                                     <input class="ket-checkbox" type="checkbox" value="${ketBl}">
@@ -881,12 +806,13 @@ $body_label .= '
                                             </tr>
                                         `);
 
-                                        // Baris id_rinci_sub_bl (leaf node)
-                                        ketData.rincian.forEach((rinci) => {
-                                            tableBody.append(`
-                                                <tr class="rinci-row" data-parent-id="${ketBl}" data-id="${rinci.id_rinci_sub_bl}" data-grandparent-id="${subsBl}" data-greatgrandparent-id="${kodeAkun}">
+                                    // Baris id_rinci_sub_bl (level 4)
+                                    ketData.rincian.forEach((rinci) => {
+                                        const isChecked = rinci.is_checked ? "checked" : "";
+                                        tableBody.append(`
+                                                <tr class="rinci-row" data-id="${rinci.id_rinci_sub_bl}">
                                                     <td class="text-center">
-                                                        <input class="rinci-checkbox" type="checkbox" value="${rinci.id_rinci_sub_bl}">
+                                                        <input class="rinci-checkbox" type="checkbox" value="${rinci.id_rinci_sub_bl}" ${isChecked}>
                                                     </td>
                                                     <td class="text-left">${rinci.nama_komponen}</td>
                                                     <td class="text-right">${rinci.koefisien}</td>
@@ -894,29 +820,30 @@ $body_label .= '
                                                     <td class="text-right">${formatNumber(rinci.total_harga)}</td>
                                                 </tr>
                                             `);
-                                        });
+                                        if (rinci.is_checked) {
+                                            jQuery(`#checkbox-${rinci.id_rinci_sub_bl}`).prop('checked', true);
+                                        }
                                     });
                                 });
                             });
+                        });
 
-                            jQuery("#tableRincian").show();
+                        jQuery("#tableRincian").show();
 
-                            // Handle Checkbox Logic
-                            handleCheckboxLogic();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        jQuery("#wrap-loading").hide();
-                        alert("Terjadi kesalahan saat memuat rincian data!");
-                    },
-                });
-            }
-        });
-
-    })
+                        // Handle Checkbox Logic
+                        handleCheckboxLogic();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    jQuery("#wrap-loading").hide();
+                    alert("Terjadi kesalahan saat memuat rincian data!");
+                },
+            });
+        }
+    }
 
     function showModalTambah() {
         jQuery('#idSkpd').val('').trigger('change')
@@ -941,6 +868,7 @@ $body_label .= '
 
         let id_label = <?php echo $input['id_label']; ?>;
         let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+        let kode_sbl = jQuery('#subKegiatan').val();
 
         const tempData = new FormData();
         tempData.append("action", "tambah_label_rinci_bl");
@@ -948,6 +876,7 @@ $body_label .= '
         tempData.append("rincian_belanja_ids", JSON.stringify(checkedRinci));
         tempData.append("id_label", id_label);
         tempData.append("tahun_anggaran", tahun_anggaran);
+        tempData.append("kode_sbl", kode_sbl);
 
         jQuery("#wrap-loading").show();
 
@@ -964,6 +893,7 @@ $body_label .= '
                 jQuery("#wrap-loading").hide();
                 if (res.status === "success") {
                     location.reload();
+                    jQuery('#modalTambahData').modal('hide');
                 }
             },
             error: function(xhr, status, error) {
@@ -1110,8 +1040,106 @@ $body_label .= '
         }
     }
 
-    function edit_data_subkeg(kodeSbl) {
-        alert("kd Sbl = " + kodeSbl)
+    async function edit_data_subkeg(kodeSbl, idSkpd) {
+        // Set nilai idSkpd tanpa memicu onchange
+        jQuery("#idSkpd").off("change").val(idSkpd); // Hilangkan sementara event onchange
+        await handleSkpdChange(idSkpd, true); // Manual trigger untuk load subkegiatan
 
+        // Setelah selesai, set value subKegiatan
+        jQuery("#subKegiatan").val(kodeSbl).trigger('change');
+
+        // Kembalikan event onchange setelah manual trigger selesai
+        jQuery("#idSkpd").on("change", function() {
+            handleSkpdChange();
+        });
+
+        // Tampilkan modal
+        handleViewRinciBtn();
+        jQuery('#modalTambahData').modal('show');
+    }
+
+    function handleSkpdChange(idSkpd = null, isManual = false) {
+        return new Promise((resolve, reject) => {
+            // Gunakan parameter idSkpd jika manual, atau ambil dari select jika onchange
+            let id_skpd = isManual ? idSkpd : jQuery("#idSkpd").val();
+
+            jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>');
+            jQuery("#program").val('');
+            jQuery("#kegiatan").val('');
+            jQuery("#tableRincian").hide();
+
+            if (id_skpd) {
+                jQuery("#wrap-loading").show();
+
+                jQuery.ajax({
+                    url: ajax.url,
+                    type: "POST",
+                    data: {
+                        action: "get_sub_keg_sipd",
+                        api_key: ajax.api_key,
+                        tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
+                        tipe: 'simple',
+                        id_skpd: id_skpd,
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        jQuery("#wrap-loading").hide();
+
+                        if (response.status === "success") {
+                            const data = response.data;
+                            jQuery('#subKegiatan').select2({
+                                width: '100%',
+                                dropdownParent: jQuery('#modalTambahData .modal-content')
+                            });
+
+                            data.forEach(function(item) {
+                                const namaSubGiat = item.nama_sub_kegiatan.replace(/^\S+(\.\S+)*\s/, "");
+
+                                const paguFormatted = new Intl.NumberFormat('id-ID', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }).format(item.pagu_anggaran);
+
+                                jQuery("#subKegiatan").append(
+                                    `<option value="${item.kode_sbl}" data-program="${item.kode_program} ${item.nama_program}" data-kegiatan="${item.kode_kegiatan} ${item.nama_kegiatan}">
+                                    ${item.kode_sub_kegiatan} ${namaSubGiat} (Pagu: ${paguFormatted})
+                                </option>`
+                                );
+                            });
+
+                            jQuery("#subKegiatan").prop("disabled", false);
+                            resolve(); // Selesaikan Promise jika berhasil
+                        } else {
+                            alert(response.message);
+                            reject(new Error(response.message)); // Gagal memuat data
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        jQuery("#wrap-loading").hide();
+                        alert("Terjadi kesalahan saat mengirim data!");
+                        reject(new Error("Terjadi kesalahan saat mengirim data!")); // Error dalam proses AJAX
+                    },
+                });
+            } else {
+                jQuery("#subKegiatan").empty().append('<option value="">Pilih Sub Kegiatan</option>').prop("disabled", true);
+                jQuery("#program, #kegiatan").val("");
+                resolve(); // Tidak ada data yang perlu dimuat
+            }
+        });
+    }
+
+    function handleSubkegChange(that) {
+        return new Promise((resolve, reject) => {
+            let selectedOption = jQuery(that).find(":selected");
+            const program = selectedOption.data("program");
+            const kegiatan = selectedOption.data("kegiatan");
+
+            jQuery("#tableRincian").hide();
+            jQuery("#program").val(program || "");
+            jQuery("#kegiatan").val(kegiatan || "");
+
+
+            jQuery("#btnPreviewData").prop("disabled", !selectedOption.val());
+        });
     }
 </script>

@@ -4364,7 +4364,8 @@ class Wpsipd_Public_RKA
                 // Define validation rules
                 $validationRules = [
                     'tahun_anggaran'      => 'required|numeric',
-                    'id_label'            => 'required'
+                    'id_label'            => 'required',
+                    'kode_sbl'            => 'required'
                 ];
 
                 // Validate data
@@ -4385,6 +4386,40 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
+                //check rka for checked feature
+                $rka = $wpdb->get_results(
+                    $wpdb->prepare("
+                        SELECT 
+                            id_rinci_sub_bl
+                        FROM data_rka
+                        WHERE tahun_anggaran = %d
+                        AND kode_sbl = %s
+                        AND kode_akun != ''
+                        AND active = 1
+                    ", $postData['tahun_anggaran'], $postData['kode_sbl']),
+                    ARRAY_A
+                );
+
+                // delete first, then update
+                if (!empty($rka)) {
+                    foreach ($rka as $v) {
+                        $wpdb->update(
+                            'data_mapping_label',
+                            array('active' => 0),
+                            array(
+                                'id_rinci_sub_bl'   => $v['id_rinci_sub_bl'],
+                                'tahun_anggaran'    => $postData['tahun_anggaran'],
+                                'id_label_komponen' => $postData['id_label']
+                            )
+                        );
+                    }
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Rincian tidak ditemukan dalam data rka!';
+                    die(json_encode($ret));
+                }
+
+                //update
                 foreach ($rincianBelanjaIds as $idRinciSubBl) {
                     $data = array(
                         'tahun_anggaran'    => sanitize_text_field($postData['tahun_anggaran']),
@@ -4404,7 +4439,7 @@ class Wpsipd_Public_RKA
                                AND active = 1',
                             $idRinciSubBl,
                             $postData['tahun_anggaran'],
-                            $postData['id_label_komponen']
+                            $postData['id_label']
                         )
                     );
 
