@@ -75,10 +75,16 @@ if (empty($ssh)) {
 			<td colspan='17' class='text-center'>Data tidak ditemukan!</td>
 		</tr>
 		";
+	}else if ($tipe_laporan == 2) {
+		$body_html .= "
+		<tr>
+			<td colspan='11' class='text-center'>Data tidak ditemukan!</td>
+		</tr>
+		";
 	} else {
 		$body_html .= "
 		<tr>
-			<td colspan='9' class='text-center'>Data tidak ditemukan!</td>
+			<td colspan='13' class='text-center'>Data tidak ditemukan!</td>
 		</tr>
 		";
 	}
@@ -148,15 +154,13 @@ foreach ($ssh as $k => $val) {
 			<td>$val[spek]</td>
 			<td>$val[satuan]</td>
 			<td class='text-right'>$harga</td>
+			<td>$akun_belanja</td>
+			<td>$val[tkdn]</td>
 			<td>$val[keterangan_lampiran]</td>
 			<td>$nama_skpd</td>
 		</tr>
 		";
 	} else if ($tipe_laporan == 3) {
-		foreach ($akun_db as $kk => $akun) {
-			$akun_belanja .= "<li>$akun[nama_akun]</li>";
-		}
-		$akun_belanja .= "</ul>";
 		$nama_skpd = $wpdb->get_row("
 			SELECT
 				kode_skpd,
@@ -175,6 +179,8 @@ foreach ($ssh as $k => $val) {
 			<td>$val[spek]</td>
 			<td>$val[satuan]</td>
 			<td class='text-right'>$harga</td>
+			<td>$akun_belanja</td>
+			<td>$val[tkdn]</td>
 			<td>$val[keterangan_lampiran]</td>
 			<td>$nama_skpd</td>
 			<td></td>
@@ -209,6 +215,10 @@ foreach ($ssh as $k => $val) {
 		text-align: center;
 		font-size: 19px;
 	}
+
+	.table thead th.text-center {
+		vertical-align: middle;
+	}
 </style>
 <div id="cetak">
 	<div style="padding: 10px;">
@@ -242,13 +252,15 @@ foreach ($ssh as $k => $val) {
 					</tr>
 				<?php elseif ($tipe_laporan == 2) : ?>
 					<tr>
-						<th class="text-center">NO</th>
-						<th class="text-center">KODE KELOMPOK BARANG</th>
-						<th class="text-center">NAMA KODE KELOMPOK BARANG</th>
+						<th class="text-center" width="42px;">NO</th>
+						<th class="text-center" width="180px;">KODE KELOMPOK BARANG</th>
+						<th class="text-center" width="250px;">NAMA KODE KELOMPOK BARANG</th>
 						<th class="text-center">URAIAN</th>
 						<th class="text-center">SPESIFIKASI</th>
 						<th class="text-center">SATUAN</th>
 						<th class="text-center">HARGA SATUAN</th>
+						<th class="text-center">AKUN BELANJA</th>
+						<th class="text-center" width="110px;">TINGKAT KOMPONEN DALAM NEGRI (TKDN) %</th>
 						<th class="text-center">KETERANGAN</th>
 						<th class="text-center">SKPD Pengusul</th>
 					</tr>
@@ -262,16 +274,20 @@ foreach ($ssh as $k => $val) {
 						<th class="text-center">7</th>
 						<th class="text-center">8</th>
 						<th class="text-center">9</th>
+						<th class="text-center">10</th>
+						<th class="text-center">11</th>
 					</tr>
 				<?php elseif ($tipe_laporan == 3) : ?>
 					<tr>
-						<th class="text-center">NO</th>
-						<th class="text-center">KODE KELOMPOK BARANG</th>
-						<th class="text-center">NAMA KODE KELOMPOK BARANG</th>
+						<th class="text-center" width="42px;">NO</th>
+						<th class="text-center" width="180px;">KODE KELOMPOK BARANG</th>
+						<th class="text-center" width="250px;">NAMA KODE KELOMPOK BARANG</th>
 						<th class="text-center">URAIAN</th>
 						<th class="text-center">SPESIFIKASI</th>
 						<th class="text-center">SATUAN</th>
 						<th class="text-center">HARGA SATUAN</th>
+						<th class="text-center">AKUN BELANJA</th>
+						<th class="text-center" width="110px;">TINGKAT KOMPONEN DALAM NEGRI (TKDN) %</th>
 						<th class="text-center">KETERANGAN</th>
 						<th class="text-center">SKPD Pengusul</th>
 						<th class="text-center">Iya</th>
@@ -289,6 +305,8 @@ foreach ($ssh as $k => $val) {
 						<th class="text-center">9</th>
 						<th class="text-center">10</th>
 						<th class="text-center">11</th>
+						<th class="text-center">12</th>
+						<th class="text-center">13</th>
 					</tr>
 				<?php endif; ?>
 
