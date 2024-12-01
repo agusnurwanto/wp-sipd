@@ -2322,7 +2322,7 @@ CREATE TABLE `data_realisasi_rincian` (
   `realisasi` double(20,2) DEFAULT NULL,
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
-  `update_at` DATETIME NOT NULL,
+  `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY (id)
 );

@@ -4393,9 +4393,9 @@ class Wpsipd_Public_RKA
                             id_rinci_sub_bl
                         FROM data_rka
                         WHERE tahun_anggaran = %d
-                        AND kode_sbl = %s
-                        AND kode_akun != ''
-                        AND active = 1
+                          AND kode_sbl = %s
+                          AND kode_akun != ''
+                          AND active = 1
                     ", $postData['tahun_anggaran'], $postData['kode_sbl']),
                     ARRAY_A
                 );
@@ -4456,6 +4456,76 @@ class Wpsipd_Public_RKA
                             $data
                         );
                     }
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'API key tidak ditemukan!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function simpan_realisasi_rinci_bl()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil simpan realisasi rincian belanja!'
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $user_data = wp_get_current_user();
+                $postData = $_POST;
+
+                // Define validation rules
+                $validationRules = [
+                    'tahun_anggaran'      => 'required|numeric',
+                    'id_rinci_sub_bl'     => 'required',
+                ];
+
+                // Validate data
+                $errors = $this->validate($postData, $validationRules);
+
+                if (!empty($errors)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = implode(" \n ", $errors);
+                    die(json_encode($ret));
+                }
+
+                $data = array(
+                    'tahun_anggaran'    => sanitize_text_field($postData['tahun_anggaran']),
+                    'id_rinci_sub_bl'   => sanitize_text_field($postData['id_rinci_sub_bl']),
+                    'realisasi'         => sanitize_text_field($postData['realisasi']),
+                    'user'              => $user_data->display_name,
+                    'active'            => 1,
+                );
+                $cek_data = $wpdb->get_var(
+                    $wpdb->prepare('
+                        SELECT id
+                        FROM data_realisasi_rincian
+                        WHERE id_rinci_sub_bl = %d
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                    ', $postData['id_rinci_sub_bl'], $postData['tahun_anggaran'])
+                );
+
+                // Update or insert
+                if ($cek_data) {
+                    $wpdb->update(
+                        'data_realisasi_rincian',
+                        $data,
+                        array('id' => $cek_data)
+                    );
+                } else {
+                    $wpdb->insert(
+                        'data_realisasi_rincian',
+                        $data
+                    );
                 }
             } else {
                 $ret['status']  = 'error';

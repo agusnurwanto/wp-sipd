@@ -14457,12 +14457,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT COUNT(*)
 							FROM data_mapping_label
 							WHERE tahun_anggaran=%d
-							AND id_rinci_sub_bl=%d
-							AND id_label_komponen=%d
-							AND active=1
-                    ", $tahun_anggaran, $v['id_rinci_sub_bl'], $_POST['id_label']));
+							  AND id_rinci_sub_bl=%d
+							  AND id_label_komponen=%d
+							  AND active=1
+                    	", $tahun_anggaran, $v['id_rinci_sub_bl'], $_POST['id_label']));
 
 						$rka[$k]['is_checked'] = $is_checked > 0 ? true : false;
+
+						$realisasi_rincian = $wpdb->get_var($wpdb->prepare("
+							SELECT realisasi
+							FROM data_realisasi_rincian
+							WHERE tahun_anggaran=%d
+							  AND id_rinci_sub_bl=%d
+							  AND active=1
+                    	", $tahun_anggaran, $v['id_rinci_sub_bl']));
+
+						$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
 					}
 				}
 
