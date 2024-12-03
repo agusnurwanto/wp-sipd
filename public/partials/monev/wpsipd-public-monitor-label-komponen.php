@@ -87,20 +87,43 @@ $sql = $wpdb->prepare("
     FROM `data_rka` r
         " . $inner_skpd . "
     INNER JOIN data_mapping_label m 
-            ON m.active=r.active
-           AND m.tahun_anggaran=r.tahun_anggaran
-           AND m.id_rinci_sub_bl=r.id_rinci_sub_bl
+            ON m.active = 1
+           AND m.tahun_anggaran = r.tahun_anggaran
+           AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
     LEFT JOIN data_realisasi_rincian rr 
-           ON rr.active=r.active
-          AND rr.tahun_anggaran=r.tahun_anggaran
-          AND rr.id_rinci_sub_bl=r.id_rinci_sub_bl
-    WHERE r.active=1 
-      AND r.tahun_anggaran=%d
-      AND m.id_label_komponen=%d
+           ON rr.active = 1
+          AND rr.tahun_anggaran = r.tahun_anggaran
+          AND rr.id_rinci_sub_bl = r.id_rinci_sub_bl
+    WHERE r.tahun_anggaran = %d
+      AND m.id_label_komponen = %d
         " . $where_skpd . "
     ORDER BY r.kode_sbl ASC
 ", $input['tahun_anggaran'], $input['id_label']);
 $data = $wpdb->get_results($sql, ARRAY_A);
+
+$count = $wpdb->prepare("
+    SELECT 
+        COUNT(r.id) AS jumlah_rincian,
+        SUM(r.rincian) AS total_rincian_pagu,
+        SUM(rr.realisasi) AS total_realisasi
+    FROM `data_rka` r
+    INNER JOIN data_mapping_label m 
+            ON m.active = 1
+           AND m.tahun_anggaran = r.tahun_anggaran
+           AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
+    LEFT JOIN data_realisasi_rincian rr 
+           ON rr.active = 1
+          AND rr.tahun_anggaran = r.tahun_anggaran
+          AND rr.id_rinci_sub_bl = r.id_rinci_sub_bl
+    WHERE r.tahun_anggaran = %d
+      AND m.id_label_komponen = %d
+", $input['tahun_anggaran'], $input['id_label']);
+$counter = $wpdb->get_row($count, ARRAY_A);
+$count_penyerapan = 0;
+$count_penyerapan = (!empty($counter['total_rincian_pagu']) && $counter['total_rincian_pagu'] != 0)
+    ? $this->pembulatan(($counter['total_realisasi'] / $counter['total_rincian_pagu']) * 100)
+    : 0;
+
 if (!empty($data)) {
     $data_label = $data;
 }
@@ -151,15 +174,15 @@ foreach ($data_label as $k => $v) {
     );
     if (empty($data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']])) {
         $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']] = array(
-            'kode_giat'         => $sub_keg['kode_giat'],
-            'nama_giat'         => $sub_keg['nama_giat'],
-            'kode_sbl'          => $v['kode_sbl'],
-            'id_skpd'           => $skpd['id_skpd'],
-            'nama_sub_giat'     => $sub_keg['nama_sub_giat'],
-            'realisasi'         => 0,
-            'total_murni'       => 0,
-            'total'             => 0,
-            'data'              => array()
+            'kode_giat'     => $sub_keg['kode_giat'],
+            'nama_giat'     => $sub_keg['nama_giat'],
+            'kode_sbl'      => $v['kode_sbl'],
+            'id_skpd'       => $skpd['id_skpd'],
+            'nama_sub_giat' => $sub_keg['nama_sub_giat'],
+            'realisasi'     => 0,
+            'total_murni'   => 0,
+            'total'         => 0,
+            'data'          => array()
         );
     }
     $kelompok = $v['idsubtitle'] . '||' . $v['subs_bl_teks'];
@@ -216,6 +239,9 @@ foreach ($data_label as $k => $v) {
 ksort($data_label_shorted['data']);
 
 $jumlah_rincian = 0;
+$count_deleted_rincian = 0;
+$pagu_deleted = 0;
+$realisasi_deleted = 0;
 $body_label = '';
 foreach ($data_label_shorted['data'] as $k => $skpd) {
     $murni = '';
@@ -352,6 +378,15 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     foreach ($akun['data'] as $rincian) {
                         $no++;
                         $jumlah_rincian++;
+                        $warning_badge = '';
+                        $warning_bg = '';
+                        $count_deleted_rincian++;
+                        if ($rincian['active'] != 1) {
+                            $pagu_deleted += $rincian['rincian'];
+                            $realisasi_deleted += $rincian['realisasi'];
+                            $warning_bg = 'background-color : #FFADAD;';
+                            $warning_badge = '<br><span class="badge badge-dark">Rincian tidak lagi ditemukan dalam RKA/DPA</span>';
+                        }
                         $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ');" title="Hapus Rincian Belanja"><i class="dashicons dashicons-trash"></i></span>';
                         $alamat_array = $this->get_alamat($input, $rincian);
                         $alamat = $alamat_array['alamat'];
@@ -369,17 +404,17 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
 
                         $body_label .= '
                             <tr class="rincian" data-db="' . $rincian['id_rinci_sub_bl'] . '|' . $rincian['kode_sbl'] . '" data-lokus-teks="' . $lokus_akun_teks . '">
-                                <td class="kanan bawah kiri text_tengah">' . $no . '</td>
-                                <td class="kanan bawah" style="padding-left: 100px;">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . '</td>
-                                <td class="kanan bawah">' . $alamat . $rincian['spek_komponen'] . '</td>
-                                <td class="kanan bawah kiri text_tengah text_blok actionBtn">' . $btn_delete . '</td>
+                                <td class="kanan bawah kiri text_tengah" style="' . $warning_bg . '">' . $no . '</td>
+                                <td class="kanan bawah" style="padding-left: 100px; ' . $warning_bg . '">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $warning_badge . '</td>
+                                <td class="kanan bawah" style="' . $warning_bg . '">' . $alamat . $rincian['spek_komponen'] . '</td>
+                                <td class="kanan bawah kiri text_tengah text_blok actionBtn" style="' . $warning_bg . '">' . $btn_delete . '</td>
                                 ' . $murni . '
-                                <td class="kanan bawah text_kanan">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
-                                <td class="kanan bawah text_kanan">' . number_format($rincian['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                                <td class="kanan bawah text_kanan">' . $penyerapan . '</td>
-                                <td class="kanan bawah text_tengah">' . $rincian['volume'] . '</td>
-                                <td class="kanan bawah text_tengah">' . $rincian['satuan'] . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . number_format($rincian['realisasi'] ?? 0, 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . $penyerapan . '</td>
+                                <td class="kanan bawah text_tengah" style="' . $warning_bg . '">' . $rincian['volume'] . '</td>
+                                <td class="kanan bawah text_tengah" style="' . $warning_bg . '">' . $rincian['satuan'] . '</td>
                             </tr>
                         ';
                     }
@@ -460,7 +495,7 @@ $body_label .= '
 ';
 //set bg if greater than
 $style_color = '';
-if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
+if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
     $style_color = 'background-color : #FFADAD;';
 }
 ?>
@@ -515,12 +550,12 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
 </style>
 <div id="cetak" title="Monitoring dan Evaluasi Label Komponen <?php echo $label_db['nama']; ?> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <div class="text-center mx-auto my-3" style="min-width: 450px; max-width: 570px;">
-        <h4 class="font-weight-bold mb-2">
+        <h3 class="font-weight-bold mb-2">
             Monitoring dan Evaluasi Label Komponen
-        </h4>
-        <h5 class="font-weight-bold mb-2">
+        </h3>
+        <h4 class="font-weight-bold mb-2">
             Tahun Anggaran <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
-        </h5>
+        </h4>
     </div>
     <div class="m-4 text-center btnTambah">
         <button class="btn btn-primary" onclick="showModalTambah();">
@@ -528,41 +563,66 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
         </button>
     </div>
 
-    <div class="table-responsive" style="overflow-x: auto;">
-        <table style="width: 100%; border: 1px solid #dee2e6; border-collapse: collapse;">
-            <thead style="background-color: #bde0fe; color: #212529; text-align: center;">
+    <div class="table-responsive" style="overflow-x: auto; margin-bottom: 20px; margin-top: 40px;">
+        <h4 class="text_tengah" style="margin-bottom: 1rem;">Detail Label Komponen</h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;" colspan="2">Nama Label</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;" colspan="2">Keterangan Label</th>
+                    <th class="atas kanan bawah kiri text_tengah" colspan="2">Nama Label</th>
+                    <th class="atas kanan bawah kiri text_tengah" colspan="3">Keterangan Label</th>
                 </tr>
             </thead>
             <tbody>
-                <tr style="text-align: center;">
-                    <td class="bg-light atas kanan bawah kiri text_tengah" style="background-color: #f8f9fa; padding: 8px;" colspan="2"><?php echo $label_db['nama']; ?></td>
-                    <td class="bg-light atas kanan bawah kiri text_tengah" style="background-color: #f8f9fa; padding: 8px;" colspan="2"><?php echo $label_db['keterangan']; ?></td>
+                <tr>
+                    <td class="atas kanan bawah kiri text-left" colspan="2"><?php echo $label_db['nama']; ?></td>
+                    <td class="atas kanan bawah kiri text-left" colspan="3"><?php echo $label_db['keterangan']; ?></td>
                 </tr>
             </tbody>
-            <thead style="background-color: #bde0fe; color: #212529; text-align: center;">
+            <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;">Rencana Pagu</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;">Total Pagu Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;">Jumlah Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="padding: 8px;">Total Realisasi</th>
+                    <th class="atas kanan bawah kiri text_tengah">Rencana Pagu</th>
+                    <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
+                    <th class="atas kanan bawah kiri text_tengah">Capaian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
                 </tr>
             </thead>
             <tbody>
-                <tr style="text-align: center;">
-                    <td class="atas kanan bawah kiri text_tengah" style="padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah" style="padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($data_label_shorted['total'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="bg-light atas kanan bawah kiri text_tengah" style="background-color: #f8f9fa; padding: 8px;"><?php echo $jumlah_rincian; ?></td>
-                    <td class="bg-light atas kanan bawah kiri text_tengah" style="background-color: #f8f9fa; padding: 8px;"><?php echo number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", "."); ?></td>
+                <tr>
+                    <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($counter['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($counter['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo $count_penyerapan; ?>%</td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo $counter['jumlah_rincian']; ?></td>
                 </tr>
             </tbody>
         </table>
+
+        <?php if ($count_deleted_rincian != 0): ?>
+            <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead style="background-color: #bde0fe; color: #212529;">
+                    <tr>
+                        <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
+                        <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
+                        <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($pagu_deleted ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($realisasi_deleted ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo $count_deleted_rincian; ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
+
+    <h4 class="text-center mt-4 mb-3">Detail Rincian Belanja yang Tertagging</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
-        <thead>
+        <thead style="background-color: #dee2e6; text-align: center;">
             <tr>
                 <td rowspan="2" class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td rowspan="2" class="atas kanan bawah text_tengah text_blok">SKPD / Sub Kegiatan / Komponen</td>
@@ -704,6 +764,20 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
     </div>
 </div>
 
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 900px; margin: 40px auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; background-color: #f9f9f9;">
+    <h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
+    <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6; color: #555;">
+        <li><strong>Pemberian Label/Tag:</strong> Fitur ini digunakan untuk memberikan label atau tag pada rincian belanja dan menyimpan realisasi rincian belanja ke dalam tabel <b>Detail Rincian Belanja yang Tertagging</b>.</li>
+        <li><strong>Validasi Rencana Pagu:</strong> Pastikan nilai pada kolom <b>Rencana Pagu</b> sesuai dengan <b>Total Pagu Rincian</b>. Jika melebihi, kolom akan diberi warna merah untuk menunjukkan ketidaksesuaian.</li>
+        <li><strong>Data Tidak Terkoneksi:</strong> Jika tabel <b>Data Rincian yang Tidak Terkoneksi ke RKA/DPA</b> muncul, berarti terdapat rincian belanja tertagging yang statusnya <b>tidak lagi ditemukan dalam RKA/DPA</b>. Rincian belanja tersebut akan ditampilkan dengan background merah.</li>
+        <li><strong>Input Realisasi:</strong> Input realisasi rincian belanja dapat dilakukan melalui popup yang tersedia.</li>
+        <li><strong>Edit Subkegiatan:</strong> Tombol ikon <b>pensil berwarna kuning</b> ditampilkan di setiap subkegiatan. Tombol ini memungkinkan Anda untuk mengedit rincian per subkegiatan sekaligus, sehingga tidak perlu menghapus rincian belanja satu per satu secara manual.</li>
+        <li><strong>Hapus Rincian Belanja:</strong> Tombol ikon <b>tong sampah berwarna merah</b> ditampilkan di setiap rincian belanja. Fungsinya untuk menghapus rincian belanja dari label komponen.</li>
+        <li><strong>Navigasi Halaman:</strong> Tombol <b>Halaman Monev Pergeseran</b> dan <b>Halaman Monev Murni</b> disediakan sebagai navigasi antar halaman. Secara default, halaman murni yang akan ditampilkan.</li>
+    </ul>
+</div>
+
+
 <script type="text/javascript">
     jQuery(document).ready(() => {
         run_download_excel('apbd');
@@ -806,6 +880,7 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
 
                                 if (!groupedData[kodeAkun].subs[subsBl]) {
                                     groupedData[kodeAkun].subs[subsBl] = {
+                                        namaKelompok: item.subs_bl_teks,
                                         total: 0,
                                         total_realisasi: 0,
                                         ket: {},
@@ -814,6 +889,7 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
 
                                 if (!groupedData[kodeAkun].subs[subsBl].ket[ketBl]) {
                                     groupedData[kodeAkun].subs[subsBl].ket[ketBl] = {
+                                        namaKeterangan: item.ket_bl_teks,
                                         total: 0,
                                         total_realisasi: 0,
                                         rincian: [],
@@ -861,7 +937,7 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
                                                 <input class="subs-checkbox" type="checkbox" value="${subsBl}">
                                             </td>
                                             <td class="font-weight-bold text-left" colspan="3" class="subs-total">
-                                                ${subsBl} 
+                                                ${subsData.namaKelompok} 
                                             </td>
                                             <td class="font-weight-bold text-right">
                                                 ${formatNumber(subsData.total)}
@@ -885,7 +961,7 @@ if ($label_db['rencana_pagu'] < $data_label_shorted['total']) {
                                                     <input class="ket-checkbox" type="checkbox" value="${ketBl}">
                                                 </td>
                                                 <td colspan="3" class="font-weight-bold text-left ket-total text-dark">
-                                                    ${ketBl} 
+                                                    ${ketData.namaKeterangan} 
                                                 </td>
                                                 <td class="font-weight-bold text-right">
                                                     ${formatNumber(ketData.total)}
