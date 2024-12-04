@@ -13,7 +13,7 @@ if (empty($input['tahun_anggaran'])) {
 }
 $renstra_options = '';
 
-$sqlTipe = $wpdb->get_results(
+$sqlTipe = $wpdb->get_row(
     $wpdb->prepare("
         SELECT * 
         FROM `data_tipe_perencanaan` 
@@ -21,43 +21,37 @@ $sqlTipe = $wpdb->get_results(
     ", 'monev_renstra'),
     ARRAY_A
 );
-$data_renstra = $wpdb->get_results(
+$jadwal_renstra = $wpdb->get_results(
     $wpdb->prepare('
         SELECT *
         FROM data_jadwal_lokal
         WHERE status=0
           AND id_tipe=%d
-    ', $sqlTipe[0]['id']),
+    ', $sqlTipe['id']),
     ARRAY_A
 );
 
-if (!empty($data_renstra)) {
-    foreach ($data_renstra as $renstra) {
-        $tipe = [];
-        foreach ($sqlTipe as $val_tipe) {
-            $tipe[$val_tipe['id']] = strtoupper($val_tipe['nama_tipe']);
-        }
+if (!empty($jadwal_renstra)) {
+    foreach ($jadwal_renstra as $renstra) {
         $renstra_options .=
             '<option value="' . $renstra['id_jadwal_lokal'] . '">
-            ' . $tipe[$renstra['id_tipe']] . ' | ' . $renstra['nama'] . ' | 
+            ' . strtoupper($sqlTipe['nama_tipe']) . ' | ' . $renstra['nama'] . ' | 
             ' . $renstra['tahun_anggaran'] . ' - ' . $renstra['tahun_akhir_anggaran'] .
             '</option>';
     }
 }
-
-$cek_jadwal = $wpdb->get_results(
-    $wpdb->prepare('
-        SELECT *
-        FROM data_jadwal_lokal
-        WHERE status = %d
-          AND id_tipe = %d
-    ', 0, 16)
+$cek_jadwal = empty(
+    $wpdb->get_results(
+        $wpdb->prepare('
+            SELECT *
+            FROM data_jadwal_lokal
+            WHERE status = %d
+              AND id_tipe = %d
+              AND tahun_anggaran = %d
+        ', 0, 16, $input['tahun_anggaran'])
+    )
 );
-if (!empty($cek_jadwal)) {
-    $cek_jadwal = false;
-} else {
-    $cek_jadwal = true;
-}
+
 ?>
 <style>
 </style>

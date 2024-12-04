@@ -1540,7 +1540,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				}
 
 				if ($_POST['type'] == 'pohon_kinerja_renja') {
-					$data_label = $wpdb->get_results($wpdb->prepare("select distinct namalabel, tahun_anggaran from data_tag_sub_keg where idlabelgiat !=%d and namalabel is not null", 0), ARRAY_A);
+					$data_label = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT DISTINCT
+								namalabel, 
+								tahun_anggaran 
+							FROM data_tag_sub_keg 
+							WHERE idlabelgiat !=%d 
+							  AND namalabel IS NOT NULL
+							ORDER BY tahun_anggaran DESC
+						", 0),
+						ARRAY_A
+					);
 
 					$arr_label = [];
 					foreach ($data_label as $label) {

@@ -17005,7 +17005,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$lama_pelaksanaan = trim(htmlspecialchars($_POST['lama_pelaksanaan'] ?? ''));
 					}
 
-					$sqlTipe = $wpdb->get_results(
+					$sqlTipe = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT * 
 							FROM `data_tipe_perencanaan` 
@@ -17025,27 +17025,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									&& !empty($tahun_akhir_anggaran)
 								) {
 									// Tambah Jadwal Monev RPJM RENSTRA
-
-									// $cek_jadwal_terbuka = $wpdb->get_var(
-									// 	$wpdb->prepare('
-									// 		SELECT 
-									// 			status
-									// 		FROM data_jadwal_lokal
-									// 		WHERE id_tipe = %d
-									// 		  AND status = %d
-									// 	', 17, 0)
-									// );
-									// if (!empty($cek_jadwal_terbuka)) {
-									// 	$return = [
-									// 		'status'    => 'error',
-									// 		'message'   => 'GAGAL! Masih terdapat jadwal terbuka!'
-									// 	];
-									// 	die(json_encode($return));
 									$data_jadwal_rpjm = [
 										'nama'                 => $nama,
 										'tahun_anggaran'       => $tahun_anggaran,
 										'relasi_perencanaan'   => $relasi_perencanaan,
-										'id_tipe'  			   => $sqlTipe[0]['id'],
+										'id_tipe'  			   => $sqlTipe['id'],
 										'lama_pelaksanaan'     => $lama_pelaksanaan,
 										'tahun_akhir_anggaran' => $tahun_akhir_anggaran,
 										'jenis_jadwal'    	   => $jenis_jadwal,
@@ -17105,7 +17089,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										'nama'                 => $nama,
 										'tahun_anggaran'       => $tahun_anggaran,
 										'relasi_perencanaan'   => $relasi_perencanaan,
-										'id_tipe'  			   => $sqlTipe[0]['id'],
+										'id_tipe'  			   => $sqlTipe['id'],
 										'lama_pelaksanaan'     => 1,
 										'status'               => 0,
 									];
@@ -17133,7 +17117,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									&& !empty($tipe_perencanaan)
 									&& !empty($lama_pelaksanaan)
 								) {
-									$id_tipe = $sqlTipe[0]['id'];
+									$id_tipe = $sqlTipe['id'];
 									$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
 									$sqlSameTipe = $wpdb->get_results(
 										$wpdb->prepare("
