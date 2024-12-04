@@ -380,8 +380,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $jumlah_rincian++;
                         $warning_badge = '';
                         $warning_bg = '';
-                        $count_deleted_rincian++;
                         if ($rincian['active'] != 1) {
+                            $count_deleted_rincian++;
                             $pagu_deleted += $rincian['rincian'];
                             $realisasi_deleted += $rincian['realisasi'];
                             $warning_bg = 'background-color : #FFADAD;';
@@ -601,7 +601,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         <?php if ($count_deleted_rincian != 0): ?>
             <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
             <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <thead style="background-color: #bde0fe; color: #212529;">
+                <thead style="background-color: #FFADAD; color: #212529;">
                     <tr>
                         <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
                         <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
