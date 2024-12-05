@@ -1236,6 +1236,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
+				$arr_label = [];
 				$unit_renstra = [];
 				$limit = '';
 				if ($_POST['type'] == 'input_renstra') {
@@ -1403,7 +1404,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 					if (
 						$_POST['type'] != 'input_renstra'
-						&& $_POST['type'] != 'pohon_kinerja_renja'
 						&& $_POST['type'] != 'monev_renstra'
 						&& $_POST['type'] != 'monev_renja'
 					) {
@@ -1534,49 +1534,30 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $gen_page . '">Halaman SPT (Surat Perintah Tugas) | ' . $v['tahun_anggaran'] . '</a>';
 					}
 
-					if ($_POST['type'] != 'input_renstra' && $_POST['type'] != 'pohon_kinerja_renja') {
-						$body_all .= '</div>';
-					}
-				}
+					if ($_POST['type'] == 'pohon_kinerja_renja') {
+						$data_label = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT DISTINCT
+									namalabel, 
+									tahun_anggaran 
+								FROM data_tag_sub_keg 
+								WHERE idlabelgiat !=%d 
+								  AND tahun_anggaran =%d 
+								  AND namalabel IS NOT NULL
+								ORDER BY tahun_anggaran DESC
+							", 0, $v['tahun_anggaran']),
+							ARRAY_A
+						);
 
-				if ($_POST['type'] == 'pohon_kinerja_renja') {
-					$data_label = $wpdb->get_results(
-						$wpdb->prepare("
-							SELECT DISTINCT
-								namalabel, 
-								tahun_anggaran 
-							FROM data_tag_sub_keg 
-							WHERE idlabelgiat !=%d 
-							  AND namalabel IS NOT NULL
-							ORDER BY tahun_anggaran DESC
-						", 0),
-						ARRAY_A
-					);
-
-					$arr_label = [];
-					foreach ($data_label as $label) {
-						if (empty($arr_label[$label['tahun_anggaran']])) {
-							$arr_label[$label['tahun_anggaran']] = [
-								'tahun_anggaran' => $label['tahun_anggaran'],
-								'data' => [],
-							];
-						}
-
-						if (empty($arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']])) {
-							$arr_label[$label['tahun_anggaran']]['data'][$label['namalabel']] = $label['namalabel'];
+						if (!empty($data_label)) {
+							$url_label = $this->generatePage('POHON KINERJA RENJA ' . $data_label['namalabel'] . ' ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" namalabel="' . $data_label['namalabel'] . '"]');
+							$body_all .= '<a target="_blank" href="' . $url_label . '">POHON KINERJA RENJA ' . $data_label['namalabel'] . '</a></br>';
+						} else {
+							$body_all .= '<a class="button button-secondary button-large">Tidak Ditemukan!</a></br>';
 						}
 					}
 
-					foreach ($arr_label as $label) {
-						$body_all .= '
-			            	<h3 class="header-tahun" tahun="' . $label['tahun_anggaran'] . '">Tahun Anggaran ' . $label['tahun_anggaran'] . '</h3>
-			            	<div class="body-tahun" tahun="' . $label['tahun_anggaran'] . '">';
-
-						foreach ($label['data'] as $namalabel) {
-							$url_label = $this->generatePage('POHON KINERJA RENJA ' . $namalabel . ' ' . $label['tahun_anggaran'], $label['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $label['tahun_anggaran'] . '" namalabel="' . $namalabel . '"]');
-							$body_all .= '<a target="_blank" href="' . $url_label . '">POHON KINERJA RENJA ' . $namalabel . '</a></br>';
-						}
-
+					if ($_POST['type'] != 'input_renstra') {
 						$body_all .= '</div>';
 					}
 				}
