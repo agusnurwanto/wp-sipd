@@ -1550,10 +1550,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						);
 
 						if (!empty($data_label)) {
-							$url_label = $this->generatePage('POHON KINERJA RENJA ' . $data_label['namalabel'] . ' ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" namalabel="' . $data_label['namalabel'] . '"]');
-							$body_all .= '<a target="_blank" href="' . $url_label . '">POHON KINERJA RENJA ' . $data_label['namalabel'] . '</a></br>';
+							foreach ($data_label as $value) {
+								$url_label = $this->generatePage('POHON KINERJA RENJA ' . $value['namalabel'] . ' ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[pohon_kinerja_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" namalabel="' . $value['namalabel'] . '"]');
+								$body_all .= '<a target="_blank" href="' . $url_label . '">POHON KINERJA RENJA ' . $value['namalabel'] . '</a></br>';
+							}
 						} else {
-							$body_all .= '<a class="button button-secondary button-large">Tidak Ditemukan!</a></br>';
+							$body_all .= '<h4>Tidak Ditemukan!</h4></br>';
 						}
 					}
 
