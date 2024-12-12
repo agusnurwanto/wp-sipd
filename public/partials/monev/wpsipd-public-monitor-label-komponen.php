@@ -86,7 +86,18 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
 $sql = $wpdb->prepare("
     SELECT 
         r.*,
-        rr.realisasi 
+        CASE 
+            WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
+            ELSE r.rincian
+        END AS rincian_new,
+        CASE 
+            WHEN m.pisah = 1 THEN m.realisasi_pisah
+            ELSE rr.realisasi
+        END AS realisasi_new,
+        CASE 
+            WHEN m.pisah = 1 THEN m.volume_pisah
+            ELSE r.volume
+        END AS volume_new
     FROM `data_rka` r
         " . $inner_skpd . "
     INNER JOIN data_mapping_label m 
@@ -103,13 +114,25 @@ $sql = $wpdb->prepare("
         " . $where_skpd . "
     ORDER BY r.kode_sbl ASC
 ", $input['tahun_anggaran'], $input['id_label']);
+
 $data = $wpdb->get_results($sql, ARRAY_A);
+
 
 $count = $wpdb->prepare("
     SELECT 
         COUNT(r.id) AS jumlah_rincian,
-        SUM(r.rincian) AS total_rincian_pagu,
-        SUM(rr.realisasi) AS total_realisasi
+        SUM(
+            CASE 
+                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
+                ELSE r.rincian
+            END
+        ) AS total_rincian_pagu,
+        SUM(
+            CASE 
+                WHEN m.pisah = 1 THEN m.realisasi_pisah
+                ELSE rr.realisasi
+            END
+        ) AS total_realisasi
     FROM `data_rka` r
     INNER JOIN data_mapping_label m 
             ON m.active = 1
@@ -123,7 +146,9 @@ $count = $wpdb->prepare("
       AND r.tahun_anggaran = %d
       AND m.id_label_komponen = %d
 ", $input['tahun_anggaran'], $input['id_label']);
+
 $counter = $wpdb->get_row($count, ARRAY_A);
+
 $count_penyerapan = 0;
 $count_penyerapan = (!empty($counter['total_rincian_pagu']) && $counter['total_rincian_pagu'] != 0)
     ? $this->pembulatan(($counter['total_realisasi'] / $counter['total_rincian_pagu']) * 100)
@@ -220,12 +245,12 @@ foreach ($data_label as $k => $v) {
         );
     }
     $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['data'][] = $v;
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['total'] += $v['rincian'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['total'] += $v['rincian'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['total'] += $v['rincian'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['total'] += $v['rincian'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['total'] += $v['rincian'];
-    $data_label_shorted['total'] += $v['rincian'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['total'] += $v['rincian_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['total'] += $v['rincian_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['total'] += $v['rincian_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['total'] += $v['rincian_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['total'] += $v['rincian_new'];
+    $data_label_shorted['total'] += $v['rincian_new'];
 
     $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['total_murni'] += $v['rincian_murni'];
     $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['total_murni'] += $v['rincian_murni'];
@@ -234,12 +259,12 @@ foreach ($data_label as $k => $v) {
     $data_label_shorted['data'][$skpd['kode_skpd']]['total_murni'] += $v['rincian_murni'];
     $data_label_shorted['total_murni'] += $v['rincian_murni'];
 
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['realisasi'] += $v['realisasi'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['realisasi'] += $v['realisasi'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['realisasi'] += $v['realisasi'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi'] += $v['realisasi'];
-    $data_label_shorted['data'][$skpd['kode_skpd']]['realisasi'] += $v['realisasi'];
-    $data_label_shorted['realisasi'] += $v['realisasi'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['data'][$v['kode_akun']]['realisasi'] += $v['realisasi_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['data'][$keterangan]['realisasi'] += $v['realisasi_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['data'][$kelompok]['realisasi'] += $v['realisasi_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi'] += $v['realisasi_new'];
+    $data_label_shorted['data'][$skpd['kode_skpd']]['realisasi'] += $v['realisasi_new'];
+    $data_label_shorted['realisasi'] += $v['realisasi_new'];
 }
 ksort($data_label_shorted['data']);
 
@@ -388,8 +413,8 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ', true);" title="Hapus Rincian Belanja"><i class="dashicons dashicons-trash"></i></span>';
                         if ($rincian['active'] != 1) {
                             $count_deleted_rincian++;
-                            $pagu_deleted += $rincian['rincian'];
-                            $realisasi_deleted += $rincian['realisasi'];
+                            $pagu_deleted += $rincian['rincian_new'];
+                            $realisasi_deleted += $rincian['realisasi_new'];
                             $warning_bg = 'background-color : #FFADAD;';
                             $warning_badge = '<br><span class="badge badge-dark">Rincian tidak lagi ditemukan dalam RKA/DPA</span>';
                             $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ', false);" title="Hapus Rincian Belanja Tidak Aktif"><i class="dashicons dashicons-no-alt"></i></span>';
@@ -397,30 +422,38 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $alamat_array = $this->get_alamat($input, $rincian);
                         $alamat = $alamat_array['alamat'];
                         $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
+
+                        $penyerapan = 0;
+                        $penyerapan = (!empty($rincian['rincian']) && $rincian['rincian'] != 0)
+                            ? $this->pembulatan(($rincian['realisasi_new'] / $rincian['rincian']) * 100)
+                            : 0;
+                        $warning_bg_penyerapan = '';
+                        $warning_badge_penyerapan = '';
+                        if ($penyerapan > 100) {
+                            $warning_bg_penyerapan = 'background-color : #FFADAD;';
+                            $warning_badge_penyerapan = '<br><span class="badge badge-dark">Capaian Melebihi 100%</span>';
+                        }
+
                         $murni = '';
                         $selisih = '';
                         if ($type == 'pergeseran') {
-                            $murni = "<td class='kanan bawah text_kanan'>" . number_format($rincian['rincian_murni'] ?? 0, 0, ",", ".") . "</td>";
-                            $selisih = "<td class='kanan bawah text_kanan'>" . number_format(($rincian['rincian'] - $rincian['rincian_murni']) ?? 0, 0, ",", ".") . "</td>";
+                            $murni = "<td class='kanan bawah text_kanan' style='" . $warning_bg . $warning_bg_penyerapan . "'>" . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . "</td>";
+                            $selisih = "<td class='kanan bawah text_kanan' style='" . $warning_bg . $warning_bg_penyerapan . "'>" . number_format(($rincian['rincian_new'] - $rincian['rincian']) ?? 0, 0, ",", ".") . "</td>";
                         }
-                        $penyerapan = 0;
-                        $penyerapan = (!empty($rincian['rincian']) && $rincian['rincian'] != 0)
-                            ? $this->pembulatan(($rincian['realisasi'] / $rincian['rincian']) * 100)
-                            : 0;
 
                         $body_label .= '
                             <tr class="rincian" data-db="' . $rincian['id_rinci_sub_bl'] . '|' . $rincian['kode_sbl'] . '" data-lokus-teks="' . $lokus_akun_teks . '">
-                                <td class="kanan bawah kiri text_tengah" style="' . $warning_bg . '">' . $no . '</td>
-                                <td class="kanan bawah" style="padding-left: 100px; ' . $warning_bg . '">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $warning_badge . '</td>
-                                <td class="kanan bawah" style="' . $warning_bg . '">' . $alamat . $rincian['spek_komponen'] . '</td>
-                                <td class="kanan bawah kiri text_tengah text_blok actionBtn" style="' . $warning_bg . '">' . $btn_delete . '</td>
+                                <td class="kanan bawah kiri text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $no . '</td>
+                                <td class="kanan bawah" style="padding-left: 100px; ' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $warning_badge . $warning_badge_penyerapan . '</td>
+                                <td class="kanan bawah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $alamat . $rincian['spek_komponen'] . '</td>
+                                <td class="kanan bawah kiri text_tengah text_blok actionBtn" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $btn_delete . '</td>
                                 ' . $murni . '
-                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . number_format($rincian['rincian'] ?? 0, 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . number_format($rincian['rincian_new'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
-                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . number_format($rincian['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                                <td class="kanan bawah text_kanan" style="' . $warning_bg . '">' . $penyerapan . '</td>
-                                <td class="kanan bawah text_tengah" style="' . $warning_bg . '">' . $rincian['volume'] . '</td>
-                                <td class="kanan bawah text_tengah" style="' . $warning_bg . '">' . $rincian['satuan'] . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . number_format($rincian['realisasi_new'] ?? 0, 0, ",", ".") . '</td>
+                                <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $penyerapan . '</td>
+                                <td class="kanan bawah text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['volume_new'] . '</td>
+                                <td class="kanan bawah text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['satuan'] . '</td>
                             </tr>
                         ';
                     }
@@ -510,6 +543,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         background-color: #dee2e6;
         color: #212529;
     }
+
     /* Level 1 */
     .skpd-row td {
         background-color: #BDB2FF;
