@@ -38,12 +38,13 @@ $where_skpd = '';
 $inner_skpd = '';
 $options    = '';
 $query_params = '';
+$display_arsip = '';
 if (!empty($_GET) && !empty($_GET['id_skpd'])) {
     $inner_skpd = '
         INNER JOIN data_sub_keg_bl s 
                 ON s.kode_sbl=r.kode_sbl
-          AND s.active = r.active
-          AND s.tahun_anggaran=r.tahun_anggaran';
+               AND s.active = r.active
+               AND s.tahun_anggaran=r.tahun_anggaran';
     $where_skpd = 'AND s.id_sub_skpd=' . $_GET['id_skpd'];
 
     $data_skpd = $wpdb->get_row(
@@ -62,6 +63,8 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
     $query_params = '&id_skpd=' . $_GET['id_skpd'];
 
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
+
+    $display_arsip = "display:none";
 } else {
     $data_skpd = $wpdb->get_results(
         $wpdb->prepare("
@@ -94,7 +97,8 @@ $sql = $wpdb->prepare("
            ON rr.active = 1
           AND rr.tahun_anggaran = r.tahun_anggaran
           AND rr.id_rinci_sub_bl = r.id_rinci_sub_bl
-    WHERE r.tahun_anggaran = %d
+    WHERE r.active != 2
+      AND r.tahun_anggaran = %d
       AND m.id_label_komponen = %d
         " . $where_skpd . "
     ORDER BY r.kode_sbl ASC
@@ -115,7 +119,8 @@ $count = $wpdb->prepare("
            ON rr.active = 1
           AND rr.tahun_anggaran = r.tahun_anggaran
           AND rr.id_rinci_sub_bl = r.id_rinci_sub_bl
-    WHERE r.tahun_anggaran = %d
+    WHERE r.active != 2
+      AND r.tahun_anggaran = %d
       AND m.id_label_komponen = %d
 ", $input['tahun_anggaran'], $input['id_label']);
 $counter = $wpdb->get_row($count, ARRAY_A);
@@ -380,14 +385,15 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         $jumlah_rincian++;
                         $warning_badge = '';
                         $warning_bg = '';
+                        $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ', true);" title="Hapus Rincian Belanja"><i class="dashicons dashicons-trash"></i></span>';
                         if ($rincian['active'] != 1) {
                             $count_deleted_rincian++;
                             $pagu_deleted += $rincian['rincian'];
                             $realisasi_deleted += $rincian['realisasi'];
                             $warning_bg = 'background-color : #FFADAD;';
                             $warning_badge = '<br><span class="badge badge-dark">Rincian tidak lagi ditemukan dalam RKA/DPA</span>';
+                            $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ', false);" title="Hapus Rincian Belanja Tidak Aktif"><i class="dashicons dashicons-no-alt"></i></span>';
                         }
-                        $btn_delete = '<span class="actionBtn delete-monev ml-2" onclick="hapus_data_rincian(' . $rincian['id_rinci_sub_bl'] . ');" title="Hapus Rincian Belanja"><i class="dashicons dashicons-trash"></i></span>';
                         $alamat_array = $this->get_alamat($input, $rincian);
                         $alamat = $alamat_array['alamat'];
                         $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
@@ -500,7 +506,23 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
 }
 ?>
 <style>
+    .detail-row th {
+        background-color: #dee2e6;
+        color: #212529;
+    }
     /* Level 1 */
+    .skpd-row td {
+        background-color: #BDB2FF;
+        color: #212529;
+        font-weight: bold;
+    }
+
+    .subgiat-row td {
+        background-color: #FFC6FF;
+        color: #212529;
+        font-weight: bold;
+    }
+
     .akun-row td {
         background-color: #adf7b6;
         color: #212529;
@@ -533,7 +555,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         font-weight: bold;
     }
 
-
     @media print {
         #cetak {
             max-width: auto !important;
@@ -541,7 +562,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         }
 
         #action-sipd,
-        .btnTambah,
+        .btnAction,
         .actionBtn,
         header {
             display: none;
@@ -557,9 +578,12 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             Tahun Anggaran <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
         </h4>
     </div>
-    <div class="m-4 text-center btnTambah">
+    <div class="m-4 text-center btnAction">
         <button class="btn btn-primary" onclick="showModalTambah();">
             <span class="dashicons dashicons-insert"></span> Tambah Data
+        </button>
+        <button class="btn btn-secondary" onclick="showModalListDeleted();" style="<?php echo $display_arsip; ?>">
+            <span class="dashicons dashicons-list-view"></span> Arsip Rincian Belanja
         </button>
     </div>
 
@@ -736,7 +760,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                             </button>
                         </div>
 
-                        <table id="tableRincian" class="mt-2 table table-hover" style="display: none;">
+                        <table id="tableRincian" class="mt-2 table" style="display: none;">
                             <thead style="background-color: #343a40; color: #fff; text-align: center;">
                                 <tr>
                                     <th scope="col" class="text-center">
@@ -747,7 +771,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                     <th scope="col" class="text-center">Satuan</th>
                                     <th scope="col" class="text-center">Anggaran</th>
                                     <th scope="col" class="text-center">Realisasi</th>
-                                    <th scope="col" class="text-center">Aksi</th>
+                                    <th scope="col" class="text-center" style="width : 105px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -763,6 +787,66 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Penghapusan -->
+<div class="modal fade mt-4" id="modalKeteranganHapus" tabindex="-1" role="dialog" aria-labelledby="modalKeteranganHapus" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="title-label-hapus">Konfirmasi Penghapusan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="idRinciSubBl" name="idRinciSubBl">
+                <div class="form-group">
+                    <label for="keteranganHapus">Berikan Alasan Penghapusan</label>
+                    <textarea name="keteranganHapus" id="keteranganHapus" class="form-control" rows="4" placeholder="Kami hapus karena..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="konfirmasiHapus()">Hapus</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Batal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal deleted-->
+<div class="modal fade" id="deletedRincianModal" tabindex="-1" role="dialog" aria-labelledby="deletedRincianModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletedRincianModalLabel">Arsip Rincian yang dihapus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="deletedRincianTable" class="mt-2 table table-hover" style="display: none;">
+                    <thead style="background-color: #343a40; color: #fff; text-align: center;">
+                        <tr>
+                            <th scope="col" class="text-center">Nama Akun / Rincian Belanja</th>
+                            <th scope="col" class="text-center">Volume</th>
+                            <th scope="col" class="text-center">Satuan</th>
+                            <th scope="col" class="text-center">Anggaran</th>
+                            <th scope="col" class="text-center">Realisasi</th>
+                            <th scope="col" class="text-center">Keterangan Hapus</th>
+                            <th scope="col" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="hide-print" id="catatan_dokumentasi" style="max-width: 900px; margin: 40px auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; background-color: #f9f9f9;">
     <h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
@@ -808,7 +892,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
         });
 
-        jQuery("#tableRincian").on("input", ".realisasiRincian", function() {
+        jQuery("#tableRincian").on("input", ".numberFormat", function() {
             let value = jQuery(this).val().replace(/[^0-9]/g, "");
 
             let formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -820,6 +904,15 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             // Tampilkan konfirmasi setelah modal tertutup dan ada data realisasi berubah
             if (window.data_changed === true) {
                 if (confirm('Data realisasi telah berubah. Apakah Anda ingin merefresh halaman?')) {
+                    location.reload(); // Refresh halaman
+                }
+            }
+        });
+
+        jQuery('#deletedRincianModal').on('hidden.bs.modal', function() {
+            // Tampilkan konfirmasi setelah modal tertutup dan ada data arsip berubah
+            if (window.data_changed === true) {
+                if (confirm('Data Arsip telah berubah. Apakah Anda ingin merefresh halaman?')) {
                     location.reload(); // Refresh halaman
                 }
             }
@@ -847,13 +940,21 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                     dataType: "json",
                     success: function(response) {
                         jQuery("#wrap-loading").hide();
-                        console.log(response);
 
                         if (response.status === "success") {
                             const data = response.data;
-
                             const tableBody = jQuery("#tableRincian tbody");
                             tableBody.empty();
+
+                            if (!data || data.length === 0) {
+                                tableBody.append(`
+                                    <tr>
+                                        <td colspan="6" class="text-center">Data tidak tersedia
+                                    </tr>
+                                `);
+                                jQuery("#tableRincian").show();
+                                return resolve();
+                            }
 
                             function formatNumber(value) {
                                 return new Intl.NumberFormat("id-ID").format(value);
@@ -978,33 +1079,112 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                         // Baris id_rinci_sub_bl (level 4)
                                         ketData.rincian.forEach((rinci) => {
                                             const isChecked = rinci.is_checked ? "checked" : "";
+                                            const checkedPisah = rinci.checked_pisah ? "checked" : "";
+                                            const displayPisah = rinci.checked_pisah ? "" : "display:none;";
+                                            const displayPisahOpen = rinci.checked_pisah ? "open" : "";
+                                            const iconBtn = rinci.checked_pisah ? "dashicons-no" : "dashicons-visibility";
+                                            const colorIcon = rinci.checked_pisah ? "btn-secondary" : "btn-success";
                                             const realisasiValue = rinci.realisasi_rincian ? parseInt(rinci.realisasi_rincian, 10) : 0;
+                                            const volumeFormated = rinci.volume ? formatNumber(rinci.volume) : 0;
 
                                             tableBody.append(`
                                                 <tr class="rinci-row" data-id="${rinci.id_rinci_sub_bl}" data-parent-id="${ketBl}" data-grandparent-id="${subsBl}" data-greatgrandparent-id="${kodeAkun}">
                                                     <td class="text-center">
                                                         <input class="rinci-checkbox" type="checkbox" value="${rinci.id_rinci_sub_bl}" ${isChecked}>
                                                     </td>
-                                                    <td class="text-left">${rinci.nama_komponen}</td>
-                                                    <td class="text-right">${rinci.volume}</td>
-                                                    <td class="text-right">${rinci.satuan}</td>
+                                                    <td class="text-left">
+                                                        ${rinci.nama_komponen}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        ${volumeFormated ?? '-'}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        ${rinci.satuan ?? '-'}
+                                                    </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
                                                         ${formatNumber(rinci.total_harga)}
                                                     </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
-                                                        <input type="text" class="realisasiRincian" value="${formatNumber(realisasiValue)}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
+                                                        <input type="text" class="numberFormat" style="text-align:right" value="${formatNumber(realisasiValue)}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
                                                     </td>
                                                     <td class="text-center rinci-total bg-light text-dark">
-                                                        <button class="btn btn-primary" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})">
+                                                        <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})">
                                                             <span class="dashicons dashicons-saved" title="Simpan Realisasi Rincian"></span>
+                                                        </button>
+                                                        <button class="btn btn-sm ${colorIcon}" onclick="lihatPisahRinci(${rinci.id_rinci_sub_bl})">
+                                                            <span class="dashicons ${iconBtn}" title="Lihat Pisah Rincian"></span>
                                                         </button>
                                                     </td>
                                                 </tr>
+                                                <tr id="parentDetail${rinci.id_rinci_sub_bl}" class="${displayPisahOpen}" style="${displayPisah}">
+                                                    <td colspan="7">
+                                                        <table class="table table-bordered table-sm">
+                                                            <thead>
+                                                                <tr class="detail-row">
+                                                                    <th class="text-center" colspan="5">
+                                                                        <input type="checkbox" id="checkboxPisah${rinci.id_rinci_sub_bl}" onchange="handleCheckboxPisah(${rinci.id_rinci_sub_bl})" ${checkedPisah}>
+                                                                        <label>Pisah Anggaran</label>
+                                                                        <br>
+                                                                        <button class="btn btn-sm btn-success" style="display:none;" id="buttonSimpanPisahRinci${rinci.id_rinci_sub_bl}" onclick="simpanDataPisahRinci(${rinci.id_rinci_sub_bl})">
+                                                                            <span class="dashicons dashicons-yes" title="Simpan Pisah Rincian"></span>Simpan
+                                                                        </button>
+                                                                    </th>
+                                                                </tr>
+                                                                <tr class="detail-row">
+                                                                    <th class="text-center">Nama Label</th>
+                                                                    <th class="text-center">Volume</th>
+                                                                    <th class="text-center">Satuan</th>
+                                                                    <th class="text-center">Anggaran</th>
+                                                                    <th class="text-center">Realisasi</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                ${
+                                                                    Array.isArray(rinci.labels)
+                                                                        ? rinci.labels
+                                                                            .map(label => `
+                                                                                <tr>
+                                                                                    <td class="text-center">
+                                                                                        <strong>${label.nama}</strong>
+                                                                                    </td>
+                                                                                    <td class="text-right numberFormat">
+                                                                                        ${label.volume ?? '-'}
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        ${rinci.satuan ?? '-'}
+                                                                                    </td>
+                                                                                    <td class="text-right">
+                                                                                        ${formatNumber(label.anggaran) ?? '0'}
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        ${formatNumber(label.realisasi || 0)}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            `)
+                                                                            .join('') 
+                                                                        : ''
+                                                                }
+                                                                <tr>
+                                                                    <td class="text-center">
+                                                                        <strong><?php echo $label_db['nama']; ?></strong>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input type="text" class="numberFormat" onchange="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" id="volumePisah${rinci.id_rinci_sub_bl}">
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        ${rinci.satuan ?? '-'}
+                                                                    </td>
+                                                                    <td class="text-center" id="anggaranPisah${rinci.id_rinci_sub_bl}">
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input type="text" class="numberFormat" id="realisasiPisah${rinci.id_rinci_sub_bl}">
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
                                             `);
-
-                                            if (rinci.is_checked) {
-                                                jQuery(`#checkbox-${rinci.id_rinci_sub_bl}`).prop('checked', true);
-                                            }
                                         });
                                     });
                                 });
@@ -1012,8 +1192,9 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
 
                             jQuery("#tableRincian").show();
 
-                            // Handle Checkbox Logic
-                            handleCheckboxLogic();
+                            // Handle Checkbox Rinci
+                            handleCheckboxRinci();
+                            jQuery(".rinci-checkbox").trigger('change');
                             resolve()
                         } else {
                             alert(response.message);
@@ -1030,6 +1211,23 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             }
         })
     }
+
+    function handleChangeVolume(idRinciSubBl, totalAnggaran, totalVolume) {
+        const volumeElement = jQuery(`#volumePisah${idRinciSubBl}`);
+        const anggaranElement = jQuery(`#anggaranPisah${idRinciSubBl}`);
+
+        // Ambil nilai volume yang diinputkan
+        const volume = parseFloat(volumeElement.val().replace(/\./g, "")) || 0;
+
+        // Hitung anggaran berdasarkan volume yang diinputkan
+        const anggaranPerVolume = totalVolume > 0 ? totalAnggaran / totalVolume : 0;
+        const anggaran = volume * anggaranPerVolume;
+
+        // Tampilkan anggaran yang diperbarui
+        anggaranElement.text(new Intl.NumberFormat("id-ID").format(anggaran));
+    }
+
+
 
     function showModalTambah() {
         jQuery("#idSkpdSelect").show();
@@ -1094,7 +1292,21 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
     }
 
 
-    function handleCheckboxLogic() {
+    function handleCheckboxPisah(idRinciSubBl) {
+        const rinciCheckbox = jQuery(`.rinci-checkbox[value="${idRinciSubBl}"]`);
+        const btnSave = jQuery(`#buttonSimpanPisahRinci${idRinciSubBl}`);
+        const checkboxPisah = jQuery(`#checkboxPisah${idRinciSubBl}`);
+
+        if (checkboxPisah.is(":checked")) {
+            rinciCheckbox.prop('checked', true).trigger('change');
+            btnSave.show();
+        } else {
+            rinciCheckbox.prop('checked', false).trigger('change');
+            btnSave.hide();
+        }
+    }
+
+    function handleCheckboxRinci() {
         // Checkbox utama (select all)
         jQuery("#flexCheckDefault").on("change", function() {
             const isChecked = jQuery(this).is(":checked");
@@ -1197,8 +1409,49 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
     }
 
 
-    function hapus_data_rincian(idSubBl) {
-        let confirmDelete = confirm("Apakah anda yakin akan menghapus rincian ini?");
+    function hapus_data_rincian(idSubBl, isActive = true) {
+        if (isActive == false) {
+            //modal konfirmasi hapus
+            jQuery('#idRinciSubBl').val(idSubBl)
+            jQuery('#keteranganHapus').val('')
+            jQuery('#modalKeteranganHapus').modal('show')
+        } else {
+            let confirmDelete = confirm("Apakah anda yakin akan menghapus rincian ini?");
+            if (confirmDelete) {
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    url: ajax.url,
+                    type: 'post',
+                    data: {
+                        'action': 'hapus_rincian_from_label_by_id',
+                        'api_key': ajax.api_key,
+                        'id_rincian': idSubBl,
+                        'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                        'id_label': <?php echo $input['id_label']; ?>,
+                        'is_deleted': false
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(`GAGAL! \n${response.message}`);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        jQuery("#wrap-loading").hide();
+                        alert("Terjadi kesalahan saat mengirim data!");
+                    }
+                });
+            }
+        }
+
+    }
+
+    function konfirmasiHapus() {
+        let confirmDelete = confirm("Apakah anda yakin?");
         if (confirmDelete) {
             jQuery('#wrap-loading').show();
             jQuery.ajax({
@@ -1207,15 +1460,17 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                 data: {
                     'action': 'hapus_rincian_from_label_by_id',
                     'api_key': ajax.api_key,
-                    'id_rincian': idSubBl,
+                    'id_rincian': jQuery('#idRinciSubBl').val(),
                     'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                     'id_label': <?php echo $input['id_label']; ?>,
+                    'keterangan_hapus': jQuery('#keteranganHapus').val(),
+                    'is_deleted': true
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response.status == 'success') {
                         alert(response.message);
-                        location.reload();
+                        location.reload()
                     } else {
                         alert(`GAGAL! \n${response.message}`);
                     }
@@ -1351,6 +1606,300 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         tempData.append("id_rinci_sub_bl", idRinciSubBl);
         tempData.append("realisasi", formatedRincian);
         tempData.append("tahun_anggaran", <?php echo $input['tahun_anggaran']; ?>);
+
+        jQuery("#wrap-loading").show();
+
+        try {
+            const res = await jQuery.ajax({
+                method: "post",
+                url: ajax.url,
+                dataType: "json",
+                data: tempData,
+                processData: false,
+                contentType: false,
+                cache: false,
+            });
+
+            alert(res.message);
+
+            if (res.status === "success") {
+                await handleViewRinciBtn(); // Refresh tabel
+                window.data_changed = true;
+            }
+        } catch (error) {
+            console.error(error.responseText || error);
+            alert("Terjadi kesalahan saat mengirim data!");
+        } finally {
+            jQuery("#wrap-loading").hide();
+        }
+    }
+
+    function lihatPisahRinci(idRinciSubBl) {
+        const parentDetail = jQuery(`#parentDetail${idRinciSubBl}`);
+        const button = jQuery(`button[onclick="lihatPisahRinci(${idRinciSubBl})"]`);
+
+        // Periksa apakah elemen sudah dalam keadaan terbuka
+        if (parentDetail.hasClass('open')) {
+            parentDetail.hide(); // Sembunyikan konten
+            parentDetail.removeClass('open');
+            button.removeClass('btn-secondary').addClass('btn-success')
+                .find('span').removeClass('dashicons-no').addClass('dashicons-visibility');
+        } else {
+            parentDetail.show(); // Tampilkan konten
+            parentDetail.addClass('open');
+            button.removeClass('btn-success').addClass('btn-secondary')
+                .find('span').removeClass('dashicons-visibility').addClass('dashicons-no');
+        }
+    }
+
+    function showModalListDeleted() {
+        jQuery("#deletedRincianTable").hide();
+        jQuery("#wrap-loading").show();
+        jQuery.ajax({
+            url: ajax.url,
+            type: "POST",
+            data: {
+                action: "get_sub_keg_rka_sipd",
+                api_key: ajax.api_key,
+                tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
+                id_label: '<?php echo $input["id_label"]; ?>'
+            },
+            dataType: "json",
+            success: function(response) {
+                jQuery("#wrap-loading").hide();
+                const tableBody = jQuery("#deletedRincianTable tbody");
+                tableBody.empty();
+
+                if (response.status !== "success" || !response.data || response.data.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="7" class="text-center">Data tidak tersedia</td>
+                        </tr>
+                    `);
+                    jQuery("#deletedRincianTable").show();
+                    jQuery("#deletedRincianModal").modal("show");
+                    return;
+                }
+
+                const data = response.data;
+
+                function formatNumber(value) {
+                    return new Intl.NumberFormat("id-ID").format(value || 0);
+                }
+
+                // Group data by SKPD
+                const groupedData = {};
+                data.forEach((item) => {
+                    const {
+                        id_skpd: idSkpd,
+                        nama_skpd: namaSkpd,
+                        nama_sub_giat: namaSubGiat,
+                        kode_akun: kodeAkun,
+                        nama_akun: namaAkun,
+                        subs_bl_teks: subsBl,
+                        ket_bl_teks: ketBl,
+                        total_harga: totalHarga = 0,
+                        realisasi_rincian: totalRealisasi = 0,
+                    } = item;
+
+                    // SKPD
+                    if (!groupedData[idSkpd]) {
+                        groupedData[idSkpd] = {
+                            namaSkpd,
+                            total: 0,
+                            totalRealisasi: 0,
+                            subGiat: {},
+                        };
+                    }
+
+                    // Sub Giat
+                    if (!groupedData[idSkpd].subGiat[namaSubGiat]) {
+                        groupedData[idSkpd].subGiat[namaSubGiat] = {
+                            namaSubGiat,
+                            total: 0,
+                            totalRealisasi: 0,
+                            akun: {},
+                        };
+                    }
+
+                    // Akun
+                    if (!groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun]) {
+                        groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun] = {
+                            namaAkun: namaAkun.replace(/^\S+(\.\S+)*\s/, ""), // Hapus kode akun di awal
+                            kodeAkun: kodeAkun,
+                            total: 0,
+                            totalRealisasi: 0,
+                            subs: {},
+                        };
+                    }
+
+                    // Subs (subs_bl_teks)
+                    if (!groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl]) {
+                        groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl] = {
+                            namaKelompok: subsBl,
+                            total: 0,
+                            totalRealisasi: 0,
+                            ket: {},
+                        };
+                    }
+
+                    // Ket (ket_bl_teks)
+                    if (!groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].ket[ketBl]) {
+                        groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].ket[ketBl] = {
+                            namaKeterangan: ketBl,
+                            total: 0,
+                            totalRealisasi: 0,
+                            data: [],
+                        };
+                    }
+
+                    // Masukkan data rincian
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].ket[ketBl].data.push(item);
+
+                    // Perbarui total di setiap level
+                    groupedData[idSkpd].total += totalHarga;
+                    groupedData[idSkpd].totalRealisasi += totalRealisasi;
+                    groupedData[idSkpd].subGiat[namaSubGiat].total += totalHarga;
+                    groupedData[idSkpd].subGiat[namaSubGiat].totalRealisasi += totalRealisasi;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].total += totalHarga;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].totalRealisasi += totalRealisasi;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].total += totalHarga;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].totalRealisasi += totalRealisasi;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].ket[ketBl].total += totalHarga;
+                    groupedData[idSkpd].subGiat[namaSubGiat].akun[kodeAkun].subs[subsBl].ket[ketBl].totalRealisasi += totalRealisasi;
+                });
+
+                // Render data ke tabel
+                Object.entries(groupedData).forEach(([idSkpd, skpdData]) => {
+                    tableBody.append(`
+                        <tr class="font-weight-bold skpd-row">
+                            <td colspan="3">${skpdData.namaSkpd}</td>
+                            <td class="text-right">${formatNumber(skpdData.total)}</td>
+                            <td class="text-right">${formatNumber(skpdData.totalRealisasi)}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    `);
+
+                    Object.values(skpdData.subGiat).forEach((subGiatData) => {
+                        tableBody.append(`
+                            <tr class="subgiat-row">
+                                <td colspan="3" class="pl-4">${subGiatData.namaSubGiat}</td>
+                                <td class="text-right">${formatNumber(subGiatData.total)}</td>
+                                <td class="text-right">${formatNumber(subGiatData.totalRealisasi)}</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        `);
+
+                        Object.values(subGiatData.akun).forEach((akunData) => {
+                            tableBody.append(`
+                                <tr class="akun-row">
+                                    <td colspan="3" class="pl-5">${akunData.kodeAkun} ${akunData.namaAkun}</td>
+                                    <td class="text-right">${formatNumber(akunData.total)}</td>
+                                    <td class="text-right">${formatNumber(akunData.totalRealisasi)}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            `);
+
+                            Object.values(akunData.subs).forEach((subsData) => {
+                                tableBody.append(`
+                                    <tr class="subs-row">
+                                        <td colspan="3" class="pl-5">${subsData.namaKelompok}</td>
+                                        <td class="text-right">${formatNumber(subsData.total)}</td>
+                                        <td class="text-right">${formatNumber(subsData.totalRealisasi)}</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                `);
+
+                                Object.values(subsData.ket).forEach((ketData) => {
+                                    tableBody.append(`
+                                        <tr class="ket-row">
+                                            <td colspan="3" class="pl-5">${ketData.namaKeterangan}</td>
+                                            <td class="text-right">${formatNumber(ketData.total)}</td>
+                                            <td class="text-right">${formatNumber(ketData.totalRealisasi)}</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                    `);
+
+                                    ketData.data.forEach((rinci) => {
+                                        tableBody.append(`
+                                            <tr class="rici-row">
+                                                <td class="pl-5">${rinci.nama_komponen}</td>
+                                                <td class="text-right">${rinci.volume}</td>
+                                                <td>${rinci.satuan}</td>
+                                                <td class="text-right">${formatNumber(rinci.total_harga)}</td>
+                                                <td class="text-right">${formatNumber(rinci.realisasi_rincian)}</td>
+                                                <td>${rinci.keterangan_hapus}</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-warning" onclick="restoreArsip(${rinci.id_rinci_sub_bl})">
+                                                        <span class="dashicons dashicons-image-rotate" title="Kembalikan Arsip"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+
+                jQuery("#deletedRincianTable").show();
+                jQuery("#deletedRincianModal").modal("show");
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery("#wrap-loading").hide();
+                alert("Terjadi kesalahan saat memuat rincian data!");
+            },
+        });
+    }
+
+    function restoreArsip(idRincian) {
+        let confirmRestore = confirm("Apakah anda yakin?");
+        if (confirmRestore) {
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: ajax.url,
+                type: 'post',
+                data: {
+                    'action': 'restore_rincian_by_id_rinci',
+                    'api_key': ajax.api_key,
+                    'id_rincian': idRincian,
+                    'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                    'id_label': <?php echo $input['id_label']; ?>
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        alert(response.message);
+                        showModalListDeleted()
+                        window.data_changed = true;
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                        jQuery("#wrap-loading").hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    jQuery("#wrap-loading").hide();
+                    alert("Terjadi kesalahan saat mengirim data!");
+                }
+            });
+        }
+    }
+
+    async function simpanDataPisahRinci(idRinciSubBl) {
+        const volume = jQuery(`#volumePisah${idRinciSubBl}`).val().replace(/\./g, "");
+        const realisasi = jQuery(`#realisasiPisah${idRinciSubBl}`).val().replace(/\./g, "");
+
+        const tempData = new FormData();
+        tempData.append("action", "simpan_pisah_rinci_bl");
+        tempData.append("api_key", ajax.api_key);
+        tempData.append("id_rinci_sub_bl", idRinciSubBl);
+        tempData.append("realisasi", realisasi);
+        tempData.append("volume", volume);
+        tempData.append("tahun_anggaran", <?php echo $input['tahun_anggaran']; ?>);
+        tempData.append("id_label", <?php echo $input['id_label']; ?>);
 
         jQuery("#wrap-loading").show();
 

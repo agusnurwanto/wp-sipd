@@ -14403,75 +14403,236 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$kode_sbl = $_POST['kode_sbl'];
 
-				// Ambil data RKA
-				$rka = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    *
-                FROM data_rka
-                WHERE tahun_anggaran=%d
-                    AND active=1
-                    AND kode_sbl=%s
-                    AND kode_akun!=''
-            ", $tahun_anggaran, $kode_sbl), ARRAY_A);
+				if (!empty($kode_sbl)) {
+					// Ambil data RKA
+					$rka = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT *
+							FROM data_rka
+							WHERE tahun_anggaran=%d
+							  AND active=1
+							  AND kode_sbl=%s
+							  AND kode_akun!=''
+						", $tahun_anggaran, $kode_sbl),
+						ARRAY_A
+					);
+				} else {
+					$rka = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT *
+							FROM data_rka
+							WHERE tahun_anggaran=%d
+							  AND active=0
+							  AND kode_akun!=''
+						", $tahun_anggaran),
+						ARRAY_A
+					);
+				}
 
 				// Ambil sumber dana default
 				$id_sumber_dana_default = get_option('_crb_default_sumber_dana');
-				$sumber_dana_default = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    id_dana as id_sumber_dana,
-                    kode_dana,
-                    nama_dana
-                FROM data_sumber_dana
-                WHERE tahun_anggaran=%d
-                    AND id_dana=%d
-            ", $tahun_anggaran, $id_sumber_dana_default), ARRAY_A);
+				$sumber_dana_default = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							id_dana as id_sumber_dana,
+							kode_dana,
+							nama_dana
+						FROM data_sumber_dana
+						WHERE tahun_anggaran=%d
+						  AND id_dana=%d
+            		", $tahun_anggaran, $id_sumber_dana_default),
+					ARRAY_A
+				);
 
 				foreach ($rka as $k => $v) {
 					// Ambil sumber dana untuk masing-masing rincian
-					$sumber_dana = $wpdb->get_results($wpdb->prepare("
-                    SELECT 
-                        m.id_sumber_dana,
-                        s.kode_dana,
-                        s.nama_dana
-                    FROM data_mapping_sumberdana m
-                    INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
-                        and s.tahun_anggaran=m.tahun_anggaran
-                    WHERE m.tahun_anggaran=%d
-                        AND m.active=1
-                        AND m.id_rinci_sub_bl=%d
-                ", $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
+					$sumber_dana = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT 
+								m.id_sumber_dana,
+								s.kode_dana,
+								s.nama_dana
+							FROM data_mapping_sumberdana m
+							INNER JOIN data_sumber_dana s 
+									ON s.id_dana=m.id_sumber_dana
+								   AND s.tahun_anggaran=m.tahun_anggaran
+							WHERE m.tahun_anggaran=%d
+							  AND m.active=1
+							  AND m.id_rinci_sub_bl=%d
+						", $tahun_anggaran, $v['id_rinci_sub_bl']),
+						ARRAY_A
+					);
 
 					if (
 						!empty($sumber_dana)
-						&& !empty($sumber_dana[0])
-						&& !empty($sumber_dana[0]['nama_dana'])
+						&& !empty($sumber_dana)
+						&& !empty($sumber_dana['nama_dana'])
 					) {
 						$rka[$k]['sumber_dana'] = $sumber_dana;
 					} else {
 						$rka[$k]['sumber_dana'] = $sumber_dana_default;
 					}
 
-					// Tambahkan pemeriksaan jika mapping_label ada di $_POST
-					if (!empty($_POST['id_label'])) {
-						$is_checked = $wpdb->get_var($wpdb->prepare("
-							SELECT COUNT(*)
-							FROM data_mapping_label
-							WHERE tahun_anggaran=%d
-							  AND id_rinci_sub_bl=%d
-							  AND id_label_komponen=%d
-							  AND active=1
-                    	", $tahun_anggaran, $v['id_rinci_sub_bl'], $_POST['id_label']));
+					// mapping_label checkbox
+					if (!empty($_POST['id_label']) && !empty($kode_sbl)) {
+						$is_checked = $wpdb->get_var(
+							$wpdb->prepare("
+								SELECT COUNT(*)
+								FROM data_mapping_label
+								WHERE tahun_anggaran=%d
+								  AND id_rinci_sub_bl=%d
+								  AND id_label_komponen=%d
+								  AND active=1
+                    		", $tahun_anggaran, $v['id_rinci_sub_bl'], $_POST['id_label'])
+						);
 
 						$rka[$k]['is_checked'] = $is_checked > 0 ? true : false;
 
-						$realisasi_rincian = $wpdb->get_var($wpdb->prepare("
-							SELECT realisasi
-							FROM data_realisasi_rincian
-							WHERE tahun_anggaran=%d
-							  AND id_rinci_sub_bl=%d
-							  AND active=1
-                    	", $tahun_anggaran, $v['id_rinci_sub_bl']));
+						$realisasi_rincian = $wpdb->get_var(
+							$wpdb->prepare("
+								SELECT realisasi
+								FROM data_realisasi_rincian
+								WHERE tahun_anggaran=%d
+								  AND id_rinci_sub_bl=%d
+								  AND active=1
+                    		", $tahun_anggaran, $v['id_rinci_sub_bl'])
+						);
 
+						$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
+
+						// Ambil data labels
+						$labels = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT *
+								FROM data_mapping_label
+								WHERE id_rinci_sub_bl = %d
+								  AND tahun_anggaran = %d
+								  AND active = 1
+								', $v['id_rinci_sub_bl'], $tahun_anggaran),
+							ARRAY_A
+						);
+		
+						if (!empty($labels)) {
+							foreach ($labels as $val) {
+								// Ambil nama label dari tabel data_label_komponen
+								$label = $wpdb->get_row(
+									$wpdb->prepare('
+										SELECT nama
+										FROM data_label_komponen
+										WHERE id = %d
+										  AND tahun_anggaran = %d
+										  AND active = 1
+										', $val['id_label_komponen'], $tahun_anggaran),
+									ARRAY_A
+								);
+
+								// jika tidak pisah maka ambil realisasi dari sini
+								if ($val['pisah'] == 0) {
+									$realiasi = $wpdb->get_row(
+										$wpdb->prepare('
+											SELECT realisasi
+											FROM data_realisasi_rincian
+											WHERE id_rinci_sub_bl = %d
+											  AND tahun_anggaran = %d
+											  AND active = 1
+											', $val['id_rinci_sub_bl'], $tahun_anggaran),
+										ARRAY_A
+									);
+								}
+		
+								if ($label) {
+									if ($val['pisah'] == 0) {
+										$rka[$k]['checked_pisah'] = false; 
+
+										$rka[$k]['labels'][] = array(
+											'nama' 			  => $label['nama'],
+											'volume' 	  	  => $v['volume'],
+											'anggaran' 	  	  => $v['total_harga'],
+											'realisasi' 	  => $realiasi['realisasi'],
+											'pisah' 		  => false
+										);
+									} else {
+										if ($rka[$k]['id_rinci_sub_bl'] === $val['id_rinci_sub_bl']) {
+											$rka[$k]['checked_pisah'] = true; 
+										}
+										$harga_satuan = ($v['total_harga'] > 0) ? ($v['total_harga'] / $v['volume']) : 0;
+										$rka[$k]['labels'][] = array(
+											'nama' 			  => $label['nama'],
+											'volume' 	      => $val['volume_pisah'],
+											'anggaran' 	      => $harga_satuan * $val['volume_pisah'],
+											'realisasi' 	  => $val['realisasi_pisah'],
+											'pisah' 		  => true
+										);
+									}
+								}
+							}
+						}
+					}
+
+					//arsip
+					if (!empty($_POST['id_label']) && empty($kode_sbl)) {
+						// Periksa apakah data terdapat dalam arsip (active = 2)
+						$isArsiped = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT keterangan_hapus
+								FROM data_mapping_label
+								WHERE tahun_anggaran=%d
+									AND id_rinci_sub_bl=%d
+									AND id_label_komponen=%d
+									AND active=2
+							", $tahun_anggaran, $v['id_rinci_sub_bl'], $_POST['id_label'])
+						);
+
+						// Jika tidak ada arsip, hapus dari array $rka dan lanjutkan ke iterasi berikutnya
+						if (empty($isArsiped)) {
+							unset($rka[$k]);
+							continue;
+						}
+
+						// Jika data terarsip
+						$kode = explode('.', $v['kode_sbl']);
+   						$idskpd = $kode[1];
+						$skpd = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT 
+									id_skpd,
+									nama_skpd,
+									kode_skpd 
+								FROM data_unit 
+								WHERE id_skpd=%d 
+								  AND tahun_anggaran = %d 
+								  AND active = 1
+							", $idskpd, $tahun_anggaran),
+							ARRAY_A
+						);
+						$sub_keg = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT 
+									nama_sub_giat
+								FROM data_sub_keg_bl 
+								WHERE kode_sbl = %s
+								  AND tahun_anggaran = %d
+								  AND active = 1
+								", $v['kode_sbl'], $tahun_anggaran),
+							ARRAY_A
+						);
+
+						// Ambil realisasi rincian
+						$realisasi_rincian = $wpdb->get_var(
+							$wpdb->prepare("
+								SELECT realisasi
+								FROM data_realisasi_rincian
+								WHERE tahun_anggaran=%d
+								  AND id_rinci_sub_bl=%d
+								  AND active=1
+							", $tahun_anggaran, $v['id_rinci_sub_bl'])
+						);
+
+						// Tambahkan realisasi rincian ke dalam array
+						$rka[$k]['id_skpd'] = $skpd['id_skpd'];
+						$rka[$k]['nama_skpd'] = $skpd['kode_skpd'] . ' ' . $skpd['nama_skpd'];
+						$rka[$k]['nama_sub_giat'] = $sub_keg['nama_sub_giat'];
+						$rka[$k]['keterangan_hapus'] = $isArsiped->keterangan_hapus;
 						$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
 					}
 				}

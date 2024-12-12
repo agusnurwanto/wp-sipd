@@ -1119,6 +1119,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_serapan_anggaran_capaian_kinerja',  $plugin_public, 'get_serapan_anggaran_capaian_kinerja');
 		
 		$this->loader->add_action('wp_ajax_tambah_label_rinci_bl',  $plugin_public, 'tambah_label_rinci_bl');
+		$this->loader->add_action('wp_ajax_simpan_pisah_rinci_bl',  $plugin_public, 'simpan_pisah_rinci_bl');
+		$this->loader->add_action('wp_ajax_get_label_by_rinci',  $plugin_public, 'get_label_by_rinci');
+		$this->loader->add_action('wp_ajax_restore_rincian_by_id_rinci',  $plugin_public, 'restore_rincian_by_id_rinci');
 		$this->loader->add_action('wp_ajax_simpan_realisasi_rinci_bl',  $plugin_public, 'simpan_realisasi_rinci_bl');
 		$this->loader->add_action('wp_ajax_hapus_rincian_from_label_by_id',  $plugin_public, 'hapus_rincian_from_label_by_id');
 

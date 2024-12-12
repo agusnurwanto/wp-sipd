@@ -4550,9 +4550,137 @@ class Wpsipd_Public_RKA
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                if ($_POST['is_deleted'] == true) {
+                    $rows_affected = $wpdb->update(
+                        'data_mapping_label',
+                        array(
+                            'active' => 2,
+                            'keterangan_hapus' => $_POST['keterangan_hapus']
+                        ),
+                        array(
+                            'active' => 1,
+                            'id_rinci_sub_bl' => $_POST['id_rincian'],
+                            'tahun_anggaran' => $_POST['tahun_anggaran'],
+                            'id_label_komponen' => $_POST['id_label']
+                        )
+                    );
+
+                    // Periksa apakah ada baris yang terpengaruh
+                    if ($rows_affected === false) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Terjadi kesalahan pada query database.';
+                    } else {
+                        $ret['data'] = $rows_affected;
+                    }
+                } else {
+                    $rows_affected = $wpdb->update(
+                        'data_mapping_label',
+                        array('active' => 0),
+                        array(
+                            'id_rinci_sub_bl' => $_POST['id_rincian'],
+                            'tahun_anggaran' => $_POST['tahun_anggaran'],
+                            'id_label_komponen' => $_POST['id_label']
+                        )
+                    );
+
+                    // Periksa apakah ada baris yang terpengaruh
+                    if ($rows_affected === false) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Terjadi kesalahan pada query database.';
+                    } else {
+                        $ret['data'] = $rows_affected;
+                    }
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'API key tidak ditemukan!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function get_label_by_rinci()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Data label berhasil diambil!',
+            'data' => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                // Ambil data mapping label
+                $labels = $wpdb->get_results(
+                    $wpdb->prepare('
+                        SELECT id_label_komponen, volume, realisasi, pisah
+                        FROM data_mapping_label
+                        WHERE id_rinci_sub_bl = %d
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                        ', $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran']),
+                    ARRAY_A
+                );
+
+                if (!empty($labels)) {
+                    foreach ($labels as $v) {
+                        // Ambil nama label dari tabel data_label_komponen
+                        $label = $wpdb->get_row(
+                            $wpdb->prepare('
+                                SELECT nama
+                                FROM data_label_komponen
+                                WHERE id = %d
+                                  AND tahun_anggaran = %d
+                                  AND active = 1
+                                ', $v['id_label_komponen'], $_POST['tahun_anggaran']),
+                            ARRAY_A
+                        );
+
+                        if ($label) {
+                            $ret['data'][] = array(
+                                'nama' => $label['nama'],
+                                'volume' => $v['volume'],
+                                'realisasi' => $v['realisasi'],
+                                'pisah' => $v['pisah']
+                            );
+                        }
+                    }
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Tidak ada data label yang ditemukan!';
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'API key tidak valid!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format request salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function restore_rincian_by_id_rinci() {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil kembalikan arsip!',
+            'data' => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
                 $rows_affected = $wpdb->update(
                     'data_mapping_label',
-                    array('active' => 0),
+                    array(
+                        'active' => 1,
+                        'keterangan_hapus' => ''
+                    ),
                     array(
                         'id_rinci_sub_bl' => $_POST['id_rincian'],
                         'tahun_anggaran' => $_POST['tahun_anggaran'],
@@ -4566,6 +4694,64 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'Terjadi kesalahan pada query database.';
                 } else {
                     $ret['data'] = $rows_affected;
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'API key tidak ditemukan!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    function simpan_pisah_rinci_bl() {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil simpan pisah rincian!',
+            'data' => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
+                $user_data = wp_get_current_user();
+                $data = array(
+                    'volume_pisah'      => sanitize_text_field($_POST['volume']),
+                    'realisasi_pisah'   => sanitize_text_field($_POST['realisasi']),
+                    'tahun_anggaran'    => sanitize_text_field($_POST['tahun_anggaran']),
+                    'id_rinci_sub_bl'   => sanitize_text_field($_POST['id_rinci_sub_bl']),
+                    'id_label_komponen' => sanitize_text_field($_POST['id_label']),
+                    'user'              => $user_data->display_name,
+                    'pisah'             => 1,
+                    'active'            => 1
+                );
+
+                $current_data = $wpdb->get_var(
+                    $wpdb->prepare('
+                        SELECT id
+                        FROM data_mapping_label
+                        WHERE id_label_komponen = %d
+                          AND id_rinci_sub_bl = %d
+                          AND tahun_anggaran = %d
+                          AND active = 1
+                    ', $_POST['id_label'], $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran'])
+                );
+
+                // Update or insert
+                if ($current_data) {
+                    $wpdb->update(
+                        'data_mapping_label',
+                        $data,
+                        array('id' => $current_data)
+                    );
+                } else {
+                    $wpdb->insert(
+                        'data_mapping_label',
+                        $data
+                    );
                 }
             } else {
                 $ret['status'] = 'error';
