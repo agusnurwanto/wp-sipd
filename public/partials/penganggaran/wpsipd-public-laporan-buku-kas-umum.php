@@ -246,12 +246,6 @@ $rka = $wpdb->get_results($wpdb->prepare("
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Sisa Pagu Rekening NPD</label>
-                                <div class="col-sm-9">
-                                    <span id="sisa_pagu_rekening_bku" style="font-weight: 600; font-size: 1.3em;">Rp 0</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -291,7 +285,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Nilai</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control paguRek" id="pagu_bku" name="pagu_bku" onchange="cek_nilai(this.value)">
+                                    <input type="text" class="form-control paguRek" id="pagu_bku" name="pagu_bku">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -369,7 +363,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
 
         window.rka_all = <?php echo json_encode($rka); ?>;
         jQuery('#rincian_rka').select2({
-            width: '100%'
+            width: '100%',
+            dropdownParent: jQuery('#modal_tambah_data') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
         });
         jQuery('#set_tanggal').daterangepicker({
             singleDatePicker: true,
@@ -513,7 +508,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
                         if (data.status == 'success') {
                             jQuery('.rekening_akun').html(data.data_akun_html);
                             jQuery('.rekening_akun').select2({
-                                width: '100%'
+                                width: '100%',
+                                dropdownParent: jQuery('#modal_tambah_data') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                             });
                             resolve()
                         }
@@ -522,7 +518,8 @@ $rka = $wpdb->get_results($wpdb->prepare("
             } else {
                 jQuery('#rekening_akun').html(dataAkun.data_akun_html);
                 jQuery('#rekening_akun').select2({
-                    width: '100%'
+                    width: '100%',
+                    dropdownParent: jQuery('#modal_tambah_data') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                 });
                 resolve()
             }
@@ -556,7 +553,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     if (data.status == 'success') {
                         window.sisa_rekening = data.data.pagu_dana_npd - data.data.total_pagu_bku;
 
-                        jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
+                        // jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
                         rka_all.map(function(b, i) {
                             if (b.kode_akun == kode_rekening) {
                                 var selected = '';
@@ -791,17 +788,6 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 }
             }
         });
-    }
-
-    function cek_nilai(value) {
-        let rekeningNpd = jQuery("#rekening_akun").val()
-        if (rekeningNpd != '') {
-            let nilaiBku = value.replace(/[^0-9]/g, '');
-            if (nilaiBku > sisa_rekening) {
-                alert('Nilai transaksi BKU tidak boleh lebih besar dari sisa rekening belanja ' + formatRupiah(sisa_rekening, true));
-                jQuery('#pagu_bku').val(sisa_rekening);
-            }
-        }
     }
 
     function print_kwitansi(url) {

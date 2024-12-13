@@ -149,7 +149,6 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                 <th class="atas kanan bawah kiri text-center" width="300px">Nomor NPD</th>
                 <th class="atas kanan bawah text-center" width="150px">Jenis NPD</th>
                 <th class="atas kanan bawah text-center">Nama Pejabat Pelaksana Teknis Kegiatan (PPTK)</th>
-                <th class="atas kanan bawah text-center" width="150px">BKU</th>
                 <th class="atas kanan bawah text-center" width="150px">Pencairan Panjar</th>
                 <th class="atas kanan bawah text-center" width="150px">Non Panjar</th>
                 <th class="atas kanan bawah text-center" width="180px">Aksi</th>
@@ -230,9 +229,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                             <thead>
                                 <tr>
                                     <th class="text-center">Rekening</th>
-                                    <th class="text-center" width="150px;">Sisa Pagu</th>
                                     <th class="text-center" width="150px;">Nilai BKU</th>
-                                    <th class="text-center" width="150px;">Nilai Pencairan</th>
                                     <th class="text-center" width="70px;">Aksi</th>
                                 </tr>
                             </thead>
@@ -244,13 +241,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control text-right paguRek" id="pagu_sisa_1" type="text" name="pagu_sisa[1]" disabled />
-                                    </td>
-                                    <td>
                                         <input class="form-control text-right paguRek" id="pagu_bukti_1" type="text" name="pagu_bukti[1]" disabled />
-                                    </td>
-                                    <td>
-                                        <input class="form-control text-right paguRek" id="pagu_rekening_1" type="text" name="pagu_rekening[1]" />
                                     </td>
                                     <td class="text-center detail_tambah">
                                         <button class="btn btn-warning btn-sm" onclick="tambahRekeningBaru(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -434,18 +425,11 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                                         })
                                         .then(function(value) {
                                             jQuery("#rekening_akun_" + id).val(value.kode_rekening).trigger('change');
-                                            jQuery("#pagu_rekening_" + id).val(formatAngka(parseInt(value.pagu_dana, 10))).trigger('input');
 
                                             if (value.total_pagu_bku && !isNaN(value.total_pagu_bku)) {
                                                 jQuery("#pagu_bukti_" + id).val(formatAngka(parseInt(value.total_pagu_bku, 10)));
                                             } else {
                                                 jQuery("#pagu_bukti_" + id).val('0');
-                                            }
-
-                                            if (rekening_all[value.kode_rekening] && rekening_all[value.kode_rekening].sisa && !isNaN(rekening_all[value.kode_rekening].sisa)) {
-                                                jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[value.kode_rekening].sisa, 10)));
-                                            } else {
-                                                jQuery("#pagu_sisa_" + id).val('0');
                                             }
 
                                             let total = parseInt(value.total_pagu_bku, 10);
@@ -491,9 +475,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             trNew = '' +
                 '<tr data-id="' + newId + '">' +
                 '<td><select id="rekening_akun_' + newId + '" name="rekening_akun[' + newId + ']" class="form-control" onchange="set_pagu_rek(this);">' + html_select + '</select></td>' +
-                '<td><input id="pagu_sisa_' + newId + '" name="pagu_sisa[' + newId + ']" type="text" class="form-control paguRek text-right" disabled></td>' +
                 '<td><input id="pagu_bukti_' + newId + '" name="pagu_bukti[' + newId + ']" type="text" class="form-control paguRek text-right" disabled></td>' +
-                '<td><input id="pagu_rekening_' + newId + '" name="pagu_rekening[' + newId + ']" type="text" class="form-control paguRek text-right"></td>' +
                 '<td class="text-center detail_tambah">' +
                 '<button class="btn btn-danger btn-sm" onclick="hapusRekening(this); return false;"><i class="dashicons dashicons-trash"></i></button>' +
                 '</td>' +
@@ -502,7 +484,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             jQuery('.input_rekening > tbody').append(trNew);
 
             jQuery('.input_rekening > tbody tr[data-id="' + newId + '"] select').select2({
-                width: '550px'
+                width: '100%',
+                dropdownParent: jQuery('#modal_tambah_rekening') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
             });
 
             resolve();
@@ -574,7 +557,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                             window.dataPptk = data;
                             jQuery('#set_pptk').html(data.user_pptk_html);
                             jQuery('#set_pptk').select2({
-                                width: '100%'
+                                width: '100%',
+                                dropdownParent: jQuery('#modal_tambah_data') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                             });
                             resolve()
                         }
@@ -583,7 +567,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             } else {
                 jQuery('#set_pptk').html(dataPptk.user_pptk_html);
                 jQuery('#set_pptk').select2({
-                    width: '100%'
+                    width: '100%',
+                    dropdownParent: jQuery('#modal_tambah_data') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                 });
                 resolve()
             }
@@ -611,7 +596,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                         if (data.status == 'success') {
                             jQuery('.rekening_akun').html(data.data_akun_html);
                             jQuery('.rekening_akun').select2({
-                                width: '550px'
+                                width: '100%',
+                                dropdownParent: jQuery('#modal_tambah_rekening') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                             });
                             resolve()
                         }
@@ -620,7 +606,8 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             } else {
                 jQuery('#rekening_akun').html(dataRekening.data_akun_html);
                 jQuery('#rekening_akun').select2({
-                    width: '100%'
+                    width: '100%',
+                    dropdownParent: jQuery('#modal_tambah_rekening') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
                 });
                 resolve()
             }
@@ -660,9 +647,6 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
             return;
         }
         var id = jQuery(that).closest('tr').attr('data-id');
-        if (rekening_all[kode_rekening].sisa && !isNaN(rekening_all[kode_rekening].sisa)) {
-            jQuery("#pagu_sisa_" + id).val(formatAngka(parseInt(rekening_all[kode_rekening].sisa, 10)));
-        }
     }
 
     function submit_data(that) {
@@ -710,6 +694,7 @@ $url_serapan_rka_sipd = $this->generatePage($title, $tahun_anggaran, $shortcode)
                 data: {
                     'action': 'delete_data_panjar',
                     'api_key': '<?php echo $api_key; ?>',
+                    'tahun_anggaran': <?php echo $tahun_anggaran; ?>,
                     'id': id
                 },
                 dataType: 'json',
