@@ -1124,6 +1124,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_restore_rincian_by_id_rinci',  $plugin_public, 'restore_rincian_by_id_rinci');
 		$this->loader->add_action('wp_ajax_simpan_realisasi_rinci_bl',  $plugin_public, 'simpan_realisasi_rinci_bl');
 		$this->loader->add_action('wp_ajax_hapus_rincian_from_label_by_id',  $plugin_public, 'hapus_rincian_from_label_by_id');
+		$this->loader->add_action('wp_ajax_get_arsip_label_komponen',  $plugin_public, 'get_arsip_label_komponen');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

@@ -1116,7 +1116,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                             const checkedPisah = rinci.checked_pisah ? "checked" : "";
                                             const displayPisah = rinci.checked_pisah ? "" : "display:none;";
                                             const displayPisahOpen = rinci.checked_pisah ? "open" : "";
-                                            const iconBtn = rinci.checked_pisah ? "dashicons-no" : "dashicons-visibility";
+                                            const iconBtn = rinci.checked_pisah ? "dashicons-hidden" : "dashicons-tag";
                                             const colorIcon = rinci.checked_pisah ? "btn-secondary" : "btn-success";
                                             const realisasiValue = rinci.realisasi_rincian ? parseInt(rinci.realisasi_rincian, 10) : 0;
                                             const volumeFormated = rinci.volume ? formatNumber(rinci.volume) : 0;
@@ -1158,8 +1158,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                                     <th class="text-center" colspan="5">
                                                                         <input type="checkbox" id="checkboxPisah${rinci.id_rinci_sub_bl}" onchange="handleCheckboxPisah(${rinci.id_rinci_sub_bl})" ${checkedPisah}>
                                                                         <label>Pisah Anggaran</label>
-                                                                        <br>
-                                                                        <button class="btn btn-sm btn-success" style="display:none;" id="buttonSimpanPisahRinci${rinci.id_rinci_sub_bl}" onclick="simpanDataPisahRinci(${rinci.id_rinci_sub_bl})">
+                                                                        <button class="btn btn-sm btn-success" style="display:none; position: absolute; margin-left: 30px;" id="buttonSimpanPisahRinci${rinci.id_rinci_sub_bl}" onclick="simpanDataPisahRinci(${rinci.id_rinci_sub_bl})">
                                                                             <span class="dashicons dashicons-yes" title="Simpan Pisah Rincian"></span>Simpan
                                                                         </button>
                                                                     </th>
@@ -1677,12 +1676,12 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             parentDetail.hide(); // Sembunyikan konten
             parentDetail.removeClass('open');
             button.removeClass('btn-secondary').addClass('btn-success')
-                .find('span').removeClass('dashicons-no').addClass('dashicons-visibility');
+                .find('span').removeClass('dashicons-hidden').addClass('dashicons-tag');
         } else {
             parentDetail.show(); // Tampilkan konten
             parentDetail.addClass('open');
             button.removeClass('btn-success').addClass('btn-secondary')
-                .find('span').removeClass('dashicons-visibility').addClass('dashicons-no');
+                .find('span').removeClass('dashicons-tag').addClass('dashicons-hidden');
         }
     }
 
@@ -1693,7 +1692,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             url: ajax.url,
             type: "POST",
             data: {
-                action: "get_sub_keg_rka_sipd",
+                action: "get_arsip_label_komponen",
                 api_key: ajax.api_key,
                 tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
                 id_label: '<?php echo $input["id_label"]; ?>'
