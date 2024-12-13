@@ -994,6 +994,9 @@ if (
 $cekbox_set_panjar = '';
 if (
 	current_user_can('administrator') ||
+	current_user_can('PA') ||
+	current_user_can('KPA') ||
+	current_user_can('PLT') ||
 	current_user_can('pptk')
 ){
 	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Buat Panjar</label>';	

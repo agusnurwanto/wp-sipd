@@ -6926,7 +6926,7 @@ CREATE TABLE `data_nota_pencairan_dana` (
     `nomor_dpa` VARCHAR(50) NOT NULL,
     `tahun_anggaran` year(4) NOT NULL,
     `active` tinyint(4) NOT NULL,
-    `created_at` DATETIME DEFAULT current_timestamp(),
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
@@ -6940,7 +6940,7 @@ CREATE TABLE `data_rekening_nota_pencairan_dana` (
   `kode_sbl` varchar(50) DEFAULT NULL,
   `id_npd` int(11) NOT NULL,
   `active` tinyint(4) DEFAULT 1,
-  `update_at` DATETIME NOT NULL,
+  `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY (id)
 );
