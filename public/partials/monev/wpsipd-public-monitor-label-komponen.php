@@ -797,14 +797,14 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                         <table id="tableRincian" class="mt-2 table" style="display: none;">
                             <thead style="background-color: #343a40; color: #fff; text-align: center;">
                                 <tr>
-                                    <th scope="col" class="text-center">
+                                    <th scope="col" class="text-center" style="width: 35px;">
                                         <input type="checkbox" value="" id="flexCheckDefault">
                                     </th>
                                     <th scope="col" class="text-center">Nama Akun / Rincian Belanja</th>
-                                    <th scope="col" class="text-center">Volume</th>
-                                    <th scope="col" class="text-center">Satuan</th>
-                                    <th scope="col" class="text-center">Anggaran</th>
-                                    <th scope="col" class="text-center">Realisasi</th>
+                                    <th scope="col" class="text-center" style="width: 75px;">Volume</th>
+                                    <th scope="col" class="text-center" style="width: 75px;">Satuan</th>
+                                    <th scope="col" class="text-center" style="width: 160px;">Anggaran</th>
+                                    <th scope="col" class="text-center" style="width: 160px;">Realisasi</th>
                                     <th scope="col" class="text-center" style="width : 105px">Aksi</th>
                                 </tr>
                             </thead>
@@ -926,14 +926,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             dropdownParent: jQuery('#modalTambahData') // Tentukan modal sebagai parent dropdown agar select2 search tidak error
         });
 
-        jQuery("#tableRincian").on("input", ".numberFormat", function() {
-            let value = jQuery(this).val().replace(/[^0-9]/g, "");
-
-            let formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-            jQuery(this).val(formattedValue);
-        });
-
         jQuery('#modalTambahData').on('hidden.bs.modal', function() {
             // Tampilkan konfirmasi setelah modal tertutup dan ada data realisasi berubah
             if (window.data_changed === true) {
@@ -990,7 +982,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                 return resolve();
                             }
 
-                            function formatNumber(value) {
+                            function formatRupiah(value) {
                                 return new Intl.NumberFormat("id-ID").format(value);
                             }
 
@@ -1053,9 +1045,9 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                         <td colspan="3" class="font-weight-bold text-left">${kodeAkun} ${akunData.namaAkun}
                                         </td>
                                         <td class="font-weight-bold text-right akun-total akun-row">
-                                            ${formatNumber(akunData.total)}
+                                            ${formatRupiah(akunData.total)}
                                         </td>
-                                        <td class="text-right akun-total akun-row"> ${formatNumber(akunData.total_realisasi)}</td>
+                                        <td class="text-right akun-total akun-row"> ${formatRupiah(akunData.total_realisasi)}</td>
                                         <td>
                                         </td>
                                     </tr>
@@ -1075,10 +1067,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                 ${subsData.namaKelompok} 
                                             </td>
                                             <td class="font-weight-bold text-right">
-                                                ${formatNumber(subsData.total)}
+                                                ${formatRupiah(subsData.total)}
                                             </td>
                                             <td class="subs-total text-right">
-                                                ${formatNumber(subsData.total_realisasi)}
+                                                ${formatRupiah(subsData.total_realisasi)}
                                             </td>
                                             <td>
                                             </td>
@@ -1099,10 +1091,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                     ${ketData.namaKeterangan} 
                                                 </td>
                                                 <td class="font-weight-bold text-right">
-                                                    ${formatNumber(ketData.total)}
+                                                    ${formatRupiah(ketData.total)}
                                                 </td>
                                                 <td class="text-right ket-total text-dark">
-                                                    ${formatNumber(ketData.total_realisasi)}
+                                                    ${formatRupiah(ketData.total_realisasi)}
                                                 </td>
                                                 <td>
                                                 </td>
@@ -1119,7 +1111,71 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                             const iconBtn = rinci.checked_pisah ? "dashicons-hidden" : "dashicons-tag";
                                             const colorIcon = rinci.checked_pisah ? "btn-secondary" : "btn-success";
                                             const realisasiValue = rinci.realisasi_rincian ? parseInt(rinci.realisasi_rincian, 10) : 0;
-                                            const volumeFormated = rinci.volume ? formatNumber(rinci.volume) : 0;
+                                            const volumeFormated = rinci.volume ? formatRupiah(rinci.volume) : 0;
+
+                                            var list_labels = [];
+                                            var check_existing = false;
+                                            rinci.labels.map(function(label, i){
+                                                if(label.id_label == <?php echo $input["id_label"]; ?>){
+                                                    check_existing = label;
+                                                    return;
+                                                }
+                                                var label_volume = '-';
+                                                var label_anggaran = '-';
+                                                var label_realisasi = '-';
+                                                if(label.pisah == true){
+                                                    label_volume = label.volume;
+                                                    label_anggaran = label.anggaran;
+                                                    label_realisasi = label.realisasi;
+                                                }
+                                                list_labels.push(`
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <strong>${label.nama}</strong>
+                                                        </td>
+                                                        <td class="text-right numberFormat">
+                                                            ${label_volume}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            ${rinci.satuan}
+                                                        </td>
+                                                        <td class="text-right">
+                                                            ${formatRupiah(label_anggaran)}
+                                                        </td>
+                                                        <td class="text-right">
+                                                            ${formatRupiah(label_realisasi)}
+                                                        </td>
+                                                    </tr>
+                                                `);
+                                            });
+                                            
+                                            var label_volume = rinci.volume;
+                                            var label_anggaran = rinci.total_harga;
+                                            var label_realisasi = rinci.realisasi;
+                                            if(check_existing){
+                                                label_volume = check_existing.volume;
+                                                label_anggaran = check_existing.anggaran;
+                                                label_realisasi = check_existing.realisasi;
+                                            }
+                                            list_labels = `
+                                                <tr style="${displayPisah}" id="label-now-${rinci.id_rinci_sub_bl}">
+                                                    <td class="text-left">
+                                                        <?php echo $label_db['nama']; ?>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="numberFormat form-control text-center" onkeyup="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" onchange="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" id="volumePisah${rinci.id_rinci_sub_bl}" value="${label_volume}">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        ${rinci.satuan}
+                                                    </td>
+                                                    <td class="text-right" id="anggaranPisah${rinci.id_rinci_sub_bl}">
+                                                        ${formatRupiah(label_anggaran)}
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="numberFormat form-control text-right" id="realisasiPisah${rinci.id_rinci_sub_bl}" value="${label_realisasi}">
+                                                    </td>
+                                                </tr>
+                                            `+list_labels.join('');
 
                                             tableBody.append(`
                                                 <tr class="rinci-row" data-id="${rinci.id_rinci_sub_bl}" data-parent-id="${ketBl}" data-grandparent-id="${subsBl}" data-greatgrandparent-id="${kodeAkun}">
@@ -1136,10 +1192,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         ${rinci.satuan ?? '-'}
                                                     </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
-                                                        ${formatNumber(rinci.total_harga)}
+                                                        ${formatRupiah(rinci.total_harga)}
                                                     </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
-                                                        <input type="text" class="numberFormat" style="text-align:right" value="${formatNumber(realisasiValue)}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
+                                                        <input type="number" class="numberFormat" style="text-align:right" value="${formatRupiah(realisasiValue)}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
                                                     </td>
                                                     <td class="text-center rinci-total bg-light text-dark">
                                                         <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})">
@@ -1152,67 +1208,24 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                 </tr>
                                                 <tr id="parentDetail${rinci.id_rinci_sub_bl}" class="${displayPisahOpen}" style="${displayPisah}">
                                                     <td colspan="7">
+                                                        <div class="text-center" style="margin-bottom: 10px;">
+                                                            <label><input type="checkbox" id="checkboxPisah${rinci.id_rinci_sub_bl}" onchange="handleCheckboxPisah(${rinci.id_rinci_sub_bl})" ${checkedPisah}> Pisah Anggaran</label>
+                                                            <button class="btn btn-sm btn-success" style="${displayPisah} position: absolute; margin-left: 30px;" id="buttonSimpanPisahRinci${rinci.id_rinci_sub_bl}" onclick="simpanDataPisahRinci(${rinci.id_rinci_sub_bl})">
+                                                                <span class="dashicons dashicons-yes" title="Simpan Pisah Rincian"></span>Simpan
+                                                            </button>
+                                                        </div>
                                                         <table class="table table-bordered table-sm">
                                                             <thead>
                                                                 <tr class="detail-row">
-                                                                    <th class="text-center" colspan="5">
-                                                                        <input type="checkbox" id="checkboxPisah${rinci.id_rinci_sub_bl}" onchange="handleCheckboxPisah(${rinci.id_rinci_sub_bl})" ${checkedPisah}>
-                                                                        <label>Pisah Anggaran</label>
-                                                                        <button class="btn btn-sm btn-success" style="display:none; position: absolute; margin-left: 30px;" id="buttonSimpanPisahRinci${rinci.id_rinci_sub_bl}" onclick="simpanDataPisahRinci(${rinci.id_rinci_sub_bl})">
-                                                                            <span class="dashicons dashicons-yes" title="Simpan Pisah Rincian"></span>Simpan
-                                                                        </button>
-                                                                    </th>
-                                                                </tr>
-                                                                <tr class="detail-row">
                                                                     <th class="text-center">Nama Label</th>
-                                                                    <th class="text-center">Volume</th>
-                                                                    <th class="text-center">Satuan</th>
-                                                                    <th class="text-center">Anggaran</th>
-                                                                    <th class="text-center">Realisasi</th>
+                                                                    <th class="text-center" style="width: 100px;">Volume</th>
+                                                                    <th class="text-center" style="width: 75px;">Satuan</th>
+                                                                    <th class="text-center" style="width: 160px;">Anggaran</th>
+                                                                    <th class="text-center" style="width: 200px;">Realisasi</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                ${
-                                                                    Array.isArray(rinci.labels)
-                                                                        ? rinci.labels
-                                                                            .map(label => `
-                                                                                <tr>
-                                                                                    <td class="text-center">
-                                                                                        <strong>${label.nama}</strong>
-                                                                                    </td>
-                                                                                    <td class="text-right numberFormat">
-                                                                                        ${label.volume ?? '-'}
-                                                                                    </td>
-                                                                                    <td class="text-center">
-                                                                                        ${rinci.satuan ?? '-'}
-                                                                                    </td>
-                                                                                    <td class="text-right">
-                                                                                        ${formatNumber(label.anggaran) ?? '0'}
-                                                                                    </td>
-                                                                                    <td class="text-center">
-                                                                                        ${formatNumber(label.realisasi || 0)}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            `)
-                                                                            .join('') 
-                                                                        : ''
-                                                                }
-                                                                <tr>
-                                                                    <td class="text-center">
-                                                                        <strong><?php echo $label_db['nama']; ?></strong>
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        <input type="text" class="numberFormat" onchange="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" id="volumePisah${rinci.id_rinci_sub_bl}">
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        ${rinci.satuan ?? '-'}
-                                                                    </td>
-                                                                    <td class="text-center" id="anggaranPisah${rinci.id_rinci_sub_bl}">
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        <input type="text" class="numberFormat" id="realisasiPisah${rinci.id_rinci_sub_bl}">
-                                                                    </td>
-                                                                </tr>
+                                                                ${list_labels}
                                                             </tbody>
                                                         </table>
                                                     </td>
@@ -1250,7 +1263,11 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         const anggaranElement = jQuery(`#anggaranPisah${idRinciSubBl}`);
 
         // Ambil nilai volume yang diinputkan
-        const volume = parseFloat(volumeElement.val().replace(/\./g, "")) || 0;
+        const volume = parseFloat(volumeElement.val()) || 0;
+        if(volume > totalVolume){
+            alert('Volume rincian pisah anggaran tidak boleh lebih besar dari volume aslinya!');
+            return volumeElement.val(totalVolume);            
+        }
 
         // Hitung anggaran berdasarkan volume yang diinputkan
         const anggaranPerVolume = totalVolume > 0 ? totalAnggaran / totalVolume : 0;
@@ -1333,9 +1350,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         if (checkboxPisah.is(":checked")) {
             rinciCheckbox.prop('checked', true).trigger('change');
             btnSave.show();
+            jQuery('#label-now-'+idRinciSubBl).show();
         } else {
-            rinciCheckbox.prop('checked', false).trigger('change');
             btnSave.hide();
+            jQuery('#label-now-'+idRinciSubBl).hide();
         }
     }
 
@@ -1716,10 +1734,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
 
                 const data = response.data;
 
-                function formatNumber(value) {
-                    return new Intl.NumberFormat("id-ID").format(value || 0);
-                }
-
                 // Group data by SKPD
                 const groupedData = {};
                 data.forEach((item) => {
@@ -1807,8 +1821,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                     tableBody.append(`
                         <tr class="font-weight-bold skpd-row">
                             <td colspan="3">${skpdData.namaSkpd}</td>
-                            <td class="text-right">${formatNumber(skpdData.total)}</td>
-                            <td class="text-right">${formatNumber(skpdData.totalRealisasi)}</td>
+                            <td class="text-right">${formatRupiah(skpdData.total)}</td>
+                            <td class="text-right">${formatRupiah(skpdData.totalRealisasi)}</td>
                             <td colspan="2"></td>
                         </tr>
                     `);
@@ -1817,8 +1831,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                         tableBody.append(`
                             <tr class="subgiat-row">
                                 <td colspan="3" class="pl-4">${subGiatData.namaSubGiat}</td>
-                                <td class="text-right">${formatNumber(subGiatData.total)}</td>
-                                <td class="text-right">${formatNumber(subGiatData.totalRealisasi)}</td>
+                                <td class="text-right">${formatRupiah(subGiatData.total)}</td>
+                                <td class="text-right">${formatRupiah(subGiatData.totalRealisasi)}</td>
                                 <td colspan="2"></td>
                             </tr>
                         `);
@@ -1827,8 +1841,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                             tableBody.append(`
                                 <tr class="akun-row">
                                     <td colspan="3" class="pl-5">${akunData.kodeAkun} ${akunData.namaAkun}</td>
-                                    <td class="text-right">${formatNumber(akunData.total)}</td>
-                                    <td class="text-right">${formatNumber(akunData.totalRealisasi)}</td>
+                                    <td class="text-right">${formatRupiah(akunData.total)}</td>
+                                    <td class="text-right">${formatRupiah(akunData.totalRealisasi)}</td>
                                     <td colspan="2"></td>
                                 </tr>
                             `);
@@ -1837,8 +1851,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                 tableBody.append(`
                                     <tr class="subs-row">
                                         <td colspan="3" class="pl-5">${subsData.namaKelompok}</td>
-                                        <td class="text-right">${formatNumber(subsData.total)}</td>
-                                        <td class="text-right">${formatNumber(subsData.totalRealisasi)}</td>
+                                        <td class="text-right">${formatRupiah(subsData.total)}</td>
+                                        <td class="text-right">${formatRupiah(subsData.totalRealisasi)}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                 `);
@@ -1847,8 +1861,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                     tableBody.append(`
                                         <tr class="ket-row">
                                             <td colspan="3" class="pl-5">${ketData.namaKeterangan}</td>
-                                            <td class="text-right">${formatNumber(ketData.total)}</td>
-                                            <td class="text-right">${formatNumber(ketData.totalRealisasi)}</td>
+                                            <td class="text-right">${formatRupiah(ketData.total)}</td>
+                                            <td class="text-right">${formatRupiah(ketData.totalRealisasi)}</td>
                                             <td colspan="2"></td>
                                         </tr>
                                     `);
@@ -1859,8 +1873,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                 <td class="pl-5">${rinci.nama_komponen}</td>
                                                 <td class="text-right">${rinci.volume}</td>
                                                 <td>${rinci.satuan}</td>
-                                                <td class="text-right">${formatNumber(rinci.total_harga)}</td>
-                                                <td class="text-right">${formatNumber(rinci.realisasi_rincian)}</td>
+                                                <td class="text-right">${formatRupiah(rinci.total_harga)}</td>
+                                                <td class="text-right">${formatRupiah(rinci.realisasi_rincian)}</td>
                                                 <td>${rinci.keterangan_hapus}</td>
                                                 <td class="text-center">
                                                     <button class="btn btn-sm btn-warning" onclick="restoreArsip(${rinci.id_rinci_sub_bl})">
@@ -1922,8 +1936,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
     }
 
     async function simpanDataPisahRinci(idRinciSubBl) {
-        const volume = jQuery(`#volumePisah${idRinciSubBl}`).val().replace(/\./g, "");
-        const realisasi = jQuery(`#realisasiPisah${idRinciSubBl}`).val().replace(/\./g, "");
+        const volume = jQuery(`#volumePisah${idRinciSubBl}`).val();
+        const realisasi = jQuery(`#realisasiPisah${idRinciSubBl}`).val();
 
         const tempData = new FormData();
         tempData.append("action", "simpan_pisah_rinci_bl");
@@ -1950,7 +1964,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             alert(res.message);
 
             if (res.status === "success") {
-                await handleViewRinciBtn(); // Refresh tabel
                 window.data_changed = true;
             }
         } catch (error) {

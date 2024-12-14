@@ -4638,41 +4638,69 @@ class Wpsipd_Public_RKA
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
-                $user_data = wp_get_current_user();
-                $data = array(
-                    'volume_pisah'      => sanitize_text_field($_POST['volume']),
-                    'realisasi_pisah'   => sanitize_text_field($_POST['realisasi']),
-                    'tahun_anggaran'    => sanitize_text_field($_POST['tahun_anggaran']),
-                    'id_rinci_sub_bl'   => sanitize_text_field($_POST['id_rinci_sub_bl']),
-                    'id_label_komponen' => sanitize_text_field($_POST['id_label']),
-                    'user'              => $user_data->display_name,
-                    'pisah'             => 1,
-                    'active'            => 1
-                );
+                if(empty($_POST['volume'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'volume tidak boleh kosong!';
+                }else if(empty($_POST['tahun_anggaran'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun_anggaran tidak boleh kosong!';
+                }else if(empty($_POST['id_rinci_sub_bl'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id_rinci_sub_bl tidak boleh kosong!';
+                }else if(empty($_POST['id_label'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id_label tidak boleh kosong!';
+                }else{
+                    $cek_vol_rka = $wpdb->get_var($wpdb->prepare("
+                        SELECT
+                            volume
+                        FROM data_rka
+                        WHERE id_rinci_sub_bl=%d
+                            AND tahun_anggaran=%d
+                            AND active=1
+                    ", $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran']));
 
-                $current_data = $wpdb->get_var(
-                    $wpdb->prepare('
-                        SELECT id
-                        FROM data_mapping_label
-                        WHERE id_label_komponen = %d
-                          AND id_rinci_sub_bl = %d
-                          AND tahun_anggaran = %d
-                          AND active = 1
-                    ', $_POST['id_label'], $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran'])
-                );
+                    if($cek_vol_rka < $_POST['volume']){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'volume rinican pisah anggaran tidak boleh lebih besar dari volume aslinya!';
+                    }else{
+                        $user_data = wp_get_current_user();
+                        $data = array(
+                            'volume_pisah'      => $_POST['volume'],
+                            'realisasi_pisah'   => $_POST['realisasi'],
+                            'tahun_anggaran'    => $_POST['tahun_anggaran'],
+                            'id_rinci_sub_bl'   => $_POST['id_rinci_sub_bl'],
+                            'id_label_komponen' => $_POST['id_label'],
+                            'user'              => $user_data->display_name,
+                            'pisah'             => 1,
+                            'active'            => 1
+                        );
 
-                // Update or insert
-                if ($current_data) {
-                    $wpdb->update(
-                        'data_mapping_label',
-                        $data,
-                        array('id' => $current_data)
-                    );
-                } else {
-                    $wpdb->insert(
-                        'data_mapping_label',
-                        $data
-                    );
+                        $current_data = $wpdb->get_var(
+                            $wpdb->prepare('
+                                SELECT id
+                                FROM data_mapping_label
+                                WHERE id_label_komponen = %d
+                                  AND id_rinci_sub_bl = %d
+                                  AND tahun_anggaran = %d
+                                  AND active = 1
+                            ', $_POST['id_label'], $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran'])
+                        );
+
+                        // Update or insert
+                        if ($current_data) {
+                            $wpdb->update(
+                                'data_mapping_label',
+                                $data,
+                                array('id' => $current_data)
+                            );
+                        } else {
+                            $wpdb->insert(
+                                'data_mapping_label',
+                                $data
+                            );
+                        }
+                    }
                 }
             } else {
                 $ret['status'] = 'error';

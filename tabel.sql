@@ -1978,7 +1978,7 @@ CREATE TABLE `data_mapping_label` (
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL COMMENT '1 = aktif, 0 = hapus, 2 = arsip',
   `pisah` tinyint(4) DEFAULT 0 COMMENT '1 = pisah, 0 = tidak pisah',
-  `volume_pisah` text DEFAULT NULL,
+  `volume_pisah` double(20,2) DEFAULT NULL,
   `realisasi_pisah` double(20,2) DEFAULT NULL,
   `keterangan_hapus` text DEFAULT NULL,
   `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -14568,6 +14568,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							
 							$rka[$k]['is_checked'] = false;
 							$rka[$k]['checked_pisah'] = false;
+							$rka[$k]['labels'] = array();
 
 							// Ambil data labels
 							$labels = $wpdb->get_results(
