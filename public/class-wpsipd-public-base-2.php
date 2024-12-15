@@ -6799,6 +6799,29 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data'] = $data_program_renstra;
 							$ret['message'] = 'Berhasil get program renja!';
 						}
+					}else if($jenis == 'kegiatan_renstra'){
+						if(empty($_POST['id_jadwal'])){
+							throw new Exception("Parameter Id Jadwal Kosong!", 1);
+						}
+						$data_kegiatan_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_renstra_kegiatan
+							WHERE
+								id_unit=%d AND 
+								active=1 AND 
+								id_jadwal=%d 
+							ORDER BY 
+								kode_giat, id_unik_indikator asc",
+								$_POST['id_skpd'], $_POST['id_jadwal']
+						), ARRAY_A);
+		
+						if(!empty($data_kegiatan_renstra)){
+							$ret['data'] = $data_kegiatan_renstra;
+							$ret['message'] = 'Berhasil get kegiatan renstra!';
+						}
 					}else if($jenis == 'kegiatan'){
 						if(empty($_POST['parent_cascading'])){
 							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
@@ -6828,6 +6851,29 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(!empty($data_kegiatan_renja)){
 							$ret['data'] = $data_kegiatan_renja;
 							$ret['message'] = 'Berhasil get kegiatan renja!';
+						}
+					}else if($jenis == 'sub_giat_renstra'){
+						if(empty($_POST['id_jadwal'])){
+							throw new Exception("Parameter Id Jadwal Kosong!", 1);
+						}
+						$data_sub_giat_renstra = $wpdb->get_results($wpdb->prepare(
+							"
+							SELECT 
+								* 
+							FROM 
+								data_renstra_sub_kegiatan
+							WHERE
+								id_unit=%d AND 
+								active=1 AND 
+								id_jadwal=%d 
+							ORDER BY 
+								kode_sub_giat, id_unik_indikator asc",
+								$_POST['id_skpd'], $_POST['id_jadwal']
+						), ARRAY_A);
+		
+						if(!empty($data_sub_giat_renstra)){
+							$ret['data'] = $data_sub_giat_renstra;
+							$ret['message'] = 'Berhasil get kegiatan renstra!';
 						}
 					}else if($jenis == 'sub_kegiatan'){
 						if(empty($_POST['parent_cascading'])){
