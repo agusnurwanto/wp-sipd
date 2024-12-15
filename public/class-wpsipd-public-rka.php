@@ -2850,39 +2850,43 @@ class Wpsipd_Public_RKA
                 //validate
                 $postData = $_POST;
                 $validationRules = [
-                    'tahun_anggaran' => 'required|max:4|numeric',
-                    'kode_sbl'       => 'required',
-                    'kode_npd'       => 'required',
-                    'uraian_bku'     => 'required',
-                    'set_bku'        => 'required|in:terima,keluar',
-                    'set_tanggal'    => 'required',
+                    'tahun_anggaran'  => 'required|max:4|numeric',
+                    'kode_sbl'        => 'required',
+                    'kode_npd'        => 'required',
+                    'uraian_bku'      => 'required',
+                    'set_tanggal'     => 'required',
+                    'nomor_bukti_bku' => 'required',
+                    'rekening_akun'   => 'required',
+                    'rincian_rka'     => 'required',
+                    'jenis_transkasi' => 'required|in:1,2'
                 ];
-                // Tambahan validasi untuk pengeluaran
-                if ($postData['set_bku'] == 'keluar') {
-                    $validationRules['nomor_bukti_bku'] = 'required';
-                    $validationRules['pagu_bku']        = 'required';
-                    $validationRules['rekening_akun']   = 'required';
-                    $validationRules['rincian_rka']     = 'required';
-                    // Tambahan validasi untuk transaksi non-tunai
-                    if ($postData['jenis_transkasi'] == '2') {
-                        $validationRules['nama_pemilik_rekening_bank_bku']  = 'required';
-                        $validationRules['nama_rekening_bank_bku']          = 'required';
-                        $validationRules['no_rekening_bank_bku']            = 'required|numeric';
-                    }
+                // Tambahan validasi untuk transaksi non-tunai
+                if ($postData['jenis_transkasi'] == 2) {
+                    $validationRules['nama_pemilik_rekening_bank_bku']  = 'required';
+                    $validationRules['nama_rekening_bank_bku']          = 'required';
+                    $validationRules['no_rekening_bank_bku']            = 'required|numeric';
                 }
+                // Tambahan validasi untuk transaksi non-tunai
+                if ($postData['metode_bku'] == 'dengan_rumus') {
+                    $validationRules['rumus_bku']       = 'required';
+                    $validationRules['hasil_bku_asli']  = 'required';
+                } else {
+                    $validationRules['pagu_bku']  = 'required';
+
+                }
+
                 // Validate data
                 $errors = $this->validate($postData, $validationRules);
                 if (!empty($errors)) {
                     $ret['status'] = 'error';
-                    $ret['message'] = implode(" \n ", $errors);
+                    $ret['message'] = implode("\n ", $errors);
                     die(json_encode($ret));
                 }
 
                 //Cek nomor npd jika tambah baru
                 $cek_nomor = $wpdb->get_var(
                     $wpdb->prepare('
-                        SELECT
-                            nomor_bukti
+                        SELECT nomor_bukti
                         FROM data_buku_kas_umum_pembantu
                         WHERE nomor_bukti = %s
                           AND tahun_anggaran = %d
@@ -2896,157 +2900,104 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
-                $tipe_jenis_bku = ($postData['set_bku'] == 'terima') ? 'penerimaan' : 'pengeluaran';
+                //jika pagu bku kosong berarti pakai rumus
+                $pagu_bku = str_replace('.', '', $postData['pagu_bku']) ?: $postData['hasil_bku_asli'];
 
-                if ($postData['set_bku'] == 'keluar') {
-                    $pagu_bku = str_replace('.', '', $postData['pagu_bku']);
-                    $data_npd = $wpdb->get_row(
-                        $wpdb->prepare("
-                            SELECT rnpd.*
-                            FROM data_rekening_nota_pencairan_dana as rnpd
-                            WHERE rnpd.id_npd = %d
-                              AND rnpd.tahun_anggaran = %d
-                              AND rnpd.kode_rekening = %s
-                              AND rnpd.active = 1
-                        ", $postData['kode_npd'], $postData['tahun_anggaran'], $postData['rekening_akun']),
-                        ARRAY_A
-                    );
-                    $data_sisa_pagu_npd = $data_npd['pagu_dana'];
-                    $data_akun = array(
-                        'kode_akun' => $data_npd['kode_rekening'],
-                        'nama_akun' => str_replace($data_npd['kode_rekening'], '', $data_npd['nama_rekening'])
-                    );
-                    if (!empty($data_akun)) {
-                        $set_id_bku = !empty($postData['id_data']) ? ' AND id != ' . $postData['id_data'] : '';
-                        $data_total_pagu_bku = $wpdb->get_var(
-                            $wpdb->prepare("
-                                SELECT SUM(bku.pagu) as total_pagu_bku
-                                FROM data_buku_kas_umum_pembantu as bku
-                                WHERE bku.id_npd = %d
-                                  AND bku.tahun_anggaran = %d
-                                  AND bku.kode_rekening = %s
-                                  AND bku.active = 1
-                                " . $set_id_bku, $postData['kode_npd'], $postData['tahun_anggaran'], $postData['rekening_akun'])
-                        );
-
-                        //disable validation for rekening npd
-                        // $total_pagu_bku = (!empty($data_total_pagu_bku)) ? $data_total_pagu_bku + $pagu_bku : $pagu_bku;
-
-                        // if ($total_pagu_bku > $data_sisa_pagu_npd) {
-                        //     $ret['status'] = 'error';
-                        //     $ret['message'] = 'Data pagu BKU ' . $this->_number_format($total_pagu_bku) . ' melebihi data pagu di Nota Pencairan Dana sebesar ' . $this->_number_format($data_sisa_pagu_npd) . ' di rekening ' . $data_akun['kode_akun'] . ' ' . $data_akun['nama_akun'] . '!';
-                        //     die(json_encode($ret));
-                        // }
-
-                        $tanggal = date_format(date_create($postData['set_tanggal']), "Y-m-d H:m:s");
-                        $input_options = array(
-                            'kode_sbl'                   => $postData['kode_sbl'],
-                            'nomor_bukti'                => $postData['nomor_bukti_bku'],
-                            'tipe'                       => $tipe_jenis_bku,
-                            'uraian'                     => $postData['uraian_bku'],
-                            'pagu'                       => $pagu_bku,
-                            'kode_rekening'              => $data_akun['kode_akun'],
-                            'nama_rekening'              => $data_akun['nama_akun'],
-                            'id_npd'                     => $postData['kode_npd'],
-                            'tanggal_bkup'               => $tanggal,
-                            'tahun_anggaran'             => $postData['tahun_anggaran'],
-                            'jenis_cash'                 => $postData['jenis_transkasi'],
-                            'active'                     => 1,
-                            'id_rinci_sub_bl'            => $postData['rincian_rka'],
-                            'nama_pemilik_rekening_bank' => $postData['nama_pemilik_rekening_bank_bku'],
-                            'nama_rekening_bank'         => $postData['nama_rekening_bank_bku'],
-                            'no_rekening_bank'           => $postData['no_rekening_bank_bku']
-                        );
-
-                        $cek_id = $wpdb->get_var(
-                            $wpdb->prepare('
-                                SELECT id
-                                FROM data_buku_kas_umum_pembantu
-                                WHERE id = %d
-                                  AND tahun_anggaran = %d
-                                  AND active = 1
-                            ', $postData['id_data'], $postData['tahun_anggaran'])
-                        );
-
-                        if (!$cek_id) {
-                            //cek nomor npd
-                            $cek_nomor = $wpdb->get_var(
-                                $wpdb->prepare('
-                                        SELECT nomor_bukti
-                                        FROM data_buku_kas_umum_pembantu
-                                        WHERE nomor_bukti = %s
-                                          AND tahun_anggaran = %d
-                                          AND active = 1
-                                    ', $postData['nomor_bukti_bku'], $postData['tahun_anggaran'])
-                            );
-
-                            if (!empty($cek_nomor)) {
-                                $ret['status'] = 'error';
-                                $ret['message'] = 'Nomor bukti sudah terpakai!';
-                                die(json_encode($ret));
-                            }
-
-                            $wpdb->insert(
-                                'data_buku_kas_umum_pembantu',
-                                $input_options
-                            );
-
-                            $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
-                        } else {
-                            $wpdb->update(
-                                'data_buku_kas_umum_pembantu',
-                                $input_options,
-                                array('id' => $cek_id)
-                            );
-
-                            $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
-                        }
-                    } else {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Data rekening tidak ditemukan!';
-                    }
-                } else if ($postData['set_bku'] == 'terima') {
-                    //terima hanya bisa update tanggal dan uraian
+                $data_npd = $wpdb->get_row(
+                    $wpdb->prepare("
+                        SELECT rnpd.*
+                        FROM data_rekening_nota_pencairan_dana as rnpd
+                        WHERE rnpd.id_npd = %d
+                          AND rnpd.tahun_anggaran = %d
+                          AND rnpd.kode_rekening = %s
+                          AND rnpd.active = 1
+                    ", $postData['kode_npd'], $postData['tahun_anggaran'], $postData['rekening_akun']),
+                    ARRAY_A
+                );
+                $data_akun = array(
+                    'kode_akun' => $data_npd['kode_rekening'],
+                    'nama_akun' => str_replace($data_npd['kode_rekening'], '', $data_npd['nama_rekening'])
+                );
+                if (!empty($data_akun)) {
                     $tanggal = date_format(date_create($postData['set_tanggal']), "Y-m-d H:m:s");
                     $input_options = array(
-                        'uraian'          => $postData['uraian_bku'],
-                        'tanggal_bkup'    => $tanggal
+                        'kode_sbl'                   => $postData['kode_sbl'],
+                        'nomor_bukti'                => $postData['nomor_bukti_bku'],
+                        'tipe'                       => 'pengeluaran',
+                        'uraian'                     => $postData['uraian_bku'],
+                        'pagu'                       => $pagu_bku,
+                        'pagu'                       => $pagu_bku,
+                        'kode_rekening'              => $data_akun['kode_akun'],
+                        'nama_rekening'              => $data_akun['nama_akun'],
+                        'id_npd'                     => $postData['kode_npd'],
+                        'tanggal_bkup'               => $tanggal,
+                        'tahun_anggaran'             => $postData['tahun_anggaran'],
+                        'jenis_cash'                 => $postData['jenis_transkasi'],
+                        'active'                     => 1,
+                        'id_rinci_sub_bl'            => $postData['rincian_rka'],
+                        'nama_pemilik_rekening_bank' => $postData['nama_pemilik_rekening_bank_bku'],
+                        'nama_rekening_bank'         => $postData['nama_rekening_bank_bku'],
+                        'no_rekening_bank'           => $postData['no_rekening_bank_bku']
                     );
+
+                    if ($postData['metode_bku'] == 'dengan_rumus') {
+                        $input_options['metode_bku'] = $postData['metode_bku'];
+                        $input_options['rumus_pagu'] = $postData['rumus_bku'];
+                    } 
 
                     $cek_id = $wpdb->get_var(
                         $wpdb->prepare('
                             SELECT id
                             FROM data_buku_kas_umum_pembantu
                             WHERE id = %d
-                              AND tahun_anggaran = %d
-                              AND active = 1
+                                AND tahun_anggaran = %d
+                                AND active = 1
                         ', $postData['id_data'], $postData['tahun_anggaran'])
                     );
 
-                    if ($cek_id) {
+                    if (!$cek_id) {
+                        //cek nomor npd
+                        $cek_nomor = $wpdb->get_var(
+                            $wpdb->prepare('
+                                SELECT nomor_bukti
+                                FROM data_buku_kas_umum_pembantu
+                                WHERE nomor_bukti = %s
+                                  AND tahun_anggaran = %d
+                                  AND active = 1
+                            ', $postData['nomor_bukti_bku'], $postData['tahun_anggaran'])
+                        );
+
+                        if (!empty($cek_nomor)) {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Nomor bukti sudah terpakai!';
+                            die(json_encode($ret));
+                        }
+
+                        $wpdb->insert(
+                            'data_buku_kas_umum_pembantu',
+                            $input_options
+                        );
+
+                        $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
+                    } else {
                         $wpdb->update(
                             'data_buku_kas_umum_pembantu',
                             $input_options,
                             array('id' => $cek_id)
                         );
+
                         $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
-                    } else {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Data penerimaan tidak ditemukan!';
-                        die(json_encode($ret));
                     }
                 } else {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Set BKU tidak diketahui!';
-                    die(json_encode($ret));
+                    $ret['message'] = 'Data rekening tidak ditemukan!';
                 }
 
                 // update realisasi rincian belanja
                 if ($ret['status'] != 'error') {
                     $total_rincian_bku = $wpdb->get_var(
                         $wpdb->prepare('
-                            SELECT
-                                SUM(pagu)
+                            SELECT SUM(pagu)
                             FROM data_buku_kas_umum_pembantu
                             WHERE id_rinci_sub_bl = %d
                               AND tahun_anggaran = %d
