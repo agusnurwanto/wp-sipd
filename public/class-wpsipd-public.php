@@ -14610,7 +14610,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											$detail_label['realisasi'] = $rka[$k]['realisasi_rincian'];
 											$detail_label['pisah'] = false;
 										} else {
-											if ($rka[$k]['id_rinci_sub_bl'] === $val['id_rinci_sub_bl']) {
+											if ($_POST['id_label'] === $val['id_label_komponen']) {
 												$rka[$k]['checked_pisah'] = true; 
 											}
 											$harga_satuan = ($v['total_harga'] > 0) ? ($v['total_harga'] / $v['volume']) : 0;

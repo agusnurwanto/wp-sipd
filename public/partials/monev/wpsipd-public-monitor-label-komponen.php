@@ -1125,25 +1125,25 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                 var label_realisasi = '-';
                                                 if(label.pisah == true){
                                                     label_volume = label.volume;
-                                                    label_anggaran = label.anggaran;
-                                                    label_realisasi = label.realisasi;
+                                                    label_anggaran = formatRupiah(label.anggaran);
+                                                    label_realisasi = formatRupiah(label.realisasi);
                                                 }
                                                 list_labels.push(`
                                                     <tr>
-                                                        <td class="text-center">
-                                                            <strong>${label.nama}</strong>
+                                                        <td class="text-left">
+                                                            ${label.nama}
                                                         </td>
-                                                        <td class="text-right numberFormat">
+                                                        <td class="text-center">
                                                             ${label_volume}
                                                         </td>
                                                         <td class="text-center">
                                                             ${rinci.satuan}
                                                         </td>
                                                         <td class="text-right">
-                                                            ${formatRupiah(label_anggaran)}
+                                                            ${label_anggaran}
                                                         </td>
                                                         <td class="text-right">
-                                                            ${formatRupiah(label_realisasi)}
+                                                            ${label_realisasi}
                                                         </td>
                                                     </tr>
                                                 `);
@@ -1198,11 +1198,11 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         <input type="number" class="form-control" style="text-align:right" value="${realisasiValue}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
                                                     </td>
                                                     <td class="text-center rinci-total bg-light text-dark">
-                                                        <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})">
-                                                            <span class="dashicons dashicons-saved" title="Simpan Realisasi Rincian"></span>
+                                                        <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})" title="Simpan Realisasi Belanja">
+                                                            <span class="dashicons dashicons-saved"></span>
                                                         </button>
-                                                        <button class="btn btn-sm ${colorIcon}" onclick="lihatPisahRinci(${rinci.id_rinci_sub_bl})">
-                                                            <span class="dashicons ${iconBtn}" title="Lihat Pisah Rincian"></span>
+                                                        <button class="btn btn-sm ${colorIcon}" title="Lihat Daftar Label Komponen" onclick="lihatPisahRinci(${rinci.id_rinci_sub_bl})">
+                                                            <span class="dashicons ${iconBtn}"></span>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -1220,7 +1220,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                                     <th class="text-center">Nama Label</th>
                                                                     <th class="text-center" style="width: 100px;">Volume</th>
                                                                     <th class="text-center" style="width: 75px;">Satuan</th>
-                                                                    <th class="text-center" style="width: 160px;">Anggaran</th>
+                                                                    <th class="text-center" style="width: 200px;">Anggaran</th>
                                                                     <th class="text-center" style="width: 200px;">Realisasi</th>
                                                                 </tr>
                                                             </thead>
@@ -1674,7 +1674,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             alert(res.message);
 
             if (res.status === "success") {
-                await handleViewRinciBtn(); // Refresh tabel
                 window.data_changed = true;
             }
         } catch (error) {
