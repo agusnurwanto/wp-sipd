@@ -297,7 +297,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'] ?? 0, 0, ",", ".") . '</td>
-            <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+            <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
         </tr>
     ';
@@ -327,7 +327,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+                <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
                 <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
             </tr>
         ';
@@ -351,7 +351,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     <td class="kanan bawah text_blok text_kanan">' . number_format($kel['total'] ?? 0, 0, ",", ".") . '</td>
                     ' . $selisih . '
                     <td class="kanan bawah text_blok text_kanan">' . number_format($kel['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                    <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+                    <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
                     <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                 </tr>
             ';
@@ -375,7 +375,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                         <td class="kanan bawah text_blok text_kanan">' . number_format($ket['total'] ?? 0, 0, ",", ".") . '</td>
                         ' . $selisih . '
                         <td class="kanan bawah text_blok text_kanan">' . number_format($ket['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                        <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+                        <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
                         <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                     </tr>
                 ';
@@ -400,7 +400,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             <td class="kanan bawah text_blok text_kanan">' . number_format($akun['total'] ?? 0, 0, ",", ".") . '</td>
                             ' . $selisih . '
                             <td class="kanan bawah text_blok text_kanan">' . number_format($akun['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                            <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+                            <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
                             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                         </tr>
                     ';
@@ -451,7 +451,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                                 <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . number_format($rincian['rincian_new'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
                                 <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . number_format($rincian['realisasi_new'] ?? 0, 0, ",", ".") . '</td>
-                                <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $penyerapan . '</td>
+                                <td class="kanan bawah text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $penyerapan . '</td>
                                 <td class="kanan bawah text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['volume_new'] . '</td>
                                 <td class="kanan bawah text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['satuan'] . '</td>
                             </tr>
@@ -480,7 +480,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
-                <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+                <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
                 <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
             </tr>
         ';
@@ -505,7 +505,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['realisasi'] ?? 0, 0, ",", ".") . '</td>
-            <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+            <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
         </tr>
     ';
@@ -528,7 +528,7 @@ $body_label .= '
         <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['total'] ?? 0, 0, ",", ".") . '</td>
         ' . $selisih . '
         <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['realisasi'] ?? 0, 0, ",", ".") . '</td>
-        <td class="kanan bawah text_blok text_kanan">' . $penyerapan . '</td>
+        <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
         <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
     </tr>
 ';
@@ -1163,7 +1163,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         <?php echo $label_db['nama']; ?>
                                                     </td>
                                                     <td>
-                                                        <input type="number" class="numberFormat form-control text-center" onkeyup="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" onchange="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" id="volumePisah${rinci.id_rinci_sub_bl}" value="${label_volume}">
+                                                        <input type="number" class="form-control text-center" onkeyup="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" onchange="handleChangeVolume(${rinci.id_rinci_sub_bl}, ${rinci.total_harga}, ${rinci.volume})" id="volumePisah${rinci.id_rinci_sub_bl}" value="${label_volume}">
                                                     </td>
                                                     <td class="text-center">
                                                         ${rinci.satuan}
@@ -1172,7 +1172,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         ${formatRupiah(label_anggaran)}
                                                     </td>
                                                     <td>
-                                                        <input type="number" class="numberFormat form-control text-right" id="realisasiPisah${rinci.id_rinci_sub_bl}" value="${label_realisasi}">
+                                                        <input type="number" class="form-control text-right" id="realisasiPisah${rinci.id_rinci_sub_bl}" value="${label_realisasi}">
                                                     </td>
                                                 </tr>
                                             `+list_labels.join('');
@@ -1195,7 +1195,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         ${formatRupiah(rinci.total_harga)}
                                                     </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
-                                                        <input type="number" class="numberFormat" style="text-align:right" value="${formatRupiah(realisasiValue)}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
+                                                        <input type="number" class="form-control" style="text-align:right" value="${realisasiValue}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
                                                     </td>
                                                     <td class="text-center rinci-total bg-light text-dark">
                                                         <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})">
