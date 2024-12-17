@@ -6,13 +6,13 @@ $input = shortcode_atts(array(
 ), $atts);
 
 if (
-    !empty($input['tahun_anggaran']) 
+    !empty($input['tahun_anggaran'])
     && !empty($input['kode_sbl'])
-){
-	$tahun_anggaran = $input['tahun_anggaran'];
-	$kode_sbl = $input['kode_sbl'];
+) {
+    $tahun_anggaran = $input['tahun_anggaran'];
+    $kode_sbl = $input['kode_sbl'];
 } else {
-	die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
+    die('<h1 class="text_tengah">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
 }
 
 $api_key = get_option('_crb_api_key_extension');
@@ -54,23 +54,23 @@ if ($data_rfk) {
     $pagu_sub_kegiatan = number_format($data_rfk['pagu'], 0, ",", ".");
     $id_sub_skpd = $data_rfk['id_sub_skpd'];
 } else {
-    die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
+    die('<h1 class="text_tengah">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
 $set_bulan = date('m');
-if(
-    !empty($_GET) 
+if (
+    !empty($_GET)
     && !empty($_GET['bulan'])
-){
-    $set_bulan = $_GET['bulan']*1;
+) {
+    $set_bulan = $_GET['bulan'] * 1;
 }
 $nama_bulan = $this->get_bulan($set_bulan);
 
-if($set_bulan <= 9){
-    $set_bulan = '0'.$set_bulan;
+if ($set_bulan <= 9) {
+    $set_bulan = '0' . $set_bulan;
 }
-$bulan_terpilih = $input['tahun_anggaran'].'-'.$set_bulan.'-31 23:59:59';
-$bulan_terpilih_2 = date('Y').'-'.$set_bulan.'-31 23:59:59';
+$bulan_terpilih = $input['tahun_anggaran'] . '-' . $set_bulan . '-31 23:59:59';
+$bulan_terpilih_2 = date('Y') . '-' . $set_bulan . '-31 23:59:59';
 
 $rinc = $wpdb->get_results($wpdb->prepare("
     SELECT 
@@ -84,10 +84,10 @@ $rinc = $wpdb->get_results($wpdb->prepare("
 
 $akun_all = array();
 foreach ($rinc as $key => $item) {
-    if(empty($item['kode_akun'])){
+    if (empty($item['kode_akun'])) {
         continue;
     }
-    if(empty($akun_all[$item['kode_akun']])){
+    if (empty($akun_all[$item['kode_akun']])) {
         $nama_akun = str_replace($item['kode_akun'], '', $item['nama_akun']);
         $bku = $wpdb->get_results($wpdb->prepare("
             SELECT
@@ -113,9 +113,9 @@ foreach ($rinc as $key => $item) {
             'bku' => array(),
             'rinci' => array()
         );
-        foreach($bku as $bukti){
+        foreach ($bku as $bukti) {
             $akun_all[$item['kode_akun']]['realisasi'] += $bukti['pagu'];
-            if(empty($akun_all[$item['kode_akun']]['bku'][$bukti['id_rinci_sub_bl']])){
+            if (empty($akun_all[$item['kode_akun']]['bku'][$bukti['id_rinci_sub_bl']])) {
                 $akun_all[$item['kode_akun']]['bku'][$bukti['id_rinci_sub_bl']] = array();
             }
             $akun_all[$item['kode_akun']]['bku'][$bukti['id_rinci_sub_bl']][] = $bukti;
@@ -123,13 +123,13 @@ foreach ($rinc as $key => $item) {
     }
     $akun_all[$item['kode_akun']]['total'] += $item['total_harga'];
     $akun_all[$item['kode_akun']]['total_murni'] += $item['rincian_murni'];
-    if(empty($akun_all[$item['kode_akun']]['rinci'][$item['id_rinci_sub_bl']])){
+    if (empty($akun_all[$item['kode_akun']]['rinci'][$item['id_rinci_sub_bl']])) {
         $akun_all[$item['kode_akun']]['rinci'][$item['id_rinci_sub_bl']] = array(
             'val' => $item,
             'bukti' => array()
         );
     }
-    if(!empty($akun_all[$item['kode_akun']]['bku'][$item['id_rinci_sub_bl']])){
+    if (!empty($akun_all[$item['kode_akun']]['bku'][$item['id_rinci_sub_bl']])) {
         $akun_all[$item['kode_akun']]['rinci'][$item['id_rinci_sub_bl']]['bukti'] = $akun_all[$item['kode_akun']]['bku'][$item['id_rinci_sub_bl']];
         unset($akun_all[$item['kode_akun']]['bku'][$item['id_rinci_sub_bl']]);
     }
@@ -140,130 +140,130 @@ $total_anggaran = 0;
 $total_sisa = 0;
 $total_realisasi = 0;
 foreach ($akun_all as $akun) {
-    $sisa_akun = $akun['total']-$akun['realisasi'];
-    $body .='
+    $sisa_akun = $akun['total'] - $akun['realisasi'];
+    $body .= '
     <tr style="font-weight: 600;">
-        <td class="text-center">'.$akun['kode_akun'].'</td>
-        <td>'.$akun['nama_akun'].'</td>
-        <td class="text-right">'.number_format($akun['total'],0,",",".").'</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td class="text-right">'.number_format($akun['realisasi'],0,",",".").'</td>
-        <td class="text-right">'.number_format($sisa_akun,0,",",".").'</td>
+        <td class="atas kanan bawah kiri text_tengah">' . $akun['kode_akun'] . '</td>
+        <td class="atas kanan bawah kiri">' . $akun['nama_akun'] . '</td>
+        <td class="atas kanan bawah kiri text_kanan">' . number_format($akun['total'], 0, ",", ".") . '</td>
+        <td class="atas kanan bawah kiri"></td>
+        <td class="atas kanan bawah kiri"></td>
+        <td class="atas kanan bawah kiri"></td>
+        <td class="atas kanan bawah kiri"></td>
+        <td class="atas kanan bawah kiri text_kanan">' . number_format($akun['realisasi'], 0, ",", ".") . '</td>
+        <td class="atas kanan bawah kiri text_kanan">' . number_format($sisa_akun, 0, ",", ".") . '</td>
     </tr>';
 
     // tampilkan rincian RKA
     foreach ($akun['rinci'] as $key => $item) {
         $alamat_array = $this->get_alamat($input, $item['val']);
-        if(!empty($alamat_array['keterangan'])){
+        if (!empty($alamat_array['keterangan'])) {
             $keterangan_alamat[] = $alamat_array['keterangan'];
         }
         $alamat = $alamat_array['alamat'];
         $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
 
         // jika alamat kosong maka cek id penerima bantuan
-        if(empty($alamat)){
+        if (empty($alamat)) {
             $alamat = array();
-            if(!empty($item['val']['id_lurah_penerima'])){
-                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+            if (!empty($item['val']['id_lurah_penerima'])) {
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=" . $item['val']['id_lurah_penerima'] . " and is_kel=1", ARRAY_A);
                 $alamat[] = $db_alamat['nama'];
             }
-            if(!empty($item['val']['id_camat_penerima'])){
-                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_camat_penerima']." and is_kec=1", ARRAY_A);
+            if (!empty($item['val']['id_camat_penerima'])) {
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=" . $item['val']['id_camat_penerima'] . " and is_kec=1", ARRAY_A);
                 $alamat[] = $db_alamat['nama'];
             }
-            if(!empty($item['val']['id_kokab_penerima'])){
-                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+            if (!empty($item['val']['id_kokab_penerima'])) {
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=" . $item['val']['id_kokab_penerima'] . " and is_kab=1", ARRAY_A);
                 $alamat[] = $db_alamat['nama'];
             }
-            if(!empty($item['val']['id_prop_penerima'])){
-                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['val']['id_prop_penerima']." and is_prov=1", ARRAY_A);
+            if (!empty($item['val']['id_prop_penerima'])) {
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=" . $item['val']['id_prop_penerima'] . " and is_prov=1", ARRAY_A);
                 $alamat[] = $db_alamat['nama'];
             }
             $profile_penerima = implode(', ', $alamat);
-        }else{
+        } else {
 
             // jika lokus akun teks ada di nama komponen
-            if(
+            if (
                 strpos($item['val']['nama_komponen'], $lokus_akun_teks) !== false
                 || $lokus_akun_teks == $alamat
-            ){
+            ) {
                 $profile_penerima = $alamat;
-            }else{
-                $profile_penerima = $lokus_akun_teks.', '.$alamat;
+            } else {
+                $profile_penerima = $lokus_akun_teks . ', ' . $alamat;
             }
         }
 
         // tampilkan bku yang sudah terkoneksi ke rincian belanja
-        if(!empty($item['bukti'])){
+        if (!empty($item['bukti'])) {
             $realisasi = 0;
-            foreach($item['bukti'] as $k => $bukti){
+            foreach ($item['bukti'] as $k => $bukti) {
                 $realisasi += $bukti['pagu'];
-                if($k == 0){
+                if ($k == 0) {
                     $vol = 0;
-                    if(!empty($bukti['koefisien'])){
+                    if (!empty($bukti['koefisien'])) {
                         $vol = explode(' ', $bukti['koefisien']);
                         $vol = $vol[0];
                     }
-                    $body .='
-                    <tr data-id="'.$item['val']['id_rinci_sub_bl'].'" data-id-bukti="'.$bukti['id'].'">
-                        <td></td>
-                        <td>
-                            <div>'.$item['val']['nama_komponen'].'</div>
-                            <div>'.$item['val']['spek_komponen'].'</div>
-                            <div>'.$profile_penerima.'</div>
+                    $body .= '
+                    <tr data-id="' . $item['val']['id_rinci_sub_bl'] . '" data-id-bukti="' . $bukti['id'] . '">
+                        <td class="atas kanan bawah kiri"></td>
+                        <td class="atas kanan bawah kiri">
+                            <div>' . $item['val']['nama_komponen'] . '</div>
+                            <div>' . $item['val']['spek_komponen'] . '</div>
+                            <div>' . $profile_penerima . '</div>
                         </td>
-                        <td class="text-right">'.number_format($item['val']['total_harga'],0,",",".").'</td>
-                        <td class="text-center">'.$vol.'</td>
-                        <td class="text-center">'.$item['val']['satuan'].'</td>
-                        <td>'.$bukti['nomor_bukti'].'</td>
-                        <td>'.$bukti['uraian'].'</td>
-                        <td class="text-right">'.number_format($bukti['pagu'],0,",",".").'</td>
-                        <td class="text-right">'.number_format($item['val']['total_harga']-$realisasi,0,",",".").'</td>
+                        <td class="atas kanan bawah kiri text_kanan">' . number_format($item['val']['total_harga'], 0, ",", ".") . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $vol . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $item['val']['satuan'] . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $bukti['nomor_bukti'] . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $bukti['uraian'] . '</td>
+                        <td class="atas kanan bawah kiri text_kanan">' . number_format($bukti['pagu'], 0, ",", ".") . '</td>
+                        <td class="atas kanan bawah kiri text_kanan">' . number_format($item['val']['total_harga'] - $realisasi, 0, ",", ".") . '</td>
                     </tr>
                     ';
-                }else{
-                    $body .='
-                    <tr data-id="'.$item['val']['id_rinci_sub_bl'].'" data-id-bukti="'.$bukti['id'].'">
-                        <td></td>
-                        <td></td>
-                        <td class="text-right"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td>'.$bukti['nomor_bukti'].'</td>
-                        <td>'.$bukti['uraian'].'</td>
-                        <td class="text-right">'.number_format($bukti['pagu'],0,",",".").'</td>
-                        <td class="text-right">'.number_format($item['val']['total_harga']-$realisasi,0,",",".").'</td>
+                } else {
+                    $body .= '
+                    <tr data-id="' . $item['val']['id_rinci_sub_bl'] . '" data-id-bukti="' . $bukti['id'] . '">
+                        <td class="atas kanan bawah kiri"></td>
+                        <td class="atas kanan bawah kiri"></td>
+                        <td class="atas kanan bawah kiri text_kanan"></td>
+                        <td class="atas kanan bawah kiri text_tengah"></td>
+                        <td class="atas kanan bawah kiri text_tengah"></td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $bukti['nomor_bukti'] . '</td>
+                        <td class="atas kanan bawah kiri text_tengah">' . $bukti['uraian'] . '</td>
+                        <td class="atas kanan bawah kiri text_kanan">' . number_format($bukti['pagu'], 0, ",", ".") . '</td>
+                        <td class="atas kanan bawah kiri text_kanan">' . number_format($item['val']['total_harga'] - $realisasi, 0, ",", ".") . '</td>
                     </tr>
                     ';
                 }
                 $total_realisasi += $bukti['pagu'];
             }
 
-        // tampilkan rincian belanja yang belum ada BKU nya
-        }else{
+            // tampilkan rincian belanja yang belum ada BKU nya
+        } else {
             $vol = 0;
-            if(!empty($item['val']['koefisien'])){
+            if (!empty($item['val']['koefisien'])) {
                 $vol = explode(' ', $item['val']['koefisien']);
                 $vol = $vol[0];
             }
-            $body .='
-            <tr data-id="'.$item['val']['id_rinci_sub_bl'].'">
-                <td></td>
-                <td>
-                    <div>'.$item['val']['nama_komponen'].'</div>
-                    <div>'.$item['val']['spek_komponen'].'</div>
-                    <div>'.$profile_penerima.'</div>
+            $body .= '
+            <tr data-id="' . $item['val']['id_rinci_sub_bl'] . '">
+                <td class="atas kanan bawah kiri"></td>
+                <td class="atas kanan bawah kiri">
+                    <div>' . $item['val']['nama_komponen'] . '</div>
+                    <div>' . $item['val']['spek_komponen'] . '</div>
+                    <div>' . $profile_penerima . '</div>
                 </td>
-                <td class="text-right">'.number_format($item['val']['total_harga'],0,",",".").'</td>
-                <td class="text-center">'.$vol.'</td>
-                <td class="text-center">'.$item['val']['satuan'].'</td>
-                <td></td>
-                <td></td>
-                <td class="text-right">0</td>
-                <td class="text-right">'.number_format($item['val']['total_harga'],0,",",".").'</td>
+                <td class="atas kanan bawah kiri text_kanan">' . number_format($item['val']['total_harga'], 0, ",", ".") . '</td>
+                <td class="atas kanan bawah kiri text_tengah">' . $vol . '</td>
+                <td class="atas kanan bawah kiri text_tengah">' . $item['val']['satuan'] . '</td>
+                <td class="atas kanan bawah kiri"></td>
+                <td class="atas kanan bawah kiri"></td>
+                <td class="atas kanan bawah kiri text_kanan">0</td>
+                <td class="atas kanan bawah kiri text_kanan">' . number_format($item['val']['total_harga'], 0, ",", ".") . '</td>
             </tr>
             ';
         }
@@ -271,19 +271,19 @@ foreach ($akun_all as $akun) {
     }
 
     // tampilkan bku yang belum terkoneksi ke rincian belanja
-    foreach($akun['bku'] as $bukti_rinci){
-        foreach($bukti_rinci as $bukti){
-            $body .='
-            <tr data-id-bukti="'.$bukti['id'].'">
-                <td></td>
-                <td class="bg-danger">Rincian bukti tidak terkoneksi ke RKA/DPA</td>
-                <td class="text-right"></td>
-                <td class="text-center"></td>
-                <td class="text-center"></td>
-                <td>'.$bukti['nomor_bukti'].'</td>
-                <td>'.$bukti['uraian'].'</td>
-                <td class="text-right">'.number_format($bukti['pagu'],0,",",".").'</td>
-                <td class="text-right">'.number_format(0-$bukti['pagu'],0,",",".").'</td>
+    foreach ($akun['bku'] as $bukti_rinci) {
+        foreach ($bukti_rinci as $bukti) {
+            $body .= '
+            <tr data-id-bukti="' . $bukti['id'] . '">
+                <td class="atas kanan bawah kiri"></td>
+                <td class="atas kanan bawah kiri" style="background-color : #FFADAD">Rincian bukti tidak terkoneksi ke RKA/DPA</td>
+                <td class="atas kanan bawah kiri text_kanan"></td>
+                <td class="atas kanan bawah kiri text_tengah"></td>
+                <td class="atas kanan bawah kiri text_tengah"></td>
+                <td class="atas kanan bawah kiri">' . $bukti['nomor_bukti'] . '</td>
+                <td class="atas kanan bawah kiri">' . $bukti['uraian'] . '</td>
+                <td class="atas kanan bawah kiri text_kanan">' . number_format($bukti['pagu'], 0, ",", ".") . '</td>
+                <td class="atas kanan bawah kiri text_kanan">' . number_format(0 - $bukti['pagu'], 0, ",", ".") . '</td>
             </tr>
             ';
             $total_realisasi += $bukti['pagu'];
@@ -291,31 +291,118 @@ foreach ($akun_all as $akun) {
     }
 }
 
-$total_sisa = $total_anggaran-$total_realisasi;
+$total_sisa = $total_anggaran - $total_realisasi;
 ?>
 <style>
-    .modal-content label:after {
-        content: ' *';
-        color: red;
-        margin-right: 5px;
-    }
     #tabel_detail_nota,
     #tabel_detail_nota td,
     #tabel_detail_nota th {
-		border: 0;
-	}
-    .hide-link-decoration {
-        text-decoration: none !important;
+        border: 0;
     }
-    .warning_color {
-        background-color: #f9d9d9;
+
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        background-color: #007bff;
+        color: white;
+        z-index: 2;
+        text-align: center;
     }
-    #table_rincian thead th {
-        vertical-align: middle;
+
+    #table-sticky {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    /* Sticky header */
+    #table-sticky thead th {
+        position: sticky;
+        top: 0;
+        background-color: #007bff;
+        color: white;
+        z-index: 2;
+        text-align: center;
+        vertical-align: center;
+    }
+
+    /* Sticky footer */
+    #table-sticky tfoot th {
+        position: sticky;
+        bottom: 0;
+        background-color: #007bff;
+        color: white;
+        z-index: 1;
+        text-align: center;
+    }
+
+    #table-sticky thead tr:nth-child(1) th,
+    #table-sticky thead tr:nth-child(2) th {
+        position: sticky;
+        top: 0;
+        background-color: #007bff;
+        color: white;
+        z-index: 3;
+    }
+
+    #table-sticky thead tr:nth-child(2) th {
+        top: 38px;
+        z-index: 2;
+    }
+
+    .text_tengah {
+        text-align: center;
+    }
+
+    .text_kanan {
+        text-align: right;
+    }
+
+    .text_kiri {
+        text-align: left;
+    }
+
+    .kiri {
+        border-left: 1px solid black;
+    }
+
+    .kanan {
+        border-right: 1px solid black;
+    }
+
+    .atas {
+        border-top: 1px solid black;
+    }
+
+    .bawah {
+        border-bottom: 1px solid black;
+    }
+
+    @media print {
+
+        /* Hilangkan semua efek sticky */
+        #table-sticky thead th,
+        #table-sticky tfoot th,
+        #table-sticky thead tr:nth-child(1) th,
+        #table-sticky thead tr:nth-child(2) th {
+            position: static !important;
+            background-color: transparent !important;
+            color: black !important;
+        }
+
+        /* Pastikan seluruh tabel muncul saat print */
+        div {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+
+        #action-sipd {
+            display: none;
+        }
     }
 </style>
+<div id="action-sipd"></div>
 <div style="padding: 15px;">
-    <h1 class="text-center" style="margin-top: 50px;">LAPORAN SERAPAN RINCI<br>Bulan <?php echo $nama_bulan; ?> Tahun <?php echo $tahun_anggaran; ?></h1>
+    <h1 class="text_tengah" >LAPORAN SERAPAN RINCI<br>Bulan <?php echo $nama_bulan; ?> Tahun <?php echo $tahun_anggaran; ?></h1>
     <table id="tabel_detail_nota">
         <tbody>
             <tr>
@@ -350,39 +437,45 @@ $total_sisa = $total_anggaran-$total_realisasi;
             </tr>
         </tbody>
     </table>
-
-    <table id="table_rincian" class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="atas kanan bawah text-center" width="120px" rowspan="2">Kode Rekening</th>
-                <th class="atas kanan bawah text-center" rowspan="2">Uraian</th>
-                <th class="atas kanan bawah text-center" width="140px" rowspan="2">Anggaran DPA</th>
-                <th class="atas kanan bawah text-center" width="100px" colspan="2">Volume</th>
-                <th class="atas kanan bawah text-center" width="700px" colspan="3">Periode Sampai Bulan <?php echo $nama_bulan; ?></th>
-                <th class="atas kanan bawah text-center" width="140px" rowspan="2">Sisa</th>
-            </tr>
-            <tr>
-                <th class="atas kanan bawah text-center">Jumlah</th>
-                <th class="atas kanan bawah text-center">Satuan</th>
-                <th class="atas kanan bawah text-center">Nomor Bukti</th>
-                <th class="atas kanan bawah text-center">Uraian</th>
-                <th class="atas kanan bawah text-center">Realisasi</th>
-            </tr>
-        </thead>
-        <tbody><?php echo $body; ?></tbody>
-        <tfoot>
-            <tr>
-                <th class="atas kanan bawah text-center" colspan="3">Total</th>
-                <th class="atas kanan bawah text-right"><?php echo number_format($total_anggaran,0,",","."); ?></th>
-                <th class="atas kanan bawah text-right" colspan="3"></th>
-                <th class="atas kanan bawah text-right"><?php echo number_format($total_realisasi,0,",","."); ?></th>
-                <th class="atas kanan bawah text-right"><?php echo number_format($total_sisa,0,",","."); ?></th>
-            </tr>
-        </tfoot>
-    </table>
+    <div style="max-height: 600px; overflow: auto;">
+        <table id="table-sticky">
+            <thead>
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah" style="vertical-align: middle;" width="120px" rowspan="2">Kode Rekening</th>
+                    <th class="atas kanan bawah text_tengah" style="vertical-align: middle;" rowspan="2">Uraian</th>
+                    <th class="atas kanan bawah text_tengah" style="vertical-align: middle;" width="140px" rowspan="2">Anggaran DPA</th>
+                    <th class="atas kanan bawah text_tengah" width="100px" colspan="2">Volume</th>
+                    <th class="atas kanan bawah text_tengah" width="700px" colspan="3">Periode Sampai Bulan <?php echo $nama_bulan; ?></th>
+                    <th class="atas kanan bawah text_tengah" style="vertical-align: middle;" width="140px" rowspan="2">Sisa</th>
+                </tr>
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah</th>
+                    <th class="atas kanan bawah kiri text_tengah">Satuan</th>
+                    <th class="atas kanan bawah kiri text_tengah">Nomor Bukti</th>
+                    <th class="atas kanan bawah kiri text_tengah">Uraian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Realisasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php echo $body; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah" colspan="2">Total</th>
+                    <th class="atas kanan bawah text_kanan"><?php echo number_format($total_anggaran, 0, ",", "."); ?></th>
+                    <th class="atas kanan bawah text_kanan" colspan="4"></th>
+                    <th class="atas kanan bawah text_kanan"><?php echo number_format($total_realisasi, 0, ",", "."); ?></th>
+                    <th class="atas kanan bawah text_kanan"><?php echo number_format($total_sisa, 0, ",", "."); ?></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 </div>
-<script type="text/javascript">
-jQuery(document).ready(function(){
-    // jQuery('#table_rincian').DataTable();
-});
+<script>
+    jQuery(document).ready(() => {
+        var extend_action = '';
+        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button><br>';
+        extend_action += '</div>';
+        jQuery('#action-sipd').append(extend_action);
+    });
 </script>

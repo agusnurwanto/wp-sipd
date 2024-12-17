@@ -10644,52 +10644,55 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$res = array('id_unik' => $id_unik);
 						$res['data_realisasi'] = $wpdb->get_var(
-							$wpdb->prepare(
-								'
-								select 
-									realisasi
-								from data_realisasi_rincian
-								where tahun_anggaran=%d
-									and id_rinci_sub_bl=%d
-									and active=1',
-								$_POST['tahun_anggaran'],
-								$id_rinci
-							)
+							$wpdb->prepare('
+								SELECT realisasi
+								FROM data_realisasi_rincian
+								WHERE tahun_anggaran=%d
+								  AND id_rinci_sub_bl=%d
+								  AND active=1
+							', $_POST['tahun_anggaran'], $id_rinci)
 						);
 						if (empty($res['data_realisasi'])) {
 							$res['data_realisasi'] = 0;
 						}
 						$res['data_label'] = $wpdb->get_results(
-							$wpdb->prepare(
-								'
-								select 
+							$wpdb->prepare('
+								SELECT 
 									l.nama,
 									l.id
-								from data_mapping_label m
-									left join data_label_komponen l on m.id_label_komponen=l.id
-								where m.tahun_anggaran=%d
-									and m.id_rinci_sub_bl=%d
-									and m.active=1',
-								$_POST['tahun_anggaran'],
-								$id_rinci
-							)
+								FROM data_mapping_label m
+								LEFT JOIN data_label_komponen l 
+									   ON m.id_label_komponen=l.id
+								WHERE m.tahun_anggaran=%d
+								  AND m.id_rinci_sub_bl=%d
+								  AND m.active=1
+							', $_POST['tahun_anggaran'], $id_rinci)
 						);
-						$sql = $wpdb->prepare(
-							'
-								select 
-									s.nama_dana,
-									s.id_dana as id
-								from data_mapping_sumberdana m
-								left join data_sumber_dana s on m.id_sumber_dana=s.id_dana
-									and s.tahun_anggaran=m.tahun_anggaran
-								where m.tahun_anggaran=%d
-									and m.id_rinci_sub_bl=%d
-									and m.active=1',
-							$_POST['tahun_anggaran'],
-							$id_rinci
-						);
-						// $res['data_sumber_dana_query'] = $sql;
+						$sql = $wpdb->prepare('
+							SELECT 
+								s.nama_dana,
+								s.id_dana as id
+							FROM data_mapping_sumberdana m
+							LEFT JOIN data_sumber_dana s 
+								   ON m.id_sumber_dana=s.id_dana
+								  AND s.tahun_anggaran=m.tahun_anggaran
+							WHERE m.tahun_anggaran=%d
+							  AND m.id_rinci_sub_bl=%d
+							  AND m.active=1
+							', $_POST['tahun_anggaran'], $id_rinci);
 						$res['data_sumber_dana'] = $wpdb->get_results($sql);
+
+						if ($_POST['realisasi_bku'] === 'true') {
+							$res['realisasi_bku'] = $wpdb->get_var(
+								$wpdb->prepare('
+									SELECT SUM(pagu)
+									FROM data_buku_kas_umum_pembantu
+									WHERE tahun_anggaran=%d
+									  AND id_rinci_sub_bl=%d
+									  AND active=1
+								', $_POST['tahun_anggaran'], $id_rinci)
+							);
+						}
 						$ret['data'][] = $res;
 					}
 				} else {
@@ -14390,7 +14393,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	public function get_arsip_label_komponen(){
+	public function get_arsip_label_komponen()
+	{
 		global $wpdb;
 		$ret = array(
 			'action'    => $_POST['action'],
@@ -14402,10 +14406,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (empty($_POST['tahun_anggaran'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'tahun_anggaran tidak boleh kosong!';
-				}else if (empty($_POST['id_label'])) {
+				} else if (empty($_POST['id_label'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'id_label tidak boleh kosong!';
-				}else{
+				} else {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 
 					// get rincian terhapus di arsip
@@ -14437,7 +14441,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 						$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
 
-						if(empty($sub_kegs[$v['kode_sbl']])){
+						if (empty($sub_kegs[$v['kode_sbl']])) {
 							$sub_keg = $wpdb->get_row(
 								$wpdb->prepare("
 									SELECT 
@@ -14457,7 +14461,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								ARRAY_A
 							);
 							$sub_kegs[$v['kode_sbl']] = $sub_keg;
-						}else{
+						} else {
 							$sub_keg = $sub_kegs[$v['kode_sbl']];
 						}
 
@@ -14489,10 +14493,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (empty($_POST['tahun_anggaran'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'tahun_anggaran tidak boleh kosong!';
-				}else if (empty($_POST['kode_sbl'])) {
+				} else if (empty($_POST['kode_sbl'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'kode_sbl tidak boleh kosong!';
-				}else{
+				} else {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$kode_sbl = $_POST['kode_sbl'];
 					$sub_kegs = array();
@@ -14554,7 +14558,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 
 						// mapping_label checkbox
-						if (!empty($_POST['id_label'])){
+						if (!empty($_POST['id_label'])) {
 							$realisasi_rincian = $wpdb->get_var(
 								$wpdb->prepare("
 									SELECT realisasi
@@ -14565,7 +14569,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	                    		", $tahun_anggaran, $v['id_rinci_sub_bl'])
 							);
 							$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
-							
+
 							$rka[$k]['is_checked'] = false;
 							$rka[$k]['checked_pisah'] = false;
 							$rka[$k]['labels'] = array();
@@ -14584,7 +14588,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 							if (!empty($labels)) {
 								foreach ($labels as $val) {
-									if($val['id_label_komponen'] == $_POST['id_label']){
+									if ($val['id_label_komponen'] == $_POST['id_label']) {
 										$rka[$k]['is_checked'] = true;
 									}
 									// Ambil nama label dari tabel data_label_komponen
@@ -14598,7 +14602,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											', $val['id_label_komponen'], $tahun_anggaran),
 										ARRAY_A
 									);
-			
+
 									if ($label) {
 										$detail_label = array(
 											'id_label' => $val['id_label_komponen'],
@@ -14610,8 +14614,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											$detail_label['realisasi'] = $rka[$k]['realisasi_rincian'];
 											$detail_label['pisah'] = false;
 										} else {
-											if ($_POST['id_label'] === $val['id_label_komponen']) {
-												$rka[$k]['checked_pisah'] = true; 
+											if ($rka[$k]['id_rinci_sub_bl'] === $val['id_rinci_sub_bl']) {
+												$rka[$k]['checked_pisah'] = true;
 											}
 											$harga_satuan = ($v['total_harga'] > 0) ? ($v['total_harga'] / $v['volume']) : 0;
 											$detail_label['volume'] = $val['volume_pisah'];

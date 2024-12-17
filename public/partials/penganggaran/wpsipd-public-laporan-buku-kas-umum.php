@@ -236,7 +236,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Rincian Belanja RKA</label>
                                 <div class="col-sm-9">
-                                    <select id="rincian_rka" name="rincian_rka" class="form-control" onchange="set_uraian_bku();">
+                                    <select id="rincian_rka" name="rincian_rka" class="form-control" onchange="set_sisa_pagu_rinci();">
                                         <option value="">Pilih Rincian Belanja</option>
                                     </select>
                                 </div>
@@ -368,6 +368,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
         window.id_skpd = '<?php echo $data_sbl[1]; ?>'
         window.pagu_transaksi = 0;
         window.id_rinci_sub_bl_global = false;
+        window.this_pagu_bku_global = false;
         load_data();
 
         jQuery(document).on('input', '.paguRek', function() {
@@ -502,6 +503,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').show();
                 clearAllFields();
                 toggleFormTunai(true);
+                jQuery('#hasil_bku').text('')
                 jQuery("#modal_tambah_data .modal-title").html("Tambah Pengeluaran Buku Kas Umum Pembantu");
                 jQuery("#nomor_npd_bku").val("<?php echo $data_npd['nomor_npd']; ?>");
                 jQuery('#modal_tambah_data').modal('show');
@@ -546,51 +548,27 @@ $rka = $wpdb->get_results($wpdb->prepare("
             if (kode_rekening == '') {
                 jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(0, true));
                 jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
-                return resolve();
+                return resolve()
             }
-            jQuery('#wrap-loading').show();
-            jQuery.ajax({
-                url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                type: "post",
-                data: {
-                    "action": "get_data_sisa_pagu_per_akun_npd",
-                    "api_key": '<?php echo $api_key; ?>',
-                    "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
-                    "kode_sbl": "<?php echo $input['kode_sbl']; ?>",
-                    "kode_npd": "<?php echo $kode_npd; ?>",
-                    "kode_rekening": kode_rekening,
-                    "id_data": jQuery('#id_data').val()
-                },
-                dataType: "json",
-                success: function(data) {
-                    jQuery('#wrap-loading').hide();
-                    if (data.status == 'success') {
-                        window.sisa_rekening = data.data.pagu_dana_npd - data.data.total_pagu_bku;
-
-                        // jQuery("#sisa_pagu_rekening_bku").html(formatRupiah(sisa_rekening, true));
-                        rka_all.map(function(b, i) {
-                            if (b.kode_akun == kode_rekening) {
-                                var selected = '';
-                                if (b.id_rinci_sub_bl == id_rinci_sub_bl_global) {
-                                    selected = 'selected';
-                                }
-                                opsi_rincian += '<option value="' + b.id_rinci_sub_bl + '" ' + selected + ' nilai="' + b.rincian + '" koefisien="' + b.koefisien + '">' + b.nama_komponen + ' ' + b.spek_komponen + '</option>';
-                            }
-                        });
-                        window.id_rinci_sub_bl_global = false;
-                        jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
-                        resolve()
-                    } else {
-                        jQuery('#wrap-loading').hide();
-                        resolve()
+            rka_all.map(function(b, i) {
+                if (b.kode_akun == kode_rekening) {
+                    var selected = '';
+                    if (b.id_rinci_sub_bl == id_rinci_sub_bl_global) {
+                        selected = 'selected';
                     }
+                    opsi_rincian +=
+                        '<option value="' + b.id_rinci_sub_bl + '" ' + selected + ' nilai="' + b.rincian + '" koefisien="' + b.koefisien + '">' + b.nama_komponen + ' ' + b.spek_komponen + '</option>';
                 }
             });
+            window.id_rinci_sub_bl_global = false;
+            jQuery('#rincian_rka').html(opsi_rincian).trigger('change');
+            resolve()
         });
     }
 
     function submit_data() {
         if (confirm('Apakah anda yakin untuk menyimpan data ini?')) {
+            let confirmUpdateRealisasi = confirm('Apakah anda ingin sekaligus mengupdate data realisasi rincian?')
             const validationRules = {
                 'set_tanggal': 'Tanggal harus diisi!',
                 'uraian_bku': 'Uraian BKU tidak boleh kosong!',
@@ -635,6 +613,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
             tempData.append('tahun_anggaran', '<?php echo $input['tahun_anggaran']; ?>');
             tempData.append('kode_npd', '<?php echo $kode_npd; ?>');
             tempData.append('id_data', id_data);
+            tempData.append('confirm_realisasi', confirmUpdateRealisasi);
 
             for (const [key, value] of Object.entries(data)) {
                 tempData.append(key, value);
@@ -685,8 +664,9 @@ $rka = $wpdb->get_results($wpdb->prepare("
                     success: function(response) {
                         if (response.status == 'success') {
                             jQuery('#id_data').val(response.data.id);
-                            jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
+                            window.this_pagu_bku_global = response.data.pagu;
                             window.id_rinci_sub_bl_global = response.data.id_rinci_sub_bl;
+                            jQuery("#rekening_akun").val(response.data.kode_rekening).trigger('change');
                             jQuery('#nomor_bukti_bku').val(response.data.nomor_bukti);
                             jQuery('#uraian_bku').val(response.data.uraian);
                             jQuery("#set_tanggal").val(response.data.tanggal_bkup);
@@ -714,21 +694,20 @@ $rka = $wpdb->get_results($wpdb->prepare("
                             if (response.data.metode_bku == 'dengan_rumus') {
                                 toggleFormBku(response.data.metode_bku)
                                 jQuery('#pagu_bku').val('').trigger('input');
-                                jQuery('#hasil_bku_asli').val(response.data.pagu)
+                                jQuery('#hasil_bku_asli').val(parseInt(response.data.pagu))
                                 jQuery('#rumus_bku').val(response.data.rumus_pagu).trigger('input')
                             } else if (response.data.metode_bku == 'tanpa_rumus') {
                                 toggleFormBku(response.data.metode_bku)
-                                jQuery('#pagu_bku').val(response.data.pagu).trigger('input');
+                                jQuery('#pagu_bku').val(parseInt(response.data.pagu)).trigger('input');
                                 jQuery('#hasil_bku_asli').val('')
-                                jQuery('#rumus_bku').val('')
+                                jQuery('#rumus_bku').val('').trigger('input')
                             } else {
                                 jQuery("input[name=metode_bku]").prop('checked', false).trigger("change");
                                 jQuery('#pagu_bku').val('').trigger('input');
                                 jQuery('#hasil_bku_asli').val('')
-                                jQuery('#rumus_bku').val('')
+                                jQuery('#rumus_bku').val('').trigger('input')
                             }
                             jQuery('#modal_tambah_data').modal('show');
-
                         } else {
                             alert(response.message);
                             jQuery('#wrap-loading').hide();
@@ -765,7 +744,7 @@ $rka = $wpdb->get_results($wpdb->prepare("
         }
     }
 
-    function set_uraian_bku() {
+    function set_sisa_pagu_rinci() {
         var id_rinci_sub_bl = jQuery('#rincian_rka').val();
         if (id_rinci_sub_bl == '') {
             jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(0, true));
@@ -781,28 +760,36 @@ $rka = $wpdb->get_results($wpdb->prepare("
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'post',
             data: {
-                "action": "get_mapping",
-                "api_key": "<?php echo $api_key; ?>",
-                "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
-                "id_mapping": [id_unik]
+                'action': 'get_mapping',
+                'api_key': '<?php echo $api_key; ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_mapping': [id_unik],
+                'realisasi_bku': true
             },
             dataType: 'json',
             success: function(response) {
                 jQuery('#wrap-loading').hide();
                 var sisa_rincian_asli = 0;
-                var sisa_rincian = 0;
+
                 if (response.status == 'success') {
-                    if (response.data[0]) {
-                        sisa_rincian_asli = nilai - response.data[0].data_realisasi;
-                        if (sisa_rincian_asli > sisa_rekening) {
-                            sisa_rincian = sisa_rekening;
-                        }
+                    var realisasi_bku = parseFloat(response.data[0]?.realisasi_bku) || 0;
+                    var pagu_bku_global = parseFloat(window.this_pagu_bku_global) || 0;
+                    var nilai_fix = parseFloat(nilai) || 0;
+
+                    // Untuk kondisi "edit" ditambahkan this_pagu_bku agar sesuai pagunya
+                    if (response.data[0] && window.this_pagu_bku_global !== false) {
+                        sisa_rincian_asli = nilai_fix - realisasi_bku + pagu_bku_global;
+                    } else {
+                        sisa_rincian_asli = nilai_fix - realisasi_bku;
                     }
+
                     jQuery('#sisa_pagu_rincian_belanja').html(formatRupiah(sisa_rincian_asli, true));
                 } else {
                     alert(`GAGAL! \n${response.message}`);
                 }
+                window.this_pagu_bku_global = false;
             }
+
         });
     }
 

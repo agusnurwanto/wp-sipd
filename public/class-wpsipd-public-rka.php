@@ -2156,8 +2156,8 @@ class Wpsipd_Public_RKA
                             <td class="atas kanan bawah">' . str_replace($rek['kode_akun'] . ' ', '', $rek['nama_akun']) . '</td>
                             <td class="atas kanan bawah text-right">' . number_format($rek['total_harga'], 0, ",", ".") . '</td>
                             <td class="atas kanan bawah text-right">' . number_format($realisasi_sipd, 0, ",", ".") . '</td>
-                            <td class="atas kanan bawah text-right">' . number_format($realisasi_bku_non_panjar, 0, ",", ".") . '</td>
                             <td class="atas kanan bawah text-right">' . number_format($realisasi_bku_panjar, 0, ",", ".") . '</td>
+                            <td class="atas kanan bawah text-right">' . number_format($realisasi_bku_non_panjar, 0, ",", ".") . '</td>
                             <td class="atas kanan bawah text-right">' . number_format($sisa, 0, ",", ".") . '</td>
                         </tr>
                     ';
@@ -2872,7 +2872,6 @@ class Wpsipd_Public_RKA
                     $validationRules['hasil_bku_asli']  = 'required';
                 } else {
                     $validationRules['pagu_bku']  = 'required';
-
                 }
 
                 // Validate data
@@ -2883,7 +2882,7 @@ class Wpsipd_Public_RKA
                     die(json_encode($ret));
                 }
 
-                //Cek nomor npd jika tambah baru
+                //Cek nomor bku jika tambah baru
                 $cek_nomor = $wpdb->get_var(
                     $wpdb->prepare('
                         SELECT nomor_bukti
@@ -2926,7 +2925,7 @@ class Wpsipd_Public_RKA
                         'tipe'                       => 'pengeluaran',
                         'uraian'                     => $postData['uraian_bku'],
                         'pagu'                       => $pagu_bku,
-                        'pagu'                       => $pagu_bku,
+                        'metode_bku'                 => $postData['metode_bku'],
                         'kode_rekening'              => $data_akun['kode_akun'],
                         'nama_rekening'              => $data_akun['nama_akun'],
                         'id_npd'                     => $postData['kode_npd'],
@@ -2941,35 +2940,50 @@ class Wpsipd_Public_RKA
                     );
 
                     if ($postData['metode_bku'] == 'dengan_rumus') {
-                        $input_options['metode_bku'] = $postData['metode_bku'];
                         $input_options['rumus_pagu'] = $postData['rumus_bku'];
-                    } 
+                    }
 
-                    $cek_id = $wpdb->get_var(
+                    $cek_id = $wpdb->get_row(
                         $wpdb->prepare('
-                            SELECT id
+                            SELECT 
+                                id,
+                                pagu
                             FROM data_buku_kas_umum_pembantu
                             WHERE id = %d
-                                AND tahun_anggaran = %d
-                                AND active = 1
-                        ', $postData['id_data'], $postData['tahun_anggaran'])
+                              AND tahun_anggaran = %d
+                              AND active = 1
+                        ', $postData['id_data'], $postData['tahun_anggaran']),
+                        ARRAY_A
                     );
 
                     if (!$cek_id) {
-                        //cek nomor npd
-                        $cek_nomor = $wpdb->get_var(
+                        //validasi nilai
+                        $realisasi_bku = $wpdb->get_var(
                             $wpdb->prepare('
-                                SELECT nomor_bukti
+                                SELECT SUM(pagu)
                                 FROM data_buku_kas_umum_pembantu
-                                WHERE nomor_bukti = %s
-                                  AND tahun_anggaran = %d
-                                  AND active = 1
-                            ', $postData['nomor_bukti_bku'], $postData['tahun_anggaran'])
+                                WHERE tahun_anggaran=%d
+                                  AND id_rinci_sub_bl=%d
+                                  AND active=1
+                            ', $postData['tahun_anggaran'], $postData['rincian_rka'])
                         );
 
-                        if (!empty($cek_nomor)) {
+                        $pagu_rka = $wpdb->get_var(
+                            $wpdb->prepare("
+                                SELECT rincian
+                                FROM data_rka
+                                WHERE active=1
+                                  AND tahun_anggaran=%d
+                                  AND kode_sbl=%s
+                                  AND kode_akun=%s
+                                  AND id_rinci_sub_bl=%d
+                            ", $postData['tahun_anggaran'], $postData['kode_sbl'], $data_akun['kode_akun'], $postData['rincian_rka'])
+                        );
+
+                        $sisa_pagu = $pagu_rka - $realisasi_bku;
+                        if ($input_options['pagu'] > $sisa_pagu) {
                             $ret['status'] = 'error';
-                            $ret['message'] = 'Nomor bukti sudah terpakai!';
+                            $ret['message'] = 'Melebihi sisa pagu rincian!' . ' || ' . 'Sisa Pagu = ' . number_format((float)$sisa_pagu, 0, ',', '.');
                             die(json_encode($ret));
                         }
 
@@ -2980,10 +2994,40 @@ class Wpsipd_Public_RKA
 
                         $ret['message'] = 'Berhasil menambahkan data Buku Kas Umum Pembantu!';
                     } else {
+                        $realisasi_bku = $wpdb->get_var(
+                            $wpdb->prepare('
+                                SELECT SUM(pagu)
+                                FROM data_buku_kas_umum_pembantu
+                                WHERE tahun_anggaran=%d
+                                  AND id_rinci_sub_bl=%d
+                                  AND active=1
+                            ', $postData['tahun_anggaran'], $postData['rincian_rka'])
+                        );
+
+                        $pagu_rka = $wpdb->get_var(
+                            $wpdb->prepare("
+                                SELECT rincian
+                                FROM data_rka
+                                WHERE active=1
+                                  AND tahun_anggaran=%d
+                                  AND kode_sbl=%s
+                                  AND kode_akun=%s
+                                  AND id_rinci_sub_bl=%d
+                            ", $postData['tahun_anggaran'], $postData['kode_sbl'], $data_akun['kode_akun'], $postData['rincian_rka'])
+                        );
+
+                        $sisa_pagu = $pagu_rka - $realisasi_bku;
+                        $sisa_pagu_baru = $sisa_pagu + $cek_id['pagu'];
+                        if ($input_options['pagu'] > $sisa_pagu_baru) {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Melebihi sisa pagu rincian!' . ' || ' . 'Sisa Pagu = ' . number_format((float)$sisa_pagu, 0, ',', '.');
+                            die(json_encode($ret));
+                        }
+
                         $wpdb->update(
                             'data_buku_kas_umum_pembantu',
                             $input_options,
-                            array('id' => $cek_id)
+                            array('id' => $cek_id['id'])
                         );
 
                         $ret['message'] = 'Berhasil update data Buku Kas Umum Pembantu!';
@@ -2994,7 +3038,7 @@ class Wpsipd_Public_RKA
                 }
 
                 // update realisasi rincian belanja
-                if ($ret['status'] != 'error') {
+                if ($ret['status'] != 'error' && $_POST['confirm_realisasi'] === 'true') {
                     $total_rincian_bku = $wpdb->get_var(
                         $wpdb->prepare('
                             SELECT SUM(pagu)
@@ -3004,6 +3048,7 @@ class Wpsipd_Public_RKA
                               AND active = 1
                         ', $postData['rincian_rka'], $postData['tahun_anggaran'])
                     );
+
                     $input_options = array(
                         'id_rinci_sub_bl' => $postData['rincian_rka'],
                         'realisasi'       => $total_rincian_bku,
@@ -3012,11 +3057,10 @@ class Wpsipd_Public_RKA
                         'update_at'       => current_time('mysql'),
                         'tahun_anggaran'  => $postData['tahun_anggaran']
                     );
+
                     $cek_rinci = $wpdb->get_row(
                         $wpdb->prepare('
-                            SELECT
-                                id,
-                                realisasi
+                            SELECT id, realisasi
                             FROM data_realisasi_rincian
                             WHERE id_rinci_sub_bl = %d
                               AND tahun_anggaran = %d
@@ -3024,13 +3068,13 @@ class Wpsipd_Public_RKA
                         ', $postData['rincian_rka'], $postData['tahun_anggaran']),
                         ARRAY_A
                     );
-                    if (!empty($cek_rinci)) {
+
+                    if (empty($cek_rinci)) {
                         $wpdb->insert(
                             'data_realisasi_rincian',
                             $input_options
                         );
                     } else {
-                        $postData['realisasi'] += $cek_rinci['realisasi'];
                         $wpdb->update(
                             'data_realisasi_rincian',
                             $input_options,
@@ -3246,7 +3290,8 @@ class Wpsipd_Public_RKA
                             rnpd.pagu_dana as pagu_dana_npd, 
                             SUM(bku.pagu) as total_pagu_bku
                         FROM data_rekening_nota_pencairan_dana as rnpd
-                        LEFT JOIN data_buku_kas_umum_pembantu as bku ON rnpd.kode_rekening=bku.kode_rekening
+                        LEFT JOIN data_buku_kas_umum_pembantu as bku 
+                               ON rnpd.kode_rekening=bku.kode_rekening
                               AND bku.id_npd=rnpd.id_npd
                               AND bku.tahun_anggaran=rnpd.tahun_anggaran
                               AND bku.active=rnpd.active
@@ -4589,19 +4634,19 @@ class Wpsipd_Public_RKA
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
-                if(empty($_POST['volume'])){
+                if (empty($_POST['volume'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'volume tidak boleh kosong!';
-                }else if(empty($_POST['tahun_anggaran'])){
+                } else if (empty($_POST['tahun_anggaran'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'tahun_anggaran tidak boleh kosong!';
-                }else if(empty($_POST['id_rinci_sub_bl'])){
+                } else if (empty($_POST['id_rinci_sub_bl'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'id_rinci_sub_bl tidak boleh kosong!';
-                }else if(empty($_POST['id_label'])){
+                } else if (empty($_POST['id_label'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'id_label tidak boleh kosong!';
-                }else{
+                } else {
                     $cek_vol_rka = $wpdb->get_var($wpdb->prepare("
                         SELECT
                             volume
@@ -4611,10 +4656,10 @@ class Wpsipd_Public_RKA
                             AND active=1
                     ", $_POST['id_rinci_sub_bl'], $_POST['tahun_anggaran']));
 
-                    if($cek_vol_rka < $_POST['volume']){
+                    if ($cek_vol_rka < $_POST['volume']) {
                         $ret['status'] = 'error';
                         $ret['message'] = 'volume rinican pisah anggaran tidak boleh lebih besar dari volume aslinya!';
-                    }else{
+                    } else {
                         $user_data = wp_get_current_user();
                         $data = array(
                             'volume_pisah'      => $_POST['volume'],
