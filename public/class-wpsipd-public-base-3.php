@@ -10655,12 +10655,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		try {
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-
-					$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
-					if (empty($cek_jadwal['data'])) {
-						throw new Exception("Oops... Jadwal renstra lokal belum dibuka!", 1);
+					if (empty($_POST['id_jadwal'])) {
+						$ret['status'] = 'error';
+						$ret['message'] = 'ID Jadwal tidak boleh kosong!';
 					}
-
 					$filter_renstra = array('id_jadwal' => $_POST['id_jadwal']);
 					$where_skpd = '';
 
@@ -10679,11 +10677,20 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE active=%d $where_skpd
 					", 1), ARRAY_A);
 
+					$data_jadwal_renstra = $wpdb->get_var(
+						$wpdb->prepare('
+							SELECT 
+								tahun_anggaran 
+							FROM data_jadwal_lokal 
+							WHERE id_jadwal_lokal=%d
+						', $_POST['id_jadwal'])
+					);
 					if (!empty($tujuan_lokal)) {
 						foreach ($tujuan_lokal as $tujuan_value) {
 							$data = $tujuan_value;
 							$data['update_at'] = date('Y-m-d H:i:s');
-							$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
+							$data['tahun_anggaran'] = $data_jadwal_renstra;
+							$data['id_jadwal'] = $_POST['id_jadwal'];
 
 							// Hapus data yang tidak diperlukan
 							foreach ($data as $k => $v) {
@@ -10725,7 +10732,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							// Proses data sasaran
 							$wpdb->update('data_renstra_sasaran', array('active' => 0), array(
 								'kode_tujuan' => $tujuan_value['id_unik'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
+								'tahun_anggaran' => $data_jadwal_renstra
 							));
 
 							$sasaran_lokal = $wpdb->get_results($wpdb->prepare("
@@ -10740,7 +10747,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								foreach ($sasaran_lokal as $sasaran_value) {
 									$data = $sasaran_value;
 									$data['update_at'] = date('Y-m-d H:i:s');
-									$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
+									$data['tahun_anggaran'] = $data_jadwal_renstra;
+									$data['id_jadwal'] = $_POST['id_jadwal'];
 
 									foreach ($data as $k => $v) {
 										if (
@@ -10780,7 +10788,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									// Proses data program
 									$wpdb->update('data_renstra_program', array('active' => 0), array(
 										'kode_sasaran' => $sasaran_value['id_unik'],
-										'tahun_anggaran' => $_POST['tahun_anggaran']
+										'tahun_anggaran' => $data_jadwal_renstra
 									));
 
 									$program_lokal = $wpdb->get_results($wpdb->prepare("
@@ -10795,7 +10803,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										foreach ($program_lokal as $program_value) {
 											$data = $program_value;
 											$data['update_at'] = date('Y-m-d H:i:s');
-											$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
+											$data['tahun_anggaran'] = $data_jadwal_renstra;
+											$data['id_jadwal'] = $_POST['id_jadwal'];
 
 											foreach ($data as $k => $v) {
 												if (
@@ -10835,7 +10844,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											// Proses data kegiatan
 											$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
 												'kode_unik_program' => $program_value['id_unik'],
-												'tahun_anggaran' => $_POST['tahun_anggaran']
+												'tahun_anggaran' => $data_jadwal_renstra
 											));
 
 											$kegiatan_lokal = $wpdb->get_results($wpdb->prepare("
@@ -10855,7 +10864,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 													}
 
 													$data['update_at'] = date('Y-m-d H:i:s');
-													$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
+													$data['tahun_anggaran'] = $data_jadwal_renstra;
+													$data['id_jadwal'] = $_POST['id_jadwal'];
 
 													foreach ($data as $k => $v) {
 														if (
@@ -10895,7 +10905,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 													// Proses data sub-kegiatan
 													$wpdb->update('data_renstra_sub_kegiatan', array('active' => 0), array(
 														'kode_kegiatan' => $kegiatan_value['id_unik'],
-														'tahun_anggaran' => $_POST['tahun_anggaran']
+														'tahun_anggaran' => $data_jadwal_renstra
 													));
 
 													$sub_kegiatan_lokal = $wpdb->get_results($wpdb->prepare("
@@ -10910,7 +10920,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 														foreach ($sub_kegiatan_lokal as $sub_kegiatan_value) {
 															$data = $sub_kegiatan_value;
 															$data['update_at'] = date('Y-m-d H:i:s');
-															$data['tahun_anggaran'] = $_POST['tahun_anggaran'];
+															$data['tahun_anggaran'] = $data_jadwal_renstra;
+															$data['id_jadwal'] = $_POST['id_jadwal'];
 
 															foreach ($data as $k => $v) {
 																if (
