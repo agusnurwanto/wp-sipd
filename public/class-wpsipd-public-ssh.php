@@ -2393,23 +2393,28 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$data_satuan = $wpdb->get_results($wpdb->prepare('
-						SELECT 
-							id_satuan,
-							nama_satuan 
+				$data_satuan = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT *
 						FROM data_satuan 
-						WHERE tahun_anggaran = %s
-					', $tahun_anggaran), ARRAY_A);
+						WHERE tahun_anggaran = %d
+					', $tahun_anggaran),
+					ARRAY_A
+				);
 				$no = 0;
 				foreach ($data_satuan as $key => $value) {
 					$no++;
 					$table_content .= '<option value="' . $value['nama_satuan'] . '">' . $value['nama_satuan'] . '</option>';
 				}
 
-				$return = array(
-					'status' => 'success',
-					'table_content' => $table_content
-				);
+				if (!empty($_POST['no_option']) && $_POST['no_option'] == true) {
+					$return['data'] = $data_satuan;
+				} else {
+					$return = array(
+						'status' => 'success',
+						'table_content' => $table_content
+					);
+				}
 			} else {
 				$return = array(
 					'status' => 'error',

@@ -623,6 +623,7 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh',  $plugin_public, 'get_data_usulan_ssh');
 		$this->loader->add_action('wp_ajax_get_data_satuan_ssh',  $plugin_public, 'get_data_satuan_ssh');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_satuan_ssh',  $plugin_public, 'get_data_satuan_ssh');
 		$this->loader->add_action('wp_ajax_get_data_kategori_ssh',  $plugin_public, 'get_data_kategori_ssh');
 		$this->loader->add_action('wp_ajax_get_data_akun_ssh',  $plugin_public, 'get_data_akun_ssh');
 		$this->loader->add_action('wp_ajax_get_data_nama_ssh',  $plugin_public, 'get_data_nama_ssh');
