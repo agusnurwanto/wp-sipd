@@ -868,6 +868,9 @@
         <li class="scroll-to-link" data-target="content-get-capaian-kinerja-by-tahun-anggaran">
             <a>Get Capaian Kinerja & Serapan Anggaran</a>
         </li>
+        <li class="scroll-to-link" data-target="content-get-satuan-by-tahun-anggaran">
+            <a>Get Satuan</a>
+        </li>
         <li class="scroll-to-link" data-target="content-errors">
             <a>Errors</a>
         </li>
@@ -3433,6 +3436,133 @@ Result :
       }
     ]
   }
+}
+                </code>
+            </pre>
+        </div>
+        <div class="overflow-hidden content-section" id="content-get-satuan-by-tahun-anggaran">
+            <h2>GET Data Satuan Berdasarkan Tahun Anggaran</h2>
+            <pre>
+                <code class="bash">
+# Here is a curl example
+curl \
+-X POST <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php \
+-F 'api_key=<?php echo $key; ?>' \
+-F 'action=get_data_satuan_ssh' \
+-F 'tahun_anggaran=2024' \
+-F 'no_option=true' \
+                </code>
+            </pre>
+            <p>
+                Untuk menampilkan semua data Data Satuan Berdasarkan Tahun Anggaran, kamu memerlukan Proses otentikasi dengan melakukan POST pada alamat url :<br>
+                <code class="higlighted break-word">
+                    <?php echo get_site_url(); ?>/wp-admin/admin-ajax.php
+                </code>
+            <h4>QUERY PARAMETERS</h4>
+            <table class="central-overflow-x" style="width:40%">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Keterangan</th>
+                        <th>Dibutuhkan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="font-family:Consolas">
+                                api_key
+                            </span>
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            Kunci API yang telah ditambahkan dan diaktifkan
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            action
+                        </td>
+                        <td>
+                            String
+                        </td>
+                        <td>
+                            get_data_satuan_ssh
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            tahun_anggaran
+                        </td>
+                        <td>
+                            Angka
+                        </td>
+                        <td>
+                            Contoh tahun <b>2024</b> atau <b>2025</b>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            no_option
+                        </td>
+                        <td>
+                            Boolean
+                        </td>
+                        <td>
+                            true
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-danger">
+                                Dibutuhkan
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </p>
+            <pre>
+                <code class="json">
+Result :
+{
+  "status": "success",
+  "data": [
+        {
+        "id": "210",
+        "id_satuan": "1",
+        "nama_satuan": "---",
+        "tahun_anggaran": "2024"
+        },
+        {
+        "id": "211",
+        "id_satuan": "2",
+        "nama_satuan": "%",
+        "tahun_anggaran": "2024"
+        },
+        {
+        "id": "212",
+        "id_satuan": "3",
+        "nama_satuan": "Alat",
+        "tahun_anggaran": "2024"
+        }
+    ]
 }
                 </code>
             </pre>
