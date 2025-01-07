@@ -11629,6 +11629,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$type_indikator = 0;
 				$tahun_sekarang = date('Y');
 				$batas_bulan_input = date('m');
+				//jika tahun berganti, taruh bulan pada desember
+				if ($tahun_anggaran < $tahun_sekarang) {
+					$batas_bulan_input = 12;
+				}
 
 				// sub kegiatan
 				if ($count_kode_sbl == 6) {
@@ -11711,9 +11715,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$rak[$v['bulan']] = 0;
 					}
 					$rak[$v['bulan']] += $v['rak'];
-				}
-				if ($tahun_anggaran < $tahun_sekarang) {
-					$batas_bulan_input = 12;
 				}
 				$total_rak = 0;
 				$total_realisasi = 0;
