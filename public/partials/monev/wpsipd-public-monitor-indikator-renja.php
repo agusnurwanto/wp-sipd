@@ -1598,7 +1598,7 @@ if (
 												<h2 class="font-weight-bolder text-success py-1 m-0">:</h2>
 											</td>
 											<td class="text-end text-right">
-												<h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($data_all['realisasi'] / $data_all['total']) * 100); ?>%</h2>
+												<h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan(($total != 0 ? ($realisasi / $total) * 100 : 0) ?? 0); ?>%</h2>
 											</td>
 										</tr>
 										<tr>
