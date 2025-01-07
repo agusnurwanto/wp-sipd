@@ -104,6 +104,12 @@ $nama_pemda = get_option('_crb_daerah');
 $current_user = wp_get_current_user();
 
 $bulan = date('m');
+$current_year = date('Y');
+
+//jika berganti tahun, bulan akan diset di bulan desember
+if ($input['tahun_anggaran'] < $current_year) {
+    $bulan = 12;
+}
 $subkeg = $wpdb->get_results(
 	$wpdb->prepare("
 		SELECT
@@ -111,9 +117,9 @@ $subkeg = $wpdb->get_results(
 			k.id as id_sub_keg
 		FROM data_sub_keg_bl k
 		WHERE k.tahun_anggaran=%d
-			AND k.active=1
-			AND k.id_sub_skpd=%d
-			AND k.pagu > 0
+		  AND k.active=1
+		  AND k.id_sub_skpd=%d
+		  AND k.pagu > 0
 	ORDER BY k.kode_sub_giat ASC
 	", $input['tahun_anggaran'], $unit[0]['id_skpd']),
 	ARRAY_A
@@ -212,9 +218,9 @@ foreach ($subkeg as $kk => $sub) {
 				bulan 
 			FROM data_rfk 
 			WHERE tahun_anggaran=%d 
-				and id_skpd=%d 
-				and kode_sbl=%s 
-				and bulan<=%d ORDER BY bulan ASC
+			  AND id_skpd=%d 
+			  AND kode_sbl=%s 
+			  AND bulan<=%d ORDER BY bulan ASC
 		", $input['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 	}
 
@@ -229,15 +235,18 @@ foreach ($subkeg as $kk => $sub) {
 	$realisasi_bulan_all = array();
 	foreach ($rfk_all as $k => $v) {
 		// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
+		if ($input['tahun_anggaran'] == $v)
 		if (
 			$v['bulan'] <= $bulan
 			&& empty($v['realisasi_anggaran'])
 			&& !empty($realisasi_bulan_all[$v['bulan'] - 1])
 		) {
 			$v['realisasi_anggaran'] = $realisasi_bulan_all[$v['bulan'] - 1];
-			$wpdb->update('data_rfk', array(
-				'realisasi_anggaran' => $v['realisasi_anggaran']
-			), array('id' => $v['id']));
+			$wpdb->update(
+				'data_rfk',
+				array('realisasi_anggaran' => $v['realisasi_anggaran']),
+				array('id' => $v['id'])
+			);
 		}
 		$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
 		$rak_bulan_all[$v['bulan']] = $v['rak'];
@@ -296,10 +305,20 @@ foreach ($subkeg as $kk => $sub) {
 
 	//program
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
-		$capaian_prog = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$capaian_prog = $wpdb->get_results(
+			$wpdb->prepare("
+			SELECT * 
+			FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']),
+			ARRAY_A
+		);
 
 		$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results(
+			$wpdb->prepare("
+			SELECT * 
+			FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 3, $kode_sbl),
+			ARRAY_A
+		);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 			'nama'				   => $sub['nama_program'],
 			'indikator' 		   => $capaian_prog,
@@ -324,10 +343,29 @@ foreach ($subkeg as $kk => $sub) {
 	}
 	//kegiatan
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
-		$output_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_output_giat_sub_keg WHERE tahun_anggaran=%d AND kode_sbl=%s AND active=1 ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$output_giat = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_output_giat_sub_keg 
+				WHERE tahun_anggaran=%d 
+				  AND kode_sbl=%s 
+				  AND active=1 
+				ORDER BY id ASC 
+			", $input['tahun_anggaran'], $sub['kode_sbl']),
+			ARRAY_A
+		);
 
 		$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2] . '.' . $kode_sbl_s[3];
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 2, $kode_sbl), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_realisasi_renja 
+				WHERE tahun_anggaran=%d 
+				  AND tipe_indikator=%d 
+				  AND kode_sbl=%s 
+			", $input['tahun_anggaran'], 2, $kode_sbl),
+			ARRAY_A
+		);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 			'nama'					=> $sub['nama_giat'],
 			'indikator' 			=> $output_giat,
@@ -348,9 +386,28 @@ foreach ($subkeg as $kk => $sub) {
 	}
 	//subkegiatan
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
-		$output_sub_giat = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_sub_keg_indikator WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s ORDER BY id DESC ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+		$output_sub_giat = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_sub_keg_indikator 
+				WHERE tahun_anggaran=%d 
+				  AND active=1 
+				  AND kode_sbl=%s 
+				ORDER BY id DESC 
+			", $input['tahun_anggaran'], $sub['kode_sbl']),
+			ARRAY_A
+		);
 
-		$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 1, $sub['kode_sbl']), ARRAY_A);
+		$realisasi_renja = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_realisasi_renja 
+				WHERE tahun_anggaran=%d 
+				  AND tipe_indikator=%d 
+				  AND kode_sbl=%s 
+			", $input['tahun_anggaran'], 1, $sub['kode_sbl']),
+			ARRAY_A
+		);
 		$nama = explode(' ', $sub['nama_sub_giat']);
 		unset($nama[0]);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
@@ -446,7 +503,17 @@ if (!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])) {
 	$persen_triwulan_4 = ($data_all['triwulan_4'] / $data_all['rak_triwulan_4']) * 100;
 }
 
-$renstra_program = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_program WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_program = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_renstra_program 
+		WHERE id_jadwal=%d 
+		  AND tahun_anggaran=%d 
+		  AND active=1 
+		  AND id_unit=%d
+	", $data_jadwal_renstra['id_jadwal_lokal'], $input['tahun_anggaran'], $unit[0]['id_unit']),
+	ARRAY_A
+);
 $renstra_program_id = array();
 $renstra_program_kode = array();
 foreach ($renstra_program as $prog) {
@@ -458,7 +525,17 @@ foreach ($renstra_program as $prog) {
 	$renstra_program_kode[$kode] = $renstra_program_id[$prog['id_program']];
 }
 
-$renstra_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_kegiatan WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_keg = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_renstra_kegiatan 
+		WHERE id_jadwal=%d 
+		  AND tahun_anggaran=%d 
+		  AND active=1 
+		  AND id_unit=%d
+	", $data_jadwal_renstra['id_jadwal_lokal'], $input['tahun_anggaran'], $unit[0]['id_unit']),
+	ARRAY_A
+);
 $renstra_keg_id = array();
 $renstra_keg_kode = array();
 foreach ($renstra_keg as $giat) {
@@ -470,7 +547,17 @@ foreach ($renstra_keg as $giat) {
 	$renstra_keg_kode[$kode] = $renstra_keg_id[$giat['id_giat']];
 }
 
-$renstra_sub_keg = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_renstra_sub_kegiatan WHERE id_jadwal=%d AND active=1 AND id_unit=%d ", $data_jadwal_renstra['id_jadwal_lokal'], $unit[0]['id_unit']), ARRAY_A);
+$renstra_sub_keg = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_renstra_sub_kegiatan 
+		WHERE id_jadwal=%d 
+		  AND tahun_anggaran=%d 
+		  AND active=1 
+		  AND id_unit=%d 
+	", $data_jadwal_renstra['id_jadwal_lokal'], $input['tahun_anggaran'], $unit[0]['id_unit']),
+	ARRAY_A
+);
 $renstra_sub_keg_id = array();
 $renstra_sub_keg_kode = array();
 foreach ($renstra_sub_keg as $sub_giat) {
@@ -1155,16 +1242,16 @@ foreach ($data_all_js as $k => $v) {
 	foreach ($v['bobot_kinerja_indikator'] as $kk => $vv) {
 		$result_by_bobot = $v['realisasi_indikator_1'][$kk] * $vv;
 		$total_realisasi_tw1 += $result_by_bobot;
-		
+
 		$result_by_bobot = $v['realisasi_indikator_2'][$kk] * $vv;
 		$total_realisasi_tw2 += $result_by_bobot;
-		
+
 		$result_by_bobot = $v['realisasi_indikator_3'][$kk] * $vv;
 		$total_realisasi_tw3 += $result_by_bobot;
-		
+
 		$result_by_bobot = $v['realisasi_indikator_4'][$kk] * $vv;
 		$total_realisasi_tw4 += $result_by_bobot;
-			
+
 		$capaian_per_program = $v['realisasi_indikator'][$kk] * $vv;
 
 		$total_capaian += $capaian_per_program; //capaian per program diakumulasi untuk dibagi akumulasi bobot
@@ -1175,33 +1262,33 @@ foreach ($data_all_js as $k => $v) {
 $capaian_kinerja['total'] = $total_bobot > 0 ? $total_capaian / $total_bobot : 0;
 
 if (
-	!empty($total_realisasi_tw1) 
-	&& $total_realisasi_tw1 != 0 
-	&& !empty($capaian_kinerja['total']) 
+	!empty($total_realisasi_tw1)
+	&& $total_realisasi_tw1 != 0
+	&& !empty($capaian_kinerja['total'])
 	&& $capaian_kinerja['total'] != 0
 ) {
 	$capaian_kinerja['tw_1'] = $total_realisasi_tw1 / $total_bobot;
 }
 if (
-	!empty($total_realisasi_tw2) 
-	&& $total_realisasi_tw2 != 0 
-	&& !empty($capaian_kinerja['total']) 
+	!empty($total_realisasi_tw2)
+	&& $total_realisasi_tw2 != 0
+	&& !empty($capaian_kinerja['total'])
 	&& $capaian_kinerja['total'] != 0
 ) {
 	$capaian_kinerja['tw_2'] = $total_realisasi_tw2 / $total_bobot;
 }
 if (
-	!empty($total_realisasi_tw3) 
-	&& $total_realisasi_tw3 != 0 
-	&& !empty($capaian_kinerja['total']) 
+	!empty($total_realisasi_tw3)
+	&& $total_realisasi_tw3 != 0
+	&& !empty($capaian_kinerja['total'])
 	&& $capaian_kinerja['total'] != 0
 ) {
 	$capaian_kinerja['tw_3'] = $total_realisasi_tw3 / $total_bobot;
 }
 if (
-	!empty($total_realisasi_tw4) 
-	&& $total_realisasi_tw4 != 0 
-	&& !empty($capaian_kinerja['total']) 
+	!empty($total_realisasi_tw4)
+	&& $total_realisasi_tw4 != 0
+	&& !empty($capaian_kinerja['total'])
 	&& $capaian_kinerja['total'] != 0
 ) {
 	$capaian_kinerja['tw_4'] = $total_realisasi_tw4 / $total_bobot;
