@@ -9513,14 +9513,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				|| !empty($daftar_tombol_list[5])
 			) {
 				$month = date('m');
-				$triwulan = floor($month / 3);
-				$notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan ' . $triwulan . '</b>.<br>Jaga kesehatan & semangat!</h5>';
-				if ($month % 3 == 1) {
-					if ($triwulan == 0) {
-						$triwulan = 4;
-					}
-					echo $notif;
+				$year = date('Y');
+				if($_GET['tahun'] + 1 == $year){
+					$month = 13;
 				}
+				$triwulan = floor($month / 3);
+				if ($month % 3 == 1 && $triwulan > 0) {
+				    $notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan ' . $triwulan . '</b>.<br>Jaga kesehatan & semangat!</h5>';
+				    echo $notif;
+				}
+
 			}
 			$nipkepala = get_user_meta($user_id, '_nip');
 			$skpd_db = $wpdb->get_results($wpdb->prepare("
