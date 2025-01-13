@@ -12040,7 +12040,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['update_verifikator_at'] = $data['update_verifikator_at'];
 				} else {
 					$file_name = ((int) $_POST['triwulan']) . '.' . ((int) $_POST['tahun_anggaran']) . '.' . ((int) $_POST['id_skpd']) . '.MONEV_RENJA.xlsx';
-					$target_folder = plugin_dir_path(dirname(__FILE__)) . 'public/media/';
+					$target_folder = WPSIPD_PLUGIN_PATH . 'public/media/';
 					$target_file = $target_folder . $file_name;
 					if (!empty($_POST['file_remove']) && $_POST['file_remove'] == 1) {
 						$ret['message'] = 'Berhasil hapus file ' . $file_name . '!';
