@@ -1907,7 +1907,7 @@ $monev_triwulan_all = array(
 	'4' => array('file_monev' => $upload_monev, 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => '')
 );
 foreach ($monev_triwulan as $k => $v) {
-	$monev_triwulan_all[$v['triwulan']]['file_monev'] .= '<div style="padding-top: 10px;"><a class="file_monev" href="' . esc_url(plugin_dir_url(__DIR__) . 'media/' . $v['file_monev']) . '" target="_blank">' . $v['file_monev'] . '</a></div>';
+	$monev_triwulan_all[$v['triwulan']]['file_monev'] .= '<div style="padding-top: 10px;"><a class="file_monev" href="' . WPSIPD_PLUGIN_URL . 'public/media/' . $v['file_monev'] . '" target="_blank">' . $v['file_monev'] . '</a></div>';
 	$monev_triwulan_all[$v['triwulan']]['keterangan_skpd'] = $v['keterangan_skpd'];
 	$monev_triwulan_all[$v['triwulan']]['catatan_verifikator'] = $v['catatan_verifikator'];
 	$monev_triwulan_all[$v['triwulan']]['update_verifikator_at'] = $v['update_verifikator_at'];
