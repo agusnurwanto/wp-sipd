@@ -6710,7 +6710,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(empty($_POST['jenis']) || empty($_POST['id_skpd'])){
 						throw new Exception("Ada Parameter Post Yang Kosong!", 1);
 					}
-
 					$jenis = $_POST['jenis'];
 					if($jenis == 'tujuan'){
 						if(empty($_POST['id_jadwal'])){
@@ -6778,26 +6777,38 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['tahun_anggaran'])){
 							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
-						$data_program_renstra = $wpdb->get_results($wpdb->prepare(
-							"
-							SELECT 
-								* 
-							FROM 
-								data_sub_keg_bl 
-							WHERE
-								id_sub_skpd=%d AND 
-								active=1 AND 
-								tahun_anggaran=%d 
-							GROUP BY 
-								kode_program 
-							ORDER BY 
-								kode_program",
-								$_POST['id_skpd'], $_POST['tahun_anggaran']
+						$skpd = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT 
+									*
+								FROM data_unit
+								WHERE id_unit = %d
+								  AND active = 1
+								  AND tahun_anggaran = %d
+							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+						$id_skpd = array();
+						foreach ($skpd as $v) {
+							$id_skpd[] = $v['id_skpd'];
+						}
+						$data_program_renstra = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_sub_keg_bl 
+								WHERE id_sub_skpd IN (". implode(',',$id_skpd).") 
+								  AND active=1 
+								  AND tahun_anggaran=%d 
+								GROUP BY kode_program 
+								ORDER BY kode_program
+							", $_POST['tahun_anggaran']
 						), ARRAY_A);
 		
 						if(!empty($data_program_renstra)){
 							$ret['data'] = $data_program_renstra;
 							$ret['message'] = 'Berhasil get program renja!';
+							$ret['sql'] = $wpdb->last_query;
 						}
 					}else if($jenis == 'kegiatan_renstra'){
 						if(empty($_POST['id_jadwal'])){
@@ -6830,23 +6841,35 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['tahun_anggaran'])){
 							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
-						$data_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
-							"
-							SELECT 
-								* 
-							FROM 
-								data_sub_keg_bl 
-							WHERE
-								id_sub_skpd=%d AND 
-								active=1 AND 
-								tahun_anggaran=%d AND
-								kode_program=%s
-							GROUP BY 
-								kode_giat 
-							ORDER BY 
-								kode_giat",
-								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']
-						), ARRAY_A);
+						$skpd = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT 
+									*
+								FROM data_unit
+								WHERE id_unit = %d
+								  AND active = 1
+								  AND tahun_anggaran = %d
+							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+						$id_skpd = array();
+						foreach ($skpd as $v) {
+							$id_skpd[] = $v['id_skpd'];
+						}
+						$data_kegiatan_renja = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_sub_keg_bl 
+								WHERE id_sub_skpd IN (". implode(',',$id_skpd).") 
+								  AND active=1 
+								  AND tahun_anggaran=%d 
+								  AND kode_program=%s
+								GROUP BY kode_giat 
+								ORDER BY kode_giat
+							", $_POST['tahun_anggaran'], $_POST['parent_cascading']),
+							ARRAY_A
+						);
 		
 						if(!empty($data_kegiatan_renja)){
 							$ret['data'] = $data_kegiatan_renja;
@@ -6883,6 +6906,21 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['tahun_anggaran'])){
 							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
+						$skpd = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT 
+									*
+								FROM data_unit
+								WHERE id_unit = %d
+								  AND active = 1
+								  AND tahun_anggaran = %d
+							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+						$id_skpd = array();
+						foreach ($skpd as $v) {
+							$id_skpd[] = $v['id_skpd'];
+						}
 						$data_sub_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
 							"
 							SELECT 
@@ -6890,7 +6928,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							FROM 
 								data_sub_keg_bl 
 							WHERE
-								id_sub_skpd=%d AND 
+								id_sub_skpd IN (". implode(',',$id_skpd).") AND 
 								active=1 AND 
 								tahun_anggaran=%d AND
 								kode_giat=%s
@@ -6898,7 +6936,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								kode_sub_giat 
 							ORDER BY 
 								kode_sub_giat",
-								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']
+								$_POST['tahun_anggaran'], $_POST['parent_cascading']
 						), ARRAY_A);
 		
 						if(!empty($data_sub_kegiatan_renja)){
