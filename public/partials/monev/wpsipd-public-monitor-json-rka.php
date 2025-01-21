@@ -350,6 +350,57 @@ echo '
 <button class="btn btn-primary" style="margin: 0 0 10px; display: none;" id="json_rek_p3dn_excel" onclick="tableHtmlToExcel(\'json_rek_p3dn\', \'Data P3DN\');">Download Excel</button>
 <div id="json_rek_p3dn" style="overflow: auto; max-height: 100vh;"></div>
 <pre>'.$sql_anggaran.'</pre>';
+
+$sql_anggaran_kas = $wpdb->prepare("
+    SELECT 
+        (
+            SELECT 
+                nama_bidang_urusan
+            from data_prog_keg
+            where tahun_anggaran=k.tahun_anggaran
+                and active=1
+                AND id_bidang_urusan=k.id_bidang_urusan
+            LIMIT 1
+        ) as bidang_urusan,
+        k.id_sub_skpd,
+        k.id_bidang_urusan,
+        u.nama_skpd,
+        u.kode_skpd,
+        sum(k.bulan_1) as bulan_1,
+        sum(k.bulan_2) as bulan_2,
+        sum(k.bulan_3) as bulan_3,
+        sum(k.bulan_4) as bulan_4,
+        sum(k.bulan_5) as bulan_5,
+        sum(k.bulan_6) as bulan_6,
+        sum(k.bulan_7) as bulan_7,
+        sum(k.bulan_8) as bulan_8,
+        sum(k.bulan_9) as bulan_9,
+        sum(k.bulan_10) as bulan_10,
+        sum(k.bulan_11) as bulan_11,
+        sum(k.bulan_12) as bulan_12,
+        (sum(k.bulan_1) + sum(k.bulan_2) + sum(k.bulan_3)) as tw_1,
+        (sum(k.bulan_4) + sum(k.bulan_5) + sum(k.bulan_6)) as tw_2,
+        (sum(k.bulan_7) + sum(k.bulan_8) + sum(k.bulan_9)) as tw_3,
+        (sum(k.bulan_10) + sum(k.bulan_11) + sum(k.bulan_12)) as tw_4,
+        (sum(k.bulan_1) + sum(k.bulan_2) + sum(k.bulan_3) + sum(k.bulan_4) + sum(k.bulan_5) + sum(k.bulan_6) + sum(k.bulan_7) + sum(k.bulan_8)  + sum(k.bulan_9)  + sum(k.bulan_10) + sum(k.bulan_11) + sum(k.bulan_12)) as total
+    from data_anggaran_kas k
+    inner join data_unit u on k.id_sub_skpd=u.id_skpd
+        and u.tahun_anggaran=k.tahun_anggaran
+        and u.active=1
+    where k.tahun_anggaran=%d
+        and k.active=1
+        and k.type='belanja'
+        and k.id_sub_skpd IN ($input[id_skpd])
+    group by k.id_bidang_urusan, k.id_sub_skpd
+    order by k.id_bidang_urusan, k.id_sub_skpd ASC
+    ",$input["tahun_anggaran"]);
+
+echo '
+<h2>SQL untuk select anggaran kas (RAK)</h2>
+<button onclick="get_data('.$input['tahun_anggaran'].', \''.$input['id_skpd'].'\', \'json_rek_rak\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button class="btn btn-primary" style="margin: 0 0 10px; display: none;" id="json_rek_rak_excel" onclick="tableHtmlToExcel(\'json_rek_rak\', \'Data P3DN\');">Download Excel</button>
+<div id="json_rek_rak" style="overflow: auto; max-height: 100vh;"></div>
+<pre>'.$sql_anggaran_kas.'</pre>';
 ?>
 <script type="text/javascript">
     function get_data(tahun_anggaran, id_unit, tipe){
@@ -468,6 +519,60 @@ echo '
                         +'</table>';
                     jQuery('#json_rek_p3dn').html(html);
                     jQuery('#json_rek_p3dn_excel').show();
+                }else if(tipe == 'json_rek_rak'){
+                    ret.data.map(function(b, i){
+                        html_data += ''
+                            +'<tr>'
+                                +'<td>'+b.bidang_urusan+'</td>'
+                                +'<td>'+b.kode_skpd+' '+b.nama_skpd+'</td>'
+                                +'<td class="text-right">'+b.bulan_1+'</td>'
+                                +'<td class="text-right">'+b.bulan_2+'</td>'
+                                +'<td class="text-right">'+b.bulan_3+'</td>'
+                                +'<td class="text-right">'+b.bulan_4+'</td>'
+                                +'<td class="text-right">'+b.bulan_5+'</td>'
+                                +'<td class="text-right">'+b.bulan_6+'</td>'
+                                +'<td class="text-right">'+b.bulan_7+'</td>'
+                                +'<td class="text-right">'+b.bulan_8+'</td>'
+                                +'<td class="text-right">'+b.bulan_9+'</td>'
+                                +'<td class="text-right">'+b.bulan_10+'</td>'
+                                +'<td class="text-right">'+b.bulan_11+'</td>'
+                                +'<td class="text-right">'+b.bulan_12+'</td>'
+                                +'<td class="text-right">'+b.tw_1+'</td>'
+                                +'<td class="text-right">'+b.tw_2+'</td>'
+                                +'<td class="text-right">'+b.tw_3+'</td>'
+                                +'<td class="text-right">'+b.tw_4+'</td>'
+                                +'<td class="text-right">'+b.total+'</td>'
+                            +'</tr>';
+                    });
+                    var html = ''
+                        +'<table class="table table-bordered">'
+                            +'<thead>'
+                                +'<tr>'
+                                    +'<th>Bidang Urusan</th>'
+                                    +'<th>OPD</th>'
+                                    +'<th>Bulan 1</th>'
+                                    +'<th>Bulan 2</th>'
+                                    +'<th>Bulan 3</th>'
+                                    +'<th>Bulan 4</th>'
+                                    +'<th>Bulan 5</th>'
+                                    +'<th>Bulan 6</th>'
+                                    +'<th>Bulan 7</th>'
+                                    +'<th>Bulan 8</th>'
+                                    +'<th>Bulan 9</th>'
+                                    +'<th>Bulan 10</th>'
+                                    +'<th>Bulan 11</th>'
+                                    +'<th>Bulan 12</th>'
+                                    +'<th>Triwulan 1</th>'
+                                    +'<th>Triwulan 2</th>'
+                                    +'<th>Triwulan 3</th>'
+                                    +'<th>Triwulan 4</th>'
+                                    +'<th>Total</th>'
+                                +'</tr>'
+                            +'</thead>'
+                            +'<tbody>'+html_data+'</tbody>'
+                        +'</table>';
+                    jQuery('#json_rek_rak').html(html);
+                    jQuery('#json_rek_rak_excel').show();
                 }
                 alert(ret.message);
                 jQuery('#wrap-loading').hide();

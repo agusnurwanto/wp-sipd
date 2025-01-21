@@ -22959,6 +22959,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
 					    ", $_POST["tahun_anggaran"]);
 					$return['data'] = $wpdb->get_results($sql_anggaran, ARRAY_A);
+				}else if ($_POST['tipe'] == 'json_rek_rak') {
+					$sql_anggaran = $wpdb->prepare("
+					    SELECT 
+					        (
+					            SELECT 
+					                nama_bidang_urusan
+					            from data_prog_keg
+					            where tahun_anggaran=k.tahun_anggaran
+					                and active=1
+					                AND id_bidang_urusan=k.id_bidang_urusan
+					            LIMIT 1
+					        ) as bidang_urusan,
+					        k.id_sub_skpd,
+					        k.id_bidang_urusan,
+					        u.nama_skpd,
+					        u.kode_skpd,
+					        sum(k.bulan_1) as bulan_1,
+					        sum(k.bulan_2) as bulan_2,
+					        sum(k.bulan_3) as bulan_3,
+					        sum(k.bulan_4) as bulan_4,
+					        sum(k.bulan_5) as bulan_5,
+					        sum(k.bulan_6) as bulan_6,
+					        sum(k.bulan_7) as bulan_7,
+					        sum(k.bulan_8) as bulan_8,
+					        sum(k.bulan_9) as bulan_9,
+					        sum(k.bulan_10) as bulan_10,
+					        sum(k.bulan_11) as bulan_11,
+					        sum(k.bulan_12) as bulan_12,
+					        (sum(k.bulan_1) + sum(k.bulan_2) + sum(k.bulan_3)) as tw_1,
+					        (sum(k.bulan_4) + sum(k.bulan_5) + sum(k.bulan_6)) as tw_2,
+					        (sum(k.bulan_7) + sum(k.bulan_8) + sum(k.bulan_9)) as tw_3,
+					        (sum(k.bulan_10) + sum(k.bulan_11) + sum(k.bulan_12)) as tw_4,
+					        (sum(k.bulan_1) + sum(k.bulan_2) + sum(k.bulan_3) + sum(k.bulan_4) + sum(k.bulan_5) + sum(k.bulan_6) + sum(k.bulan_7) + sum(k.bulan_8)  + sum(k.bulan_9)  + sum(k.bulan_10) + sum(k.bulan_11) + sum(k.bulan_12)) as total
+					    from data_anggaran_kas k
+					    inner join data_unit u on k.id_sub_skpd=u.id_skpd
+					        and u.tahun_anggaran=k.tahun_anggaran
+					        and u.active=1
+					    where k.tahun_anggaran=%d
+					        and k.active=1
+					        and k.type='belanja'
+					        and k.id_sub_skpd IN ($input[id_skpd])
+					    group by k.id_bidang_urusan, k.id_sub_skpd
+					    order by k.id_bidang_urusan, k.id_sub_skpd ASC
+					    ", $_POST["tahun_anggaran"]);
+					$return['data'] = $wpdb->get_results($sql_anggaran, ARRAY_A);
 				} else if ($_POST['tipe'] == 'json_rek_p3dn') {
 					$sql_anggaran = $wpdb->prepare("
 					    SELECT 
