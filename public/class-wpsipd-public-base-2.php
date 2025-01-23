@@ -6795,12 +6795,17 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_program_renstra = $wpdb->get_results(
 							$wpdb->prepare("
 								SELECT 
-									* 
+									kode_program,
+									nama_program,
+									kode_sub_skpd,
+									nama_sub_skpd,
+									id_sub_skpd,
+									SUM(pagu) as pagu 
 								FROM data_sub_keg_bl 
 								WHERE id_sub_skpd IN (". implode(',',$id_skpd).") 
 								  AND active=1 
 								  AND tahun_anggaran=%d 
-								GROUP BY kode_program 
+								GROUP BY kode_program, id_sub_skpd  
 								ORDER BY kode_program
 							", $_POST['tahun_anggaran']
 						), ARRAY_A);
@@ -6841,33 +6846,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['tahun_anggaran'])){
 							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
-						$skpd = $wpdb->get_results(
-							$wpdb->prepare('
-								SELECT 
-									*
-								FROM data_unit
-								WHERE id_unit = %d
-								  AND active = 1
-								  AND tahun_anggaran = %d
-							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-						$id_skpd = array();
-						foreach ($skpd as $v) {
-							$id_skpd[] = $v['id_skpd'];
-						}
+
 						$data_kegiatan_renja = $wpdb->get_results(
 							$wpdb->prepare("
 								SELECT 
-									* 
+									kode_giat,
+									nama_giat,
+									kode_sub_skpd,
+									nama_sub_skpd,
+									id_sub_skpd,
+									SUM(pagu) as pagu 
 								FROM data_sub_keg_bl 
-								WHERE id_sub_skpd IN (". implode(',',$id_skpd).") 
+								WHERE id_sub_skpd=%d 
 								  AND active=1 
 								  AND tahun_anggaran=%d 
 								  AND kode_program=%s
-								GROUP BY kode_giat 
+								GROUP BY kode_giat, id_sub_skpd 
 								ORDER BY kode_giat
-							", $_POST['tahun_anggaran'], $_POST['parent_cascading']),
+							", $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']),
 							ARRAY_A
 						);
 		
@@ -6906,21 +6902,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(empty($_POST['tahun_anggaran'])){
 							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
 						}
-						$skpd = $wpdb->get_results(
-							$wpdb->prepare('
-								SELECT 
-									*
-								FROM data_unit
-								WHERE id_unit = %d
-								  AND active = 1
-								  AND tahun_anggaran = %d
-							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-						$id_skpd = array();
-						foreach ($skpd as $v) {
-							$id_skpd[] = $v['id_skpd'];
-						}
+
 						$data_sub_kegiatan_renja = $wpdb->get_results($wpdb->prepare(
 							"
 							SELECT 
@@ -6928,15 +6910,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							FROM 
 								data_sub_keg_bl 
 							WHERE
-								id_sub_skpd IN (". implode(',',$id_skpd).") AND 
+								id_sub_skpd=%d AND 
 								active=1 AND 
 								tahun_anggaran=%d AND
 								kode_giat=%s
-							GROUP BY 
-								kode_sub_giat 
 							ORDER BY 
-								kode_sub_giat",
-								$_POST['tahun_anggaran'], $_POST['parent_cascading']
+								kode_sbl",
+								$_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']
 						), ARRAY_A);
 		
 						if(!empty($data_sub_kegiatan_renja)){
