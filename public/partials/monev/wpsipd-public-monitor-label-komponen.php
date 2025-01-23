@@ -636,6 +636,9 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                     <td class="atas kanan bawah kiri text-left" colspan="3"><?php echo $label_db['keterangan']; ?></td>
                 </tr>
             </tbody>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        </table>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
                     <th class="atas kanan bawah kiri text_tengah">Rencana Pagu</th>
@@ -1195,7 +1198,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         ${formatRupiah(rinci.total_harga)}
                                                     </td>
                                                     <td class="text-right rinci-total bg-light text-dark">
-                                                        <input type="number" class="form-control" style="text-align:right" value="${realisasiValue}" id="realisasiRincian${rinci.id_rinci_sub_bl}">
+                                                        <input type="number" class="form-control" style="text-align:right" value="${realisasiValue}" id="realisasiRincian${rinci.id_rinci_sub_bl}" min="0" oninput="if (this.value < 0) this.value = 0;">
                                                     </td>
                                                     <td class="text-center rinci-total bg-light text-dark">
                                                         <button class="btn btn-sm btn-primary me-2" onclick="simpanRealisasi(${rinci.id_rinci_sub_bl})" title="Simpan Realisasi Belanja">
@@ -1263,10 +1266,15 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         const anggaranElement = jQuery(`#anggaranPisah${idRinciSubBl}`);
 
         // Ambil nilai volume yang diinputkan
-        const volume = parseFloat(volumeElement.val()) || 0;
-        if(volume > totalVolume){
+        let volume = parseFloat(volumeElement.val());
+
+        if (volume > totalVolume) {
             alert('Volume rincian pisah anggaran tidak boleh lebih besar dari volume aslinya!');
-            return volumeElement.val(totalVolume);            
+            volume = totalVolume;
+            volumeElement.val(volume); 
+        } else if (volume < 0 || isNaN(volume)) {
+            volume = 0;
+            volumeElement.val(volume);
         }
 
         // Hitung anggaran berdasarkan volume yang diinputkan
@@ -1276,7 +1284,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         // Tampilkan anggaran yang diperbarui
         anggaranElement.text(new Intl.NumberFormat("id-ID").format(anggaran));
     }
-
 
 
     function showModalTambah() {
