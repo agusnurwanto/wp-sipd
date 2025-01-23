@@ -5647,7 +5647,7 @@ CREATE TABLE `data_sp2d_sipd_detail_potongan` (
   `id` int(11) NOT NULL auto_increment,
   `id_sp_2_d`  int(11) DEFAULT NULL,
   `id_skpd`  int(11) DEFAULT NULL,
-  `id_billing`  int(11) DEFAULT NULL,
+  `id_billing`  VARCHAR(50) DEFAULT NULL,
   `id_pajak_potongan`  int(11) DEFAULT NULL,
   `nama_pajak_potongan` text DEFAULT NULL,
   `nilai_sp2d_pajak_potongan` double(20,2) DEFAULT NULL,

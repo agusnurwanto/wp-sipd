@@ -166,9 +166,12 @@ if(!empty($data_anggaran)){
 }
 
 ?>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Rencana Anggaran Kas Data SIPD <br><?php echo $nama_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
-<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; max-height: 80vh;">
-	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+<h2 style="text-align: center; margin: 0; font-weight: bold;">Rencana Anggaran Kas Data SIPD <br><?php echo $nama_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h2>
+<div style="margin: 20px auto;" class="text-center">
+    <button class="btn btn-primary" onclick="tableHtmlToExcel('table_data_rak');">Download Excel</button>
+</div>
+<div id="cetak" title="Laporan MONEV RAK" style="padding: 5px; overflow: auto; max-height: 80vh;">
+	<table cellpadding="2" cellspacing="0" id="table_data_rak" contenteditable="false">
 		<thead>
 			<tr>
 				<th style="width: 35px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
