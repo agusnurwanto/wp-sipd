@@ -117,6 +117,13 @@ tfoot {
     border: 0;
 }
 
+.borderless-table,
+.borderless-table tr,
+.borderless-table td,
+.borderless-table th {
+    border: 0;
+}
+
 .no-padding td,
 .no-padding th {
     border: 0;

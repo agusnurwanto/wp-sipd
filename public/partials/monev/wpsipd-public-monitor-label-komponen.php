@@ -404,6 +404,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
                         </tr>
                     ';
+                    $_POST['tahun_anggaran'] = $input['tahun_anggaran'];
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
@@ -537,6 +538,13 @@ $style_color = '';
 if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
     $style_color = 'background-color : #FFADAD;';
 }
+
+$cetak_laporan_page = $this->generatePage(
+    'Cetak Laporan Program Kegiatan | Label Komponen',
+    $input['tahun_anggaran'],
+    '[cetak_label_komponen_program_kegiatan id_label="' . $input['id_label'] . '" tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
+    false
+);
 ?>
 <style>
     .detail-row th {
@@ -897,8 +905,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         <li><strong>Navigasi Halaman:</strong> Tombol <b>Halaman Monev Pergeseran</b> dan <b>Halaman Monev Murni</b> disediakan sebagai navigasi antar halaman. Secara default, halaman murni yang akan ditampilkan.</li>
     </ul>
 </div>
-
-
 <script type="text/javascript">
     jQuery(document).ready(() => {
         run_download_excel('apbd');
@@ -910,8 +916,11 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         var type = url.searchParams.get("type");
         var id_skpd = url.searchParams.get("id_skpd");
 
+        let cetakProgramKegiatanPage = '<?php echo $cetak_laporan_page; ?>';
+
         if (id_skpd) {
             baseUrl += '&id_skpd=' + id_skpd;
+            cetakProgramKegiatanPage += '?id_skpd=' + id_skpd;
         }
 
         if (type && type === 'pergeseran') {
@@ -920,7 +929,8 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
             var extend_action = '<a class="btn btn-primary m-2" target="_blank" href="' + baseUrl + '&type=pergeseran"><span class="dashicons dashicons-controls-forward"></span> Halaman Monev Pergeseran/Perubahan</a>';
         }
 
-        extend_action += '<button class="btn btn-info m-2" id="print_laporan" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button>';
+        extend_action += '<button class="btn btn-info m-2" onclick="window.print();"><i class="dashicons dashicons-printer"></i> Cetak Laporan</button>';
+        extend_action += '<a class="btn btn-info m-2" href="' + cetakProgramKegiatanPage + '" target="_blank"><i class="dashicons dashicons-printer"></i> Cetak Laporan Program Kegiatan</button>';
 
         jQuery('#action-sipd #excel').after(extend_action);
 
@@ -1118,15 +1128,15 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
 
                                             var list_labels = [];
                                             var check_existing = false;
-                                            rinci.labels.map(function(label, i){
-                                                if(label.id_label == <?php echo $input["id_label"]; ?>){
+                                            rinci.labels.map(function(label, i) {
+                                                if (label.id_label == <?php echo $input["id_label"]; ?>) {
                                                     check_existing = label;
                                                     return;
                                                 }
                                                 var label_volume = '-';
                                                 var label_anggaran = '-';
                                                 var label_realisasi = '-';
-                                                if(label.pisah == true){
+                                                if (label.pisah == true) {
                                                     label_volume = label.volume;
                                                     label_anggaran = formatRupiah(label.anggaran);
                                                     label_realisasi = formatRupiah(label.realisasi);
@@ -1151,11 +1161,11 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                     </tr>
                                                 `);
                                             });
-                                            
+
                                             var label_volume = rinci.volume;
                                             var label_anggaran = rinci.total_harga;
                                             var label_realisasi = rinci.realisasi;
-                                            if(check_existing){
+                                            if (check_existing) {
                                                 label_volume = check_existing.volume;
                                                 label_anggaran = check_existing.anggaran;
                                                 label_realisasi = check_existing.realisasi;
@@ -1178,7 +1188,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
                                                         <input type="number" class="form-control text-right" id="realisasiPisah${rinci.id_rinci_sub_bl}" value="${label_realisasi}">
                                                     </td>
                                                 </tr>
-                                            `+list_labels.join('');
+                                            ` + list_labels.join('');
 
                                             tableBody.append(`
                                                 <tr class="rinci-row" data-id="${rinci.id_rinci_sub_bl}" data-parent-id="${ketBl}" data-grandparent-id="${subsBl}" data-greatgrandparent-id="${kodeAkun}">
@@ -1266,15 +1276,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         const anggaranElement = jQuery(`#anggaranPisah${idRinciSubBl}`);
 
         // Ambil nilai volume yang diinputkan
-        let volume = parseFloat(volumeElement.val());
-
+        const volume = parseFloat(volumeElement.val()) || 0;
         if (volume > totalVolume) {
             alert('Volume rincian pisah anggaran tidak boleh lebih besar dari volume aslinya!');
-            volume = totalVolume;
-            volumeElement.val(volume); 
-        } else if (volume < 0 || isNaN(volume)) {
-            volume = 0;
-            volumeElement.val(volume);
+            return volumeElement.val(totalVolume);
         }
 
         // Hitung anggaran berdasarkan volume yang diinputkan
@@ -1284,7 +1289,6 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         // Tampilkan anggaran yang diperbarui
         anggaranElement.text(new Intl.NumberFormat("id-ID").format(anggaran));
     }
-
 
     function showModalTambah() {
         jQuery("#idSkpdSelect").show();
@@ -1357,10 +1361,10 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
         if (checkboxPisah.is(":checked")) {
             rinciCheckbox.prop('checked', true).trigger('change');
             btnSave.show();
-            jQuery('#label-now-'+idRinciSubBl).show();
+            jQuery('#label-now-' + idRinciSubBl).show();
         } else {
             btnSave.hide();
-            jQuery('#label-now-'+idRinciSubBl).hide();
+            jQuery('#label-now-' + idRinciSubBl).hide();
         }
     }
 

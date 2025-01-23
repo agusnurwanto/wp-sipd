@@ -307,16 +307,26 @@ foreach ($subkeg as $kk => $sub) {
 	if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
 		$capaian_prog = $wpdb->get_results(
 			$wpdb->prepare("
-			SELECT * 
-			FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $input['tahun_anggaran'], $sub['kode_sbl']),
+				SELECT * 
+				FROM data_capaian_prog_sub_keg 
+				WHERE tahun_anggaran=%d 
+				  AND active=1 
+				  AND kode_sbl=%s 
+				  AND capaianteks !='' 
+				ORDER BY id ASC 
+			", $input['tahun_anggaran'], $sub['kode_sbl']),
 			ARRAY_A
 		);
 
 		$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
 		$realisasi_renja = $wpdb->get_results(
 			$wpdb->prepare("
-			SELECT * 
-			FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $input['tahun_anggaran'], 3, $kode_sbl),
+				SELECT * 
+				FROM data_realisasi_renja 
+				WHERE tahun_anggaran=%d 
+				  AND tipe_indikator=%d 
+				  AND kode_sbl=%s 
+			", $input['tahun_anggaran'], 3, $kode_sbl),
 			ARRAY_A
 		);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
