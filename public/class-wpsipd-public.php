@@ -17287,7 +17287,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									);
 
 									foreach ($sqlSameTipe as $valTipe) {
-										if ($valTipe['status'] != 1) {
+										if ($valTipe['status'] != 1 && $_POST['tahun_anggaran'] == $valTipe['tahun_anggaran']) {
 											$return = [
 												'status'    => 'error',
 												'message'   => 'Masih ada penjadwalan yang terbuka!',
