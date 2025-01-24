@@ -15,7 +15,7 @@ $label_db = $wpdb->get_row(
         SELECT
             *
         FROM data_label_komponen
-        WHERE active!=0
+        WHERE active !=0
           AND tahun_anggaran=%d
           AND id=%d
     ", $input['tahun_anggaran'], $input['id_label']),
@@ -358,6 +358,12 @@ if (!empty($data_label_shorted['data'])) {
         #cetak {
             overflow: visible;
             width: 100%;
+        }
+
+        #cetak table {
+            transform: scale(0.9);
+            /* Ubah skala agar tabel muat */
+            transform-origin: top left;
         }
     }
 </style>
