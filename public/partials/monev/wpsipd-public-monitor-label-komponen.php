@@ -38,14 +38,13 @@ $where_skpd = '';
 $inner_skpd = '';
 $options    = '';
 $query_params = '';
-$display_arsip = '';
 if (!empty($_GET) && !empty($_GET['id_skpd'])) {
     $inner_skpd = '
         INNER JOIN data_sub_keg_bl s 
                 ON s.kode_sbl=r.kode_sbl
                AND s.active = r.active
                AND s.tahun_anggaran=r.tahun_anggaran';
-    $where_skpd = 'AND s.id_sub_skpd=' . $_GET['id_skpd'];
+    $where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_GET['id_skpd']);
 
     $data_skpd = $wpdb->get_row(
         $wpdb->prepare("
@@ -64,7 +63,6 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
 
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
 
-    $display_arsip = "display:none";
 } else {
     $data_skpd = $wpdb->get_results(
         $wpdb->prepare("
@@ -540,7 +538,7 @@ if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
 }
 
 $cetak_laporan_page = $this->generatePage(
-    'Cetak Laporan Program Kegiatan | Label Komponen',
+    'Cetak Laporan Program Kegiatan | ' . $label_db['nama'],
     $input['tahun_anggaran'],
     '[cetak_label_komponen_program_kegiatan id_label="' . $input['id_label'] . '" tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
     false
@@ -624,7 +622,7 @@ $cetak_laporan_page = $this->generatePage(
         <button class="btn btn-primary" onclick="showModalTambah();">
             <span class="dashicons dashicons-insert"></span> Tambah Data
         </button>
-        <button class="btn btn-secondary" onclick="showModalListDeleted();" style="<?php echo $display_arsip; ?>">
+        <button class="btn btn-secondary" onclick="showModalListDeleted();">
             <span class="dashicons dashicons-list-view"></span> Arsip Rincian Belanja
         </button>
     </div>
@@ -920,7 +918,7 @@ $cetak_laporan_page = $this->generatePage(
 
         if (id_skpd) {
             baseUrl += '&id_skpd=' + id_skpd;
-            cetakProgramKegiatanPage += '?id_skpd=' + id_skpd;
+            cetakProgramKegiatanPage += '&id_skpd=' + id_skpd;
         }
 
         if (type && type === 'pergeseran') {

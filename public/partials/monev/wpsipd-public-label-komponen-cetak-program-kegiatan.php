@@ -30,7 +30,7 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
                 ON s.kode_sbl=r.kode_sbl
                AND s.active = r.active
                AND s.tahun_anggaran=r.tahun_anggaran';
-    $where_skpd = $wpdb->prepare('AND s.id_sub_skpd=' . $_GET['id_skpd']);
+    $where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_GET['id_skpd']);
 
     $data_skpd = $wpdb->get_row(
         $wpdb->prepare("
@@ -334,7 +334,7 @@ if (!empty($data_label_shorted['data'])) {
 ?>
 <style>
     body {
-        padding: 15px;
+        padding: 20px;
     }
 
     .bg-table {
@@ -343,6 +343,22 @@ if (!empty($data_label_shorted['data'])) {
 
     .v-align-middle {
         vertical-align: middle;
+    }
+
+    @page {
+        size: A4 landscape;
+        margin: 25px;
+    }
+
+    @media print {
+        body {
+            margin: 0;
+        }
+
+        #cetak {
+            overflow: visible;
+            width: 100%;
+        }
     }
 </style>
 
@@ -385,7 +401,7 @@ if (!empty($data_label_shorted['data'])) {
         </tbody>
 
     </table>
-    <div class="wrap-table">
+    <div class="wrap-table" id="cetak">
         <table>
             <thead class="bg-table">
                 <tr>
