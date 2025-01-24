@@ -361,7 +361,7 @@ if (!empty($data_label_shorted['data'])) {
         }
 
         #cetak table {
-            transform: scale(0.9);
+            transform: scale(0.7);
             /* Ubah skala agar tabel muat */
             transform-origin: top left;
         }
