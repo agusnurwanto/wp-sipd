@@ -37,7 +37,14 @@ $data_sumber_dana = $wpdb->get_results("
 	where set_input='Ya'
 		and tahun_anggaran=".$input['tahun_anggaran']
 , ARRAY_A);
-$data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$data_label_komponen = $wpdb->get_results(
+	$wpdb->prepare("
+	select 
+		id, 
+		nama 
+	from data_label_komponen 
+	where tahun_anggaran=%d
+", $input['tahun_anggaran']), ARRAY_A);
 
 $type = 'rka_murni';
 if(!empty($_GET) && !empty($_GET['type'])){

@@ -23,7 +23,7 @@ $label_db = $wpdb->get_row(
         SELECT
             *
         FROM data_label_komponen
-        WHERE active=1
+        WHERE active != 0
           AND tahun_anggaran=%d
           AND id=%d
     ", $input['tahun_anggaran'], $input['id_label']),

@@ -4550,7 +4550,7 @@ class Wpsipd_Public_RKA
                                 FROM data_label_komponen
                                 WHERE id = %d
                                   AND tahun_anggaran = %d
-                                  AND active = 1
+                                  AND active != 0
                                 ', $v['id_label_komponen'], $_POST['tahun_anggaran']),
                             ARRAY_A
                         );

@@ -3540,7 +3540,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						count(m.id) as jml_rincian 
 					FROM data_mapping_label m
 						inner join data_label_komponen l on m.id_label_komponen=l.id
-							and l.active=m.active
+							and l.active != 0
 							and l.tahun_anggaran=m.tahun_anggaran
 						inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
 							and r.active=m.active
@@ -3581,7 +3581,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						id 
 					from data_label_komponen 
 					where tahun_anggaran=%d 
-						and active=1 
+						and active !=0 
 						and nama=%s
 					', $_POST['tahun_anggaran'], $_POST['nama'])
 				);
