@@ -3180,7 +3180,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             					<th class="text_tengah text_blok" rowspan="2" style="width: 250px">Nama Label</th>
             					<th class="text_tengah text_blok" rowspan="2">Keterangan</th>
             					<th class="text_tengah text_blok" colspan="4" style="width: 400px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
-            					<th class="text_tengah text_blok" rowspan="2" style="width: 70px">Aksi</th>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 150px">Aksi</th>
             				</tr>
             				<tr>
             					<th class="text_tengah text_blok" style="width: 140px">Rencana Pagu</th>
@@ -3198,6 +3198,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             			<li><b>Form Tambah dan Edit Label Komponen</b> digunakan untuk menambahkan label komponen baru atau melakukan update label komponen</li>
             			<li><b>Daftar Label Komponen</b> menampilkan daftar label komponen yang sudah dibuat</li>
             			<li>Tombol refresh berwarna biru pada kolom <b>Analisa Rincian</b> berfungsi untuk menampilkan data pagu, realisasi dan jumlah rincian</li>
+            			<li>Tombol aktivasi dan nonaktif berlogo mata pada kolom <b>Aksi</b> berfungsi untuk menampilkan menyembunyikan dan memunculkan label pada user dengan level SKPD</li>
             		</ul>
         		')
 		);
@@ -3457,10 +3458,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							id,
 							nama,
 							keterangan,
+							active,
 							rencana_pagu
 						FROM data_label_komponen 
 						WHERE tahun_anggaran = %d
-						  AND active = 1
+						  AND active != 0
 					", $_POST['tahun_anggaran']),
 					ARRAY_A
 				);
@@ -3472,16 +3474,38 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$url_label = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 					$formatted_number = number_format($v['rencana_pagu'], 0, ',', '.');
 
+					$nonaktif_btn = '
+							<span style="" data-id="' . $v['id'] . '" class="nonaktif-label" title="Nonaktifkan Label">
+								<div class="dashicons dashicons-hidden"></div>
+							</span>';
+					$nonaktif_badge = '';
+					//jika sudah nonaktif, tombol aksi aktivasi
+					if ($v['active'] == 2) {
+						$nonaktif_badge = '<small><i>Disembunyikan</i></small>';
+						$nonaktif_btn = '
+							<span style="" data-id="' . $v['id'] . '" class="aktif-label" title="Aktifkan Label">
+								<div class="dashicons dashicons-visibility"></div>
+							</span>';
+					}
+
 					$body .= '
 					<tr>
 						<td class="text_tengah">' . ($k + 1) . '</td>
-						<td><a href="' . $url_label . '" target="_blank">' . $v['nama'] . '</a></td>
+						<td><a href="' . $url_label . '" target="_blank">' . $v['nama'] . '</a><br>' . $nonaktif_badge . '</td>
 						<td>' . $v['keterangan'] . '</td>
 						<td class="text_kanan rencana-pagu">' . $formatted_number . '</td>
 						<td class="text_kanan pagu-rincian">-</td>
 						<td class="text_kanan realisasi-rincian">-</td>
 						<td class="text_kanan jml-rincian">-</td>
-						<td class="text_tengah"><span style="" data-id="' . $v['id'] . '" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="' . $v['id'] . '" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
+						<td class="text_tengah">
+							<span style="" data-id="' . $v['id'] . '" class="edit-label" title="Edit Label">
+								<div class="dashicons dashicons-edit"></div>
+							</span> | 
+							<span style="" data-id="' . $v['id'] . '" class="hapus-label" title="Hapus Label">
+								<div class="dashicons dashicons-no-alt"></div>
+							</span> | 
+							' . $nonaktif_btn . '
+						</td>
 					</tr>
 					';
 				}
@@ -3607,14 +3631,84 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$wpdb->delete('data_label_komponen', array(
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'id' => $_POST['id_label']
-				), array('%d', '%d'));
+				$cek_data = $wpdb->get_var(
+					$wpdb->prepare('
+						SELECT 
+							id 
+						FROM data_mapping_label 
+						WHERE tahun_anggaran=%d 
+						  AND id_label_komponen=%d
+						  AND active=1 
+					', $_POST['tahun_anggaran'], $_POST['id_label'])
+				);
+				if (!empty($cek_data)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Label memiliki data aktif! mohon data tagging terkait di hapus terlebih dahulu!';
+					die(json_encode($ret));
+				} else {
+					$wpdb->update(
+						'data_label_komponen',
+						array('active' => 0),
+						array('id' => $_POST['id_label'])
+					);
+				}
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format tidak sesuai!';
+		}
+		die(json_encode($ret));
+	}
+
+	function nonaktif_data_label_komponen()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil menonaktifkan data label komponen!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$wpdb->update(
+					'data_label_komponen',
+					array('active' => 2),
+					array('id' => $_POST['id_label'])
+				);
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format tidak sesuai!';
+		}
+		die(json_encode($ret));
+	}
+
+	function aktivasi_data_label_komponen()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil aktivasi data label komponen!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$wpdb->update(
+					'data_label_komponen',
+					array('active' => 1),
+					array('id' => $_POST['id_label'])
+				);
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format tidak sesuai!';
 		}
 		die(json_encode($ret));
 	}

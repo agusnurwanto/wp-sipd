@@ -180,6 +180,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_label_komponen',  $plugin_admin, 'get_label_komponen');
 		$this->loader->add_action('wp_ajax_simpan_data_label_komponen',  $plugin_admin, 'simpan_data_label_komponen');
 		$this->loader->add_action('wp_ajax_hapus_data_label_komponen',  $plugin_admin, 'hapus_data_label_komponen');
+		$this->loader->add_action('wp_ajax_nonaktif_data_label_komponen',  $plugin_admin, 'nonaktif_data_label_komponen');
+		$this->loader->add_action('wp_ajax_aktivasi_data_label_komponen',  $plugin_admin, 'aktivasi_data_label_komponen');
+		
 		$this->loader->add_action('wp_ajax_simpan_mapping',  $plugin_admin, 'simpan_mapping');
 		$this->loader->add_action('wp_ajax_load_ajax_carbon',  $plugin_admin, 'load_ajax_carbon');
 		$this->loader->add_action('wp_ajax_generate_sumber_dana_format',  $plugin_admin, 'generate_sumber_dana_format');

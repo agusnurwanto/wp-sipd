@@ -305,10 +305,10 @@ if (!empty($data_label_shorted['data'])) {
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['target_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($sub_keg['kode_sub_giat']) . '</td>';
-            $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($sub_keg['indikator_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['target_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_sub_keg']) . '</td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kanan">' . number_format($sub_keg['total'], 0, ',', '.') . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri"></td>';
             $tbody .= '</tr>';
@@ -417,10 +417,10 @@ if (!empty($data_label_shorted['data'])) {
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
+                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Anggaran (Rp)</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Keterangan</th>
                 </tr>
