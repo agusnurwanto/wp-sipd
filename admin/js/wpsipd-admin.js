@@ -877,17 +877,17 @@ jQuery(document).ready(function () {
 					jQuery('#keterangan_label').val(b.keterangan);
 				}
 			});
-			 // Scroll ke bagian atas halaman
-			 jQuery('html, body').animate({
+			// Scroll ke bagian atas halaman
+			jQuery('html, body').animate({
 				scrollTop: 0
-			}, 900); // Durasi animasi dalam milidetik (800ms)
+			}, 900); // Durasi animasi dalam milidetik (900ms)
 
 		});
 		jQuery('#body_label').on('click', '.hapus-label', function () {
 			var id_label = jQuery(this).attr('data-id');
 			data_label_komponen.map(function (b, i) {
 				if (b.id == id_label) {
-					if (confirm("Apakah anda yakin akan menghapus label \"" + b.nama + "\"!")) {
+					if (confirm("Apakah anda yakin akan menghapus label \"" + b.nama + "\"?")) {
 						jQuery('#wrap-loading').show();
 						jQuery.ajax({
 							url: ajaxurl,
@@ -900,12 +900,81 @@ jQuery(document).ready(function () {
 							},
 							dataType: "json",
 							success: function (data) {
+								jQuery('#wrap-loading').hide();
 								if (data.status == 'success') {
 									load_label(tahun_anggaran.val());
 								}
 								return alert(data.message);
 							},
 							error: function (e) {
+								jQuery('#wrap-loading').hide();
+								console.log(e);
+								return alert(data.message);
+							}
+						});
+					}
+				}
+			});
+		});
+		jQuery('#body_label').on('click', '.nonaktif-label', function () {
+			var id_label = jQuery(this).attr('data-id');
+			data_label_komponen.map(function (b, i) {
+				if (b.id == id_label) {
+					if (confirm("Apakah anda yakin akan menonaktifkan label \"" + b.nama + "\"?")) {
+						jQuery('#wrap-loading').show();
+						jQuery.ajax({
+							url: ajaxurl,
+							type: "post",
+							data: {
+								"action": "nonaktif_data_label_komponen",
+								"api_key": wpsipd.api_key,
+								"tahun_anggaran": tahun_anggaran.val(),
+								"id_label": id_label
+							},
+							dataType: "json",
+							success: function (data) {
+								jQuery('#wrap-loading').hide();
+								if (data.status == 'success') {
+									load_label(tahun_anggaran.val());
+								}
+								return alert(data.message);
+							},
+							error: function (e) {
+								jQuery('#wrap-loading').hide();
+								console.log(e);
+								return alert(data.message);
+							}
+						});
+					}
+				}
+			});
+		});
+		jQuery('#body_label').on('click', '.aktif-label', function () {
+			var id_label = jQuery(this).attr('data-id');
+			data_label_komponen.map(function (b, i) {
+				if (b.id == id_label) {
+					if (confirm("Apakah anda yakin akan mengaktifkan label \"" + b.nama + "\"?")) {
+						jQuery('#wrap-loading').show();
+						jQuery.ajax({
+							url: ajaxurl,
+							type: "post",
+							data: {
+								"action": "aktivasi_data_label_komponen",
+								"api_key": wpsipd.api_key,
+								"tahun_anggaran": tahun_anggaran.val(),
+								"id_label": id_label
+							},
+							dataType: "json",
+							success: function (data) {
+								jQuery('#wrap-loading').hide();
+								if (data.status == 'success') {
+									load_label(tahun_anggaran.val());
+								}
+								return alert(data.message);
+							},
+							error: function (e) {
+								jQuery('#wrap-loading').hide();
+
 								console.log(e);
 								return alert(data.message);
 							}

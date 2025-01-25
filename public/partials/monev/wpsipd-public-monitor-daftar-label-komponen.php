@@ -15,24 +15,26 @@ if (empty($input['id_skpd'])) {
 
 $api_key = get_option('_crb_api_key_extension');
 $sql = $wpdb->prepare("
-	select 
+	SELECT 
 		kode_skpd,
 		nama_skpd
-	from data_unit 
-	where tahun_anggaran=%d
+	FROM data_unit 
+	WHERE tahun_anggaran=%d
 		and id_skpd = " . $input['id_skpd'] . "
 		and active=1
-	order by id_skpd ASC
+	ORDER BY id_skpd ASC
 ", $input['tahun_anggaran']);
 $skpd = $wpdb->get_row($sql, ARRAY_A);
 
-$data_label_komponen = $wpdb->get_results("
-	select 
-		* 
-	from data_label_komponen 
-	where active=1 
-		AND tahun_anggaran=" . $input['tahun_anggaran']
-, ARRAY_A);
+$data_label_komponen = $wpdb->get_results(
+	$wpdb->prepare('
+		SELECT * 
+		FROM data_label_komponen 
+		WHERE tahun_anggaran=%d
+		  AND active == 1
+	', $input['tahun_anggaran']),
+	ARRAY_A
+);
 $body = '';
 foreach ($data_label_komponen as $k => $v) {
 	$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];

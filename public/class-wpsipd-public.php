@@ -14614,7 +14614,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											FROM data_label_komponen
 											WHERE id = %d
 											  AND tahun_anggaran = %d
-											  AND active = 1
+											  AND active != 0
 											', $val['id_label_komponen'], $tahun_anggaran),
 										ARRAY_A
 									);

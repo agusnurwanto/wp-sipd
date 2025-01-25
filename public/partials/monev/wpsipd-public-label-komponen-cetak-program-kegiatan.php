@@ -15,7 +15,7 @@ $label_db = $wpdb->get_row(
         SELECT
             *
         FROM data_label_komponen
-        WHERE active=1
+        WHERE active !=0
           AND tahun_anggaran=%d
           AND id=%d
     ", $input['tahun_anggaran'], $input['id_label']),
@@ -30,7 +30,7 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
                 ON s.kode_sbl=r.kode_sbl
                AND s.active = r.active
                AND s.tahun_anggaran=r.tahun_anggaran';
-    $where_skpd = $wpdb->prepare('AND s.id_sub_skpd=' . $_GET['id_skpd']);
+    $where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_GET['id_skpd']);
 
     $data_skpd = $wpdb->get_row(
         $wpdb->prepare("
@@ -305,10 +305,10 @@ if (!empty($data_label_shorted['data'])) {
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['target_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($sub_keg['kode_sub_giat']) . '</td>';
-            $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($sub_keg['indikator_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['target_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_sub_keg']) . '</td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kanan">' . number_format($sub_keg['total'], 0, ',', '.') . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri"></td>';
             $tbody .= '</tr>';
@@ -334,7 +334,7 @@ if (!empty($data_label_shorted['data'])) {
 ?>
 <style>
     body {
-        padding: 15px;
+        padding: 20px;
     }
 
     .bg-table {
@@ -343,6 +343,28 @@ if (!empty($data_label_shorted['data'])) {
 
     .v-align-middle {
         vertical-align: middle;
+    }
+
+    @page {
+        size: A4 landscape;
+        margin: 25px;
+    }
+
+    @media print {
+        body {
+            margin: 0;
+        }
+
+        #cetak {
+            overflow: visible;
+            width: 100%;
+        }
+
+        #cetak table {
+            transform: scale(0.7);
+            /* Ubah skala agar tabel muat */
+            transform-origin: top left;
+        }
     }
 </style>
 
@@ -385,7 +407,7 @@ if (!empty($data_label_shorted['data'])) {
         </tbody>
 
     </table>
-    <div class="wrap-table">
+    <div class="wrap-table" id="cetak">
         <table>
             <thead class="bg-table">
                 <tr>
@@ -401,10 +423,10 @@ if (!empty($data_label_shorted['data'])) {
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
+                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Anggaran (Rp)</th>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Keterangan</th>
                 </tr>
