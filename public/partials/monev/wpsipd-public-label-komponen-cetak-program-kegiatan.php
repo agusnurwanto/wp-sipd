@@ -289,6 +289,14 @@ if (!empty($data_label_shorted['data'])) {
     foreach ($data_label_shorted['data'] as $kode_skpd => $skpd) {
         $skpd_total = 0;
         foreach ($skpd['data'] as $kode_sbl => $sub_keg) {
+            $keterangan = $wpdb->get_var($wpdb->prepare('
+                SELECT
+                    keterangan
+                FROM data_label_komponen_sub_giat
+                WHERE tahun_anggaran=%d
+                    AND kode_sbl=%s
+                    AND id_label_komponen=%d
+            ', $input['tahun_anggaran'], $kode_sbl, $input['id_label']));
             $parts = explode(" ", $sub_keg['nama_sub_giat'], 2);
             $nama_sub_giat = isset($parts[1]) ? $parts[1] : $sub_keg['nama_sub_giat'];
 
@@ -310,7 +318,7 @@ if (!empty($data_label_shorted['data'])) {
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kanan">' . number_format($sub_keg['total'], 0, ',', '.') . '</td>';
-            $tbody .= '<td class="kiri kanan bawah text_kiri"></td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">'.$keterangan.'</td>';
             $tbody .= '</tr>';
 
 
@@ -408,7 +416,7 @@ if (!empty($data_label_shorted['data'])) {
 
     </table>
     <div class="wrap-table" id="cetak">
-        <table>
+        <table class="table table-bordered">
             <thead class="bg-table">
                 <tr>
                     <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama OPD</th>

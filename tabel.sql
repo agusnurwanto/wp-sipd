@@ -1963,7 +1963,19 @@ CREATE TABLE `data_label_komponen` (
   `nama` text DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
   `rencana_pagu` double(20,2) DEFAULT NULL,
-  `id_skpd` int(11) DEFAULT '-',
+  `id_skpd` int(11) DEFAULT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` DATETIME NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE `data_label_komponen_sub_giat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_komponen` int(11) not NULL,
+  `keterangan` text DEFAULT NULL,
+  `kode_sbl` text DEFAULT NULL,
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,

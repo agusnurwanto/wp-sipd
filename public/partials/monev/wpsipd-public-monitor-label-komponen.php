@@ -316,6 +316,14 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $nama_page = $input['tahun_anggaran'] . ' | ' . $k . ' | ' . $sub_keg['kode_giat'] . ' | ' . $sub_keg['nama_giat'];
         $custom_post = get_page_by_title($nama_page, OBJECT, 'post');
         $link = $this->get_link_post($custom_post);
+        $keterangan = $wpdb->get_var($wpdb->prepare('
+            SELECT
+                keterangan
+            FROM data_label_komponen_sub_giat
+            WHERE tahun_anggaran=%d
+                AND kode_sbl=%s
+                AND id_label_komponen=%d
+        ', $input['tahun_anggaran'], $sub_keg['kode_sbl'], $input['id_label']));
         $body_label .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
@@ -326,7 +334,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 ' . $selisih . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
                 <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
-                <td colspan="2" class="kanan bawah kiri text_tengah text_blok"></td>
+                <td colspan="2" class="kanan bawah kiri">'.$keterangan.'</td>
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
@@ -533,8 +541,13 @@ $body_label .= '
 ';
 //set bg if greater than
 $style_color = '';
-if ($label_db['rencana_pagu'] < $counter['total_realisasi']) {
+if ($label_db['rencana_pagu'] != $counter['total_rincian_pagu']) {
     $style_color = 'background-color : #FFADAD;';
+}
+
+$style_color_realisasi = '';
+if ($counter['total_rincian_pagu'] < $counter['total_realisasi']) {
+    $style_color_realisasi = 'background-color : #FFADAD;';
 }
 
 $cetak_laporan_page = $this->generatePage(
@@ -618,28 +631,19 @@ $cetak_laporan_page = $this->generatePage(
             Tahun Anggaran <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
         </h4>
     </div>
-    <div class="m-4 text-center btnAction">
-        <button class="btn btn-primary" onclick="showModalTambah();">
-            <span class="dashicons dashicons-insert"></span> Tambah Data
-        </button>
-        <button class="btn btn-secondary" onclick="showModalListDeleted();">
-            <span class="dashicons dashicons-list-view"></span> Arsip Rincian Belanja
-        </button>
-    </div>
-
     <div class="table-responsive" style="overflow-x: auto; margin-bottom: 20px; margin-top: 40px;">
         <h4 class="text_tengah" style="margin-bottom: 1rem;">Detail Label Komponen</h4>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
-                    <th class="atas kanan bawah kiri text_tengah" colspan="2">Nama Label</th>
-                    <th class="atas kanan bawah kiri text_tengah" colspan="3">Keterangan Label</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 30%;">Nama Label</th>
+                    <th class="atas kanan bawah kiri text_tengah">Keterangan Label</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="atas kanan bawah kiri text-left" colspan="2"><?php echo $label_db['nama']; ?></td>
-                    <td class="atas kanan bawah kiri text-left" colspan="3"><?php echo $label_db['keterangan']; ?></td>
+                    <td class="atas kanan bawah kiri text-left"><?php echo $label_db['nama']; ?></td>
+                    <td class="atas kanan bawah kiri text-left"><?php echo $label_db['keterangan']; ?></td>
                 </tr>
             </tbody>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
@@ -647,10 +651,10 @@ $cetak_laporan_page = $this->generatePage(
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
-                    <th class="atas kanan bawah kiri text_tengah">Rencana Pagu</th>
-                    <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
-                    <th class="atas kanan bawah kiri text_tengah">Capaian</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Rencana Pagu</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Pagu Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Realisasi</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Capaian</th>
                     <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
                 </tr>
             </thead>
@@ -658,7 +662,7 @@ $cetak_laporan_page = $this->generatePage(
                 <tr>
                     <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></td>
                     <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($counter['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($counter['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi; ?>"><?php echo number_format($counter['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
                     <td class="atas kanan bawah kiri text_tengah"><?php echo $count_penyerapan; ?>%</td>
                     <td class="atas kanan bawah kiri text_tengah"><?php echo $counter['jumlah_rincian']; ?></td>
                 </tr>
@@ -686,6 +690,14 @@ $cetak_laporan_page = $this->generatePage(
         <?php endif; ?>
     </div>
 
+    <div class="m-4 text-center btnAction">
+        <button class="btn btn-primary" onclick="showModalTambah();">
+            <span class="dashicons dashicons-insert"></span> Tambah Data
+        </button>
+        <button class="btn btn-secondary" onclick="showModalListDeleted();">
+            <span class="dashicons dashicons-list-view"></span> Arsip Rincian Belanja
+        </button>
+    </div>
 
     <h4 class="text-center mt-4 mb-3">Detail Rincian Belanja yang Tertagging</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
@@ -803,6 +815,13 @@ $cetak_laporan_page = $this->generatePage(
                             </button>
                         </div>
 
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="ket_subKegiatan">Keterangan /Ringkasan Kegiatan</label>
+                                <textarea name="ket_subKegiatan" class="form-control" id="ket_subKegiatan">
+                                </textarea>
+                            </div>
+                        </div>
                         <table id="tableRincian" class="mt-2 table" style="display: none;">
                             <thead style="background-color: #343a40; color: #fff; text-align: center;">
                                 <tr>
@@ -982,6 +1001,12 @@ $cetak_laporan_page = $this->generatePage(
                             const data = response.data;
                             const tableBody = jQuery("#tableRincian tbody");
                             tableBody.empty();
+                            if(response.ket_label_sub_keg != null){
+                                jQuery("#ket_subKegiatan").val(response.ket_label_sub_keg.keterangan);
+                            }else{
+                                jQuery("#ket_subKegiatan").val('');
+                            }
+                            jQuery("#ket_subKegiatan").closest('.form-row').show();
 
                             if (!data || data.length === 0) {
                                 tableBody.append(`
@@ -1248,6 +1273,7 @@ $cetak_laporan_page = $this->generatePage(
                             });
 
                             jQuery("#tableRincian").show();
+                            jQuery("#ket_subKegiatan").closest('.form-row').show();
 
                             // Handle Checkbox Rinci
                             handleCheckboxRinci();
@@ -1291,14 +1317,16 @@ $cetak_laporan_page = $this->generatePage(
     function showModalTambah() {
         jQuery("#idSkpdSelect").show();
         jQuery("#idSkpdTeks").hide();
-        jQuery('#idSkpd').val('').trigger('change')
-        jQuery("#program").val('')
-        jQuery("#kegiatan").val('')
-        jQuery('#subKegiatan').empty('').prop("disabled", true)
-        jQuery('#rincianBelanja').val('')
-        jQuery("#tableRincian").hide()
-        jQuery("#title-label").text('Tambah Tagging / Label Rincian Belanja')
-        jQuery('#modalTambahData').modal('show')
+        jQuery('#idSkpd').val('').trigger('change');
+        jQuery("#program").val('');
+        jQuery("#kegiatan").val('');
+        jQuery('#subKegiatan').empty('').prop("disabled", true);
+        jQuery('#rincianBelanja').val('');
+        jQuery("#tableRincian").hide();
+        jQuery("#ket_subKegiatan").val('');
+        jQuery("#ket_subKegiatan").closest('.form-row').hide();
+        jQuery("#title-label").text('Tambah Tagging / Label Rincian Belanja');
+        jQuery('#modalTambahData').modal('show');
     }
 
     function simpanTagRinciBl() {
@@ -1323,6 +1351,7 @@ $cetak_laporan_page = $this->generatePage(
         tempData.append("id_label", id_label);
         tempData.append("tahun_anggaran", tahun_anggaran);
         tempData.append("kode_sbl", kode_sbl);
+        tempData.append("ket_sub_kegiatan", jQuery('#ket_subKegiatan').val());
 
         jQuery("#wrap-loading").show();
 
@@ -1580,6 +1609,8 @@ $cetak_laporan_page = $this->generatePage(
             jQuery("#program").val('');
             jQuery("#kegiatan").val('');
             jQuery("#tableRincian").hide();
+            jQuery("#ket_subKegiatan").val('');
+            jQuery("#ket_subKegiatan").closest('.form-row').hide();
 
             if (id_skpd) {
                 jQuery("#wrap-loading").show();
@@ -1648,6 +1679,7 @@ $cetak_laporan_page = $this->generatePage(
             const kegiatan = selectedOption.data("kegiatan");
 
             jQuery("#tableRincian").hide();
+            jQuery("#ket_subKegiatan").closest('.form-row').hide();
             jQuery("#program").val(program || "");
             jQuery("#kegiatan").val(kegiatan || "");
 

@@ -4351,7 +4351,7 @@ class Wpsipd_Public_RKA
                              WHERE id_rinci_sub_bl = %d 
                                AND tahun_anggaran = %d 
                                AND id_label_komponen = %d 
-                               AND active = 1',
+                            ',
                             $idRinciSubBl,
                             $postData['tahun_anggaran'],
                             $postData['id_label']
@@ -4371,6 +4371,44 @@ class Wpsipd_Public_RKA
                             $data
                         );
                     }
+                }
+
+                $data = array(
+                    'keterangan'   => $_POST['ket_sub_kegiatan'],
+                    'kode_sbl'   => $_POST['kode_sbl'],
+                    'id_label_komponen' => $postData['id_label'],
+                    'user' => $user_data->display_name,
+                    'tahun_anggaran' => $postData['tahun_anggaran'],
+                    'active' => 1,
+                    'update_at' => current_time('mysql')
+                );
+
+                $cek_data = $wpdb->get_var(
+                    $wpdb->prepare(
+                        'SELECT id 
+                         FROM data_label_komponen_sub_giat 
+                         WHERE kode_sbl = %s 
+                           AND tahun_anggaran = %d 
+                           AND id_label_komponen = %d
+                        ',
+                        $_POST['kode_sbl'],
+                        $postData['tahun_anggaran'],
+                        $postData['id_label']
+                    )
+                );
+
+                // Update or insert
+                if ($cek_data) {
+                    $wpdb->update(
+                        'data_label_komponen_sub_giat',
+                        $data,
+                        array('id' => $cek_data)
+                    );
+                } else {
+                    $wpdb->insert(
+                        'data_label_komponen_sub_giat',
+                        $data
+                    );
                 }
             } else {
                 $ret['status']  = 'error';

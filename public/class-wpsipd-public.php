@@ -14544,6 +14544,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						ARRAY_A
 					);
 
+					if (!empty($_POST['id_label'])) {
+						$ret['ket_label_sub_keg'] = $wpdb->get_row(
+		                    $wpdb->prepare(
+		                        'SELECT 
+		                        	* 
+		                         FROM data_label_komponen_sub_giat 
+		                         WHERE kode_sbl = %s 
+		                           AND tahun_anggaran = %d 
+		                           AND id_label_komponen = %d
+		                        ',
+		                        $kode_sbl,
+		                        $tahun_anggaran,
+		                        $_POST['id_label']
+		                    )
+		                );
+					}
+
 					foreach ($rka as $k => $v) {
 						// Ambil sumber dana untuk masing-masing rincian
 						$sumber_dana = $wpdb->get_row(
