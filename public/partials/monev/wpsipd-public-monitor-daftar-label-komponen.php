@@ -48,7 +48,7 @@ foreach ($data_label_komponen as $k => $v) {
 		<td class="text_kanan pagu-rincian_opd">-</td>
 		<td class="text_kanan realisasi-rincian_opd">-</td>
 		<td class="text_kanan jml-rincian_opd">-</td>
-		<td class="text_kanan rencana-pagu">' . number_format($v['rencana_pagu'] ?? 0, 0, ',', '.') . '</td>
+		<td class="text_kanan rencana-pagu" data-val="'.$v['rencana_pagu'].'">' . number_format($v['rencana_pagu'] ?? 0, 0, ',', '.') . '</td>
 		<td class="text_kanan pagu-rincian">-</td>
 		<td class="text_kanan realisasi-rincian">-</td>
 		<td class="text_kanan jml-rincian">-</td>
@@ -121,6 +121,7 @@ foreach ($data_label_komponen as $k => $v) {
 						tr.find('.pagu-rincian').text(b.pagu);
 						tr.find('.realisasi-rincian').text(b.realisasi);
 						tr.find('.jml-rincian').text(b.jml_rincian);
+
 						tr.find('.pagu-rincian_opd').text(b.pagu_opd);
 						tr.find('.realisasi-rincian_opd').text(b.realisasi_opd);
 						tr.find('.jml-rincian_opd').text(b.jml_rincian_opd);

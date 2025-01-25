@@ -1033,6 +1033,8 @@ $cetak_laporan_page = $this->generatePage(
             if (window.data_changed === true) {
                 if (confirm('Data realisasi telah berubah. Apakah Anda ingin merefresh halaman?')) {
                     location.reload(); // Refresh halaman
+                }else{
+                    window.data_changed = false;
                 }
             }
         });
@@ -1042,6 +1044,8 @@ $cetak_laporan_page = $this->generatePage(
             if (window.data_changed === true) {
                 if (confirm('Data Arsip telah berubah. Apakah Anda ingin merefresh halaman?')) {
                     location.reload(); // Refresh halaman
+                }else{
+                    window.data_changed = false;
                 }
             }
         });
@@ -1439,7 +1443,9 @@ $cetak_laporan_page = $this->generatePage(
                 alert(res.message);
                 jQuery("#wrap-loading").hide();
                 if (res.status === "success") {
-                    location.reload();
+                    if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                        location.reload();
+                    }
                     jQuery('#modalTambahData').modal('hide');
                 }
             },
@@ -1595,7 +1601,9 @@ $cetak_laporan_page = $this->generatePage(
                     success: function(response) {
                         if (response.status == 'success') {
                             alert(response.message);
-                            location.reload();
+                            if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                                location.reload();
+                            }
                         } else {
                             alert(`GAGAL! \n${response.message}`);
                         }
@@ -1631,7 +1639,9 @@ $cetak_laporan_page = $this->generatePage(
                 success: function(response) {
                     if (response.status == 'success') {
                         alert(response.message);
-                        location.reload()
+                        if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                            location.reload();
+                        }
                     } else {
                         alert(`GAGAL! \n${response.message}`);
                     }
