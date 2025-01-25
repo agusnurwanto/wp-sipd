@@ -59,8 +59,16 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
         ", $_GET['id_skpd'], $input['tahun_anggaran']),
         ARRAY_A
     );
+
     $query_params = '&id_skpd=' . $_GET['id_skpd'];
 
+    if(empty($data_skpd)){
+        $data_skpd = array(
+            'id_skpd' => '',
+            'kode_skpd' => '-',
+            'nama_skpd' => 'OPD tidak ditemukan!'
+        );
+    }
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
 
 } else {
@@ -115,7 +123,6 @@ $sql = $wpdb->prepare("
 
 $data = $wpdb->get_results($sql, ARRAY_A);
 
-
 $count = $wpdb->prepare("
     SELECT 
         COUNT(r.id) AS jumlah_rincian,
@@ -150,6 +157,44 @@ $counter = $wpdb->get_row($count, ARRAY_A);
 $count_penyerapan = 0;
 $count_penyerapan = (!empty($counter['total_rincian_pagu']) && $counter['total_rincian_pagu'] != 0)
     ? $this->pembulatan(($counter['total_realisasi'] / $counter['total_rincian_pagu']) * 100)
+    : 0;
+
+$count_opd = $wpdb->prepare("
+    SELECT 
+        COUNT(r.id) AS jumlah_rincian,
+        SUM(
+            CASE 
+                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
+                ELSE r.rincian
+            END
+        ) AS total_rincian_pagu,
+        SUM(
+            CASE 
+                WHEN m.pisah = 1 THEN m.realisasi_pisah
+                ELSE rr.realisasi
+            END
+        ) AS total_realisasi
+    FROM `data_rka` r
+        " . $inner_skpd . "
+    INNER JOIN data_mapping_label m 
+            ON m.active = 1
+           AND m.tahun_anggaran = r.tahun_anggaran
+           AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
+    LEFT JOIN data_realisasi_rincian rr 
+           ON rr.active = 1
+          AND rr.tahun_anggaran = r.tahun_anggaran
+          AND rr.id_rinci_sub_bl = r.id_rinci_sub_bl
+    WHERE r.active != 2
+      AND r.tahun_anggaran = %d
+      AND m.id_label_komponen = %d
+        " . $where_skpd . "
+", $input['tahun_anggaran'], $input['id_label']);
+
+$counter_opd = $wpdb->get_row($count_opd, ARRAY_A);
+
+$count_penyerapan_opd = 0;
+$count_penyerapan_opd = (!empty($counter_opd['total_rincian_pagu']) && $counter_opd['total_rincian_pagu'] != 0)
+    ? $this->pembulatan(($counter_opd['total_realisasi'] / $counter_opd['total_rincian_pagu']) * 100)
     : 0;
 
 if (!empty($data)) {
@@ -550,6 +595,11 @@ if ($counter['total_rincian_pagu'] < $counter['total_realisasi']) {
     $style_color_realisasi = 'background-color : #FFADAD;';
 }
 
+$style_color_realisasi_opd = '';
+if ($counter_opd['total_rincian_pagu'] < $counter_opd['total_realisasi']) {
+    $style_color_realisasi_opd = 'background-color : #FFADAD;';
+}
+
 $cetak_laporan_page = $this->generatePage(
     'Cetak Laporan Program Kegiatan | ' . $label_db['nama'],
     $input['tahun_anggaran'],
@@ -637,7 +687,7 @@ $cetak_laporan_page = $this->generatePage(
             <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
                     <th class="atas kanan bawah kiri text_tengah" style="width: 30%;">Nama Label</th>
-                    <th class="atas kanan bawah kiri text_tengah">Keterangan Label</th>
+                    <th class="atas kanan bawah kiri text_tengah">Keterangan</th>
                 </tr>
             </thead>
             <tbody>
@@ -646,16 +696,16 @@ $cetak_laporan_page = $this->generatePage(
                     <td class="atas kanan bawah kiri text-left"><?php echo $label_db['keterangan']; ?></td>
                 </tr>
             </tbody>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
         </table>
+        <h4 class="text_tengah" style="margin-bottom: 1rem;">Total Rekap Anggaran Pemerintah Daerah</h4>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <thead style="background-color: #bde0fe; color: #212529;">
                 <tr>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Rencana Pagu</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Pagu Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Realisasi</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Capaian</th>
-                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Rencana Pagu Pemda</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Pagu Rincian Pemda</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Total Realisasi Pemda</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 20%;">Capaian Pemda</th>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian Pemda</th>
                 </tr>
             </thead>
             <tbody>
@@ -663,31 +713,53 @@ $cetak_laporan_page = $this->generatePage(
                     <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($label_db['rencana_pagu'] ?? 0, 0, ",", "."); ?></td>
                     <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px; <?php echo $style_color; ?>"><?php echo number_format($counter['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
                     <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi; ?>"><?php echo number_format($counter['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo $count_penyerapan; ?>%</td>
+                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi; ?>"><?php echo $count_penyerapan; ?>%</td>
                     <td class="atas kanan bawah kiri text_tengah"><?php echo $counter['jumlah_rincian']; ?></td>
                 </tr>
             </tbody>
         </table>
 
-        <?php if ($count_deleted_rincian != 0): ?>
-            <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
-            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <thead style="background-color: #FFADAD; color: #212529;">
-                    <tr>
-                        <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
-                        <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
-                        <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($pagu_deleted ?? 0, 0, ",", "."); ?></td>
-                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($realisasi_deleted ?? 0, 0, ",", "."); ?></td>
-                        <td class="atas kanan bawah kiri text_tengah"><?php echo $count_deleted_rincian; ?></td>
-                    </tr>
-                </tbody>
-            </table>
-        <?php endif; ?>
+    <?php if (!empty($_GET['id_skpd'])): ?>
+        <h4 class="text_tengah" style="margin-bottom: 1rem;">Total Rekap Anggaran <?php echo $data_skpd['kode_skpd'].' '.$data_skpd['nama_skpd']; ?></h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead style="background-color: #bde0fe; color: #212529;">
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Pagu Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Realisasi</th>
+                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Capaian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px;"><?php echo number_format($counter_opd['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo number_format($counter_opd['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo $count_penyerapan_opd; ?>%</td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo $counter_opd['jumlah_rincian']; ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
+
+    <?php if ($count_deleted_rincian != 0): ?>
+        <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead style="background-color: #FFADAD; color: #212529;">
+                <tr>
+                    <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
+                    <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
+                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($pagu_deleted ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($realisasi_deleted ?? 0, 0, ",", "."); ?></td>
+                    <td class="atas kanan bawah kiri text_tengah"><?php echo $count_deleted_rincian; ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
     </div>
 
     <div class="m-4 text-center btnAction">
