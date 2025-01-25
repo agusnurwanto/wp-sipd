@@ -26,7 +26,13 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $skpd = $wpdb->get_row($sql, ARRAY_A);
 
-$data_label_komponen = $wpdb->get_results("select * from data_label_komponen where tahun_anggaran=" . $input['tahun_anggaran'], ARRAY_A);
+$data_label_komponen = $wpdb->get_results("
+	select 
+		* 
+	from data_label_komponen 
+	where active=1 
+		AND tahun_anggaran=" . $input['tahun_anggaran']
+, ARRAY_A);
 $body = '';
 foreach ($data_label_komponen as $k => $v) {
 	$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];

@@ -5671,6 +5671,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-per-triwulan.php';
 		}
 
+		if ($input['lampiran'] == 'per_bulan') {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-per-bulan.php';
+		}
+
 		if ($input['lampiran'] == 'kas_per_urusan') {
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/apbdpenjabaran/wpsipd-public-apbdpenjabaran-kas-per-urusan.php';
 		}
