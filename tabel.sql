@@ -539,7 +539,10 @@ CREATE TABLE `data_akun` (
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `update_at` DATETIME DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_akun` (`kode_akun`),
+  KEY `id_akun` (`id_akun`)
 );
 
 CREATE TABLE `data_rka` (
@@ -609,7 +612,10 @@ CREATE TABLE `data_rka` (
   `idkomponen` double(20,2) DEFAULT NULL,
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `kode_sbl` (`kode_sbl`)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg` (
@@ -1870,7 +1876,10 @@ CREATE TABLE `data_sub_keg_bl` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `id_sub_skpd` (`id_sub_skpd`)
 );
 
 CREATE TABLE `data_sub_keg_bl_lokal` (
@@ -1944,7 +1953,10 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `waktu_awal_usulan` int(11) DEFAULT NULL,
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `id_sub_skpd` (`id_sub_skpd`)
 );
 
 CREATE TABLE `data_mapping_sumberdana` (
@@ -1995,7 +2007,10 @@ CREATE TABLE `data_mapping_label` (
   `keterangan_hapus` text DEFAULT NULL,
   `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `id_label_komponen` (`id_label_komponen`)
 );
 
 CREATE TABLE `data_label_spm` (
@@ -2837,7 +2852,10 @@ CREATE TABLE `data_rka_history` (
   `idsubtitle` int(11) DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `kode_sbl` (`kode_sbl`)
 );
 
 CREATE TABLE `data_sub_keg_bl_history` (
@@ -2905,7 +2923,10 @@ CREATE TABLE `data_sub_keg_bl_history` (
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `id_sub_skpd` (`id_sub_skpd`)
 );
 
 CREATE TABLE `data_sub_keg_bl_lokal_history` (
@@ -2981,7 +3002,10 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
   `kode_sbl_lama` varchar(50) CHARACTER SET latin1 DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `id_sub_skpd` (`id_sub_skpd`)
 );
 
 CREATE TABLE `data_sub_keg_indikator_history` (
@@ -5921,7 +5945,10 @@ CREATE TABLE `data_rka_lokal` (
   `idkomponen` double(20,2) DEFAULT NULL,
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `kode_sbl` (`kode_sbl`)
 );
 
 CREATE TABLE `data_rka_lokal_history` (
@@ -5993,7 +6020,10 @@ CREATE TABLE `data_rka_lokal_history` (
   `idsubtitle` int(11) DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `kode_sbl` (`kode_sbl`)
 );
 
 CREATE TABLE `data_surat_usulan_ssh` (
