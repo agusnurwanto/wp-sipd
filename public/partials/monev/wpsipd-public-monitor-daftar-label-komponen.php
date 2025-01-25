@@ -31,7 +31,7 @@ $data_label_komponen = $wpdb->get_results(
 		SELECT * 
 		FROM data_label_komponen 
 		WHERE tahun_anggaran=%d
-		  AND active == 1
+		  AND active=1
 	', $input['tahun_anggaran']),
 	ARRAY_A
 );
