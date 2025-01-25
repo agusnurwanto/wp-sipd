@@ -3178,11 +3178,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
             				<tr>
-            					<th class="text_tengah text_blok" rowspan="2" style="width: 20px">No</th>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 45px">No</th>
             					<th class="text_tengah text_blok" rowspan="2" style="width: 250px">Nama Label</th>
             					<th class="text_tengah text_blok" rowspan="2">Keterangan</th>
-            					<th class="text_tengah text_blok" colspan="4" style="width: 400px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
-            					<th class="text_tengah text_blok" rowspan="2" style="width: 150px">Aksi</th>
+            					<th class="text_tengah text_blok" colspan="4" style="width: 500px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 105px">Aksi</th>
             				</tr>
             				<tr>
             					<th class="text_tengah text_blok" style="width: 140px">Rencana Pagu</th>
@@ -3502,10 +3502,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						<td class="text_tengah">
 							<span style="" data-id="' . $v['id'] . '" class="edit-label" title="Edit Label">
 								<div class="dashicons dashicons-edit"></div>
-							</span> | 
+							</span>
 							<span style="" data-id="' . $v['id'] . '" class="hapus-label" title="Hapus Label">
 								<div class="dashicons dashicons-no-alt"></div>
-							</span> | 
+							</span>
 							' . $nonaktif_btn . '
 						</td>
 					</tr>
@@ -3534,30 +3534,100 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$filter_label = '!= 0';
+				if(!empty($_POST['id_skpd'])){
+					$filter_label = '= 1';
+				}
+
 				$data = $wpdb->get_results($wpdb->prepare('
 					SELECT 
 						m.id_label_komponen,
-						sum(r.total_harga) as pagu,
-						sum(d.realisasi) as realisasi,
+						SUM(
+				            CASE 
+				                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
+				                ELSE r.rincian
+				            END
+				        ) as pagu,
+						SUM(
+				            CASE 
+				                WHEN m.pisah = 1 THEN m.realisasi_pisah
+				                ELSE rr.realisasi
+				            END
+				        ) as realisasi,
 						count(m.id) as jml_rincian 
 					FROM data_mapping_label m
+					inner join data_label_komponen l on m.id_label_komponen=l.id
+						and l.active '.$filter_label.'
+						and l.tahun_anggaran=m.tahun_anggaran
+					inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						and r.active=m.active
+						and r.tahun_anggaran=m.tahun_anggaran
+					left join data_realisasi_rincian rr on rr.id_rinci_sub_bl=m.id_rinci_sub_bl
+						and rr.active=m.active
+						and rr.tahun_anggaran=m.tahun_anggaran
+					where m.active=1
+						and m.tahun_anggaran=%d
+					group by m.id_label_komponen
+				', $tahun_anggaran), ARRAY_A);
+				$ret['sql'] = $wpdb->last_query;
+
+				$new_data_opd = array();
+				if(!empty($_POST['id_skpd'])){
+					$inner_skpd = '
+				        INNER JOIN data_sub_keg_bl s 
+			               ON s.kode_sbl=r.kode_sbl
+			               AND s.active = r.active
+			               AND s.tahun_anggaran=r.tahun_anggaran';
+				    $where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_POST['id_skpd']);
+					$data_opd = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_label_komponen,
+							SUM(
+					            CASE 
+					                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
+					                ELSE r.rincian
+					            END
+					        ) as pagu,
+							SUM(
+					            CASE 
+					                WHEN m.pisah = 1 THEN m.realisasi_pisah
+					                ELSE rr.realisasi
+					            END
+					        ) as realisasi,
+							count(m.id) as jml_rincian 
+						FROM data_mapping_label m
 						inner join data_label_komponen l on m.id_label_komponen=l.id
-							and l.active != 0
+							and l.active '.$filter_label.'
 							and l.tahun_anggaran=m.tahun_anggaran
 						inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
 							and r.active=m.active
 							and r.tahun_anggaran=m.tahun_anggaran
-						left join data_realisasi_rincian d on d.id_rinci_sub_bl=m.id_rinci_sub_bl
-							and d.active=m.active
-							and d.tahun_anggaran=m.tahun_anggaran
-					where m.active=1
-						and m.tahun_anggaran=%d
-					group by m.id_label_komponen
+						left join data_realisasi_rincian rr on rr.id_rinci_sub_bl=m.id_rinci_sub_bl
+							and rr.active=m.active
+							and rr.tahun_anggaran=m.tahun_anggaran
+						'.$inner_skpd.'
+						where m.active=1
+							and m.tahun_anggaran=%d
+							'.$where_skpd.'
+						group by m.id_label_komponen
 					', $tahun_anggaran), ARRAY_A);
+					$ret['sql_opd'] = $wpdb->last_query;
+					foreach($data_opd as $v){
+						$new_data_opd[$v['id_label_komponen']] = $v;
+					}
+				}
 				foreach ($data as $k => $v) {
 					$v['pagu'] = number_format($v['pagu'], 0, ",", ".");
 					$v['realisasi'] = number_format($v['realisasi'], 0, ",", ".");
 					$v['jml_rincian'] = number_format($v['jml_rincian'], 0, ",", ".");
+					$v['pagu_opd'] = 0;
+					$v['realisasi_opd'] = 0;
+					$v['jml_rincian_opd'] = 0;
+					if(!empty($new_data_opd[$v['id_label_komponen']])){
+						$v['pagu_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['pagu'], 0, ",", ".");
+						$v['realisasi_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['realisasi'], 0, ",", ".");
+						$v['jml_rincian_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['jml_rincian'], 0, ",", ".");
+					}
 					$ret['data'][] = $v;
 				}
 			} else {

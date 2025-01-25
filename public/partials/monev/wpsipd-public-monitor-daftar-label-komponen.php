@@ -45,6 +45,9 @@ foreach ($data_label_komponen as $k => $v) {
 		<td class="text_tengah">' . ($k + 1) . '</td>
 		<td><a href="' . $url_label . '&id_skpd=' . $input['id_skpd'] . '" target="_blank">' . $v['nama'] . '</a></td>
 		<td>' . $v['keterangan'] . '</td>
+		<td class="text_kanan pagu-rincian_opd">-</td>
+		<td class="text_kanan realisasi-rincian_opd">-</td>
+		<td class="text_kanan jml-rincian_opd">-</td>
 		<td class="text_kanan rencana-pagu">' . number_format($v['rencana_pagu'] ?? 0, 0, ',', '.') . '</td>
 		<td class="text_kanan pagu-rincian">-</td>
 		<td class="text_kanan realisasi-rincian">-</td>
@@ -66,13 +69,16 @@ foreach ($data_label_komponen as $k => $v) {
 				<th class="text_tengah" rowspan="2" style="vertical-align: middle;">No</th>
 				<th class="text_tengah" rowspan="2" style="vertical-align: middle;">Nama Label</th>
 				<th class="text_tengah" rowspan="2" style="vertical-align: middle;">Keterangan</th>
-				<th class="text_tengah text_blok" colspan="4">Analisa Rincian <span style="padding: 4px;" data-id="analis-rincian" id="analisa_komponen" class="edit-mapping"><i class="dashicons dashicons-controls-repeat"></i></span></th>
+				<th class="text_tengah text_blok" colspan="7">Analisa Rincian <span style="padding: 4px;" data-id="analis-rincian" id="analisa_komponen" class="edit-mapping"><i class="dashicons dashicons-controls-repeat"></i></span></th>
 			</tr>
 			<tr>
-				<th class="text_tengah text_blok">Rencana Pagu</th>
 				<th class="text_tengah text_blok">Pagu Rincian</th>
 				<th class="text_tengah text_blok">Realisasi</th>
 				<th class="text_tengah text_blok">Jumlah Rincian</th>
+				<th class="text_tengah text_blok">Rencana Pagu Pemda</th>
+				<th class="text_tengah text_blok">Pagu Rincian Pemda</th>
+				<th class="text_tengah text_blok">Realisasi Pemda</th>
+				<th class="text_tengah text_blok">Jumlah Rincian Pemda</th>
 			</tr>
 			<tr>
 				<th class="text_tengah" style="width: 20px;">1</th>
@@ -82,6 +88,9 @@ foreach ($data_label_komponen as $k => $v) {
 				<th class="text_tengah" style="width: 140px;">5</th>
 				<th class="text_tengah" style="width: 140px;">6</th>
 				<th class="text_tengah" style="width: 140px;">7</th>
+				<th class="text_tengah" style="width: 140px;">9</th>
+				<th class="text_tengah" style="width: 140px;">10</th>
+				<th class="text_tengah" style="width: 140px;">11</th>
 			</tr>
 		</thead>
 		<tbody id="body_label">
@@ -99,7 +108,8 @@ foreach ($data_label_komponen as $k => $v) {
 			data: {
 				"action": "get_analis_rincian_label",
 				"api_key": "<?php echo $api_key; ?>",
-				"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>
+				"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+				"id_skpd": <?php echo $input['id_skpd']; ?>
 			},
 			dataType: "json",
 			success: function(data) {
@@ -111,6 +121,9 @@ foreach ($data_label_komponen as $k => $v) {
 						tr.find('.pagu-rincian').text(b.pagu);
 						tr.find('.realisasi-rincian').text(b.realisasi);
 						tr.find('.jml-rincian').text(b.jml_rincian);
+						tr.find('.pagu-rincian_opd').text(b.pagu_opd);
+						tr.find('.realisasi-rincian_opd').text(b.realisasi_opd);
+						tr.find('.jml-rincian_opd').text(b.jml_rincian_opd);
 					});
 				} else {
 					return alert(data.message);

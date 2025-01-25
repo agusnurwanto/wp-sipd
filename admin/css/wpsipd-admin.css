@@ -64,7 +64,6 @@
 }
 
 .edit-label {
-    border: 2px solid;
     padding: 4px 2px;
     border-radius: 50%;
     color: #2196F3;
@@ -77,7 +76,6 @@
 }
 
 .nonaktif-label {
-    border: 2px solid #FF5722;
     padding: 4px 2px;
     border-radius: 50%;
     color: #FF5722;
@@ -90,7 +88,6 @@
 }
 
 .aktif-label {
-    border: 2px solid #4CAF50;
     padding: 4px 2px;
     border-radius: 50%;
     color: #4CAF50;
@@ -103,7 +100,6 @@
 
 
 .hapus-label {
-    border: 2px solid;
     padding: 4px 2px;
     border-radius: 50%;
     color: #f32121;
