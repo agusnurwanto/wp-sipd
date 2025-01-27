@@ -1817,7 +1817,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `id` int(11) NOT NULL auto_increment,
   `id_sub_skpd` int(11) NOT NULL,
   `id_lokasi` int(11) DEFAULT NULL,
-  `id_label_kokab` int(11) NOT NULL,
+  `id_label_kokab` int(11) DEFAULT NULL,
   `nama_dana` text,
   `no_sub_giat` varchar(20) NOT NULL,
   `kode_giat` varchar(50) NOT NULL,
@@ -2016,6 +2016,7 @@ CREATE TABLE `data_mapping_label` (
 CREATE TABLE `data_label_spm` (
   `id` int(11) NOT NULL auto_increment,
   `id_spm` int(11) NOT NULL,
+  `id_label_kokab` int(11) DEFAULT NULL,
   `abjad_spm` text DEFAULT NULL,
   `nama` text DEFAULT NULL,
   `kode_layanan` text DEFAULT NULL,
@@ -2057,12 +2058,15 @@ CREATE TABLE `data_label_kemiskinan` (
   `active` tinyint(4) NOT NULL, 
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `strategi_teks` (`id_rinci_sub_bl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_mapping_kemiskinan_subgiat` (
   `id` int(11) NOT NULL auto_increment,
-  `id_label_miskin` int(11) NOT NULL,
+  `id_label_miskin` int(11) DEFAULT NULL,
   `kelompok_teks` text DEFAULT NULL,
   `strategi_teks` text DEFAULT NULL,
   `id_urusan` int(11) NOT NULL,
@@ -2077,7 +2081,11 @@ CREATE TABLE `data_mapping_kemiskinan_subgiat` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_label_miskin` (`id_label_miskin`),
+  KEY `id_sub_giat` (`id_sub_giat`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_renstra_tujuan` (
