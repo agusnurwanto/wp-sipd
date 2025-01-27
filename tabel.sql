@@ -8,7 +8,11 @@ CREATE TABLE `data_catatan_rfk_unit` (
   `created_at` DATETIME NOT NULL,
   `updated_by` text NOT NULL,
   `updated_at` DATETIME NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `bulan` (`bulan`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_sub_skpd` (`id_sub_skpd`)
 );
 
 CREATE TABLE `data_rekanan_sipd`(
@@ -35,7 +39,12 @@ CREATE TABLE `data_rekanan_sipd`(
   `created_by` int DEFAULT NULL,
   `updated_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_daerah` (`id_daerah`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `nomor_rekening` (`nomor_rekening`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_spd_sipd`(
@@ -49,7 +58,11 @@ CREATE TABLE `data_spd_sipd`(
   `active` tinyint,
   `created_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `idSpd` (`idSpd`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_npd_sipd`(
@@ -99,7 +112,11 @@ CREATE TABLE `data_npd_sipd`(
   `created_at` DATETIME,
   `update_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_npd` (`id_npd`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_lpj_bpp_sipd`(
@@ -137,12 +154,16 @@ CREATE TABLE `data_lpj_bpp_sipd`(
   `created_at` DATETIME,
   `update_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_lpj_bpp` (`id_lpj_bpp`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_lpj_sipd_detail` (
   `id` bigint NOT NULL auto_increment,
-  `id_skpd` int,
+  `id_skpd` int(11) DEFAULT NULL,
   `id_lpj` int(11) DEFAULT NULL,  
   `tipe` text DEFAULT NULL,
   `nama_daerah` text DEFAULT NULL,
@@ -159,7 +180,12 @@ CREATE TABLE `data_lpj_sipd_detail` (
   `active` tinyint,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `tipe` (`tipe`),
+  KEY `id_lpj` (`id_lpj`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_lpj_sipd_detail_rekening` (
@@ -175,7 +201,12 @@ CREATE TABLE `data_lpj_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_rekening` (`kode_rekening`),
+  KEY `id_lpj` (`id_lpj`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_buku_jurnal_sipd` (
@@ -189,7 +220,11 @@ CREATE TABLE `data_buku_jurnal_sipd` (
   `active` tinyint,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_jurnal` (`id_jurnal`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_buku_jurnal_sipd_detail` (
@@ -204,7 +239,12 @@ CREATE TABLE `data_buku_jurnal_sipd_detail` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_jurnal` (`id_jurnal`),
+  KEY `id_detail` (`id_detail`),
+  KEY `kode_rekening` (`kode_rekening`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `aklap_lra_sipd` (
@@ -223,7 +263,11 @@ CREATE TABLE `aklap_lra_sipd` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `kode_rekening` (`kode_rekening`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_npd_sipd_detail` (
@@ -257,7 +301,11 @@ CREATE TABLE `data_npd_sipd_detail` (
   `active` tinyint,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_npd` (`id_npd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_npd_sipd_detail_rekening` (
@@ -272,7 +320,12 @@ CREATE TABLE `data_npd_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_npd` (`id_npd`),
+  KEY `kode_rekening` (`kode_rekening`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_tbp_sipd`(
@@ -317,7 +370,12 @@ CREATE TABLE `data_tbp_sipd`(
   `created_at` DATETIME,
   `update_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `id_tbp` (`id_tbp`),
+  KEY `id_sp2d` (`id_sp2d`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_tbp_sipd_detail` (
@@ -351,7 +409,11 @@ CREATE TABLE `data_tbp_sipd_detail` (
   `active` tinyint,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_tbp` (`id_tbp`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_tbp_sipd_detail_rekening` (
@@ -364,7 +426,12 @@ CREATE TABLE `data_tbp_sipd_detail_rekening` (
   `active` tinyint(4) NOT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_tbp` (`id_tbp`),
+  KEY `kode_rekening` (`kode_rekening`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_stbp_sipd`(
@@ -389,7 +456,11 @@ CREATE TABLE `data_stbp_sipd`(
   `created_at` DATETIME,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `id_stbp` (`id_stbp`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_stbp_sipd_detail` (
@@ -419,7 +490,11 @@ CREATE TABLE `data_stbp_sipd_detail` (
   `active` tinyint,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `id_stbp` (`id_stbp`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_spd_sipd_detail`(
@@ -441,7 +516,12 @@ CREATE TABLE `data_spd_sipd_detail`(
   `active` tinyint,
   `created_at` DATETIME,
   `tahun_anggaran` year,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `idDetailSpd` (`idDetailSpd`),
+  KEY `idSpd` (`idSpd`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_up_sipd` (
@@ -455,7 +535,11 @@ CREATE TABLE `data_up_sipd` (
   `active` tinyint(4) NOT NULL,
   `create_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_sub_skpd` (`id_sub_skpd`),
+  KEY `id_besaran_up` (`id_besaran_up`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_unit` (
@@ -496,7 +580,13 @@ CREATE TABLE `data_unit` (
   `update_at` DATETIME DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `is_skpd` (`is_skpd`),
+  KEY `id_unit` (`id_unit`),
+  KEY `idinduk` (`idinduk`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_akun` (
@@ -542,7 +632,8 @@ CREATE TABLE `data_akun` (
   PRIMARY KEY (id),
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_akun` (`kode_akun`),
-  KEY `id_akun` (`id_akun`)
+  KEY `id_akun` (`id_akun`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_rka` (
@@ -615,7 +706,10 @@ CREATE TABLE `data_rka` (
   PRIMARY KEY (id),
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
-  KEY `kode_sbl` (`kode_sbl`)
+  KEY `kode_akun` (`kode_akun`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `id_dana` (`id_dana`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg` (
@@ -630,7 +724,10 @@ CREATE TABLE `data_capaian_prog_sub_keg` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
@@ -651,7 +748,10 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
   `targetcapaian_usulan` int(11) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_dana_sub_keg` (
@@ -667,7 +767,12 @@ CREATE TABLE `data_dana_sub_keg` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kodedana` (`kodedana`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `iddana` (`iddana`),
+  KEY `active` (`active`)
 );
 
 
@@ -683,7 +788,10 @@ CREATE TABLE `data_output_giat_sub_keg` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_output_giat_sub_keg_lokal` (
@@ -704,7 +812,10 @@ CREATE TABLE `data_output_giat_sub_keg_lokal` (
   `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `catatan_usulan` text DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_keg_indikator_hasil` (
@@ -718,7 +829,10 @@ CREATE TABLE `data_keg_indikator_hasil` (
   `active` tinyint(4) DEFAULT 1,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_ssh` (
@@ -746,7 +860,14 @@ CREATE TABLE `data_ssh` (
   `active` tinyint(4) DEFAULT 1,
   `tkdn` double(20,2) DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY `id_standar_harga` (`id_standar_harga`)
+  KEY `id_standar_harga` (`id_standar_harga`),
+  KEY `nama_standar_harga` (`nama_standar_harga`),
+  KEY `spek` (`spek`),
+  KEY `kelompok` (`kelompok`),
+  KEY `kode_kel_standar_harga` (`kode_kel_standar_harga`),
+  KEY `kode_standar_harga` (`kode_standar_harga`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_ssh_rek_belanja` (
@@ -760,6 +881,9 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY (id),
   KEY `id_standar_harga` (`id_standar_harga`),
+  KEY `kode_akun` (`kode_akun`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`),
   CONSTRAINT `data_ssh_rek_belanja_ibfk_1` FOREIGN KEY (`id_standar_harga`) REFERENCES `data_ssh` (`id_standar_harga`)
 );
 
@@ -776,7 +900,10 @@ CREATE TABLE `data_sub_keg_indikator` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_sub_keg_indikator_lokal` (
@@ -797,7 +924,10 @@ CREATE TABLE `data_sub_keg_indikator_lokal` (
   `satuanoutput_usulan` text DEFAULT NULL,
   `targetoutputteks_usulan` text DEFAULT NULL,
   `id_indikator_sub_giat` int(11) DEFAULT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_unit_pagu` (
@@ -831,7 +961,9 @@ CREATE TABLE `data_unit_pagu` (
   `totalgiat` double(20,2) DEFAULT NULL,
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `tahun_anggaran` (`tahun_anggaran`)
 );
 
 CREATE TABLE `data_prog_keg` (
@@ -870,7 +1002,11 @@ CREATE TABLE `data_prog_keg` (
   `active` tinyint(4) DEFAULT 1 COMMENT '0=hapus, 1=aktif',
   `update_at` DATETIME DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `id_sub_giat` (`id_sub_giat`),
+  KEY `kode_sub_giat` (`kode_sub_giat`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_rpjmd` (
@@ -1877,7 +2013,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `update_at` DATETIME NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY (id),
-  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_sbl` (`kode_sbl`),
   KEY `id_sub_skpd` (`id_sub_skpd`)
 );
@@ -1954,7 +2090,7 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_sbl` (`kode_sbl`),
   KEY `id_sub_skpd` (`id_sub_skpd`)
 );
@@ -2924,7 +3060,7 @@ CREATE TABLE `data_sub_keg_bl_history` (
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY (id),
-  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_sbl` (`kode_sbl`),
   KEY `id_sub_skpd` (`id_sub_skpd`)
 );
@@ -3003,7 +3139,7 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `sasaran_usulan` text DEFAULT NULL,
   `kode_sbl_lama` varchar(50) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY `tahun_anggaran` (`kode_sbl`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_sbl` (`kode_sbl`),
   KEY `id_sub_skpd` (`id_sub_skpd`)
 );
