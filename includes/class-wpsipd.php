@@ -809,6 +809,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg_parent',  $plugin_public, 'get_sub_keg_parent');
 		$this->loader->add_action('wp_ajax_get_indikator_sub_keg_parent',  $plugin_public, 'get_indikator_sub_keg_parent');
 		$this->loader->add_action('wp_ajax_get_data_sumber_dana_renja',  $plugin_public, 'get_data_sumber_dana_renja');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_sumber_dana_renja',  $plugin_public, 'get_data_sumber_dana_renja');
 		$this->loader->add_action('wp_ajax_submit_tambah_renja',  $plugin_public, 'submit_tambah_renja');
 		$this->loader->add_action('wp_ajax_get_data_lokasi_renja',  $plugin_public, 'get_data_lokasi_renja');
 		$this->loader->add_action('wp_ajax_edit_renja',  $plugin_public, 'edit_renja');

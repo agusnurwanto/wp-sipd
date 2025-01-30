@@ -1999,11 +1999,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 	
-					$data_sumber_dana = $wpdb->get_results($wpdb->prepare(
-						'SELECT *
-						FROM data_sumber_dana
-						WHERE tahun_anggaran=%d
-					', $tahun_anggaran),ARRAY_A);
+					$data_sumber_dana = $wpdb->get_results(
+						$wpdb->prepare('
+							SELECT *
+							FROM data_sumber_dana
+							WHERE tahun_anggaran=%d
+							  AND active = 1
+						', $tahun_anggaran),
+						ARRAY_A
+					);
 	
 					if(!empty($data_sumber_dana)){
 						$ret['data'] = $data_sumber_dana;
