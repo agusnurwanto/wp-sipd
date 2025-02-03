@@ -40,6 +40,24 @@ if (
 	$cek_pagu_dpa = 'sipd';
 }
 
+$api_key = get_option('_crb_api_key_extension');
+$user_id = um_user('ID');
+$user_meta = get_userdata($user_id);
+
+$roles = $this->role_verifikator();
+
+$is_admin = false;
+if (in_array("administrator", $user_meta->roles)) {
+	$is_admin = true;
+}
+
+$is_verifikator = false;
+foreach ($roles as $role) {
+	if (in_array($role, $user_meta->roles)) {
+		$is_verifikator = true;
+	}
+}
+
 $tahun_asli = date('Y');
 $bulan_asli = date('m');
 if (!empty($_GET) && !empty($_GET['bulan'])) {
@@ -483,7 +501,12 @@ foreach ($units as $k => $unit) :
             $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.implode(' ', $nama).'</a>';
 
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=>  $nama_sub. $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a><a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
+				'nama' => $nama_sub . $debug_pagu .
+				    '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span>' .
+				    '<span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>' .
+				    ($is_verifikator || $is_admin ? '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>' : '') .
+				    '<a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>' .
+				    '<a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
 				'total' => 0,
 				'total_rinci' => 0,
 				'total_simda' => 0,
@@ -986,7 +1009,14 @@ if (
 	current_user_can('administrator') ||
 	current_user_can('PA') ||
 	current_user_can('KPA') ||
-	current_user_can('PLT')
+	current_user_can('PLT') ||
+	current_user_can('verifikator_bappeda') ||
+	current_user_can('verifikator_bppkad') ||
+	current_user_can('verifikator_pbj') ||
+	current_user_can('verifikator_adbang') ||
+	current_user_can('verifikator_inspektorat') ||
+	current_user_can('verifikator_pupr') ||
+	current_user_can('pptk')
 ) {
 	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
 }

@@ -248,6 +248,15 @@ $add_setting .= '<a id="pilih-jadwal" onclick="return false;" href="#" class="bt
 		text-align: center;
 		vertical-align: middle;
 	}
+	@media print {
+        #penjadwalanHitungMundur,
+        #pilih-jadwal,
+        .site-header,
+        .site-footer,
+        .hide-display-print {
+            display: none;
+        }
+    }
 </style>
 <div style="padding: 15px;">
 	<h1 class="text-center">LEMBAR ASISTENSI RKA<?php echo $judul ?> SKPD<br>TAHUN ANGGARAN <?php echo $tahun_anggaran ?></h1>
@@ -287,6 +296,11 @@ $add_setting .= '<a id="pilih-jadwal" onclick="return false;" href="#" class="bt
 				<td>SUMBER DANA</td>
 				<td>:</td>
 				<td><?php echo implode(', ', $sd_sub); ?></td>
+			</tr>
+			<tr>
+				<td>PPTK</td>
+				<td>:</td>
+				<td><?php echo $user_pptk; ?></td>
 			</tr>
 			<?php echo $html_ver; ?>
 		</tbody>
