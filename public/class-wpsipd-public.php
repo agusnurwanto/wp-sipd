@@ -17305,7 +17305,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									&& !empty($lama_pelaksanaan)
 								) {
 									$id_tipe = $sqlTipe['id'];
-									$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
+									$where_renja = ($id_tipe == 5 || $id_tipe == 6 || $id_tipe == 13 || $id_tipe == 14) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
 									$sqlSameTipe = $wpdb->get_results(
 										$wpdb->prepare("
 											SELECT * 
@@ -17325,7 +17325,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											];
 											die(json_encode($return));
 										}
-										if (($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir']) || ($jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir'])) {
+										if (($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir']) || ($jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir'] && $tahun_anggaran == $valTipe['tahun_anggaran'])) {
 											$return = [
 												'status'    => 'error',
 												'message'   => 'Waktu sudah dipakai jadwal lain!'
@@ -19667,7 +19667,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$where_renja = '';
 			$cek_renja_penganggaran = true;
-			if ($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6) {
+			if ($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6 || $sql_tipe[0]['id'] == 13 || $sql_tipe[0]['id'] == 14) {
 				if (!empty($tahun_anggaran)) {
 					$where_renja = ' AND tahun_anggaran=' . $tahun_anggaran;
 				} else {
