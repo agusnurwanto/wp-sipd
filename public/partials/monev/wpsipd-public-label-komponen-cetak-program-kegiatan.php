@@ -318,7 +318,7 @@ if (!empty($data_label_shorted['data'])) {
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kanan">' . number_format($sub_keg['total'], 0, ',', '.') . '</td>';
-            $tbody .= '<td class="kiri kanan bawah text_kiri">'.$keterangan.'</td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">' . $keterangan . '</td>';
             $tbody .= '</tr>';
 
 
@@ -363,12 +363,12 @@ if (!empty($data_label_shorted['data'])) {
             margin: 0;
         }
 
-        #cetak {
+        #table-layout {
             overflow: visible;
             width: 100%;
         }
 
-        #cetak table {
+        #table-layout table {
             transform: scale(0.7);
             /* Ubah skala agar tabel muat */
             transform-origin: top left;
@@ -377,99 +377,101 @@ if (!empty($data_label_shorted['data'])) {
 </style>
 
 <body>
-    <table class="borderless-table">
-        <tbody>
-            <tr>
-                <th style="width: 200px;">
-                    Nama Pemda
-                </th>
-                <th style="width: 10px;">
-                    :
-                </th>
-                <th class="text_kiri">
-                    <?php echo $nama_pemda; ?>
-                </th>
-            </tr>
-            <tr>
-                <th>
-                    Label Komponen
-                </th>
-                <th>
-                    :
-                </th>
-                <th>
-                    <?php echo $label_db['nama']; ?>
-                </th>
-            </tr>
-            <tr>
-                <th>
-                    Ultimate Outcome Sektor
-                </th>
-                <th>
-                    :
-                </th>
-                <th>
-
-                </th>
-            </tr>
-        </tbody>
-
-    </table>
-    <div class="wrap-table" id="cetak">
-        <table class="table table-bordered">
-            <thead class="bg-table">
-                <tr>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama OPD</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Program</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Program</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Program</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Program</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Anggaran (Rp)</th>
-                    <th class="kiri kanan atas bawah text_tengah v-align-middle">Keterangan</th>
-                </tr>
-                <tr>
-                    <td class="kiri kanan bawah text_tengah">1</td>
-                    <td class="kiri kanan bawah text_tengah">2</td>
-                    <td class="kiri kanan bawah text_tengah">3</td>
-                    <td class="kiri kanan bawah text_tengah">4</td>
-                    <td class="kiri kanan bawah text_tengah">5</td>
-                    <td class="kiri kanan bawah text_tengah">6</td>
-                    <td class="kiri kanan bawah text_tengah">7</td>
-                    <td class="kiri kanan bawah text_tengah">8</td>
-                    <td class="kiri kanan bawah text_tengah">9</td>
-                    <td class="kiri kanan bawah text_tengah">10</td>
-                    <td class="kiri kanan bawah text_tengah">11</td>
-                    <td class="kiri kanan bawah text_tengah">12</td>
-                    <td class="kiri kanan bawah text_tengah">13</td>
-                    <td class="kiri kanan bawah text_tengah">14</td>
-                    <td class="kiri kanan bawah text_tengah">15</td>
-                    <td class="kiri kanan bawah text_tengah">16</td>
-                    <td class="kiri kanan bawah text_tengah">17</td>
-                    <td class="kiri kanan bawah text_tengah">18</td>
-                </tr>
-            </thead>
+    <div id="cetak" title="Label Komponen_<?php echo $label_db['nama'];?>_<?php echo $nama_pemda; ?>">
+        <table class="borderless-table">
             <tbody>
-                <?php echo $tbody; ?>
-            </tbody>
-            <tfoot>
                 <tr>
-                    <td class="kiri kanan bawah" colspan="15"></td>
-                    <td class="kiri kanan bawah text_tengah font-weight-bold">Total</td>
-                    <td class="kiri kanan bawah text_kanan" colspan="2"><?php echo number_format($total_rincian ?? 0, 0, ",", "."); ?></td>
+                    <th style="width: 200px;">
+                        Nama Pemda
+                    </th>
+                    <th style="width: 10px;">
+                        :
+                    </th>
+                    <th class="text_kiri">
+                        <?php echo $nama_pemda; ?>
+                    </th>
                 </tr>
-            </tfoot>
+                <tr>
+                    <th>
+                        Label Komponen
+                    </th>
+                    <th>
+                        :
+                    </th>
+                    <th>
+                        <?php echo $label_db['nama']; ?>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Ultimate Outcome Sektor
+                    </th>
+                    <th>
+                        :
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+            </tbody>
+
         </table>
+        <div class="wrap-table" id="table-layout">
+            <table>
+                <thead class="bg-table">
+                    <tr>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama OPD</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Program</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Program</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Program</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Program</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Kode Sub Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Indikator Sub Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Target Sub Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Anggaran (Rp)</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Keterangan</th>
+                    </tr>
+                    <tr>
+                        <td class="kiri kanan bawah text_tengah">1</td>
+                        <td class="kiri kanan bawah text_tengah">2</td>
+                        <td class="kiri kanan bawah text_tengah">3</td>
+                        <td class="kiri kanan bawah text_tengah">4</td>
+                        <td class="kiri kanan bawah text_tengah">5</td>
+                        <td class="kiri kanan bawah text_tengah">6</td>
+                        <td class="kiri kanan bawah text_tengah">7</td>
+                        <td class="kiri kanan bawah text_tengah">8</td>
+                        <td class="kiri kanan bawah text_tengah">9</td>
+                        <td class="kiri kanan bawah text_tengah">10</td>
+                        <td class="kiri kanan bawah text_tengah">11</td>
+                        <td class="kiri kanan bawah text_tengah">12</td>
+                        <td class="kiri kanan bawah text_tengah">13</td>
+                        <td class="kiri kanan bawah text_tengah">14</td>
+                        <td class="kiri kanan bawah text_tengah">15</td>
+                        <td class="kiri kanan bawah text_tengah">16</td>
+                        <td class="kiri kanan bawah text_tengah">17</td>
+                        <td class="kiri kanan bawah text_tengah">18</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php echo $tbody; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="kiri kanan bawah" colspan="15"></td>
+                        <td class="kiri kanan bawah text_tengah font-weight-bold">Total</td>
+                        <td class="kiri kanan bawah text_kanan" colspan="2"><?php echo number_format($total_rincian ?? 0, 0, ",", "."); ?></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 </body>
 <script>

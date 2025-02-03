@@ -23430,9 +23430,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$cek = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								strategi_teks 
-							from data_label_kemiskinan 
-							where tahun_anggaran=%d 
-								AND strategi_teks=%d
+							from data_label_kemiskinan
+							where tahun_anggaran=%d
+								AND strategi_teks=%s
 						", $_POST['tahun_anggaran'], $v['strategi_teks']), OBJECT);
 
 						$opsi = array(
@@ -23508,13 +23508,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_label_miskin = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								id 
-							from data_label_kemiskinan 
-							where tahun_anggaran=%d 
-								AND strategi_teks=%d
+							from data_label_kemiskinan
+							where tahun_anggaran=%d
+								AND strategi_teks=%s
 						", $_POST['tahun_anggaran'], $vg['strategi_teks']), OBJECT);
+						
 						// print_r($id_label_miskin);die();
 						$opsi = array(
-							'id_label_miskin' => $id_label_miskin->id,
 							'kelompok_teks' => $vg['kelompok_teks'],
 							'strategi_teks' => $vg['strategi_teks'],
 							'id_urusan' => $vg['id_urusan'],
@@ -23528,6 +23528,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
+						if (!empty($id_label_miskin)) {
+							$opsi['id_label_miskin'] = $id_label_miskin->id;
+						}
 						if (!empty($cek)) {
 							$wpdb->update('data_mapping_kemiskinan_subgiat', $opsi, array(
 								// 'id_label_miskin' => $cek->id_label_miskin,
