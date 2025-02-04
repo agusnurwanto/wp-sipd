@@ -79,7 +79,7 @@ foreach ($idtahun as $val) {
     <table class="table table-bordered" id="daftar-user">
         <thead>
             <tr>
-                <th class="text-center">Username</th>
+                <th class="text-center">Username (NIP)</th>
                 <th class="text-center">Nama</th>
                 <th class="text-center">Nomor WA</th>
                 <th class="text-center">Nama SKPD</th>
@@ -111,10 +111,10 @@ foreach ($idtahun as $val) {
             <div class="modal-body">
                 <input type="hidden" class="form-control" id="id_user">
                 <div class="form-group">
-                    <label>Username</label>
+                    <label>Username (NIP)</label>
                     <input type="text" class="form-control" id="username" required>
                     <small class="form-text text-muted">
-                        Username minimal 5 karakter
+                        Username (NIP) minimal 5 karakter
                     </small>
                 </div>
                 <div class="form-group" id="passForm">

@@ -298,7 +298,7 @@ $add_setting .= '<a id="pilih-jadwal" onclick="return false;" href="#" class="bt
 				<td><?php echo implode(', ', $sd_sub); ?></td>
 			</tr>
 			<tr>
-				<td>PPTK</td>
+				<td>PPTK ( Pejabat Pelaksana Teknis Kegiatan )</td>
 				<td>:</td>
 				<td><?php echo $user_pptk; ?></td>
 			</tr>

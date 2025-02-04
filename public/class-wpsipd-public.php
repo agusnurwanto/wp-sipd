@@ -9416,6 +9416,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 						echo '<li><a href="' . $sppd_page . '" target="_blank" class="btn btn-info">Buat SPT/SPPD</a></li>';
 					}
+					if (!empty($daftar_tombol_list[13])) {
+						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
+						echo '<li><a href="' . $url_menu . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN USER</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
