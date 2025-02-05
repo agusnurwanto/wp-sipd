@@ -51,7 +51,13 @@ if (in_array("administrator", $user_meta->roles)) {
 	$is_admin = true;
 }
 $is_pptk = false;
-if (in_array("pptk", $user_meta->roles)) {
+if (in_array("pptk", $user_meta->roles) || 
+	in_array("verifikator_bappeda", $user_meta->roles) || 
+	in_array("verifikator_bppkad", $user_meta->roles) || 
+	in_array("verifikator_pbj", $user_meta->roles) ||
+	in_array("verifikator_adbang", $user_meta->roles) || 
+	in_array("verifikator_inspektorat", $user_meta->roles) || 
+	in_array("verifikator_pupr", $user_meta->roles)) {
 	$is_pptk = true;
 }
 
@@ -1013,17 +1019,17 @@ if (
 	current_user_can('administrator') ||
 	current_user_can('PA') ||
 	current_user_can('KPA') ||
-	current_user_can('PLT') ||
+	current_user_can('PLT')
+) {
+	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
+}else if (
+	current_user_can('pptk') ||
 	current_user_can('verifikator_bappeda') ||
 	current_user_can('verifikator_bppkad') ||
 	current_user_can('verifikator_pbj') ||
 	current_user_can('verifikator_adbang') ||
 	current_user_can('verifikator_inspektorat') ||
 	current_user_can('verifikator_pupr')
-) {
-	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
-}else if (
-	current_user_can('pptk')
 ) {
 	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Verifikasi</label>';
 }
