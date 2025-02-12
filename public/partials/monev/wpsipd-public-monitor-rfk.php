@@ -50,6 +50,16 @@ $is_admin = false;
 if (in_array("administrator", $user_meta->roles)) {
 	$is_admin = true;
 }
+$is_pptk = false;
+if (in_array("pptk", $user_meta->roles) || 
+	in_array("verifikator_bappeda", $user_meta->roles) || 
+	in_array("verifikator_bppkad", $user_meta->roles) || 
+	in_array("verifikator_pbj", $user_meta->roles) ||
+	in_array("verifikator_adbang", $user_meta->roles) || 
+	in_array("verifikator_inspektorat", $user_meta->roles) || 
+	in_array("verifikator_pupr", $user_meta->roles)) {
+	$is_pptk = true;
+}
 
 $is_verifikator = false;
 foreach ($roles as $role) {
@@ -504,7 +514,7 @@ foreach ($units as $k => $unit) :
 				'nama' => $nama_sub . $debug_pagu .
 				    '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span>' .
 				    '<span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>' .
-				    ($is_verifikator || $is_admin ? '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>' : '') .
+				    (!$is_pptk ? '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>' : '') .
 				    '<a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>' .
 				    '<a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
 				'total' => 0,
@@ -1009,16 +1019,19 @@ if (
 	current_user_can('administrator') ||
 	current_user_can('PA') ||
 	current_user_can('KPA') ||
-	current_user_can('PLT') ||
+	current_user_can('PLT')
+) {
+	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
+}else if (
+	current_user_can('pptk') ||
 	current_user_can('verifikator_bappeda') ||
 	current_user_can('verifikator_bppkad') ||
 	current_user_can('verifikator_pbj') ||
 	current_user_can('verifikator_adbang') ||
 	current_user_can('verifikator_inspektorat') ||
-	current_user_can('verifikator_pupr') ||
-	current_user_can('pptk')
+	current_user_can('verifikator_pupr')
 ) {
-	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
+	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Verifikasi</label>';
 }
 
 $cekbox_set_panjar = '';
