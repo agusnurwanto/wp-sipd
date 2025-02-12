@@ -9345,11 +9345,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if ($vv['is_skpd'] == 1) {
-						$nama_page_monev_renstra = 'MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
-						$url_monev_renstra = $this->get_link_post($custom_post);
-						if (!empty($daftar_tombol_list[5])) {
-							echo '<li><a href="' . $url_monev_renstra . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
+						$data_jadwal_renstra = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT * 
+								FROM `data_jadwal_lokal` 
+								WHERE id_tipe = %d 
+								  AND `status` = %d
+								ORDER BY tahun_anggaran DESC
+							', 15, 0),
+							ARRAY_A
+						);
+						foreach ($data_jadwal_renstra as $jadwal) {
+							$nama_page_monev_renstra = 'MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'];
+							$custom_post = $this->get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
+							$url_monev_renstra = $this->get_link_post($custom_post);
+							if (!empty($daftar_tombol_list[5])) {
+								echo '<li><a href="' . $url_monev_renstra . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
+							}
 						}
 					}
 
