@@ -9356,7 +9356,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							ARRAY_A
 						);
 						foreach ($data_jadwal_renstra as $jadwal) {
-							$nama_page_monev_renstra = 'MONEV RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'];
+							$nama_page_monev_renstra = 'Monitoring Evaluasi RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'];
 							$custom_post = $this->get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
 							$url_monev_renstra = $this->get_link_post($custom_post);
 							if (!empty($daftar_tombol_list[5])) {
