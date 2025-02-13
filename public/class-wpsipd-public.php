@@ -6122,7 +6122,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					$wpdb->update("data_spp_sipd", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"idSubUnit" => $_POST['idSkpd'],
+						"idSkpd" => $_POST['idSkpd'],
 						"tipe" => $_POST['tipe']
 					));
 					$wpdb->update("data_spp_sipd_detail", array('active' => 0), array(
@@ -6132,19 +6132,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					));
 					$wpdb->update("data_spp_sipd_ri_detail", array('active' => 0), array(
 						"tahun_anggaran" => $_POST["tahun_anggaran"],
-						"idSubSkpd" => $_POST['idSkpd'],
+						"id_skpd" => $_POST['idSkpd'],
 						"tipe" => $_POST['tipe']
 					));
 				}
 				foreach ($data as $i => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("
-						select 
-							idSpp 
-						from data_spp_sipd 
-						where idSpp=%d 
-							and tahunSpp=%d
-							and tahun_anggaran=%d
-					", $v["idSpp"], $v["tahunSpp"], $v["tahun_anggaran"]));
+					$cek = $wpdb->get_var("SELECT idSpp from data_spp_sipd where tahun_anggaran=" . $_POST["tahun_anggaran"] . " AND idSpp=" . $v['idSpp']." AND tahunSpp=" . $v['tahunSpp']." AND idSkpd=" . $v['idSkpd']);
+					// $cek = $wpdb->get_results($wpdb->prepare("
+					// 	select 
+					// 		idSpp 
+					// 	from data_spp_sipd 
+					// 	where idSpp=%d 
+					// 		and nomorSpp=%d
+					// 		and tahunSpp=%d
+					// 		and idSkpd=%d
+					// 		and tahun_anggaran=%d
+					// ", $v["idSpp"], $v["nomorSpp"], $v["idSkpd"], $v["tahunSpp"], $v["tahun_anggaran"]));
+					// print_r($cek);exit;
 					$opsi = array(
 						"nomorSpp" => $v['nomorSpp'],
 						"nilaiSpp" => $v['nilaiSpp'],
@@ -6201,11 +6205,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek)) {
-						//Update data spm ditable data_spp_sipd
+						//Update data spp ditable data_spp_sipd
 						$wpdb->update("data_spp_sipd", $opsi, array(
 							"idSpp" => $v["idSpp"],
 							"tahunSpp" => $v["tahunSpp"],
-							"idSubUnit" => $_POST['idSkpd'],
+							"idSkpd" => $v['idSkpd'],
 							"tahun_anggaran" => $_POST["tahun_anggaran"],
 							"tipe" => $_POST['tipe']
 						));
@@ -6240,17 +6244,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
 					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
 					foreach ($data['detail'] as $i => $v) {
-						$cek_id = $wpdb->get_var($wpdb->prepare("
-							select 
-								id 
-							from data_spp_sipd_ri_detail 
-							where id_skpd=%d
-								and id_spp=%d
-								and uraian=%s
-								and jumlah=%s
-								and kode_rekening=%s
-								and tahun_anggaran=%d
-						", $_POST['idSkpd'], $_POST['id_spp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+						$cek_id = $wpdb->get_var("SELECT id from data_spp_sipd_ri_detail where tahun_anggaran=" . $_POST["tahun_anggaran"] . " AND id_spp=" . $_POST['id_spp']." AND id_skpd=" . $_POST['idSkpd']." AND uraian=" . $v['uraian']." AND jumlah=" . $v['jumlah']." AND kode_rekening=" . $v['kode_rekening']."");
+
+						
+						// $cek_id = $wpdb->get_var($wpdb->prepare("
+						// 	select 
+						// 		id 
+						// 	from data_spp_sipd_ri_detail 
+						// 	where id_skpd=%d
+						// 		and id_spp=%d
+						// 		and uraian=%s
+						// 		and jumlah=%s
+						// 		and kode_rekening=%s
+						// 		and tahun_anggaran=%d
+						// ", $_POST['idSkpd'], $_POST['id_spp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+						// print_r($cek_id);exit();
 						$opsi = array(
 							"id_spp" => $_POST['id_spp'],
 							"id_skpd" => $_POST['idSkpd'],
