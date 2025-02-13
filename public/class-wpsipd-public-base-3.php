@@ -1029,8 +1029,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
+					if (empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
 					}
 
 					$dataTujuan = $wpdb->get_row($wpdb->prepare("
@@ -1903,8 +1903,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id']));
 
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
+					if (empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -2969,8 +2969,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program']));
 
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
+					if (empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' tidak ditemukan!');
 					}
 
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
@@ -4055,8 +4055,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
+					if (empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -7550,8 +7550,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['id_indikator_usulan'], $data['id_unik'], $data['id']));
 
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
+					if (empty($id_cek)) {
+						throw new Exception('Indikator : ' . $usulan->indikator . ' tidak ditemukan!');
 					}
 
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
