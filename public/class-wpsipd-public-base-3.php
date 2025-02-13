@@ -1029,8 +1029,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 
-					if (empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$dataTujuan = $wpdb->get_row($wpdb->prepare("
@@ -1899,12 +1899,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							id 
 						FROM data_renstra_sasaran_lokal
 						WHERE indikator_teks_usulan=%s
+							AND id_unik!=%s
 							AND id!=%d
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id']));
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 
-					if (empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -2969,8 +2970,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program']));
 
-					if (empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' tidak ditemukan!');
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
@@ -4055,8 +4056,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 
-					if (empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' tidak ditemukan!');
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -7550,8 +7551,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1
 					", $data['id_indikator_usulan'], $data['id_unik'], $data['id']));
 
-					if (empty($id_cek)) {
-						throw new Exception('Indikator : ' . $usulan->indikator . ' tidak ditemukan!');
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
 					}
 
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
