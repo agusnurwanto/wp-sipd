@@ -94,7 +94,7 @@ $data_all = array(
 	'realisasi_pagu_3' => 0,
 	'realisasi_pagu_4' => 0,
 	'realisasi_pagu_5' => 0,
-	'isRenstraLokal' => false
+	'isRenstraLokal' => true
 );
 
 $tujuan = $wpdb->get_results(
