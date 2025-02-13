@@ -17597,7 +17597,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 
 								$data_jadwal_renstra = [
-									'nama' => $nama
+									'nama' => $nama,
+									'data_monev_renstra' => $_POST['data_monev_renstra']
 								];
 
 								$wpdb->update('data_jadwal_lokal', $data_jadwal_renstra, [

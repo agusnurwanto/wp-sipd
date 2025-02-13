@@ -93,9 +93,19 @@ $data_all = array(
 	'realisasi_pagu_2' => 0,
 	'realisasi_pagu_3' => 0,
 	'realisasi_pagu_4' => 0,
-	'realisasi_pagu_5' => 0,
-	'isRenstraLokal' => true
+	'realisasi_pagu_5' => 0
 );
+
+//check data renstra yang dipakai
+if ($data_jadwal['data_monev_renstra'] == '1') {
+	//sipd
+	$data_all['is_data_lokal'] = false;
+} else if ($data_jadwal['data_monev_renstra'] == '2') {
+	//lokal
+	$data_all['is_data_lokal'] = true;
+} else {
+	die ('<h1>Data Renstra belum ditentukan, hubungi admin!</h1>');
+}
 
 $tujuan = $wpdb->get_results(
 	$wpdb->prepare("
@@ -180,7 +190,7 @@ if (!empty($tujuan)) {
 
 			if (!empty($sasaran)) {
 				foreach ($sasaran as $s => $sasaran_value) {
-					if ($data_all['isRenstraLokal']) {
+					if ($data_all['is_data_lokal']) {
 						$sasaran_key = $sasaran_value['id_unik'];
 						$nama[0] = $sasaran_value['sasaran_teks'];
 						$nama[2] = $sasaran_value['id_unik'];

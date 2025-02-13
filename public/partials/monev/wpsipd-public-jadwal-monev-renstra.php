@@ -106,6 +106,18 @@ $body = '';
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="data_monev_renstra">Pilih data Monev Renstra</label>
+                    <select id="data_monev_renstra" class="form-control" name="data_monev_renstra">
+                        <option value="">Pilih Data</option>
+                        <option value="1">SIPD</option>
+                        <option value="2">Lokal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                <div class="alert alert-info" role="alert">
+                    Pilih data monev renstra untuk menentukan set data yang akan digunakan dalam fitur Monitoring dan Evaluasi Indikator Renstra </div>
+                </div>
+                <div class="form-group">
                     <label for='jadwal_nama'>Nama Tahapan</label>
                     <input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
                 </div>
@@ -172,29 +184,6 @@ $body = '';
             ]
         });
     }
-
-    // function tambah_jadwal() {
-    //     afterSubmitForm()
-    //     jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
-    //     jQuery("#modalTambahJadwal .submitBtn")
-    //         .attr("onclick", 'submitTambahJadwalForm()')
-    //         .attr("disabled", false)
-    //         .text("Simpan");
-    //     jQuery('#modalTambahJadwal').modal('show');
-    //     jQuery.ajax({
-    //         url: thisAjaxUrl,
-    //         type: "post",
-    //         data: {
-    //             'action': "get_data_standar_lama_pelaksanaan",
-    //             'api_key': jQuery("#api_key").val(),
-    //             'tipe_perencanaan': tipePerencanaan
-    //         },
-    //         dataType: "json",
-    //         success: function(response) {
-    //             jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
-    //         }
-    //     })
-    // }
 
     function submitTambahJadwalForm() {
         jQuery("#wrap-loading").show()
@@ -263,6 +252,7 @@ $body = '';
                 jQuery('#wrap-loading').hide();
                 jQuery("#jadwal_nama").val(response.data.nama);
                 jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
+                jQuery("#data_monev_renstra").val(response.data.data_monev_renstra);
                 jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
                 jQuery("#link_rpd_rpjm").val(response.data.relasi_perencanaan).change();
             }
@@ -274,6 +264,7 @@ $body = '';
         let nama = jQuery('#jadwal_nama').val()
         let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
         let relasi_perencanaan = jQuery("#link_rpd_rpjm").val()
+        let data_monev_renstra = jQuery("#data_monev_renstra").val()
         let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
         if (nama.trim() == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == '') {
             jQuery("#wrap-loading").hide()
@@ -292,7 +283,8 @@ $body = '';
                     'tahun_anggaran': this_tahun_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
                     'relasi_perencanaan': relasi_perencanaan,
-                    'lama_pelaksanaan': this_lama_pelaksanaan
+                    'lama_pelaksanaan': this_lama_pelaksanaan,
+                    'data_monev_renstra': data_monev_renstra
                 },
                 beforeSend: function() {
                     jQuery('.submitBtn').attr('disabled', 'disabled')
@@ -380,97 +372,9 @@ $body = '';
         return (alert("Sementera laporan belum bisa dilakukan"));
 
         all_skpd();
-
-        // let modal = `
-        //     <div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
-        //     <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
-        //         <div class="modal-content">
-        //         <div class="modal-header">
-        //             <h5 class="modal-title">Export Data</h5>
-        //             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        //             <span aria-hidden="true">&times;</span>
-        //             </button>
-        //         </div>
-
-        //         <div class="modal-body">
-        //             <div class="container-fluid">
-        //                 <div class="row">
-        //                     <div class="col-md-2">Unit Kerja</div>
-        //                     <div class="col-md-6">
-        //                         <select class="form-control list_opd" id="list_opd"></select>
-        //                     </div>
-        //                 </div></br>
-        //                 <div class="row">
-        //                     <div class="col-md-2">Jenis Laporan</div>
-        //                     <div class="col-md-6">
-        //                         <select class="form-control jenis" id="jenis" onchange="jenisLaporan(this)">
-        //                             <option value="-">Pilih Jenis</option>
-        //                             <option value="rekap">Format Rekap Renstra</option>
-        //                             <option value="tc27">Format TC 27</option>
-        //                             <option value="pagu_akumulasi">Format Pagu Akumulasi Per Unit Kerja</option>
-        //                             <option value="total_prog_keg">Total Program Kegiatan</option>
-        //                         </select>
-        //                     </div>
-        //                 </div></br>
-        //                 <div class="row">
-        //                     <div class="col-md-2">Pagu</div>
-        //                     <div class="col-md-6">
-        //                         <select class="jenis_pagu" id="jenis_pagu" disabled>
-        //                             <option value="-">Pilih jenis pagu</option>
-        //                             <option value="0">Usulan</option>
-        //                             <option value="1">Penetapan</option>
-        //                         </select>
-        //                     </div>
-        //                 </div></br>
-        //                 <div class="row">
-        //                     <div class="col-md-2"></div>
-        //                     <div class="col-md-6">
-        //                         <button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')" data-jadwal="${id_jadwal_lokal}">Preview</button>
-        //                         <button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
-        //                     </div>
-        //                 </div></br>
-        //             </div>
-        //         </div>
-
-        //         <div class="modal-preview" style="padding:10px"></div>
-
-        //         </div>
-        //     </div>
-        //     </div>`;
-
-        // jQuery("body .report").html(modal);
-        // jQuery("#modal-report").modal('show');
-        // jQuery('.jenis').select2({
-        //     width: '100%'
-        // });
     }
 
     function all_skpd() {
         return (alert("Sementera laporan belum bisa dilakukan"));
-
-        // jQuery('#wrap-loading').show();
-        // jQuery.ajax({
-        //     url: ajax.url,
-        //     type: 'post',
-        //     dataType: 'json',
-        //     data: {
-        //         action: 'get_list_skpd',
-        //         tahun_anggaran: tahunAnggaran
-        //     },
-        //     success: function(response) {
-        //         let list_opd = `<option value="">Pilih Unit Kerja</option><option value="all">Semua Unit Kerja</option>`;
-        //         response.map(function(v, i) {
-        //             list_opd += `<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
-        //         });
-        //         jQuery("#list_opd").html(list_opd);
-        //         jQuery('.list_opd').select2({
-        //             width: '100%'
-        //         });
-        //         jQuery('.jenis_pagu').select2({
-        //             width: '100%'
-        //         });
-        //         jQuery('#wrap-loading').hide();
-        //     }
-        // })
     }
 </script>

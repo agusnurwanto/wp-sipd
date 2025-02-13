@@ -3133,6 +3133,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `jenis_jadwal` varchar(20) NOT NULL DEFAULT 'usulan',
   `id_jadwal_pergeseran` int(11) DEFAULT NULL,
   `status_jadwal_pergeseran` varchar(64) DEFAULT NULL,
+  `data_monev_renstra` INT(11) DEFAULT '2' COMMENT '1 = SIPD, 2 = LOKAL',
   PRIMARY KEY  (id_jadwal_lokal),
   KEY `waktu_akhir` (`waktu_akhir`),
   KEY `status` (`status`),
