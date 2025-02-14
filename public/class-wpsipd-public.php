@@ -6243,17 +6243,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
 					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
 					foreach ($data['detail'] as $i => $v) {
-						$cek_id = $wpdb->get_var($wpdb->prepare("
-							SELECT 
-								id 
-							from data_spp_sipd_ri_detail 
-							where id_skpd=%d
-								and id_spp=%d
-								and uraian=%s
-								and jumlah=%s
-								and kode_rekening=%s
-								and tahun_anggaran=%d
-						", $_POST['idSkpd'], $_POST['id_spp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
+						$cek_id = $wpdb->get_var("SELECT id from data_spp_sipd_ri_detail where tahun_anggaran=" . $_POST["tahun_anggaran"] . " AND id_spp=" . $_POST['id_spp']." AND id_skpd=" . $_POST['idSkpd']." AND jumlah=" . $v['jumlah']." AND uraian='" . $v['uraian']."'");
+
+						
+						// $cek_id = $wpdb->get_var($wpdb->prepare("
+						// 	select 
+						// 		id 
+						// 	from data_spp_sipd_ri_detail 
+						// 	where id_skpd=%d
+						// 		and id_spp=%d
+						// 		and uraian=%s
+						// 		and jumlah=%s
+						// 		and kode_rekening=%s
+						// 		and tahun_anggaran=%d
+						// ", $_POST['idSkpd'], $_POST['id_spp'], $v["uraian"], $v["jumlah"], $v["kode_rekening"], $_POST["tahun_anggaran"]));
 						// print_r($cek_id);exit();
 						$opsi = array(
 							"id_spp" => $_POST['id_spp'],
