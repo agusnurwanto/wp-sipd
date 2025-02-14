@@ -7026,8 +7026,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"kode_tahap" => $v["kode_tahap"],
 						"created_by" => $v["created_by"],
 						"created_at" => $v["created_at"],
-						// "updated_at" => $v["updated_at"],
-						"update_at" => current_time('mysql'),
+						"updated_at" => $v["updated_at"],						
 						"updated_by" => $v["updated_by"],
 						"deleted_at" => $v["deleted_at"],
 						"deleted_by" => $v["deleted_by"],
@@ -7041,7 +7040,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						"tbp_nilai" => $v["tbp_nilai"],
 						"tbp_created_at" => $v["tbp_created_at"],
 						"tbp_is_lpj" => $v["tbp_is_lpj"],
-						"active" => 1,						
+						"active" => 1,		
+						"update_at" => current_time('mysql'),				
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek)) {
@@ -7075,7 +7075,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				// $data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
 				foreach ($data as $i => $v) {
 					$wpdb->update("data_npd_sipd_detail", array('active' => 0), array(
 						"id_skpd" => $v['idSkpd'],
@@ -7141,14 +7146,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						from data_npd_sipd_detail_rekening 
 						where id_skpd=%d
 							and id_npd=%d
+							and id_rak_belanja=%d
 							and tahun_anggaran=%d
 							and uraian=%d
 							and kode_rekening=%d
 							and anggaran=%d
-					", $v['idSkpd'], $v['id_npd'], $_POST["tahun_anggaran"], $d["kode_rekening"], $d["uraian"], $d["anggaran"]));
+					", $v['idSkpd'], $v['id_npd'],  $v['id_rak_belanja'], $_POST["tahun_anggaran"], $d["kode_rekening"], $d["uraian"], $d["anggaran"]));
 						$opsi = array(
 							"id_npd" => $v['id_npd'],
 							"id_skpd" => $v['idSkpd'],
+							"id_rak_belanja" => $v['id_rak_belanja'],
 							"kode_rekening" => $d["kode_rekening"],
 							"uraian" => $d["uraian"],
 							"anggaran" => $d["anggaran"],

@@ -326,6 +326,7 @@ CREATE TABLE `data_npd_sipd_detail_rekening` (
   `id` int(11) NOT NULL auto_increment,
   `id_npd` int(11) DEFAULT NULL,
   `id_skpd` int(11) DEFAULT NULL,
+  `id_rak_belanja` int(11) DEFAULT NULL,
   `kode_rekening` text DEFAULT NULL,
   `uraian` text DEFAULT NULL,
   `anggaran` double(20,2) DEFAULT NULL,
@@ -338,6 +339,7 @@ CREATE TABLE `data_npd_sipd_detail_rekening` (
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `id_skpd` (`id_skpd`),
   KEY `id_npd` (`id_npd`),
+  KEY `id_rak_belanja` (`id_rak_belanja`),
   KEY `kode_rekening` (`kode_rekening`),
   KEY `active` (`active`)
 );
