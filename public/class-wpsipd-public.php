@@ -7615,8 +7615,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
-				foreach ($data as $i => $v) {
+				foreach ($data['details'] as $i => $v) {
 					$wpdb->update("data_tbp_sipd_detail", array('active' => 0), array(
+						"id_skpd" => $v['idSkpd'],
+						"id_tbp" => $v['id_tbp'],
+						"tahun_anggaran" => $_POST["tahun_anggaran"]
+					));
+					$wpdb->update("data_tbp_sipd_detail_potongan", array('active' => 0), array(
 						"id_skpd" => $v['idSkpd'],
 						"id_tbp" => $v['id_tbp'],
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
@@ -7628,51 +7633,96 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						where id_skpd=%d
 							and id_tbp=%d
 							and nomor_tbp=%s
-							and nilai_tbp=%s
+							and id_detail=%s
 							and tahun_anggaran=%d
-					", $v['idSkpd'], $v['id_tbp'], $v["nomor_tbp"], $v["nilai_tbp"], $_POST["tahun_anggaran"]));
+					", $v['idSkpd'], $v['id_tbp'], $v["nomor_tbp"], $v["id_detail"], $_POST["tahun_anggaran"]));
 					$opsi = array(
 						"id_tbp" => $v['id_tbp'],
 						"id_skpd" => $v['idSkpd'],
-						"nama_daerah" => $v["nama_daerah"],
-						"nama_skpd" => $v["nama_skpd"],
-						"nomor_tbp" => $v["nomor_tbp"],
-						"nilai_tbp" => $v["nilai_tbp"],
-						"nama_tujuan" => $v["nama_tujuan"],
-						"alamat_perusahaan" => $v["alamat_perusahaan"],
-						"npwp" => $v["npwp"],
-						"nomor_rekening" => $v["nomor_rekening"],
-						"nama_rekening" => $v["nama_rekening"],
-						"nama_bank" => $v["nama_bank"],
-						"keterangan_tbp" => $v["keterangan_tbp"],
-						"jenis_transaksi" => $v["jenis_transaksi"],
-						"nomor_npd" => $v["nomor_npd"],
-						"jenis_panjar" => $v["jenis_panjar"],
-						"tanggal_tbp" => $v["tanggal_tbp"],
-						"nama_pa_kpa" => $v["nama_pa_kpa"],
-						"nip_pa_kpa" => $v["nip_pa_kpa"],
-						"jabatan_pa_kpa" => $v["jabatan_pa_kpa"],
-						"nama_bp_bpp" => $v["nama_bp_bpp"],
-						"nip_bp_bpp" => $v["nip_bp_bpp"],
-						"jabatan_bp_bpp" => $v["jabatan_bp_bpp"],
-						"pajak_potongan" => $v["pajak_potongan"],
 						"jenis_tbp" => $v['jenis'],
 						"jenis" => $v['jenis'],
+						"nama_daerah" => $data['cetak_tbp']["nama_daerah"],
+						"nama_skpd" => $data['cetak_tbp']["nama_skpd"],
+						"nomor_tbp" => $data['cetak_tbp']["nomor_tbp"],
+						"nilai_tbp" => $data['cetak_tbp']["nilai_tbp"],
+						"nama_tujuan" => $data['cetak_tbp']["nama_tujuan"],
+						"alamat_perusahaan" => $data['cetak_tbp']["alamat_perusahaan"],
+						"npwp" => $data['cetak_tbp']["npwp"],
+						"nomor_rekening" => $data['cetak_tbp']["nomor_rekening"],
+						"nama_rekening" => $data['cetak_tbp']["nama_rekening"],
+						"nama_bank" => $data['cetak_tbp']["nama_bank"],
+						"keterangan_tbp" => $data['cetak_tbp']["keterangan_tbp"],
+						"jenis_transaksi" => $data['cetak_tbp']["jenis_transaksi"],
+						"nomor_npd" => $data['cetak_tbp']["nomor_npd"],
+						"jenis_panjar" => $data['cetak_tbp']["jenis_panjar"],
+						"tanggal_tbp" => $data['cetak_tbp']["tanggal_tbp"],
+						"nama_pa_kpa" => $data['cetak_tbp']["nama_pa_kpa"],
+						"nip_pa_kpa" => $data['cetak_tbp']["nip_pa_kpa"],
+						"jabatan_pa_kpa" => $data['cetak_tbp']["jabatan_pa_kpa"],
+						"nama_bp_bpp" => $data['cetak_tbp']["nama_bp_bpp"],
+						"nip_bp_bpp" => $data['cetak_tbp']["nip_bp_bpp"],
+						"jabatan_bp_bpp" => $data['cetak_tbp']["jabatan_bp_bpp"],
+						"nilai_tbp_detail" => $v["nilai_tbp_detail"],
+						"nama_akun" => $v["nama_akun"],
+						"kode_akun" => $v["kode_akun"],
+						"id_akun" => $v["id_akun"],
+						"id_header" => $v["id_header"],
+						"id_detail" => $v["id_detail"],
 						"active" => 1,
 						"update_at" => current_time('mysql'),
 						"tahun_anggaran" => $_POST["tahun_anggaran"]
 					);
 					if (!empty($cek_id)) {
-						//Update data tbp ditable data_tbp_sipd_detail
 						$wpdb->update("data_tbp_sipd_detail", $opsi, array(
 							"id" => $cek_id
 						));
 					} else {
-						//insert data tbp ditable data_tbp_sipd_detail
 						$wpdb->insert("data_tbp_sipd_detail", $opsi);
 					}
 
-					foreach ($v['detail'] as $i => $r) {
+					if(!empty($v['pajak_potongan'])){
+						foreach($v['pajak_potongan'] as $vv){
+							$cek_id_potongan = $wpdb->get_var($wpdb->prepare("
+								select 
+									id 
+								from data_tbp_sipd_detail_potongan 
+								where id_skpd=%d
+									and id_tbp=%d
+									and id_tbp_detail=%s
+									and id_pajak_potongan=%d
+									and tahun_anggaran=%d
+							", $v['idSkpd'], $v['id_tbp'], $v["id_detail"], $vv["id_pajak_potongan"], $_POST["tahun_anggaran"]));
+							$opsi_potongan = array(
+								"id_tbp" => $v['id_tbp'],
+								"id_skpd" => $v['idSkpd'],
+								"id_tbp_detail" => $v['id_detail'],
+								"id_akun_pajak_potongan" => $vv["id_akun_pajak_potongan"],
+								"id_billing" => $vv["id_billing"],
+								"id_pajak_potongan" => $vv["id_pajak_potongan"],
+								"jenis_pajak_potongan" => $vv["jenis_pajak_potongan"],
+								"kode_sinergi" => $vv["kode_sinergi"],
+								"nama_pajak_potongan" => $vv["nama_pajak_potongan"],
+								"nama_sinergi" => $vv["nama_sinergi"],
+								"nilai_pajak_potongan" => $vv["nilai_pajak_potongan"],
+								"ntpn" => $vv["ntpn"],
+								"tanggal_id_billing" => $vv["tanggal_id_billing"],
+								"tanggal_ntpn" => $vv["tanggal_ntpn"],
+								"active" => 1,
+								"update_at" => current_time('mysql'),
+								"tahun_anggaran" => $_POST["tahun_anggaran"]
+							);
+							if (!empty($cek_id_potongan)) {
+								$wpdb->update("data_tbp_sipd_detail_potongan", $opsi_potongan, array(
+									"id" => $cek_id_potongan
+								));
+							} else {
+								$wpdb->insert("data_tbp_sipd_detail_potongan", $opsi_potongan);
+							}
+						}
+					}
+				}
+				if(!empty($data['cetak_tbp'])){
+					foreach ($data['cetak_tbp']['detail'] as $i => $r) {
 						$cek_id = $wpdb->get_var($wpdb->prepare("
 							select 
 								id 
@@ -7683,10 +7733,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								and uraian=%d
 								and kode_rekening=%d
 								and jumlah=%d
-						", $v['idSkpd'], $v['id_tbp'], $_POST["tahun_anggaran"], $r["kode_rekening"], $r["uraian"], $r["jumlah"]));
+						", $r['idSkpd'], $r['id_tbp'], $_POST["tahun_anggaran"], $r["kode_rekening"], $r["uraian"], $r["jumlah"]));
 						$opsi = array(
-							"id_tbp" => $v['id_tbp'],
-							"id_skpd" => $v['idSkpd'],
+							"id_tbp" => $r['id_tbp'],
+							"id_skpd" => $r['idSkpd'],
 							"kode_rekening" => $r["kode_rekening"],
 							"uraian" => $r["uraian"],
 							"jumlah" => $r["jumlah"],
