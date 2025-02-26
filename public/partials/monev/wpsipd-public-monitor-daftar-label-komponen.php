@@ -37,7 +37,7 @@ $data_label_komponen = $wpdb->get_results(
 );
 $body = '';
 foreach ($data_label_komponen as $k => $v) {
-	$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];
+	$title = 'Monev Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];
 	$shortcode = '[monitor_label_komponen tahun_anggaran="' . $input['tahun_anggaran'] . '" id_label="' . $v['id'] . '"]';
 	$update = false;
 	$url_label = $this->generatePage(
@@ -46,9 +46,6 @@ foreach ($data_label_komponen as $k => $v) {
 		$shortcode,
 		$update
 	);
-	// $title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];
-	// $custom_post = get_page_by_title($title, OBJECT, 'page');
-	// $url_label = $this->get_link_post($custom_post);
 	$body .= '
 	<tr data-id="' . $v['id'] . '">
 		<td class="text_tengah">' . ($k + 1) . '</td>

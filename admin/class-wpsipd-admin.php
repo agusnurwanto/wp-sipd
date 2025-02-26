@@ -3471,7 +3471,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				);
 				$body = '';
 				foreach ($data_label_komponen as $k => $v) {
-					$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $_POST['tahun_anggaran'];
+					$title = 'Monev Label Komponen "' . $v['nama'] . '" | ' . $_POST['tahun_anggaran'];
 					$shortcode = '[monitor_label_komponen tahun_anggaran="' . $_POST['tahun_anggaran'] . '" id_label="' . $v['id'] . '"]';
 					$update = false;
 					$url_label = $this->generatePage(
