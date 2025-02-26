@@ -38,8 +38,17 @@ $data_label_komponen = $wpdb->get_results(
 $body = '';
 foreach ($data_label_komponen as $k => $v) {
 	$title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];
-	$custom_post = get_page_by_title($title, OBJECT, 'page');
-	$url_label = $this->get_link_post($custom_post);
+	$shortcode = '[monitor_label_komponen tahun_anggaran="' . $input['tahun_anggaran'] . '" id_label="' . $v['id'] . '"]';
+	$update = false;
+	$url_label = $this->generatePage(
+		$title,
+		$input['tahun_anggaran'],
+		$shortcode,
+		$update
+	);
+	// $title = 'Laporan APBD Per Label Komponen "' . $v['nama'] . '" | ' . $input['tahun_anggaran'];
+	// $custom_post = get_page_by_title($title, OBJECT, 'page');
+	// $url_label = $this->get_link_post($custom_post);
 	$body .= '
 	<tr data-id="' . $v['id'] . '">
 		<td class="text_tengah">' . ($k + 1) . '</td>
@@ -48,7 +57,7 @@ foreach ($data_label_komponen as $k => $v) {
 		<td class="text_kanan pagu-rincian_opd">-</td>
 		<td class="text_kanan realisasi-rincian_opd">-</td>
 		<td class="text_kanan jml-rincian_opd">-</td>
-		<td class="text_kanan rencana-pagu" data-val="'.$v['rencana_pagu'].'">' . number_format($v['rencana_pagu'] ?? 0, 0, ',', '.') . '</td>
+		<td class="text_kanan rencana-pagu" data-val="' . $v['rencana_pagu'] . '">' . number_format($v['rencana_pagu'] ?? 0, 0, ',', '.') . '</td>
 		<td class="text_kanan pagu-rincian">-</td>
 		<td class="text_kanan realisasi-rincian">-</td>
 		<td class="text_kanan jml-rincian">-</td>
