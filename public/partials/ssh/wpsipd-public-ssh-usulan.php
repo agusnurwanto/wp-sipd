@@ -261,6 +261,7 @@ echo $this->menu_ssh($input);
 					<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Item SSH</button>
 					<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Harga SSH</button>
 					<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Akun SSH</button>
+					<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('tkdn',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah TKDN SSH</button>
 					<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-welcome-add-page"></i> Buat Surat Usulan</button>
 				<?php endif; ?>
 				<button class="btn btn-success" onclick="cetak_usulan()"><i class="dashicons dashicons-edit"></i> Cetak/Print Laporan</button>
@@ -834,6 +835,91 @@ echo $this->menu_ssh($input);
 		</div>
 	</div>
 </div>
+
+<!-- Modal usulan TKDN -->
+
+<div class="modal fade" id="tambahUsulanTKDNByKompSSH" role="dialog" data-backdrop="static" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tambahUsulanTKDNByKompSSHLabel">Tambah TKDN usulan SSH</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="overflow:hidden;">
+				<div class="row form-group">
+					<label for='tambah_tkdn_id_sub_unit' class="col-md-12">Sub Unit <span class="required">*</span></label>
+					<div class="col-md-12">
+						<select id='tambah_tkdn_id_sub_unit' name="id_sub_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_kategori" class="col-md-12">Kategori</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_tkdn_komp_kategori" class="form-control" placeholder="Kategori" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
+					<div class="col-md-12">
+						<select id="tambah_tkdn_komp_nama_komponent" class="js-example-basic-single" class="form-control" placeholder="Nama Komponen"></select>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_spesifikasi" class="col-md-12">Spesifikasi</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_tkdn_komp_spesifikasi" class="form-control" placeholder="Spesifikasi" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_satuan" class="col-md-12">Satuan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_tkdn_komp_satuan" class="form-control" placeholder="Satuan" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<div class="col-md-12">
+						<label for="tambah_tkdn_komp_harga_satuan" class="col-md-12">Harga Satuan</label>
+						<input type="text" id="tambah_tkdn_komp_harga_satuan" class="form-control harga_ssh" placeholder="Harga Satuan" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_akun" class="col-md-12">Rekening Akun</label>
+					<div class="col-md-12">
+						<textarea type="text" id="tambah_tkdn_komp_akun" class="form-control" placeholder="Rekening Akun" disabled></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for='tambah_tkdn_komp_jenis_produk' class="col-md-12">Jenis Produk</label>
+					<div class="col-md-12">
+						<input type='radio' id='tambah_tkdn_komp_jenis_produk_dalam_negeri' name='tambah_tkdn_komp_jenis_produk' value='1'>
+						<label class='mr-4' for='tambah_tkdn_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
+						<input type='radio' id='tambah_tkdn_komp_jenis_produk_luar_negeri' name='tambah_tkdn_komp_jenis_produk' value='0'>
+						<label for='tambah_tkdn_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for='tambah_tkdn_komp' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<div class="col-md-12">
+						<input type='number' min="0" max="100" id='tambah_tkdn_komp' style='width:22%;' placeholder='Presentase TKDN 0-100' disabled>
+						<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_tkdn_komp_keterangan_lampiran" class="col-md-12">Keterangan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_tkdn_komp_keterangan_lampiran" class="form-control" placeholder="Keterangan">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitUsulanTambahTKDNSshForm(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL; ?>admin/js/jszip.js"></script>
 <script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL; ?>admin/js/xlsx.js"></script>
 <script>
@@ -1004,6 +1090,23 @@ echo $this->menu_ssh($input);
 			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html("");
 			jQuery("#tambahUsulanAkunByKompSSH .submitBtn").text("");
 			jQuery("#tambahUsulanAkunByKompSSH .submitBtn").attr("onclick", '');
+
+		})
+		jQuery('#tambahUsulanTKDNByKompSSH').on('hidden.bs.modal', function() {
+			jQuery("#tambah_tkdn_id_sub_unit").val("");
+			jQuery("#tambah_tkdn_komp_kategori").val("");
+			jQuery("#tambah_tkdn_komp_nama_komponent").val("").trigger('change');
+			jQuery("#tambah_tkdn_komp_nama_komponent").next(".select2-container").removeClass("hide");
+			jQuery("#tambah_tkdn_komp_spesifikasi").val("");
+			jQuery("#tambah_tkdn_komp_satuan").val("");
+			jQuery("#tambah_tkdn_komp_harga_satuan").val("");
+			jQuery("#tambah_tkdn_komp_akun").html("");
+			jQuery("#tambah_tkdn_komp").val("");
+			jQuery("#tambah_tkdn_komp_keterangan_lampiran").val("");
+			jQuery("#tambah_tkdn_lampiran").show();
+			jQuery("#tambahUsulanTKDNByKompSSH .modal-title").html("");
+			jQuery("#tambahUsulanTKDNByKompSSH .submitBtn").text("");
+			jQuery("#tambahUsulanTKDNByKompSSH .submitBtn").attr("onclick", '');
 
 		})
 		jQuery('#checkall').click(function() {
@@ -1547,6 +1650,23 @@ echo $this->menu_ssh($input);
 		})
 	}
 
+	function get_data_tkdn_ssh(tahun) {
+		jQuery.ajax({
+			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			type: "post",
+			data: {
+				'action': "get_data_tkdn_ssh",
+				'api_key': jQuery("#api_key").val(),
+				'tahun_anggaran': tahun,
+			},
+			dataType: "json",
+			success: function(response) {
+				globalThis.dataAkunSsh = response;
+				enable_button();
+			}
+		})
+	}
+
 	function enable_button() {
 		if (
 			typeof dataSatuanSsh != 'undefined'
@@ -1657,6 +1777,13 @@ echo $this->menu_ssh($input);
 
 			ajax_nama_komponen.dropdownParent = jQuery('#tambahUsulanAkunByKompSSH .modal-content');
 			jQuery('#tambah_akun_komp_nama_komponent').select2(ajax_nama_komponen);
+			
+			var ajax_nama_komponen3 = {
+				...ajax_nama_komponen
+			};
+
+			ajax_nama_komponen3.dropdownParent = jQuery('#tambahUsulanTKDNByKompSSH .modal-content');
+			jQuery('#tambah_tkdn_komp_nama_komponent').select2(ajax_nama_komponen3);
 
 			ajax_kategori.dropdownParent = jQuery('#tambahUsulanSshModal .modal-content');
 			jQuery('#u_kategori').select2(ajax_kategori);
@@ -1792,6 +1919,32 @@ echo $this->menu_ssh($input);
 					.attr("disabled", false)
 					.text("Simpan");
 				jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+			} else if (jenis === 'tkdn') {
+				jQuery("#tambah_tkdn_komp_nama_komponent").on("change", function() {
+					var id_standar_harga = jQuery(this).val();
+					if (id_standar_harga != null) {
+						get_data_usulan_ssh_by_komponen('tkdn', id_standar_harga)
+					}
+				});
+				jQuery('#tambah_tkdn_id_sub_unit').prop('disabled', false);
+				jQuery('#tambah_tkdn_komp_kategori').prop('disabled', true);
+				jQuery('#tambah_tkdn_komp_nama_komponent').prop('disabled', false);
+				jQuery('#tambah_tkdn_komp_spesifikasi').prop('disabled', true);
+				jQuery('#tambah_tkdn_komp_satuan').prop('disabled', true);
+				jQuery('input[name="tambah_tkdn_komp_jenis_produk"]').prop('disabled', false);
+				jQuery('#tambah_tkdn_komp').prop('disabled', false);
+				jQuery('#tambah_tkdn_komp_akun').prop('disabled', true);
+				jQuery('#tambah_tkdn_komp_harga_satuan').prop('disabled', true);
+				jQuery('#tambah_tkdn_komp_keterangan_lampiran').prop('disabled', false);
+
+				jQuery("#tambahUsulanTKDNByKompSSH .modal-footer").find('.submitBtn').remove();
+				jQuery("#tambahUsulanTKDNByKompSSH .modal-title").html('Tambah TKDN usulan SSH');
+				jQuery("#tambahUsulanTKDNByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
+				jQuery("#tambahUsulanTKDNByKompSSH .submitBtn")
+					.attr("onclick", 'submitUsulanTambahTKDNSshForm(' + tahun + ')')
+					.attr("disabled", false)
+					.text("Simpan");
+				jQuery('#tambahUsulanTKDNByKompSSH').modal('show');
 			}
 		}
 	<?php else : ?>
@@ -1898,6 +2051,23 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content);
 					jQuery(`#tambah_akun_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked', true);
 					jQuery("#tambah_akun_komp_tkdn").val(response.data_ssh_usulan_by_id.tkdn);
+				}else if (jenis === 'tkdn') {
+				  // sub unit dinonaktifkan agar jika usulan dari skpd lain, tidak merubah user skpd yang sedang login
+				  // jQuery("#tambah_akun_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
+				  jQuery("#tambah_tkdn_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga + " " + response.data_ssh_usulan_by_id.nama_kel_standar_harga);
+				  jQuery("#tambah_tkdn_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
+				  jQuery("#tambah_tkdn_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
+				  jQuery("#tambah_tkdn_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
+				  jQuery("#tambah_tkdn_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
+				  jQuery("#tambah_tkdn_komp_akun").html(response.table_content);
+				  
+				  if (response.data_ssh_usulan_by_id.jenis_produk == 1) {
+				    jQuery("#tambah_tkdn_komp_jenis_produk_dalam_negeri").prop("checked", true);
+				  } else {
+				    jQuery("#tambah_tkdn_komp_jenis_produk_luar_negeri").prop("checked", true);
+				  }
+
+				  jQuery("#tambah_tkdn_komp").val(response.data_ssh_usulan_by_id.tkdn).trigger("input");
 				}
 				if (response.status != 'success') {
 					alert('Some problem occurred, please try again.');
@@ -2248,6 +2418,67 @@ echo $this->menu_ssh($input);
 		}
 	}
 
+	/** Submit tombol usulan akun rekening */
+	function submitUsulanTambahTKDNSshForm(tahun) {
+		var id_standar_harga = jQuery('#tambah_tkdn_komp_nama_komponent').val();
+		var id_sub_skpd = jQuery('#tambah_tkdn_id_sub_unit').val();
+		var tkdn = jQuery('#tambah_tkdn_komp').val();
+		var keterangan_lampiran = jQuery('#tambah_tkdn_komp_keterangan_lampiran').val();
+	    let jenis_produk = jQuery('input[name="tambah_tkdn_komp_jenis_produk"]:checked').val();
+		if (tkdn == '') {
+			alert('TKDN tidak boleh kosong!');
+			return false;
+		} else if (id_standar_harga.trim() == '') {
+			alert('id_standar_harga tidak boleh kosong!');
+			return false;
+		} else if (id_sub_skpd == '') {
+			alert('id_standar_harga tidak boleh kosong!');
+			return false;
+		} else if (jenis_produk == '') {
+			alert('jenis_produk tidak boleh kosong!');
+			return false;
+		} else {
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: 'post',
+				data: {
+					'action': 'submit_tambah_tkdn_ssh',
+					'api_key': jQuery("#api_key").val(),
+					'tahun_anggaran': tahun,
+					'id_standar_harga': id_standar_harga,
+					'tkdn': tkdn,
+					'id_sub_skpd': id_sub_skpd,
+					'keterangan_lampiran': keterangan_lampiran, 
+	                'jenis_produk': jenis_produk 
+				},
+				dataType: 'json',
+				beforeSend: function() {
+					jQuery('.submitBtn').attr("disabled", "disabled");
+				},
+				success: function(response) {
+					if (response.status == 'success') {
+						alert('Data berhasil disimpan.');
+
+	                    if (jenis_produk == '1') {
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_luar_negeri').prop('checked', false);
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_dalam_negeri').prop('checked', true);
+	                    } else {
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_luar_negeri').prop('checked', true);
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_dalam_negeri').prop('checked', false);
+	                    }
+						jQuery('#tambahUsulanTKDNByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
+					} else {
+						alert(response.message);
+					}
+					jQuery('.submitBtn').removeAttr("disabled");
+					jQuery("#wrap-loading").hide();
+				}
+			});
+		}
+	}
+
 	/** edit akun ssh usulan */
 	function edit_ssh_usulan(status_jenis_usulan, id, mod = 'edit') {
 		jQuery('#wrap-loading').show();
@@ -2479,6 +2710,48 @@ echo $this->menu_ssh($input);
 						jQuery("#tambahUsulanSshModal .modal-title").html('Detail Tambah Usulan SSH');
 					}
 					jQuery('#tambahUsulanSshModal').modal('show');
+				} else if (status_jenis_usulan === 'tambah_tkdn') {
+					jQuery("#tambah_tkdn_id_sub_unit").val(response.data.id_sub_skpd).trigger('change');
+					jQuery("#tambah_tkdn_komp_kategori").val(response.data.kode_kel_standar_harga + " " + response.data.nama_kel_standar_harga);
+					if (jQuery('#tambah_tkdn_komp_nama_komponent').find("option[value='usulan-" + response.data.id + "']").length == 0) {
+						var newOption = new Option(response.data.nama_standar_harga, 'usulan-' + response.data.id, true, true);
+						jQuery('#tambah_tkdn_komp_nama_komponent').append(newOption).trigger('change');
+					}
+					jQuery("#tambah_tkdn_komp_nama_komponent").val('usulan-' + response.data.id).trigger('change');
+					jQuery("#tambah_tkdn_komp_spesifikasi").val(response.data.spek);
+					jQuery("#tambah_tkdn_komp_satuan").val(response.data.satuan);
+					jQuery("#tambah_tkdn_komp_harga_satuan").val(parseInt(response.data.harga)).trigger('input');
+					jQuery(`#tambah_tkdn_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked', true);
+					jQuery("#tambah_tkdn_komp").val(response.data.tkdn);
+					jQuery("#tambah_tkdn_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
+					jQuery("#tambah_tkdn_komp_akun").html(response.table_content_akun);
+
+					jQuery("#tambahUsulanTKDNByKompSSH .modal-footer").find('.submitBtn').remove();
+					jQuery('#tambah_tkdn_id_sub_unit').prop('disabled', true);
+					jQuery('#tambah_tkdn_komp_kategori').prop('disabled', true);
+					jQuery('#tambah_tkdn_komp_nama_komponent').prop('disabled', true);
+					jQuery('#tambah_tkdn_komp_spesifikasi').prop('disabled', true);
+					jQuery('#tambah_tkdn_komp_satuan').prop('disabled', true);
+					jQuery(`#tambah_tkdn_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', true);
+					jQuery('#tambah_tkdn_komp').prop('disabled', true);
+					jQuery('#tambah_tkdn_komp_akun').prop('disabled', true);
+					if (mod === 'edit') {
+						jQuery('#tambah_tkdn_komp').prop('disabled', false);
+						jQuery('#tambah_tkdn_komp_keterangan_lampiran').prop('disabled', false);
+
+						jQuery("#tambahUsulanTKDNByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
+						jQuery("#tambahUsulanTKDNByKompSSH .submitBtn")
+							.attr('onclick', 'submitEditTambahTKDNUsulanSshForm(' + id + ', ' + tahun + ')')
+							.attr('disabled', false)
+							.text('Simpan');
+						jQuery("#tambahUsulanTKDNByKompSSH .modal-title").html('Edit Tambah TKDN Usulan SSH');
+					} else if (mod === 'detil') {
+						jQuery('#tambah_tkdn_komp').prop('disabled', true);
+						jQuery('#tambah_tkdn_komp_keterangan_lampiran').prop('disabled', true);
+
+						jQuery("#tambahUsulanTKDNByKompSSH .modal-title").html('Detail Tambah TKDN Usulan SSH');
+					}
+					jQuery('#tambahUsulanTKDNByKompSSH').modal('show');
 				}
 			}
 		})
@@ -3563,6 +3836,59 @@ echo $this->menu_ssh($input);
 					if (res.status == 'success') {
 						usulanSSHTable.ajax.reload();
 					}
+				}
+			});
+		}
+	}
+
+	/** submit edit tambah tkdn ssh */
+	function submitEditTambahTKDNUsulanSshForm(id, tahun) {
+		var tkdn = jQuery('#tambah_tkdn_komp').val();
+		var keterangan = jQuery('#tambah_tkdn_komp_keterangan_lampiran').val();
+	    let jenis_produk = jQuery('input[name="tambah_tkdn_komp_jenis_produk"]:checked').val();
+		jQuery("#wrap-loading").show();
+		if (tkdn == '') {
+			jQuery("#wrap-loading").hide();
+			alert('Harap diisi semua, tidak ada yang kosong.');
+			return false;
+		} else if (jenis_produk == '') {
+			alert('jenis_produk tidak boleh kosong!');
+			return false;
+		} else {
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: 'post',
+				data: {
+					'action': 'submit_edit_tambah_tkdn_ssh',
+					'api_key': jQuery("#api_key").val(),
+					'tahun_anggaran': tahun,
+					'id': id,
+					'tkdn': tkdn,
+					'keterangan_lampiran': keterangan,
+	                'jenis_produk': jenis_produk 
+				},
+				dataType: 'json',
+				beforeSend: function() {
+					jQuery('.submitBtn').attr("disabled", "disabled");
+				},
+				success: function(response) {
+					if (response.status == 'success') {
+						alert('Data berhasil disimpan.');
+
+	                    if (jenis_produk == '1') {
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_luar_negeri').prop('checked', false);
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_dalam_negeri').prop('checked', true);
+	                    } else {
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_luar_negeri').prop('checked', true);
+	                        jQuery('#tambah_tkdn_komp_jenis_produk_dalam_negeri').prop('checked', false);
+	                    }
+						jQuery('#tambahUsulanTKDNByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
+					} else {
+						alert(response.message);
+					}
+					jQuery('.submitBtn').removeAttr("disabled");
+					jQuery("#wrap-loading").hide();
 				}
 			});
 		}
