@@ -682,16 +682,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 
 					/** Insert usulan rek akun */
-					foreach ($data_akun as $k_akun => $v_akun) {
-						$opsi_akun[$k_akun] = array(
-							'id_akun' => $v_akun[0]['id_akun'],
-							'kode_akun' => $v_akun[0]['kode_akun'],
-							'nama_akun' => $v_akun[0]['kode_akun'] . ' ' . $v_akun[0]['nama_akun'],
-							'id_standar_harga' => $id_usulan,
-							'tahun_anggaran' => $tahun_anggaran
-						);
-						$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun[$k_akun]);
-					}
+					// foreach ($data_akun as $k_akun => $v_akun) {
+					// 	$opsi_akun[$k_akun] = array(
+					// 		'id_akun' => $v_akun[0]['id_akun'],
+					// 		'kode_akun' => $v_akun[0]['kode_akun'],
+					// 		'nama_akun' => $v_akun[0]['kode_akun'] . ' ' . $v_akun[0]['nama_akun'],
+					// 		'id_standar_harga' => $id_usulan,
+					// 		'tahun_anggaran' => $tahun_anggaran
+					// 	);
+					// 	$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun[$k_akun]);
+					// }
 
 					$return = array(
 						'status' => 'success',
@@ -2243,10 +2243,13 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$get_by_skpd = array('-');
 					}
 					$where .= " AND id_sub_skpd IN (" . implode(',', $get_by_skpd) . ") ";
-				} else {
-					$where .= " AND no_surat_usulan IS NOT NULL";
+				}else {
+				    $where .= " AND (
+				        (status_jenis_usulan IN ('tambah_akun', 'tambah_tkdn') AND status != 'draft') 
+				        OR 
+				        (status_jenis_usulan NOT IN ('tambah_akun', 'tambah_tkdn') AND no_surat_usulan IS NOT NULL)
+				    )";
 				}
-
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_ssh_usulan`";
 				$sql = "SELECT " . implode(', ', $columns) . " FROM `data_ssh_usulan`";
@@ -2316,7 +2319,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$can_submit = true;
 						}
 					}
+					if (
+					    $recVal['status'] == 'draft' && 
+					    ($recVal['status_jenis_usulan'] == 'tambah_akun' || $recVal['status_jenis_usulan'] == 'tambah_tkdn')
+					) {
+					    $can_submit = true;
+					}
 
+
+					if ($recVal['status'] == 'draft') {
+					    $can_edit = true;
+					    $can_delete = true;
+					}
 					if ($can_verify) {
 						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">' . $iconFilter . '</a>&nbsp';
 					}
@@ -5444,45 +5458,54 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 	function submit_ssh_usulan_by_id($no_return = false)
 	{
-		global $wpdb;
-		$return = array(
-			'status' => 'success',
-			'message' => 'Berhasil Submit Data'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$status = $wpdb->get_var($wpdb->prepare('
-					select 
-						status 
-					from data_ssh_usulan 
-					where id=%d
-				', $_POST['id']));
-				$opsi_db = array(
-					'status' => 'waiting'
-				);
-				// rubah status usulan jadi waiting jika status rejected
-				if ($status == 'rejected') {
-					$opsi_db['status'] = 'waiting';
-					$wpdb->update('data_ssh_usulan', $opsi_db, array(
-						'id' => $_POST['id']
-					));
-				} else {
-					$return['status'] = 'error';
-					$return['message'] = 'Status = ' . $status . ' tidak bisa dirubah menjadi waiting!';
-				}
-			} else {
-				$return = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		} else {
-			$return = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($return));
+	    global $wpdb;
+	    $return = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil Submit Data'
+	    );
+	    
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	            $status = $wpdb->get_row(
+	            	$wpdb->prepare('
+	            		SELECT 
+	            			status, 
+	            			status_jenis_usulan 
+	            		FROM data_ssh_usulan 
+	            		WHERE id=%d
+	            	',$_POST['id']
+	            ), ARRAY_A);
+	            
+	            if ($status) {
+	                $opsi_db = array('status' => 'waiting');
+	                if (
+	                    $status['status'] == 'rejected' || 
+	                    $status['status_jenis_usulan'] == 'tambah_akun' || 
+	                    ($status['status_jenis_usulan'] == 'tambah_tkdn' && $status['status'] == 'draft')
+	                ) {
+	                    $wpdb->update('data_ssh_usulan', $opsi_db, array('id' => $_POST['id']));
+	                } else {
+	                    $return['status'] = 'error';
+	                    $return['message'] = 'Status "' . $status['status'] . '" tidak bisa dirubah menjadi waiting!';
+	                }
+	            } else {
+	                $return['status'] = 'error';
+	                $return['message'] = 'Data tidak ditemukan!';
+	            }
+	        } else {
+	            $return = array(
+	                'status' => 'error',
+	                'message' => 'API Key tidak sesuai!'
+	            );
+	        }
+	    } else {
+	        $return = array(
+	            'status' => 'error',
+	            'message' => 'Format tidak sesuai!'
+	        );
+	    }
+	    
+	    die(json_encode($return));
 	}
 
 	function import_excel_ssh_usulan()
