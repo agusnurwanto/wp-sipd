@@ -1,26 +1,26 @@
 <?php 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-	die;
+    die;
 }
 global $wpdb;
 $input = shortcode_atts( array(
-	'id_skpd' => '',
-	'tahun_anggaran' => '2022'
+    'id_skpd' => '',
+    'tahun_anggaran' => '2022'
 ), $atts );
 
 $body_rak = '';
 $nama_pemda = get_option('_crb_daerah');
-
+$jenis = isset($_GET['jenis']) ? $_GET['jenis'] : '';
 $sql_unit = $wpdb->prepare("
-	SELECT 
-		*
-	FROM data_unit 
-	WHERE 
+    SELECT 
+        *
+    FROM data_unit 
+    WHERE 
         tahun_anggaran=%d
-		AND id_skpd =%d
-		AND active=1
-	order by id_skpd ASC
+        AND id_skpd =%d
+        AND active=1
+    order by id_skpd ASC
     ", $input['tahun_anggaran'], $input['id_skpd']);
 $unit = $wpdb->get_results($sql_unit, ARRAY_A);
 
@@ -71,6 +71,7 @@ $total_bulan_11 = 0;
 $total_bulan_12 = 0;
 $no = 1;
 if(!empty($data_anggaran)){
+    $sub_keg_all = array();
     foreach ($data_anggaran as $v_anggaran) {
         $kode_sbl = explode('.', $v_anggaran['kode_sbl']);
         if($input["tahun_anggaran"] >= 2024){
@@ -84,54 +85,78 @@ if(!empty($data_anggaran)){
         }else{
             $kode_sbl = $v_anggaran['kode_sbl'];
         }
-        $sql_keg = $wpdb->prepare("
+        if(empty($sub_keg_all[$kode_sbl])){
+            $sub_keg_all[$kode_sbl] = array(
+                'sub_keg' => array(),
+                'data' => array()
+            );
+            $sub_keg_all[$kode_sbl]['sub_keg'] = $wpdb->get_row($wpdb->prepare("
+                SELECT
+                    *
+                FROM data_sub_keg_bl
+                WHERE active=1
+                    AND tahun_anggaran=%s
+                    AND kode_sbl=%s
+            ", $input["tahun_anggaran"], $kode_sbl), ARRAY_A);
+        }
+
+        $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']] = array('total_akun' => 0, 'realisasi' => 0);
+
+        $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['total_akun'] = $wpdb->get_var($wpdb->prepare("
             SELECT
-                k.*,
-                sum(r.rincian) as total_akun,
-                a.nilai as realisasi
-            FROM data_sub_keg_bl as k
-            INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl
-                and r.active=k.active
-                and r.tahun_anggaran=k.tahun_anggaran
-            LEFT JOIN data_realisasi_akun_sipd as a on a.kode_sbl=k.kode_sbl
-                and a.active=k.active
-                and a.tahun_anggaran=k.tahun_anggaran
-            WHERE
-                k.tahun_anggaran=%d
-                AND k.active=1
-                AND k.kode_sbl=%s
-                AND r.kode_akun=%s
-            ",$input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_akun']);
-        // die($sql_keg);
-        $data_sub_keg = $wpdb->get_results($sql_keg, ARRAY_A);
+                sum(rincian) as total_akun
+            FROM data_rka
+            WHERE active=1
+                AND tahun_anggaran=%d
+                AND kode_sbl=%s
+                AND kode_akun=%s
+        ", $input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_akun']));
+
+        $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['realisasi'] = $wpdb->get_var($wpdb->prepare("
+            SELECT
+                realisasi
+            FROM data_realisasi_akun_sipd
+            WHERE active=1
+                AND tahun_anggaran=%d
+                AND (
+                    kode_sbl=%s
+                    or kode_sbl=%s
+                )
+        ", $input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_sbl']));
+
         $warning = '';
-        if($data_sub_keg[0]['total_akun'] != $v_anggaran['total_rincian']){
+        if($sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['total_akun'] != $v_anggaran['total_rincian']){
             $warning = 'background: #ffeb005e;';
         }
         $nama_akun = explode(' ', $v_anggaran['nama_akun']);
         unset($nama_akun[0]);
         $nama_akun = implode(' ', $nama_akun);
+        if ($jenis === '' || $jenis === 'sipd') {
+            $realisasi = $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['realisasi'];
+        }else{
+            $realisasi = 0;
+        }
         $body_rak .= '
             <tr style="'.$warning.'" kode_sbl="'.$kode_sbl.'" kode_sbl_kas="'.$v_anggaran['kode_sbl'].'">
                 <td class="kiri atas kanan bawah text_blok text_tengah">'.$no++.'</td>
-                <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_urusan'].'</td>
-				<td class="atas kanan bawah">'.$data_sub_keg[0]['nama_urusan'].'</td>
-				<td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_bidang_urusan'].'</td>
-				<td class="atas kanan bawah">'.$data_sub_keg[0]['nama_bidang_urusan'].'</td>
-				<td class="atas kanan bawah text_tengah">'.$unit_utama[0]['kode_skpd'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_urusan'].'</td>
+                <td class="atas kanan bawah">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_urusan'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_bidang_urusan'].'</td>
+                <td class="atas kanan bawah">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_bidang_urusan'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$unit_utama[0]['kode_skpd'].'</td>
                 <td class="atas kanan bawah">'.$unit_utama[0]['nama_skpd'].'</td>
                 <td class="atas kanan bawah text_tengah">'.$unit[0]['kode_skpd'].'</td>
                 <td class="atas kanan bawah">'.$unit[0]['nama_skpd'].'</td>
-                <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_program'].'</td>
-                <td class="atas kanan bawah">'.$data_sub_keg[0]['nama_program'].'</td>
-                <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_giat'].'</td>
-                <td class="atas kanan bawah">'.$data_sub_keg[0]['nama_giat'].'</td>
-                <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_sub_giat'].'</td>
-                <td class="atas kanan bawah">'.$data_sub_keg[0]['nama_sub_giat'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_program'].'</td>
+                <td class="atas kanan bawah">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_program'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_giat'].'</td>
+                <td class="atas kanan bawah">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_giat'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_sub_giat'].'</td>
+                <td class="atas kanan bawah">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_sub_giat'].'</td>
                 <td class="atas kanan bawah text_tengah">'.$v_anggaran['kode_akun'].'</td>
                 <td class="atas kanan bawah">'.$nama_akun.'</td>
-                <td class="atas kanan bawah text_kanan">'.number_format($data_sub_keg[0]['total_akun'], 0, '.', ',').'</td>
-                <td class="atas kanan bawah text_kanan">'.number_format($data_sub_keg[0]['realisasi'], 0, '.', ',').'</td>
+                <td class="atas kanan bawah text_kanan">'.number_format($sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['total_akun'] ?? 0, 0, '.', ',').'</td>
+                <td class="atas kanan bawah text_kanan">'.number_format($realisasi ?? 0, 0, '.', ',').'</td>
                 <td class="atas kanan bawah text_kanan">'.number_format($v_anggaran['total_rincian'], 0, '.', ',').'</td>
                 <td class="atas kanan bawah text_kanan">'.number_format($v_anggaran['bulan_1'], 0, '.', ',').'</td>
                 <td class="atas kanan bawah text_kanan">'.number_format($v_anggaran['bulan_2'], 0, '.', ',').'</td>
@@ -147,8 +172,8 @@ if(!empty($data_anggaran)){
                 <td class="atas kanan bawah text_kanan">'.number_format($v_anggaran['bulan_12'], 0, '.', ',').'</td>
             </tr>';
 
-        $total_rincian += $data_sub_keg[0]['total_akun'];
-        $total_realisasi += $data_sub_keg[0]['realisasi'];
+        $total_rincian += $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['total_akun'];
+        $total_realisasi += $sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['realisasi'];
         $total_kas += $v_anggaran['total_rincian'];
         $total_bulan_1 += $v_anggaran['bulan_1'];
         $total_bulan_2 += $v_anggaran['bulan_2'];
@@ -169,17 +194,21 @@ if(!empty($data_anggaran)){
 <h2 style="text-align: center; margin: 0; font-weight: bold;">Rencana Anggaran Kas Data SIPD <br><?php echo $nama_skpd.'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h2>
 <div style="margin: 20px auto;" class="text-center">
     <button class="btn btn-primary" onclick="tableHtmlToExcel('table_data_rak');">Download Excel</button>
+    <label style="margin-left: 10px;" for="jenis">Sumber Data Realisasi:</label>
+    <select style="width: 400px;" name="jenis" id="jenis" onchange="get_realisasi()">
+        <option value="sipd">SIPD Penatausahaan (Dashboard)</option>
+    </select>
 </div>
 <div id="cetak" title="Laporan MONEV RAK" style="padding: 5px; overflow: auto; max-height: 80vh;">
-	<table cellpadding="2" cellspacing="0" id="table_data_rak" contenteditable="false">
-		<thead>
-			<tr>
-				<th style="width: 35px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
-				<th style="width: 55px;" class='atas kanan bawah text_tengah text_blok'>Kode Urusan</th>
-				<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Nama Urusan</th>
-				<th style="width: 55px;" class='atas kanan bawah text_tengah text_blok'>Kode Bidang Urusan</th>
-				<th style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Nama Bidang Urusan</th>
-				<th style="width: 135px;" class='atas kanan bawah text_tengah text_blok'>Kode SKPD</th>
+    <table cellpadding="2" cellspacing="0" id="table_data_rak" contenteditable="false">
+        <thead>
+            <tr>
+                <th style="width: 35px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
+                <th style="width: 55px;" class='atas kanan bawah text_tengah text_blok'>Kode Urusan</th>
+                <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Nama Urusan</th>
+                <th style="width: 55px;" class='atas kanan bawah text_tengah text_blok'>Kode Bidang Urusan</th>
+                <th style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Nama Bidang Urusan</th>
+                <th style="width: 135px;" class='atas kanan bawah text_tengah text_blok'>Kode SKPD</th>
                 <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Nama SKPD</th>
                 <th style="width: 150px;" class='atas kanan bawah text_tengah text_blok'>Kode Sub SKPD</th>
                 <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>nama Sub SKPD</th>
@@ -206,16 +235,16 @@ if(!empty($data_anggaran)){
                 <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Bulan 10</th>
                 <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Bulan 11</th>
                 <th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Bulan 12</th>
-			</tr>
-		</thead>
-		<tbody>
+            </tr>
+        </thead>
+        <tbody>
             <?php echo $body_rak; ?>
-		</tbody>
+        </tbody>
         <tfoot>
             <tr>
                 <th colspan="17" class='atas kanan bawah text_tengah text_blok'>Total</th>
                 <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_rincian, 0, '.', ','); ?></th>
-                <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_realisasi, 0, '.', ','); ?></th>
+                <th class='atas kanan bawah text_kanan text_blok'><?php echo ($jenis === 'sipd') ? number_format($total_realisasi, 0, '.', ',') : '0'; ?></th>
                 <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_kas, 0, '.', ','); ?></th>
                 <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_bulan_1, 0, '.', ','); ?></th>
                 <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_bulan_2, 0, '.', ','); ?></th>
@@ -231,5 +260,28 @@ if(!empty($data_anggaran)){
                 <th class='atas kanan bawah text_kanan text_blok'><?php echo number_format($total_bulan_12, 0, '.', ','); ?></th>
             </tr>
         </tfoot>
-	</table>
+    </table>
 </div>
+<script>
+    window.onload = function() {
+        var params = new URLSearchParams(window.location.search);
+        var jenis = params.get("jenis");
+        if (jenis) {
+            document.getElementById("jenis").value = jenis;
+        }
+    };
+
+    function get_realisasi() {
+        var selectElement = document.getElementById("jenis");
+        var jenis = selectElement.value;
+        var url = new URL(window.location.href);
+
+        if (jenis === "") {
+            url.searchParams.delete("jenis");
+        } else {
+            url.searchParams.set("jenis", jenis);
+        }
+
+        window.location.href = url.toString();
+    }
+</script>
