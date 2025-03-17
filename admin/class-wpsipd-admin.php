@@ -3061,70 +3061,123 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_tag_sipd()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
-		$master_tag = '';
-		$no = 0;
-		foreach ($tahun as $k => $v) {
-			$no++;
-			$nama_page = 'Mandatory Spending | ' . $v['tahun_anggaran'];
+		
+		$tahun_list = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran ORDER BY tahun_anggaran DESC', ARRAY_A);
+
+		$html_sections = [
+			'Daftar Tag SIPD Merah' => '',
+			'Daftar Tag Prioritas Pusat' => '',
+			'Daftar Tag Prioritas Provinsi' => '',
+			'Daftar Tag Prioritas Kota/Kabupaten' => ''
+		];
+
+		foreach ($tahun_list as $tahun) {
+			$tahun_anggaran = $tahun['tahun_anggaran'];
+			$nama_page = 'Mandatory Spending | ' . $tahun_anggaran;
 			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-			$master_tag .= '
-				<tr>
-					<td class="text_tengah">' . $no . '</td>
-					<td><a href="' . get_permalink($custom_post) . '" target="_blank">Semua Label di tahun ' . $v['tahun_anggaran'] . '</a></td>
-					<td class="text_tengah">' . $v['tahun_anggaran'] . '</td>
-				</tr>
-			';
-			$label_tag = $wpdb->get_results('
-				select 
-					idlabelgiat,
-					namalabel
-				from data_tag_sub_keg 
-				where tahun_anggaran=' . $v['tahun_anggaran'] . '
-					and active=1
-					and idlabelgiat!=0
-				group by idlabelgiat
-				order by idlabelgiat ASC
-			', ARRAY_A);
-			foreach ($label_tag as $key => $val) {
-				$no++;
-				$title = 'Laporan APBD Per Tag/Label Sub Kegiatan ' . $val['namalabel'] . ' | ' . $v['tahun_anggaran'];
-				$shortcode = '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran=99 idlabelgiat="' . $val['idlabelgiat'] . '"]';
-				$update = false;
-				$url_tag = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-				$master_tag .= '
-					<tr data-idlabelgiat="' . $val['idlabelgiat'] . '">
-						<td class="text_tengah">' . $no . '</td>
-						<td><a href="' . $url_tag . '" target="_blank" style="padding-left: 20px;">' . $val['namalabel'] . '</a></td>
-						<td class="text_tengah">' . $v['tahun_anggaran'] . '</td>
+
+			foreach ($html_sections as $key => &$html) {
+				$html .= "
+					<tr class='highlight-tahun'>
+						<td>
+							<a href='" . get_permalink($custom_post) . "' target='_blank'>Semua Label di tahun $tahun_anggaran</a>
+						</td>
+						<td>xxx</td>
+						<td class='text_tengah'>xxx</td>
 					</tr>
-				';
+				";
+			}
+
+			$queries = [
+				'Daftar Tag SIPD Merah' => [
+					'table' => 'data_tag_sub_keg',
+					'id' 	=> 'idlabelgiat',
+					'nama' 	=> 'namalabel'
+				],
+				'Daftar Tag Prioritas Pusat' => [
+					'table' => 'data_prioritas_pusat',
+					'id' 	=> 'id_prioritas',
+					'nama'  => 'nama_label'
+				],
+				'Daftar Tag Prioritas Provinsi' => [
+					'table' => 'data_prioritas_prov',
+					'id' 	=> 'id_prioritas',
+					'nama'  => 'nama_label'
+				],
+				'Daftar Tag Prioritas Kota/Kabupaten' => [
+					'table' => 'data_prioritas_kokab',
+					'id' 	=> 'id_prioritas',
+					'nama'  => 'nama_label'
+				]
+			];
+
+			foreach ($queries as $key => $query) {
+				$result = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							{$query['id']},
+							{$query['nama']} 
+						FROM {$query['table']} 
+                    	WHERE tahun_anggaran = %d 
+						  AND active = 1 
+						GROUP BY {$query['id']} 
+						ORDER BY {$query['id']} ASC
+						", $tahun_anggaran
+					),
+					ARRAY_A
+				);
+
+				if (!empty($result)) {
+					foreach ($result as $row) {
+						$title = "Laporan APBD Per Tag/Label Sub Kegiatan {$row[$query['nama']]} | $tahun_anggaran";
+						$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 {$query['id']}='{$row[$query['id']]}']";
+						$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+	
+						$html_sections[$key] .= "
+							<tr data-{$query['id']}='{$row[$query['id']]}'>
+								<td>
+									<a href='$url_tag' target='_blank' style='padding-left: 20px;'>{$row[$query['nama']]}</a>
+								</td>
+								<td class='text_tengah'>xxx</td>
+								<td class='text_tengah'>xxx</td>
+							</tr>
+						";
+					}
+				}
 			}
 		}
-		$label = array(
-			Field::make('html', 'crb_daftar_tag_label_sub_kegiatan')
-				->set_html('
-            		<style>
-            			.postbox-container { display: none; }
-            			#poststuff #post-body.columns-2 { margin: 0 !important; }
-            		</style>
-            		<h3 class="text_tengah">Daftar Tag/Label Sub Kegiatan</h3>
-            		<table class="wp-list-table widefat fixed striped">
-            			<thead>
-            				<tr class="text_tengah">
-            					<th class="text_tengah" style="width: 20px">No</th>
-            					<th class="text_tengah">Nama Tag/Label Sub Kegiatan</th>
-            					<th class="text_tengah" style="width: 140px">Tahun Anggaran</th>
-            				</tr>
-            			</thead>
-            			<tbody>
-            				' . $master_tag . '
-            			</tbody>
-            		</table>
-        		')
-		);
-		return $label;
+
+		$html_output = "
+			<style>
+				.postbox-container { display: none; }
+				#poststuff #post-body.columns-2 { margin: 0 !important; }
+				.highlight-tahun { background-color: #D3D3D3 !important; color: #000; font-weight: bold; text-transform: uppercase; text-align: left; }
+			</style>
+		";
+
+		foreach ($html_sections as $title => $content) {
+			$html_output .= "
+				<h3 class='text_tengah'>$title</h3>
+				<table class='wp-list-table widefat fixed striped' style='margin-bottom: 50px'>
+					<thead>
+						<tr>
+							<th class='text_tengah'>Nama Tag/Label Sub Kegiatan</th>
+							<th class='text_tengah' style='width: 140px'>Jumlah Pagu</th>
+							<th class='text_tengah' style='width: 140px'>Jumlah Subkegiatan</th>
+						</tr>
+					</thead>
+					<tbody>
+						$content
+					</tbody>
+				</table>
+			";
+		}
+
+		return [
+			Field::make('html', 'crb_daftar_tag_label_sub_kegiatan')->set_html($html_output)
+		];
 	}
+
 
 	public function generate_label_komponen()
 	{
@@ -3475,9 +3528,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$shortcode = '[monitor_label_komponen tahun_anggaran="' . $_POST['tahun_anggaran'] . '" id_label="' . $v['id'] . '"]';
 					$update = false;
 					$url_label = $this->generatePage(
-						$title, 
-						$_POST['tahun_anggaran'], 
-						$shortcode, 
+						$title,
+						$_POST['tahun_anggaran'],
+						$shortcode,
 						$update
 					);
 					$formatted_number = number_format($v['rencana_pagu'], 0, ',', '.');
@@ -3541,7 +3594,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$filter_label = '!= 0';
-				if(!empty($_POST['id_skpd'])){
+				if (!empty($_POST['id_skpd'])) {
 					$filter_label = '= 1';
 				}
 
@@ -3563,7 +3616,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						count(m.id) as jml_rincian 
 					FROM data_mapping_label m
 					inner join data_label_komponen l on m.id_label_komponen=l.id
-						and l.active '.$filter_label.'
+						and l.active ' . $filter_label . '
 						and l.tahun_anggaran=m.tahun_anggaran
 					inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
 						and r.active=m.active
@@ -3578,13 +3631,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$ret['sql'] = $wpdb->last_query;
 
 				$new_data_opd = array();
-				if(!empty($_POST['id_skpd'])){
+				if (!empty($_POST['id_skpd'])) {
 					$inner_skpd = '
 				        INNER JOIN data_sub_keg_bl s 
 			               ON s.kode_sbl=r.kode_sbl
 			               AND s.active = r.active
 			               AND s.tahun_anggaran=r.tahun_anggaran';
-				    $where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_POST['id_skpd']);
+					$where_skpd = $wpdb->prepare("AND s.id_sub_skpd=%d", $_POST['id_skpd']);
 					$data_opd = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							m.id_label_komponen,
@@ -3603,7 +3656,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							count(m.id) as jml_rincian 
 						FROM data_mapping_label m
 						inner join data_label_komponen l on m.id_label_komponen=l.id
-							and l.active '.$filter_label.'
+							and l.active ' . $filter_label . '
 							and l.tahun_anggaran=m.tahun_anggaran
 						inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
 							and r.active=m.active
@@ -3611,14 +3664,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						left join data_realisasi_rincian rr on rr.id_rinci_sub_bl=m.id_rinci_sub_bl
 							and rr.active=m.active
 							and rr.tahun_anggaran=m.tahun_anggaran
-						'.$inner_skpd.'
+						' . $inner_skpd . '
 						where m.active=1
 							and m.tahun_anggaran=%d
-							'.$where_skpd.'
+							' . $where_skpd . '
 						group by m.id_label_komponen
 					', $tahun_anggaran), ARRAY_A);
 					$ret['sql_opd'] = $wpdb->last_query;
-					foreach($data_opd as $v){
+					foreach ($data_opd as $v) {
 						$new_data_opd[$v['id_label_komponen']] = $v;
 					}
 				}
@@ -3629,7 +3682,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$v['pagu_opd'] = 0;
 					$v['realisasi_opd'] = 0;
 					$v['jml_rincian_opd'] = 0;
-					if(!empty($new_data_opd[$v['id_label_komponen']])){
+					if (!empty($new_data_opd[$v['id_label_komponen']])) {
 						$v['pagu_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['pagu'], 0, ",", ".");
 						$v['realisasi_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['realisasi'], 0, ",", ".");
 						$v['jml_rincian_opd'] = number_format($new_data_opd[$v['id_label_komponen']]['jml_rincian'], 0, ",", ".");

@@ -1,16 +1,16 @@
 <?php
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
     die;
 }
 global $wpdb;
 $type = 'murni';
-if(!empty($_GET) && !empty($_GET['type'])){
+if (!empty($_GET) && !empty($_GET['type'])) {
     $type = $_GET['type'];
 }
 
 $format_rkpd = '';
-if(!empty($_GET) && !empty($_GET['rkpd'])){
+if (!empty($_GET) && !empty($_GET['rkpd'])) {
     $format_rkpd = $_GET['rkpd'];
 }
 
@@ -22,12 +22,12 @@ $pengaturan = $wpdb->get_results($wpdb->prepare("
 ", $input['tahun_anggaran']), ARRAY_A);
 
 $start_rpjmd = 2018;
-if(!empty($pengaturan)){
+if (!empty($pengaturan)) {
     $start_rpjmd = $pengaturan[0]['awal_rpjmd'];
 }
-$urut = $input['tahun_anggaran']-$start_rpjmd;
+$urut = $input['tahun_anggaran'] - $start_rpjmd;
 
-if(!empty($input['idlabelgiat'])){
+if (!empty($input['idlabelgiat'])) {
     $sql = "
         SELECT 
             s.*, t.* 
@@ -39,7 +39,7 @@ if(!empty($input['idlabelgiat'])){
             AND t.active=1
             AND t.tahun_anggaran=%d";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['idlabelgiat'], $input['tahun_anggaran']), ARRAY_A);
-}else{
+} else {
     $sql = "
         SELECT 
             s.*, t.* 
@@ -72,11 +72,11 @@ foreach ($subkeg as $kk => $sub) {
             and capaianteks != ''
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-    if($type == 'detail' && empty($capaian_prog)){
+    if ($type == 'detail' && empty($capaian_prog)) {
         $capaian_prog = $wpdb->get_results($wpdb->prepare("
             select 
                 j.indikator as capaianteks,
-                j.target_".$urut." as targetcapaianteks 
+                j.target_" . $urut . " as targetcapaianteks 
             from data_renstra as r
                 join data_rpjmd as j on r.id_rpjmd=j.id_rpjmd and r.tahun_anggaran=j.tahun_anggaran
             where r.tahun_anggaran=%d
@@ -119,20 +119,26 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-    $nama = explode(' ', $sub['nama_sub_giat']);
-    $kode_sub_giat = $nama[0];
-    $data_renstra = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_renstra
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sub_giat=%s
-            and id_unit=%s
-        order by id ASC
-    ", $input['tahun_anggaran'], $kode_sub_giat, $sub['id_skpd']), ARRAY_A);
+    if (!empty($sub['nama_sub_giat'])) {
+        $nama = explode(' ', $sub['nama_sub_giat']);
+        $kode_sub_giat = $nama[0];
+        $data_renstra = $wpdb->get_results(
+            $wpdb->prepare("
+                SELECT 
+                    * 
+                FROM data_renstra
+                WHERE tahun_anggaran=%d
+                  AND active=1
+                  AND kode_sub_giat=%s
+                  AND id_unit=%s
+                ORDER BY id ASC
+            ", $input['tahun_anggaran'], $kode_sub_giat, $sub['id_skpd']),
+            ARRAY_A
+        );
+    }
+
     $data_rpjmd = array();
-    if(!empty($data_renstra)){
+    if (!empty($data_renstra)) {
         $data_rpjmd = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
@@ -143,7 +149,7 @@ foreach ($subkeg as $kk => $sub) {
             order by id ASC
         ", $data_renstra[0]['id_rpjmd'], $input['tahun_anggaran']), ARRAY_A);
         $nama_skpd = $data_renstra[0]['nama_skpd'];
-    }else{
+    } else {
         $_nama_skpd = $wpdb->get_row($wpdb->prepare("
             select 
                 nama_skpd 
@@ -154,11 +160,12 @@ foreach ($subkeg as $kk => $sub) {
                 and active=1
             order by id ASC
         ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-        $nama_skpd = $_nama_skpd['nama_skpd'];
+        if (!empty($_nama_skpd)) {
+            $nama_skpd = $_nama_skpd['nama_skpd'];
+        }
     }
-    // die($wpdb->last_query);
 
-    if(empty($data_all['data'][$sub['namalabel']])){
+    if (empty($data_all['data'][$sub['namalabel']])) {
         $data_all['data'][$sub['namalabel']] = array(
             'nama'  => $sub['namalabel'],
             'total' => 0,
@@ -167,17 +174,17 @@ foreach ($subkeg as $kk => $sub) {
         );
     }
 
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']])){
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']])) {
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']] = array(
             'nama'  => $sub['nama_sub_skpd'],
-            'nama_skpd'  => $nama_skpd,
+            'nama_skpd'  => $nama_skpd ?? '',
             'total' => 0,
             'total_n_plus' => 0,
             'data'  => array()
         );
     }
 
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])){
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
             'nama'  => $sub['nama_urusan'],
             'total' => 0,
@@ -185,7 +192,7 @@ foreach ($subkeg as $kk => $sub) {
             'data'  => array()
         );
     }
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])){
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
             'nama'  => $sub['nama_bidang_urusan'],
             'total' => 0,
@@ -193,7 +200,7 @@ foreach ($subkeg as $kk => $sub) {
             'data'  => array()
         );
     }
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
             'nama'  => $sub['nama_program'],
             'total' => 0,
@@ -201,7 +208,7 @@ foreach ($subkeg as $kk => $sub) {
             'data'  => array()
         );
     }
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])){
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
             'nama'  => $sub['nama_giat'],
             'total' => 0,
@@ -209,9 +216,13 @@ foreach ($subkeg as $kk => $sub) {
             'data'  => array()
         );
     }
-    if(empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
-        $nama = explode(' ', $sub['nama_sub_giat']);
-        unset($nama[0]);
+    if (empty($data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
+        if (!empty($sub['nama_sub_giat'])) {
+            $nama = explode(' ', $sub['nama_sub_giat']);
+            unset($nama[0]);
+        } else {
+            $nama = array();
+        }
         $data_all['data'][$sub['namalabel']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
             'nama'  => implode(' ', $nama),
             'total' => 0,
@@ -220,7 +231,7 @@ foreach ($subkeg as $kk => $sub) {
             'output_giat' => $output_giat,
             'output_sub_giat' => $output_sub_giat,
             'lokasi_sub_giat' => $lokasi_sub_giat,
-            'data_renstra' => $data_renstra,
+            'data_renstra' => $data_renstra ?? '',
             'data_rpjmd' => $data_rpjmd,
             'data'  => $sub
         );
@@ -250,17 +261,17 @@ $body_rkpd = '';
 foreach ($data_all['data'] as $label_tag) {
     $body .= '
         <tr style="background: #f7eb64;">
-            <td class="kiri kanan bawah text_blok" colspan="13">'.$label_tag['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],2,",",".").'</td>
+            <td class="kiri kanan bawah text_blok" colspan="13">' . $label_tag['nama'] . '</td>
+            <td class="kanan bawah text_kanan text_blok">' . number_format($label_tag['total'], 2, ",", ".") . '</td>
             <td class="kanan bawah" colspan="4">&nbsp;</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],2,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">' . number_format($label_tag['total_n_plus'], 2, ",", ".") . '</td>
         </tr>
     ';
     $body_rkpd .= '
         <tr style="background: #f7eb64;">
-            <td class="kiri kanan bawah text_blok" colspan="15">'.$label_tag['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],2,",",".").'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],2,",",".").'</td>
+            <td class="kiri kanan bawah text_blok" colspan="15">' . $label_tag['nama'] . '</td>
+            <td class="kanan bawah text_kanan text_blok">' . number_format($label_tag['total'], 2, ",", ".") . '</td>
+            <td class="kanan bawah text_kanan text_blok">' . number_format($label_tag['total_n_plus'], 2, ",", ".") . '</td>
             <td class="kanan bawah"></td>
         </tr>
     ';
@@ -268,161 +279,163 @@ foreach ($data_all['data'] as $label_tag) {
         $body .= '
             <tr>
                 <td class="kiri kanan bawah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="18">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+                <td class="kanan bawah text_blok" colspan="18">Unit Organisasi : ' . $sub_skpd['nama_skpd'] . '</td>
             </tr>
             <tr style="background: #ffe2e2;">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
-                <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],2,",",".").'</td>
+                <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : ' . $sub_skpd['nama'] . '</td>
+                <td class="kanan bawah text_kanan text_blok">' . number_format($sub_skpd['total'], 2, ",", ".") . '</td>
                 <td class="kanan bawah" colspan="4">&nbsp;</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],2,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">' . number_format($sub_skpd['total_n_plus'], 2, ",", ".") . '</td>
             </tr>
         ';
         $body_rkpd .= '
             <tr>
                 <td class="kiri kanan bawah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="17">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+                <td class="kanan bawah text_blok" colspan="17">Unit Organisasi : ' . $sub_skpd['nama_skpd'] . '</td>
             </tr>
             <tr style="background: #ffe2e2;">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
-                <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],2,",",".").'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],2,",",".").'</td>
+                <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : ' . $sub_skpd['nama'] . '</td>
+                <td class="kanan bawah text_kanan text_blok">' . number_format($sub_skpd['total'], 2, ",", ".") . '</td>
+                <td class="kanan bawah text_kanan text_blok">' . number_format($sub_skpd['total_n_plus'], 2, ",", ".") . '</td>
                 <td class="kanan bawah"></td>
             </tr>
         ';
         foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
             $body .= '
                 <tr>
-                    <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                    <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
-                    <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
+                    <td class="kanan bawah text_blok" colspan="14">' . $urusan['nama'] . '</td>
                 </tr>
             ';
             $body_rkpd .= '
                 <tr>
-                    <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                    <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
-                    <td class="kanan bawah text_blok" colspan="13">'.$urusan['nama'].'</td>
+                    <td class="kanan bawah text_blok" colspan="13">' . $urusan['nama'] . '</td>
                 </tr>
             ';
             foreach ($urusan['data'] as $kd_bidang => $bidang) {
                 $kd_bidang = explode('.', $kd_bidang);
-                $kd_bidang = $kd_bidang[count($kd_bidang)-1];
+                $kd_bidang = $kd_bidang[count($kd_bidang) - 1];
                 $body .= '
                     <tr>
-                        <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-                        <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
+                        <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
+                        <td class="kanan bawah text_blok">' . $kd_bidang . '</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
-                        <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],2,",",".").'</td>
+                        <td class="kanan bawah text_blok" colspan="8">' . $bidang['nama'] . '</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($bidang['total'], 2, ",", ".") . '</td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],2,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($bidang['total_n_plus'], 2, ",", ".") . '</td>
                     </tr>
                 ';
                 $body_rkpd .= '
                     <tr>
-                        <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-                        <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
+                        <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
+                        <td class="kanan bawah text_blok">' . $kd_bidang . '</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
-                        <td class="kanan bawah text_blok" colspan="10">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],2,",",".").'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],2,",",".").'</td>
+                        <td class="kanan bawah text_blok" colspan="10">' . $bidang['nama'] . '</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($bidang['total'], 2, ",", ".") . '</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($bidang['total_n_plus'], 2, ",", ".") . '</td>
                         <td class="kanan bawah"></td>
                     </tr>
                 ';
                 foreach ($bidang['data'] as $kd_program => $program) {
                     $kd_program = explode('.', $kd_program);
-                    $kd_program = $kd_program[count($kd_program)-1];
+                    $kd_program = $kd_program[count($kd_program) - 1];
                     $body .= '
                         <tr>
-                            <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-                            <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
-                            <td class="kanan bawah text_blok">'.$kd_program.'</td>
+                            <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
+                            <td class="kanan bawah text_blok">' . $kd_bidang . '</td>
+                            <td class="kanan bawah text_blok">' . $kd_program . '</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
-                            <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],2,",",".").'</td>
+                            <td class="kanan bawah text_blok" colspan="8">' . $program['nama'] . '</td>
+                            <td class="kanan bawah text_kanan text_blok">' . number_format($program['total'], 2, ",", ".") . '</td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],2,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">' . number_format($program['total_n_plus'], 2, ",", ".") . '</td>
                         </tr>
                     ';
                     $body_rkpd .= '
                         <tr>
-                            <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-                            <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
-                            <td class="kanan bawah text_blok">'.$kd_program.'</td>
+                            <td class="kiri kanan bawah text_blok">' . $kd_urusan . '</td>
+                            <td class="kanan bawah text_blok">' . $kd_bidang . '</td>
+                            <td class="kanan bawah text_blok">' . $kd_program . '</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
-                            <td class="kanan bawah text_blok" colspan="10">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],2,",",".").'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],2,",",".").'</td>
+                            <td class="kanan bawah text_blok" colspan="10">' . $program['nama'] . '</td>
+                            <td class="kanan bawah text_kanan text_blok">' . number_format($program['total'], 2, ",", ".") . '</td>
+                            <td class="kanan bawah text_kanan text_blok">' . number_format($program['total_n_plus'], 2, ",", ".") . '</td>
                             <td class="kanan bawah"></td>
                         </tr>
                     ';
                     foreach ($program['data'] as $kd_giat => $giat) {
-                        $kd_giat = explode('.', $kd_giat);
-                        $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
+                        if (!empty($kd_giat)) {
+                            $kd_giat = explode('.', $kd_giat);
+                            $kd_giat = $kd_giat[count($kd_giat) - 2] . '.' . $kd_giat[count($kd_giat) - 1];
+                        }
                         $body .= '
                             <tr>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">' . $kd_urusan . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">' . $kd_bidang . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">' . $kd_program . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">' . $kd_giat . '</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],2,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">' . $giat['nama'] . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($giat['total'], 2, ",", ".") . '</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],2,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($giat['total_n_plus'], 2, ",", ".") . '</td>
                             </tr>
                         ';
                         $body_rkpd .= '
                             <tr>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">' . $kd_urusan . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">' . $kd_bidang . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">' . $kd_program . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">' . $kd_giat . '</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="10">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],2,",",".").'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],2,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="10">' . $giat['nama'] . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($giat['total'], 2, ",", ".") . '</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($giat['total_n_plus'], 2, ",", ".") . '</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
                             </tr>
                         ';
                         foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
                             $kd_sub_giat = explode('.', $kd_sub_giat);
-                            $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
+                            $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat) - 1];
                             $capaian_prog = '';
-                            if(!empty($sub_giat['capaian_prog'])){
+                            if (!empty($sub_giat['capaian_prog'])) {
                                 $capaian_prog = $sub_giat['capaian_prog'][0]['capaianteks'];
                             }
                             $target_capaian_prog = '';
-                            if(!empty($sub_giat['capaian_prog'])){
+                            if (!empty($sub_giat['capaian_prog'])) {
                                 $target_capaian_prog = $sub_giat['capaian_prog'][0]['targetcapaianteks'];
                             }
                             $output_giat = '';
-                            if(!empty($sub_giat['output_giat'])){
+                            if (!empty($sub_giat['output_giat'])) {
                                 $output_giat = $sub_giat['output_giat'][0]['outputteks'];
                             }
                             $target_output_giat = '';
-                            if(!empty($sub_giat['output_giat'])){
+                            if (!empty($sub_giat['output_giat'])) {
                                 $target_output_giat = $sub_giat['output_giat'][0]['targetoutputteks'];
                             }
                             $output_sub_giat = '';
                             $target_output_sub_giat = '';
-                            if(!empty($sub_giat['output_sub_giat'])){
+                            if (!empty($sub_giat['output_sub_giat'])) {
                                 $output_sub_giat = array();
                                 $target_output_sub_giat = array();
                                 foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
@@ -433,8 +446,8 @@ foreach ($data_all['data'] as $label_tag) {
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
                             }
                             $lokasi_sub_giat = '';
-                            if(!empty($sub_giat['lokasi_sub_giat'])){
-                                $lokasi_sub_giat = $sub_giat['lokasi_sub_giat'][0]['daerahteks'].', '.$sub_giat['lokasi_sub_giat'][0]['camatteks'].', '.$sub_giat['lokasi_sub_giat'][0]['lurahteks'];
+                            if (!empty($sub_giat['lokasi_sub_giat'])) {
+                                $lokasi_sub_giat = $sub_giat['lokasi_sub_giat'][0]['daerahteks'] . ', ' . $sub_giat['lokasi_sub_giat'][0]['camatteks'] . ', ' . $sub_giat['lokasi_sub_giat'][0]['lurahteks'];
                             }
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
@@ -446,58 +459,58 @@ foreach ($data_all['data'] as $label_tag) {
                                 }
                             }
                             */
-                            if(!empty($sub_giat['data_rpjmd'])){
+                            if (!empty($sub_giat['data_rpjmd'])) {
                                 $ind_n_plus = $sub_giat['data_rpjmd'][0]['indikator'];
-                                if($urut<=5){
-                                    $target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_'.($urut+1)];
+                                if ($urut <= 5) {
+                                    $target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_' . ($urut + 1)];
                                 }
                             }
                             $body .= '
                                 <tr>
-                                    <td class="kiri kanan bawah">'.$kd_urusan.'</td>
-                                    <td class="kanan bawah">'.$kd_bidang.'</td>
-                                    <td class="kanan bawah">'.$kd_program.'</td>
-                                    <td class="kanan bawah">'.$kd_giat.'</td>
-                                    <td class="kanan bawah">'.$kd_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$sub_giat['nama'].'</td>
-                                    <td class="kanan bawah">'.$capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'</td>
-                                    <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],2,",",".").'</td>
+                                    <td class="kiri kanan bawah">' . $kd_urusan . '</td>
+                                    <td class="kanan bawah">' . $kd_bidang . '</td>
+                                    <td class="kanan bawah">' . $kd_program . '</td>
+                                    <td class="kanan bawah">' . $kd_giat . '</td>
+                                    <td class="kanan bawah">' . $kd_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $sub_giat['nama'] . '</td>
+                                    <td class="kanan bawah">' . $capaian_prog . '</td>
+                                    <td class="kanan bawah">' . $output_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $output_giat . '</td>
+                                    <td class="kanan bawah">' . $lokasi_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $target_capaian_prog . '</td>
+                                    <td class="kanan bawah">' . $target_output_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $target_output_giat . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
                                     <td class="kanan bawah"><br/></td>
                                     <td class="kanan bawah">&nbsp;</td>
-                                    <td class="kanan bawah">'.$ind_n_plus.'</td>
-                                    <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],2,",",".").'</td>
+                                    <td class="kanan bawah">' . $ind_n_plus . '</td>
+                                    <td class="kanan bawah">' . $target_ind_n_plus . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['total_n_plus'], 2, ",", ".") . '</td>
                                 </tr>
                             ';
                             $sasaran_text = '';
-                            if(!empty($sub_giat['data_renstra'])){
+                            if (!empty($sub_giat['data_renstra'])) {
                                 $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
                             }
                             $body_rkpd .= '
                                 <tr>
-                                    <td class="kiri kanan bawah">'.$kd_urusan.'</td>
-                                    <td class="kanan bawah">'.$kd_bidang.'</td>
-                                    <td class="kanan bawah">'.$kd_program.'</td>
-                                    <td class="kanan bawah">'.$kd_giat.'</td>
-                                    <td class="kanan bawah">'.$kd_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$sub_giat['nama'].'</td>
-                                    <td class="kanan bawah">'.$sub_giat['data']['label_kokab'].'</td>
-                                    <td class="kanan bawah">'.$sasaran_text.'</td>
-                                    <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],2,",",".").'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],2,",",".").'</td>
+                                    <td class="kiri kanan bawah">' . $kd_urusan . '</td>
+                                    <td class="kanan bawah">' . $kd_bidang . '</td>
+                                    <td class="kanan bawah">' . $kd_program . '</td>
+                                    <td class="kanan bawah">' . $kd_giat . '</td>
+                                    <td class="kanan bawah">' . $kd_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $sub_giat['nama'] . '</td>
+                                    <td class="kanan bawah">' . $sub_giat['data']['label_kokab'] . '</td>
+                                    <td class="kanan bawah">' . $sasaran_text . '</td>
+                                    <td class="kanan bawah">' . $lokasi_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $capaian_prog . '</td>
+                                    <td class="kanan bawah">' . $target_capaian_prog . '</td>
+                                    <td class="kanan bawah">' . $output_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $target_output_sub_giat . '</td>
+                                    <td class="kanan bawah">' . $output_giat . '</td>
+                                    <td class="kanan bawah">' . $target_output_giat . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['total_n_plus'], 2, ",", ".") . '</td>
                                     <td class="kanan bawah"></td>
                                 </tr>
                             ';
@@ -509,13 +522,13 @@ foreach ($data_all['data'] as $label_tag) {
     }
 }
 
-$nama_excel = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN '.implode(', ', $nama_label).' TAHUN ANGGARAN '.$input['tahun_anggaran'];
-$nama_laporan = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN<br>'.implode(', ', $nama_label).' TAHUN ANGGARAN '.$input['tahun_anggaran'];
+$nama_excel = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN ' . implode(', ', $nama_label) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+$nama_laporan = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN<br>' . implode(', ', $nama_label) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
 
-if(!empty($format_rkpd)){
+if (!empty($format_rkpd)) {
     echo '
-        <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
-            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
+        <div id="cetak" title="' . $nama_excel . '" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">' . $nama_laporan . '</h4>
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
                 <thead>
                     <tr>
@@ -566,21 +579,21 @@ if(!empty($format_rkpd)){
                     </tr>
                 </thead>
                 <tbody>
-                    '.$body_rkpd.'
+                    ' . $body_rkpd . '
                     <tr>
                         <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; text-align:right" colspan="15">TOTAL</td>
-                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total'],2,",",".").'</td>
-                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total_n_plus'],2,",",".").'</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['total'], 2, ",", ".") . '</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['total_n_plus'], 2, ",", ".") . '</td>
                         <td style="border:.5pt solid #000; vertical-align:middle;"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
     ';
-}else{
+} else {
     echo '
-        <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
-            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
+        <div id="cetak" title="' . $nama_excel . '" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">' . $nama_laporan . '</h4>
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
                 <thead>
                     <tr>
@@ -608,9 +621,9 @@ if(!empty($format_rkpd)){
                         <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
                         <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun '.$input['tahun_anggaran'].'</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun ' . $input['tahun_anggaran'] . '</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun ' . ($input['tahun_anggaran'] + 1) . '</td>
                     </tr>
                     <tr>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
@@ -632,12 +645,12 @@ if(!empty($format_rkpd)){
                     </tr>
                 </thead>
                 <tbody>
-                    '.$body.'
+                    ' . $body . '
                     <tr>
                         <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],2,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($data_all['total'], 2, ",", ".") . '</td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],2,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">' . number_format($data_all['total_n_plus'], 2, ",", ".") . '</td>
                     </tr>
                 </tbody>
             </table>
@@ -650,18 +663,18 @@ if(!empty($format_rkpd)){
     run_download_excel();
     var _url = window.location.href;
     var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
     var rkpd = url.searchParams.get("rkpd");
-    if(!rkpd){
+    if (!rkpd) {
         var type = url.searchParams.get("type");
-        if(type && type=='detail'){
-            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
-        }else{
-            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+        if (type && type == 'detail') {
+            var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+        } else {
+            var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
         }
-        extend_action += '<a class="button button-primary" target="_blank" href="'+_url+'&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
-    }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Format RENJA</a>';
+        extend_action += '<a class="button button-primary" target="_blank" href="' + _url + '&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
+    } else {
+        var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Format RENJA</a>';
     }
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
