@@ -668,13 +668,13 @@ if (!empty($format_rkpd)) {
     if (!rkpd) {
         var type = url.searchParams.get("type");
         if (type && type == 'detail') {
-            var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
         } else {
-            var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
         }
-        extend_action += '<a class="button button-primary" target="_blank" href="' + _url + '&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
+        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
     } else {
-        var extend_action = '<a class="button button-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Format RENJA</a>';
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Format RENJA</a>';
     }
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
