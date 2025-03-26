@@ -1156,6 +1156,7 @@ class Wpsipd
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
+		add_shortcode('monev_rak', array($plugin_public, 'monev_rak'));
 		add_shortcode('monitor_monev_renja', array($plugin_public, 'monitor_monev_renja'));
 		add_shortcode('monitor_monev_renja_skpd', array($plugin_public, 'monitor_monev_renja_skpd'));
 		add_shortcode('monitor_sumber_dana', array($plugin_public, 'monitor_sumber_dana'));

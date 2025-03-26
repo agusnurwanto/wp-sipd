@@ -5597,6 +5597,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penatausahaan/wpsipd-public-halaman-sk-up.php';
 	}
+	public function monev_rak($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-monev-rak.php';
+	}
 
 	public function apbdpenjabaran($atts)
 	{

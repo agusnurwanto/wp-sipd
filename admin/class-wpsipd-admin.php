@@ -1236,7 +1236,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
-				$arr_label = [];
 				$unit_renstra = [];
 				$limit = '';
 				if ($_POST['type'] == 'input_renstra') {
@@ -1410,6 +1409,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '
 			            	<h3 class="header-tahun" tahun="' . $v['tahun_anggaran'] . '">Tahun Anggaran ' . $v['tahun_anggaran'] . '</h3>
 			            	<div class="body-tahun" tahun="' . $v['tahun_anggaran'] . '">';
+						if ($type == 'monev_rak') {
+							$url = $this->generatePage(
+								'Monitoring Selisih Anggaran dan Realisasi | ' . $v['tahun_anggaran'],
+								$v['tahun_anggaran'],
+								'[monev_rak tahun_anggaran="' . $v['tahun_anggaran'] . '"]'
+							);
+
+							$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; margin-bottom:10px" target="_blank" href="' . $url . '">Monitoring Selisih Anggaran dan Realisasi | ' . $v['tahun_anggaran'] . '</a>';
+						}
 					}
 					if ($_POST['type'] == 'rfk') {
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
