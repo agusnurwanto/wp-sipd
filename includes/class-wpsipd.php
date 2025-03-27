@@ -1162,6 +1162,7 @@ class Wpsipd
 		add_shortcode('monitor_sumber_dana', array($plugin_public, 'monitor_sumber_dana'));
 
 		add_shortcode('monitor_label_komponen', array($plugin_public, 'monitor_label_komponen'));
+		add_shortcode('jadwal_tagging_rincian_belanja', array($plugin_public, 'jadwal_tagging_rincian_belanja'));
 		add_shortcode('cetak_label_komponen_program_kegiatan', array($plugin_public, 'cetak_label_komponen_program_kegiatan'));
 		
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));
