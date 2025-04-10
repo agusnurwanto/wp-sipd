@@ -45,6 +45,10 @@ if (strpos($jadwal_lokal->nama_tipe, '_sipd') == false) {
     $_suffix_sipd = '_lokal';
 }
 
+if (!empty($_GET) && !empty($_GET['pergeseran'])) {
+    $jadwal_lokal->status_jadwal_pergeseran = 'tampil';
+}
+
 $nama_skpd = '';
 if ($input['id_skpd'] == 'all') {
     $data_skpd = $wpdb->get_results($wpdb->prepare("
@@ -58,7 +62,17 @@ if ($input['id_skpd'] == 'all') {
         order by kode_skpd ASC
     ", $input['tahun_anggaran']), ARRAY_A);
 } else {
-    $data_skpd = array(array('id_skpd' => $input['id_skpd']));
+    $data_skpd = $wpdb->get_results($wpdb->prepare("
+        select 
+            id_skpd,
+            kode_skpd,
+            nama_skpd 
+        from data_unit
+        where tahun_anggaran=%d
+            and active=1
+            and id_skpd=%d
+        order by kode_skpd ASC
+    ", $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
     $nama_skpd = $wpdb->get_var($wpdb->prepare("
         SELECT 
             CONCAT(kode_skpd, ' ',nama_skpd)
@@ -276,5 +290,15 @@ foreach ($data_all as $skpd) {
 <script type="text/javascript">
     jQuery(document).ready(function() {
         run_download_excel();
+        window._url = window.location.href;
+        var url = new URL(_url);
+        _url = changeUrl({ url: _url, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
+        window.type = url.searchParams.get("pergeseran");
+        if(type && type=='1'){
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Murni</a>';
+        }else{
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'&pergeseran=1" style="margin-left: 10px;">Print APBD Pergeseran/Perubahan</a>';
+        }
+        jQuery('#action-sipd').append(extend_action);
     });
 </script>

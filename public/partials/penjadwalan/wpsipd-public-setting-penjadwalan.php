@@ -553,7 +553,6 @@ foreach($data_skpd_db as $skpd){
 			});
 		}
 
-		/** edit akun ssh usulan */
 		function edit_data_penjadwalan(id_jadwal_lokal) {
 			jQuery('#modalTambahJadwal').modal('show');
 			jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
