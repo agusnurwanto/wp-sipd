@@ -49,3 +49,4 @@ INSERT INTO `data_tipe_perencanaan` (`id`, `nama_tipe`, `keterangan_tipe`, `lama
 (4, 'renstra', '', 5),
 (5, 'renja', '', 1),
 (6, 'penganggaran', '', 1);
+(7, 'tagging_rincian', '', 1);
