@@ -670,6 +670,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjpd',  $plugin_public, 'submit_lock_schedule_rpjpd');
 		$this->loader->add_action('wp_ajax_get_data_standar_lama_pelaksanaan',  $plugin_public, 'get_data_standar_lama_pelaksanaan');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_verif_rka',  $plugin_public, 'submit_lock_schedule_verif_rka');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_tagging',  $plugin_public, 'submit_lock_schedule_tagging');
 
 		$this->loader->add_action('wp_ajax_get_data_jadwal_wpsipd', $plugin_public, 'get_data_jadwal_wpsipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_jadwal_wpsipd',  $plugin_public, 'get_data_jadwal_wpsipd');

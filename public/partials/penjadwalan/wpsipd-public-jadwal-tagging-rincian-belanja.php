@@ -41,7 +41,7 @@ $sqlTipe = $wpdb->get_results(
                     <th class="text-center">Status</th>
                     <th class="text-center">Jadwal Mulai</th>
                     <th class="text-center">Jadwal Selesai</th>
-                    <th class="text-center" style="width: 150px;">Aksi</th>
+                    <th class="text-center" style="width: 75px;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="data_body">
@@ -62,7 +62,7 @@ $sqlTipe = $wpdb->get_results(
             <div class="modal-body">
                 <div class="form-group">
                     <label for='jadwal_nama'>Nama Jadwal</label>
-                    <input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
+                    <input type='text' id='jadwal_nama' class="form-control" placeholder='masukan nama jadwal....'>
                 </div>
                 <div class="form-group">
                     <label for="jadwal_tanggal">Jadwal Pelaksanaan</label>
@@ -70,7 +70,7 @@ $sqlTipe = $wpdb->get_results(
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary submitBtn" onclick="submitTambahJadwalForm()">Simpan</button>
+                <button class="btn btn-primary submitBtn" onclick="submit_tambah_jadwal()">Simpan</button>
                 <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -84,8 +84,9 @@ $sqlTipe = $wpdb->get_results(
 <script>
     jQuery(document).ready(function() {
 
-        globalThis.tipePerencanaan = 'tagging_rincian'
-        globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
+        globalThis.tahunAnggaran = <?php echo $input['tahun_anggaran']; ?>;
+        globalThis.tipePerencanaan = 'tagging_rincian';
+        globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>";
 
         get_data_penjadwalan();
 
@@ -136,16 +137,17 @@ $sqlTipe = $wpdb->get_results(
 
     //TAMBAH
     function tambah_jadwal() {
+        afterSubmitForm();
         jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
         jQuery("#modalTambahJadwal .submitBtn")
-            .attr("onclick", 'submitTambahJadwalForm()')
+            .attr("onclick", 'submit_tambah_jadwal()')
             .attr("disabled", false)
             .text("Simpan");
         jQuery('#modalTambahJadwal').modal('show');
     }
 
     //SUBMIT TAMBAH
-    function submitTambahJadwalForm() {
+    function submit_tambah_jadwal() {
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
@@ -165,7 +167,8 @@ $sqlTipe = $wpdb->get_results(
                     'nama': nama,
                     'jadwal_mulai': jadwalMulai,
                     'jadwal_selesai': jadwalSelesai,
-                    'tipe_perencanaan': tipePerencanaan
+                    'tipe_perencanaan': tipePerencanaan,
+                    'tahun_anggaran': tahunAnggaran
                 },
                 beforeSend: function() {
                     jQuery('.submitBtn').attr('disabled', 'disabled')
@@ -174,7 +177,7 @@ $sqlTipe = $wpdb->get_results(
                     jQuery('#modalTambahJadwal').modal('hide')
                     jQuery('#wrap-loading').hide()
                     if (response.status == 'success') {
-                        alert('Data berhasil ditambahkan')
+                        alert('Jadwal berhasil ditambahkan')
                         penjadwalanTable.ajax.reload()
                         afterSubmitForm()
                     } else {
@@ -190,12 +193,11 @@ $sqlTipe = $wpdb->get_results(
 
     // EDIT
     function edit_data_penjadwalan(id_jadwal_lokal) {
-        jQuery('#modalTambahJadwal').modal('show');
         jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
         jQuery("#modalTambahJadwal .submitBtn")
-            .attr("onclick", 'submitEditJadwalForm(' + id_jadwal_lokal + ')')
+            .attr("onclick", 'submit_edit_jadwal(' + id_jadwal_lokal + ')')
             .attr("disabled", false)
-            .text("Simpan");
+            .text("Perbarui");
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: thisAjaxUrl,
@@ -207,22 +209,22 @@ $sqlTipe = $wpdb->get_results(
             },
             dataType: "json",
             success: function(response) {
-                jQuery('#wrap-loading').hide();
+                afterSubmitForm();
                 jQuery("#jadwal_nama").val(response.data.nama);
                 jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
                 jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
+                jQuery('#modalTambahJadwal').modal('show');
+                jQuery('#wrap-loading').hide();
             }
         })
     }
 
     // SUBMIT EDIT
-    function submitEditJadwalForm(id_jadwal_lokal) {
+    function submit_edit_jadwal(id_jadwal_lokal) {
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
         let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
-        let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
-        let relasi_perencanaan = jQuery("#link_rpjpd").val()
         if (nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '') {
             jQuery("#wrap-loading").hide()
             alert("Ada yang kosong, Harap diisi semua")
@@ -239,9 +241,7 @@ $sqlTipe = $wpdb->get_results(
                     'jadwal_mulai': jadwalMulai,
                     'jadwal_selesai': jadwalSelesai,
                     'id_jadwal_lokal': id_jadwal_lokal,
-                    'tahun_anggaran': this_tahun_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
-                    'relasi_perencanaan': relasi_perencanaan
                 },
                 beforeSend: function() {
                     jQuery('.submitBtn').attr('disabled', 'disabled')
@@ -250,7 +250,7 @@ $sqlTipe = $wpdb->get_results(
                     jQuery('#modalTambahJadwal').modal('hide')
                     jQuery('#wrap-loading').hide()
                     if (response.status == 'success') {
-                        alert('Data berhasil diperbarui')
+                        alert('Jadwal berhasil diperbarui')
                         penjadwalanTable.ajax.reload()
                         afterSubmitForm()
                     } else {
@@ -264,8 +264,9 @@ $sqlTipe = $wpdb->get_results(
 
     //HAPUS
     function hapus_data_penjadwalan(id_jadwal_lokal) {
-        let confirmDelete = confirm("Apakah anda yakin akan menghapus penjadwalan?");
+        let confirmDelete = confirm("Apakah anda yakin akan menghapus jadwal?");
         if (confirmDelete) {
+            return alert('Coming Soon!')
             jQuery('#wrap-loading').show();
             jQuery.ajax({
                 url: thisAjaxUrl,
@@ -291,8 +292,9 @@ $sqlTipe = $wpdb->get_results(
 
     //LOCK
     function lock_data_penjadwalan(id_jadwal_lokal) {
-        let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
+        let confirmLocked = confirm("Apakah anda yakin akan mengunci jadwal?");
         if (confirmLocked) {
+            return alert('Coming Soon!')
             jQuery('#wrap-loading').show();
             jQuery.ajax({
                 url: thisAjaxUrl,
@@ -306,7 +308,7 @@ $sqlTipe = $wpdb->get_results(
                 success: function(response) {
                     jQuery('#wrap-loading').hide();
                     if (response.status == 'success') {
-                        alert('Data berhasil dikunci!.');
+                        alert('Jadwal berhasil dikunci!.');
                         penjadwalanTable.ajax.reload();
                     } else {
                         alert(`GAGAL! \n${response.message}`);
@@ -340,7 +342,10 @@ $sqlTipe = $wpdb->get_results(
 
     function afterSubmitForm() {
         jQuery("#jadwal_nama").val("")
-        jQuery("#tahun_mulai_anggaran").val("")
         jQuery("#jadwal_tanggal").val("")
+    }
+
+    function report() {
+       return alert('Coming Soon!')
     }
 </script>

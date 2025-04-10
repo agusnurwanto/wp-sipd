@@ -2303,7 +2303,7 @@ CREATE TABLE `data_label_komponen_sub_giat` (
 );
 
 CREATE TABLE `data_mapping_label` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_rinci_sub_bl` int(11) NOT NULL,
   `id_label_komponen` int(11) NOT NULL,
   `user` text DEFAULT NULL,
@@ -2319,6 +2319,30 @@ CREATE TABLE `data_mapping_label` (
   KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
   KEY `active` (`active`),
   KEY `pisah` (`pisah`),
+  KEY `id_label_komponen` (`id_label_komponen`)
+);
+
+CREATE TABLE `data_mapping_label_history` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_rinci_sub_bl` INT(11) NOT NULL,
+  `id_label_komponen` INT(11) NOT NULL,
+  `user` TEXT DEFAULT NULL,
+  `active` TINYINT(4) NOT NULL COMMENT '1 = aktif, 0 = hapus, 2 = arsip',
+  `pisah` TINYINT(4) DEFAULT 0 COMMENT '1 = pisah, 0 = tidak pisah',
+  `volume_pisah` double(20,2) DEFAULT NULL,
+  `realisasi_pisah` double(20,2) DEFAULT NULL,
+  `keterangan_hapus` TEXT DEFAULT NULL,
+  `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_jadwal` INT(11) NOT NULL,
+  `id_asli` INT(11) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_rinci_sub_bl` (`id_rinci_sub_bl`),
+  KEY `active` (`active`),
+  KEY `pisah` (`pisah`),
+  KEY `id_jadwal` (`id_jadwal`),
+  KEY `id_asli` (`id_asli`),
   KEY `id_label_komponen` (`id_label_komponen`)
 );
 
