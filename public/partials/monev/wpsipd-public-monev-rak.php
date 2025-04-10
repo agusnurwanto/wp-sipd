@@ -19,7 +19,6 @@ $sql_unit = $wpdb->prepare("
     WHERE tahun_anggaran = %d
       AND active = 1
     ORDER BY id_skpd ASC
-    LIMIT 10
 ", $input['tahun_anggaran']);
 $unit = $wpdb->get_results($sql_unit, ARRAY_A);
 
