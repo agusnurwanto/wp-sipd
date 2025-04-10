@@ -1656,7 +1656,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								$url_pemda = $this->generatePage(
 									'MONITOR MONEV RENJA | ' . $jadwal['tahun_anggaran'],
 									$jadwal['tahun_anggaran'],
-									'[monitor_monev_renja_skpd id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+									'[monitor_monev_renja_skpd tahun_anggaran="' . $jadwal['tahun_anggaran'] . '"]'
 								);
 								$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; margin-bottom:10px" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENJA | ' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . '</a>';
 
