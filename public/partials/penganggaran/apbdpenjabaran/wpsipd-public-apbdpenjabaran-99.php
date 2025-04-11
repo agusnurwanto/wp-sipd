@@ -14,6 +14,11 @@ if (!empty($_GET) && !empty($_GET['rkpd'])) {
     $format_rkpd = $_GET['rkpd'];
 }
 
+$format_excel = '';
+if (!empty($_GET) && !empty($_GET['excel'])) {
+    $format_excel = $_GET['excel'];
+}
+
 $pengaturan = $wpdb->get_results($wpdb->prepare("
     select 
         * 
@@ -27,20 +32,26 @@ if (!empty($pengaturan)) {
 }
 $urut = $input['tahun_anggaran'] - $start_rpjmd;
 
+//tematik
 if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
     $sql = "
         SELECT 
             s.*,
-            t.* 
+            t.*,
+            l.nama_label
         FROM `data_tag_sub_keg` t
         LEFT JOIN data_sub_keg_bl s 
-               ON s.kode_sbl=t.kode_sbl 
-              AND s.tahun_anggaran=t.tahun_anggaran
-        WHERE t.idlabelgiat=%d 
-          AND t.active=1
-          AND t.tahun_anggaran=%d";
+               ON s.kode_sbl = t.kode_sbl 
+              AND s.tahun_anggaran = t.tahun_anggaran
+        LEFT JOIN data_label_giat l
+               ON t.idlabelgiat = l.id_label_giat
+              AND t.tahun_anggaran = l.tahun_anggaran
+        WHERE t.idlabelgiat = %d 
+          AND t.active = 1
+          AND t.tahun_anggaran = %d";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['idlabelgiat'], $input['tahun_anggaran']), ARRAY_A);
 } else if (!empty($input['idlabelgiat']) && !empty($_GET['tipe'])) {
+    //prioritas
     if ($_GET['tipe'] == 'data_prioritas_pusat') {
         $table = 'data_prioritas_pusat';
         $column = 'id_label_pusat';
@@ -68,6 +79,7 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
           AND p.active = 1";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran'], $_GET['id_prioritas']), ARRAY_A);
 } else {
+    //all label giat
     $sql = "
         SELECT 
             s.*,
@@ -75,7 +87,7 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
         FROM `data_tag_sub_keg` t
         LEFT JOIN data_sub_keg_bl s 
                ON s.kode_sbl=t.kode_sbl 
-                AND s.tahun_anggaran=t.tahun_anggaran
+              AND s.tahun_anggaran=t.tahun_anggaran
         WHERE t.idlabelgiat > 0 
             AND t.active=1
             AND t.tahun_anggaran=%d";
@@ -84,16 +96,12 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
 
 $nama_label = array();
 $data_all = array(
-    'total' => 0,
-    'total_n_plus' => 0,
-    'data' => array()
+    'total'         => 0,
+    'total_n_plus'  => 0,
+    'data'          => array()
 );
 foreach ($subkeg as $kk => $sub) {
-    if (!empty($_GET['tipe'])) {
-        $label = 'nama_label';
-    } else {
-        $label = 'namalabel';
-    }
+    $label = 'nama_label';
     $nama_label[$sub[$label]] = $sub[$label];
     $kode = explode('.', $sub['kode_sbl']);
     $capaian_prog = $wpdb->get_results($wpdb->prepare("
@@ -120,7 +128,6 @@ foreach ($subkeg as $kk => $sub) {
                 and r.kode_skpd=%s
             order by r.id ASC
         ", $input['tahun_anggaran'], $kode[2], $kode[3], $kode[4], $unit['kode_skpd']), ARRAY_A);
-        // die($wpdb->last_query);
     }
 
     $output_giat = $wpdb->get_results($wpdb->prepare("
@@ -185,14 +192,14 @@ foreach ($subkeg as $kk => $sub) {
         $nama_skpd = $data_renstra[0]['nama_skpd'];
     } else {
         $_nama_skpd = $wpdb->get_row($wpdb->prepare("
-            select 
-                nama_skpd 
-            from data_unit
-            where 
-                id_skpd=%d 
-                and tahun_anggaran=%d
-                and active=1
-            order by id ASC
+            SELECT 
+                nama_skpd,
+                kode_skpd
+            FROM data_unit
+            WHERE id_skpd=%d 
+              AND tahun_anggaran=%d
+              AND active=1
+            ORDER BY id ASC
         ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
         if (!empty($_nama_skpd)) {
             $nama_skpd = $_nama_skpd['nama_skpd'];
@@ -201,53 +208,66 @@ foreach ($subkeg as $kk => $sub) {
 
     if (empty($data_all['data'][$sub[$label]])) {
         $data_all['data'][$sub[$label]] = array(
-            'nama'  => $sub[$label],
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'          => $sub[$label],
+            'total'         => 0,
+            'total_n_plus'  => 0,
+            'data'          => array()
         );
     }
 
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']])) {
+        $sub_skpd = $wpdb->get_row($wpdb->prepare("
+            SELECT 
+                nama_skpd,
+                kode_skpd
+            FROM data_unit
+            WHERE id_skpd=%d 
+              AND tahun_anggaran=%d
+              AND active=1
+            ORDER BY id ASC
+        ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']] = array(
-            'nama'  => $sub['nama_sub_skpd'],
-            'nama_skpd'  => $nama_skpd ?? '',
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'           => $sub_skpd['nama_skpd'],
+            'kode_sub_skpd'  => $sub_skpd['kode_skpd'],
+            'nama_skpd'      => $nama_skpd ?? '',
+            'kode_skpd'      => $sub['kode_skpd'],
+            'total'          => 0,
+            'total_n_plus'   => 0,
+            'data'           => array()
         );
     }
 
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
-            'nama'  => $sub['nama_urusan'],
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'          => $sub['nama_urusan'],
+            'total'         => 0,
+            'total_n_plus'  => 0,
+            'data'          => array()
         );
     }
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
-            'nama'  => $sub['nama_bidang_urusan'],
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'          => $sub['nama_bidang_urusan'],
+            'total'         => 0,
+            'total_n_plus'  => 0,
+            'data'          => array()
         );
     }
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
-            'nama'  => $sub['nama_program'],
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'          => $sub['nama_program'],
+            'total'         => 0,
+            'total_n_plus'  => 0,
+            'data'          => array()
         );
     }
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
-            'nama'  => $sub['nama_giat'],
-            'total' => 0,
-            'total_n_plus' => 0,
-            'data'  => array()
+            'nama'          => $sub['nama_giat'],
+            'total'         => 0,
+            'total_n_plus'  => 0,
+            'data'          => array()
         );
     }
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
@@ -258,16 +278,16 @@ foreach ($subkeg as $kk => $sub) {
             $nama = array();
         }
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-            'nama'  => implode(' ', $nama),
-            'total' => 0,
-            'total_n_plus' => 0,
-            'capaian_prog' => $capaian_prog,
-            'output_giat' => $output_giat,
+            'nama'            => implode(' ', $nama),
+            'total'           => 0,
+            'total_n_plus'    => 0,
+            'capaian_prog'    => $capaian_prog,
+            'output_giat'     => $output_giat,
             'output_sub_giat' => $output_sub_giat,
             'lokasi_sub_giat' => $lokasi_sub_giat,
-            'data_renstra' => $data_renstra ?? '',
-            'data_rpjmd' => $data_rpjmd,
-            'data'  => $sub
+            'data_renstra'    => $data_renstra ?? '',
+            'data_rpjmd'      => $data_rpjmd,
+            'data'            => $sub
         );
     }
     $data_all['total'] += $sub['pagu'];
@@ -289,9 +309,10 @@ foreach ($subkeg as $kk => $sub) {
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
 }
 
-// print_r($data_all); die();
 $body = '';
 $body_rkpd = '';
+$body_excel = '';
+$no = 1;
 foreach ($data_all['data'] as $label_tag) {
     $body .= '
         <tr style="background: #f7eb64;">
@@ -485,14 +506,6 @@ foreach ($data_all['data'] as $label_tag) {
                             }
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
-                            /*
-                            if(!empty($sub_giat['data_renstra'])){
-                                $ind_n_plus = $sub_giat['data_renstra'][0]['indikator_sub'];
-                                if($urut<=5){
-                                    $target_ind_n_plus = $sub_giat['data_renstra'][0]['target_sub_'.($urut+1)];
-                                }
-                            }
-                            */
                             if (!empty($sub_giat['data_rpjmd'])) {
                                 $ind_n_plus = $sub_giat['data_rpjmd'][0]['indikator'];
                                 if ($urut <= 5) {
@@ -546,6 +559,30 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
                                     <td class="kanan bawah text_kanan">' . number_format($sub_giat['total_n_plus'], 2, ",", ".") . '</td>
                                     <td class="kanan bawah"></td>
+                                </tr>
+                            ';
+                            $kode_bidang_urusan = $kd_urusan . '.' . $kd_bidang;
+                            $kode_program = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program;
+                            $kode_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat;
+                            $kode_sub_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '.' . $kd_sub_giat;
+                            $body_excel .= '
+                                <tr>
+                                    <td class="kiri kanan bawah text_tengah">' . $no++ . '</td>
+                                    <td class="kanan bawah text_tengah">' . $kd_urusan . '</td>
+                                    <td class="kanan bawah">' . $urusan['nama'] . '</td>
+                                    <td class="kanan bawah text_tengah">' . $kode_bidang_urusan . '</td>
+                                    <td class="kanan bawah">' . $bidang['nama'] . '</td>
+                                    <td class="kanan bawah">' . $sub_skpd['kode_skpd'] . '</td>
+                                    <td class="kanan bawah">' . $sub_skpd['nama_skpd'] . '</td>
+                                    <td class="kanan bawah">' . $sub_skpd['kode_sub_skpd'] . '</td>
+                                    <td class="kanan bawah">' . $sub_skpd['nama'] . '</td>
+                                    <td class="kanan bawah text_tengah">' . $kode_program . '</td>
+                                    <td class="kanan bawah">' . $program['nama'] . '</td>
+                                    <td class="kanan bawah text_tengah">' . $kode_kegiatan . '</td>
+                                    <td class="kanan bawah">' . $giat['nama'] . '</td>
+                                    <td class="kanan bawah text_tengah">' . $kode_sub_kegiatan . '</td>
+                                    <td class="kanan bawah">' . $sub_giat['nama'] . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
                                 </tr>
                             ';
                         }
@@ -621,6 +658,43 @@ if (!empty($format_rkpd)) {
                         <td style="border:.5pt solid #000; vertical-align:middle;"></td>
                     </tr>
                 </tbody>
+            </table>
+        </div>
+    ';
+} else if (!empty($format_excel)) {
+    echo '
+        <h4 style="text-align: center; font-size: 16px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">' . $nama_laporan . '</h4>
+        <div id="cetak" title="' . $nama_excel . '" style="padding: 5px; overflow: auto; max-height: 80vh;">
+            <table cellpadding="2" cellspacing="0" id="table_data_rak" contenteditable="false">
+                <thead>
+                    <tr>
+                        <th class="atas kiri kanan bawah text_tengah text_blok">No</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Urusan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Urusan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Bidang Urusan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Bidang Urusan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode SKPD</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Sub SKPD</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Program</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Program</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Kegiatan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Kegiatan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Kode Sub Kegiatan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nama Sub Kegiatan</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Nilai Pagu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ' . $body_excel . '
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="kiri kanan bawah text_tengah text_blok" colspan="15">Total</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['total'], 2, ",", ".") . '</td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     ';
@@ -700,6 +774,8 @@ if (!empty($format_rkpd)) {
     _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
 
     var rkpd = url.searchParams.get("rkpd");
+    var excel = url.searchParams.get("excel");
+
     var id_prioritas = url.searchParams.get("id_prioritas");
     var tipe = url.searchParams.get("tipe");
 
@@ -708,7 +784,7 @@ if (!empty($format_rkpd)) {
         additionalParams += "&tipe=" + encodeURIComponent(tipe) + "&id_prioritas=" + encodeURIComponent(id_prioritas);
     }
 
-    if (!rkpd) {
+    if (!rkpd && !excel) {
         var type = url.searchParams.get("type");
 
         if (type && type === 'detail') {
@@ -717,9 +793,16 @@ if (!empty($format_rkpd)) {
             var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=detail' + additionalParams + '" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
         }
 
-        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&rkpd=1' + additionalParams + '" style="margin-left: 10px;">Format RKPD</a>';
-    } else {
-        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;">Format RENJA</a>';
+        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&excel=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format Excel</a>';
+
+        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&rkpd=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format RKPD</a>';
+
+    } else if (rkpd) {
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
+    } else if (excel) {
+        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format Renja</a>';
+
     }
+
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
