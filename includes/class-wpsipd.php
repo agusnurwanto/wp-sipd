@@ -1134,6 +1134,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_rincian_from_label_by_id',  $plugin_public, 'hapus_rincian_from_label_by_id');
 		$this->loader->add_action('wp_ajax_get_arsip_label_komponen',  $plugin_public, 'get_arsip_label_komponen');
 
+		$this->loader->add_action('wp_ajax_get_table_skpd_efisiensi_belanja',  $plugin_public, 'get_table_skpd_efisiensi_belanja');
+		$this->loader->add_action('wp_ajax_edit_efisiensi',  $plugin_public, 'edit_efisiensi');
+		$this->loader->add_action('wp_ajax_simpan_data_efisiensi',  $plugin_public, 'simpan_data_efisiensi');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -1291,6 +1295,9 @@ class Wpsipd
 		add_shortcode('cetak_sppd',array($plugin_public,'cetak_sppd'));
 		add_shortcode('cetak_sppd_belakang',array($plugin_public,'cetak_sppd_belakang'));
 		add_shortcode('cetak_sppd_rampung',array($plugin_public,'cetak_sppd_rampung'));
+
+		add_shortcode('efisiensi_belanja',array($plugin_public,'efisiensi_belanja'));
+		add_shortcode('detail_efisiensi_belanja',array($plugin_public,'detail_efisiensi_belanja'));
 	}
 
 	/**
