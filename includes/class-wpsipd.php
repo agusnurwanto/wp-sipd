@@ -670,6 +670,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjpd',  $plugin_public, 'submit_lock_schedule_rpjpd');
 		$this->loader->add_action('wp_ajax_get_data_standar_lama_pelaksanaan',  $plugin_public, 'get_data_standar_lama_pelaksanaan');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_verif_rka',  $plugin_public, 'submit_lock_schedule_verif_rka');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_tagging',  $plugin_public, 'submit_lock_schedule_tagging');
 
 		$this->loader->add_action('wp_ajax_get_data_jadwal_wpsipd', $plugin_public, 'get_data_jadwal_wpsipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_jadwal_wpsipd',  $plugin_public, 'get_data_jadwal_wpsipd');
@@ -1160,11 +1161,13 @@ class Wpsipd
 		add_shortcode('apbdperda', array($plugin_public, 'apbdperda'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
+		add_shortcode('monev_rak', array($plugin_public, 'monev_rak'));
 		add_shortcode('monitor_monev_renja', array($plugin_public, 'monitor_monev_renja'));
 		add_shortcode('monitor_monev_renja_skpd', array($plugin_public, 'monitor_monev_renja_skpd'));
 		add_shortcode('monitor_sumber_dana', array($plugin_public, 'monitor_sumber_dana'));
 
 		add_shortcode('monitor_label_komponen', array($plugin_public, 'monitor_label_komponen'));
+		add_shortcode('jadwal_tagging_rincian_belanja', array($plugin_public, 'jadwal_tagging_rincian_belanja'));
 		add_shortcode('cetak_label_komponen_program_kegiatan', array($plugin_public, 'cetak_label_komponen_program_kegiatan'));
 		
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));

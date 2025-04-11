@@ -45,6 +45,10 @@ if (strpos($jadwal_lokal->nama_tipe, '_sipd') == false) {
     $_suffix_sipd = '_lokal';
 }
 
+if (!empty($_GET) && !empty($_GET['pergeseran'])) {
+    $jadwal_lokal->status_jadwal_pergeseran = 'tampil';
+}
+
 $nama_skpd = '';
 if ($input['id_skpd'] == 'all') {
     $data_skpd = $wpdb->get_results($wpdb->prepare("
@@ -452,7 +456,17 @@ foreach ($data_all as $skpd) {
 <script type="text/javascript">
     jQuery(document).ready(function() {
         run_download_excel();
-
+        
+        window._url = window.location.href;
+        var url = new URL(_url);
+        _url = changeUrl({ url: _url, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
+        window.type = url.searchParams.get("pergeseran");
+        if(type && type=='1'){
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Murni</a>';
+        }else{
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="'+_url+'&pergeseran=1" style="margin-left: 10px;">Print APBD Pergeseran/Perubahan</a>';
+        }
+        jQuery('#action-sipd').append(extend_action);
     });
 
     function printPage() {

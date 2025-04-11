@@ -1242,7 +1242,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
-				$arr_label = [];
 				$unit_renstra = [];
 				$limit = '';
 				if ($_POST['type'] == 'input_renstra') {
@@ -1416,6 +1415,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '
 			            	<h3 class="header-tahun" tahun="' . $v['tahun_anggaran'] . '">Tahun Anggaran ' . $v['tahun_anggaran'] . '</h3>
 			            	<div class="body-tahun" tahun="' . $v['tahun_anggaran'] . '">';
+						if ($type == 'monev_rak') {
+							$url = $this->generatePage(
+								'Monitoring Selisih Anggaran dan Realisasi | ' . $v['tahun_anggaran'],
+								$v['tahun_anggaran'],
+								'[monev_rak tahun_anggaran="' . $v['tahun_anggaran'] . '"]'
+							);
+
+							$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; margin-bottom:10px" target="_blank" href="' . $url . '">Monitoring Selisih Anggaran dan Realisasi | ' . $v['tahun_anggaran'] . '</a>';
+						}
 					}
 					if ($_POST['type'] == 'rfk') {
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
@@ -1658,7 +1666,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								$url_pemda = $this->generatePage(
 									'MONITOR MONEV RENJA | ' . $jadwal['tahun_anggaran'],
 									$jadwal['tahun_anggaran'],
-									'[monitor_monev_renja_skpd id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+									'[monitor_monev_renja_skpd tahun_anggaran="' . $jadwal['tahun_anggaran'] . '"]'
 								);
 								$body_all .= '<a class="button button-primary button-large" style="font-weight: bold; margin-bottom:10px" target="_blank" href="' . $url_pemda . '">Dashboard MONEV RENJA | ' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . '</a>';
 
@@ -3001,6 +3009,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Tagging Rincian Belanja | ' . $v['tahun_anggaran'];
+			$shortcode = '[jadwal_tagging_rincian_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+		}
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
 				->set_html('
@@ -3103,25 +3118,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					'column' => false //add this for different query parameters
 				],
 				'Daftar Tag Prioritas Pusat' => [
-					'table' => 'data_prioritas_pusat',
-					'id' 	=> 'id_prioritas',
-					'nama'  => 'nama_label',
-
-					'column' => 'id_label_pusat',
+					'table'  => 'data_prioritas_pusat',
+					'column' => 'id_label_pusat'
 				],
 				'Daftar Tag Prioritas Provinsi' => [
-					'table' => 'data_prioritas_prov',
-					'id' 	=> 'id_prioritas',
-					'nama'  => 'nama_label',
-
-					'column' => 'id_label_prov',
+					'table'  => 'data_prioritas_prov',
+					'column' => 'id_label_prov'
 				],
 				'Daftar Tag Prioritas Kota/Kabupaten' => [
-					'table' => 'data_prioritas_kokab',
-					'id' 	=> 'id_prioritas',
-					'nama'  => 'nama_label',
-
-					'column' => 'id_label_kokab',
+					'table'  => 'data_prioritas_kokab',
+					'column' => 'id_label_kokab'
 				]
 			];
 
@@ -3130,53 +3136,49 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if ($query['column'] != false) {
 					$result = $wpdb->get_results(
 						$wpdb->prepare("
-							SELECT 
-								{$query['id']},
-								{$query['nama']}
-							FROM {$query['table']} 
-							WHERE tahun_anggaran = %d 
-							  AND active = 1 
+							SELECT
+								p.id_prioritas,
+								p.nama_label,
+								SUM(s.pagu) AS pagu,
+								COUNT(s.id) AS jml_sub_keg
+							FROM {$query['table']} AS p
+							LEFT JOIN data_sub_keg_bl AS s 
+								   ON p.id_prioritas = s.{$query['column']}  
+								  AND p.tahun_anggaran = s.tahun_anggaran 
+								  AND p.active = s.active 
+							WHERE p.tahun_anggaran = %d
+							  AND p.active = 1 
+							GROUP BY p.id
 						", $tahun_anggaran),
 						ARRAY_A
 					);
 
 					if (!empty($result)) {
 						foreach ($result as $row) {
-							$title = "Laporan APBD Per Label Sub Kegiatan {$row[$query['nama']]} | $tahun_anggaran";
-							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 {$query['id']}='{$row[$query['id']]}']";
+							$title = "Label {$row['nama_label']} | $tahun_anggaran";
+							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat='{$row['id_prioritas']}']";
 							$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
-							$counter = $wpdb->get_var(
-								$wpdb->prepare("
-									SELECT COUNT(*)
-									FROM {$query['table']} 
-									WHERE tahun_anggaran = %d 
-									  AND {$query['id']} = %d
-									  AND active = 1 
-								", $tahun_anggaran, $row[$query['id']])
-							);
-
-							$jumlah_pagu = $wpdb->get_var(
-								$wpdb->prepare("
-									SELECT 
-										SUM(pagu)
-									FROM data_sub_keg_bl
-									WHERE {$query['column']} = %d
-									  AND tahun_anggaran = %d
-									  AND active = 1
-								", $row[$query['id']], $tahun_anggaran)
-							);
-
 							$html_sections[$key] .= "
-								<tr data-{$query['id']}='{$row[$query['id']]}'>
+								<tr data-id_prioritas='{$row['id_prioritas']}'>
 									<td>
-										<a href='$url_tag' target='_blank' style='padding-left: 20px;'>{$row[$query['nama']]}</a>
+										<a href='$url_tag&id_prioritas={$row['id_prioritas']}&tipe={$query['table']}' target='_blank' style='padding-left: 20px;'>{$row['nama_label']}</a>
 									</td>
-									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($jumlah_pagu) ? number_format($jumlah_pagu, 0, ',', '.') : 0) . "</td>
-									<td class='text_kanan' style='padding-right: 20px;'>$counter</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($row['pagu']) ? number_format($row['pagu'], 0, ',', '.') : 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . ($row['jml_sub_keg'] ?? 0) . "</td>
 								</tr>
 							";
 						}
+					} else {
+						$html_sections[$key] .= "
+							<tr>
+								<td>
+									tidak ditemukan
+								</td>
+								<td class='text_kanan' style='padding-right: 20px;'>-</td>
+								<td class='text_kanan' style='padding-right: 20px;'>-</td>
+							</tr>
+						";
 					}
 				} else {
 					//TEMATIK
@@ -3185,18 +3187,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							SELECT 
 								l.id,
 								l.id_label_giat,
-								l.nama_label as label,
-								sum(s.pagu) as pagu,
-								count(s.id) as jml_sub_keg 
-							FROM `data_label_giat` as l
-							LEFT JOIN data_tag_sub_keg as t on t.idlabelgiat=l.id_label_giat
-								AND l.tahun_anggaran=t.tahun_anggaran
-								AND l.active=t.active
-							LEFT JOIN data_sub_keg_bl as s on t.kode_sbl=s.kode_sbl
-								AND l.tahun_anggaran=s.tahun_anggaran
-								AND l.active=s.active
+								l.nama_label AS label,
+								SUM(s.pagu) AS pagu,
+								COUNT(s.id) AS jml_sub_keg 
+							FROM `data_label_giat` AS l
+							LEFT JOIN data_tag_sub_keg AS t on t.idlabelgiat=l.id_label_giat
+								  AND l.tahun_anggaran=t.tahun_anggaran
+								  AND l.active=t.active
+							LEFT JOIN data_sub_keg_bl AS s on t.kode_sbl=s.kode_sbl
+								  AND l.tahun_anggaran=s.tahun_anggaran
+								  AND l.active=s.active
 							WHERE l.tahun_anggaran=%d
-								AND l.active=1
+							  AND l.active=1
 							GROUP BY l.id
 						", $tahun_anggaran),
 						ARRAY_A
@@ -3204,7 +3206,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 					if (!empty($data)) {
 						foreach ($data as $v) {
-							$title = "Laporan APBD Per Label Sub Kegiatan {$v['label']} | $tahun_anggaran";
+							$title = "Laporan APBD Per Label/Tag Sub Kegiatan | {$v['label']} | $tahun_anggaran";
 							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat='{$v['id_label_giat']}']";
 							$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
