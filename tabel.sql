@@ -7682,3 +7682,21 @@ CREATE TABLE `data_pegawai_spt_sppd` (
   `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY key (id)
 );
+
+CREATE TABLE `data_efisiensi_belanja` (
+  `id` int(11) NOT NULL auto_increment,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `kode_akun` varchar(50) DEFAULT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `pagu_efisiensi` double(20,0) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `keterangan` text DEFAULT NULL,
+  `update_at` DATETIME DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2025',
+  PRIMARY KEY (id),
+  KEY `kode_sbl` (`kode_sbl`),
+  KEY `kode_akun` (`kode_akun`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
+);

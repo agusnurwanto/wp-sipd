@@ -414,6 +414,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->set_page_parent($monev)
 					->add_fields($this->get_ajax_field(array('type' => 'monev_pemutakhiran')));
 			}
+
+			if (get_option('_crb_show_menu_efisiensi_belanja') != true) {
+				Container::make('theme_options', __('Efisiensi Belanja'))
+					->set_page_parent($monev)
+					->add_fields($this->get_ajax_field(array('type' => 'efisiensi_belanja')));
+			}
 		}
 		$show_laporan_sipd_menu = get_option('_crb_show_menu_laporan_sipd_settings');
 
@@ -1504,6 +1510,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_cek_pemutakhiran = $this->generatePage('Cek Pemutakhiran SIPD | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monev_pemutakhiran tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_cek_pemutakhiran . '">Cek Pemutakhiran SIPD Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'efisiensi_belanja') {
+						$url_cek_pemutakhiran = $this->generatePage('Efisiensi Belanja | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[efisiensi_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_cek_pemutakhiran . '">Efisiensi Belanja Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'input_renstra') {
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'rkpd_renja') {
@@ -1733,6 +1743,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'
 					|| $_POST['type'] == 'monev_pemutakhiran'
+					|| $_POST['type'] == 'efisiensi_belanja'
 					|| $_POST['type'] == 'input_renstra'
 					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'spd'
@@ -2252,7 +2263,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					'10' => __('INPUT REALISASI KEU PEMDES'),
 					'11' => __('USER PPTK'),
 					'12' => __('MENU SPT/SPPD'),
-					'13' => __('MANAJEMEN USER')
+					'13' => __('MANAJEMEN USER'),
+					'14' => __('EFISIENSI BELANJA')
 				))
 				->set_default_value(array('1', '2', '3', '4', '5'))
 				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
@@ -2309,6 +2321,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_monev_pemutakhiran', 'Cek Pemutakhiran')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_efisiensi_belanja', 'Efisiensi Belanja')
 				->set_option_value('true'),
 
 			Field::make('separator', 'crb_show_menu_laporan_settings', 'Non Aktifkan Menu ( LAPORAN SIPD )'),

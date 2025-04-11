@@ -5511,6 +5511,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-renja.php';
 	}
+	
+	public function efisiensi_belanja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-efisiensi-belanja.php';
+	}
+	
+	public function detail_efisiensi_belanja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja.php';
+	}
 
 	public function tampilrka($atts)
 	{
@@ -25957,6 +25977,429 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => 'Format tidak sesuai!'
 			);
 		}
+		die(json_encode($ret));
+	}
+
+	public function get_table_skpd_efisiensi_belanja()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+			'data' => array(),
+			'list_skpd' => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['tahun_anggaran'])) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran kosong!';
+				}
+
+				$unit = $wpdb->get_results(
+					$wpdb->prepare("
+					SELECT 
+						nama_skpd, 
+						id_skpd, 
+						kode_skpd, 
+						nipkepala 
+					FROM data_unit 
+					WHERE active=1 
+					  AND tahun_anggaran=%d
+					  AND is_skpd=1 
+					ORDER BY kode_skpd ASC
+					", $tahun_anggaran),
+					ARRAY_A
+				);
+
+				if (!empty($unit)) {
+					$tbody = '';
+					$list_skpd = array();
+
+					foreach ($unit as $kk => $vv) {
+						$list_skpd[$kk] = array(
+							'id_skpd' => $vv['id_skpd'],
+							'nama_skpd' => $vv['nama_skpd']
+						);
+
+						$title = 'Detail Efisiensi Belanja | ' . $tahun_anggaran;
+						$shortcode = '[detail_efisiensi_belanja tahun_anggaran="' . $tahun_anggaran . '"]';
+						$update = false;
+						$url_skpd = $this->generatePage($title, $tahun_anggaran, $shortcode, $update);
+						$tbody .= "<tr>";
+						$tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $vv['id_skpd'] . "'>" . $vv['kode_skpd'] . " " . $vv['nama_skpd'] . "</a></td>";
+						$tbody .= "<td class='text-right' style='text-transform: uppercase;'>0</td>";
+						$tbody .= "<td class='text-right' style='text-transform: uppercase;'>0</td>";
+						$tbody .= "<td class='text-right' style='text-transform: uppercase;'>0</td>";
+						$tbody .= "</tr>";
+					}
+					$ret['data'] = $tbody;
+					$ret['list_skpd'] = $list_skpd;
+				} else {
+					$ret['data'] = "<tr><td colspan='5' class='text-center'>Tidak ada data tersedia</td></tr>";
+				}
+			} else {
+				$ret = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$ret = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+	public function edit_efisiensi()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Get Data!',
+			'data' => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['kodesbl'])) {
+					$kodesbl = $_POST['kodesbl'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode sbl kosong!';
+				}
+
+				if (!empty($_POST['kodeakun'])) {
+					$kodeakun = $_POST['kodeakun'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode akun kosong!';
+				}
+
+				if (!empty($_POST['tahun_anggaran'])) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran kosong!';
+				}
+
+				if (!empty($_POST['id_skpd'])) {
+					$id_skpd = $_POST['id_skpd'];
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id skpd kosong!';
+				}
+				$data = $wpdb->get_row($wpdb->prepare('
+					SELECT 
+						*
+					FROM data_sub_keg_bl
+					WHERE active=1
+		                AND tahun_anggaran=%d
+		                AND kode_sbl=%s
+				', $tahun_anggaran, $kodesbl), ARRAY_A);
+				$data['rka'] = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						kode_akun,
+						nama_akun,
+						rincian_murni
+					FROM data_rka
+					WHERE active=1
+		                AND tahun_anggaran=%d
+		                AND kode_sbl=%s
+		                AND kode_akun=%s
+				', $tahun_anggaran, $kodesbl, $kodeakun), ARRAY_A);
+				$data['efisiensi_belanja'] = $wpdb->get_results($wpdb->prepare('
+					SELECT
+						id,
+						pagu_efisiensi,
+						keterangan
+					FROM data_efisiensi_belanja
+					WHERE  active=1
+		                AND tahun_anggaran=%d
+		                AND kode_sbl=%s
+		                AND kode_akun=%s
+		                AND id_skpd=%d
+				', $tahun_anggaran, $kodesbl, $kodeakun, $id_skpd), ARRAY_A);
+				$ret['data'] = $data;
+				$ret['sql'] = $wpdb->last_query;
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	function simpan_data_efisiensi()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data efisiensi belanja!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if ($ret['status'] != 'error' && empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong!';
+				} elseif ($ret['status'] != 'error' && empty($_POST['kodesbl'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode SBL tidak boleh kosong!';
+				} elseif ($ret['status'] != 'error' && empty($_POST['kodeakun'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode Akun tidak boleh kosong!';
+				} elseif ($ret['status'] != 'error' && empty($_POST['pagu_efisiensi'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Pagu Efisiensi tidak boleh kosong!';
+				// } elseif ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
+				// 	$ret['status'] = 'error';
+				// 	$ret['message'] = 'Keterangan tidak boleh kosong!';
+				} elseif ($ret['status'] != 'error' && empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong!';
+				}
+				if ($ret['status'] != 'error') {
+					$data = array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kodesbl'],
+						'kode_akun' => $_POST['kodeakun'],
+						'pagu_efisiensi' => $_POST['pagu_efisiensi'],
+						'keterangan' => $_POST['keterangan'],
+						'id_skpd' => $_POST['id_skpd'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+					);
+
+                    $cek_data = $wpdb->get_row($wpdb->prepare("
+                    	SELECT
+							id
+						FROM data_efisiensi_belanja
+						WHERE active=1
+			                AND tahun_anggaran=%d
+			                AND kode_sbl=%s
+			                AND kode_akun=%s
+			                AND id_skpd=%d
+					", $_POST['tahun_anggaran'], $_POST['kodesbl'], $_POST['kodeakun'], $_POST['id_skpd']
+                    ), ARRAY_A);
+					if (empty($cek_data)) {
+						$wpdb->insert('data_efisiensi_belanja', $data);
+					} else {
+						$wpdb->update('data_efisiensi_belanja', $data, array('kode_sbl' => $_POST['kodesbl'],'kode_akun' => $_POST['kodeakun'],'id_skpd' => $_POST['id_skpd']));
+					}
+				}
+			} else {
+				$ret = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$ret = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function submit_pegawai_cascading()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data!',
+			'data' => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong!';
+				} elseif (empty($_POST['kodesbl'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode SBL tidak boleh kosong!';
+				} elseif (empty($_POST['kodeakun'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Kode Akun tidak boleh kosong!';
+				} elseif (empty($_POST['pagu_efisiensi'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Pagu Efisiensi tidak boleh kosong!';
+				} elseif (empty($_POST['keterangan'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong!';
+				} elseif (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong!';
+				} else {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kodesbl = $_POST['kodesbl'];
+					$kodeakun = $_POST['kodeakun'];
+					$pagu_efisiensi = $_POST['pagu_efisiensi'];
+					$keterangan = $_POST['keterangan'];
+					$id_skpd = $_POST['id_skpd'];
+
+					if ($tipe == 1) {
+						$wpdb->update(
+							'esakip_data_pegawai_cascading',
+							array('active' => 0),
+							array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'id_skpd' => $id_skpd,
+								'jenis_data' => $tipe
+							)
+						);
+					} else {
+						$wpdb->update(
+							'esakip_data_pegawai_cascading',
+							array('active' => 0),
+							array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'id_skpd' => $id_skpd,
+								'jenis_data' => $tipe,
+								'id_data' => $id_data
+							)
+						);
+					}
+
+					foreach ($get_satker as $satker) {
+						$satker_id = $satker['satker_id'];
+						$nama_satker = $satker['nama_satker'];
+
+						if ($tipe == 1) {
+							$tujuan_data = $wpdb->get_results(
+								$wpdb->prepare("
+                                    SELECT 
+                                        id, 
+                                        tujuan 
+                                    FROM esakip_cascading_opd_tujuan 
+                                    WHERE indikator IS NULL 
+                                        AND tujuan = (
+                                            SELECT 
+                                                tujuan 
+                                            FROM esakip_cascading_opd_tujuan 
+                                            WHERE id = %d 
+                                                AND indikator IS NULL)
+                                ", $id_data),
+								ARRAY_A
+							);
+
+							foreach ($tujuan_data as $tujuan) {
+								$cek_id = $wpdb->get_var(
+									$wpdb->prepare("
+                                        SELECT 
+                                            id 
+                                            FROM esakip_data_pegawai_cascading 
+                                            WHERE tahun_anggaran = %d 
+                                                AND id_skpd = %s 
+                                                AND jenis_data = %s 
+                                                AND id_data = %s 
+                                                AND id_satker = %s
+                                    ", $tahun_anggaran, $id_skpd, $tipe, $tujuan['id'], $satker_id)
+								);
+
+								if (!empty($cek_id)) {
+									$cek_active = $wpdb->get_var(
+										$wpdb->prepare("
+                                            SELECT 
+                                                active 
+                                            FROM esakip_data_pegawai_cascading 
+                                            WHERE id = %d
+                                        ", $cek_id)
+									);
+
+									if ($cek_active == 0) {
+										$wpdb->update(
+											'esakip_data_pegawai_cascading',
+											array('active' => 1, 'update_at' => current_time('mysql')),
+											array('id' => $cek_id)
+										);
+										$ret['message'] = "Berhasil update data satker.";
+									}
+								} else {
+									$data = array(
+										'id_satker' => $satker_id,
+										'nama_satker' => $nama_satker,
+										'id_data' => $tujuan['id'],
+										'jenis_data' => $tipe,
+										'tahun_anggaran' => $tahun_anggaran,
+										'id_skpd' => $id_skpd,
+										'active' => 1,
+										'update_at' => current_time('mysql')
+									);
+
+									$wpdb->insert('esakip_data_pegawai_cascading', $data);
+									$ret['message'] = "Berhasil menyimpan data satker.";
+								}
+							}
+						} else {
+							$cek_id = $wpdb->get_var(
+								$wpdb->prepare("
+                                    SELECT 
+                                        id 
+                                    FROM esakip_data_pegawai_cascading 
+                                    WHERE tahun_anggaran = %d 
+                                        AND id_skpd = %s 
+                                        AND jenis_data = %s 
+                                        AND id_data = %s 
+                                        AND id_satker = %s
+                                ", $tahun_anggaran, $id_skpd, $tipe, $id_data, $satker_id)
+							);
+
+							if (!empty($cek_id)) {
+								$cek_active = $wpdb->get_var(
+									$wpdb->prepare("
+                                        SELECT 
+                                            active 
+                                        FROM esakip_data_pegawai_cascading 
+                                        WHERE id = %d
+                                    ", $cek_id)
+								);
+
+								if ($cek_active == 0) {
+									$wpdb->update(
+										'esakip_data_pegawai_cascading',
+										array('active' => 1, 'update_at' => current_time('mysql')),
+										array('id' => $cek_id)
+									);
+									$ret['message'] = "Berhasil update data satker.";
+								}
+							} else {
+								$data = array(
+									'id_satker' => $satker_id,
+									'nama_satker' => $nama_satker,
+									'id_data' => $id_data,
+									'jenis_data' => $tipe,
+									'tahun_anggaran' => $tahun_anggaran,
+									'id_skpd' => $id_skpd,
+									'active' => 1,
+									'update_at' => current_time('mysql')
+								);
+
+								$wpdb->insert('esakip_data_pegawai_cascading', $data);
+								$ret['message'] = "Berhasil menyimpan data satker.";
+							}
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'API Key tidak ditemukan!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+
 		die(json_encode($ret));
 	}
 }
