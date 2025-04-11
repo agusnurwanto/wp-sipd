@@ -148,7 +148,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_link_post($custom_post)
 	{
-		$link = get_permalink($custom_post);
+		$link = get_permalink($custom_post->ID);
 		$site_url = get_site_url();
 		if (
 			$link == $site_url
@@ -219,7 +219,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$_post['update'] = 1;
 		}
 		if ($custom_post->post_status == 'publish') {
-			return get_permalink($custom_post);
+			return get_permalink($custom_post->ID);
 		} else {
 			return $this->get_link_post($custom_post);
 		}
@@ -4858,22 +4858,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$post_type = esc_sql($post_type);
 			$post_type_in_string = "'" . implode("','", $post_type) . "'";
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type IN ($post_type_in_string)
 			", $page_title);
 		} else {
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type = %s
 			", $page_title, $post_type);
 		}
-		$page = $wpdb->get_var($sql);
+		$page = $wpdb->get_row($sql);
 		if ($page) {
-			return get_post($page, $output);
+			// return get_post($page, $output);
+			return $page;
 		}
 		return null;
 	}

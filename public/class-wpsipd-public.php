@@ -2524,7 +2524,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 						update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 						update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-						$ret['renja_link'][$v['kode_skpd']] = esc_url(get_permalink($custom_post));
+						$ret['renja_link'][$v['kode_skpd']] = esc_url(get_permalink($custom_post->ID));
 					}
 
 					$nama_page = 'RKPD ' . $_POST['tahun_anggaran'];
@@ -2555,7 +2555,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 					update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 					update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-					$ret['renja_link'][0] = esc_url(get_permalink($custom_post));
+					$ret['renja_link'][0] = esc_url(get_permalink($custom_post->ID));
 
 					if (
 						get_option('_crb_singkron_simda') == 1
@@ -2622,7 +2622,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 				update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 
-				$ret['link'] = esc_url(get_permalink($custom_post));
+				$ret['link'] = esc_url(get_permalink($custom_post->ID));
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -11980,7 +11980,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			!empty($custom_post)
 			&& $custom_post->post_status == 'publish'
 		) {
-			return get_permalink($custom_post);
+			return get_permalink($custom_post->ID);
 		} else {
 			if (null == $custom_post) {
 				if (empty($link)) {
@@ -11988,7 +11988,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			} else {
 				if (empty($link)) {
-					$link = get_permalink($custom_post);
+					$link = get_permalink($custom_post->ID);
 				}
 				if (false == $link) {
 					$link = '#';
@@ -12016,22 +12016,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$post_type = esc_sql($post_type);
 			$post_type_in_string = "'" . implode("','", $post_type) . "'";
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type IN ($post_type_in_string)
 			", $page_title);
 		} else {
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type = %s
 			", $page_title, $post_type);
 		}
-		$page = $wpdb->get_var($sql);
+		$page = $wpdb->get_row($sql);
 		if ($page) {
-			return get_post($page, $output);
+			// return get_post($page, $output);
+			return $page;
 		}
 		return null;
 	}
