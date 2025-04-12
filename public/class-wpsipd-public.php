@@ -5520,24 +5520,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-renja.php';
 	}
-	
+
 	public function efisiensi_belanja($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
+		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		
+
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-efisiensi-belanja.php';
 	}
-	
+
 	public function detail_efisiensi_belanja($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
+		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		
+
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja.php';
 	}
 
@@ -18652,131 +18652,103 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	public function submit_lock_schedule_tagging()
 	{
 		global $wpdb;
-		$return = array(
+		$ret = array(
 			'status' => 'success',
-			'data'	=> array()
+			'message' => 'berhasil lock jadwal tagging!'
 		);
-
-		$user_id = um_user('ID');
-		$user_meta = get_userdata($user_id);
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				if (!empty($_POST['id_jadwal_lokal'])) {
-					if (in_array("administrator", $user_meta->roles)) {
-						$id_jadwal_lokal = trim(htmlspecialchars($_POST['id_jadwal_lokal']));
-
-						$data_this_id 	= $wpdb->get_row($wpdb->prepare('
-							SELECT 
-								* 
-							FROM data_jadwal_lokal 
-							WHERE id_jadwal_lokal = %d
-						', $id_jadwal_lokal), ARRAY_A);
-
-						$timezone = get_option('timezone_string');
-						if (preg_match("/Asia/i", $timezone)) {
-							date_default_timezone_set($timezone);
-						} else {
-							$return = array(
-								'status' => 'error',
-								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
-							);
-							die(json_encode($return));
-						}
-
-						$dateTime = new DateTime();
-						$time_now = $dateTime->format('Y-m-d H:i:s');
-						if ($time_now > $data_this_id['waktu_awal']) {
-							$status_check = array(0, NULL, 2);
-							if (in_array($data_this_id['status'], $status_check)) {
-
-								//lock data penjadwalan
-								$wpdb->update(
-									'data_jadwal_lokal',
-									array(
-										'waktu_akhir' => $time_now,
-										'status' 	  => 1
-									),
-									array(
-										'id_jadwal_lokal' => $id_jadwal_lokal
-									)
-								);
-
-								$delete_lokal_history = $this->delete_data_lokal_history(
-									'data_mapping_label',
-									$data_this_id['id_jadwal_lokal']
-								);
-
-								$columns_1 = array(
-									'id',
-									'id_rinci_sub_bl',
-									'id_label_komponen',
-									'user',
-									'active',
-									'pisah',
-									'volume_pisah',
-									'realisasi_pisah',
-									'keterangan_hapus',
-									'update_at',
-									'tahun_anggaran'
-								);
-
-								$sql_backup_data_rpjmd_misi_lokal =  "
-									INSERT INTO data_mapping_label_history (
-											" . implode(', ', $columns_1) . ",
-											id_jadwal,
-											id_asli
-									)
-									SELECT 
-										" . implode(', ', $columns_1) . ", 
-										" . $data_this_id['id_jadwal_lokal'] . ",
-										id as id_asli
-									FROM data_mapping_label";
-
-								$query = $wpdb->query($sql_backup_data_rpjmd_misi_lokal);
-
-								$return = array(
-									'status' 	 => 'success',
-									'message'	 => 'Berhasil backup data tagging!',
-									'data_input' => $query
-								);
-							} else {
-								$return = array(
-									'status'  => 'error',
-									'message' => "User tidak diijinkan!\nData sudah dikunci!",
-								);
-							}
-						} else {
-							$return = array(
-								'status'  => 'error',
-								'message' => "Penjadwalan belum dimulai!",
-							);
-						}
-					} else {
-						$return = array(
-							'status' => 'error',
-							'message'	=> "User tidak diijinkan!",
-						);
-					}
-				} else {
-					$return = array(
-						'status' => 'error',
-						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
-					);
+				// Roles validation
+				$user_data = wp_get_current_user();
+				$allowed_roles = array('administrator');
+				if (empty(array_intersect($allowed_roles, $user_data->roles))) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+					die(json_encode($ret));
 				}
+
+				//timezone validation
+				$timezone = get_option('timezone_string');
+				if (preg_match("/Asia/i", $timezone)) {
+					date_default_timezone_set($timezone);
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'"!';
+					die(json_encode($ret));
+				}
+
+				//required parameters
+				if (empty($_POST['id_jadwal_lokal']) || empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+					die(json_encode($ret));
+				} else {
+					//validate id_jadwal_lokal
+					$id_jadwal = $wpdb->get_var(
+						$wpdb->prepare('
+							SELECT id_jadwal_lokal
+							FROM data_jadwal_lokal
+							WHERE id_jadwal_lokal = %d
+							  AND status = 0
+						', $_POST['id_jadwal_lokal'])
+					);
+
+					if (empty($id_jadwal)) {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Jadwal terbuka tidak tersedia!';
+						die(json_encode($ret));
+					}
+				}
+
+				//get all data by tahun_anggaran
+				$data_tagging_rincian_belanja = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT *
+						FROM data_mapping_label
+						WHERE tahun_anggaran = %d
+					', $_POST['tahun_anggaran']),
+					ARRAY_A
+				);
+
+				//insert to history table
+				if (!empty($data_tagging_rincian_belanja)) {
+					foreach ($data_tagging_rincian_belanja as $row) {
+						$wpdb->insert('data_mapping_label_history', [
+							'id_rinci_sub_bl'   => $row['id_rinci_sub_bl'],
+							'id_label_komponen' => $row['id_label_komponen'],
+							'user'              => $row['user'],
+							'active'            => $row['active'],
+							'pisah'             => $row['pisah'],
+							'volume_pisah'      => $row['volume_pisah'],
+							'realisasi_pisah'   => $row['realisasi_pisah'],
+							'keterangan_hapus'  => $row['keterangan_hapus'],
+							'tahun_anggaran'    => $row['tahun_anggaran'],
+							'id_jadwal'         => $id_jadwal,
+							'id_asli'           => $row['id'],
+						]);
+					}
+				}
+
+				//update status jadwal to locked [1]
+				$wpdb->update(
+					'data_jadwal_lokal',
+					array('status' => 1),
+					array('id_jadwal_lokal'	=> $id_jadwal)
+				);
 			} else {
-				$return = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
+				$ret = array(
+					'status'  => 'error',
+					'message' => 'Api Key tidak sesuai!'
 				);
 			}
 		} else {
-			$return = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
+			$ret = array(
+				'status'  => 'error',
+				'message' => 'Format tidak sesuai!'
 			);
 		}
-		die(json_encode($return));
+		die(json_encode($ret));
 	}
 
 	/** Submit lock data jadwal RPJM */
@@ -18823,8 +18795,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								//lock data penjadwalan
 								$wpdb->update(
-									'data_jadwal_lokal', 
-									array('waktu_akhir' => $time_now, 'status' => 1), 
+									'data_jadwal_lokal',
+									array('waktu_akhir' => $time_now, 'status' => 1),
 									array('id_jadwal_lokal'	=> $id_jadwal_lokal)
 								);
 
@@ -26391,9 +26363,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} elseif ($ret['status'] != 'error' && empty($_POST['pagu_efisiensi'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Pagu Efisiensi tidak boleh kosong!';
-				// } elseif ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
-				// 	$ret['status'] = 'error';
-				// 	$ret['message'] = 'Keterangan tidak boleh kosong!';
+					// } elseif ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
+					// 	$ret['status'] = 'error';
+					// 	$ret['message'] = 'Keterangan tidak boleh kosong!';
 				} elseif ($ret['status'] != 'error' && empty($_POST['id_skpd'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'ID SKPD tidak boleh kosong!';
@@ -26410,7 +26382,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'update_at' => current_time('mysql'),
 					);
 
-                    $cek_data = $wpdb->get_row($wpdb->prepare("
+					$cek_data = $wpdb->get_row($wpdb->prepare(
+						"
                     	SELECT
 							id
 						FROM data_efisiensi_belanja
@@ -26419,12 +26392,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			                AND kode_sbl=%s
 			                AND kode_akun=%s
 			                AND id_skpd=%d
-					", $_POST['tahun_anggaran'], $_POST['kodesbl'], $_POST['kodeakun'], $_POST['id_skpd']
-                    ), ARRAY_A);
+					",
+						$_POST['tahun_anggaran'],
+						$_POST['kodesbl'],
+						$_POST['kodeakun'],
+						$_POST['id_skpd']
+					), ARRAY_A);
 					if (empty($cek_data)) {
 						$wpdb->insert('data_efisiensi_belanja', $data);
 					} else {
-						$wpdb->update('data_efisiensi_belanja', $data, array('kode_sbl' => $_POST['kodesbl'],'kode_akun' => $_POST['kodeakun'],'id_skpd' => $_POST['id_skpd']));
+						$wpdb->update('data_efisiensi_belanja', $data, array('kode_sbl' => $_POST['kodesbl'], 'kode_akun' => $_POST['kodeakun'], 'id_skpd' => $_POST['id_skpd']));
 					}
 				}
 			} else {

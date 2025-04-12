@@ -84,7 +84,7 @@ $sqlTipe = $wpdb->get_results(
 <script>
     jQuery(document).ready(function() {
 
-        globalThis.tahunAnggaran = <?php echo $input['tahun_anggaran']; ?>;
+        globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
         globalThis.tipePerencanaan = 'tagging_rincian';
         globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>";
 
@@ -168,7 +168,7 @@ $sqlTipe = $wpdb->get_results(
                     'jadwal_mulai': jadwalMulai,
                     'jadwal_selesai': jadwalSelesai,
                     'tipe_perencanaan': tipePerencanaan,
-                    'tahun_anggaran': tahunAnggaran
+                    'tahun_anggaran': tahun_anggaran
                 },
                 beforeSend: function() {
                     jQuery('.submitBtn').attr('disabled', 'disabled')
@@ -294,7 +294,6 @@ $sqlTipe = $wpdb->get_results(
     function lock_data_penjadwalan(id_jadwal_lokal) {
         let confirmLocked = confirm("Apakah anda yakin akan mengunci jadwal?");
         if (confirmLocked) {
-            return alert('Coming Soon!')
             jQuery('#wrap-loading').show();
             jQuery.ajax({
                 url: thisAjaxUrl,
@@ -302,13 +301,14 @@ $sqlTipe = $wpdb->get_results(
                 data: {
                     'action': 'submit_lock_schedule_tagging',
                     'api_key': jQuery("#api_key").val(),
-                    'id_jadwal_lokal': id_jadwal_lokal
+                    'id_jadwal_lokal': id_jadwal_lokal,
+                    'tahun_anggaran': tahun_anggaran
                 },
                 dataType: 'json',
                 success: function(response) {
                     jQuery('#wrap-loading').hide();
                     if (response.status == 'success') {
-                        alert('Jadwal berhasil dikunci!.');
+                        alert(response.message);
                         penjadwalanTable.ajax.reload();
                     } else {
                         alert(`GAGAL! \n${response.message}`);

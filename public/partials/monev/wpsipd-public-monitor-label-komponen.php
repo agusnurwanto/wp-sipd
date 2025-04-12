@@ -889,7 +889,7 @@ $cetak_laporan_page = $this->generatePage(
 
                         <div class="form-row">
                             <div class="form-group col-md-12">
-                                <label for="ket_subKegiatan">Keterangan /Ringkasan Kegiatan</label>
+                                <label for="ket_subKegiatan">Keterangan / Ringkasan Kegiatan</label>
                                 <textarea name="ket_subKegiatan" class="form-control" id="ket_subKegiatan">
                                 </textarea>
                             </div>
