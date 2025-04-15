@@ -294,7 +294,7 @@ if(!empty($data_anggaran)){
 							<th class="text-right" id="total_pagu_murni"><?php echo number_format($total_all_murni, 0, ",", ".")?></th>
 							<th class="text-right" id="total_pagu"><?php echo number_format($total_all, 0, ",", ".")?></th>
 							<th class="text-right" id="total_pagu_efisiensi"><?php echo number_format($total_all_efisiensi, 0, ",", ".")?></th>
-							<th class="text-right" id="total_pagu_efisiensi"><?php echo number_format($total_all_selisih, 0, ",", ".")?></th>
+							<th class="text-right" id="total_pagu_selisih"><?php echo number_format($total_all_selisih, 0, ",", ".")?></th>
 							<th class="text-right" id="total_pagu_realisasi"><?php echo number_format($total_all_realisasi, 0, ",", ".")?></th>
 						</tr>
 					</tfoot>

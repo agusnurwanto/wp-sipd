@@ -26302,6 +26302,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+	
 	public function edit_efisiensi()
 	{
 		global $wpdb;
@@ -26313,7 +26314,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				if (!empty($_POST['kodesbl'])) {
-					$kodesbl = $_POST['kodesbl'];
+					$default_kode_sbl = $_POST['kodesbl'];
 				} else {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Kode sbl kosong!';
@@ -26339,7 +26340,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Id skpd kosong!';
 				}
-				
+
+	            $kode_sbl = explode('.', $default_kode_sbl);
+				if ($tahun_anggaran >= 2024) {
+				    unset($kode_sbl[2], $kode_sbl[3]);
+				    $kode_sbl = implode('.', array_values($kode_sbl));
+				} else {
+				    if (isset($kode_sbl[6])) {
+				        $kode_sbl = $kode_sbl[1] . '.' . $kode_sbl[2] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5] . '.' . $kode_sbl[6];
+				    } elseif (isset($kode_sbl[5])) {
+				        $kode_sbl = $kode_sbl[0] . '.' . $kode_sbl[1] . '.' . $kode_sbl[3] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5];
+				    } else {
+				        $kode_sbl = $default_kode_sbl;
+				    }
+				}
+
 				$data = $wpdb->get_row($wpdb->prepare('
 					SELECT 
 						*
@@ -26347,7 +26362,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					WHERE active=1
 		                AND tahun_anggaran=%d
 		                AND kode_sbl=%s
-				', $tahun_anggaran, $kodesbl), ARRAY_A);
+				', $tahun_anggaran, $kode_sbl), ARRAY_A);
 				$data['rka'] = $wpdb->get_results($wpdb->prepare('
 					SELECT 
 						kode_akun,
@@ -26358,7 +26373,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		                AND tahun_anggaran=%d
 		                AND kode_sbl=%s
 		                AND kode_akun=%s
-				', $tahun_anggaran, $kodesbl, $kodeakun), ARRAY_A);
+				', $tahun_anggaran, $kode_sbl, $kodeakun), ARRAY_A);
 				$data['efisiensi_belanja'] = $wpdb->get_results($wpdb->prepare('
 					SELECT
 						id,
@@ -26370,7 +26385,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		                AND kode_sbl=%s
 		                AND kode_akun=%s
 		                AND id_skpd=%d
-				', $tahun_anggaran, $kodesbl, $kodeakun, $id_skpd), ARRAY_A);
+				', $tahun_anggaran, $default_kode_sbl, $kodeakun, $id_skpd), ARRAY_A);
 				$ret['data'] = $data;
 				$ret['sql'] = $wpdb->last_query;
 			} else {
