@@ -9263,7 +9263,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret['message'] = 'Berhasil Generate User Wordpress dari DB Lokal SIPD Merah';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$users_pa = $wpdb->get_results("SELECT * from data_unit where active=1", ARRAY_A);
+				$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+				if(empty($tahun_anggaran)){
+					$tahun_anggaran = date('Y');
+				}
+				$users_pa = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					from data_unit 
+					where active=1 
+						and tahun_anggaran=%d
+				", $tahun_anggaran), ARRAY_A);
 				$update_pass = false;
 				if (
 					!empty($_POST['update_pass'])
@@ -9282,7 +9292,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$this->gen_user_sipd_merah($user, $update_pass);
 					}
 					// 20 = kades, 21 = lembaga, 22 = individu, 16 = dewan
-					$users = $wpdb->get_results("SELECT * from data_dewan where active=1 AND idlevel NOT IN (16, 20, 21, 22)", ARRAY_A);
+					$users = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_dewan 
+						where active=1 
+							AND idlevel NOT IN (16, 20, 21, 22)
+							AND tahun_anggaran=%d
+						", $tahun_anggaran), ARRAY_A);
 					if (!empty($users)) {
 						foreach ($users as $k => $user) {
 							$user['pass'] = $_POST['pass'];
