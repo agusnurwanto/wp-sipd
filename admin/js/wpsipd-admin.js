@@ -34,6 +34,14 @@ function load_label(tahun_anggaran) {
 			jQuery("#body_label").html(data.message);
 			window.data_label_komponen = data.data;
 			jQuery('#analisa_komponen').click();
+
+			const select = jQuery('#select_jadwal_tagging');
+			select.empty();
+			select.append('<option value="">Pilih Jadwal</option>');
+			data.jadwal.forEach(item => {
+				select.append(`<option value="${item.id_jadwal_lokal}">${item.nama}</option>`);
+			}); 
+
 			set_analis_komponen();
 			jQuery("#wrap-loading").hide();
 		},

@@ -148,7 +148,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_link_post($custom_post)
 	{
-		$link = get_permalink($custom_post);
+		$link = get_permalink($custom_post->ID);
 		$site_url = get_site_url();
 		if (
 			$link == $site_url
@@ -219,7 +219,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$_post['update'] = 1;
 		}
 		if ($custom_post->post_status == 'publish') {
-			return get_permalink($custom_post);
+			return get_permalink($custom_post->ID);
 		} else {
 			return $this->get_link_post($custom_post);
 		}
@@ -3269,22 +3269,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_label_komponen()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results(
-			'
+		$tahun = $wpdb->get_results('
 			SELECT 
 				tahun_anggaran 
 			FROM data_unit 
-			GROUP BY tahun_anggaran',
+			GROUP BY tahun_anggaran
+			ORDER BY tahun_anggaran DESC',
 			ARRAY_A
 		);
-		$tahun_anggaran = array();
+
+		$tahun_anggaran_options = array();
+
 		$tahun_anggaran_selected = get_option(WPSIPD_TAHUN_ANGGARAN);
 		foreach ($tahun as $k => $v) {
-			$tahun_anggaran[$v['tahun_anggaran']] = $v['tahun_anggaran'];
+			$tahun_anggaran_options[$v['tahun_anggaran']] = $v['tahun_anggaran'];
 		}
 		$label = array(
 			Field::make('select', 'crb_tahun_anggaran', __('Pilih Tahun Anggaran'))
-				->add_options($tahun_anggaran)
+				->add_options($tahun_anggaran_options)
 				->set_default_value($tahun_anggaran_selected),
 			Field::make('html', 'crb_daftar_label_komponen')
 				->set_html('
@@ -3292,6 +3294,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             			.postbox-container { display: none; }
             			#poststuff #post-body.columns-2 { margin: 0 !important; }
             		</style>
+					<div class="text-kanan">
+						<label for="select_jadwal_tagging">Nama Jadwal :</label>
+						<select name="select_jadwal_tagging" id="select_jadwal_tagging" style="width : 250px">
+							<option val="">Pilih Jadwal</option>
+						</select>
+					</div>
             		<h3 class="text_tengah">Form Tambah dan Edit Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
@@ -3609,6 +3617,17 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					", $_POST['tahun_anggaran']),
 					ARRAY_A
 				);
+				$jadwal = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT 
+							id_jadwal_lokal,
+							nama
+						FROM data_jadwal_lokal 
+						WHERE tahun_anggaran = %d
+						  AND id_tipe = %d
+					', $_POST['tahun_anggaran'], 18),
+					ARRAY_A
+				);
 				$body = '';
 				foreach ($data_label_komponen as $k => $v) {
 					$title = 'Monev Label Komponen "' . $v['nama'] . '" | ' . $_POST['tahun_anggaran'];
@@ -3660,6 +3679,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if (!empty($body)) {
 					$ret['message'] = $body;
 					$ret['data'] = $data_label_komponen;
+					$ret['jadwal'] = $jadwal;
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -4872,22 +4892,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$post_type = esc_sql($post_type);
 			$post_type_in_string = "'" . implode("','", $post_type) . "'";
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type IN ($post_type_in_string)
 			", $page_title);
 		} else {
 			$sql = $wpdb->prepare("
-				SELECT ID
+				SELECT 
+					ID,
+					post_status
 				FROM $wpdb->posts
 				WHERE post_title = %s
 					AND post_type = %s
 			", $page_title, $post_type);
 		}
-		$page = $wpdb->get_var($sql);
+		$page = $wpdb->get_row($sql);
 		if ($page) {
-			return get_post($page, $output);
+			// return get_post($page, $output);
+			return $page;
 		}
 		return null;
 	}
