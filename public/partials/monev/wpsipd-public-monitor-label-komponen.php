@@ -11,8 +11,30 @@ $input = shortcode_atts(array(
 if (empty($input['id_label'])) {
     die('<h1>ID Label tidak boleh kosong!</h1>');
 }
-
 global $wpdb;
+
+$prefix_history = '';
+$disabled = '';
+if (!empty($_GET['id_jadwal'])) {
+    $prefix_history = '_history';
+    $disabled = 'disabled';
+
+    $data_jadwal = $wpdb->get_row(
+        $wpdb->prepare('
+            SELECT 
+                *
+            FROM data_jadwal_lokal
+            WHERE id_jadwal_lokal = %d
+              AND status = 1
+        ', $_GET['id_jadwal']),
+        ARRAY_A
+    );
+
+    if (empty($data_jadwal)) {
+        die('<h1>Jadwal tidak tersedia!</h1>');
+    }
+}
+
 $type = 'murni';
 if (!empty($_GET) && !empty($_GET['type'])) {
     $type = $_GET['type'];
@@ -62,7 +84,7 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
 
     $query_params = '&id_skpd=' . $_GET['id_skpd'];
 
-    if(empty($data_skpd)){
+    if (empty($data_skpd)) {
         $data_skpd = array(
             'id_skpd' => '',
             'kode_skpd' => '-',
@@ -70,7 +92,6 @@ if (!empty($_GET) && !empty($_GET['id_skpd'])) {
         );
     }
     $options .= '<option value="' . $data_skpd['id_skpd'] . '" selected>' . $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd'] . '</option>';
-
 } else {
     $data_skpd = $wpdb->get_results(
         $wpdb->prepare("
@@ -106,7 +127,7 @@ $sql = $wpdb->prepare("
         END AS volume_new
     FROM `data_rka` r
         " . $inner_skpd . "
-    INNER JOIN data_mapping_label m 
+    INNER JOIN data_mapping_label" . $prefix_history . " m 
             ON m.active = 1
            AND m.tahun_anggaran = r.tahun_anggaran
            AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
@@ -139,7 +160,7 @@ $count = $wpdb->prepare("
             END
         ) AS total_realisasi
     FROM `data_rka` r
-    INNER JOIN data_mapping_label m 
+    INNER JOIN data_mapping_label" . $prefix_history . " m 
             ON m.active = 1
            AND m.tahun_anggaran = r.tahun_anggaran
            AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
@@ -176,7 +197,7 @@ $count_opd = $wpdb->prepare("
         ) AS total_realisasi
     FROM `data_rka` r
         " . $inner_skpd . "
-    INNER JOIN data_mapping_label m 
+    INNER JOIN data_mapping_label" . $prefix_history . " m 
             ON m.active = 1
            AND m.tahun_anggaran = r.tahun_anggaran
            AND m.id_rinci_sub_bl = r.id_rinci_sub_bl
@@ -334,8 +355,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     $body_label .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
-            <td class="kanan bawah text_blok" colspan="2"><a href="' . get_permalink($custom_post) . '?key=' . $this->gen_key() . '&pagu_dpa=sipd" target="_blank">' . $k . ' ' . $skpd['nama'] . '</a></td>
-            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
+            <td class="kanan bawah text_blok" colspan="2"><a href="' . get_permalink($custom_post) . '?key=' . $this->gen_key() . '&pagu_dpa=sipd" target="_blank">' . $k . ' ' . $skpd['nama'] . '</a></td>';
+    //disabled action buttons for locked jadwal
+    if (empty($disabled)) {
+        $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>';
+    }
+    $body_label .= '
             ' . $murni . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
@@ -372,14 +397,18 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $body_label .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a></td>
-                <td class="kanan bawah kiri text_tengah text_blok actionBtn">' . $btn_edit . '</td>
+                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="' . $link . '" target="_blank">' . $sub_keg['nama_sub_giat'] . '</a></td>';
+        //disabled action buttons for locked jadwal
+        if (empty($disabled)) {
+            $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn">' . $btn_edit . '</td>';
+        }
+        $body_label .= '
                 ' . $murni . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['realisasi'] ?? 0, 0, ",", ".") . '</td>
                 <td class="kanan bawah text_blok text_tengah">' . $penyerapan . '</td>
-                <td colspan="2" class="kanan bawah kiri">'.$keterangan.'</td>
+                <td colspan="2" class="kanan bawah kiri">' . $keterangan . '</td>
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
@@ -396,8 +425,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
             $body_label .= '
                 <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
-                    <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">' . $kel['nama'] . '</td>
-                    <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
+                    <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">' . $kel['nama'] . '</td>';
+            //disabled action buttons for locked jadwal
+            if (empty($disabled)) {
+                $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>';
+            }
+            $body_label .= '
                     ' . $murni . '
                     <td class="kanan bawah text_blok text_kanan">' . number_format($kel['total'] ?? 0, 0, ",", ".") . '</td>
                     ' . $selisih . '
@@ -420,8 +453,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                 $body_label .= '
                     <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
-                        <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">' . $ket['nama'] . '</td>
-                        <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
+                        <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">' . $ket['nama'] . '</td>';
+                //disabled action buttons for locked jadwal
+                if (empty($disabled)) {
+                    $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>';
+                }
+                $body_label .= '
                         ' . $murni . '
                         <td class="kanan bawah text_blok text_kanan">' . number_format($ket['total'] ?? 0, 0, ",", ".") . '</td>
                         ' . $selisih . '
@@ -445,8 +482,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                     $body_label .= '
                         <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
-                            <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">' . $akun['nama'] . '</td>
-                            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
+                            <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">' . $akun['nama'] . '</td>';
+                    //disabled action buttons for locked jadwal
+                    if (empty($disabled)) {
+                        $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>';
+                    }
+                    $body_label .= '
                             ' . $murni . '
                             <td class="kanan bawah text_blok text_kanan">' . number_format($akun['total'] ?? 0, 0, ",", ".") . '</td>
                             ' . $selisih . '
@@ -497,8 +538,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             <tr class="rincian" data-db="' . $rincian['id_rinci_sub_bl'] . '|' . $rincian['kode_sbl'] . '" data-lokus-teks="' . $lokus_akun_teks . '">
                                 <td class="kanan bawah kiri text_tengah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $no . '</td>
                                 <td class="kanan bawah" style="padding-left: 100px; ' . $warning_bg . $warning_bg_penyerapan . '">' . $rincian['lokus_akun_teks'] . $rincian['nama_komponen'] . $warning_badge . $warning_badge_penyerapan . '</td>
-                                <td class="kanan bawah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $alamat . $rincian['spek_komponen'] . '</td>
-                                <td class="kanan bawah kiri text_tengah text_blok actionBtn" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $btn_delete . '</td>
+                                <td class="kanan bawah" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $alamat . $rincian['spek_komponen'] . '</td>';
+                        //disabled action buttons for locked jadwal
+                        if (empty($disabled)) {
+                            $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn" style="' . $warning_bg . $warning_bg_penyerapan . '">' . $btn_delete . '</td>';
+                        }
+                        $body_label .= '
                                 ' . $murni . '
                                 <td class="kanan bawah text_kanan" style="' . $warning_bg . $warning_bg_penyerapan . '">' . number_format($rincian['rincian_new'] ?? 0, 0, ",", ".") . '</td>
                                 ' . $selisih . '
@@ -526,8 +571,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         $body_label .= '
             <tr>
                 <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
-                <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada Sub Kegiatan</td>
-                <td class="kanan bawah text_blok text_kanan actionBtn"></td>
+                <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada Sub Kegiatan</td>';
+        //disabled action buttons for locked jadwal
+        if (empty($disabled)) {
+            $body_label .= '<td class="kanan bawah text_blok text_kanan actionBtn"></td>';
+        }
+        $body_label .= '
                 ' . $murni . '
                 <td class="kanan bawah text_blok text_kanan">' . number_format($sub_keg['total'] ?? 0, 0, ",", ".") . '</td>
                 ' . $selisih . '
@@ -551,8 +600,12 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
     $body_label .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
-            <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada SKPD</td>
-            <td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>
+            <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Pada SKPD</td>';
+    //disabled action buttons for locked jadwal
+    if (empty($disabled)) {
+        $body_label .= '<td class="kanan bawah kiri text_tengah text_blok actionBtn"></td>';
+    }
+    $body_label .= '
             ' . $murni . '
             <td class="kanan bawah text_blok text_kanan">' . number_format($skpd['total'] ?? 0, 0, ",", ".") . '</td>
             ' . $selisih . '
@@ -574,8 +627,12 @@ $penyerapan = (!empty($data_label_shorted['total']) && $data_label_shorted['tota
     : 0;
 $body_label .= '
     <tr>
-        <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
-        <td class="kiri kanan bawah text_blok text_kanan actionBtn"></td>
+        <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>';
+//disabled action buttons for locked jadwal
+if (empty($disabled)) {
+    $body_label .= '<td class="kiri kanan bawah text_blok text_kanan actionBtn"></td>';
+}
+$body_label .= '
         ' . $murni . '
         <td class="kanan bawah text_blok text_kanan">' . number_format($data_label_shorted['total'] ?? 0, 0, ",", ".") . '</td>
         ' . $selisih . '
@@ -680,6 +737,12 @@ $cetak_laporan_page = $this->generatePage(
         <h4 class="font-weight-bold mb-2">
             Tahun Anggaran <?php echo htmlspecialchars($input['tahun_anggaran']); ?>
         </h4>
+        <?php if (!empty($disabled)): ?>
+            <h4 class="font-weight-bold mb-2">
+                JADWAL <?php echo htmlspecialchars(strtoupper($data_jadwal['nama'])); ?>
+            </h4>
+        <?php endif; ?>
+
     </div>
     <div class="table-responsive" style="overflow-x: auto; margin-bottom: 20px; margin-top: 40px;">
         <h4 class="text_tengah" style="margin-bottom: 1rem;">Detail Label Komponen</h4>
@@ -719,53 +782,56 @@ $cetak_laporan_page = $this->generatePage(
             </tbody>
         </table>
 
-    <?php if (!empty($_GET['id_skpd'])): ?>
-        <h4 class="text_tengah" style="margin-bottom: 1rem;">Total Rekap Anggaran <?php echo $data_skpd['kode_skpd'].' '.$data_skpd['nama_skpd']; ?></h4>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <thead style="background-color: #bde0fe; color: #212529;">
-                <tr>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Pagu Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Realisasi</th>
-                    <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Capaian</th>
-                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px;"><?php echo number_format($counter_opd['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo number_format($counter_opd['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo $count_penyerapan_opd; ?>%</td>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo $counter_opd['jumlah_rincian']; ?></td>
-                </tr>
-            </tbody>
-        </table>
-    <?php endif; ?>
+        <?php if (!empty($_GET['id_skpd'])): ?>
+            <h4 class="text_tengah" style="margin-bottom: 1rem;">Total Rekap Anggaran <?php echo $data_skpd['kode_skpd'] . ' ' . $data_skpd['nama_skpd']; ?></h4>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead style="background-color: #bde0fe; color: #212529;">
+                    <tr>
+                        <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Pagu Rincian</th>
+                        <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Total Realisasi</th>
+                        <th class="atas kanan bawah kiri text_tengah" style="width: 25%;">Capaian</th>
+                        <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="atas kanan bawah kiri text_tengah" style="border: 1px solid #dee2e6; padding: 8px;"><?php echo number_format($counter_opd['total_rincian_pagu'] ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo number_format($counter_opd['total_realisasi'] ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah" style="<?php echo $style_color_realisasi_opd; ?>"><?php echo $count_penyerapan_opd; ?>%</td>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo $counter_opd['jumlah_rincian']; ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        <?php endif; ?>
 
-    <?php if ($count_deleted_rincian != 0): ?>
-        <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <thead style="background-color: #FFADAD; color: #212529;">
-                <tr>
-                    <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
-                    <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
-                    <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($pagu_deleted ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($realisasi_deleted ?? 0, 0, ",", "."); ?></td>
-                    <td class="atas kanan bawah kiri text_tengah"><?php echo $count_deleted_rincian; ?></td>
-                </tr>
-            </tbody>
-        </table>
-    <?php endif; ?>
+        <?php if ($count_deleted_rincian != 0): ?>
+            <h4 class="text_tengah" style="margin-top: 1.5rem; margin-bottom: 1rem;">Data Rincian yang Tidak Terkoneksi ke RKA/DPA</h4>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead style="background-color: #FFADAD; color: #212529;">
+                    <tr>
+                        <th class="atas kanan bawah kiri text_tengah">Total Pagu Rincian</th>
+                        <th class="atas kanan bawah kiri text_tengah">Total Realisasi</th>
+                        <th class="atas kanan bawah kiri text_tengah">Jumlah Rincian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($pagu_deleted ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo number_format($realisasi_deleted ?? 0, 0, ",", "."); ?></td>
+                        <td class="atas kanan bawah kiri text_tengah"><?php echo $count_deleted_rincian; ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
     <div class="m-4 text-center btnAction">
-        <button class="btn btn-primary" onclick="showModalTambah();">
-            <span class="dashicons dashicons-insert"></span> Tambah Data
-        </button>
+        <?php if (empty($disabled)): ?>
+            <button class="btn btn-primary" onclick="showModalTambah();">
+                <span class="dashicons dashicons-insert"></span> Tambah Data
+            </button>
+        <?php endif; ?>
+
         <button class="btn btn-secondary" onclick="showModalListDeleted();">
             <span class="dashicons dashicons-list-view"></span> Arsip Rincian Belanja
         </button>
@@ -778,7 +844,9 @@ $cetak_laporan_page = $this->generatePage(
                 <td rowspan="2" class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td rowspan="2" class="atas kanan bawah text_tengah text_blok">SKPD / Sub Kegiatan / Komponen</td>
                 <td rowspan="2" class="atas kanan bawah text_tengah text_blok">Keterangan</td>
-                <td rowspan="2" class="atas kanan bawah text_tengah text_blok actionBtn">Aksi</td>
+                <?php if (empty($disabled)): ?>
+                    <td rowspan="2" class="atas kanan bawah text_tengah text_blok actionBtn">Aksi</td>
+                <?php endif; ?>
                 <?php if ($type == 'murni'): ?>
                     <td rowspan="2" class="atas kanan bawah text_tengah text_blok">Anggaran</td>
                 <?php else: ?>
@@ -798,7 +866,9 @@ $cetak_laporan_page = $this->generatePage(
                 <td class="atas kanan bawah kiri text_tengah text_blok">1</td>
                 <td class="atas kanan bawah text_tengah text_blok">2</td>
                 <td class="atas kanan bawah text_tengah text_blok">3</td>
-                <td class="atas kanan bawah text_tengah text_blok actionBtn">-</td>
+                <?php if (empty($disabled)): ?>
+                    <td class="atas kanan bawah text_tengah text_blok actionBtn">-</td>
+                <?php endif; ?>
                 <?php if ($type == 'murni'): ?>
                     <td class="atas kanan bawah text_tengah text_blok">4</td>
                     <td class="atas kanan bawah text_tengah text_blok">5</td>
@@ -1033,7 +1103,7 @@ $cetak_laporan_page = $this->generatePage(
             if (window.data_changed === true) {
                 if (confirm('Data realisasi telah berubah. Apakah Anda ingin merefresh halaman?')) {
                     location.reload(); // Refresh halaman
-                }else{
+                } else {
                     window.data_changed = false;
                 }
             }
@@ -1044,7 +1114,7 @@ $cetak_laporan_page = $this->generatePage(
             if (window.data_changed === true) {
                 if (confirm('Data Arsip telah berubah. Apakah Anda ingin merefresh halaman?')) {
                     location.reload(); // Refresh halaman
-                }else{
+                } else {
                     window.data_changed = false;
                 }
             }
@@ -1077,9 +1147,9 @@ $cetak_laporan_page = $this->generatePage(
                             const data = response.data;
                             const tableBody = jQuery("#tableRincian tbody");
                             tableBody.empty();
-                            if(response.ket_label_sub_keg != null){
+                            if (response.ket_label_sub_keg != null) {
                                 jQuery("#ket_subKegiatan").val(response.ket_label_sub_keg.keterangan);
-                            }else{
+                            } else {
                                 jQuery("#ket_subKegiatan").val('');
                             }
                             jQuery("#ket_subKegiatan").closest('.form-row').show();
@@ -1443,7 +1513,7 @@ $cetak_laporan_page = $this->generatePage(
                 alert(res.message);
                 jQuery("#wrap-loading").hide();
                 if (res.status === "success") {
-                    if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                    if (!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')) {
                         location.reload();
                     }
                     jQuery('#modalTambahData').modal('hide');
@@ -1601,7 +1671,7 @@ $cetak_laporan_page = $this->generatePage(
                     success: function(response) {
                         if (response.status == 'success') {
                             alert(response.message);
-                            if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                            if (!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')) {
                                 location.reload();
                             }
                         } else {
@@ -1639,7 +1709,7 @@ $cetak_laporan_page = $this->generatePage(
                 success: function(response) {
                     if (response.status == 'success') {
                         alert(response.message);
-                        if(!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')){
+                        if (!confirm('Ada perubahan data. Apakah anda mau tetap dihalaman ini? Jika tidak maka halaman akan dimuat ulang atau direfresh.')) {
                             location.reload();
                         }
                     } else {
@@ -1835,7 +1905,8 @@ $cetak_laporan_page = $this->generatePage(
                 action: "get_arsip_label_komponen",
                 api_key: ajax.api_key,
                 tahun_anggaran: '<?php echo $input["tahun_anggaran"]; ?>',
-                id_label: '<?php echo $input["id_label"]; ?>'
+                id_label: '<?php echo $input["id_label"]; ?>',
+                id_jadwal: '<?php echo $data_jadwal["id_jadwal_lokal"] ?? ''; ?>'
             },
             dataType: "json",
             success: function(response) {

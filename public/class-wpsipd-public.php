@@ -14609,19 +14609,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 
+					$prefix_history = '';
+					if (!empty($_POST['id_jadwal'])) {
+						$prefix_history = '_history';
+					}
+
 					// get rincian terhapus di arsip
 					$rka = $wpdb->get_results(
 						$wpdb->prepare("
 							SELECT 
 								r.*,
 								m.*
-							FROM data_mapping_label m
-							INNER JOIN data_rka r on r.id_rinci_sub_bl=m.id_rinci_sub_bl
-								AND m.tahun_anggaran=r.tahun_anggaran
-							  	AND r.kode_akun!=''
-							WHERE m.tahun_anggaran=%d
-							  	AND m.active=2
-								AND m.id_label_komponen=%d
+							FROM data_mapping_label" . $prefix_history . " m
+							INNER JOIN data_rka r ON r.id_rinci_sub_bl = m.id_rinci_sub_bl
+								   AND m.tahun_anggaran = r.tahun_anggaran
+							  	   AND r.kode_akun != ''
+							WHERE m.tahun_anggaran = %d
+							  AND m.active = 2
+							  AND m.id_label_komponen = %d
 						", $_POST['id_label'], $tahun_anggaran),
 						ARRAY_A
 					);
@@ -14632,8 +14637,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									realisasi
 								FROM data_realisasi_rincian
 								WHERE tahun_anggaran=%d
-								  	AND id_rinci_sub_bl=%d
-								  	AND active=1
+								  AND id_rinci_sub_bl=%d
+								  AND active=1
 	                		", $tahun_anggaran, $v['id_rinci_sub_bl'])
 						);
 						$rka[$k]['realisasi_rincian'] = $realisasi_rincian == null ? 0 : $realisasi_rincian;
@@ -14649,8 +14654,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										u.kode_skpd 
 									FROM data_sub_keg_bl s
 									INNER JOIN data_unit u ON u.id_skpd=s.id_sub_skpd
-										AND u.tahun_anggaran=s.tahun_anggaran
-										AND u.active=s.active
+										   AND u.tahun_anggaran=s.tahun_anggaran
+										   AND u.active=s.active
 									WHERE s.kode_sbl = %s
 									  AND s.tahun_anggaran = %d
 									  AND s.active = 1

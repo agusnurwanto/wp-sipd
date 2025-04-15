@@ -19,7 +19,9 @@ function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
 		});
 }
 
-function load_label(tahun_anggaran) {
+function load_label(tahun_anggaran, id_jadwal = null) {
+	var select_jadwal = jQuery('#select_jadwal_tagging');
+
 	jQuery("#wrap-loading").show();
 	jQuery.ajax({
 		url: ajaxurl,
@@ -27,7 +29,8 @@ function load_label(tahun_anggaran) {
 		data: {
 			"action": "get_label_komponen",
 			"api_key": wpsipd.api_key,
-			"tahun_anggaran": tahun_anggaran
+			"tahun_anggaran": tahun_anggaran,
+			"id_jadwal": id_jadwal
 		},
 		dataType: "json",
 		success: function (data) {
@@ -35,15 +38,15 @@ function load_label(tahun_anggaran) {
 			window.data_label_komponen = data.data;
 			jQuery('#analisa_komponen').click();
 
-			const select = jQuery('#select_jadwal_tagging');
-			select.empty();
-			select.append('<option value="">Pilih Jadwal</option>');
-			data.jadwal.forEach(item => {
-				select.append(`<option value="${item.id_jadwal_lokal}">${item.nama}</option>`);
-			}); 
+			if (id_jadwal == null) {
+				select_jadwal.empty();
+				select_jadwal.append('<option value="">Pilih Jadwal</option>');
+				data.jadwal.forEach(item => {
+					select_jadwal.append(`<option value="${item.id_jadwal_lokal}">${item.nama}</option>`);
+				}); 
+			}
 
 			set_analis_komponen();
-			jQuery("#wrap-loading").hide();
 		},
 		error: function (e) {
 			console.log(e);
@@ -775,6 +778,7 @@ jQuery(document).ready(function () {
 			});
 		}
 	});
+
 	if (jQuery("#load_ajax_carbon").length >= 1) {
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
@@ -800,8 +804,11 @@ jQuery(document).ready(function () {
 			}
 		});
 	}
+
 	if (jQuery("#body_label").length >= 1) {
 		var tahun_anggaran = jQuery('select[name="carbon_fields_compact_input[_crb_tahun_anggaran]"]');
+		var select_jadwal = jQuery('#select_jadwal_tagging');
+
 		load_label(tahun_anggaran.val());
 		tahun_anggaran.on("change", function () {
 			load_label(jQuery(this).val());
@@ -848,6 +855,7 @@ jQuery(document).ready(function () {
 				}
 			}
 		});
+
 		jQuery('#analisa_komponen').on('click', function () {
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
@@ -856,7 +864,8 @@ jQuery(document).ready(function () {
 				data: {
 					"action": "get_analis_rincian_label",
 					"api_key": wpsipd.api_key,
-					"tahun_anggaran": tahun_anggaran.val()
+					"tahun_anggaran": tahun_anggaran.val(),
+					"id_jadwal": select_jadwal.val()
 				},
 				dataType: "json",
 				success: function (data) {
@@ -875,6 +884,11 @@ jQuery(document).ready(function () {
 				}
 			});
 		});
+
+		jQuery('#select_jadwal_tagging').on('click', function () {
+			load_label(tahun_anggaran.val(), select_jadwal.val())
+		});
+
 		jQuery('#body_label').on('click', '.edit-label', function () {
 			var id_label = jQuery(this).attr('data-id');
 			data_label_komponen.map(function (b, i) {

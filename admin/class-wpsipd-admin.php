@@ -3269,7 +3269,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_label_komponen()
 	{
 		global $wpdb;
-		$tahun = $wpdb->get_results('
+		$tahun = $wpdb->get_results(
+			'
 			SELECT 
 				tahun_anggaran 
 			FROM data_unit 
@@ -3297,7 +3298,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					<div class="text-kanan">
 						<label for="select_jadwal_tagging">Nama Jadwal :</label>
 						<select name="select_jadwal_tagging" id="select_jadwal_tagging" style="width : 250px">
-							<option val="">Pilih Jadwal</option>
+							<option value="">Pilih Jadwal</option>
 						</select>
 					</div>
             		<h3 class="text_tengah">Form Tambah dan Edit Label Komponen</h3>
@@ -3350,6 +3351,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             			<li><b>Daftar Label Komponen</b> menampilkan daftar label komponen yang sudah dibuat</li>
             			<li>Tombol refresh berwarna biru pada kolom <b>Analisa Rincian</b> berfungsi untuk menampilkan data pagu, realisasi dan jumlah rincian</li>
             			<li>Tombol aktivasi dan nonaktif berlogo mata pada kolom <b>Aksi</b> berfungsi untuk menampilkan menyembunyikan dan memunculkan label pada user dengan level SKPD</li>
+						<li>Pilih <b>Nama Jadwal</b> untuk menampilkan label beserta rincian tagging sesuai dengan jadwal yang telah dikunci.</li>
+						<li>Penguncian jadwal dapat dilakukan melalui halaman <b>Input Perencanaan > Jadwal atau Input Perencanaan > Jadwal Tagging Rincian Belanja</b>.</li>
+						<li>Dengan mengunci jadwal, Anda sekaligus mencadangkan data tagging rincian belanja yang sedang aktif saat ini (per tahun anggaran).</li>
             		</ul>
         		')
 		);
@@ -3625,9 +3629,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						FROM data_jadwal_lokal 
 						WHERE tahun_anggaran = %d
 						  AND id_tipe = %d
+						  AND status = 1
 					', $_POST['tahun_anggaran'], 18),
 					ARRAY_A
 				);
+				$params = '';
+				if (!empty($_POST['id_jadwal'])) {
+					$params = '&id_jadwal=' . $_POST['id_jadwal'];
+				}
 				$body = '';
 				foreach ($data_label_komponen as $k => $v) {
 					$title = 'Monev Label Komponen "' . $v['nama'] . '" | ' . $_POST['tahun_anggaran'];
@@ -3658,7 +3667,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$body .= '
 					<tr>
 						<td class="text_tengah">' . ($k + 1) . '</td>
-						<td><a href="' . $url_label . '" target="_blank">' . $v['nama'] . '</a><br>' . $nonaktif_badge . '</td>
+						<td><a href="' . $url_label . $params . '" target="_blank">' . $v['nama'] . '</a><br>' . $nonaktif_badge . '</td>
 						<td>' . $v['keterangan'] . '</td>
 						<td class="text_kanan rencana-pagu">' . $formatted_number . '</td>
 						<td class="text_kanan pagu-rincian">-</td>
@@ -3704,6 +3713,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if (!empty($_POST['id_skpd'])) {
 					$filter_label = '= 1';
 				}
+				$prefix_history = '';
+				if (!empty($_POST['id_jadwal'])) {
+					$prefix_history = '_history';
+				}
 
 				$data = $wpdb->get_results($wpdb->prepare('
 					SELECT 
@@ -3713,27 +3726,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
 				                ELSE r.rincian
 				            END
-				        ) as pagu,
+				        ) AS pagu,
 						SUM(
 				            CASE 
 				                WHEN m.pisah = 1 THEN m.realisasi_pisah
 				                ELSE rr.realisasi
 				            END
-				        ) as realisasi,
-						count(m.id) as jml_rincian 
-					FROM data_mapping_label m
-					inner join data_label_komponen l on m.id_label_komponen=l.id
-						and l.active ' . $filter_label . '
-						and l.tahun_anggaran=m.tahun_anggaran
-					inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
-						and r.active=m.active
-						and r.tahun_anggaran=m.tahun_anggaran
-					left join data_realisasi_rincian rr on rr.id_rinci_sub_bl=m.id_rinci_sub_bl
-						and rr.active=m.active
-						and rr.tahun_anggaran=m.tahun_anggaran
-					where m.active=1
-						and m.tahun_anggaran=%d
-					group by m.id_label_komponen
+				        ) AS realisasi,
+						count(m.id) AS jml_rincian 
+					FROM data_mapping_label' . $prefix_history . ' m
+					INNER JOIN data_label_komponen l on m.id_label_komponen=l.id
+						   AND l.active ' . $filter_label . '
+						   AND l.tahun_anggaran=m.tahun_anggaran
+					INNER JOIN data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						   AND r.active=m.active
+						   AND r.tahun_anggaran=m.tahun_anggaran
+					LEFT JOIN data_realisasi_rincian rr ON rr.id_rinci_sub_bl=m.id_rinci_sub_bl
+						   AND rr.active=m.active
+						   AND rr.tahun_anggaran=m.tahun_anggaran
+					WHERE m.active=1
+					  AND m.tahun_anggaran=%d
+					GROUP BY m.id_label_komponen
 				', $tahun_anggaran), ARRAY_A);
 				$ret['sql'] = $wpdb->last_query;
 
@@ -3753,27 +3766,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					                WHEN m.pisah = 1 THEN (r.rincian / r.volume) * m.volume_pisah
 					                ELSE r.rincian
 					            END
-					        ) as pagu,
+					        ) AS pagu,
 							SUM(
 					            CASE 
 					                WHEN m.pisah = 1 THEN m.realisasi_pisah
 					                ELSE rr.realisasi
 					            END
-					        ) as realisasi,
-							count(m.id) as jml_rincian 
-						FROM data_mapping_label m
-						inner join data_label_komponen l on m.id_label_komponen=l.id
-							and l.active ' . $filter_label . '
-							and l.tahun_anggaran=m.tahun_anggaran
-						inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
-							and r.active=m.active
-							and r.tahun_anggaran=m.tahun_anggaran
-						left join data_realisasi_rincian rr on rr.id_rinci_sub_bl=m.id_rinci_sub_bl
-							and rr.active=m.active
-							and rr.tahun_anggaran=m.tahun_anggaran
+					        ) AS realisasi,
+							count(m.id) AS jml_rincian 
+						FROM data_mapping_label' . $prefix_history . ' m
+						INNER JOIN data_label_komponen l ON m.id_label_komponen=l.id
+							   AND l.active ' . $filter_label . '
+							   AND l.tahun_anggaran=m.tahun_anggaran
+						INNER JOIN data_rka r ON m.id_rinci_sub_bl=r.id_rinci_sub_bl
+							   AND r.active=m.active
+							   AND r.tahun_anggaran=m.tahun_anggaran
+						left join data_realisasi_rincian rr ON rr.id_rinci_sub_bl=m.id_rinci_sub_bl
+							   AND rr.active=m.active
+							   AND rr.tahun_anggaran=m.tahun_anggaran
 						' . $inner_skpd . '
 						where m.active=1
-							and m.tahun_anggaran=%d
+							   AND m.tahun_anggaran=%d
 							' . $where_skpd . '
 						group by m.id_label_komponen
 					', $tahun_anggaran), ARRAY_A);

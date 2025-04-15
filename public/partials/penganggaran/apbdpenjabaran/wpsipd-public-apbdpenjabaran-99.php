@@ -97,6 +97,7 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
 $nama_label = array();
 $data_all = array(
     'total'         => 0,
+    'realisasi'     => 0,
     'total_n_plus'  => 0,
     'data'          => array()
 );
@@ -160,6 +161,17 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
+    $realisasi = $wpdb->get_var(
+        $wpdb->prepare("
+            SELECT
+                realisasi
+            FROM data_realisasi_akun_sipd
+            WHERE active = 1
+              AND tahun_anggaran=%d
+              AND kode_sbl = %s
+        ", $input["tahun_anggaran"], $sub['kode_sbl'])
+    );
+
     if (!empty($sub['nama_sub_giat'])) {
         $nama = explode(' ', $sub['nama_sub_giat']);
         $kode_sub_giat = $nama[0];
@@ -209,6 +221,7 @@ foreach ($subkeg as $kk => $sub) {
     if (empty($data_all['data'][$sub[$label]])) {
         $data_all['data'][$sub[$label]] = array(
             'nama'          => $sub[$label],
+            'realisasi'     => 0,
             'total'         => 0,
             'total_n_plus'  => 0,
             'data'          => array()
@@ -232,6 +245,7 @@ foreach ($subkeg as $kk => $sub) {
             'kode_sub_skpd'  => $sub_skpd['kode_skpd'],
             'nama_skpd'      => $nama_skpd ?? '',
             'kode_skpd'      => $sub['kode_skpd'],
+            'realisasi'      => 0,
             'total'          => 0,
             'total_n_plus'   => 0,
             'data'           => array()
@@ -241,6 +255,7 @@ foreach ($subkeg as $kk => $sub) {
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
             'nama'          => $sub['nama_urusan'],
+            'realisasi'     => 0,
             'total'         => 0,
             'total_n_plus'  => 0,
             'data'          => array()
@@ -249,6 +264,7 @@ foreach ($subkeg as $kk => $sub) {
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
             'nama'          => $sub['nama_bidang_urusan'],
+            'realisasi'     => 0,
             'total'         => 0,
             'total_n_plus'  => 0,
             'data'          => array()
@@ -257,6 +273,7 @@ foreach ($subkeg as $kk => $sub) {
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
             'nama'          => $sub['nama_program'],
+            'realisasi'     => 0,
             'total'         => 0,
             'total_n_plus'  => 0,
             'data'          => array()
@@ -265,6 +282,7 @@ foreach ($subkeg as $kk => $sub) {
     if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
             'nama'          => $sub['nama_giat'],
+            'realisasi'     => 0,
             'total'         => 0,
             'total_n_plus'  => 0,
             'data'          => array()
@@ -279,6 +297,7 @@ foreach ($subkeg as $kk => $sub) {
         }
         $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
             'nama'            => implode(' ', $nama),
+            'realisasi'       => 0,
             'total'           => 0,
             'total_n_plus'    => 0,
             'capaian_prog'    => $capaian_prog,
@@ -291,13 +310,21 @@ foreach ($subkeg as $kk => $sub) {
         );
     }
     $data_all['total'] += $sub['pagu'];
+    $data_all['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
     $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
+    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
 
     $data_all['total_n_plus'] += $sub['pagu_n_depan'];
     $data_all['data'][$sub[$label]]['total_n_plus'] += $sub['pagu_n_depan'];
@@ -583,6 +610,7 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah text_tengah">' . $kode_sub_kegiatan . '</td>
                                     <td class="kanan bawah">' . $sub_giat['nama'] . '</td>
                                     <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['realisasi'], 2, ",", ".") . '</td>
                                 </tr>
                             ';
                         }
@@ -684,6 +712,7 @@ if (!empty($format_rkpd)) {
                         <th class="atas kanan bawah text_tengah text_blok">Kode Sub Kegiatan</th>
                         <th class="atas kanan bawah text_tengah text_blok">Nama Sub Kegiatan</th>
                         <th class="atas kanan bawah text_tengah text_blok">Nilai Pagu</th>
+                        <th class="atas kanan bawah text_tengah text_blok">Realisasi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -693,6 +722,7 @@ if (!empty($format_rkpd)) {
                     <tr>
                         <td class="kiri kanan bawah text_tengah text_blok" colspan="15">Total</td>
                         <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['total'], 2, ",", ".") . '</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['realisasi'], 2, ",", ".") . '</td>
                     </tr>
                 </tfoot>
             </table>
