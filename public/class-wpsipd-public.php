@@ -9231,6 +9231,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					//print_r($option);die();
 					return $insert_user;
 				}
+			}else{
+				$user_db = get_user_by('ID', $insert_user);
+				$cek_role = false;
+				foreach($user_db->roles as $role){
+					if($role != $user['jabatan']){
+						$user_db->remove_role($role);
+					}else{
+						$cek_role = true;
+					}
+				}
+				if(empty($cek_role)){
+					$user_db->add_role($user['jabatan']);
+				}
 			}
 
 			if (!empty($update_pass)) {
@@ -9242,15 +9255,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'description' => 'User dibuat dari data SIPD Merah'
 			);
 			if (!empty($user['id_sub_skpd'])) {
-				$skpd = $wpdb->get_var("SELECT nama_skpd from data_unit where id_skpd=" . $user['id_sub_skpd'] . " AND active=1");
-				$meta['_crb_nama_skpd'] = $skpd;
+				$meta['_crb_nama_skpd'] = $user['nama_skpd'];
 				$meta['_id_sub_skpd'] = $user['id_sub_skpd'];
 			}
 			if (!empty($user['iduser'])) {
 				$meta['id_user_sipd'] = $user['iduser'];
 			}
+
+			$meta_existing = get_user_meta($insert_user);
 			foreach ($meta as $key => $val) {
-				update_user_meta($insert_user, $key, $val);
+				if($meta_existing[$key][0] != $val){
+					update_user_meta($insert_user, $key, $val);
+				}
 			}
 		}
 	}
@@ -9288,6 +9304,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$user['jabatan'] = $user['statuskepala'];
 						$user['nama'] = $user['namakepala'];
 						$user['id_sub_skpd'] = $user['id_skpd'];
+						$user['nama_skpd'] = $user['nama_skpd'];
 						$user['nip'] = $user['nipkepala'];
 						$this->gen_user_sipd_merah($user, $update_pass);
 					}
@@ -9317,7 +9334,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					} else {
 						$ret['status'] = 'error';
-						$ret['message'] = 'Data user kosong. Harap lakukan singkronisasi data user dulu!';
+						$ret['message'] = 'Data user mitra_bappeda dan tapd kosong. Harap lakukan singkronisasi data user dulu!';
 					}
 				} else {
 					$ret['status'] = 'error';
