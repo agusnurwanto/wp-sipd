@@ -5540,6 +5540,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja.php';
 	}
+	
+	public function detail_efisiensi_belanja_pemda($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja-pemda.php';
+	}
 
 	public function tampilrka($atts)
 	{
@@ -26191,6 +26201,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Id skpd kosong!';
 				}
+				
 				$data = $wpdb->get_row($wpdb->prepare('
 					SELECT 
 						*

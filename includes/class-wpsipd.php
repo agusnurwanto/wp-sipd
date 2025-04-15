@@ -1298,6 +1298,7 @@ class Wpsipd
 
 		add_shortcode('efisiensi_belanja',array($plugin_public,'efisiensi_belanja'));
 		add_shortcode('detail_efisiensi_belanja',array($plugin_public,'detail_efisiensi_belanja'));
+		add_shortcode('detail_efisiensi_belanja_pemda',array($plugin_public,'detail_efisiensi_belanja_pemda'));
 	}
 
 	/**

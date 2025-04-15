@@ -8,9 +8,11 @@ $input = shortcode_atts( array(
     'tahun_anggaran' => '2022'
 ), $atts );
 
-if (!empty($_GET) && !empty($_GET['id_skpd'])) {
-    $id_skpd = $_GET['id_skpd'];
+$kode_akun = isset($_GET['kode_akun']) && !empty($_GET['kode_akun']) ? $_GET['kode_akun'] : null;
+if($kode_akun == ''){
+	return alert('Kode Akun Rekening Belanja kosong!');
 }
+$tahun_anggaran = $input['tahun_anggaran'];
 $body = '';
 $body2 = '';
 $nama_pemda = get_option('_crb_daerah');
@@ -22,25 +24,36 @@ $sql_unit = $wpdb->prepare("
     FROM data_unit 
     WHERE 
         tahun_anggaran=%d
-        AND id_skpd =%d
         AND active=1
     order by id_skpd ASC
-    ", $input['tahun_anggaran'], $id_skpd);
+    ", $input['tahun_anggaran']);
 $unit = $wpdb->get_results($sql_unit, ARRAY_A);
 
-$unit_utama = $unit;
-if($unit[0]['id_unit'] != $unit[0]['id_skpd']){
-    $sql_unit_utama = $wpdb->prepare("
-        SELECT 
-            *
-        FROM data_unit
-        WHERE 
-            tahun_anggaran=%d
-            AND id_skpd=%d
+$data_unit = [];
+$data_unit_utama = [];
+
+foreach ($unit as $u) {
+    $data_unit[$u['id_skpd']] = $u;
+
+    if ($u['id_unit'] != $u['id_skpd']) {
+        $sql_unit_utama = $wpdb->prepare("
+            SELECT * FROM data_unit 
+            WHERE tahun_anggaran=%d 
+            AND id_skpd=%d 
             AND active=1
-        order by id_skpd ASC
-        ", $input['tahun_anggaran'], $unit[0]['id_unit']);
-    $unit_utama = $wpdb->get_results($sql_unit_utama, ARRAY_A);
+            ORDER BY id_skpd ASC
+        ", $input['tahun_anggaran'], $u['id_unit']);
+
+        $unit_utama_result = $wpdb->get_row($sql_unit_utama, ARRAY_A);
+
+        if (!empty($unit_utama_result)) {
+            $data_unit_utama[$u['id_skpd']] = $unit_utama_result;
+        } else {
+            $data_unit_utama[$u['id_skpd']] = $u;
+        }
+    } else {
+        $data_unit_utama[$u['id_skpd']] = $u;
+    }
 }
 
 $unit = (!empty($unit)) ? $unit : array();
@@ -58,12 +71,12 @@ $sql_anggaran = $wpdb->prepare("
         AND s.tahun_anggaran=r.tahun_anggaran
         AND s.active=r.active
     WHERE r.tahun_anggaran=%d
+        AND r.kode_akun=%s
         AND r.active=1
-        AND s.id_sub_skpd=%d
-    GROUP by r.kode_akun, s.kode_sbl
-    ",$input["tahun_anggaran"], $id_skpd);
-$data_anggaran = $wpdb->get_results($sql_anggaran, ARRAY_A);
+    GROUP by r.kode_akun, s.kode_sbl, s.id_sub_skpd
+    ",$input["tahun_anggaran"], $kode_akun);
 
+$data_anggaran = $wpdb->get_results($sql_anggaran, ARRAY_A);
 $pagu_efisiensi = 0;
 $total_all_pagu_sebelum = 0;
 $total_all_pagu = 0;
@@ -161,6 +174,10 @@ if(!empty($data_anggaran)){
         $nama_sub_giat = explode(' ', $v_anggaran['nama_sub_giat']);
         unset($nama_sub_giat[0]);
         $nama_sub_giat = implode(' ', $nama_sub_giat);
+        $id_skpd = $v_anggaran['id_sub_skpd']; 
+
+		$current_unit = isset($data_unit[$id_skpd]) ? $data_unit[$id_skpd] : ['kode_skpd' => '-', 'nama_skpd' => '-'];
+		$current_unit_utama = isset($data_unit_utama[$id_skpd]) ? $data_unit_utama[$id_skpd] : ['kode_skpd' => '-', 'nama_skpd' => '-'];
 
         $body .= '
             <tr kode_sbl="'.$kode_sbl.'" kode_sbl_kas="'.$v_anggaran['kode_sbl'].'">
@@ -169,10 +186,10 @@ if(!empty($data_anggaran)){
                 <td class="">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_urusan'].'</td>
                 <td class="text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_bidang_urusan'].'</td>
                 <td class="">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_bidang_urusan'].'</td>
-                <td class="text_tengah">'.$unit_utama[0]['kode_skpd'].'</td>
-                <td class="">'.$unit_utama[0]['nama_skpd'].'</td>
-                <td class="text_tengah">'.$unit[0]['kode_skpd'].'</td>
-                <td class="">'.$unit[0]['nama_skpd'].'</td>
+                <td class="text_tengah">'.$current_unit_utama['kode_skpd'].'</td>
+				<td class="">'.$current_unit_utama['nama_skpd'].'</td>
+				<td class="text_tengah">'.$current_unit['kode_skpd'].'</td>
+				<td class="">'.$current_unit['nama_skpd'].'</td>
                 <td class="text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_program'].'</td>
                 <td class="">'.$sub_keg_all[$kode_sbl]['sub_keg']['nama_program'].'</td>
                 <td class="text_tengah">'.$sub_keg_all[$kode_sbl]['sub_keg']['kode_giat'].'</td>
@@ -186,7 +203,7 @@ if(!empty($data_anggaran)){
                 <td class="text_kanan">'.number_format($sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['pagu_efisiensi'] ?? 0, 0, '.', ',').'</td>
                 <td class="text_kanan">'.number_format($selisih, 0, '.', ',').'</td>
                 <td class="text_kanan">'.$sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['keterangan'].'</td>
-                <td class="text_kanan"><button class="btn btn-sm btn-warning" onclick="edit_efisiensi(\'' . $v_anggaran['kode_sbl'] . '\', \'' . $v_anggaran['kode_akun'] . '\', \'' . $v_anggaran['total_rincian'] . '\'); return false;" href="#"><span class="dashicons dashicons-edit"></span></button></td>
+                <td class="text_kanan"><button class="btn btn-sm btn-warning" onclick="edit_efisiensi(\'' . $v_anggaran['kode_sbl'] . '\', \'' . $v_anggaran['kode_akun'] . '\', \'' . $v_anggaran['total_rincian'] . '\', \'' . $current_unit_utama['id_skpd'] . '\'); return false;" href="#"><span class="dashicons dashicons-edit"></span></button></td>
             </tr>';
 
         $total_all_pagu += $v_anggaran['total_rincian'];
@@ -233,30 +250,12 @@ if(!empty($data_anggaran)){
         position: sticky;
         bottom: 0;
     }
-
-	.table_data_efisiensi tfoot th{
-		vertical-align: middle;
-	}
-	.table_data_efisiensi_rekening thead{
-		position: sticky;
-        top: -6px;
-	}.table_data_efisiensi_rekening thead th{
-		vertical-align: middle;
-	}
-	.table_data_efisiensi_rekening tfoot{
-        position: sticky;
-        bottom: 0;
-    }
-
-	.table_data_efisiensi_rekening tfoot th{
-		vertical-align: middle;
-	}
 </style>
 <div class="container-md">
 	<div class="cetak">
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-			<h2 style="text-align: center; margin: 0; font-weight: bold;">Efisiensi Belanja <br><?php echo $nama_skpd.'<br>Tahun Anggaran '.$input['tahun_anggaran']; ?></h2>
+			<h2 style="text-align: center; margin: 0; font-weight: bold;">Efisiensi Belanja <br><?php echo $kode_akun.' '.$nama_akun.'<br>Tahun Anggaran '.$tahun_anggaran; ?></h2>
 			<div id='aksi-efisiensi-wpsipd'></div>
 			<div class="wrap-table">
 				<table id="cetak" title="Label Efisiensi Belanja" class="table table-bordered table_data_efisiensi">
@@ -305,42 +304,6 @@ if(!empty($data_anggaran)){
 		</div>
 	</div>
 </div>
-<div class="container-md">
-	<div class="cetak">
-		<div style="padding: 10px;margin:0 0 3rem 0;">
-			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-			<h2 style="text-align: center; margin: 0; font-weight: bold;">Efisiensi Belanja per Rekening Belanja<br><?php echo $nama_skpd.'<br>Tahun Anggaran '.$input['tahun_anggaran']; ?></h2>
-			<div id='aksi-efisiensi-rekening-wpsipd'></div>
-			<div class="wrap-table">
-				<table id="cetak" title="Label Efisiensi Belanja" class="table table-bordered table_data_efisiensi_rekening">
-					<thead style="background: #ffc491;">
-						<tr>
-			                <th style="width: 35px;" class="text-center">No</th>
-			                <th style="width: 110px;" class="text-center">Kode Rekening</th>
-			                <th style="width: 200px;" class="text-center">Nama Rekening</th>
-			                <th style="width: 200px;" class="text-center">Total Sebelum</th>
-			                <th style="width: 200px;" class="text-center">Total</th>
-			                <th style="width: 200px;" class="text-center">Efisiensi</th>
-			                <th style="width: 200px;" class="text-center">Selisih</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php echo $body2; ?>
-					</tbody>
-					<tfoot style="background: #ffc491;">
-						<tr>
-			                <th colspan="3" class="text-center">Total</th>
-			                <th class="text-right"><?php echo number_format($total_all_pagu_sebelum, 0, '.', ','); ?></th>
-			                <th class="text-right"><?php echo number_format($total_all_pagu, 0, '.', ','); ?></th>
-			                <th class="text-right"><?php echo number_format($total_all_efisiensi, 0, '.', ','); ?></th>
-			                <th class="text-right"><?php echo number_format($total_all_selisih, 0, '.', ','); ?></th>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
 <div class="modal fade" id="modal-tambah-efisiensi" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -353,9 +316,10 @@ if(!empty($data_anggaran)){
 	                <input type="hidden" value="" id="id_data">
 	                <input type="hidden" value="" id="kode_sbl">
 	                <input type="hidden" value="" id="kode_akun">
+	                <input type="hidden" value="" id="id_skpd">
 	                <div class="form-group">
                         <label for="skpd">SKPD</label>
-                        <input type="text" class="form-control" id="skpd" name="skpd" value="<?php echo $nama_skpd; ?>" disabled>
+                        <input type="text" class="form-control" id="skpd" name="skpd" disabled>
                     </div>
 	                <div class="form-group">
                         <label for="nama_urusan">Nama Urusan</label>
@@ -417,13 +381,6 @@ if(!empty($data_anggaran)){
 		    ],
 		    iDisplayLength: -1
 		});
-		jQuery('.table_data_efisiensi_rekening').dataTable({
-			 aLengthMenu: [
-		        [5, 10, 25, 100, -1],
-		        [5, 10, 25, 100, "All"]
-		    ],
-		    iDisplayLength: -1
-		});
 		jQuery('.format_pagu').on('input', function() {
 		    var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
 
@@ -437,7 +394,7 @@ if(!empty($data_anggaran)){
 		});
     });
 
-    function edit_efisiensi(kodesbl, kodeakun, pagu) {
+    function edit_efisiensi(kodesbl, kodeakun, pagu, idskpd) {
 	    jQuery('#wrap-loading').show();
 	    jQuery.ajax({
 	        method: 'post',
@@ -448,23 +405,24 @@ if(!empty($data_anggaran)){
 	            'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
 	            'kodesbl': kodesbl,
 	            'kodeakun': kodeakun,
-	            'id_skpd': <?php echo $id_skpd; ?>,
-	            'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>
+	            'id_skpd': idskpd,
+	            'tahun_anggaran': <?php echo $tahun_anggaran; ?>
 	        },
 	        success: function(response) {
 	            if (response.status == 'success') {
 	                let data = response.data;
 	                jQuery("#kode_sbl").val(kodesbl);
 	                jQuery("#kode_akun").val(kodeakun);
+	                jQuery("#id_skpd").val(idskpd);
 	                jQuery("#nama_urusan").val(data.kode_urusan + " " + data.nama_urusan);
 	                jQuery("#bidang_urusan").val(data.kode_bidang_urusan + " " + data.nama_bidang_urusan);
 	                jQuery("#program").val(data.kode_program + " " + data.nama_program);
 	                jQuery("#kegiatan").val(data.kode_giat + " " + data.nama_giat);
 	                jQuery("#sub_kegiatan").val(data.nama_sub_giat);
+	                jQuery("#skpd").val(data.nama_skpd);
 
 	                if (data.rka && data.rka.length > 0) {
-	                    jQuery("#akun_belanja").val(data.rka[0].nama_akun).trigger('input');
-	                    jQuery("#pagu_murni").val(parseInt(data.rka[0].rincian_murni || 0	)).trigger('input');
+	                    jQuery("#akun_belanja").val(data.rka[0].kode_akun + " " + data.rka[0].nama_akun);
 	                } else {
 	                    jQuery("#akun_belanja").val('');
 	                }
@@ -494,6 +452,7 @@ if(!empty($data_anggaran)){
         let id_data = jQuery('#id_data').val();
         let kodesbl = jQuery('#kode_sbl').val();
         let kodeakun = jQuery('#kode_akun').val();
+        let idskpd = jQuery('#id_skpd').val();
         let pagu_efisiensi = jQuery('#pagu_efisiensi').val().replace(/\./g, '')
         if(pagu_efisiensi == ''){
         	return alert('Pagu Efisiensi tidak boleh kosong!');
@@ -512,11 +471,11 @@ if(!empty($data_anggaran)){
 	            'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
 	            'id_data': id_data,
 	            'kodesbl': kodesbl,
+	            'id_skpd': idskpd,
 	            'kodeakun': kodeakun,
 	            'pagu_efisiensi': pagu_efisiensi,
 	            'keterangan': keterangan,
-	            'id_skpd': <?php echo $id_skpd; ?>,
-	            'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+	            'tahun_anggaran': <?php echo $tahun_anggaran; ?>,
             },
             dataType: "json",
             success: function(res) {
