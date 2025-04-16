@@ -250,20 +250,21 @@ foreach ($subkeg as $kk => $sub) {
 		}
 		$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
 		$rak_bulan_all[$v['bulan']] = $v['rak'];
-		if (!empty($v['realisasi_anggaran'])) {
-			if ($v['bulan'] <= 3) {
-				$triwulan_1 = $v['realisasi_anggaran'];
-				$rak_triwulan_1 = $v['rak'];
-			} else if ($v['bulan'] <= 6) {
-				$triwulan_2 = $v['realisasi_anggaran'] - $realisasi_bulan_all[3];
-				$rak_triwulan_2 = $v['rak'] - $rak_bulan_all[3];
-			} else if ($v['bulan'] <= 9) {
-				$triwulan_3 = $v['realisasi_anggaran'] - $realisasi_bulan_all[6];
-				$rak_triwulan_3 = $v['rak'] - $rak_bulan_all[6];
-			} else if ($v['bulan'] <= 12) {
-				$triwulan_4 = $v['realisasi_anggaran'] - $realisasi_bulan_all[9];
-				$rak_triwulan_4 = $v['rak'] - $rak_bulan_all[9];
-			}
+		if (empty($v['realisasi_anggaran'])) {
+			$v['realisasi_anggaran'] = 0;
+		}
+		if ($v['bulan'] <= 3) {
+			$triwulan_1 = $v['realisasi_anggaran'];
+			$rak_triwulan_1 = $v['rak'];
+		} else if ($v['bulan'] <= 6) {
+			$triwulan_2 = $v['realisasi_anggaran'] - $realisasi_bulan_all[3];
+			$rak_triwulan_2 = $v['rak'] - $rak_bulan_all[3];
+		} else if ($v['bulan'] <= 9) {
+			$triwulan_3 = $v['realisasi_anggaran'] - $realisasi_bulan_all[6];
+			$rak_triwulan_3 = $v['rak'] - $rak_bulan_all[6];
+		} else if ($v['bulan'] <= 12) {
+			$triwulan_4 = $v['realisasi_anggaran'] - $realisasi_bulan_all[9];
+			$rak_triwulan_4 = $v['rak'] - $rak_bulan_all[9];
 		}
 	}
 	$realisasi = $triwulan_1 + $triwulan_2 + $triwulan_3 + $triwulan_4;
@@ -591,6 +592,7 @@ $total_pagu_renstra_asli = 0;
 $total_pagu_renstra_tahun_ini_asli = 0;
 $total_pagu_renstra_tahun_sebelumnya_asli = 0;
 $total_capaian_pagu_renstra_tahun_ini_asli = 0;
+
 foreach ($data_all['data'] as $kd_urusan => $urusan) {
 	$no_urusan++;
 	foreach ($urusan['data'] as $kd_bidang => $bidang) {
