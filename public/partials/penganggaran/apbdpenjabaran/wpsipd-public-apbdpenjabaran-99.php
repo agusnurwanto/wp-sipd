@@ -161,6 +161,9 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
+    
+    $kode_sbl_kas = explode('.', $sub['kode_sbl']);
+    $kode_sbl_kas = $kode_sbl_kas[0].'.'.$kode_sbl_kas[0].'.'.$kode_sbl_kas[1].'.'.$sub['id_bidang_urusan'].'.'.$kode_sbl_kas[2].'.'.$kode_sbl_kas[3].'.'.$kode_sbl_kas[4];
     $realisasi = $wpdb->get_var(
         $wpdb->prepare("
             SELECT
@@ -169,7 +172,7 @@ foreach ($subkeg as $kk => $sub) {
             WHERE active = 1
               AND tahun_anggaran=%d
               AND kode_sbl = %s
-        ", $input["tahun_anggaran"], $sub['kode_sbl'])
+        ", $input["tahun_anggaran"], $kode_sbl_kas)
     );
 
     if (!empty($sub['nama_sub_giat'])) {

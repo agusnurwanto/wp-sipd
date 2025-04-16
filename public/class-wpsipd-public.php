@@ -9593,6 +9593,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
 						echo '<li><a href="' . $url_menu . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN USER</a></li>';
 					}
+					if (!empty($daftar_tombol_list[14])) {
+						$detail_efisiensi_belanja = $this->generatePage(
+							'Halaman Detail Efisiensi Belanja | ' . $tahun,
+							$tahun,
+							'[detail_efisiensi_belanja tahun_anggaran="' . $tahun . '"]'
+						);
+						echo '<li><a href="' . $detail_efisiensi_belanja . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN EFISIENSI BELANJA</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
