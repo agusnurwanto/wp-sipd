@@ -2272,7 +2272,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					'11' => __('USER PPTK'),
 					'12' => __('MENU SPT/SPPD'),
 					'13' => __('MANAJEMEN USER'),
-					'14' => __('EFISIENSI BELANJA')
+					'14' => __('MANAJEMEN EFISIENSI BELANJA')
 				))
 				->set_default_value(array('1', '2', '3', '4', '5'))
 				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),

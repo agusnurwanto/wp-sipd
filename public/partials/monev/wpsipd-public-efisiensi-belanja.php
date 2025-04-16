@@ -180,11 +180,11 @@ if(!empty($data_anggaran)){
 		$url_skpd = $this->generatePage($title, $tahun_anggaran, $shortcode, $update);
 		$tbody .= "<tr>";
 		$tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $data['data']['id_skpd'] . "'>" . $data['data']['kode_skpd'] . " " . $data['data']['nama_skpd'] . "</a></td>";
-		$tbody .= "<td class='text-right'>" . number_format($data['total_murni'], 0, ",", ".") . "</td>";
-		$tbody .= "<td class='text-right'>" . number_format($data['total'], 0, ",", ".") . "</td>";
-		$tbody .= "<td class='text-right'>" . number_format($data['total_efisiensi'], 0, ",", ".") . "</td>";
-		$tbody .= "<td class='text-right'>" . number_format($selisih, 0, ",", ".") . "</td>";
-		$tbody .= "<td class='text-right'>" . number_format($data['realisasi'], 0, ",", ".") . "</td>";
+		$tbody .= "<td class='text-right'>" . number_format($data['total_murni'], 0, '.', ',') . "</td>";
+		$tbody .= "<td class='text-right'>" . number_format($data['total'], 0, '.', ',') . "</td>";
+		$tbody .= "<td class='text-right'>" . number_format($data['total_efisiensi'], 0, '.', ',') . "</td>";
+		$tbody .= "<td class='text-right'>" . number_format($selisih, 0, '.', ',') . "</td>";
+		$tbody .= "<td class='text-right'>" . number_format($data['realisasi'], 0, '.', ',') . "</td>";
 		$tbody .= "</tr>";
 
 		$total_all += $data['total'];
