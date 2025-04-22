@@ -3340,7 +3340,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							</td>
 							<td class='text_kanan'>" . (!empty($subkeg_all[$tahun_anggaran]['pagu']) ? number_format($subkeg_all[$tahun_anggaran]['pagu'], 0, ',', '.') : 0) . "</td>
 							<td class='text_kanan'>" . (!empty($realisasi_all[$tahun_anggaran]['total']) ? number_format($realisasi_all[$tahun_anggaran]['total'], 0, ',', '.') : 0) . "</td>
-							<td class='text_kanan'>" . $subkeg_all[$tahun_anggaran]['jml_subkeg'] ?? 0 . "</td>
+							<td class='text_kanan'>" . (!empty($subkeg_all[$tahun_anggaran]['jml_subkeg']) ? $subkeg_all[$tahun_anggaran]['jml_subkeg'] : 0) . "</td>
 						</tr>
 					";
 				}
