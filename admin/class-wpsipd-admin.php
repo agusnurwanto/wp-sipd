@@ -1036,6 +1036,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function options_basic()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_wp-sipd_settings.php') {
+			return array();
+		}
 		global $wpdb;
 		// $sinergi_link = $this->generate_sinergi_page();
 		// $sirup_link = $this->generate_sirup_page();
@@ -1879,6 +1882,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_setting_fmis()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_fmis_setting.php') {
+			return array();
+		}
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -1959,6 +1965,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_setting_sipkd()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_sipkd_setting.php') {
+			return array();
+		}
+
 		global $wpdb;
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		$url_akun = $this->generatePage('Singkronisasi Akun', false, '[sipkd_data_akun type="sipkd_akun"]');
@@ -2007,6 +2017,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_mapping_unit()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_simda_setting.php') {
+			return array();
+		}
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -2111,6 +2124,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_skpd_settings()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_skpd_setting.php') {
+			return array();
+		}
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -2143,6 +2159,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_api_setting()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_api_setting.php') {
+			return array();
+		}
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -2195,6 +2214,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_sirup_setting()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_sirup_setting.php') {
+			return array();
+		}
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
@@ -2254,6 +2276,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function get_wpsipd_menu_setting()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_wp-sipd_menu_setting.php') {
+			return array();
+		}
 		$field = '';
 		$field = array(
 			Field::make('separator', 'crb_show_menu_dashboard_user_settings', 'Menu Dashboard User'),
@@ -2948,6 +2973,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function generate_jadwal_perencanaan()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
+			return array();
+		}
 		global $wpdb;
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 		$list_data = '';
@@ -3034,6 +3062,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function generate_jadwal_monev()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_monev.php') {
+			return array();
+		}
+
 		global $wpdb;
 		$tahun = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran ORDER BY tahun_anggaran DESC', ARRAY_A);
 		$list_data = '';
@@ -3075,6 +3107,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function generate_input_renja()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_input_renja.php') {
+			return array();
+		}
 		global $wpdb;
 		$label = $this->get_ajax_field(array('type' => 'input_renja'));
 		return $label;
@@ -3082,6 +3117,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function generate_input_renstra()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_input_renstra.php') {
+			return array();
+		}
 		global $wpdb;
 		$label = $this->get_ajax_field(array('type' => 'input_renstra'));
 		return $label;
@@ -3090,6 +3128,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	public function generate_tag_sipd()
 	{
 		global $wpdb;
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_taglabel_sub_kegiatan.php') {
+			return array();
+		}
 
 		$tahun_list = $wpdb->get_results('SELECT tahun_anggaran FROM data_unit GROUP BY tahun_anggaran ORDER BY tahun_anggaran DESC', ARRAY_A);
 
@@ -3099,18 +3140,210 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			'Daftar Tag Prioritas Provinsi' => '',
 			'Daftar Tag Prioritas Kota/Kabupaten' => ''
 		];
+		$realisasi_all = array();
+		$subkeg_all = array();
+		$tematik_all = array();
 
 		foreach ($tahun_list as $tahun) {
 			$tahun_anggaran = $tahun['tahun_anggaran'];
 
+			$subkeg = $wpdb->get_results(
+				$wpdb->prepare("
+					SELECT
+						kode_sbl,
+						pagu,
+						id_bidang_urusan,
+						id_label_pusat,
+						id_label_prov,
+						id_label_kokab
+					FROM data_sub_keg_bl
+					WHERE active = 1
+					  AND tahun_anggaran=%d
+				", $tahun_anggaran),
+				ARRAY_A
+			);
+
+			$realisasi = $wpdb->get_results(
+				$wpdb->prepare("
+					SELECT
+						kode_sbl,
+						realisasi
+					FROM data_realisasi_akun_sipd
+					WHERE active = 1
+					  AND tahun_anggaran=%d
+				", $tahun_anggaran),
+				ARRAY_A
+			);
+
+			foreach ($realisasi as $r) {
+				if (empty($realisasi_all[$tahun_anggaran])) {
+					$realisasi_all[$tahun_anggaran] = array(
+						'total' => 0,
+						'data' => array()
+					);
+				}
+				if (empty($realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']])) {
+					$realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']] = 0;
+				}
+				$realisasi_all[$tahun_anggaran]['total'] += $r['realisasi'];
+				$realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']] += $r['realisasi'];
+			}
+
+			foreach ($subkeg as $sk) {
+				if (empty($subkeg_all[$tahun_anggaran])) {
+					$subkeg_all[$tahun_anggaran] = array(
+						'pagu'       	 => 0,
+						'jml_subkeg' 	 => 0,
+						'data'       	 => array(),
+						'id_label_pusat' => array(),
+						'id_label_prov'  => array(),
+						'id_label_kokab' => array()
+					);
+				}
+				if (empty($subkeg_all[$tahun_anggaran]['data'][$sk['kode_sbl']])) {
+					$subkeg_all[$tahun_anggaran]['data'][$sk['kode_sbl']] = array();
+				}
+				$subkeg_all[$tahun_anggaran]['pagu'] += $sk['pagu'];
+				$subkeg_all[$tahun_anggaran]['jml_subkeg']++;
+				$subkeg_all[$tahun_anggaran]['data'][$sk['kode_sbl']] = $sk;
+
+				$kode_sbl_kas = $kode_sbl_kas = explode('.', $sk['kode_sbl']);
+				$kode_sbl_realisasi = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sk['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+
+				if(!empty($sk['id_label_pusat'])){
+					if (empty($subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']])) {
+						$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']] = array(
+							'pagu'       	 => 0,
+							'realisasi'      => 0,
+							'jml_subkeg' 	 => 0,
+							'data'			=> array()
+						);
+					}
+					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['jml_subkeg']++;
+					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['pagu'] += $sk['pagu'];
+					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['data'][] = $sk;
+					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+						$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
+					}
+				}
+
+				if(!empty($sk['id_label_prov'])){
+					if (empty($subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']])) {
+						$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']] = array(
+							'pagu'       	 => 0,
+							'realisasi'      => 0,
+							'jml_subkeg' 	 => 0,
+							'data'			=> array()
+						);
+					}
+					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['jml_subkeg']++;
+					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['pagu'] += $sk['pagu'];
+					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['data'][] = $sk;
+					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+						$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
+					}
+				}
+
+				
+				if(!empty($sk['id_label_kokab'])){
+					if (empty($subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']])) {
+						$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']] = array(
+							'pagu'       	 => 0,
+							'realisasi'      => 0,
+							'jml_subkeg' 	 => 0,
+							'data'			=> array()
+						);
+					}
+					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['jml_subkeg']++;
+					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['pagu'] += $sk['pagu'];
+					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['data'][] = $sk;
+					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+						$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
+					}
+				}
+			}
+			// echo '<pre>';
+			// print_r($subkeg_all);
+			// echo '</pre>';
+			// die();
+
+			$tematik = $wpdb->get_results(
+				$wpdb->prepare("
+					SELECT 
+						l.id_label_giat,
+						l.nama_label,
+						t.kode_sbl
+					FROM data_label_giat AS l
+					LEFT JOIN data_tag_sub_keg AS t 
+						   ON t.idlabelgiat = l.id_label_giat
+						  AND t.tahun_anggaran = l.tahun_anggaran
+						  AND t.active = l.active
+					WHERE l.tahun_anggaran = %d
+					  AND l.active = 1
+				", $tahun_anggaran),
+				ARRAY_A
+			);
+
+			if (!empty($tematik)) {
+				foreach ($tematik as $v) {
+					if(empty($tematik_all[$tahun_anggaran])){
+						$tematik_all[$tahun_anggaran] = array();
+					}
+					if (empty($tematik_all[$tahun_anggaran][$v['id_label_giat']])) {
+						$tematik_all[$tahun_anggaran][$v['id_label_giat']] = array(
+							'id' 		 => $v['id_label_giat'],
+							'nama' 		 => $v['nama_label'],
+							'pagu' 		 => 0,
+							'realisasi'  => 0,
+							'jml_subkeg' => 0
+						);
+					}
+
+					if (!empty($v['kode_sbl'])) {
+						$kode_sbl_kas = explode('.', $v['kode_sbl']);
+						$kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $subkeg_all[$tahun_anggaran]['data'][$v['kode_sbl']]['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+						//realisasi
+						if (!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_kas])) {
+							$tematik_all[$tahun_anggaran][$v['id_label_giat']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_kas];
+						}
+						//pagu
+						if (!empty($subkeg_all[$tahun_anggaran]['data'][$v['kode_sbl']])) {
+							$tematik_all[$tahun_anggaran][$v['id_label_giat']]['jml_subkeg']++;
+							$tematik_all[$tahun_anggaran][$v['id_label_giat']]['pagu'] += $subkeg_all[$tahun_anggaran]['data'][$v['kode_sbl']]['pagu'];
+						}
+					}
+				}
+			}
+			// echo '<pre>';
+			// print_r($tematik_all);
+			// echo '</pre>';
+			// die();
+
+
 			foreach ($html_sections as $key => &$html) {
+				$title = "Laporan APBD per Label / Tag Sub Kegiatan | Tahun Anggaran $tahun_anggaran";
+				$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat=all]";
+				$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
+
 				$html .= "
 					<tr class='highlight-tahun'>
-						<td colspan='3'>
+						<td colspan='4'>
 							Tahun $tahun_anggaran
 						</td>
 					</tr>
 				";
+				if ($key == 'Daftar Tag Tematik SIPD-RI') {
+					$html .= "
+						<tr class='highlight-tahun'>
+							<td>
+								<a href='$url_tag&excel=1' target='_blank' style='padding-left: 20px;'>Semua Sub Kegiatan</a>
+							</td>
+							<td class='text_kanan'>" . (!empty($subkeg_all[$tahun_anggaran]['pagu']) ? number_format($subkeg_all[$tahun_anggaran]['pagu'], 0, ',', '.') : 0) . "</td>
+							<td class='text_kanan'>" . (!empty($realisasi_all[$tahun_anggaran]['total']) ? number_format($realisasi_all[$tahun_anggaran]['total'], 0, ',', '.') : 0) . "</td>
+							<td class='text_kanan'>" . $subkeg_all[$tahun_anggaran]['jml_subkeg'] . "</td>
+						</tr>
+					";
+				}
 			}
 
 			$queries = [
@@ -3137,24 +3370,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$result = $wpdb->get_results(
 						$wpdb->prepare("
 							SELECT
-								p.id_prioritas,
-								p.nama_label,
-								SUM(s.pagu) AS pagu,
-								COUNT(s.id) AS jml_sub_keg
-							FROM {$query['table']} AS p
-							LEFT JOIN data_sub_keg_bl AS s 
-								   ON p.id_prioritas = s.{$query['column']}  
-								  AND p.tahun_anggaran = s.tahun_anggaran 
-								  AND p.active = s.active 
-							WHERE p.tahun_anggaran = %d
-							  AND p.active = 1 
-							GROUP BY p.id
+								id_prioritas,
+								nama_label
+							FROM {$query['table']}
+							WHERE tahun_anggaran = %d
+							  AND active = 1
 						", $tahun_anggaran),
 						ARRAY_A
 					);
 
 					if (!empty($result)) {
 						foreach ($result as $row) {
+							$total_realisasi_tagging = 0;
+							if(!empty($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']])){
+								$total_realisasi_tagging = $subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']]['realisasi'];
+							}
+
 							$title = "Label {$row['nama_label']} | $tahun_anggaran";
 							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat='{$row['id_prioritas']}']";
 							$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
@@ -3164,8 +3395,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 									<td>
 										<a href='$url_tag&id_prioritas={$row['id_prioritas']}&tipe={$query['table']}' target='_blank' style='padding-left: 20px;'>{$row['nama_label']}</a>
 									</td>
-									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($row['pagu']) ? number_format($row['pagu'], 0, ',', '.') : 0) . "</td>
-									<td class='text_kanan' style='padding-right: 20px;'>" . ($row['jml_sub_keg'] ?? 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']]['pagu']) ? number_format($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']]['pagu'], 0, ',', '.') : 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($total_realisasi_tagging) ? number_format($total_realisasi_tagging, 0, ',', '.') : 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . ($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']]['jml_subkeg'] ?? 0) . "</td>
 								</tr>
 							";
 						}
@@ -3175,6 +3407,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								<td>
 									tidak ditemukan
 								</td>
+								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 							</tr>
@@ -3182,41 +3415,20 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 				} else {
 					//TEMATIK
-					$data = $wpdb->get_results(
-						$wpdb->prepare("
-							SELECT 
-								l.id,
-								l.id_label_giat,
-								l.nama_label AS label,
-								SUM(s.pagu) AS pagu,
-								COUNT(s.id) AS jml_sub_keg 
-							FROM `data_label_giat` AS l
-							LEFT JOIN data_tag_sub_keg AS t on t.idlabelgiat=l.id_label_giat
-								  AND l.tahun_anggaran=t.tahun_anggaran
-								  AND l.active=t.active
-							LEFT JOIN data_sub_keg_bl AS s on t.kode_sbl=s.kode_sbl
-								  AND l.tahun_anggaran=s.tahun_anggaran
-								  AND l.active=s.active
-							WHERE l.tahun_anggaran=%d
-							  AND l.active=1
-							GROUP BY l.id
-						", $tahun_anggaran),
-						ARRAY_A
-					);
-
-					if (!empty($data)) {
-						foreach ($data as $v) {
-							$title = "Laporan APBD Per Label/Tag Sub Kegiatan | {$v['label']} | $tahun_anggaran";
-							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat='{$v['id_label_giat']}']";
+					if (!empty($tematik_all[$tahun_anggaran])) {
+						foreach ($tematik_all[$tahun_anggaran] as $vv) {
+							$title = "Laporan APBD Per Label/Tag Sub Kegiatan | {$vv['nama']} | $tahun_anggaran";
+							$shortcode = "[apbdpenjabaran tahun_anggaran='$tahun_anggaran' lampiran=99 idlabelgiat='{$vv["id"]}']";
 							$url_tag = $this->generatePage($title, $tahun_anggaran, $shortcode, false);
 
 							$html_sections[$key] .= "
-								<tr data-id_label_giat='{$v['id_label_giat']}'>
+								<tr data-id_label_giat='{$vv['id']}'>
 									<td>
-										<a href='$url_tag' target='_blank' style='padding-left: 20px;'>{$v['label']}</a>
+										<a href='$url_tag' target='_blank' style='padding-left: 20px;'>{$vv['nama']}</a>
 									</td>
-									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($v['pagu']) ? number_format($v['pagu'], 0, ',', '.') : 0) . "</td>
-									<td class='text_kanan' style='padding-right: 20px;'>" . ($v['jml_sub_keg'] ?? 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($vv['pagu']) ? number_format($vv['pagu'], 0, ',', '.') : 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . (!empty($vv['realisasi']) ? number_format($vv['realisasi'], 0, ',', '.') : 0) . "</td>
+									<td class='text_kanan' style='padding-right: 20px;'>" . ($vv['jml_subkeg'] ?? 0) . "</td>
 								</tr>
 							";
 						}
@@ -3226,6 +3438,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								<td>
 									tidak ditemukan
 								</td>
+								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 								<td class='text_kanan' style='padding-right: 20px;'>-</td>
 							</tr>
@@ -3251,6 +3464,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						<tr>
 							<th class='text_tengah'>Nama Tag/Label Sub Kegiatan</th>
 							<th class='text_tengah' style='width: 140px'>Jumlah Pagu</th>
+							<th class='text_tengah' style='width: 140px'>Jumlah Realisasi</th>
 							<th class='text_tengah' style='width: 140px'>Jumlah Sub Kegiatan</th>
 						</tr>
 					</thead>
@@ -3268,6 +3482,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	public function generate_label_komponen()
 	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_label_komponen.php') {
+			return array();
+		}
+
 		global $wpdb;
 		$tahun = $wpdb->get_results(
 			'

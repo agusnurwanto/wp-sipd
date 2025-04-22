@@ -31,9 +31,12 @@ if (!empty($pengaturan)) {
     $start_rpjmd = $pengaturan[0]['awal_rpjmd'];
 }
 $urut = $input['tahun_anggaran'] - $start_rpjmd;
+$additional_thead = '';
+$additional_tbody = '';
+$additional_tfoot = '';
 
 //tematik
-if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
+if ($input['idlabelgiat'] != 'all' && empty($_GET['tipe'])) {
     $sql = "
         SELECT 
             s.*,
@@ -50,7 +53,7 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
           AND t.active = 1
           AND t.tahun_anggaran = %d";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['idlabelgiat'], $input['tahun_anggaran']), ARRAY_A);
-} else if (!empty($input['idlabelgiat']) && !empty($_GET['tipe'])) {
+} else if ($input['idlabelgiat'] != 'all' && !empty($_GET['tipe'])) {
     //prioritas
     if ($_GET['tipe'] == 'data_prioritas_pusat') {
         $table = 'data_prioritas_pusat';
@@ -78,19 +81,93 @@ if (!empty($input['idlabelgiat']) && empty($_GET['tipe'])) {
           AND p.id_prioritas = %d 
           AND p.active = 1";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran'], $_GET['id_prioritas']), ARRAY_A);
-} else {
+} else if ($input['idlabelgiat'] == 'all' && empty($_GET['tipe'])) {
     //all label giat
     $sql = "
         SELECT 
             s.*,
-            t.* 
-        FROM `data_tag_sub_keg` t
-        LEFT JOIN data_sub_keg_bl s 
-               ON s.kode_sbl=t.kode_sbl 
-              AND s.tahun_anggaran=t.tahun_anggaran
-        WHERE t.idlabelgiat > 0 
-            AND t.active=1
-            AND t.tahun_anggaran=%d";
+            t.*,
+            l.nama_label 
+        FROM `data_sub_keg_bl` s 
+        LEFT JOIN data_tag_sub_keg t 
+               ON s.kode_sbl = t.kode_sbl 
+              AND s.tahun_anggaran = t.tahun_anggaran
+              AND s.active = t.active
+              AND t.idlabelgiat > 0
+        LEFT JOIN data_label_giat l 
+               ON t.idlabelgiat = l.id_label_giat 
+              AND t.tahun_anggaran = l.tahun_anggaran 
+              AND t.active = l.active 
+        WHERE s.active = 1 
+          AND s.tahun_anggaran = %d";
+    $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran']), ARRAY_A);
+
+    $label_pusat_raw = $wpdb->get_results(
+        $wpdb->prepare('
+            SELECT 
+                id_prioritas,
+                nama_label
+            FROM data_prioritas_pusat
+            WHERE tahun_anggaran = %d
+              AND active = 1
+        ', $input['tahun_anggaran']),
+        ARRAY_A
+    );
+    $label_pusat = array_column($label_pusat_raw, 'nama_label', 'id_prioritas');
+
+    $label_prov_raw = $wpdb->get_results(
+        $wpdb->prepare('
+            SELECT 
+                id_prioritas,
+                nama_label
+            FROM data_prioritas_prov
+            WHERE tahun_anggaran = %d
+              AND active = 1
+        ', $input['tahun_anggaran']),
+        ARRAY_A
+    );
+    $label_prov = array_column($label_prov_raw, 'nama_label', 'id_prioritas');
+
+    $label_kokab_raw = $wpdb->get_results(
+        $wpdb->prepare('
+            SELECT 
+                id_prioritas,
+                nama_label
+            FROM data_prioritas_kokab
+            WHERE tahun_anggaran = %d
+              AND active = 1
+        ', $input['tahun_anggaran']),
+        ARRAY_A
+    );
+    $label_kokab = array_column($label_kokab_raw, 'nama_label', 'id_prioritas');
+
+    $additional_thead = '
+        <th class="atas kanan bawah text_tengah text_blok">Tematik</th>
+        <th class="atas kanan bawah text_tengah text_blok">Prioritas Kota/Kabupaten</th>
+        <th class="atas kanan bawah text_tengah text_blok">Prioritas Provinsi</th>
+        <th class="atas kanan bawah text_tengah text_blok">Prioritas Nasional</th>
+    ';
+
+    $additional_tbody = true;
+
+    $additional_tfoot = '<td class="kiri kanan bawah text_tengah text_blok" colspan="4"></td>';
+} else {
+    //all label giat
+    $sql = "
+     SELECT 
+         s.*,
+         t.*,
+         l.nama_label
+     FROM `data_tag_sub_keg` t
+     LEFT JOIN data_sub_keg_bl s 
+            ON s.kode_sbl=t.kode_sbl 
+           AND s.tahun_anggaran=t.tahun_anggaran
+     LEFT JOIN data_label_giat l
+            ON t.idlabelgiat = l.id_label_giat
+           AND t.tahun_anggaran = l.tahun_anggaran
+     WHERE t.idlabelgiat > 0 
+         AND t.active=1
+         AND t.tahun_anggaran=%d";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran']), ARRAY_A);
 }
 
@@ -104,7 +181,9 @@ $data_all = array(
 foreach ($subkeg as $kk => $sub) {
     $label = 'nama_label';
     $nama_label[$sub[$label]] = $sub[$label];
-    $kode = explode('.', $sub['kode_sbl']);
+    if (!empty($sub['kode_sbl'])) {
+        $kode = explode('.', $sub['kode_sbl']);
+    }
     $capaian_prog = $wpdb->get_results($wpdb->prepare("
         select 
             * 
@@ -161,19 +240,22 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-    
-    $kode_sbl_kas = explode('.', $sub['kode_sbl']);
-    $kode_sbl_kas = $kode_sbl_kas[0].'.'.$kode_sbl_kas[0].'.'.$kode_sbl_kas[1].'.'.$sub['id_bidang_urusan'].'.'.$kode_sbl_kas[2].'.'.$kode_sbl_kas[3].'.'.$kode_sbl_kas[4];
-    $realisasi = $wpdb->get_var(
-        $wpdb->prepare("
-            SELECT
-                realisasi
-            FROM data_realisasi_akun_sipd
-            WHERE active = 1
-              AND tahun_anggaran=%d
-              AND kode_sbl = %s
-        ", $input["tahun_anggaran"], $kode_sbl_kas)
-    );
+    if (!empty($sub['kode_sbl'])) {
+        $kode_sbl_kas = explode('.', $sub['kode_sbl']);
+        $kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sub['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+        $realisasi = $wpdb->get_var(
+            $wpdb->prepare("
+                SELECT
+                    SUM(realisasi)
+                FROM data_realisasi_akun_sipd
+                WHERE active = 1
+                  AND tahun_anggaran=%d
+                  AND kode_sbl = %s
+            ", $input["tahun_anggaran"], $kode_sbl_kas)
+        );
+    } else {
+        $realisasi = 0;
+    }
 
     if (!empty($sub['nama_sub_giat'])) {
         $nama = explode(' ', $sub['nama_sub_giat']);
@@ -221,122 +303,244 @@ foreach ($subkeg as $kk => $sub) {
         }
     }
 
-    if (empty($data_all['data'][$sub[$label]])) {
-        $data_all['data'][$sub[$label]] = array(
-            'nama'          => $sub[$label],
-            'realisasi'     => 0,
-            'total'         => 0,
-            'total_n_plus'  => 0,
-            'data'          => array()
-        );
-    }
-
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']])) {
-        $sub_skpd = $wpdb->get_row($wpdb->prepare("
-            SELECT 
-                nama_skpd,
-                kode_skpd
-            FROM data_unit
-            WHERE id_skpd=%d 
-              AND tahun_anggaran=%d
-              AND active=1
-            ORDER BY id ASC
-        ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
-
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']] = array(
-            'nama'           => $sub_skpd['nama_skpd'],
-            'kode_sub_skpd'  => $sub_skpd['kode_skpd'],
-            'nama_skpd'      => $nama_skpd ?? '',
-            'kode_skpd'      => $sub['kode_skpd'],
-            'realisasi'      => 0,
-            'total'          => 0,
-            'total_n_plus'   => 0,
-            'data'           => array()
-        );
-    }
-
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
-            'nama'          => $sub['nama_urusan'],
-            'realisasi'     => 0,
-            'total'         => 0,
-            'total_n_plus'  => 0,
-            'data'          => array()
-        );
-    }
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
-            'nama'          => $sub['nama_bidang_urusan'],
-            'realisasi'     => 0,
-            'total'         => 0,
-            'total_n_plus'  => 0,
-            'data'          => array()
-        );
-    }
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
-            'nama'          => $sub['nama_program'],
-            'realisasi'     => 0,
-            'total'         => 0,
-            'total_n_plus'  => 0,
-            'data'          => array()
-        );
-    }
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
-            'nama'          => $sub['nama_giat'],
-            'realisasi'     => 0,
-            'total'         => 0,
-            'total_n_plus'  => 0,
-            'data'          => array()
-        );
-    }
-    if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
-        if (!empty($sub['nama_sub_giat'])) {
-            $nama = explode(' ', $sub['nama_sub_giat']);
-            unset($nama[0]);
-        } else {
-            $nama = array();
+    if ($additional_tbody == true) {
+        if (empty($data_all['data'][$sub['kode_sbl']])) {
+            $data_all['data'][$sub['kode_sbl']] = array(
+                'nama'          => $sub[$label] ?? '-',
+                'label_pusat'   => $label_pusat[$sub['id_label_pusat']] ?? '-',
+                'label_prov'    => $label_prov[$sub['id_label_prov']] ?? '-',
+                'label_kokab'   => $label_kokab[$sub['id_label_kokab']] ?? '-',
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
         }
-        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-            'nama'            => implode(' ', $nama),
-            'realisasi'       => 0,
-            'total'           => 0,
-            'total_n_plus'    => 0,
-            'capaian_prog'    => $capaian_prog,
-            'output_giat'     => $output_giat,
-            'output_sub_giat' => $output_sub_giat,
-            'lokasi_sub_giat' => $lokasi_sub_giat,
-            'data_renstra'    => $data_renstra ?? '',
-            'data_rpjmd'      => $data_rpjmd,
-            'data'            => $sub
-        );
-    }
-    $data_all['total'] += $sub['pagu'];
-    $data_all['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
 
-    $data_all['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
-    $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']])) {
+            $sub_skpd = $wpdb->get_row($wpdb->prepare("
+                SELECT 
+                    nama_skpd,
+                    kode_skpd
+                FROM data_unit
+                WHERE id_skpd=%d 
+                  AND tahun_anggaran=%d
+                  AND active=1
+                ORDER BY id ASC
+            ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']] = array(
+                'nama'           => $sub_skpd['nama_skpd'],
+                'kode_sub_skpd'  => $sub_skpd['kode_skpd'],
+                'nama_skpd'      => $nama_skpd ?? '',
+                'kode_skpd'      => $sub['kode_skpd'],
+                'realisasi'      => 0,
+                'total'          => 0,
+                'total_n_plus'   => 0,
+                'data'           => array()
+            );
+        }
+
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
+                'nama'          => $sub['nama_urusan'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
+                'nama'          => $sub['nama_bidang_urusan'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
+                'nama'          => $sub['nama_program'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
+                'nama'          => $sub['nama_giat'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
+            if (!empty($sub['nama_sub_giat'])) {
+                $nama = explode(' ', $sub['nama_sub_giat']);
+                unset($nama[0]);
+            } else {
+                $nama = array();
+            }
+            $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
+                'nama'            => implode(' ', $nama),
+                'realisasi'       => 0,
+                'total'           => 0,
+                'total_n_plus'    => 0,
+                'capaian_prog'    => $capaian_prog,
+                'output_giat'     => $output_giat,
+                'output_sub_giat' => $output_sub_giat,
+                'lokasi_sub_giat' => $lokasi_sub_giat,
+                'data_renstra'    => $data_renstra ?? '',
+                'data_rpjmd'      => $data_rpjmd,
+                'data'            => $sub
+            );
+        }
+        $data_all['total'] += $sub['pagu'];
+        $data_all['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
+
+        $data_all['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+    } else {
+        if (empty($data_all['data'][$sub[$label]])) {
+            $data_all['data'][$sub[$label]] = array(
+                'nama'          => $sub[$label] ?? '-',
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']])) {
+            $sub_skpd = $wpdb->get_row($wpdb->prepare("
+                SELECT 
+                    nama_skpd,
+                    kode_skpd
+                FROM data_unit
+                WHERE id_skpd=%d 
+                  AND tahun_anggaran=%d
+                  AND active=1
+                ORDER BY id ASC
+            ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']] = array(
+                'nama'           => $sub_skpd['nama_skpd'],
+                'kode_sub_skpd'  => $sub_skpd['kode_skpd'],
+                'nama_skpd'      => $nama_skpd ?? '',
+                'kode_skpd'      => $sub['kode_skpd'],
+                'realisasi'      => 0,
+                'total'          => 0,
+                'total_n_plus'   => 0,
+                'data'           => array()
+            );
+        }
+
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])) {
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
+                'nama'          => $sub['nama_urusan'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])) {
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
+                'nama'          => $sub['nama_bidang_urusan'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
+                'nama'          => $sub['nama_program'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])) {
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
+                'nama'          => $sub['nama_giat'],
+                'realisasi'     => 0,
+                'total'         => 0,
+                'total_n_plus'  => 0,
+                'data'          => array()
+            );
+        }
+        if (empty($data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])) {
+            if (!empty($sub['nama_sub_giat'])) {
+                $nama = explode(' ', $sub['nama_sub_giat']);
+                unset($nama[0]);
+            } else {
+                $nama = array();
+            }
+            $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
+                'nama'            => implode(' ', $nama),
+                'realisasi'       => 0,
+                'total'           => 0,
+                'total_n_plus'    => 0,
+                'capaian_prog'    => $capaian_prog,
+                'output_giat'     => $output_giat,
+                'output_sub_giat' => $output_sub_giat,
+                'lokasi_sub_giat' => $lokasi_sub_giat,
+                'data_renstra'    => $data_renstra ?? '',
+                'data_rpjmd'      => $data_rpjmd,
+                'data'            => $sub
+            );
+        }
+        $data_all['total'] += $sub['pagu'];
+        $data_all['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
+
+        $data_all['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+        $data_all['data'][$sub[$label]]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+    }
 }
 
 $body = '';
@@ -613,7 +817,16 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah text_tengah">' . $kode_sub_kegiatan . '</td>
                                     <td class="kanan bawah">' . $sub_giat['nama'] . '</td>
                                     <td class="kanan bawah text_kanan">' . number_format($sub_giat['total'], 2, ",", ".") . '</td>
-                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['realisasi'], 2, ",", ".") . '</td>
+                                    <td class="kanan bawah text_kanan">' . number_format($sub_giat['realisasi'], 2, ",", ".") . '</td>';
+                            if ($additional_tbody == true) {
+                                $body_excel .= '
+                                    <td class="kanan bawah">' . $label_tag['nama'] . '</td>
+                                    <td class="kanan bawah">' . $label_tag['label_kokab'] . '</td>
+                                    <td class="kanan bawah">' . $label_tag['label_prov'] . '</td>
+                                    <td class="kanan bawah">' . $label_tag['label_pusat'] . '</td>
+                                ';
+                            }
+                            $body_excel .= '
                                 </tr>
                             ';
                         }
@@ -624,8 +837,13 @@ foreach ($data_all['data'] as $label_tag) {
     }
 }
 
-$nama_excel = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN ' . strtoupper(implode(', ', $nama_label)) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
-$nama_laporan = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN<br>' . strtoupper(implode(', ', $nama_label)) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+if ($additional_tbody == true) {
+    $nama_laporan = 'LAPORAN APBD SESUAI TAG / LABEL SEMUA SUB KEGIATAN <br> TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+    $nama_excel = 'LAPORAN APBD SESUAI TAG / LABEL SEMUA SUB KEGIATAN | TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+} else {
+    $nama_laporan = 'LAPORAN APBD SESUAI TAG / LABEL SUB KEGIATAN<br>' . strtoupper(implode(', ', $nama_label)) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+    $nama_excel = 'LAPORAN APBD SESUAI TAG / LABEL SUB KEGIATAN<br>' . strtoupper(implode(', ', $nama_label)) . ' TAHUN ANGGARAN ' . $input['tahun_anggaran'];
+}
 
 if (!empty($format_rkpd)) {
     echo '
@@ -716,6 +934,7 @@ if (!empty($format_rkpd)) {
                         <th class="atas kanan bawah text_tengah text_blok">Nama Sub Kegiatan</th>
                         <th class="atas kanan bawah text_tengah text_blok">Nilai Pagu</th>
                         <th class="atas kanan bawah text_tengah text_blok">Realisasi</th>
+                        ' . $additional_thead . '
                     </tr>
                 </thead>
                 <tbody>
@@ -726,6 +945,7 @@ if (!empty($format_rkpd)) {
                         <td class="kiri kanan bawah text_tengah text_blok" colspan="15">Total</td>
                         <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['total'], 2, ",", ".") . '</td>
                         <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">' . number_format($data_all['realisasi'], 2, ",", ".") . '</td>
+                        ' . $additional_tfoot . '
                     </tr>
                 </tfoot>
             </table>
