@@ -8090,7 +8090,7 @@ CREATE TABLE `data_efisiensi_belanja` (
   `id` int(11) NOT NULL auto_increment,
   `kode_sbl` varchar(50) DEFAULT NULL,
   `kode_akun` varchar(50) DEFAULT NULL,
-  `id_skpd` int(11) NOT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
   `pagu_efisiensi` double(20,0) DEFAULT NULL,
   `active` tinyint(4) DEFAULT 1,
   `keterangan` text DEFAULT NULL,
