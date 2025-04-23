@@ -3185,7 +3185,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if (empty($realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']])) {
 					$realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']] = 0;
 				}
-				$realisasi_all[$tahun_anggaran]['total'] += $r['realisasi'];
 				$realisasi_all[$tahun_anggaran]['data'][$r['kode_sbl']] += $r['realisasi'];
 			}
 
@@ -3209,6 +3208,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 				$kode_sbl_kas = $kode_sbl_kas = explode('.', $sk['kode_sbl']);
 				$kode_sbl_realisasi = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sk['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+
+				// total realisasi disetting di sini agar hanya menjumlahkan berdasarkan kode sbl yang aktive dari data_sub_keg_bl
+				if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+					$realisasi_all[$tahun_anggaran]['total'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
+				}
 
 				if(!empty($sk['id_label_pusat'])){
 					if (empty($subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']])) {

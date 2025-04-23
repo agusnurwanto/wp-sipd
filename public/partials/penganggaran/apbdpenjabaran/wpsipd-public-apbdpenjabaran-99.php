@@ -86,7 +86,7 @@ if ($input['idlabelgiat'] != 'all' && empty($_GET['tipe'])) {
     $sql = "
         SELECT 
             s.*,
-            t.*,
+            t.idlabelgiat,
             l.nama_label 
         FROM `data_sub_keg_bl` s 
         LEFT JOIN data_tag_sub_keg t 
@@ -328,6 +328,12 @@ foreach ($subkeg as $kk => $sub) {
                   AND active=1
                 ORDER BY id ASC
             ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
+            if(empty($sub_skpd)){
+                $sub_skpd = array(
+                    'nama_skpd' => '- (ID='.$sub['id_sub_skpd'].')',
+                    'kode_skpd' => '- (ID='.$sub['id_sub_skpd'].')'
+                );
+            }
 
             $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']] = array(
                 'nama'           => $sub_skpd['nama_skpd'],
@@ -747,7 +753,7 @@ foreach ($data_all['data'] as $label_tag) {
                                 }
                             }
                             $body .= '
-                                <tr>
+                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
                                     <td class="kiri kanan bawah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $kd_bidang . '</td>
                                     <td class="kanan bawah">' . $kd_program . '</td>
@@ -774,7 +780,7 @@ foreach ($data_all['data'] as $label_tag) {
                                 $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
                             }
                             $body_rkpd .= '
-                                <tr>
+                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
                                     <td class="kiri kanan bawah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $kd_bidang . '</td>
                                     <td class="kanan bawah">' . $kd_program . '</td>
@@ -800,7 +806,7 @@ foreach ($data_all['data'] as $label_tag) {
                             $kode_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat;
                             $kode_sub_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '.' . $kd_sub_giat;
                             $body_excel .= '
-                                <tr>
+                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
                                     <td class="kiri kanan bawah text_tengah">' . $no++ . '</td>
                                     <td class="kanan bawah text_tengah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $urusan['nama'] . '</td>
