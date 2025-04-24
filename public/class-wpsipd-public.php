@@ -5521,6 +5521,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-monev-renja.php';
 	}
 
+	public function jadwal_efisiensi_belanja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-jadwal-efisiensi-belanja.php';
+	}
+
 	public function efisiensi_belanja($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -5540,14 +5550,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja.php';
 	}
-	
+
 	public function detail_efisiensi_belanja_pemda($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
+		if (!empty($_GET) && !empty($_GET['post'])) {
 			return '';
 		}
-		
+
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-detail-efisiensi-belanja-pemda.php';
 	}
 
@@ -9241,17 +9251,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					//print_r($option);die();
 					return $insert_user;
 				}
-			}else{
+			} else {
 				$user_db = get_user_by('ID', $insert_user);
 				$cek_role = false;
-				foreach($user_db->roles as $role){
-					if($role != $user['jabatan']){
+				foreach ($user_db->roles as $role) {
+					if ($role != $user['jabatan']) {
 						$user_db->remove_role($role);
-					}else{
+					} else {
 						$cek_role = true;
 					}
 				}
-				if(empty($cek_role)){
+				if (empty($cek_role)) {
 					$user_db->add_role($user['jabatan']);
 				}
 			}
@@ -9274,7 +9284,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$meta_existing = get_user_meta($insert_user);
 			foreach ($meta as $key => $val) {
-				if($meta_existing[$key][0] != $val){
+				if ($meta_existing[$key][0] != $val) {
 					update_user_meta($insert_user, $key, $val);
 				}
 			}
@@ -9290,7 +9300,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-				if(empty($tahun_anggaran)){
+				if (empty($tahun_anggaran)) {
 					$tahun_anggaran = date('Y');
 				}
 				$users_pa = $wpdb->get_results($wpdb->prepare("
@@ -17536,6 +17546,54 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 
 								break;
+							case 'efisiensi_belanja':
+								// Tambah Jadwal Efisiensi Belanja
+								if (
+									!empty($nama)
+									&& !empty($tahun_anggaran)
+									&& !empty($jadwal_mulai)
+									&& !empty($jadwal_selesai)
+								) {
+									$cek_jadwal_terbuka = $wpdb->get_row(
+										$wpdb->prepare('
+											SELECT 
+												*
+											FROM data_jadwal_lokal
+											WHERE id_tipe = %d
+											  AND status = %d
+											  AND tahun_anggaran = %d
+										', 19, 0, $tahun_anggaran)
+									);
+									if (!empty($cek_jadwal_terbuka)) {
+										$return = [
+											'status'  => 'error',
+											'message' => 'GAGAL! Masih terdapat jadwal terbuka!'
+										];
+										die(json_encode($return));
+									}
+									$data_jadwal = [
+										'nama'              => $nama,
+										'waktu_awal'       	=> $jadwal_mulai,
+										'waktu_akhir'       => $jadwal_selesai,
+										'tahun_anggaran'    => $tahun_anggaran,
+										'id_tipe'  			=> $sqlTipe['id'],
+										'lama_pelaksanaan'  => 1,
+										'status'            => 0,
+									];
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+
+									$return = [
+										'status'  => 'success',
+										'message' => 'Berhasil Tambah Jadwal Efisiensi Belanja!',
+									];
+								} else {
+									$return = [
+										'status'  => 'error',
+										'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+								}
+
+								break;
 
 							default:
 								if (
@@ -18748,6 +18806,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							FROM data_jadwal_lokal
 							WHERE id_jadwal_lokal = %d
 							  AND status = 0
+							  AND tipe = 18
 						', $_POST['id_jadwal_lokal'])
 					);
 
@@ -18782,7 +18841,108 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'keterangan_hapus'  => $row['keterangan_hapus'],
 							'tahun_anggaran'    => $row['tahun_anggaran'],
 							'id_jadwal'         => $id_jadwal,
-							'id_asli'           => $row['id'],
+							'id_asli'           => $row['id']
+						]);
+					}
+				}
+
+				//update status jadwal to locked [1]
+				$wpdb->update(
+					'data_jadwal_lokal',
+					array('status' => 1),
+					array('id_jadwal_lokal'	=> $id_jadwal)
+				);
+			} else {
+				$ret = array(
+					'status'  => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$ret = array(
+				'status'  => 'error',
+				'message' => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function submit_lock_schedule_efisiensi_belanja()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'berhasil lock jadwal efisiensi belanja!'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				// Roles validation
+				$user_data = wp_get_current_user();
+				$allowed_roles = array('administrator');
+				if (empty(array_intersect($allowed_roles, $user_data->roles))) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+					die(json_encode($ret));
+				}
+
+				//timezone validation
+				$timezone = get_option('timezone_string');
+				if (preg_match("/Asia/i", $timezone)) {
+					date_default_timezone_set($timezone);
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'"!';
+					die(json_encode($ret));
+				}
+
+				//required parameters
+				if (empty($_POST['id_jadwal_lokal']) || empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Parameter tidak lengkap!';
+					die(json_encode($ret));
+				} else {
+					//validate id_jadwal_lokal
+					$id_jadwal = $wpdb->get_var(
+						$wpdb->prepare('
+							SELECT id_jadwal_lokal
+							FROM data_jadwal_lokal
+							WHERE id_jadwal_lokal = %d
+							  AND status = 0
+							  AND tipe = 19
+						', $_POST['id_jadwal_lokal'])
+					);
+
+					if (empty($id_jadwal)) {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Jadwal terbuka tidak tersedia!';
+						die(json_encode($ret));
+					}
+				}
+
+				//get all data by tahun_anggaran
+				$data_tagging_rincian_belanja = $wpdb->get_results(
+					$wpdb->prepare('
+						SELECT *
+						FROM data_efisiensi_belanja
+						WHERE tahun_anggaran = %d
+						  AND active = 1
+					', $_POST['tahun_anggaran']),
+					ARRAY_A
+				);
+
+				//insert to history table
+				if (!empty($data_tagging_rincian_belanja)) {
+					foreach ($data_tagging_rincian_belanja as $row) {
+						$wpdb->insert('data_efisiensi_belanja_history', [
+							'kode_sbl'		  => $row['kode_sbl'],
+							'kode_akun'		  => $row['kode_akun'],
+							'id_skpd'		  => $row['id_skpd'],
+							'pagu_efisiensi'  => $row['pagu_efisiensi'],
+							'keterangan'	  => $row['keterangan'],
+							'tahun_anggaran'  => $row['tahun_anggaran'],
+							'id_jadwal'       => $id_jadwal,
+							'id_asli'         => $row['id']
 						]);
 					}
 				}
@@ -26315,7 +26475,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
-	
+
 	public function edit_efisiensi()
 	{
 		global $wpdb;
@@ -26354,18 +26514,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['message'] = 'Id skpd kosong!';
 				}
 
-	            $kode_sbl = explode('.', $default_kode_sbl);
+				$kode_sbl = explode('.', $default_kode_sbl);
 				if ($tahun_anggaran >= 2024) {
-				    unset($kode_sbl[2], $kode_sbl[3]);
-				    $kode_sbl = implode('.', array_values($kode_sbl));
+					unset($kode_sbl[2], $kode_sbl[3]);
+					$kode_sbl = implode('.', array_values($kode_sbl));
 				} else {
-				    if (isset($kode_sbl[6])) {
-				        $kode_sbl = $kode_sbl[1] . '.' . $kode_sbl[2] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5] . '.' . $kode_sbl[6];
-				    } elseif (isset($kode_sbl[5])) {
-				        $kode_sbl = $kode_sbl[0] . '.' . $kode_sbl[1] . '.' . $kode_sbl[3] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5];
-				    } else {
-				        $kode_sbl = $default_kode_sbl;
-				    }
+					if (isset($kode_sbl[6])) {
+						$kode_sbl = $kode_sbl[1] . '.' . $kode_sbl[2] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5] . '.' . $kode_sbl[6];
+					} elseif (isset($kode_sbl[5])) {
+						$kode_sbl = $kode_sbl[0] . '.' . $kode_sbl[1] . '.' . $kode_sbl[3] . '.' . $kode_sbl[4] . '.' . $kode_sbl[5];
+					} else {
+						$kode_sbl = $default_kode_sbl;
+					}
 				}
 
 				$data = $wpdb->get_row($wpdb->prepare('

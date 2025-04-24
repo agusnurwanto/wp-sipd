@@ -3037,13 +3037,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
-		foreach ($tahun as $k => $v) {
-			$title = 'Jadwal Tagging Rincian Belanja | ' . $v['tahun_anggaran'];
-			$shortcode = '[jadwal_tagging_rincian_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
-			$update = false;
-			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-		}
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
 				->set_html('
@@ -3089,6 +3082,23 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
+		
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Tagging Rincian Belanja | ' . $v['tahun_anggaran'];
+			$shortcode = '[jadwal_tagging_rincian_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+		}
+
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Efisiensi Belanja | ' . $v['tahun_anggaran'];
+			$shortcode = '[jadwal_efisiensi_belanja tahun_anggaran=' . $v['tahun_anggaran'] . ']';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
+		}
+		
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
 				->set_html('
