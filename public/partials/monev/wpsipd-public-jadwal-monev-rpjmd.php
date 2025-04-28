@@ -3,20 +3,6 @@
 if (!defined('WPINC')) {
     die;
 }
-global $wpdb;
-// $cek_jadwal = $wpdb->get_results(
-//     $wpdb->prepare('
-//         SELECT *
-//         FROM data_jadwal_lokal
-//         WHERE status = %d
-//           AND id_tipe = %d
-//     ', 0, 17)
-// );
-// if (!empty($cek_jadwal)) {
-//     $cek_jadwal = false;
-// } else {
-//     $cek_jadwal = true;
-// }
 ?>
 <style>
 </style>

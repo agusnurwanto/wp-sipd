@@ -6,18 +6,6 @@ if (!defined('WPINC')) {
 $input = shortcode_atts(array(
     'tahun_anggaran' => '2022'
 ), $atts);
-
-
-global $wpdb;
-
-$sqlTipe = $wpdb->get_results(
-    $wpdb->prepare("
-        SELECT * 
-        FROM `data_tipe_perencanaan` 
-        WHERE nama_tipe=%s
-    ", 'tagging_rincian'),
-    ARRAY_A
-);
 ?>
 <style>
     .bulk-action {

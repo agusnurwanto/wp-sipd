@@ -23,6 +23,56 @@ $unit = $wpdb->get_results(
 	ARRAY_A
 );
 
+$data_jadwal = $wpdb->get_results(
+	$wpdb->prepare('
+		SELECT 
+			id_jadwal_lokal,
+			nama
+		FROM data_jadwal_lokal
+		WHERE id_tipe = 19
+		  AND tahun_anggaran = %d
+		  AND status = 1
+	', $input['tahun_anggaran']),
+	ARRAY_A
+);
+
+$prefix_history = '';
+$additional_condition = "AND active = 1";
+
+if (!empty($_GET['id_jadwal'])) {
+	$current_jadwal = $wpdb->get_row(
+		$wpdb->prepare('
+			SELECT 
+				id_jadwal_lokal,
+				nama
+			FROM data_jadwal_lokal
+			WHERE id_jadwal_lokal = %d
+			  AND id_tipe = 19
+			  AND tahun_anggaran = %d
+			  AND status = 1
+		', $_GET['id_jadwal'], $input['tahun_anggaran']),
+		ARRAY_A
+	);
+
+	$prefix_history = '_history';
+	$additional_condition = "";
+
+	if (empty($current_jadwal)) {
+		die('Jadwal Tidak Valid!');
+	}
+}
+
+$option_jadwal = '';
+
+if (!empty($data_jadwal)) {
+	$selected_id = isset($_GET['id_jadwal']) ? $_GET['id_jadwal'] : '';
+
+	foreach ($data_jadwal as $j) {
+		$selected = ($selected_id == $j['id_jadwal_lokal']) ? ' selected' : '';
+		$option_jadwal .= '<option value="' . $j['id_jadwal_lokal'] . '"' . $selected . '>' . $j['nama'] . '</option>';
+	}
+}
+
 if (!empty($unit)) {
 	$all_unit = array();
 	foreach ($unit as $kk => $vv) {
@@ -105,30 +155,35 @@ if (!empty($data_anggaran)) {
                 )
         ", $input["tahun_anggaran"], $kode_akun, $kode_sbl, $v_anggaran['kode_sbl']));
 
-		$efisiensi = $wpdb->get_row($wpdb->prepare("
-            SELECT
-                pagu_efisiensi,
-                keterangan
-            FROM data_efisiensi_belanja
-            WHERE active=1
-                AND tahun_anggaran=%d
-                AND (
-                    kode_sbl=%s
-                    or kode_sbl=%s
-                ) AND kode_akun=%s
-        ", $input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_sbl'], $v_anggaran['kode_akun']), ARRAY_A);
+		$efisiensi = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT
+					pagu_efisiensi,
+					keterangan
+				FROM data_efisiensi_belanja{$prefix_history}
+				WHERE tahun_anggaran = %d
+				AND (
+					kode_sbl = %s
+					OR kode_sbl = %s
+				)
+				{$additional_condition}
+				AND kode_akun = %s
+    		", $input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_sbl'], $v_anggaran['kode_akun']),
+			ARRAY_A
+		);
+
 		if (empty($efisiensi)) {
 			$efisiensi = array(
 				'pagu_efisiensi' => 0,
-				'keterangan' => ''
+				'keterangan' 	 => ''
 			);
 			$wpdb->insert('data_efisiensi_belanja', array(
 				'pagu_efisiensi' => $v_anggaran['total_rincian'],
-				'kode_sbl' => $v_anggaran['kode_sbl'],
+				'kode_sbl' 		 => $v_anggaran['kode_sbl'],
 				'tahun_anggaran' => $input['tahun_anggaran'],
-				'id_skpd' => $v_anggaran['id_sub_skpd'],
-				'kode_akun' => $v_anggaran['kode_akun'],
-				'active' => 1
+				'id_skpd' 		 => $v_anggaran['id_sub_skpd'],
+				'kode_akun' 	 => $v_anggaran['kode_akun'],
+				'active' 		 => 1
 			));
 		}
 		$sub_keg_all[$kode_sbl]['data'][$v_anggaran['kode_akun']]['pagu_efisiensi'] = $efisiensi['pagu_efisiensi'];
@@ -141,11 +196,11 @@ if (!empty($data_anggaran)) {
 
 		if (empty($rek_all[$kode_akun])) {
 			$rek_all[$kode_akun] = [
-				'nama_akun' => $nama_akun,
-				'pagu_murni' => 0,
-				'total_rincian' => 0,
+				'nama_akun' 	 => $nama_akun,
+				'pagu_murni' 	 => 0,
+				'total_rincian'  => 0,
 				'pagu_efisiensi' => 0,
-				'realisasi' => 0,
+				'realisasi' 	 => 0
 			];
 		}
 
@@ -185,6 +240,9 @@ if (!empty($data_anggaran)) {
 		$shortcode = '[detail_efisiensi_belanja tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
 		$update = false;
 		$url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
+		if (!empty($_GET['id_jadwal'])) {
+			$url_skpd .= '&id_jadwal=' . $current_jadwal['id_jadwal_lokal'];
+		}
 		$tbody .= "<tr>";
 		$tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $data['data']['id_skpd'] . "'>" . $data['data']['kode_skpd'] . " " . $data['data']['nama_skpd'] . "</a></td>";
 		$tbody .= "<td class='text-right'>" . number_format($data['total_murni'], 0, '.', ',') . "</td>";
@@ -208,6 +266,7 @@ if (!empty($data_anggaran)) {
 
 		$update = false;
 		$url_pemda = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
+		
 		$tbody2 .= '
             <tr>
                 <td class="text_tengah">' . $no2++ . '</td>
@@ -287,7 +346,19 @@ if (!empty($data_anggaran)) {
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 			<h1 class="text-center table-title">Efisiensi Belanja SKPD</br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-			<div id="action" class="action-section hide-excel"></div>
+			<?php if (!empty($_GET['id_jadwal'])) : ?>
+				<h1 class="text-center"><?php echo $current_jadwal['nama']; ?></h1>
+			<?php endif; ?>
+			<div id="action" class="action-section mb-3">
+				<div class="form-inline">
+					<label for="jadwal_select" class="mr-2">Pilih Jadwal :</label>
+					<select name="jadwal_select_field" id="jadwal_select" class="form-control mr-2" style="width: 250px;">
+						<option value="">Pilih Jadwal</option>
+						<?php echo $option_jadwal; ?>
+					</select>
+					<button class="btn btn-primary" onclick="handleJadwalChange()">Terapkan</button>
+				</div>
+			</div>
 			<div class="wrap-table">
 				<table id="cetak" title="Rekapitulasi Efisiensi Belanja SKPD" class="table table-bordered table_dokumen_skpd">
 					<thead style="background: #ffc491;">
@@ -323,7 +394,7 @@ if (!empty($data_anggaran)) {
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 			<h1 class="text-center table-title">Rekening Belanja</br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-			<div id="action" class="action-section hide-excel"></div>
+			<div id="action" class="action-section"></div>
 			<div class="wrap-table">
 				<table id="cetak" title="Rekening Belanja" class="table table-bordered table_rekening_belanja">
 					<thead style="background: #ffc491;">
@@ -374,4 +445,20 @@ if (!empty($data_anggaran)) {
 			iDisplayLength: -1
 		});
 	});
+
+	function handleJadwalChange() {
+		let idJadwal = jQuery('#jadwal_select').val();
+
+		jQuery('#wrap-loading').show();
+
+		let newUrl = window.location.href;
+		let url = new URL(newUrl);
+		newUrl = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
+
+		if (idJadwal) {
+			newUrl += '&id_jadwal=' + encodeURIComponent(idJadwal);
+		}
+
+		window.location.href = newUrl;
+	}
 </script>

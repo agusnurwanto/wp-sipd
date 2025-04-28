@@ -18909,7 +18909,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							FROM data_jadwal_lokal
 							WHERE id_jadwal_lokal = %d
 							  AND status = 0
-							  AND tipe = 19
+							  AND id_tipe = 19
 						', $_POST['id_jadwal_lokal'])
 					);
 
