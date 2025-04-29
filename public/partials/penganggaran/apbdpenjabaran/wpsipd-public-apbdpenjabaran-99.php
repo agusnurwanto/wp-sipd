@@ -35,6 +35,21 @@ $additional_thead = '';
 $additional_tbody = '';
 $additional_tfoot = '';
 
+$nama_skpd_db = $wpdb->get_results($wpdb->prepare("
+    SELECT 
+        id_skpd,
+        nama_skpd,
+        kode_skpd
+    FROM data_unit
+    WHERE tahun_anggaran=%d
+        AND active=1
+    ORDER BY id ASC
+", $input['tahun_anggaran']), ARRAY_A);
+$nama_skpd_master = array();
+foreach ($nama_skpd_db as $v) {
+    $nama_skpd_master[$v['id_skpd']] = $v;
+}
+
 //tematik
 if ($input['idlabelgiat'] != 'all' && empty($_GET['tipe'])) {
     $sql = "
@@ -82,25 +97,58 @@ if ($input['idlabelgiat'] != 'all' && empty($_GET['tipe'])) {
           AND p.active = 1";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran'], $_GET['id_prioritas']), ARRAY_A);
 } else if ($input['idlabelgiat'] == 'all' && empty($_GET['tipe'])) {
+    $label_master_db = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            id_label_giat,
+            nama_label
+        FROM data_label_giat
+        WHERE active=1
+            AND tahun_anggaran=%d
+    ", $input['tahun_anggaran']), ARRAY_A);
+    $label_master = array();
+    foreach ($label_master_db as $label) {
+        $label_master[$label['id_label_giat']] = $label['nama_label'];
+    }
+
+    $label_tag_master_db = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            idlabelgiat,
+            kode_sbl
+        FROM data_tag_sub_keg
+        WHERE active=1
+            AND tahun_anggaran=%d
+            AND idlabelgiat > 0
+    ", $input['tahun_anggaran']), ARRAY_A);
+    $label_tag_master = array();
+    foreach ($label_tag_master_db as $v) {
+        if (empty($label_tag_master[$v['kode_sbl']])) {
+            $label_tag_master[$v['kode_sbl']] = array();
+        }
+        $label_tag_master[$v['kode_sbl']][] = $v['idlabelgiat'];
+    }
+
     //all label giat
     $sql = "
         SELECT 
             s.*,
-            t.idlabelgiat,
-            l.nama_label 
+            '' as nama_label 
         FROM `data_sub_keg_bl` s 
-        LEFT JOIN data_tag_sub_keg t 
-               ON s.kode_sbl = t.kode_sbl 
-              AND s.tahun_anggaran = t.tahun_anggaran
-              AND s.active = t.active
-              AND t.idlabelgiat > 0
-        LEFT JOIN data_label_giat l 
-               ON t.idlabelgiat = l.id_label_giat 
-              AND t.tahun_anggaran = l.tahun_anggaran 
-              AND t.active = l.active 
         WHERE s.active = 1 
-          AND s.tahun_anggaran = %d";
+            AND s.tahun_anggaran = %d
+        ORDER BY kode_urusan, kode_bidang_urusan, kode_program, kode_sub_skpd, kode_sub_giat";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran']), ARRAY_A);
+
+    foreach ($subkeg as $k => $v) {
+        if (!empty($label_tag_master[$v['kode_sbl']])) {
+            $nama_label = array();
+            foreach ($label_tag_master[$v['kode_sbl']] as $vv) {
+                if (!empty($label_master[$vv])) {
+                    $nama_label[] = $label_master[$vv];
+                }
+            }
+            $subkeg[$k]['nama_label'] = implode(', ', $nama_label);
+        }
+    }
 
     $label_pusat_raw = $wpdb->get_results(
         $wpdb->prepare('
@@ -174,71 +222,87 @@ if ($input['idlabelgiat'] != 'all' && empty($_GET['tipe'])) {
 $nama_label = array();
 $data_all = array(
     'total'         => 0,
+    'jml_sub_keg'   => 0,
+    'cek_double'   => array(),
     'realisasi'     => 0,
     'total_n_plus'  => 0,
     'data'          => array()
 );
 foreach ($subkeg as $kk => $sub) {
+    $data_all['jml_sub_keg']++;
+    if (empty($data_all[$sub['kode_sbl']])) {
+        $data_all[$sub['kode_sbl']] = 1;
+    } else {
+        $data_all[$sub['kode_sbl']]++;
+    }
     $label = 'nama_label';
     $nama_label[$sub[$label]] = $sub[$label];
     if (!empty($sub['kode_sbl'])) {
         $kode = explode('.', $sub['kode_sbl']);
     }
-    $capaian_prog = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_capaian_prog_sub_keg 
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sbl=%s
-            and capaianteks != ''
-        order by id ASC
-    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-    if ($type == 'detail' && empty($capaian_prog)) {
+
+    $capaian_prog = array();
+    $output_giat = array();
+    $output_sub_giat = array();
+    $lokasi_sub_giat = array();
+
+    if ($input['idlabelgiat'] != 'all' || !empty($_GET['tipe'])) {
         $capaian_prog = $wpdb->get_results($wpdb->prepare("
             select 
-                j.indikator as capaianteks,
-                j.target_" . $urut . " as targetcapaianteks 
-            from data_renstra as r
-                join data_rpjmd as j on r.id_rpjmd=j.id_rpjmd and r.tahun_anggaran=j.tahun_anggaran
-            where r.tahun_anggaran=%d
-                and r.id_program=%d
-                and r.id_giat=%d
-                and r.id_sub_giat=%d
-                and r.kode_skpd=%s
-            order by r.id ASC
-        ", $input['tahun_anggaran'], $kode[2], $kode[3], $kode[4], $unit['kode_skpd']), ARRAY_A);
+                * 
+            from data_capaian_prog_sub_keg 
+            where tahun_anggaran=%d
+                and active=1
+                and kode_sbl=%s
+                and capaianteks != ''
+            order by id ASC
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+        if ($type == 'detail' && empty($capaian_prog)) {
+            $capaian_prog = $wpdb->get_results($wpdb->prepare("
+                select 
+                    j.indikator as capaianteks,
+                    j.target_" . $urut . " as targetcapaianteks 
+                from data_renstra as r
+                    join data_rpjmd as j on r.id_rpjmd=j.id_rpjmd and r.tahun_anggaran=j.tahun_anggaran
+                where r.tahun_anggaran=%d
+                    and r.id_program=%d
+                    and r.id_giat=%d
+                    and r.id_sub_giat=%d
+                    and r.kode_skpd=%s
+                order by r.id ASC
+            ", $input['tahun_anggaran'], $kode[2], $kode[3], $kode[4], $unit['kode_skpd']), ARRAY_A);
+        }
+
+        $output_giat = $wpdb->get_results($wpdb->prepare("
+            select 
+                * 
+            from data_output_giat_sub_keg 
+            where tahun_anggaran=%d
+                and active=1
+                and kode_sbl=%s
+            order by id ASC
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+        $output_sub_giat = $wpdb->get_results($wpdb->prepare("
+            select 
+                * 
+            from data_sub_keg_indikator
+            where tahun_anggaran=%d
+                and active=1
+                and kode_sbl=%s
+            order by id DESC
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+        $lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
+            select 
+                * 
+            from data_lokasi_sub_keg
+            where tahun_anggaran=%d
+                and active=1
+                and kode_sbl=%s
+            order by id ASC
+        ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
     }
-
-    $output_giat = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_output_giat_sub_keg 
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sbl=%s
-        order by id ASC
-    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-
-    $output_sub_giat = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_sub_keg_indikator
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sbl=%s
-        order by id DESC
-    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-
-    $lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
-        select 
-            * 
-        from data_lokasi_sub_keg
-        where tahun_anggaran=%d
-            and active=1
-            and kode_sbl=%s
-        order by id ASC
-    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
     if (!empty($sub['kode_sbl'])) {
         $kode_sbl_kas = explode('.', $sub['kode_sbl']);
@@ -288,18 +352,8 @@ foreach ($subkeg as $kk => $sub) {
         ", $data_renstra[0]['id_rpjmd'], $input['tahun_anggaran']), ARRAY_A);
         $nama_skpd = $data_renstra[0]['nama_skpd'];
     } else {
-        $_nama_skpd = $wpdb->get_row($wpdb->prepare("
-            SELECT 
-                nama_skpd,
-                kode_skpd
-            FROM data_unit
-            WHERE id_skpd=%d 
-              AND tahun_anggaran=%d
-              AND active=1
-            ORDER BY id ASC
-        ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-        if (!empty($_nama_skpd)) {
-            $nama_skpd = $_nama_skpd['nama_skpd'];
+        if (!empty($nama_skpd_master[$sub['id_skpd']])) {
+            $nama_skpd = $nama_skpd_master[$sub['id_skpd']]['nama_skpd'];
         }
     }
 
@@ -318,21 +372,13 @@ foreach ($subkeg as $kk => $sub) {
         }
 
         if (empty($data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']])) {
-            $sub_skpd = $wpdb->get_row($wpdb->prepare("
-                SELECT 
-                    nama_skpd,
-                    kode_skpd
-                FROM data_unit
-                WHERE id_skpd=%d 
-                  AND tahun_anggaran=%d
-                  AND active=1
-                ORDER BY id ASC
-            ", $sub['id_sub_skpd'], $input['tahun_anggaran']), ARRAY_A);
-            if(empty($sub_skpd)){
+            if (empty($nama_skpd_master[$sub['id_sub_skpd']])) {
                 $sub_skpd = array(
-                    'nama_skpd' => '- (ID='.$sub['id_sub_skpd'].')',
-                    'kode_skpd' => '- (ID='.$sub['id_sub_skpd'].')'
+                    'nama_skpd' => '- (ID=' . $sub['id_sub_skpd'] . ')',
+                    'kode_skpd' => '- (ID=' . $sub['id_sub_skpd'] . ')'
                 );
+            } else {
+                $sub_skpd = $nama_skpd_master[$sub['id_sub_skpd']];
             }
 
             $data_all['data'][$sub['kode_sbl']]['data'][$sub['id_sub_skpd']] = array(
@@ -753,7 +799,7 @@ foreach ($data_all['data'] as $label_tag) {
                                 }
                             }
                             $body .= '
-                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
+                                <tr kode_sbl="' . $sub_giat['data']['kode_sbl'] . '">
                                     <td class="kiri kanan bawah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $kd_bidang . '</td>
                                     <td class="kanan bawah">' . $kd_program . '</td>
@@ -780,7 +826,7 @@ foreach ($data_all['data'] as $label_tag) {
                                 $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
                             }
                             $body_rkpd .= '
-                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
+                                <tr kode_sbl="' . $sub_giat['data']['kode_sbl'] . '">
                                     <td class="kiri kanan bawah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $kd_bidang . '</td>
                                     <td class="kanan bawah">' . $kd_program . '</td>
@@ -806,7 +852,7 @@ foreach ($data_all['data'] as $label_tag) {
                             $kode_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat;
                             $kode_sub_kegiatan = $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '.' . $kd_giat . '.' . $kd_sub_giat;
                             $body_excel .= '
-                                <tr kode_sbl="'.$sub_giat['data']['kode_sbl'].'">
+                                <tr kode_sbl="' . $sub_giat['data']['kode_sbl'] . '">
                                     <td class="kiri kanan bawah text_tengah">' . $no++ . '</td>
                                     <td class="kanan bawah text_tengah">' . $kd_urusan . '</td>
                                     <td class="kanan bawah">' . $urusan['nama'] . '</td>
@@ -1024,44 +1070,54 @@ if (!empty($format_rkpd)) {
         </div>
     ';
 }
+$url_all_rekening = $this->generatePage(
+    'Laporan Subkegiatan Tagging/Tag Per Rekening Belanja Tahun ' . $input['tahun_anggaran'] . '',
+    false,
+    '[laporan_tagging_subkegiatan_per_rekening_belanja tahun_anggaran=' . $input['tahun_anggaran'] . ']'
+);
 ?>
 
 <script type="text/javascript">
-    run_download_excel();
-    var _url = window.location.href;
-    var url = new URL(_url);
-    _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
+    jQuery(document).ready(() => {
+        run_download_excel();
+        var _url = window.location.href;
+        var url = new URL(_url);
+        _url = url.origin + url.pathname + '?key=' + url.searchParams.get('key');
 
-    var rkpd = url.searchParams.get("rkpd");
-    var excel = url.searchParams.get("excel");
+        var rkpd = url.searchParams.get("rkpd");
+        var excel = url.searchParams.get("excel");
 
-    var id_prioritas = url.searchParams.get("id_prioritas");
-    var tipe = url.searchParams.get("tipe");
+        var id_prioritas = url.searchParams.get("id_prioritas");
+        var tipe = url.searchParams.get("tipe");
 
-    var additionalParams = "";
-    if (tipe && id_prioritas) {
-        additionalParams += "&tipe=" + encodeURIComponent(tipe) + "&id_prioritas=" + encodeURIComponent(id_prioritas);
-    }
-
-    if (!rkpd && !excel) {
-        var type = url.searchParams.get("type");
-
-        if (type && type === 'detail') {
-            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
-        } else {
-            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=detail' + additionalParams + '" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+        var additionalParams = "";
+        if (tipe && id_prioritas) {
+            additionalParams += "&tipe=" + encodeURIComponent(tipe) + "&id_prioritas=" + encodeURIComponent(id_prioritas);
         }
 
-        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&excel=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format Excel</a>';
+        if (!rkpd && !excel) {
+            var type = url.searchParams.get("type");
 
-        extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&rkpd=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format RKPD</a>';
+            if (type && type === 'detail') {
+                var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+            } else {
+                var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + '&type=detail' + additionalParams + '" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+            }
 
-    } else if (rkpd) {
-        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
-    } else if (excel) {
-        var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format Renja</a>';
+            extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&excel=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format Excel</a>';
 
+            extend_action += '<a class="btn btn-primary" target="_blank" href="' + _url + '&rkpd=1' + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format RKPD</a>';
+
+        } else if (rkpd) {
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
+        } else if (excel) {
+            var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
+        }
+
+        jQuery('#action-sipd #excel').after(extend_action);
+    })
+
+    function handleAllRekeningPage(url) {
+        window.open(url, '_blank');
     }
-
-    jQuery('#action-sipd #excel').after(extend_action);
 </script>

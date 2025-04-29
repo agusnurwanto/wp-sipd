@@ -1144,7 +1144,10 @@ class Wpsipd
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
 		add_shortcode('tampilrkpd', array($plugin_public, 'tampilrkpd'));
+
 		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
+		add_shortcode('laporan_tagging_subkegiatan_per_rekening_belanja', array($plugin_public, 'laporan_tagging_subkegiatan_per_rekening_belanja'));
+
 		add_shortcode('laporan_penatausahaan', array($plugin_public, 'laporan_penatausahaan'));
 		add_shortcode('daftar_penguji', array($plugin_public, 'daftar_penguji'));
 		add_shortcode('halaman_spd', array($plugin_public, 'halaman_spd'));
