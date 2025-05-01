@@ -8,21 +8,21 @@ global $wpdb;
 
 $select_rpd_rpjm = '';
 
-$sqlTipe = $wpdb->get_results(
+$sqlTipe = $wpdb->get_var(
     $wpdb->prepare("
-        SELECT * 
+        SELECT id
         FROM `data_tipe_perencanaan` 
         WHERE nama_tipe=%s
-    ", 'monev_rpjmd'),
-    ARRAY_A
+    ", 'monev_rpjmd')
 );
+
 $data_rpd_rpjm = $wpdb->get_results(
     $wpdb->prepare('
         SELECT *
         FROM data_jadwal_lokal
         WHERE status=0
           AND id_tipe=%d
-    ', $sqlTipe[0]['id']),
+    ', $sqlTipe),
     ARRAY_A
 );
 

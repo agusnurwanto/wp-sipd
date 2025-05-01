@@ -8,36 +8,36 @@ global $wpdb;
 
 $select_rpd_rpjm = '';
 
-$sqlTipe = $wpdb->get_results($wpdb->prepare(
-	"
-	SELECT 
-		* 
-	FROM 
-		`data_tipe_perencanaan` 
-	WHERE 
-		nama_tipe=%s
-	OR 
-		nama_tipe=%s",
-	'rpd',
-	'rpjm'
-), ARRAY_A);
-$data_rpd_rpjm = $wpdb->get_results($wpdb->prepare(
-	'
-	SELECT
-		id_jadwal_lokal,
-		nama,
-		id_tipe
-	FROM
-		data_jadwal_lokal
-	WHERE
-		status=1
-		and id_tipe=%d
-	OR 
-		status=1
-		and id_tipe=%d',
-	$sqlTipe[0]['id'],
-	$sqlTipe[1]['id']
-), ARRAY_A);
+$sqlTipe = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT 
+			* 
+		FROM `data_tipe_perencanaan` 
+		WHERE nama_tipe = %s
+		   OR nama_tipe = %s
+		   OR nama_tipe = %s
+		", 'rpd', 'rpjm', 'monev_rpjmd'),
+	ARRAY_A
+);
+
+$data_rpd_rpjm = $wpdb->get_results(
+	$wpdb->prepare('
+		SELECT
+			id_jadwal_lokal,
+			nama,
+			id_tipe,
+			status,
+			tahun_anggaran,
+			tahun_akhir_anggaran
+		FROM data_jadwal_lokal
+		WHERE status = 1
+		  AND id_tipe = %d
+		   OR status = 1
+		  AND id_tipe = %d
+		   OR id_tipe = %d
+	', $sqlTipe[0]['id'], $sqlTipe[1]['id'], $sqlTipe[2]['id']),
+	ARRAY_A
+);
 
 if (!empty($data_rpd_rpjm)) {
 	foreach ($data_rpd_rpjm as $val_rpd_rpjm) {
@@ -45,7 +45,12 @@ if (!empty($data_rpd_rpjm)) {
 		foreach ($sqlTipe as $val_tipe) {
 			$tipe[$val_tipe['id']] = strtoupper($val_tipe['nama_tipe']);
 		}
-		$select_rpd_rpjm .= '<option value="' . $val_rpd_rpjm['id_jadwal_lokal'] . '">' . $tipe[$val_rpd_rpjm['id_tipe']] . ' | ' . $val_rpd_rpjm['nama'] . '</option>';
+
+		$status = '[DIKUNCI]';
+		if ($val_rpd_rpjm['status'] == 0) {
+			$status = '[TERBUKA]';
+		}
+		$select_rpd_rpjm .= '<option value="' . $val_rpd_rpjm['id_jadwal_lokal'] . '">' . $tipe[$val_rpd_rpjm['id_tipe']] . ' | ' . $val_rpd_rpjm['nama'] . ' (' . $val_rpd_rpjm['tahun_anggaran'] . ' - ' . $val_rpd_rpjm['tahun_akhir_anggaran'] . ') ' . $status . '</option>';
 	}
 }
 
@@ -125,16 +130,16 @@ $body = '';
 						<input type="number" class="form-control" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" placeholder="Tahun Mulai Anggaran" />
 					</div>
 					<div class="form-group col-md-3">
-                        <div class="form-group">
-                            <label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
-                            <div class="input-group">
-                                <input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
-                                <div class="input-group-append">
-                                    <span class="input-group-text" id="basic-addon2">Tahun</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+						<div class="form-group">
+							<label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
+							<div class="input-group">
+								<input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
+								<div class="input-group-append">
+									<span class="input-group-text" id="basic-addon2">Tahun</span>
+								</div>
+							</div>
+						</div>
+					</div>
 					<div class="form-group col-md-6">
 						<label for='jadwal_tanggal'>Jadwal Pelaksanaan</label>
 						<input type="text" id='jadwal_tanggal' name="jadwal_tanggal" class="form-control" />

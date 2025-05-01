@@ -1112,6 +1112,7 @@ $url_all_rekening = $this->generatePage(
             var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
         } else if (excel) {
             var extend_action = '<a class="btn btn-primary" target="_blank" href="' + _url + additionalParams + '" style="margin-left: 10px;"><span class="dashicons dashicons-controls-back"></span> Format RENJA</a>';
+            extend_action += '<button class="btn btn-primary" onclick="handleAllRekeningPage(\'<?php echo $url_all_rekening; ?>\')" style="margin-left: 10px;"><span class="dashicons dashicons-controls-forward"></span> Format Per Rekening Belanja</button>';
         }
 
         jQuery('#action-sipd #excel').after(extend_action);
