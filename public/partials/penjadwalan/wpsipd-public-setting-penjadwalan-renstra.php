@@ -50,9 +50,18 @@ if (!empty($data_rpd_rpjm)) {
 		if ($val_rpd_rpjm['status'] == 0) {
 			$status = '[TERBUKA]';
 		}
-		$select_rpd_rpjm .= '<option value="' . $val_rpd_rpjm['id_jadwal_lokal'] . '">' . $tipe[$val_rpd_rpjm['id_tipe']] . ' | ' . $val_rpd_rpjm['nama'] . ' (' . $val_rpd_rpjm['tahun_anggaran'] . ' - ' . $val_rpd_rpjm['tahun_akhir_anggaran'] . ') ' . $status . '</option>';
+
+		// Cek apakah id_tipe == MONEV RPJMD
+		if ($val_rpd_rpjm['id_tipe'] == 17) {
+			$tahun = $val_rpd_rpjm['tahun_anggaran'] . ' - ' . $val_rpd_rpjm['tahun_akhir_anggaran'];
+		} else {
+			$tahun = $val_rpd_rpjm['tahun_anggaran'];
+		}
+
+		$select_rpd_rpjm .= '<option value="' . $val_rpd_rpjm['id_jadwal_lokal'] . '">' . $tipe[$val_rpd_rpjm['id_tipe']] . ' | ' . $val_rpd_rpjm['nama'] . ' (' . $tahun . ') ' . $status . '</option>';
 	}
 }
+
 
 $title = 'Rekap Total Program, Kegiatan, Sub Kegiatan RENSTRA';
 $shortcode = '[rekap_total_prog_keg_renstra]';
