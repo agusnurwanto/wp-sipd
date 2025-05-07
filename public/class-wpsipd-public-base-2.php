@@ -1687,7 +1687,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$body.='</tr>';
 
 
-					$html ='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+					$html ='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RPD Per Unit Kerja 
 						<br>Tahun '.$jadwal_lokal->awal_rpd.' - '.$jadwal_lokal->akhir_rpd.' '.$nama_pemda.'
 						<br>Tahapan: '.$jadwal_lokal->nama_jadwal.'

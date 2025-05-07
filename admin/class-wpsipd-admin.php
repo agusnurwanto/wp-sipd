@@ -1247,9 +1247,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$body_all = '';
 				$unit_renstra = [];
 				$limit = '';
-				if ($_POST['type'] == 'input_renstra') {
-					$limit = ' LIMIT 1';
-				}
 				$type = $_POST['type'] ?? '';
 				$tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
 
@@ -1337,12 +1334,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						} else if ($_POST['type'] == 'monev_json_rka') {
 							$url_skpd = $this->generatePage('Data JSON RKA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><input type="checkbox" value="' . $vv['id_skpd'] . '"> <a target="_blank" href="' . $url_skpd . '">Halaman JSON RKA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ') ID = ' . $vv['id_skpd'];
-						} else if ($_POST['type'] == 'input_renstra') {
-							if (empty($unit_renstra[$vv['kode_skpd']])) {
-								$unit_renstra[$vv['kode_skpd']] = $vv['kode_skpd'];
-								$url_skpd = $this->generatePage('Input RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'], null, '[input_renstra id_skpd="' . $vv['id_skpd'] . '"]');
-								$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman Input RENSTRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
-							}
 						} else if ($_POST['type'] == 'rkpd_renja') {
 							$url_skpd = $this->generatePage('RKPD & RENJA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rkpd_renja tahun_anggaran="' . $v['tahun_anggaran'] . '" id_skpd="' . $vv['id_skpd'] . '"]');
 							$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman RKPD & RENJA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . ' ' . $v['tahun_anggaran'] . '</a> (NIP: ' . $vv['nipkepala'] . ')';
@@ -1411,8 +1402,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$body_pemda .= '</ul>';
 
 					if (
-						$_POST['type'] != 'input_renstra'
-						&& $_POST['type'] != 'monev_renstra'
+						$_POST['type'] != 'monev_renstra'
 						&& $_POST['type'] != 'monev_renja'
 					) {
 						$body_all .= '
@@ -1525,8 +1515,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_cek_pemutakhiran = $this->generatePage('Efisiensi Belanja | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[efisiensi_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_cek_pemutakhiran . '">Efisiensi Belanja Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
-					} else if ($_POST['type'] == 'input_renstra') {
-						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'rkpd_renja') {
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'spd') {
@@ -1580,10 +1568,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						} else {
 							$body_all .= '<h4>Tidak Ditemukan!</h4></br>';
 						}
-					}
-
-					if ($_POST['type'] != 'input_renstra') {
-						$body_all .= '</div>';
 					}
 				}
 
@@ -1755,7 +1739,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'monev_json_rka'
 					|| $_POST['type'] == 'monev_pemutakhiran'
 					|| $_POST['type'] == 'efisiensi_belanja'
-					|| $_POST['type'] == 'input_renstra'
 					|| $_POST['type'] == 'laporan_penatausahaan'
 					|| $_POST['type'] == 'spd'
 					|| $_POST['type'] == 'spp'
@@ -3082,7 +3065,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
-		
+
 		foreach ($tahun as $k => $v) {
 			$title = 'Jadwal Tagging Rincian Belanja | ' . $v['tahun_anggaran'];
 			$shortcode = '[jadwal_tagging_rincian_belanja tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
@@ -3098,7 +3081,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
 		}
-		
+
 		$label = array(
 			Field::make('html', 'crb_hide_sidebar')
 				->set_html('
@@ -3131,8 +3114,84 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			return array();
 		}
 		global $wpdb;
-		$label = $this->get_ajax_field(array('type' => 'input_renstra'));
-		return $label;
+		$jadwals = $wpdb->get_results(
+			$wpdb->prepare('
+				SELECT 
+					id_jadwal_lokal,
+					nama,
+					tahun_anggaran,
+					tahun_akhir_anggaran,
+					status,
+					lama_pelaksanaan
+				FROM data_jadwal_lokal 
+				WHERE id_tipe = %d
+			', 4),
+			ARRAY_A
+		);
+
+		$return = '';
+		if (!empty($jadwals)) {
+			foreach ($jadwals as $jadwal) {
+				$units = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							status,
+							tahun_anggaran,
+							nipkepala
+						FROM data_unit 
+						WHERE tahun_anggaran = %d
+						  AND is_skpd = 1
+						ORDER BY kode_skpd ASC
+					", $jadwal['tahun_anggaran']),
+					ARRAY_A
+				);
+
+				$status = ($jadwal['status'] == 0) ? '<b>[TERBUKA]</b>' : '<b>[DIKUNCI]</b>';
+				$tahun_akhir_anggaran = $jadwal['tahun_anggaran'] + $jadwal['lama_pelaksanaan'] - 1;
+
+				$return .= '
+					<div class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</div>
+					<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">
+					<ul style="margin-left : 20px;">
+				';
+
+				if (!empty($units)) {
+					foreach ($units as $unit) {
+						$url_skpd = $this->generatePage(
+							'Input RENSTRA  ' . $jadwal['nama'] . ' | ' . $unit['kode_skpd'] . ' - ' . $unit['nama_skpd'],
+							null,
+							'[input_renstra id_skpd="' . $unit['id_skpd'] . '" id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+						);
+						$return .= '<li>
+							<a target="_blank" href="' . $url_skpd . '">Halaman Input RENSTRA ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
+						</li>';
+					}
+				} else {
+					$return .= '
+							 <li>Tidak ada data unit ditemukan.</li>
+					';
+				}
+				$return .= '
+							</ul>
+						</div>
+				';
+			}
+		} else {
+			$return = '<h1>Data jadwal input renstra tidak ditemukan! coba buat jadwal input renstra terlebih dahulu di Input Perencanaan / Jadwal dan Input Perencanaan.</h1>';
+		}
+		return [
+			Field::make('html', 'crb_hide_sidebar')
+				->set_html('
+				<style>
+					.postbox-container { display: none; }
+					#poststuff #post-body.columns-2 { margin: 0 !important; }
+				</style>
+        	'),
+			Field::make('html', 'crb_daftar_tag_label_sub_kegiatan')->set_html($return)
+		];
 	}
 
 	public function generate_tag_sipd()
@@ -3220,11 +3279,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$kode_sbl_realisasi = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sk['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
 
 				// total realisasi disetting di sini agar hanya menjumlahkan berdasarkan kode sbl yang aktive dari data_sub_keg_bl
-				if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+				if (!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])) {
 					$realisasi_all[$tahun_anggaran]['total'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
 				}
 
-				if(!empty($sk['id_label_pusat'])){
+				if (!empty($sk['id_label_pusat'])) {
 					if (empty($subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']])) {
 						$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']] = array(
 							'pagu'       	 => 0,
@@ -3236,12 +3295,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['jml_subkeg']++;
 					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['pagu'] += $sk['pagu'];
 					$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['data'][] = $sk;
-					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+					if (!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])) {
 						$subkeg_all[$tahun_anggaran]['id_label_pusat'][$sk['id_label_pusat']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
 					}
 				}
 
-				if(!empty($sk['id_label_prov'])){
+				if (!empty($sk['id_label_prov'])) {
 					if (empty($subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']])) {
 						$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']] = array(
 							'pagu'       	 => 0,
@@ -3253,13 +3312,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['jml_subkeg']++;
 					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['pagu'] += $sk['pagu'];
 					$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['data'][] = $sk;
-					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+					if (!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])) {
 						$subkeg_all[$tahun_anggaran]['id_label_prov'][$sk['id_label_prov']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
 					}
 				}
 
-				
-				if(!empty($sk['id_label_kokab'])){
+
+				if (!empty($sk['id_label_kokab'])) {
 					if (empty($subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']])) {
 						$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']] = array(
 							'pagu'       	 => 0,
@@ -3271,7 +3330,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['jml_subkeg']++;
 					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['pagu'] += $sk['pagu'];
 					$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['data'][] = $sk;
-					if(!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])){
+					if (!empty($realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi])) {
 						$subkeg_all[$tahun_anggaran]['id_label_kokab'][$sk['id_label_kokab']]['realisasi'] += $realisasi_all[$tahun_anggaran]['data'][$kode_sbl_realisasi];
 					}
 				}
@@ -3300,7 +3359,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			if (!empty($tematik)) {
 				foreach ($tematik as $v) {
-					if(empty($tematik_all[$tahun_anggaran])){
+					if (empty($tematik_all[$tahun_anggaran])) {
 						$tematik_all[$tahun_anggaran] = array();
 					}
 					if (empty($tematik_all[$tahun_anggaran][$v['id_label_giat']])) {
@@ -3396,7 +3455,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					if (!empty($result)) {
 						foreach ($result as $row) {
 							$total_realisasi_tagging = 0;
-							if(!empty($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']])){
+							if (!empty($subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']])) {
 								$total_realisasi_tagging = $subkeg_all[$tahun_anggaran][$query['column']][$row['id_prioritas']]['realisasi'];
 							}
 

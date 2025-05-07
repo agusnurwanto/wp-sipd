@@ -3,7 +3,6 @@
 if (!defined('WPINC')) {
 	die;
 }
-
 global $wpdb;
 
 $select_rpd_rpjm = '';
@@ -96,7 +95,7 @@ $body = '';
 					<th class="text-center">Tahun Selesai Anggaran</th>
 					<th class="text-center">Jenis Jadwal</th>
 					<th class="text-center">Jadwal RPD/RPJM</th>
-					<th class="text-center" style="width: 150px;">Aksi</th>
+					<th class="text-center" style="width: 100px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
@@ -240,6 +239,7 @@ $body = '';
 
 	/** show modal tambah jadwal */
 	function tambah_jadwal() {
+		afterSubmitForm()
 		jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
 		jQuery("#modalTambahJadwal .submitBtn")
 			.attr("onclick", 'submitTambahJadwalForm()')
@@ -296,22 +296,19 @@ $body = '';
 					jQuery('.submitBtn').attr('disabled', 'disabled')
 				},
 				success: function(response) {
-					jQuery('#modalTambahJadwal').modal('hide')
 					jQuery('#wrap-loading').hide()
 					if (response.status == 'success') {
-						alert('Data berhasil ditambahkan')
+						jQuery('#modalTambahJadwal').modal('hide')
+						alert(response.message)
 						penjadwalanTable.ajax.reload()
 						afterSubmitForm()
 					} else {
+						jQuery('.submitBtn').attr('disabled', false)
 						alert(response.message)
 					}
-					jQuery('#jadwal_nama').val('')
-					jQuery("#tahun_mulai_anggaran").val('')
-					jQuery("#link_rpd_rpjm").val('')
 				}
 			})
 		}
-		jQuery('#modalTambahJadwal').modal('hide');
 	}
 
 	/** edit akun ssh usulan */
@@ -380,23 +377,19 @@ $body = '';
 					jQuery('.submitBtn').attr('disabled', 'disabled')
 				},
 				success: function(response) {
-					jQuery('#modalTambahJadwal').modal('hide')
 					jQuery('#wrap-loading').hide()
 					if (response.status == 'success') {
-						alert('Data berhasil diperbarui')
+						jQuery('#modalTambahJadwal').modal('hide')
+						alert(response.message)
 						penjadwalanTable.ajax.reload()
 						afterSubmitForm()
 					} else {
+						jQuery('.submitBtn').attr('disabled', false)
 						alert(`GAGAL! \n${response.message}`)
 					}
-					jQuery('#jadwal_nama').val('')
-					jQuery("#tahun_mulai_anggaran").val('')
-					jQuery("#link_rpd_rpjm").val('')
-					jQuery("#jenis_jadwal").val('')
 				}
 			})
 		}
-		jQuery('#modalTambahJadwal').modal('hide');
 	}
 
 	function hapus_data_penjadwalan(id_jadwal_lokal) {
@@ -425,7 +418,7 @@ $body = '';
 		}
 	}
 
-	function lock_data_penjadwalan(id_jadwal_lokal) {
+	function lock_data_penjadwalan(id_jadwal_lokal, tahun_anggaran) {
 		Swal.fire({
 			title: 'Kunci Penjadwalan Renstra?',
 			text: "Apakah anda yakin akan mengunci penjadwalan?",
@@ -444,7 +437,8 @@ $body = '';
 					data: {
 						'action': 'submit_lock_schedule_renstra',
 						'api_key': jQuery("#api_key").val(),
-						'id_jadwal_lokal': id_jadwal_lokal
+						'id_jadwal_lokal': id_jadwal_lokal,
+						'tahun_anggaran': tahun_anggaran
 					},
 					dataType: 'json',
 					success: function(response) {
@@ -497,6 +491,9 @@ $body = '';
 	function afterSubmitForm() {
 		jQuery("#jadwal_nama").val("")
 		jQuery("#tahun_mulai_anggaran").val("")
+		jQuery("#link_rpd_rpjm").val("")
+		jQuery("#jenis_jadwal").val("")
+		jQuery("#lama_pelaksanaan").val("")
 		jQuery("#jadwal_tanggal").val("")
 	}
 
@@ -525,7 +522,7 @@ $body = '';
 
 		let modal = `
 			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
-			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
+			  <div class="modal-dialog modal-xl" role="document">
 			    <div class="modal-content">
 			      <div class="modal-header">
 			        <h5 class="modal-title">Export Data</h5>

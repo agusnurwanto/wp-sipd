@@ -1982,7 +1982,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
 					</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
@@ -2102,7 +2102,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
 					</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
@@ -2222,7 +2222,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
 					</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
@@ -2342,7 +2342,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
 					</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
@@ -2631,7 +2631,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg_sumber_dana']).'</b></td>
 				</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">'.$judul.'
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
@@ -2932,7 +2932,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg_rekening']).'</b></td>
 				</tr>';
 
-			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+			$html='<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">'.$judul.'
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'

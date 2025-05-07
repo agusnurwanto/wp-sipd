@@ -6403,7 +6403,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							background: #f5c9c9;
 						}
 					</style>
-					<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+					<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA)
 						<br>' . $judul_skpd . 'Tahun ' . $jadwal_lokal->awal_renstra . ' - ' . $jadwal_lokal->akhir_renstra . ' ' . $nama_pemda . '</h4>
 						' . $table . '
@@ -6741,7 +6741,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				}
 				$body .= '</tr>';
 
-				$html = '<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+				$html = '<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RENSTRA Per Unit Kerja<br>Tahun ' . $jadwal_lokal->awal_renstra . ' - ' . $jadwal_lokal->akhir_renstra . ' ' . $nama_pemda . '<br>' . $jadwal_lokal->nama_jadwal . '
 						</h4>
 						<br>
@@ -8459,7 +8459,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						<td style="' . $warning . '" class="atas kanan bawah text_kanan"><b>' . $this->_number_format($data_all['pagu_sipd']) . '</b></td>
 					</tr>';
 
-			$html = '<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+			$html = '<div id="preview" class="card bg-light m-3 p-3 shadow-md" style="overflow-x : auto; overflow-y : auto; height : 90vh">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL BELANJA RENJA Per Unit Kerja 
 					<br>Tahun ' . $jadwal_lokal->tahun_anggaran . ' ' . $nama_pemda . '
 					<br>' . $jadwal_lokal->nama_jadwal . '
@@ -9046,6 +9046,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'id_program' => $subKegiatanBaru->id_program,
 						'id_unik' => $this->generateRandomString(), // kode_sub_kegiatan
 						'id_unit' => $subKegiatanRenstraLama->id_unit,
+						'tahun_anggaran' => $subKegiatanRenstraLama->tahun_anggaran,
 						'id_sub_unit' => $subKegiatanRenstraLama->id_sub_unit,
 						'id_visi' => $subKegiatanRenstraLama->id_visi,
 						'is_locked' => 0,
@@ -9116,6 +9117,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_unik' => $subKegiatanRenstraBaru->id_unik,
 							'id_unik_indikator' => $this->generateRandomString(),
 							'id_unit' => $subKegiatanRenstraBaru->id_unit,
+							'tahun_anggaran' => $subKegiatanRenstraBaru->tahun_anggaran,
 							'id_sub_unit' => $subKegiatanRenstraBaru->id_sub_unit,
 							'id_visi' => $subKegiatanRenstraBaru->id_visi,
 							'is_locked' => $subKegiatanRenstraBaru->is_locked,
@@ -9261,6 +9263,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'bidur_lock' => 0,
 						'id_bidang_urusan' => $programRenstraLama->id_bidang_urusan,
 						'id_misi' => $programRenstraLama->id_misi,
+						'tahun_anggaran' => $programRenstraLama->tahun_anggaran,
 						'id_program' => $programBaru->id_program,
 						'id_unik' => $this->generateRandomString(),
 						'id_unit' => $programRenstraLama->id_unit,
@@ -9324,6 +9327,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								'id_unik' => $programRenstraBaru->id_unik,
 								'id_unik_indikator' => $this->generateRandomString(),
 								'id_unit' => $programRenstraBaru->id_unit,
+								'tahun_anggaran' => $programRenstraBaru->tahun_anggaran,
 								'id_visi' => $programRenstraBaru->id_visi,
 								'is_locked' => 0,
 								'is_locked_indikator' => 0,
@@ -9335,6 +9339,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								'nama_bidang_urusan' => $programRenstraBaru->nama_bidang_urusan,
 								'nama_program' => $programRenstraBaru->nama_program,
 								'nama_skpd' => $programRenstraBaru->nama_skpd,
+								'tahun_anggaran' => $programRenstraBaru->tahun_anggaran,
 
 								'indikator' => $indikatorProgram->indikator,
 								'satuan' => $indikatorProgram->satuan,
@@ -9635,6 +9640,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'id_program' => $kegiatanBaru->id_program,
 						'id_unik' => $this->generateRandomString(), // kode_kegiatan
 						'id_unit' => $kegiatanRenstraLama->id_unit,
+						'tahun_anggaran' => $kegiatanRenstraLama->tahun_anggaran,
 						'id_visi' => $kegiatanRenstraLama->id_visi,
 						'is_locked' => $kegiatanRenstraLama->is_locked,
 						'is_locked_indikator' => $kegiatanRenstraLama->is_locked_indikator,
@@ -9701,6 +9707,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								'id_unik' => $kegiatanRenstraBaru->id_unik,
 								'id_unik_indikator' => $this->generateRandomString(),
 								'id_unit' => $kegiatanRenstraLama->id_unit,
+								'tahun_anggaran' => $kegiatanRenstraLama->tahun_anggaran,
 								'id_visi' => $kegiatanRenstraLama->id_visi,
 								'is_locked' => $kegiatanRenstraLama->is_locked,
 								'is_locked_indikator' => $kegiatanRenstraLama->is_locked_indikator,

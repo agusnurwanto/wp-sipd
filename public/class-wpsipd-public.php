@@ -17269,7 +17269,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								} else {
 									$checkOpenedSchedule++;
-									$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+									if ($tipe_perencanaan == 'renstra') {
+										$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\', \'' . $recVal['tahun_anggaran'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+									} else {
+										$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+									}
 								}
 								if (
 									in_array($tipe_perencanaan, ['renstra', 'renja'])
@@ -17614,13 +17618,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									&& !empty($lama_pelaksanaan)
 								) {
 									$id_tipe = $sqlTipe['id'];
-									$where_renja = ($id_tipe == 5 || $id_tipe == 6 || $id_tipe == 13 || $id_tipe == 14) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
+									$where_id_tipe = ($id_tipe == 5 || $id_tipe == 6 || $id_tipe == 13 || $id_tipe == 14) ? $wpdb->prepare(' AND tahun_anggaran = %d', $tahun_anggaran) : '';
 									$sqlSameTipe = $wpdb->get_results(
 										$wpdb->prepare("
 											SELECT * 
 											FROM `data_jadwal_lokal` 
 											WHERE id_tipe = %s
-											$where_renja
+											$where_id_tipe
 										", $id_tipe),
 										ARRAY_A
 									);
@@ -19162,7 +19166,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$status_check = array(0, NULL, 2);
 							if (in_array($data_this_id['status'], $status_check)) {
 
-								$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+								$tahun_anggaran = $_POST['tahun_anggaran'];
 								$this->check_total_pagu_penetapan([
 									'lama_pelaksanaan' => $data_this_id['lama_pelaksanaan'],
 									'tahun_anggaran' => $tahun_anggaran
@@ -19179,7 +19183,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$sql_backup_data_renstra_sub_kegiatan_lokal =  "INSERT INTO data_renstra_sub_kegiatan_lokal_history (" . implode(', ', $columns_0) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_0) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
-											FROM data_renstra_sub_kegiatan_lokal";
+											FROM data_renstra_sub_kegiatan_lokal WHERE tahun_anggaran = " . $tahun_anggaran . "";
 
 								$queryRecords0 = $wpdb->query($sql_backup_data_renstra_sub_kegiatan_lokal);
 
@@ -19189,7 +19193,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (" . implode(', ', $columns_1) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_1) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
-											FROM data_renstra_kegiatan_lokal";
+											FROM data_renstra_kegiatan_lokal WHERE tahun_anggaran = " . $tahun_anggaran . "";
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
 
@@ -19199,7 +19203,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$sql_backup_data_renstra_program_lokal =  "INSERT INTO data_renstra_program_lokal_history (" . implode(', ', $columns_2) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_2) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
-											FROM data_renstra_program_lokal";
+											FROM data_renstra_program_lokal WHERE tahun_anggaran = " . $tahun_anggaran . "";
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_renstra_program_lokal);
 
@@ -19209,7 +19213,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$sql_backup_data_renstra_sasaran_lokal =  "INSERT INTO data_renstra_sasaran_lokal_history (" . implode(', ', $columns_3) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_3) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
-											FROM data_renstra_sasaran_lokal";
+											FROM data_renstra_sasaran_lokal WHERE tahun_anggaran = " . $tahun_anggaran . "";
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
 
@@ -19219,7 +19223,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (" . implode(', ', $columns_4) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_4) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
-											FROM data_renstra_tujuan_lokal";
+											FROM data_renstra_tujuan_lokal WHERE tahun_anggaran = " . $tahun_anggaran . "";
 
 								$queryRecords4 = $wpdb->query($sql_backup_data_renstra_tujuan_lokal);
 
