@@ -141,6 +141,40 @@ if (
 ) {
 	$singkron_simda = 2;
 }
+
+$anggaran_kas = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT 
+			kode_sbl,
+			SUM(bulan_1) AS bulan_1,
+			SUM(bulan_2) AS bulan_2,
+			SUM(bulan_3) AS bulan_3,
+			SUM(bulan_4) AS bulan_4,
+			SUM(bulan_5) AS bulan_5,
+			SUM(bulan_6) AS bulan_6,
+			SUM(bulan_7) AS bulan_7,
+			SUM(bulan_8) AS bulan_8,
+			SUM(bulan_9) AS bulan_9,
+			SUM(bulan_10) AS bulan_10,
+			SUM(bulan_11) AS bulan_11,
+			SUM(bulan_12) AS bulan_12,
+			(SUM(bulan_1) + SUM(bulan_2) + SUM(bulan_3) + SUM(bulan_4) + SUM(bulan_5) + SUM(bulan_6) + SUM(bulan_7) + SUM(bulan_8) + SUM(bulan_9) + SUM(bulan_10) + SUM(bulan_11) + SUM(bulan_12)) AS total
+		FROM data_anggaran_kas
+		WHERE tahun_anggaran = %d
+		  AND active = 1
+		  AND type = 'belanja'
+		  AND id_skpd = %d
+		GROUP BY kode_sbl
+		ORDER BY kode_sbl ASC
+	", $input['tahun_anggaran'], $input['id_skpd']),
+	ARRAY_A
+);
+
+$data_anggaran_kas = [];
+foreach ($anggaran_kas as $row) {
+	$data_anggaran_kas[$row['kode_sbl']] = $row;
+}
+
 foreach ($units as $k => $unit) :
 	$kd_unit_simda = explode('.', get_option('_crb_unit_' . $unit['id_skpd']));
 
@@ -605,7 +639,7 @@ foreach ($units as $k => $unit) :
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
-		        <td class="kanan bawah text_blok nama_urusan" colspan="12">' . $urusan['nama'] . '</td>
+		        <td class="kanan bawah text_blok nama_urusan" colspan="25">' . $urusan['nama'] . '</td>
 		    </tr>
 		';
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -619,10 +653,26 @@ foreach ($units as $k => $unit) :
 			if (!empty($bidang['total_simda'])) {
 				$capaian_rak = ($bidang['total_rak_simda'] / $bidang['total_simda']) * 100;
 			}
+
 			$deviasi_bidang = 0;
 			if (!empty($capaian_rak)) {
 				$deviasi_bidang = (($capaian_rak - $capaian) / $capaian_rak) * 100;
 			}
+
+			switch ($deviasi_bidang) {
+				case $deviasi_bidang >= 75:
+					$bg_bidang = '#90be6d';
+					break;
+				case $deviasi_bidang >= 50:
+					$bg_bidang = '#f9c74f';
+					break;
+				case $deviasi_bidang < 50:
+					$bg_bidang = '#f94144';
+					break;
+				default:
+					$bg_bidang = '';
+			}
+
 			$bidang_dpa = $bidang['total_simda'];
 			if ($cek_pagu_dpa == 'fmis') {
 				$bidang_dpa = $bidang['total_fmis'];
@@ -642,10 +692,10 @@ foreach ($units as $k => $unit) :
 		            <td class="kanan bawah text_kanan text_blok">' . number_format($bidang['realisasi'], 0, ",", ".") . '</td>
 		            <td class="kanan bawah text_blok text_tengah">' . $this->pembulatan($capaian) . '</td>
 		            <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($capaian_rak) . '</td>
-		            <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($deviasi_bidang) . '</td>
+		            <td class="kanan bawah text_tengah text_blok" style="background-color : ' . $bg_bidang . ';">' . $this->pembulatan($deviasi_bidang) . '</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
 		            <td class="kanan bawah text_blok bidang-nilai-realisasi-fisik text_kanan"></td>
-		        	<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
+		        	<td class="kanan bawah text_kanan text_blok" colspan="16"></td>
 		        </tr>
 			';
 			foreach ($bidang['data'] as $kd_program => $program) {
@@ -659,10 +709,26 @@ foreach ($units as $k => $unit) :
 				if (!empty($program['total_simda'])) {
 					$capaian_rak = ($program['total_rak_simda'] / $program['total_simda']) * 100;
 				}
+
 				$deviasi_program = 0;
 				if (!empty($capaian_rak)) {
 					$deviasi_program = (($capaian_rak - $capaian) / $capaian_rak) * 100;
 				}
+
+				switch ($deviasi_program) {
+					case $deviasi_program >= 75:
+						$bg_prog = '#90be6d';
+						break;
+					case $deviasi_program >= 50:
+						$bg_prog = '#f9c74f';
+						break;
+					case $deviasi_program < 50:
+						$bg_prog = '#f94144';
+						break;
+					default:
+						$bg_prog = '';
+				}
+
 				$prog_dpa = $program['total_simda'];
 				if ($cek_pagu_dpa == 'fmis') {
 					$prog_dpa = $program['total_fmis'];
@@ -682,10 +748,10 @@ foreach ($units as $k => $unit) :
 			            <td class="kanan bawah text_kanan text_blok">' . number_format($program['realisasi'], 0, ",", ".") . '</td>
 			            <td class="kanan bawah text_blok text_tengah">' . $this->pembulatan($capaian) . '</td>
 			            <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($capaian_rak) . '</td>
-			            <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($deviasi_program) . '</td>
+			            <td class="kanan bawah text_tengah text_blok" style="background-color : ' . $bg_prog . ';">' . $this->pembulatan($deviasi_program) . '</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
 			            <td class="kanan bawah text_blok program-nilai-realisasi-fisik text_kanan"></td>
-		        		<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
+		        		<td class="kanan bawah text_kanan text_blok" colspan="16"></td>
 			        </tr>
 				';
 				foreach ($program['data'] as $kd_giat1 => $giat) {
@@ -699,10 +765,26 @@ foreach ($units as $k => $unit) :
 					if (!empty($giat['total_simda'])) {
 						$capaian_rak = ($giat['total_rak_simda'] / $giat['total_simda']) * 100;
 					}
+
 					$deviasi_kegiatan = 0;
 					if (!empty($capaian_rak)) {
 						$deviasi_kegiatan = (($capaian_rak - $capaian) / $capaian_rak) * 100;
 					}
+
+					switch ($deviasi_kegiatan) {
+						case $deviasi_kegiatan >= 75:
+							$bg_keg = '#90be6d';
+							break;
+						case $deviasi_kegiatan >= 50:
+							$bg_keg = '#f9c74f';
+							break;
+						case $deviasi_kegiatan < 50:
+							$bg_keg = '#f94144';
+							break;
+						default:
+							$bg_keg = '';
+					}
+
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 					$link_kegiatan = $this->get_link_post($custom_post);
@@ -725,10 +807,10 @@ foreach ($units as $k => $unit) :
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">' . number_format($giat['realisasi'], 0, ",", ".") . '</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">' . $this->pembulatan($capaian) . '</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">' . $this->pembulatan($capaian_rak) . '</td>
-				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">' . $this->pembulatan($deviasi_kegiatan) . '</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; background-color: ' . $bg_keg . ';">' . $this->pembulatan($deviasi_kegiatan) . '</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-nilai-realisasi-fisik text_kanan"></td>
-		        			<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
+		        			<td class="kanan bawah text_kanan text_blok" colspan="16"></td>
 				        </tr>
 					';
 					foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
@@ -757,10 +839,26 @@ foreach ($units as $k => $unit) :
 						if (!empty($sub_giat['total_simda'])) {
 							$capaian_rak = ($sub_giat['total_rak_simda'] / $sub_giat['total_simda']) * 100;
 						}
+
 						$deviasi_sub_kegiatan = 0;
 						if (!empty($capaian_rak)) {
 							$deviasi_sub_kegiatan = (($capaian_rak - $capaian) / $capaian_rak) * 100;
 						}
+
+						switch ($deviasi_sub_kegiatan) {
+							case $deviasi_sub_kegiatan >= 75:
+								$bg_sub_subkeg = '#90be6d';
+								break;
+							case $deviasi_sub_kegiatan >= 50:
+								$bg_sub_subkeg = '#f9c74f';
+								break;
+							case $deviasi_sub_kegiatan < 50:
+								$bg_sub_subkeg = '#f94144';
+								break;
+							default:
+								$bg_sub_subkeg = '';
+						}
+
 						$realisasi_fisik = 0;
 						if (!empty($sub_giat['data']['realisasi_fisik'])) {
 							$realisasi_fisik = $sub_giat['data']['realisasi_fisik'];
@@ -819,6 +917,9 @@ foreach ($units as $k => $unit) :
 						$kode_sbl = $sub_giat['data']['kode_sbl'];
                         $nama_sub = $sub_giat['nama'];
 
+						$kode_sbl_kas = explode('.', $sub_giat['data']['kode_sbl']);
+						$kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sub_giat['data']['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+
 						$body .= '
 					        <tr style="' . $cek_fmis . '" data-kode="' . $kd_sub_giat1 . '" data-kdsbl="' . $sub_giat['data']['kode_sbl'] . '" data-idskpd="' . $sub_giat['data']['id_sub_skpd'] . '" data-pagu="' . $sub_giat['total'] . '">
 					            <td class="kiri kanan bawah">' . $kd_urusan . '</td>
@@ -832,12 +933,25 @@ foreach ($units as $k => $unit) :
 					            <td class="kanan bawah text_kanan">' . number_format($sub_giat['realisasi'], 0, ",", ".") . '</td>
 					            <td class="kanan bawah text_tengah">' . $this->pembulatan($capaian) . '</td>
 					            <td class="kanan bawah text_tengah">' . $this->pembulatan($capaian_rak) . '</td>
-					            <td class="kanan bawah text_tengah">' . $this->pembulatan($deviasi_sub_kegiatan) . '</td>
+					            <td class="kanan bawah text_tengah" style="background-color : ' . $bg_sub_subkeg . ';">' . $this->pembulatan($deviasi_sub_kegiatan) . '</td>
 					            <td class="kanan bawah realisasi-fisik text_tengah" ' . $edit_fisik . '>' . $realisasi_fisik . '</td>
 					            <td class="kanan bawah nilai-realisasi-fisik text_kanan"></td>
 					            <td class="kanan bawah">' . implode(',<br>', $sd_sub) . '</td>
 								' . $role_specific_column_permasalahan . '
 								' . $role_specific_column_catatan . '
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_1'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_2'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_3'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_4'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_5'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_6'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_7'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_8'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_9'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_10'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_11'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_12'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['total'], 0, ",", ".") . '</td>
 					        </tr>
 						';
 					}
@@ -866,9 +980,23 @@ foreach ($units as $k => $unit) :
 	if (!empty($total_dpa)) {
 		$capaian_rak = ($data_all['total_rak_simda'] / $total_dpa) * 100;
 	}
+
 	$deviasi_pemkab = 0;
 	if (!empty($capaian_rak)) {
 		$deviasi_pemkab = (($capaian_rak - $capaian_total) / $capaian_rak) * 100;
+	}
+	switch ($deviasi_pemkab) {
+		case $deviasi_pemkab >= 75:
+			$bg_pemkab = '#90be6d';
+			break;
+		case $deviasi_pemkab >= 50:
+			$bg_pemkab = '#f9c74f';
+			break;
+		case $deviasi_pemkab < 50:
+			$bg_pemkab = '#f94144';
+			break;
+		default:
+			$bg_pemkab = '';
 	}
 
 	$catatan_ka_adbang = $wpdb->get_row(
@@ -917,7 +1045,7 @@ foreach ($units as $k => $unit) :
 	<input type="hidden" value="' . get_option('_crb_api_key_extension') . '" id="api_key">
 	<input type="hidden" value="' . $input['tahun_anggaran'] . '" id="tahun_anggaran">
 	<input type="hidden" value="' . $unit['id_skpd'] . '" id="id_skpd">
-	<div id="cetak" title="Laporan RFK ' . $input['tahun_anggaran'] . '" style="padding: 5px;">
+	<div id="cetak" title="Laporan RFK ' . $input['tahun_anggaran'] . '" style="padding: 5px; overflow-x: auto;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>' . $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>Bulan ' . $nama_bulan . ' Tahun ' . $input['tahun_anggaran'] . '</h4>
 		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0;">
 		    <thead>
@@ -960,6 +1088,19 @@ foreach ($units as $k => $unit) :
 			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 1</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 2</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 3</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 4</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 5</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 6</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 7</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 8</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 9</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 10</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 11</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 12</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Total</td>
 			    </tr>
 			    <tr>
 			        <td class="atas kanan bawah kiri text_tengah text_blok">1</td>
@@ -978,7 +1119,20 @@ foreach ($units as $k => $unit) :
 			        <td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">14 = (8 * 13) / 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">15</td>
 			        <td class="atas kanan bawah text_tengah text_blok">16</td>
-			        <td class="atas kanan bawah text_tengah text_blok">17</td>
+					<td class="atas kanan bawah text_tengah text_blok">17</td>
+			        <td class="atas kanan bawah text_tengah text_blok">18</td>
+			        <td class="atas kanan bawah text_tengah text_blok">19</td>
+			        <td class="atas kanan bawah text_tengah text_blok">20</td>
+			        <td class="atas kanan bawah text_tengah text_blok">21</td>
+			        <td class="atas kanan bawah text_tengah text_blok">22</td>
+			        <td class="atas kanan bawah text_tengah text_blok">23</td>
+			        <td class="atas kanan bawah text_tengah text_blok">24</td>
+			        <td class="atas kanan bawah text_tengah text_blok">25</td>
+			        <td class="atas kanan bawah text_tengah text_blok">26</td>
+			        <td class="atas kanan bawah text_tengah text_blok">27</td>
+			        <td class="atas kanan bawah text_tengah text_blok">28</td>
+			        <td class="atas kanan bawah text_tengah text_blok">29</td>
+			        <td class="atas kanan bawah text_tengah text_blok">30</td>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -990,10 +1144,11 @@ foreach ($units as $k => $unit) :
 			        <td class="kanan bawah text_kanan text_blok">' . number_format($data_all['realisasi'], 0, ",", ".") . '</td>
 			        <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($capaian_total) . '</td>
 			        <td class="kanan bawah text_tengah text_blok" data="' . $data_all['total_rak_simda'] . '">' . $this->pembulatan($capaian_rak) . '</td>
-			        <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($deviasi_pemkab) . '</td>
+			        <td class="kanan bawah text_tengah text_blok" style="background-color : ' . $bg_pemkab . ';">' . $this->pembulatan($deviasi_pemkab) . '</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_blok total-nilai-realisasi-fisik text_kanan"></td>
 			        <td class="kanan bawah text_kiri text_blok" colspan="3">' . $catatan_ka_adbang . '</td>
+			        <td class="atas kanan bawah text_tengah text_blok" colspan="13"></td>
 			    </tr>
 		    </tbody>
 		</table>
@@ -1308,7 +1463,7 @@ if (
 
 	function tampil_nilai_fisik() {
 		if (jQuery('#tampil-nilai-fisik').is(':checked')) {
-			jQuery('.nama_urusan').attr('colspan', 12);
+			jQuery('.nama_urusan').attr('colspan', 25);
 			jQuery('.nama_skpd').attr('colspan', 16);
 			jQuery('.thead-nilai-fisik').show();
 			jQuery('.total-nilai-realisasi-fisik').show();
@@ -1317,7 +1472,7 @@ if (
 			jQuery('.program-nilai-realisasi-fisik').show();
 			jQuery('.bidang-nilai-realisasi-fisik').show();
 		} else {
-			jQuery('.nama_urusan').attr('colspan', 11);
+			jQuery('.nama_urusan').attr('colspan', 25);
 			jQuery('.nama_skpd').attr('colspan', 15);
 			jQuery('.thead-nilai-fisik').hide();
 			jQuery('.total-nilai-realisasi-fisik').hide();
