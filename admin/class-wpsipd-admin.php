@@ -1245,19 +1245,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$url_nilai_dpa = '&pagu_dpa=sipd';
 				}
 				$body_all = '';
-				$unit_renstra = [];
-				$limit = '';
 				$type = $_POST['type'] ?? '';
 				$tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
 
-				$tahun = $wpdb->get_results(
-					'
-					select 
-						tahun_anggaran 
-					from data_unit 
-					group by tahun_anggaran 
-					order by tahun_anggaran DESC ' . $limit,
-					ARRAY_A
+				$tahun = $wpdb->get_results('
+						SELECT DISTINCT
+							tahun_anggaran 
+						FROM data_unit 
+						WHERE active = 1
+						ORDER BY tahun_anggaran DESC
+					', ARRAY_A
 				);
 				foreach ($tahun as $k => $v) {
 					$unit = $wpdb->get_results("
@@ -1569,7 +1566,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$body_all .= '<h4>Tidak Ditemukan!</h4></br>';
 						}
 					}
+					$body_all .= '</div>';
 				}
+
 
 				switch ($type) {
 					case 'monev_renstra':
