@@ -959,35 +959,35 @@ foreach ($units as $k => $unit) :
 					            <td class="kanan bawah">' . implode(',<br>', $sd_sub) . '</td>
 								' . $role_specific_column_permasalahan . '
 								' . $role_specific_column_catatan . '
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_1'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_2'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_3'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_4'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_5'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_6'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_7'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_8'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_9'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_10'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_11'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_12'], 0, ",", ".") . '</td>
-					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['total'], 0, ",", ".") . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_1']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_1'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_2']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_2'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_3']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_3'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_4']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_4'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_5']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_5'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_6']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_6'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_7']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_7'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_8']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_8'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_9']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_9'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_10']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_10'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_11']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_11'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['bulan_12']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['bulan_12'], 0, ",", ".") : 0) . '</td>
+					            <td class="kanan bawah text_kanan">' . (isset($data_anggaran_kas[$kode_sbl_kas]['total']) ? number_format($data_anggaran_kas[$kode_sbl_kas]['total'], 0, ",", ".") : 0) . '</td>
 					        </tr>
 						';
 
-						$total_bulan_1 += $data_anggaran_kas[$kode_sbl_kas]['bulan_1'];
-						$total_bulan_2 += $data_anggaran_kas[$kode_sbl_kas]['bulan_2'];
-						$total_bulan_3 += $data_anggaran_kas[$kode_sbl_kas]['bulan_3'];
-						$total_bulan_4 += $data_anggaran_kas[$kode_sbl_kas]['bulan_4'];
-						$total_bulan_5 += $data_anggaran_kas[$kode_sbl_kas]['bulan_5'];
-						$total_bulan_6 += $data_anggaran_kas[$kode_sbl_kas]['bulan_6'];
-						$total_bulan_7 += $data_anggaran_kas[$kode_sbl_kas]['bulan_7'];
-						$total_bulan_8 += $data_anggaran_kas[$kode_sbl_kas]['bulan_8'];
-						$total_bulan_9 += $data_anggaran_kas[$kode_sbl_kas]['bulan_9'];
-						$total_bulan_10 += $data_anggaran_kas[$kode_sbl_kas]['bulan_10'];
-						$total_bulan_11 += $data_anggaran_kas[$kode_sbl_kas]['bulan_11'];
-						$total_bulan_12 += $data_anggaran_kas[$kode_sbl_kas]['bulan_12'];
-						$total_tahun += $data_anggaran_kas[$kode_sbl_kas]['total'];
+						$total_bulan_1 += $data_anggaran_kas[$kode_sbl_kas]['bulan_1'] ?? 0;
+						$total_bulan_2 += $data_anggaran_kas[$kode_sbl_kas]['bulan_2'] ?? 0;
+						$total_bulan_3 += $data_anggaran_kas[$kode_sbl_kas]['bulan_3'] ?? 0;
+						$total_bulan_4 += $data_anggaran_kas[$kode_sbl_kas]['bulan_4'] ?? 0;
+						$total_bulan_5 += $data_anggaran_kas[$kode_sbl_kas]['bulan_5'] ?? 0;
+						$total_bulan_6 += $data_anggaran_kas[$kode_sbl_kas]['bulan_6'] ?? 0;
+						$total_bulan_7 += $data_anggaran_kas[$kode_sbl_kas]['bulan_7'] ?? 0;
+						$total_bulan_8 += $data_anggaran_kas[$kode_sbl_kas]['bulan_8'] ?? 0;
+						$total_bulan_9 += $data_anggaran_kas[$kode_sbl_kas]['bulan_9'] ?? 0;
+						$total_bulan_10 += $data_anggaran_kas[$kode_sbl_kas]['bulan_10'] ?? 0;
+						$total_bulan_11 += $data_anggaran_kas[$kode_sbl_kas]['bulan_11'] ?? 0;
+						$total_bulan_12 += $data_anggaran_kas[$kode_sbl_kas]['bulan_12'] ?? 0;
+						$total_tahun += $data_anggaran_kas[$kode_sbl_kas]['total'] ?? 0;
 					}
 				}
 			}
@@ -1183,19 +1183,19 @@ foreach ($units as $k => $unit) :
 						<td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 						<td class="kanan bawah text_blok total-nilai-realisasi-fisik text_kanan"></td>
 						<td class="kanan bawah text_kiri text_blok" colspan="3">' . $catatan_ka_adbang . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_1, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_2, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_3, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_4, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_5, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_6, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_7, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_8, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_9, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_10, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_11, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_12, 0, ",", ".") . '</td>
-						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_tahun, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_1, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_2, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_3, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_4, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_5, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_6, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_7, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_8, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_9, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_10, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_11, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_bulan_12, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_kanan text_blok">' . number_format($total_tahun, 0, ",", ".") . '</td>
 					</tr>
 				</tbody>
 			</table>
