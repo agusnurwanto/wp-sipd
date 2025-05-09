@@ -51,13 +51,15 @@ if (in_array("administrator", $user_meta->roles)) {
 	$is_admin = true;
 }
 $is_pptk = false;
-if (in_array("pptk", $user_meta->roles) || 
-	in_array("verifikator_bappeda", $user_meta->roles) || 
-	in_array("verifikator_bppkad", $user_meta->roles) || 
+if (
+	in_array("pptk", $user_meta->roles) ||
+	in_array("verifikator_bappeda", $user_meta->roles) ||
+	in_array("verifikator_bppkad", $user_meta->roles) ||
 	in_array("verifikator_pbj", $user_meta->roles) ||
-	in_array("verifikator_adbang", $user_meta->roles) || 
-	in_array("verifikator_inspektorat", $user_meta->roles) || 
-	in_array("verifikator_pupr", $user_meta->roles)) {
+	in_array("verifikator_adbang", $user_meta->roles) ||
+	in_array("verifikator_inspektorat", $user_meta->roles) ||
+	in_array("verifikator_pupr", $user_meta->roles)
+) {
 	$is_pptk = true;
 }
 
@@ -163,13 +165,26 @@ $anggaran_kas = $wpdb->get_results(
 		WHERE tahun_anggaran = %d
 		  AND active = 1
 		  AND type = 'belanja'
-		  AND id_skpd = %d
+		  AND id_sub_skpd = %d
 		GROUP BY kode_sbl
 		ORDER BY kode_sbl ASC
 	", $input['tahun_anggaran'], $input['id_skpd']),
 	ARRAY_A
 );
 
+$total_bulan_1 = 0;
+$total_bulan_2 = 0;
+$total_bulan_3 = 0;
+$total_bulan_4 = 0;
+$total_bulan_5 = 0;
+$total_bulan_6 = 0;
+$total_bulan_7 = 0;
+$total_bulan_8 = 0;
+$total_bulan_9 = 0;
+$total_bulan_10 = 0;
+$total_bulan_11 = 0;
+$total_bulan_12 = 0;
+$total_tahun = 0;
 $data_anggaran_kas = [];
 foreach ($anggaran_kas as $row) {
 	$data_anggaran_kas[$row['kode_sbl']] = $row;
@@ -274,11 +289,11 @@ foreach ($units as $k => $unit) :
 			$nama_keg = explode(' ', $sub['nama_sub_giat']);
 			unset($nama_keg[0]);
 			$nama_keg = implode(' ', $nama_keg);
-            if(empty($kd_urusan90)){
-            	$bidang90 = explode('.', $sub['kode_sub_skpd']);
-            	$kd_urusan90 = $bidang90[0];
-            	$kd_bidang90 = $bidang90[1];
-            }
+			if (empty($kd_urusan90)) {
+				$bidang90 = explode('.', $sub['kode_sub_skpd']);
+				$kd_urusan90 = $bidang90[0];
+				$kd_bidang90 = $bidang90[1];
+			}
 			$mapping = $this->simda->cekKegiatanMapping(array(
 				'kd_urusan90' => $kd_urusan90,
 				'kd_bidang90' => $kd_bidang90,
@@ -406,7 +421,7 @@ foreach ($units as $k => $unit) :
 				'id_prog' => $id_prog,
 				'kd_keg' => $kd_keg
 			));
-		}else{
+		} else {
 			$total_simda = $sub['pagu'];
 			$total_rak_simda = $this->get_rak_sipd_rfk(array(
 				'user' => $current_user->display_name,
@@ -541,16 +556,16 @@ foreach ($units as $k => $unit) :
 			$url_panjar = $this->generatePage('Daftar Nota Pencairan Dana | Panjar', $sub['tahun_anggaran'], '[daftar_nota_pencairan_dana_panjar]');
 			$url_panjar = $this->add_param_get($url_panjar, '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl']);
 
-			$url_rka_sipd = $this->generatePage('Data RKA SIPD | '.$sub['kode_sbl'].' | '.$sub['tahun_anggaran'],$sub['tahun_anggaran'],'[input_rka_sipd id_skpd="'.$sub['id_sub_skpd'].'" kode_sbl="'.$sub['kode_sbl'].'" tahun_anggaran="'.$sub['tahun_anggaran'].'"]');
-            $nama_sub = '<a href="'.$url_rka_sipd.'" target="_blank">'.implode(' ', $nama).'</a>';
+			$url_rka_sipd = $this->generatePage('Data RKA SIPD | ' . $sub['kode_sbl'] . ' | ' . $sub['tahun_anggaran'], $sub['tahun_anggaran'], '[input_rka_sipd id_skpd="' . $sub['id_sub_skpd'] . '" kode_sbl="' . $sub['kode_sbl'] . '" tahun_anggaran="' . $sub['tahun_anggaran'] . '"]');
+			$nama_sub = '<a href="' . $url_rka_sipd . '" target="_blank">' . implode(' ', $nama) . '</a>';
 
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 				'nama' => $nama_sub . $debug_pagu .
-				    '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span>' .
-				    '<span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>' .
-				    (!$is_pptk ? '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>' : '') .
-				    '<a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>' .
-				    '<a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
+					'<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span>' .
+					'<span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>' .
+					(!$is_pptk ? '<span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>' : '') .
+					'<a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>' .
+					'<a href="' . $url_panjar . '" target="_blank" class="badge badge-primary set-panjar-per-sub-keg hide-excel">BUAT PANJAR</a>',
 				'total' => 0,
 				'total_rinci' => 0,
 				'total_simda' => 0,
@@ -583,7 +598,7 @@ foreach ($units as $k => $unit) :
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $total_pagu;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $total_pagu;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $total_pagu;
-		
+
 		$data_all['total_rinci'] += $total_rka;
 		$data_all['data'][$sub['kode_urusan']]['total_rinci'] += $total_rka;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_rinci'] += $total_rka;
@@ -676,7 +691,7 @@ foreach ($units as $k => $unit) :
 			$bidang_dpa = $bidang['total_simda'];
 			if ($cek_pagu_dpa == 'fmis') {
 				$bidang_dpa = $bidang['total_fmis'];
-			}else if($cek_pagu_dpa == 'sipd') {
+			} else if ($cek_pagu_dpa == 'sipd') {
 				$bidang_dpa = $bidang['total_rinci'];
 			}
 			$body .= '
@@ -732,7 +747,7 @@ foreach ($units as $k => $unit) :
 				$prog_dpa = $program['total_simda'];
 				if ($cek_pagu_dpa == 'fmis') {
 					$prog_dpa = $program['total_fmis'];
-				}else if($cek_pagu_dpa == 'sipd') {
+				} else if ($cek_pagu_dpa == 'sipd') {
 					$prog_dpa = $program['total_rinci'];
 				}
 				$body .= '
@@ -791,7 +806,7 @@ foreach ($units as $k => $unit) :
 					$keg_dpa = $giat['total_simda'];
 					if ($cek_pagu_dpa == 'fmis') {
 						$keg_dpa = $giat['total_fmis'];
-					}else if($cek_pagu_dpa == 'sipd') {
+					} else if ($cek_pagu_dpa == 'sipd') {
 						$keg_dpa = $giat['total_rinci'];
 					}
 					$body .= '
@@ -891,7 +906,7 @@ foreach ($units as $k => $unit) :
 						$sub_keg_dpa = $sub_giat['total_simda'];
 						if ($cek_pagu_dpa == 'fmis') {
 							$sub_keg_dpa = $sub_giat['total_fmis'];
-						}else if($cek_pagu_dpa == 'sipd') {
+						} else if ($cek_pagu_dpa == 'sipd') {
 							$sub_keg_dpa = $sub_giat['total_rinci'];
 						}
 						$cek_fmis = '';
@@ -915,10 +930,15 @@ foreach ($units as $k => $unit) :
 						}
 
 						$kode_sbl = $sub_giat['data']['kode_sbl'];
-                        $nama_sub = $sub_giat['nama'];
+						$nama_sub = $sub_giat['nama'];
 
-						$kode_sbl_kas = explode('.', $sub_giat['data']['kode_sbl']);
-						$kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sub_giat['data']['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+						if ($unit['is_skpd'] == 1) {
+							$kode_sbl_kas = explode('.', $sub_giat['data']['kode_sbl']);
+							$kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $sub_giat['data']['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+						} else {
+							$kode_sbl_kas = explode('.', $sub_giat['data']['kode_sbl']);
+							$kode_sbl_kas = $kode_sbl_kas[0] . '.' . $kode_sbl_kas[1] . '.' . $kode_sbl_kas[0] . '.' . $sub_giat['data']['id_bidang_urusan'] . '.' . $kode_sbl_kas[2] . '.' . $kode_sbl_kas[3] . '.' . $kode_sbl_kas[4];
+						}
 
 						$body .= '
 					        <tr style="' . $cek_fmis . '" data-kode="' . $kd_sub_giat1 . '" data-kdsbl="' . $sub_giat['data']['kode_sbl'] . '" data-idskpd="' . $sub_giat['data']['id_sub_skpd'] . '" data-pagu="' . $sub_giat['total'] . '">
@@ -954,6 +974,20 @@ foreach ($units as $k => $unit) :
 					            <td class="kanan bawah text_kanan">' . number_format($data_anggaran_kas[$kode_sbl_kas]['total'], 0, ",", ".") . '</td>
 					        </tr>
 						';
+
+						$total_bulan_1 += $data_anggaran_kas[$kode_sbl_kas]['bulan_1'];
+						$total_bulan_2 += $data_anggaran_kas[$kode_sbl_kas]['bulan_2'];
+						$total_bulan_3 += $data_anggaran_kas[$kode_sbl_kas]['bulan_3'];
+						$total_bulan_4 += $data_anggaran_kas[$kode_sbl_kas]['bulan_4'];
+						$total_bulan_5 += $data_anggaran_kas[$kode_sbl_kas]['bulan_5'];
+						$total_bulan_6 += $data_anggaran_kas[$kode_sbl_kas]['bulan_6'];
+						$total_bulan_7 += $data_anggaran_kas[$kode_sbl_kas]['bulan_7'];
+						$total_bulan_8 += $data_anggaran_kas[$kode_sbl_kas]['bulan_8'];
+						$total_bulan_9 += $data_anggaran_kas[$kode_sbl_kas]['bulan_9'];
+						$total_bulan_10 += $data_anggaran_kas[$kode_sbl_kas]['bulan_10'];
+						$total_bulan_11 += $data_anggaran_kas[$kode_sbl_kas]['bulan_11'];
+						$total_bulan_12 += $data_anggaran_kas[$kode_sbl_kas]['bulan_12'];
+						$total_tahun += $data_anggaran_kas[$kode_sbl_kas]['total'];
 					}
 				}
 			}
@@ -1045,113 +1079,127 @@ foreach ($units as $k => $unit) :
 	<input type="hidden" value="' . get_option('_crb_api_key_extension') . '" id="api_key">
 	<input type="hidden" value="' . $input['tahun_anggaran'] . '" id="tahun_anggaran">
 	<input type="hidden" value="' . $unit['id_skpd'] . '" id="id_skpd">
-	<div id="cetak" title="Laporan RFK ' . $input['tahun_anggaran'] . '" style="padding: 5px; overflow-x: auto;">
-		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>' . $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>Bulan ' . $nama_bulan . ' Tahun ' . $input['tahun_anggaran'] . '</h4>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0;">
-		    <thead>
-		    	<tr>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:40px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; min-width: 300px;"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:140px" class="thead-nilai-fisik"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:100px"></th>
-		        </tr>
-			    <tr>
-			        <td colspan="16" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;" class="nama_skpd">
-			            Unit Organisasi : ' . $unit_induk[0]['kode_skpd'] . '&nbsp;' . $unit_induk[0]['nama_skpd'] . '<br/>
-			            Sub Unit Organisasi : ' . $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '
-			        </td>
-			    </tr>
-			    <tr>
-			        <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-			        <td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">' . $kolom_dpa . ' (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">RAK ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">Nilai Realisasi Fisik ( Rp )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 1</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 2</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 3</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 4</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 5</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 6</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 7</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 8</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 9</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 10</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 11</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 12</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Total</td>
-			    </tr>
-			    <tr>
-			        <td class="atas kanan bawah kiri text_tengah text_blok">1</td>
-			        <td class="atas kanan bawah text_tengah text_blok">2</td>
-			        <td class="atas kanan bawah text_tengah text_blok">3</td>
-			        <td class="atas kanan bawah text_tengah text_blok">4</td>
-			        <td class="atas kanan bawah text_tengah text_blok">5</td>
-			        <td class="atas kanan bawah text_tengah text_blok">6</td>
-			        <td class="atas kanan bawah text_tengah text_blok">7</td>
-			        <td class="atas kanan bawah text_tengah text_blok">8</td>
-			        <td class="atas kanan bawah text_tengah text_blok">9</td>
-			        <td class="atas kanan bawah text_tengah text_blok">10 = (9 / 8) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">11</td>
-			        <td class="atas kanan bawah text_tengah text_blok">12 = ((11-10)/11) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">13 = (14 / 8) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">14 = (8 * 13) / 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">15</td>
-			        <td class="atas kanan bawah text_tengah text_blok">16</td>
-					<td class="atas kanan bawah text_tengah text_blok">17</td>
-			        <td class="atas kanan bawah text_tengah text_blok">18</td>
-			        <td class="atas kanan bawah text_tengah text_blok">19</td>
-			        <td class="atas kanan bawah text_tengah text_blok">20</td>
-			        <td class="atas kanan bawah text_tengah text_blok">21</td>
-			        <td class="atas kanan bawah text_tengah text_blok">22</td>
-			        <td class="atas kanan bawah text_tengah text_blok">23</td>
-			        <td class="atas kanan bawah text_tengah text_blok">24</td>
-			        <td class="atas kanan bawah text_tengah text_blok">25</td>
-			        <td class="atas kanan bawah text_tengah text_blok">26</td>
-			        <td class="atas kanan bawah text_tengah text_blok">27</td>
-			        <td class="atas kanan bawah text_tengah text_blok">28</td>
-			        <td class="atas kanan bawah text_tengah text_blok">29</td>
-			        <td class="atas kanan bawah text_tengah text_blok">30</td>
-			    </tr>
-		    </thead>
-		    <tbody>
-		        ' . $body . '
-				<tr>
-			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN KABAG ADBANG</td>
-			        <td class="kanan bawah text_kanan text_blok">' . number_format($data_all['total'], 0, ",", ".") . '</td>
-			        <td class="kanan bawah text_kanan text_blok">' . number_format($total_dpa, 0, ",", ".") . '</td>
-			        <td class="kanan bawah text_kanan text_blok">' . number_format($data_all['realisasi'], 0, ",", ".") . '</td>
-			        <td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($capaian_total) . '</td>
-			        <td class="kanan bawah text_tengah text_blok" data="' . $data_all['total_rak_simda'] . '">' . $this->pembulatan($capaian_rak) . '</td>
-			        <td class="kanan bawah text_tengah text_blok" style="background-color : ' . $bg_pemkab . ';">' . $this->pembulatan($deviasi_pemkab) . '</td>
-			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
-			        <td class="kanan bawah text_blok total-nilai-realisasi-fisik text_kanan"></td>
-			        <td class="kanan bawah text_kiri text_blok" colspan="3">' . $catatan_ka_adbang . '</td>
-			        <td class="atas kanan bawah text_tengah text_blok" colspan="13"></td>
-			    </tr>
-		    </tbody>
-		</table>
+	<div id="cetak" title="Laporan RFK ' . $input['tahun_anggaran'] . '" style="padding: 5px;">
+	<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>' . $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>Bulan ' . $nama_bulan . ' Tahun ' . $input['tahun_anggaran'] . '</h4>
+		<div style="overflow-x: auto;">
+			<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0;">
+				<thead>
+					<tr>
+						<th style="padding: 0; border: 0; width:30px"></th>
+						<th style="padding: 0; border: 0; width:30px"></th>
+						<th style="padding: 0; border: 0; width:30px"></th>
+						<th style="padding: 0; border: 0; width:40px"></th>
+						<th style="padding: 0; border: 0; width:30px"></th>
+						<th style="padding: 0; border: 0; min-width: 300px;"></th>
+						<th style="padding: 0; border: 0; width:140px"></th>
+						<th style="padding: 0; border: 0; width:140px"></th>
+						<th style="padding: 0; border: 0; width:140px"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:140px" class="thead-nilai-fisik"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:120px"></th>
+						<th style="padding: 0; border: 0; width:100px"></th>
+					</tr>
+					<tr>
+						<td colspan="16" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;" class="nama_skpd">
+							Unit Organisasi : ' . $unit_induk[0]['kode_skpd'] . '&nbsp;' . $unit_induk[0]['nama_skpd'] . '<br/>
+							Sub Unit Organisasi : ' . $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '
+						</td>
+					</tr>
+					<tr>
+						<td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
+						<td class="atas kanan bawah text_tengah text_blok">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
+						<td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . $kolom_dpa . ' (Rp.)</td>
+						<td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
+						<td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
+						<td class="atas kanan bawah text_tengah text_blok">RAK ( % )</td>
+						<td class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</td>
+						<td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
+						<td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">Nilai Realisasi Fisik ( Rp )</td>
+						<td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
+						<td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
+						<td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 1</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 2</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 3</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 4</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 5</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 6</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 7</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 8</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 9</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 10</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 11</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Bulan 12</td>
+						<td class="atas kanan bawah text_tengah text_blok">Anggaran Kas <br> Total</td>
+					</tr>
+					<tr>
+						<td class="atas kanan bawah kiri text_tengah text_blok">1</td>
+						<td class="atas kanan bawah text_tengah text_blok">2</td>
+						<td class="atas kanan bawah text_tengah text_blok">3</td>
+						<td class="atas kanan bawah text_tengah text_blok">4</td>
+						<td class="atas kanan bawah text_tengah text_blok">5</td>
+						<td class="atas kanan bawah text_tengah text_blok">6</td>
+						<td class="atas kanan bawah text_tengah text_blok">7</td>
+						<td class="atas kanan bawah text_tengah text_blok">8</td>
+						<td class="atas kanan bawah text_tengah text_blok">9</td>
+						<td class="atas kanan bawah text_tengah text_blok">10 = (9 / 8) * 100</td>
+						<td class="atas kanan bawah text_tengah text_blok">11</td>
+						<td class="atas kanan bawah text_tengah text_blok">12 = ((11-10)/11) * 100</td>
+						<td class="atas kanan bawah text_tengah text_blok">13 = (14 / 8) * 100</td>
+						<td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">14 = (8 * 13) / 100</td>
+						<td class="atas kanan bawah text_tengah text_blok">15</td>
+						<td class="atas kanan bawah text_tengah text_blok">16</td>
+						<td class="atas kanan bawah text_tengah text_blok">17</td>
+						<td class="atas kanan bawah text_tengah text_blok">18</td>
+						<td class="atas kanan bawah text_tengah text_blok">19</td>
+						<td class="atas kanan bawah text_tengah text_blok">20</td>
+						<td class="atas kanan bawah text_tengah text_blok">21</td>
+						<td class="atas kanan bawah text_tengah text_blok">22</td>
+						<td class="atas kanan bawah text_tengah text_blok">23</td>
+						<td class="atas kanan bawah text_tengah text_blok">24</td>
+						<td class="atas kanan bawah text_tengah text_blok">25</td>
+						<td class="atas kanan bawah text_tengah text_blok">26</td>
+						<td class="atas kanan bawah text_tengah text_blok">27</td>
+						<td class="atas kanan bawah text_tengah text_blok">28</td>
+						<td class="atas kanan bawah text_tengah text_blok">29</td>
+						<td class="atas kanan bawah text_tengah text_blok">30</td>
+					</tr>
+				</thead>
+				<tbody>
+					' . $body . '
+					<tr>
+						<td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN KABAG ADBANG</td>
+						<td class="kanan bawah text_kanan text_blok">' . number_format($data_all['total'], 0, ",", ".") . '</td>
+						<td class="kanan bawah text_kanan text_blok">' . number_format($total_dpa, 0, ",", ".") . '</td>
+						<td class="kanan bawah text_kanan text_blok">' . number_format($data_all['realisasi'], 0, ",", ".") . '</td>
+						<td class="kanan bawah text_tengah text_blok">' . $this->pembulatan($capaian_total) . '</td>
+						<td class="kanan bawah text_tengah text_blok" data="' . $data_all['total_rak_simda'] . '">' . $this->pembulatan($capaian_rak) . '</td>
+						<td class="kanan bawah text_tengah text_blok" style="background-color : ' . $bg_pemkab . ';">' . $this->pembulatan($deviasi_pemkab) . '</td>
+						<td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
+						<td class="kanan bawah text_blok total-nilai-realisasi-fisik text_kanan"></td>
+						<td class="kanan bawah text_kiri text_blok" colspan="3">' . $catatan_ka_adbang . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_1, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_2, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_3, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_4, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_5, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_6, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_7, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_8, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_9, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_10, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_11, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_bulan_12, 0, ",", ".") . '</td>
+						<td class="atas kanan bawah text_tengah text_blok">' . number_format($total_tahun, 0, ",", ".") . '</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		<div style="page-break-after:always;"></div>
 </div>';
 endforeach;
@@ -1177,7 +1225,7 @@ if (
 	current_user_can('PLT')
 ) {
 	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
-}else if (
+} else if (
 	current_user_can('pptk') ||
 	current_user_can('verifikator_bappeda') ||
 	current_user_can('verifikator_bppkad') ||
@@ -1196,26 +1244,27 @@ if (
 	current_user_can('KPA') ||
 	current_user_can('PLT') ||
 	current_user_can('pptk')
-){
-	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Buat Panjar</label>';	
+) {
+	$cekbox_set_panjar .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_panjar(this);"> Tampilkan Tombol Buat Panjar</label>';
 }
 
 ?>
 
 <div class="hide-print" id="catatan_dokumentasi" style="max-width: 900px; margin: 40px auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; background-color: #f9f9f9;">
-    <h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
-    <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6; color: #555;">
-        <li><strong>Laporan RFK:</strong> Secara default menampilkan data pada bulan berjalan.</li>
-        <li><strong>Download Excel:</strong> Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format Excel.</li>
-        <li><strong>Pilihan Bulan Realisasi:</strong> Digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
-        <li><strong>Simpan Data:</strong> Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator.</li>
-        <li><strong>Reset RFK Bulan Sebelumnya:</strong> Tombol ini digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal.</li>
-        <li><strong>Catatan Kesimpulan KABAG ADBANG:</strong> Berisi kesimpulan dari catatan verifikator yang diisi oleh KABAG ADBANG.</li>
-        <li><strong>Tombol Simpan Merah:</strong> Pada sub kegiatan, tombol <b>SIMPAN</b> berwarna merah akan muncul jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator.</li>
-        <li style="display: none;"><strong>Total Realisasi Fisik:</strong> Perhitungan total realisasi fisik adalah akumulasi realisasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu SIMDAnya.</li>
-        <li style="display: none;"><strong>Detail Akumulasi Realisasi Fisik:</strong> Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program, dan bidang urusan, klik kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default, akumulasi tidak ditampilkan agar tidak membingungkan user dalam memahami nilai total realisasi fisik.</li>
-        <li><strong>Background Kuning:</strong> Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD.</li>
-    </ul>
+	<h4 style="font-weight: bold; margin-bottom: 20px; color: #333;">Catatan Dokumentasi</h4>
+	<ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6; color: #555;">
+		<li><strong>Laporan RFK:</strong> Secara default menampilkan data pada bulan berjalan.</li>
+		<li><strong>Download Excel:</strong> Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format Excel.</li>
+		<li><strong>Pilihan Bulan Realisasi:</strong> Digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
+		<li><strong>Simpan Data:</strong> Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator.</li>
+		<li><strong>Reset RFK Bulan Sebelumnya:</strong> Tombol ini digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal.</li>
+		<li><strong>Catatan Kesimpulan KABAG ADBANG:</strong> Berisi kesimpulan dari catatan verifikator yang diisi oleh KABAG ADBANG.</li>
+		<li><strong>Tombol Simpan Merah:</strong> Pada sub kegiatan, tombol <b>SIMPAN</b> berwarna merah akan muncul jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator.</li>
+		<li style="display: none;"><strong>Total Realisasi Fisik:</strong> Perhitungan total realisasi fisik adalah akumulasi realisasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu SIMDAnya.</li>
+		<li style="display: none;"><strong>Detail Akumulasi Realisasi Fisik:</strong> Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program, dan bidang urusan, klik kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default, akumulasi tidak ditampilkan agar tidak membingungkan user dalam memahami nilai total realisasi fisik.</li>
+		<li><strong>Background Kuning:</strong> Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD.</li>
+		<li><strong>Kolom Deviasi:</strong> Background warna pada kolom deviasi (kolom nomor 12), diset berdasarkan nilai (>= 75 : Hijau, >= 50 : Kuning, < 50 : Merah).</li>
+	</ul>
 </div>
 
 <!-- Modal -->
@@ -1484,46 +1533,46 @@ if (
 	}
 
 	<?php
-		$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pendapatan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
-		$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD '.$unit['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'],'[input_rka_pembiayaan_sipd id_skpd="'.$unit['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+	$url_rka_pendapatan = $this->generatePage('Data RKA Pendapatan SIPD ' . $unit['nama_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[input_rka_pendapatan_sipd id_skpd="' . $unit['id_skpd'] . '" tahun_anggaran="' . $input['tahun_anggaran'] . '"]');
+	$url_rka_pembiayaan = $this->generatePage('Data RKA Pembiayaan SIPD ' . $unit['nama_skpd'] . ' | ' . $input['tahun_anggaran'], $input['tahun_anggaran'], '[input_rka_pembiayaan_sipd id_skpd="' . $unit['id_skpd'] . '" tahun_anggaran="' . $input['tahun_anggaran'] . '"]');
 	?>
 	var extend_action = '' +
-	'<?php echo $simpan_rfk; ?>' +
-	'<?php echo $reset_rfk; ?>' +
+		'<?php echo $simpan_rfk; ?>' +
+		'<?php echo $reset_rfk; ?>' +
 		'<div style="margin-top: 20px;">' +
-			'<label style="display:none;">Sumber Pagu Indikatif: ' +
-				'<select id="pilih_sumber_pagu" style="padding: 5px;">' +
-					'<option value="1">RKA SIPD</option>' +
-					'<option value="4">APBD SIMDA</option>' +
-					'<option value="5">APBD Pergeseran</option>' +
-					'<option value="6">APBD Perubahan</option>' +
-				'</select>' +
-			'</label>' +
-			'<label style="margin-left: 20px;">Bulan Realisasi: ' +
-				'<select id="pilih_bulan" style="padding: 5px;" data-bulan-asli="<?php echo $bulan_asli; ?>">' +
-					'<option value="0">-- Bulan --</option>' +
-					'<?php echo $opsi_bulan; ?>' +
-				'</select>' +
-			'</label>' +
-			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>' +
-			'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
-			'<label style="margin-left: 20px;">Pagu DPA: ' +
-				'<select id="pagu_dpa" style="padding: 5px; width: 200px;">' +
-					'<option value="sipd">SIPD</option>' +
-					'<option value="rka_simda">RKA SIMDA</option>' +
-					'<option value="simda">APBD SIMDA</option>' +
-					'<option value="fmis">APBD FMIS</option>' +
-				'</select>' +
-			'</label>' +
-			'<?php echo $cekbox_set_pptk; ?>' +
-			'<?php echo $cekbox_set_panjar; ?>' +
-			'<label style="margin-left: 20px;">Data Lain: ' +
-				'<select id="jenis_data" style="padding: 5px; width: 200px;">' +
-					'<option value="" selected>Pilih Jenis Data</option>' +
-					'<option data-url="<?php echo $url_rka_pendapatan; ?>" value="1">Pendapatan</option>' +
-					'<option data-url="<?php echo $url_rka_pembiayaan; ?>" value="2">Pembiayaan</option>' +
-				'</select>' +
-			'</label>' +
+		'<label style="display:none;">Sumber Pagu Indikatif: ' +
+		'<select id="pilih_sumber_pagu" style="padding: 5px;">' +
+		'<option value="1">RKA SIPD</option>' +
+		'<option value="4">APBD SIMDA</option>' +
+		'<option value="5">APBD Pergeseran</option>' +
+		'<option value="6">APBD Perubahan</option>' +
+		'</select>' +
+		'</label>' +
+		'<label style="margin-left: 20px;">Bulan Realisasi: ' +
+		'<select id="pilih_bulan" style="padding: 5px;" data-bulan-asli="<?php echo $bulan_asli; ?>">' +
+		'<option value="0">-- Bulan --</option>' +
+		'<?php echo $opsi_bulan; ?>' +
+		'</select>' +
+		'</label>' +
+		'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>' +
+		'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>' +
+		'<label style="margin-left: 20px;">Pagu DPA: ' +
+		'<select id="pagu_dpa" style="padding: 5px; width: 200px;">' +
+		'<option value="sipd">SIPD</option>' +
+		'<option value="rka_simda">RKA SIMDA</option>' +
+		'<option value="simda">APBD SIMDA</option>' +
+		'<option value="fmis">APBD FMIS</option>' +
+		'</select>' +
+		'</label>' +
+		'<?php echo $cekbox_set_pptk; ?>' +
+		'<?php echo $cekbox_set_panjar; ?>' +
+		'<label style="margin-left: 20px;">Data Lain: ' +
+		'<select id="jenis_data" style="padding: 5px; width: 200px;">' +
+		'<option value="" selected>Pilih Jenis Data</option>' +
+		'<option data-url="<?php echo $url_rka_pendapatan; ?>" value="1">Pendapatan</option>' +
+		'<option data-url="<?php echo $url_rka_pembiayaan; ?>" value="2">Pembiayaan</option>' +
+		'</select>' +
+		'</label>' +
 		'</div>';
 	jQuery(document).ready(function() {
 		jQuery('#action-sipd').append(extend_action);
