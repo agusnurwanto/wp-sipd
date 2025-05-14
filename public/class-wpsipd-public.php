@@ -9554,10 +9554,37 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if ($vv['is_skpd'] == 1) {
 						if (!empty($daftar_tombol_list[8])) {
-							$nama_page = 'Input RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'];
-							$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-							$url_menu = $this->get_link_post($custom_post);
-							echo '<li><a href="' . $url_menu . '" target="_blank" class="btn btn-info">INPUT RENSTRA</a></li>';
+							$jadwal_input_renstra = $wpdb->get_row(
+								$wpdb->prepare('
+									SELECT 
+										id_jadwal_lokal,
+										nama,
+										tahun_anggaran,
+										tahun_akhir_anggaran,
+										status,
+										lama_pelaksanaan
+									FROM data_jadwal_lokal 
+									WHERE id_tipe = %d     
+									  AND tahun_anggaran = %d
+								', 4, $tahun),
+								ARRAY_A
+							);
+
+							if (!empty($jadwal_input_renstra)) {
+								$url_menu = $this->generatePage(
+									'Input RENSTRA  ' . $jadwal_input_renstra['nama'] . ' | ' . $vv['kode_skpd'] . ' - ' . $vv['nama_skpd'],
+									null,
+									'[input_renstra id_skpd="' . $vv['id_skpd'] . '" id_jadwal="' . $jadwal_input_renstra['id_jadwal_lokal'] . '"]'
+								);
+								$status = ($jadwal_input_renstra['status'] == 0) ? '<b>[TERBUKA]</b>' : '<b>[DIKUNCI]</b>';
+								$tahun_akhir_anggaran = $jadwal_input_renstra['tahun_anggaran'] + $jadwal_input_renstra['lama_pelaksanaan'] - 1;
+
+								echo '<li><a href="' . $url_menu . '" target="_blank" class="btn btn-info">Input Renstra | ' . $jadwal_input_renstra['nama'] . ' | ' . $jadwal_input_renstra['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
+							} else {
+								echo '<li><a href="#" class="btn btn-secondary">Jadwal Input Renstra belum diset</a></li>';
+
+							}
+							
 						}
 					}
 
