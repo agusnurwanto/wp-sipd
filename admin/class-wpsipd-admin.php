@@ -3130,7 +3130,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 		$return = '';
 		if (!empty($jadwals)) {
-			foreach ($jadwals as $jadwal) {
+			foreach ($jadwals as $index => $jadwal) {
 				$units = $wpdb->get_results(
 					$wpdb->prepare("
 						SELECT 
@@ -3152,8 +3152,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$tahun_akhir_anggaran = $jadwal['tahun_anggaran'] + $jadwal['lama_pelaksanaan'] - 1;
 
 				$return .= '
-					<div class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</div>
-					<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '">
+					<div class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</div>
+					<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">
 					<ul style="margin-left : 20px;">
 				';
 
