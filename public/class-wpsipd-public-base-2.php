@@ -6950,7 +6950,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 						$data_sasaran_renstra = $wpdb->get_results(
 							$wpdb->prepare("
-								SELECT s.* 
+								SELECT DISTINCT s.* 
 								FROM data_renstra_sasaran AS s
 								INNER JOIN data_renstra_tujuan AS t
 										ON s.kode_tujuan = t.id_unik
