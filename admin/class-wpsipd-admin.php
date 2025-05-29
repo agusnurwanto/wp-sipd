@@ -299,6 +299,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			->set_page_parent($basic_options_container)
 			->add_fields($this->get_wpsipd_menu_setting());
 
+		Container::make('theme_options', __('Auto Login'))
+			->set_page_parent($basic_options_container)
+			->add_fields(array(
+				Field::make( 'complex', 'crb_auto_login', __( 'Setting Auto Login' ) )
+				    ->add_fields(array(
+				    	Field::make( 'text', 'app_url', __( 'Domain / URL wordpress tujuan' ) )
+	        				->set_default_value('http://localhost')
+	        				->set_help_text('Alamat situs tujuan yang akan dibuat login otomatis.')
+	        				->set_required( true ),
+					    Field::make( 'text', 'api_key', __( 'API Key' ) )
+	        				->set_default_value('xxxxxxxxxxxxxxxxxx')
+	        				->set_help_text('Kode unik untuk validasi user login dari website tujuan.')
+	        				->set_required( true )
+        			))
+			));
+
 		$show_monev_sipd_menu = get_option('_crb_show_menu_monev_monev_sipd_settings');
 
 		if ($show_monev_sipd_menu != true) {
@@ -5219,4 +5235,75 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 		return null;
 	}
+
+	function login_to_other_site($user_login, $user){
+        $user_data = array(
+            'login' => $user->user_login,
+            'time'  => time()
+        );
+
+        $payload = base64_encode(json_encode($user_data));
+
+        $data = $this->get_option_complex('_crb_auto_login');
+        foreach($data as $v){
+            if(
+                !empty($v['app_url'])
+                && !empty($v['api_key'])
+            ){
+                $signature = hash_hmac('sha256', $payload, $v['api_key']);
+                $token = $payload . '.' . $signature;
+
+                // Redirect ke sipemikir
+                $url = $v['app_url'].'/sso-login?token=' . urlencode($token);
+                wp_remote_get($url);
+            }
+        }
+    }
+
+    function handle_sso_login(){
+        if (!is_page('sso-login') || !isset($_GET['token'])) return;
+
+        $token = sanitize_text_field($_GET['token']);
+        list($payload, $signature) = explode('.', $token);
+
+        $expected_signature = hash_hmac('sha256', $payload, get_option('_crb_api_key_extension'));
+
+        $pesan_error = '';
+        if (!hash_equals($expected_signature, $signature)) {
+            $pesan_error = 'SSO token tidak valid.';
+        }
+
+        if(empty($pesan_error)){
+            $data = json_decode(base64_decode($payload), true);
+            if (!$data || !isset($data['login'])) {
+                $pesan_error = 'Data SSO tidak lengkap.';
+            }
+        }
+
+        if(empty($pesan_error)){
+            // Cek kadaluwarsa token (misal 60 detik)
+            if (time() - $data['time'] > 60) {
+                $pesan_error = 'Token kadaluarsa.';
+            }
+        }
+
+        if(empty($pesan_error)){
+            $user = get_user_by('login', $data['login']);
+            if (!$user) {
+                $pesan_error = 'Pengguna '.$data['login'].' tidak ditemukan di '.site_url();
+            }
+        }
+
+        if(!empty($pesan_error)){
+            update_option('wp_sso_login', $pesan_error);
+            wp_die($pesan_error);
+        }
+
+        // Login otomatis
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID, true);
+        do_action('wp_login', $user->user_login, $user);
+
+        update_option('wp_sso_login', 'Berhasil login '. $data['login'].' '.date('Y-m-d H:i:s'));
+    }
 }
