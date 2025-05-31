@@ -19,6 +19,35 @@ function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
 		});
 }
 
+function coba_auto_login(that){
+	jQuery("#wrap-loading").show();
+	window.input = jQuery(that).closest('.cf-complex__group-body').find('input[type="text"]');
+	var domain = input[0].value;
+	var api_key_tujuan = input[1].value;
+	jQuery.ajax({
+		url: ajaxurl,
+		type: "post",
+		data: {
+			"action": "coba_auto_login",
+			"api_key": wpsipd.api_key,
+			"domain": domain,
+			"api_key_tujuan": api_key_tujuan
+		},
+		dataType: "json",
+		success: function (data) {
+			jQuery("#wrap-loading").hide();
+			if(data.status == 'success'){
+				window.open(data.url_login, '_blank');
+			}else{
+				alert(data.message);
+			}
+		},
+		error: function (e) {
+			console.log(e);
+		}
+	});
+}
+
 function load_label(tahun_anggaran, id_jadwal = null) {
 	var select_jadwal = jQuery('#select_jadwal_tagging');
 

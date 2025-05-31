@@ -311,7 +311,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					    Field::make( 'text', 'api_key', __( 'API Key' ) )
 	        				->set_default_value('xxxxxxxxxxxxxxxxxx')
 	        				->set_help_text('Kode unik untuk validasi user login dari website tujuan.')
-	        				->set_required( true )
+	        				->set_required( true ),
+					    Field::make('html', 'crb_halaman_terkait_bkk_infrastruktur')
+							->set_html('
+								<a onclick="coba_auto_login(this); return false;" href="#" class="button button-primary">Coba login</a>
+							')
         			))
 			));
 
@@ -5269,32 +5273,74 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
         return $res;
     }
 
-	function login_to_other_site($user_login, $user){
+    function coba_auto_login(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if(empty($_POST['domain'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Domain tidak boleh kosong!';
+				}elseif(empty($_POST['api_key_tujuan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'API KEY tujuan tidak boleh kosong!';
+				}else{
+					$user = get_current_user();
+					$ret['url_login'] = $this->login_to_other_site(array(
+						'user' => $user,
+						'domain' => $_POST['domain'],
+						'api_key' => $_POST['api_key_tujuan']
+					));
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+    }
+
+	function login_to_other_site($opsi = array()){
         $user_data = array(
-            'login' => $user->user_login,
+            'login' => $opsi['user']->user_login,
             'time'  => time()
         );
 
         $payload = base64_encode(json_encode($user_data));
-
-        $data = $this->get_option_complex('_crb_auto_login');
-        foreach($data as $v){
-            if(
-                !empty($v['app_url'])
-                && !empty($v['api_key'])
-            ){
-                $signature = hash_hmac('sha256', $payload, $v['api_key']);
-                $token = $payload . '.' . $signature;
-
-                // Redirect ke sipemikir
-                $url = $v['app_url'].'/sso-login?token=' . urlencode($token);
-                wp_remote_get($url);
-            }
+        $url_asli = '';
+        if(!empty($opsi['url_asli'])){
+        	$url_asli = $opsi['url_asli'];
         }
+
+        if(!empty($opsi['domain'])){
+        	$signature = hash_hmac('sha256', $payload, $opsi['api_key']);
+            $token = $payload . '.' . $signature;
+            $url = $opsi['domain'].'/sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
+        }else{
+	        $data = $this->get_option_complex('_crb_auto_login');
+	        $url = $url_asli;
+	        foreach($data as $v){
+	            if(
+	                !empty($v['app_url'])
+	                && !empty($v['api_key'])
+	            ){
+	                $signature = hash_hmac('sha256', $payload, $v['api_key']);
+	                $token = $payload . '.' . $signature;
+	                $url = $v['app_url'].'/sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
+	            }
+	        }
+        }
+        return $url;
     }
 
     function handle_sso_login(){
-        if (!is_page('sso-login') || !isset($_GET['token'])) return;
+        if (!isset($_GET['token'])) return;
 
         $token = sanitize_text_field($_GET['token']);
         list($payload, $signature) = explode('.', $token);
@@ -5338,5 +5384,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
         do_action('wp_login', $user->user_login, $user);
 
         update_option('wp_sso_login', 'Berhasil login '. $data['login'].' '.date('Y-m-d H:i:s'));
+
+        if(!empty($_GET['redirect'])){
+	        wp_redirect($_GET['redirect']);
+	        exit;
+	    }
     }
 }
