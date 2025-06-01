@@ -20,10 +20,19 @@ function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
 }
 
 function coba_auto_login(that){
-	jQuery("#wrap-loading").show();
 	window.input = jQuery(that).closest('.cf-complex__group-body').find('input[type="text"]');
-	var domain = input[0].value;
-	var api_key_tujuan = input[1].value;
+	if(input[0].value == ''){
+		return alert('Nama / ID unik tidak boleh kosong!');
+	}else if(input[1].value == ''){
+		return alert('Domain / URL wordpress tujuan tidak boleh kosong!');
+	}else if(input[2].value == ''){
+		return alert('API Key tidak boleh kosong!');
+	}
+
+	jQuery("#wrap-loading").show();
+	jQuery(that).closest('.cf-complex__group-body').find('.set_id_sso').html('[sso_login id="'+input[0].value+'" url="'+input[1].value+'"]');
+	var domain = input[1].value;
+	var api_key_tujuan = input[2].value;
 	jQuery.ajax({
 		url: ajaxurl,
 		type: "post",

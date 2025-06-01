@@ -299,11 +299,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			->set_page_parent($basic_options_container)
 			->add_fields($this->get_wpsipd_menu_setting());
 
+		$this->generatePage('SSO Login', false, '[sso_login]');
 		Container::make('theme_options', __('Auto Login'))
 			->set_page_parent($basic_options_container)
 			->add_fields(array(
 				Field::make( 'complex', 'crb_auto_login', __( 'Setting Auto Login' ) )
 				    ->add_fields(array(
+				    	Field::make( 'text', 'id_login', __( 'Nama / ID unik' ) )
+	        				->set_default_value('xxxxx')
+	        				->set_help_text('Harus diisi unik, tidak boleh kosong dan sama.')
+	        				->set_required( true ),
 				    	Field::make( 'text', 'app_url', __( 'Domain / URL wordpress tujuan' ) )
 	        				->set_default_value('http://localhost')
 	        				->set_help_text('Alamat situs tujuan yang akan dibuat login otomatis.')
@@ -315,6 +320,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					    Field::make('html', 'crb_halaman_terkait_bkk_infrastruktur')
 							->set_html('
 								<a onclick="coba_auto_login(this); return false;" href="#" class="button button-primary">Coba login</a>
+								<br>
+								<h4 style="display: inline-block;">Shortcode untuk menampilkan tombol login dimana saja:</h4> <h3 style="display: inline-block;" class="set_id_sso">[sso_login id="" url=""]</h3>
+								<br>
+								Catatan:
+								<ol>
+									<li>Hati-hati dalam menambahkan shortcode ini, karena bisa diakses oleh siapa saja</li>
+									<li>id berisi nama atau id unik settingan auto login</li>
+									<li>url berisi link yang diakses setelah berhasil login</li>
+								</ol>
 							')
         			))
 			));
@@ -5318,17 +5332,19 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
         	$url_asli = $opsi['url_asli'];
         }
 
+        $url = '';
         if(!empty($opsi['domain'])){
         	$signature = hash_hmac('sha256', $payload, $opsi['api_key']);
             $token = $payload . '.' . $signature;
             $url = $opsi['domain'].'/sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
-        }else{
+        }else if(!empty($opsi['id_login'])){
 	        $data = $this->get_option_complex('_crb_auto_login');
 	        $url = $url_asli;
 	        foreach($data as $v){
 	            if(
 	                !empty($v['app_url'])
 	                && !empty($v['api_key'])
+	                && $v['id_login'] == $opsi['id_login']
 	            ){
 	                $signature = hash_hmac('sha256', $payload, $v['api_key']);
 	                $token = $payload . '.' . $signature;
@@ -5340,7 +5356,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
     }
 
     function handle_sso_login(){
-        if (!isset($_GET['token'])) return;
+        if (!is_page('sso-login') || !isset($_GET['token'])) return;
 
         $token = sanitize_text_field($_GET['token']);
         list($payload, $signature) = explode('.', $token);
@@ -5387,7 +5403,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
         if(!empty($_GET['redirect'])){
 	        wp_redirect($_GET['redirect']);
-	        exit;
+	    }else{
+	        wp_redirect(site_url());
 	    }
+	    exit;
     }
 }
