@@ -5291,7 +5291,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
     	global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil cek lisensi aktif!'
+			'message'	=> 'Berhasil get link login!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
@@ -5302,7 +5302,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$ret['status'] = 'error';
 					$ret['message'] = 'API KEY tujuan tidak boleh kosong!';
 				}else{
-					$user = get_current_user();
+					$user = wp_get_current_user();
 					$ret['url_login'] = $this->login_to_other_site(array(
 						'user' => $user,
 						'domain' => $_POST['domain'],
@@ -5336,7 +5336,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
         if(!empty($opsi['domain'])){
         	$signature = hash_hmac('sha256', $payload, $opsi['api_key']);
             $token = $payload . '.' . $signature;
-            $url = $opsi['domain'].'/sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
+            if (substr($opsi['domain'], -1) !== '/') {
+			    $opsi['domain'] .= '/';
+			}
+            $url = $opsi['domain'].'sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
         }else if(!empty($opsi['id_login'])){
 	        $data = $this->get_option_complex('_crb_auto_login');
 	        $url = $url_asli;
@@ -5348,7 +5351,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 	            ){
 	                $signature = hash_hmac('sha256', $payload, $v['api_key']);
 	                $token = $payload . '.' . $signature;
-	                $url = $v['app_url'].'/sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
+	                if (substr($v['app_url'], -1) !== '/') {
+					    $v['app_url'] .= '/';
+					}
+	                $url = $v['app_url'].'sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
 	            }
 	        }
         }

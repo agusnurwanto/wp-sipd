@@ -208,6 +208,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
 		$this->loader->add_action('wp_ajax_coba_auto_login',  $plugin_admin, 'coba_auto_login');
 		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
+		$this->loader->add_action('template_redirect', $plugin_admin, 'handle_sso_login', 0);
 
 		// https://github.com/wp-cli/wp-cli/issues/5623 error deprecated function di php 8.1
 		add_filter( 'deprecated_constructor_trigger_error', '__return_false' );
