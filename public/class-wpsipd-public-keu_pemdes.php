@@ -658,6 +658,113 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
+    public function get_pemdes_alamat_all()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'tipe' => 0,
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if(empty($_POST['tahun_anggaran'])){
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Tahun anggaran tidak boleh kosong!';
+                }else{
+                    $id_prov = get_option('_crb_id_lokasi_prov');
+                    $id_kab = get_option('_crb_id_lokasi_kokab');
+                    if(
+                        empty($id_prov)
+                        || empty($id_kab)
+                    ){
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Settingan ID provinsi dan Kabupaten/Kota kosong. Harap hubungi admin!';
+                    }else if(empty($id_kab)){
+                        $ret['tipe'] = 1; // data desa di provinsi
+                        $all_kab = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                id_alamat as id_kab,
+                                nama as kabkot 
+                            from data_alamat 
+                            where tahun=%d 
+                                and is_kab=1 
+                                and id_prov=%d
+                        ", $_POST['tahun_anggaran'], $id_prov), ARRAY_A);
+                        $data = $all_kab;
+                        foreach ($all_kab as $k => $kab) {
+                            $all_kec = $wpdb->get_results($wpdb->prepare("
+                                SELECT 
+                                    id_alamat as id_kec,
+                                    nama as kecamatan 
+                                from data_alamat 
+                                where tahun=%d 
+                                    and is_kec=1 
+                                    and id_kab=%d
+                            ", $_POST['tahun_anggaran'], $id_kab), ARRAY_A);
+                            $data[$k]['kecamatan'] = $all_kec;
+                            foreach ($all_kec as $key => $kec) {
+                                $desa = $wpdb->get_results($wpdb->prepare("
+                                    SELECT 
+                                        id_alamat as id_kel,
+                                        nama as desa
+                                    from data_alamat 
+                                    where tahun=%d
+                                        and is_kel=1 
+                                        and id_kab=%d
+                                        and id_kec=%d
+                                ", $_POST['tahun_anggaran'], $id_kab, $kec['id_kec']), ARRAY_A);
+                                $ret['sql'] = $wpdb->last_query;
+                                $data[$k]['kecamatan'][$key]['desa'] = $desa;
+                            }
+                        }
+                    }else{
+                        $ret['tipe'] = 2; // data desa di kabkot
+                        $all_kec = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                id_alamat as id_kec,
+                                nama as kecamatan 
+                            from data_alamat 
+                            where tahun=%d 
+                                and is_kec=1 
+                                and id_kab=%d
+                        ", $_POST['tahun_anggaran'], $id_kab), ARRAY_A);
+                        $data = $all_kec;
+                        foreach ($all_kec as $key => $kec) {
+                            $desa = $wpdb->get_results($wpdb->prepare("
+                                SELECT 
+                                    id_alamat as id_kel,
+                                    nama as desa
+                                from data_alamat 
+                                where tahun=%d
+                                    and is_kel=1 
+                                    and id_kab=%d
+                                    and id_kec=%d
+                            ", $_POST['tahun_anggaran'], $id_kab, $kec['id_kec']), ARRAY_A);
+                            $ret['sql'] = $wpdb->last_query;
+                            $data[$key]['desa'] = $desa;
+                        }
+                    }
+                    // print_r($desa); die($wpdb->last_query);
+                    $ret['data'] = $data;
+                }
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
     public function get_datatable_bhpd()
     {
         global $wpdb;

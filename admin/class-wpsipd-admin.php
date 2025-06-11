@@ -1141,14 +1141,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_attribute('placeholder', $default_val_url)
 				->set_default_value($default_val_url)
 				->set_attribute('readOnly', 'true')
-				->set_required(true),
+				->set_required(true)
+				->set_help_text('Informasi lebih lengkap lihat di <a href="https://wpsipd.baktinegara.co.id" target="_blank">https://wpsipd.baktinegara.co.id</a>.'),
 			Field::make('text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD')
 				->set_attribute('placeholder', 'xxxxxxx-xx-xxx-xxxx-xxxxxxxxxx')
 				->set_default_value($default_val_api_key)
 				->set_classes('hide')
 				->set_attribute('readOnly', 'true')
 				->set_required(true),
-			Field::make('text', 'crb_no_wa', 'No Whatsapp')
+			Field::make('text', 'crb_no_wa', 'No WhatsApp admin Pemerintah Daerah')
 				->set_attribute('type', 'number')
 				->set_attribute('placeholder', '628xxxxxxxxx')
 				->set_required(true)
@@ -4724,6 +4725,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			update_option('_crb_server_wp_sipd_api_key', $api_key_wp_sipd);
 			update_option('_crb_no_wa', $no_wa);
 			update_option('_crb_daerah', $nama_pemda);
+
+			// dioverwrite hardcode 11-06-2025 (agus)
+			$url = 'https://wpsip'.'d.bakt'.'ine'.'gara.co'.'.id/wp-admin/admin-ajax.php';
+			$api_key_wp_sipd = 'bcvbsdfr'.'12-ret-er'.'t-dfg-hgh'.'j6575';
+
 			$api_params = array(
 				'action' => 'generate_lisensi_bn',
 				'api_key' => $api_key_wp_sipd,
