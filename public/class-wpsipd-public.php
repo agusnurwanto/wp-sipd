@@ -2062,7 +2062,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					// sipd merah
 					if (!empty($data['daerah'])) {
 						$opsi['daerah'] = $data['daerah'];
-						update_option('_crb_daerah', $data['daerah']);
+						update_option('_crb_daerah_sipd', $data['daerah']);
 					}
 					// sipd ri
 					if (!empty($data['id_prop'])) {

@@ -1124,6 +1124,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$nama_pemda = '';
 		}
 
+		$nama_pemda_sipd = get_option('_crb_daerah_sipd');
+		if (empty($nama_pemda_sipd) || $nama_pemda_sipd == 'false') {
+			$nama_pemda_sipd = '';
+		}
+
 		$default_val_url = 'https://wpsipd.baktinegara.co.id/wp-admin/admin-ajax.php';
 		$server_wpsipd = get_option('_crb_server_wp_sipd');
 		if (empty($server_wpsipd) || $server_wpsipd != $default_val_url) {
@@ -1156,7 +1161,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
 			Field::make('text', 'crb_daerah', 'Nama Pemda')
 				->set_default_value($nama_pemda)
-				->set_required(true),
+				->set_required(true)
+				->set_help_text('Nama pemda yang didaftarkan ke sistem untuk melakukan generate lisensi. Harap jangan dirubah karena jika nama pemda ini dirubah, sistem akan melakukan generate lisensi yang baru.'),
 			Field::make('image', 'crb_logo_dashboard', __('Logo Pemda'))
 				->set_value_type('url')
 				->set_default_value('https://via.placeholder.com/233x268'),
@@ -1170,8 +1176,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_default_value('2018'),
 			Field::make('text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD')
 				->set_default_value('2021'),
-			Field::make('text', 'crb_kepala_daerah', 'Kepala Daerah')
+			Field::make('text', 'crb_daerah_sipd', 'Nama Pemda di SIPD')
 				->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+				->set_default_value($nama_pemda_sipd),
+			Field::make('text', 'crb_kepala_daerah', 'Kepala Daerah')
 				->set_default_value(get_option('_crb_kepala_daerah')),
 			Field::make('text', 'crb_wakil_daerah', 'Wakil Kepala Daerah')
 				->set_default_value(get_option('_crb_wakil_daerah')),
@@ -4812,6 +4820,32 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			'status'	=> 'success',
 			'action'	=> $_POST['action'],
 			'run'		=> $_POST['run'],
+			'sipd_url'	=> site_url(),
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$ret['status'] = 'success';
+				$ret['message'] = 'Lisensi sama dengan server WP-SIPD';
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function cek_lisensi_ext_lama()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'run'		=> $_POST['run'],
+			'sipd_url'	=> site_url(),
 			'message'	=> 'Berhasil cek lisensi aktif!'
 		);
 		if (!empty($_POST)) {
