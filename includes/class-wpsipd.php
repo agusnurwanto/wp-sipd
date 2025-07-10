@@ -1114,6 +1114,9 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_jurnal',  $plugin_public, 'singkron_jurnal');
+
+		$this->loader->add_action('wp_ajax_singkron_rekening_tna',  $plugin_public, 'singkron_rekening_tna');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_rekening_tna',  $plugin_public, 'singkron_rekening_tna');
 		
 		//SPT SPPD
 		$this->loader->add_action('wp_ajax_get_datatable_data_spt',  $plugin_public, 'get_datatable_data_spt');

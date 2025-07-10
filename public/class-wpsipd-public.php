@@ -26883,4 +26883,60 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		die(json_encode($ret));
 	}
+
+	//Backup Data Rekening Transaksi Non Anggaran AKLAP Penatausahaan
+	public function singkron_rekening_tna()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Singkron Data Rekening Transaksi Non Anggaran',
+			'action' => $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['sumber']) && $_POST['sumber'] == 'ri') {
+					$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+				} else {
+					$data = $_POST['data'];
+				}
+				foreach ($data as $i => $data_rek) {
+					//Insert atau update data spd
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_akun 
+						from data_akun 
+						where tahun_anggaran=%d 
+							AND id_akun=%d
+							AND kode_akun=%s
+					", $_POST['tahun_anggaran'], $data_rek['id_akun'], $data_rek['kode_akun']));
+
+					$opsi = array(
+						'id_akun' => $data_rek['id_akun'],
+						'kode_akun' => $data_rek['kode_akun'],
+						'nama_akun' => $data_rek['nama_akun'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_akun', $opsi, array(
+							'id_akun' => $data_rek['id_akun'],
+							'kode_akun' => $data_rek['kode_akun'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_akun', $opsi);
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "API KEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
 }
