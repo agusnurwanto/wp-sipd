@@ -923,7 +923,7 @@ jQuery(document).ready(function () {
 			});
 		});
 
-		jQuery('#select_jadwal_tagging').on('click', function () {
+		jQuery('#select_jadwal_tagging').on('change', function () {
 			load_label(tahun_anggaran.val(), select_jadwal.val())
 		});
 

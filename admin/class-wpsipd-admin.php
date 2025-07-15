@@ -3621,19 +3621,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		$label = array(
 			Field::make('select', 'crb_tahun_anggaran', __('Pilih Tahun Anggaran'))
 				->add_options($tahun_anggaran_options)
+				->set_width(5)
 				->set_default_value($tahun_anggaran_selected),
+			Field::make('html', 'crb_select_jadwal_tagging', 'Nama Jadwal')
+				->set_width(5)
+				->set_html('
+					<div class="text-kanan">
+						<label for="select_jadwal_tagging" style="font-weight : bold;">Nama Jadwal </label><br>
+						<select name="select_jadwal_tagging" id="select_jadwal_tagging" style="width : 600px; margin-top : 5px">
+							<option value="">Pilih Jadwal</option>
+						</select>
+					</div>
+				'),
 			Field::make('html', 'crb_daftar_label_komponen')
 				->set_html('
             		<style>
             			.postbox-container { display: none; }
             			#poststuff #post-body.columns-2 { margin: 0 !important; }
             		</style>
-					<div class="text-kanan">
-						<label for="select_jadwal_tagging">Nama Jadwal :</label>
-						<select name="select_jadwal_tagging" id="select_jadwal_tagging" style="width : 250px">
-							<option value="">Pilih Jadwal</option>
-						</select>
-					</div>
             		<h3 class="text_tengah">Form Tambah dan Edit Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
@@ -3651,7 +3656,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             						<input type="hidden" id="id_label">
             					</td>
             					<td><textarea class="cf-text__input" type="text" id="keterangan_label"></textarea></td>
-            					<td><input class="cf-text__input" type="number" id="rencana_pagu_label"></input></td>
+            					<td><input class="cf-text__input" type="number" id="rencana_pagu_label" min=0></input></td>
             					<td class="text_tengah"><button id="tambah_label_komponen" class="button button-primary" onclick="return false;">Simpan Label Komponen</button></td>
             				</tr>
             			</tbody>
