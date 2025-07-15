@@ -9582,9 +9582,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								echo '<li><a href="' . $url_menu . '" target="_blank" class="btn btn-info">Input Renstra | ' . $jadwal_input_renstra['nama'] . ' | ' . $jadwal_input_renstra['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
 							} else {
 								echo '<li><a href="#" class="btn btn-secondary">Jadwal Input Renstra belum diset</a></li>';
-
 							}
-							
 						}
 					}
 
@@ -17445,6 +17443,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						ARRAY_A
 					);
 
+					if (!empty($jadwal_mulai) && !empty($jadwal_selesai)) {
+						if ($jadwal_mulai > $jadwal_selesai) {
+							$return = [
+								'status'  => 'error',
+								'message' => 'GAGAL! Jadwal mulai melebihi jadwal selesai!'
+							];
+							die(json_encode($return));
+						}
+					}
+
 					if (!empty($sqlTipe)) {
 						switch ($tipe_perencanaan) {
 							case 'monev_rpjmd':
@@ -18889,7 +18897,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				//update status jadwal to locked [1]
 				$wpdb->update(
 					'data_jadwal_lokal',
-					array('status' => 1),
+					array(
+						'status' 	  => 1,
+						'waktu_akhir' => current_time('mysql')
+					),
 					array('id_jadwal_lokal'	=> $id_jadwal)
 				);
 			} else {
