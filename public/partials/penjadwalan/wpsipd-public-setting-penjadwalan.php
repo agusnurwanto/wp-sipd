@@ -8,9 +8,11 @@ $input = shortcode_atts(array(
 	'tahun_anggaran' => '2022'
 ), $atts);
 
+$id_tipe_perencanaan = 6;
 if (isset($tipe_perencanaan)) {
 	if ($tipe_perencanaan == 'renja') {
 		$judul = 'Renja';
+		$id_tipe_perencanaan = 5;
 	} else {
 		$tipe_perencanaan = 'penganggaran_sipd';
 		$judul = 'Penganggaran SIPD';
@@ -42,7 +44,7 @@ foreach ($tahun as $tahun_value) {
 }
 
 $select_renstra = '';
-$select_renja_pergeseran = "<option value=''>Pilih RENJA Pergeseran</option>";
+$select_renja_pergeseran = "<option value=''>Pilih Jadwal Pergeseran</option>";
 
 $sqlTipe = $wpdb->get_results($wpdb->prepare(
 	"
@@ -79,8 +81,9 @@ $data_renja_pergeseran = $wpdb->get_results($wpdb->prepare('
 	FROM
 		data_jadwal_lokal
 	WHERE status=1
-		AND id_tipe=5
-		AND tahun_anggaran=%d', $input['tahun_anggaran']), ARRAY_A);
+		AND id_tipe=%d
+		AND tahun_anggaran=%d
+', $id_tipe_perencanaan, $input['tahun_anggaran']), ARRAY_A);
 
 if (!empty($data_renja_pergeseran)) {
 	foreach ($data_renja_pergeseran as $val_renja) {
@@ -285,17 +288,17 @@ foreach($data_skpd_db as $skpd){
 							<option value="penetapan">Penetapan</option>
 						</select>
 					</div>
-					<div class="mt-3 form-input">
-						<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
-						<label for="pergeseran_renja">Pergeseran/Perubahan</label>
-					</div>
-					<div class="form-group">
-						<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran">Pilih Jadwal RENJA Pergeseran</label>
-						<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran form-control">
-							<?php echo $select_renja_pergeseran; ?>
-						</select>
-					</div>
 				<?php endif; ?>
+				<div class="mt-3 form-input">
+					<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
+					<label for="pergeseran_renja">Pergeseran/Perubahan</label>
+				</div>
+				<div class="form-group">
+					<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran">Pilih Jadwal Pergeseran</label>
+					<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran form-control">
+						<?php echo $select_renja_pergeseran; ?>
+					</select>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary submitBtn" onclick="submitTambahJadwalForm()">Simpan</button>
@@ -489,32 +492,21 @@ foreach($data_skpd_db as $skpd){
 			}
 			let jenis_jadwal = 1;
 			let relasi_perencanaan = '';
+			<?php if ($tipe_perencanaan == 'renja') : ?>
+				jenis_jadwal = jQuery("#jenis_jadwal").val();
+				if (jenis_jadwal == '') {
+					return alert('Jenis jadwal tidak boleh kosong!');
+				}
+				relasi_perencanaan = jQuery("#link_renstra").val();
+			<?php endif; ?>
+
 			let pergeseran_renja = '';
 			let id_jadwal_pergeseran_renja = false;
 			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
-			<?php if ($tipe_perencanaan == 'renja') : ?>
-				jenis_jadwal = jQuery("#jenis_jadwal").val();
-				if (jenis_jadwal == '') {
-					return alert('Jenis jadwal tidak boleh kosong!');
-				}
-				relasi_perencanaan = jQuery("#link_renstra").val();
-				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-					return alert("Jadwal Renja Pergeseran harus dipilih!");
-				}
-			<?php endif; ?>
-			<?php if ($tipe_perencanaan == 'renja') : ?>
-				jenis_jadwal = jQuery("#jenis_jadwal").val();
-				if (jenis_jadwal == '') {
-					return alert('Jenis jadwal tidak boleh kosong!');
-				}
-				relasi_perencanaan = jQuery("#link_renstra").val();
-				pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
-				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-					return alert("Jadwal Renja Pergeseran harus dipilih!");
-				}
-			<?php endif; ?>
+			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+				return alert("Jadwal Renja Pergeseran harus dipilih!");
+			}
 			jQuery("#wrap-loading").show();
 			jQuery.ajax({
 				url: thisAjaxUrl,
@@ -554,12 +546,6 @@ foreach($data_skpd_db as $skpd){
 		}
 
 		function edit_data_penjadwalan(id_jadwal_lokal) {
-			jQuery('#modalTambahJadwal').modal('show');
-			jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
-			jQuery("#modalTambahJadwal .submitBtn")
-				.attr("onclick", 'submitEditJadwalForm(' + id_jadwal_lokal + ')')
-				.attr("disabled", false)
-				.text("Simpan");
 			jQuery("#wrap-loading").show()
 			jQuery.ajax({
 				url: thisAjaxUrl,
@@ -586,6 +572,12 @@ foreach($data_skpd_db as $skpd){
 						jQuery("#pergeseran_renja").prop("checked", false);
 						jQuery(".class_renja_pergeseran").hide();
 					}
+					jQuery('#modalTambahJadwal').modal('show');
+					jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
+					jQuery("#modalTambahJadwal .submitBtn")
+						.attr("onclick", 'submitEditJadwalForm(' + id_jadwal_lokal + ')')
+						.attr("disabled", false)
+						.text("Simpan");
 				}
 			})
 		}
@@ -614,12 +606,12 @@ foreach($data_skpd_db as $skpd){
 					return alert('Jenis jadwal tidak boleh kosong!');
 				}
 				relasi_perencanaan = jQuery("#link_renstra").val();
-				pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
-				id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
-				if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
-					return alert("Jadwal Renja Pergeseran harus dipilih!");
-				}
 			<?php endif; ?>
+			pergeseran_renja = jQuery("#pergeseran_renja").prop('checked');
+			id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
+			if (pergeseran_renja == true && id_jadwal_pergeseran_renja == '') {
+				return alert("Jadwal Renja Pergeseran harus dipilih!");
+			}
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: thisAjaxUrl,
@@ -643,10 +635,10 @@ foreach($data_skpd_db as $skpd){
 					jQuery('.submitBtn').attr('disabled', 'disabled');
 				},
 				success: function(response) {
-					jQuery('#modalTambahJadwal').modal('hide');
 					jQuery('#wrap-loading').hide();
 					if (response.status == 'success') {
 						alert('Data berhasil diperbarui');
+						jQuery('#modalTambahJadwal').modal('hide');
 						penjadwalanTable.ajax.reload();
 					} else {
 						alert(`GAGAL! \n${response.message}`);

@@ -17752,9 +17752,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
 
-				$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d', $id_jadwal_lokal), ARRAY_A);
+				$data_penjadwalan_by_id = $wpdb->get_row($wpdb->prepare('
+					SELECT 
+						* 
+					FROM data_jadwal_lokal 
+					WHERE id_jadwal_lokal = %d
+				', $id_jadwal_lokal), ARRAY_A);
 
-				$select_option_renja_pergeseran = '<option value="">Pilih RENJA Pergeseran</option>';
+				$select_option_renja_pergeseran = '<option value="">Pilih Jadwal Pergeseran</option>';
 				$data_renja_pergeseran = $wpdb->get_results(
 					$wpdb->prepare('
 						SELECT
@@ -17763,9 +17768,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							data_jadwal_lokal
 						WHERE id_jadwal_lokal NOT IN (' . $id_jadwal_lokal . ')
 						  AND status=1
-						  AND id_tipe=5
+						  AND id_tipe=%d
 						  AND tahun_anggaran=%d
-					', $data_penjadwalan_by_id[0]['tahun_anggaran']),
+					', $data_penjadwalan_by_id['id_tipe'], $data_penjadwalan_by_id['tahun_anggaran']),
 					ARRAY_A
 				);
 
@@ -17775,11 +17780,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$select_option_renja_pergeseran .= '<option value="' . $val_renja['id_jadwal_lokal'] . '">' . $val_renja['nama'] . ' || ' . $tanggal_kunci . '</option>';
 					}
 				}
-				$data_penjadwalan_by_id[0]['select_option_pergeseran_renja'] = $select_option_renja_pergeseran;
+				$data_penjadwalan_by_id['select_option_pergeseran_renja'] = $select_option_renja_pergeseran;
 
 				$return = array(
 					'status' => 'success',
-					'data' 	 => $data_penjadwalan_by_id[0]
+					'data' 	 => $data_penjadwalan_by_id
 				);
 			} else {
 				$return = array(
@@ -18032,6 +18037,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal' => $id_jadwal_lokal
 								]);
 
+								if($tipe_perencanaan == 'penganggaran_sipd'){
+									if($data_this_id['id_jadwal_pergeseran'] != $id_jadwal_pergeseran_renja){
+										$data['id'] = $id_jadwal_lokal;
+										$this->update_nilai_sebelum($data);
+									}
+								}
+
 								$return = [
 									'status'        => 'success',
 									'message'       => 'Berhasil Perbarui Jadwal!',
@@ -18065,7 +18077,267 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
+	public function update_nilai_sebelum($opsi){
+		global $wpdb;
 
+		if(empty($opsi['id_jadwal_pergeseran'])){
+			$wpdb->query($wpdb->prepare("
+				UPDATE data_rka
+				SET koefisien_murni = koefisien_murni_sipd,
+					harga_satuan_murni = harga_satuan_murni_sipd,
+					volume_murni = volume_murni_sipd,
+					rincian_murni = rincian_murni_sipd,
+					pajak_murni = pajak_murni_sipd,
+					active = active_sipd
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']));
+
+			$wpdb->query($wpdb->prepare("
+				UPDATE data_sub_keg_bl
+				SET pagumurni = pagumurni_sipd,
+					active = active_sipd
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']));
+
+			$wpdb->query($wpdb->prepare("
+				UPDATE data_pendapatan
+				SET nilaimurni = nilaimurni_sipd,
+					active = active_sipd
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']));
+
+			$wpdb->query($wpdb->prepare("
+				UPDATE data_pembiayaan
+				SET nilaimurni = nilaimurni_sipd,
+					active = active_sipd
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']));
+		}else{
+			// update pagu murni di tabel data_rka
+			$data = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					koefisien,
+					volume,
+					rincian,
+					rincian_murni,
+					pajak,
+					harga_satuan,
+					id_rinci_sub_bl
+				FROM data_rka_history
+				WHERE id_jadwal=%d
+					AND active=1
+			", $opsi['id_jadwal_pergeseran']), ARRAY_A);
+			$rka_pergeseran = array();
+			if(!empty($data)){
+				foreach($data as $val){
+					$rka_pergeseran[$val['id_rinci_sub_bl']] = $val;
+				}
+			}
+
+			// update pagu murni di tabel data_sub_keg_bl
+			$data = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					pagu,
+					id_sub_bl
+				FROM data_sub_keg_bl_history
+				WHERE id_jadwal=%d
+					AND active=1
+			", $opsi['id_jadwal_pergeseran']), ARRAY_A);
+			$sub_keg_bl_pergeseran = array();
+			if(!empty($data)){
+				foreach($data as $val){
+					$sub_keg_bl_pergeseran[$val['id_sub_bl']] = $val;
+				}
+			}
+
+			// update pagu murni di tabel data_pendapatan
+			$data = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					total,
+					id_pendapatan
+				FROM data_pendapatan_history
+				WHERE id_jadwal=%d
+					AND active=1
+			", $opsi['id_jadwal_pergeseran']), ARRAY_A);
+			$pendapatan_pergeseran = array();
+			if(!empty($data)){
+				foreach($data as $val){
+					$pendapatan_pergeseran[$val['id_pendapatan']] = $val;
+				}
+			}
+
+			// update pagu murni di tabel data_pembiayaan
+			$data = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					total,
+					id_pembiayaan
+				FROM data_pembiayaan_history
+				WHERE id_jadwal=%d
+					AND active=1
+			", $opsi['id_jadwal_pergeseran']), ARRAY_A);
+			$pembiayaan_pergeseran = array();
+			if(!empty($data)){
+				foreach($data as $val){
+					$pembiayaan_pergeseran[$val['id_pembiayaan']] = $val;
+				}
+			}
+
+			$data_rka = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					id,
+					id_rinci_sub_bl,
+					active,
+					rincian_murni_sipd
+				FROM data_rka
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']), ARRAY_A);
+			if(!empty($data_rka)){
+				$cek_murni_sipd = false;
+				foreach($data_rka as $val){
+					if(!empty($val['rincian_murni_sipd'])){
+						$cek_murni_sipd = true;
+					}
+				}
+				if(empty($cek_murni_sipd)){
+					$wpdb->query($wpdb->prepare("
+						UPDATE data_rka
+						SET koefisien_murni_sipd = koefisien_murni,
+							harga_satuan_murni_sipd = harga_satuan_murni,
+							volume_murni_sipd = volume_murni,
+							rincian_murni_sipd = rincian_murni,
+							pajak_murni_sipd = pajak_murni,
+							active_sipd = active
+						WHERE tahun_anggaran=%d
+					", $opsi['tahun_anggaran']));
+				}
+
+				foreach($data_rka as $val){
+					if($val['id_rinci_sub_bl'] == $rka_pergeseran[$val['id_rinci_sub_bl']]['id_rinci_sub_bl']){
+						$data = array(
+							'harga_satuan_murni' => $rka_pergeseran[$val['id_rinci_sub_bl']]['harga_satuan'],
+							'koefisien_murni' => $rka_pergeseran[$val['id_rinci_sub_bl']]['koefisien'],
+							'volume_murni' => $rka_pergeseran[$val['id_rinci_sub_bl']]['volume'],
+							'rincian_murni' => $rka_pergeseran[$val['id_rinci_sub_bl']]['rincian'],
+							'pajak_murni' => $rka_pergeseran[$val['id_rinci_sub_bl']]['pajak']
+						);
+						if($val['active'] == 0){
+							$data['active'] = 1;
+							$data['koefisien'] = 0;
+							$data['volume'] = 0;
+							$data['rincian'] = 0;
+							$data['pajak'] = 0;
+						}
+						$wpdb->update('data_rka', $data, array('id' => $val['id']));
+					}
+				}
+			}
+
+			$data_sub_keg_bl = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					id,
+					id_sub_bl,
+					pagumurni_sipd,
+					active
+				FROM data_sub_keg_bl
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']), ARRAY_A);
+			if(!empty($data_sub_keg_bl)){
+				$cek_murni_sipd = false;
+				foreach($data_sub_keg_bl as $val){
+					if(!empty($val['pagumurni_sipd'])){
+						$cek_murni_sipd = true;
+					}
+				}
+				if(empty($cek_murni_sipd)){
+					$wpdb->query($wpdb->prepare("
+						UPDATE data_sub_keg_bl
+						SET pagumurni_sipd = pagumurni,
+							active_sipd = active
+						WHERE tahun_anggaran=%d
+					", $opsi['tahun_anggaran']));
+				}
+
+				foreach($data_sub_keg_bl as $val){
+					if($val['id_sub_bl'] == $sub_keg_bl_pergeseran[$val['id_sub_bl']]['id_sub_bl']){
+						$data = array(
+							'pagumurni' => $sub_keg_bl_pergeseran[$val['id_sub_bl']]['pagu']
+						);
+						if($val['active'] == 0){
+							$data['active'] = 1;
+							$data['pagu'] = 0;
+						}
+						$wpdb->update('data_sub_keg_bl', $data, array('id' => $val['id']));
+					}
+				}
+			}
+
+			$data_pendapatan = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					id,
+					nilaimurni_sipd,
+					id_pendapatan
+				FROM data_pendapatan
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']), ARRAY_A);
+			if(!empty($data_pendapatan)){
+				$cek_murni_sipd = false;
+				foreach($data_pendapatan as $val){
+					if(!empty($val['nilaimurni_sipd'])){
+						$cek_murni_sipd = true;
+					}
+				}
+				if(empty($cek_murni_sipd)){
+					$wpdb->query($wpdb->prepare("
+						UPDATE data_pendapatan
+						SET nilaimurni_sipd = nilaimurni,
+							active_sipd = active
+						WHERE tahun_anggaran=%d
+					", $opsi['tahun_anggaran']));
+				}
+
+				foreach($data_pendapatan as $val){
+					if($val['id_pendapatan'] == $pendapatan_pergeseran[$val['id_pendapatan']]['id_pendapatan']){
+						$wpdb->update('data_pendapatan', array(
+							'nilaimurni' => $pendapatan_pergeseran[$val['id_pendapatan']]['total']
+						), array('id' => $val['id']));
+					}
+				}
+			}
+
+			$data_pembiayaan = $wpdb->get_results($wpdb->prepare("
+				SELECT
+					id,
+					nilaimurni_sipd,
+					id_pembiayaan
+				FROM data_pembiayaan
+				WHERE tahun_anggaran=%d
+			", $opsi['tahun_anggaran']), ARRAY_A);
+			if(!empty($data_pembiayaan)){
+				$cek_murni_sipd = false;
+				foreach($data_pembiayaan as $val){
+					if(!empty($val['nilaimurni_sipd'])){
+						$cek_murni_sipd = true;
+					}
+				}
+				if(empty($cek_murni_sipd)){
+					$wpdb->query($wpdb->prepare("
+						UPDATE data_pembiayaan
+						SET nilaimurni_sipd = nilaimurni,
+							active_sipd = active
+						WHERE tahun_anggaran=%d
+					", $opsi['tahun_anggaran']));
+				}
+				
+				foreach($data_pembiayaan as $val){
+					if($val['id_pembiayaan'] == $pendapatan_pergeseran[$val['id_pembiayaan']]['id_pembiayaan']){
+						$wpdb->update('data_pembiayaan', array(
+							'nilaimurni' => $pendapatan_pergeseran[$val['id_pembiayaan']]['total']
+						), array('id' => $val['id']));
+					}
+				}
+			}
+		}
+	}
 
 	/** Submit delete data jadwal */
 	public function submit_delete_schedule()
