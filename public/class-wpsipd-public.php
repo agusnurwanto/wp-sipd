@@ -27174,7 +27174,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ret = array(
 			'status' => 'success',
 			'message' => 'Berhasil Singkron Data Rekening Transaksi Non Anggaran',
-			'action' => $_POST['action']
+			'action' => $_POST['action'],
+			'jenis_transaksi' => $_POST['jenis_transaksi']
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
