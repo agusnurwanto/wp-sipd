@@ -660,6 +660,7 @@ CREATE TABLE `data_akun` (
   `is_sosial_brg` TINYINT(4) DEFAULT NULL,
   `is_sosial_uang` TINYINT(4) DEFAULT NULL,
   `is_subsidi` TINYINT(4) DEFAULT NULL,
+  `is_tna` VARCHAR(255) DEFAULT NULL COMMENT 'Transaksi Non Anggaran',
   `kode_akun` VARCHAR(50) DEFAULT NULL,
   `nama_akun` TEXT DEFAULT NULL,
   `set_input` TINYINT(4) DEFAULT NULL,
@@ -682,6 +683,7 @@ CREATE TABLE `data_akun` (
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `kode_akun` (`kode_akun`),
   KEY `id_akun` (`id_akun`),
+  KEY `is_tna` (`is_tna`),
   KEY `active` (`active`)
 );
 

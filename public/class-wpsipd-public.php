@@ -2127,14 +2127,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$akun = $_POST['akun'];
 					}
 
-					if (!empty($_POST['page']) && $_POST['page'] == 1) {
-						$wpdb->update('data_akun', array('active' => 0), array(
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						));
-					} else if (empty($_POST['page'])) {
-						$wpdb->update('data_akun', array('active' => 0), array(
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						));
+					if (
+						empty($_POST['page'])
+						|| $_POST['page'] == 1
+					) {
+						$wpdb->query($wpdb->prepare("
+							UPDATE data_akun
+							SET active=0
+							WHERE tahun_anggaran=%d
+								AND is_tna is null
+						"));
 					}
 					foreach ($akun as $k => $v) {
 						$cek = $wpdb->get_var($wpdb->prepare("
@@ -27184,6 +27186,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$data = $_POST['data'];
 				}
+				if (empty($_POST['jenis_transaksi'])) {
+					$wpdb->query($wpdb->prepare("
+						UPDATE data_akun
+						SET active=0
+						WHERE tahun_anggaran=%d
+							AND is_tna is not null
+					"));
+				}
 				foreach ($data as $i => $data_rek) {
 					//Insert atau update data spd
 					$cek = $wpdb->get_var($wpdb->prepare("
@@ -27199,6 +27209,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'id_akun' => $data_rek['id_akun'],
 						'kode_akun' => $data_rek['kode_akun'],
 						'nama_akun' => $data_rek['nama_akun'],
+						'is_tna' => $_POST['jenis_transaksi'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
