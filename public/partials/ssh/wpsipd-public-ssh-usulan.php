@@ -1579,12 +1579,10 @@ echo $this->menu_ssh($input);
 						let api = this.api();
 						let dropdownData = [];
 						api.rows().data().map(function(b, i) {
-							if (b.is_locked != 1) {
-								dropdownData.push({
-									value: b.nomor_surat,
-									text: b.nomor_surat
-								});
-							}
+							dropdownData.push({
+								value: b.nomor_surat,
+								text: b.nomor_surat
+							});
 						});
 
 						window.html_surat_usulan_nota_dinas = "<option value=''>Pilih Nota Dinas</option>";
