@@ -2579,7 +2579,7 @@ $table .= '
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd . 'Tahun ' . $awal_renstra . ' - ' . $akhir_renstra . ' ' . $nama_pemda; ?></h4>
 <?php echo $table; ?>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
-	<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+	<table id="table-renstra" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
 			<?php
 			$row_head = '<tr>

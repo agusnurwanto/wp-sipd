@@ -27234,4 +27234,42 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+
+	public function monitor_monev_iku()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong';
+				}else if(empty($_POST['id_jadwal'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID Jadwal tidak boleh kosong';
+				}
+				if($ret['status'] == 'success'){
+					$_GET['iku'] = 1;
+					ob_start();
+					$this->monitor_monev_renstra(array(
+						'id_skpd' => $_POST['id_skpd'],
+						'id_jadwal' => $_POST['id_jadwal'],
+					));
+					$content = ob_get_contents();
+					ob_end_clean();
+					$ret['html'] = $content;
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "API KEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
 }

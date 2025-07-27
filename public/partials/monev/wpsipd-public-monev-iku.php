@@ -3,21 +3,14 @@
 if (!defined('WPINC')) {
 	die;
 }
-
-if(!empty($_GET) && !empty($_GET['iku'])){
-	return require_once WPSIPD_PLUGIN_PATH . 'public/partials/monev/wpsipd-public-monev-iku.php';
-}else if(!is_user_logged_in()){
-	die('<h1 class="text-center">Anda tidak punya akses!</h1>');
-}
-
 global $wpdb;
 $input = shortcode_atts(array(
 	'id_skpd' => '',
 	'id_jadwal' => '',
 ), $atts);
-// die(print_r($input['id_jadwal']));
+
 if (empty($input['id_skpd'])) {
-	die('<h1 class="text-center">SKPD tidak ditemukan!</h1>');
+	die('<h1>SKPD tidak ditemukan!</h1>');
 }
 
 $api_key = get_option('_crb_api_key_extension');
@@ -59,12 +52,6 @@ $tahun_anggaran_renstra = array();
 $akhir_rpjmd = $data_jadwal_relasi['tahun_akhir_anggaran'];
 for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 	$tahun_anggaran_renstra[$i + 1] = $awal_rpjmd + $i;
-}
-
-function button_edit_monev($class = false)
-{
-	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
-	return $ret;
 }
 
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1", ARRAY_A);
@@ -721,7 +708,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	$target_akhir = '';
 	$keterangan = '';
 	foreach ($tujuan['indikator'] as $k => $v) {
-		$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-1');
+		$indikator_teks = $v['indikator'];
 		$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 		$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 		$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -803,8 +790,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 		$body_monev .= '<td class="kanan bawah text_tengah">' . $target_arr[$i] . '</td>';
 		$body_monev .= '<td class="kanan bawah text_tengah">' . $realisasi_target_arr[$i] . '</td>';
-		$body_monev .= '<td class="kanan bawah text_kanan">' . $pagu_arr[$i] . '</td>';
-		$body_monev .= '<td class="kanan bawah text_kanan">' . $realisasi_pagu_arr[$i] . '</td>';
 	}
 
 	$body_monev .= '
@@ -842,7 +827,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$target_akhir = '';
 		$keterangan = '';
 		foreach ($sasaran['indikator'] as $k => $v) {
-			$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-2');
+			$indikator_teks = $v['indikator'];
 			$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 			$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 			$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -918,8 +903,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 			$body_monev .= '<td class="kanan bawah text_tengah">' . $target_arr[$i] . '</td>';
 			$body_monev .= '<td class="kanan bawah text_tengah">' . $realisasi_target_arr[$i] . '</td>';
-			$body_monev .= '<td class="kanan bawah text_kanan">' . $pagu_arr[$i] . '</td>';
-			$body_monev .= '<td class="kanan bawah text_kanan">' . $realisasi_pagu_arr[$i] . '</td>';
 		}
 
 		$body_monev .= '
@@ -972,7 +955,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			$target_akhir = '';
 			$keterangan = '';
 			foreach ($program['indikator'] as $k => $v) {
-				$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-3');
+				$indikator_teks = $v['indikator'];
 				$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 				$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 				$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1054,8 +1037,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 				$body_monev .= '<td class="kanan bawah text_tengah">' . $target_arr[$i] . '</td>';
 				$body_monev .= '<td class="kanan bawah text_tengah">' . $realisasi_target_arr[$i] . '</td>';
-				$body_monev .= '<td class="kanan bawah text_kanan">' . $pagu_arr[$i] . '</td>';
-				$body_monev .= '<td class="kanan bawah text_kanan">' . $realisasi_pagu_arr[$i] . '</td>';
 			}
 
 			$body_monev .= '
@@ -1108,7 +1089,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$target_akhir = '';
 				$keterangan = '';
 				foreach ($kegiatan['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-4');
+					$indikator_teks = $v['indikator'];
 					$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 					$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 					$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1192,8 +1173,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 					$body_monev .= '<td class="kanan bawah text_tengah">' . $target_arr[$i] . '</td>';
 					$body_monev .= '<td class="kanan bawah text_tengah">' . $realisasi_target_arr[$i] . '</td>';
-					$body_monev .= '<td class="kanan bawah text_kanan">' . $pagu_arr[$i] . '</td>';
-					$body_monev .= '<td class="kanan bawah text_kanan">' . $realisasi_pagu_arr[$i] . '</td>';
 				}
 
 				$body_monev .= '
@@ -1232,7 +1211,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$target_akhir = '';
 					$keterangan = '';
 					foreach ($sub_kegiatan['indikator'] as $k => $v) {
-						$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-5');
+						$indikator_teks = $v['indikator'];
 						$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 						$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 						$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1318,8 +1297,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 						$body_monev .= '<td class="kanan bawah text_tengah">' . $target_arr[$i] . '</td>';
 						$body_monev .= '<td class="kanan bawah text_tengah">' . $realisasi_target_arr[$i] . '</td>';
-						$body_monev .= '<td class="kanan bawah text_kanan">' . $pagu_arr[$i] . '</td>';
-						$body_monev .= '<td class="kanan bawah text_kanan">' . $realisasi_pagu_arr[$i] . '</td>';
 					}
 
 					$body_monev .= '
@@ -1332,49 +1309,6 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			}
 		}
 	}
-}
-
-$html_pagu = '';
-$html_realisasi_pagu = '';
-$html_capaian = '';
-$data_all['lama_pelaksanaan'] = $lama_pelaksanaan;
-$data_all['total'] = 0;
-$data_all['realisasi'] = 0;
-$data_all_js = array(array('Tahun', 'Anggaran', 'Realisasi'));
-for ($i = 0; $i < $lama_pelaksanaan; $i++) {
-	$no_urut = $i + 1;
-	$data_all['total'] += $data_all['pagu_' . $no_urut];
-	$data_all['realisasi'] += $data_all['realisasi_pagu_' . $no_urut];
-	$html_pagu .= '
-		<tr>
-			<td><h4 class="font-weight-bolder text-warning py-1 m-0">' . $tahun_anggaran_renstra[$no_urut] . '</h4></td>
-			<td><h4 class="font-weight-bolder text-warning py-1 m-0">:</h4></td>
-			<td class="text-end text-right"><h4 class="font-weight-bolder text-warning py-1 m-0">' . number_format($data_all['pagu_' . $no_urut], 0, ",", ".") . '</h4></td>
-		</tr>
-	';
-	$html_realisasi_pagu .= '
-		<tr>
-			<td><h4 class="font-weight-bolder text-primary py-1 m-0">' . $tahun_anggaran_renstra[$no_urut] . '</h4></td>
-			<td><h4 class="font-weight-bolder text-primary py-1 m-0">:</h4></td>
-			<td class="text-end text-right"><h4 class="font-weight-bolder text-primary py-1 m-0">' . number_format($data_all['realisasi_pagu_' . $no_urut], 0, ",", ".") . '</h4></td>
-		</tr>
-	';
-	$capaian = 0;
-	if (!empty($data_all['pagu_' . $no_urut]) && !empty($data_all['realisasi_pagu_' . $no_urut])) {
-		$capaian = ($data_all['realisasi_pagu_' . $no_urut] / $data_all['pagu_' . $no_urut]) * 100;
-	}
-	$html_capaian .= '
-		<tr>
-			<td><h4 class="font-weight-bolder text-success py-1 m-0">' . $tahun_anggaran_renstra[$no_urut] . '</h4></td>
-			<td><h4 class="font-weight-bolder text-success py-1 m-0">:</h4></td>
-			<td class="text-end text-center"><h4 class="font-weight-bolder text-success py-1 m-0">' . $this->pembulatan($capaian) . '%</h4></td>
-		</tr>
-	';
-	$data_all_js[] = array(strval($tahun_anggaran_renstra[$no_urut]), $data_all['pagu_' . $no_urut], $data_all['realisasi_pagu_' . $no_urut]);
-}
-$capaian_all = 0;
-if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
-	$capaian_all = ($data_all['realisasi'] / $data_all['total']) * 100;
 }
 ?>
 
@@ -1406,8 +1340,6 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 	}
 
 	#table-renstra {
-		font-family: \'Open Sans\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;
-		border-collapse: collapse;
 		font-size: 70%;
 		border: 0;
 		table-layout: fixed;
@@ -1427,153 +1359,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 		background: #f5c9c9;
 	}
 </style>
-<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-<input type="hidden" value="<?php echo $tahun_anggaran_sipd; ?>" id="tahun_anggaran">
-<input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
-<h1 class="text-center">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br> ' . $nama_jadwal . ' ( ' . $tahun_awal_jadwal . ' - ' . $tahun_akhir_jadwal . ' ) </br>' . $nama_pemda; ?></h1>
-<div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
-	<div class="row gy-5 g-xl-8 mb-5">
-		<div class="col-md-12">
-			<div class="card">
-				<div class="card-header">
-					<div class="card-title">
-						<h4 style="margin: 0;"><i class="dashicons dashicons-chart-bar" style="font-size: x-large; padding-top: 2px;"></i> Dashboard Anggaran dan Realisasi</h4>
-					</div>
-				</div>
-				<div class="card-body">
-					<div class="row">
-						<div class="col-md-12">
-							<div id="chart" style="padding: 30px; height: 500px;"></div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-4">
-							<div class="row">
-								<div class="col-md-12">
-									<h2 class="font-weight-bolder text-white p-5 bg-warning rounded m-0 text-center">Anggaran</h2>
-								</div>
-							</div>
-							<div class="d-flex align-items-center mb-9 bg-light-warning rounded" style="margin-top: 3rem;">
-								<!--begin::Title-->
-								<div class="col-md-12">
-									<table class="table">
-										<tr>
-											<td style="width:20px;">
-												<h2 class="font-weight-bolder text-warning py-1 m-0">Total</h2>
-											</td>
-											<td style="width:2px;">
-												<h2 class="font-weight-bolder text-warning py-1 m-0">:</h2>
-											</td>
-											<td class="text-end text-right">
-												<h2 class="font-weight-bolder text-warning py-1 m-0"><?php echo number_format($data_all['total'], 0, ",", "."); ?></h2>
-											</td>
-										</tr>
-										<?php echo $html_pagu; ?>
-									</table>
-								</div>
-								<!--end::Title-->
-							</div>
-						</div>
-
-						<div class="col-md-4">
-							<div class="row">
-								<div class="col-md-12">
-									<h2 class="font-weight-bolder text-white p-5 bg-primary rounded m-0 text-center">Realisasi</h2>
-								</div>
-							</div>
-							<div class="d-flex align-items-center mb-9 bg-light-primary rounded" style="margin-top: 3rem;">
-								<!--begin::Title-->
-								<div class="col-md-12">
-									<table class="table">
-										<tr>
-											<td style="width:20px;">
-												<h2 class="font-weight-bolder text-primary py-1 m-0">Total</h2>
-											</td>
-											<td style="width:2px;">
-												<h2 class="font-weight-bolder text-primary py-1 m-0">:</h2>
-											</td>
-											<td class="text-end text-right">
-												<h2 class="font-weight-bolder text-primary py-1 m-0"><?php echo number_format($data_all['realisasi'], 0, ",", "."); ?></h2>
-											</td>
-										</tr>
-										<?php echo $html_realisasi_pagu; ?>
-									</table>
-								</div>
-								<!--end::Title-->
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="row">
-								<div class="col-md-12">
-									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Persentase</h2>
-								</div>
-							</div>
-							<div class="d-flex align-items-center mb-9 bg-light-success rounded p-5">
-								<!--begin::Title-->
-								<div class="col-md-12">
-									<table class="table">
-										<tr>
-											<td style="width:20px;">
-												<h2 class="font-weight-bolder text-success py-1 m-0">Total</h2>
-											</td>
-											<td style="width:2px;">
-												<h2 class="font-weight-bolder text-success py-1 m-0">:</h2>
-											</td>
-											<td class="text-end text-center">
-												<h2 class="font-weight-bolder text-success py-1 m-0"><?php echo $this->pembulatan($capaian_all); ?>%</h2>
-											</td>
-										</tr>
-										<?php echo $html_capaian; ?>
-									</table>
-								</div>
-								<!--end::Title-->
-							</div>
-						</div>
-					</div>
-					<div class="row mb-5">
-						<div class="col-md-6 offset-md-3 offset-sm-0">
-							<div class="card card-primary" style="box-shadow: 1px 1px 5px #666;">
-								<div class="card-header bg-primary text-white p-5">
-									<div class="col-12 text-center">
-										<h2 class="m-0 p-0 col-md-12 lh-lg text-white">Nomenklatur Rencana Strategis</h2>
-									</div>
-								</div>
-								<div class="card-body">
-									<div class="row mb-5">
-										<div class="col-6 text-center" style="font-size:1.3em; border-right:1px solid #666;">
-											<p>Tujuan</p>
-											<p><?php echo $no_tujuan; ?></p>
-										</div>
-										<div class="col-6 text-center" style="font-size:1.3em;">
-											<p>Sasaran</p>
-											<p><?php echo $no_sasaran; ?></p>
-										</div>
-									</div>
-									<div class="row mb-5">
-										<div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
-											<p>Program</p>
-											<p><?php echo $no_program; ?></p>
-										</div>
-										<div class="col-4 text-center" style="font-size:1.3em; border-right:1px solid #666;">
-											<p>Kegiatan</p>
-											<p><?php echo $no_kegiatan; ?></p>
-										</div>
-										<div class="col-4 text-center" style="font-size:1.3em;">
-											<p>Sub Kegiatan</p>
-											<p><?php echo $no_sub_kegiatan; ?></p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row" id="chart-sasaran"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div id='aksi-wp-sipd'></div>
+<h1 class="text-center">Capaian Indikator Kinerja Utama <br><?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br> ' . $nama_jadwal . ' ( ' . $tahun_awal_jadwal . ' - ' . $tahun_akhir_jadwal . ' ) </br>' . $nama_pemda; ?></h1>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" id="table-renstra" contenteditable="false">
 		<thead>
@@ -1583,14 +1369,14 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran ' . $jenis_jadwal_relasi . '</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
-				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
+				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran (Indikator Kinerja Utama)</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Kegiatan</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sub Kegiatan</th>
 				<th style="width: 300px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
 			for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
-				$row_head .= '<th style="width: 300px;" colspan="4" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun ' . $tahun_anggaran_renstra[$i] . '</th>';
+				$row_head .= '<th style="width: 300px;" colspan="2" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun ' . $tahun_anggaran_renstra[$i] . '</th>';
 			}
 			$row_head .= '
 				<th style="width: 100px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Akhir</th>
@@ -1602,9 +1388,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 			for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
 				$row_head .= '
 					<th class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th>
-					<th class="row_head_2 atas kanan bawah text_tengah text_blok">Realisasi Target</th>
-					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Realisasi Anggaran</th>';
+					<th class="row_head_2 atas kanan bawah text_tengah text_blok">Realisasi Target</th>';
 			}
 			echo $row_head;
 			?>
@@ -1627,10 +1411,6 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 						$target_temp = $pagu_temp + 1;
 					}
 					$pagu_temp = $target_temp + 1;
-				?>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $target_temp ?></th>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp ?></th>
-				<?php
 				}
 				?>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 1 ?></th>
@@ -1643,10 +1423,6 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 8 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 9 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 10 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 11 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 12 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 13 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 14 ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1654,257 +1430,13 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 		</tbody>
 	</table>
 </div>
-
-<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
-	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
-	<ul>
-		<li>Background warna biru adalah baris tujuan.</li>
-		<li>Background warna kuning adalah baris sasaran.</li>
-		<li>Background warna hijau adalah baris program.</li>
-		<li>Background warna biru muda adalah baris kegiatan</li>
-		<li>Background warna putih adalah baris sub kegiatan</li>
-		<li>Data dengan latar belakang warna orange menandakan Tujuan Renstra tidak terhubung dengan sasaran RPJM.</li>
-		<li>Data dengan latar belakang warna merah menandakan Tujuan Renstra atau Sasaran Renstra tidak terhubung.</li>
-		<li>Debug Cascading Renstra digunakan untuk menampilkan detail data dari TUJUAN hingga SUB KEGIATAN.</li>
-		<li>Status Koneksi RPJM menunjukan keterkaitan antara TUJUAN RENSTRA dengan SASARAN RPJM dan dapat diakses untuk melihat detail hierarkinya.</li>
-	</ul>
-</div>
-
-<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-	<div class="modal-dialog modal-lg" role="document" style="min-width: 1000px;">
-		<div class="modal-content" style="min-width: 850px" ;>
-			<div class="modal-header bgpanel-theme">
-				<h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator RENSTRA Per Tahun Anggaran</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
-			</div>
-			<div class="modal-body">
-				<form>
-					<input type="hidden" id="id_indikator">
-					<input type="hidden" id="type_indikator">
-					<input type="hidden" id="target_indikator">
-					<div class="form-group">
-						<table class="table table-bordered">
-							<tbody>
-								<tr>
-									<th style="width: 200px;" id="jenis-indikator">Tujuan / Sasaran / Program / Kegiatan</th>
-									<td id="monev-nama"></td>
-								</tr>
-								<tr>
-									<th style="width: 200px;">Indikator</th>
-									<td id="indikator-nama"></td>
-								</tr>
-								<tr>
-									<th style="width: 200px;">Satuan</th>
-									<td id="satuan-nama"></td>
-								</tr>
-								<tr>
-									<th style="width: 200px;">Target Awal</th>
-									<td id="target-awal-nama"></td>
-								</tr>
-								<tr>
-									<th style="width: 200px;">Target Akhir</th>
-									<td id="target-akhir-nama"></td>
-								</tr>
-								<tr>
-									<td colspan="2">
-										<table class="display-indikator-renstra">
-											<thead>
-												<tr>
-													<th class="text_tengah" style="width: 50px;">Tahun</th>
-													<th class="text_tengah" style="width: 140px;">Anggaran</th>
-													<th class="text_tengah" style="width: 140px;">Realisasi</th>
-													<th class="text_tengah" style="width: 50px;">Capaian Penyerapan</th>
-													<th class="text_tengah" style="width: 50px;">Target</th>
-													<th class="text_tengah" style="width: 50px;">Realisasi Target</th>
-													<th class="text_tengah" style="width: 50px;">Capaian Target</th>
-													<th class="text_tengah">Keteragan</th>
-												</tr>
-												<tr>
-													<th class="text_tengah">1</th>
-													<th class="text_tengah">2</th>
-													<th class="text_tengah">3</th>
-													<th class="text_tengah">4=(3/2)*100</th>
-													<th class="text_tengah">5</th>
-													<th class="text_tengah">6</th>
-													<th class="text_tengah">7=(6/5)*100</th>
-													<th class="text_tengah">8</th>
-												</tr>
-											</thead>
-											<tbody id="monev-body-renstra">
-											</tbody>
-											<tfoot>
-												<tr>
-													<th class="text_tengah">Total</th>
-													<th class="text_kanan" id="total_pagu">0</th>
-													<th class="text_kanan" id="total_realisasi_pagu">0</th>
-													<th class="text_tengah" id="total_capaian_pagu">0</th>
-													<th class="text_tengah" colspan="4"></th>
-												</tr>
-											</tfoot>
-										</table>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-success simpan-monev-renstra">Simpan</button>
-				<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="modal-rpjmd" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-	<div class="modal-dialog" style="min-width:1200px" role="document">
-		<div class="modal-content">
-			<div class="modal-header bgpanel-theme">
-				<h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold"></h5>
-			</div>
-			<div class="modal-body">
-				<table cellpadding="2" cellspacing="0" contenteditable="false">
-					<thead>
-						<tr>
-							<th style="width: 100px;" class='atas kanan bawah text_tengah text_blok'>Visi</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Misi</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
-							<th style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator RPJMD (Tujuan, Sasaran, Program)</th>
-						</tr>
-					</thead>
-					<tbody id="body-rpjmd">
-					</tbody>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-			</div>
-		</div>
-	</div>
-</div>
-
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-	run_download_excel('', '#aksi-wp-sipd');
 	var data_all = <?php echo json_encode($data_all); ?>;
-
-	jQuery(document).on('ready', function() {
-		var aksi = '' +
-			'<a style="margin-left: 10px;" onclick="copy_renstra_local(); return false;" href="#" class="btn btn-danger">Copy Data Renstra Lokal</a>' +
-			'<h3 style="margin-top: 20px;">SETTING</h3>' +
-			'<label class="action-checkbox"><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;' +
-			'<label class="action-checkbox"><input type="checkbox" onclick="debug_renstra(this);" id="debug-renstra"> Debug Cascading Renstra</label>' +
-			'<label class="action-checkbox">' +
-			'Sembunyikan Baris ' +
-			'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">' +
-			'<option value="">Pilih Baris</option>' +
-			'<option value="tr-tujuan">Tujuan</option>' +
-			'<option value="tr-sasaran">Sasaran</option>' +
-			'<option value="tr-program">Program</option>' +
-			'<option value="tr-kegiatan">Kegiatan</option>' +
-			'</select>' +
-			'</label>'
-		jQuery('#action-sipd').append(aksi);
-		jQuery('#debug-renstra').click();
-		jQuery('.edit-monev').on('click', function() {
-			jQuery('#wrap-loading').show();
-			var tr = jQuery(this).closest('tr');
-			var nama = tr.find('span.data-renstra').text();
-			var kode = jQuery(this).attr("data-id");
-			var rinc_kode = kode.split('-');
-
-			jQuery("#table_rumus_indikator").show();
-			jQuery("#monev-body-renstra").html('');
-			jQuery.ajax({
-				url: '<?php echo admin_url("admin-ajax.php") ?>',
-				type: 'post',
-				data: {
-					'action': 'get_monev_renstra', 
-					"api_key": "<?php echo $api_key; ?>",
-					'id_jadwal': rinc_kode[0],
-					'id_skpd': rinc_kode[1],
-					'id': rinc_kode[2],
-					'type_indikator': rinc_kode[3],
-					'lama_pelaksanaan': <?php echo $lama_pelaksanaan; ?>,
-					'tahun_awal': <?php echo $awal_rpjmd; ?>
-				},
-				dataType: 'json',
-				success: function(res) {
-					if (res.status == 'success') {
-						jQuery("#monev-nama").html(nama);
-						jQuery("#monev-body-renstra").html(res.body_renstra);
-						jQuery("#id_indikator").val(rinc_kode[2]);
-						jQuery("#type_indikator").val(rinc_kode[3]);
-						var jenis_indikator = 'Tujuan';
-						if (rinc_kode[3] == 2) {
-							jenis_indikator = 'Sasaran';
-						} else if (rinc_kode[3] == 3) {
-							jenis_indikator = 'Program';
-						} else if (rinc_kode[3] == 4) {
-							jenis_indikator = 'Kegiatan';
-						} else if (rinc_kode[3] == 5) {
-							jenis_indikator = 'Sub Kegiatan';
-						}
-						jQuery("#jenis-indikator").html(jenis_indikator);
-						jQuery("#indikator-nama").html(res.indikator);
-						jQuery("#satuan-nama").html(res.satuan);
-						jQuery("#target-awal-nama").html(res.target_awal + ' ' + res.satuan);
-						jQuery("#target-akhir-nama").html(res.target_akhir + ' ' + res.satuan);
-						setTotalRealisasi();
-						jQuery('#modal-monev').modal('show');
-					} else {
-						alert(res.message);
-					}
-					jQuery('#wrap-loading').hide();
-				}
-			})
-
-		});
-
-		jQuery(".simpan-monev-renstra").on('click', function() {
-			jQuery('#wrap-loading').show();
-			var realisasi_anggaran = {};
-			var realisasi_target = {};
-			var keterangan = {};
-
-			for (var i = 1; i <= <?php echo $lama_pelaksanaan; ?>; i++) {
-				realisasi_anggaran[i] = to_number(jQuery('.realisasi_pagu_' + i).html());
-				realisasi_target[i] = to_number(jQuery('.realisasi_target_' + i).html());
-				keterangan[i] = jQuery('.keterangan_' + i).html();
-			}
-
-			jQuery.ajax({
-				url: '<?php echo admin_url("admin-ajax.php") ?>',
-				type: 'post',
-				data: {
-					'action': 'save_monev_renstra',
-					"api_key": "<?php echo $api_key; ?>",
-					'id_indikator': jQuery("#id_indikator").val(),
-					'type_indikator': jQuery("#type_indikator").val(),
-					'realisasi_anggaran': realisasi_anggaran,
-					'realisasi_target': realisasi_target,
-					'keterangan': keterangan,
-					'id_jadwal': "<?php echo $input['id_jadwal']; ?>"
-				},
-				dataType: 'json',
-				success: function(result) {
-					alert(result.message);
-					jQuery('#wrap-loading').hide();
-					if (result.status == 'success') {
-						jQuery('#modal-monev').modal('hide');
-					}
-				}
-			});
-		});
-
-		google.charts.load('current', {
-			packages: ['corechart', 'bar']
-		});
-		google.charts.setOnLoadCallback(drawColColors);
+	google.charts.load('current', {
+		packages: ['corechart', 'bar']
 	});
+	google.charts.setOnLoadCallback(drawColColors);
 
 	function drawColColors() {
 		var data_cart = <?php echo json_encode($data_all_js); ?>;
@@ -1992,132 +1524,5 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				};
 			};
 		};
-	}
-
-	function edit_monev_indikator(that) {
-		if (jQuery(that).is(':checked')) {
-			jQuery('.edit-monev').show();
-		} else {
-			jQuery('.edit-monev').hide();
-		}
-	}
-
-	function sembunyikan_baris(that) {
-		var val = jQuery(that).val();
-		var tr_tujuan = jQuery('.tr-tujuan');
-		var tr_sasaran = jQuery('.tr-sasaran');
-		var tr_program = jQuery('.tr-program');
-		var tr_kegiatan = jQuery('.tr-kegiatan');
-		tr_tujuan.show();
-		tr_sasaran.show();
-		tr_program.show();
-		tr_kegiatan.show();
-		if (val == 'tr-tujuan') {
-			tr_tujuan.hide();
-			tr_sasaran.hide();
-			tr_program.hide();
-			tr_kegiatan.hide();
-		} else if (val == 'tr-sasaran') {
-			tr_sasaran.hide();
-			tr_program.hide();
-			tr_kegiatan.hide();
-		} else if (val == 'tr-program') {
-			tr_program.hide();
-			tr_kegiatan.hide();
-		} else if (val == 'tr-kegiatan') {
-			tr_kegiatan.hide();
-		}
-	}
-
-	function debug_renstra(that) {
-		if (jQuery(that).is(':checked')) {
-			jQuery('.debug-renstra').show();
-			jQuery('.nondebug-renstra').hide();
-		} else {
-			jQuery('.debug-renstra').hide();
-			jQuery('.nondebug-renstra').show();
-		}
-	}
-
-	function show_rpjm(id_jadwal_rpjm, id_unit, kode_sasaran_rpjm) {
-		jQuery('#wrap-loading').show();
-		var modal = jQuery("#modal-rpjmd");
-		jQuery.ajax({
-
-			url: "<?php echo admin_url("admin-ajax.php") ?>",
-			type: "post",
-			data: {
-				"action": "get_data_rpjm",
-				"api_key": "<?php echo $api_key; ?>",
-				"id_jadwal_rpjm": "<?php echo $input['id_jadwal']; ?>",
-				"id_unit": id_unit,
-				"kode_sasaran_rpjm": kode_sasaran_rpjm
-			},
-			dataType: "json", 
-			success: function(response) {
-				if (response.status == 1) {
-					modal.find("#body-rpjmd").html('');
-					modal.find("#body-rpjmd").html(response.body_rpjm);
-					modal.find('.modal-title').html('RPJMD <br> <?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>Tahun ' . $tahun_anggaran_sipd . ' <br> ' . $nama_pemda; ?>');
-				}
-				modal.modal('show');
-				jQuery('#wrap-loading').hide();
-			}
-		});
-
-	}
-
-	function copy_renstra_local() {
-		if (confirm('Copy data Tujuan dan Sasaran Renstra Lokal?')) {
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: "<?php echo admin_url("admin-ajax.php") ?>",
-				type: "post",
-				data: {
-					"action": "copy_data_renstra_lokal",
-					"api_key": "<?php echo $api_key; ?>",
-					'id_jadwal': "<?php echo $input['id_jadwal']; ?>",
-					"id_unit": jQuery("#id_skpd").val(),
-				},
-				dataType: "json",
-				success: function(response) {
-					alert(response.message);
-					location.reload();
-				}
-			});
-		}
-	}
-
-	function setTotalRealisasi() {
-		var total_pagu = 0;
-		var total_realisasi_pagu = 0;
-		jQuery('#monev-body-renstra tr').map(function(i, b) {
-			var tr = jQuery(b);
-			var no = i + 1;
-			var pagu = to_number(tr.find('.pagu_' + no).html());
-			var realisasi_pagu = to_number(tr.find('.realisasi_pagu_' + no).html());
-			var capaian_pagu = 0;
-			if (pagu >= 1 && realisasi_pagu >= 1) {
-				capaian_pagu = Math.round((realisasi_pagu / pagu) * 100);
-			}
-			tr.find('.capaian_pagu_' + no).html(capaian_pagu);
-			total_pagu += +pagu;
-			total_realisasi_pagu += +realisasi_pagu;
-
-			var target = to_number(tr.find('.target_' + no).html());
-			var realisasi_target = to_number(tr.find('.realisasi_target_' + no).html());
-			var capaian_target = 0;
-			if (target >= 1 && realisasi_target >= 1) {
-				capaian_target = Math.round((+realisasi_target / +target) * 100);
-			}
-			tr.find('.capaian_target_' + no).html(capaian_target);
-		});
-		var total_capaian_pagu = 0;
-		if (total_realisasi_pagu >= 1 && total_pagu >= 1) {
-			total_capaian_pagu = Math.round((total_realisasi_pagu / total_pagu) * 100);
-		}
-		jQuery('#total_pagu').html(formatRupiah(total_pagu));
-		jQuery('#total_realisasi_pagu').html(formatRupiah(total_realisasi_pagu));
-		jQuery('#total_capaian_pagu').html(total_capaian_pagu);
 	}
 </script>
