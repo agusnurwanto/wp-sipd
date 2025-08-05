@@ -50,7 +50,7 @@ if(!empty($jadwal_lokal)){
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
 	if($now >= $awal && $now <= $akhir){
-		$add_rpd = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><br><br>';
+		$add_rpd = '<a id="tambah-data" onclick="return false;" href="#" class="btn btn-primary mr-2"><span class="dashicons dashicons-plus"></span> Tambah Data RPD</a>';
 	}
 }
 
@@ -771,6 +771,9 @@ $skpd_filter_html = '<option value="">Pilih SKPD</option>';
 foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
 }
+
+$is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_esakip('rpd');
+
 ?>
 <style type="text/css">
 	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { 
@@ -807,7 +810,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
 			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 				<th style="width: 300px;" class="atas kanan bawah text_tengah text_blok" colspan="2">Tahun <?php echo $i; ?></th>
-			<?php }; ?>
+			<?php }; ?> 
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
 				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
@@ -1232,6 +1235,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
+	let is_jadwal_set_integration_esakip = <?php echo json_encode($is_jadwal_set_integration_esakip); ?>;
 
 	var mySpace = '<div style="padding:3rem;"></div>';
 	window.edit_val = false;
@@ -1248,9 +1252,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpd; ?><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPD dari WP-Eval-Sakip</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPD</label>'
@@ -2878,7 +2883,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 	          		"vol_<?php echo $i; ?>": vol_<?php echo $i; ?>,
 	          		"pagu_<?php echo $i; ?>": pagu_<?php echo $i; ?>,
-				<?php }; ?>
+				<?php } ;?>
 	          		"vol_akhir": vol_akhir,
 	          		"catatan": jQuery('#indikator-catatan-teks-program').val(),
 	          		"id": id_indikator
@@ -2924,6 +2929,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 
+	jQuery('#generate-data-rpd-esakip').on('click', function(){
+		if(confirm("Apakah anda yakin?\nGenerate data dari aplikasi WP-Eval-Sakip dapat menimpa data aktif saat ini.")){
+			generate_data_rpd_esakip();
+		}
+	});
+
 	function generate_data_program_renstra() {
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
@@ -2937,6 +2948,27 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			success: function(res){
 				jQuery('#wrap-loading').hide();
 				if(res.data.length != 0){
+					edit_val = true;
+					refresh_page();
+				}
+			}
+		});
+	}
+
+	function generate_data_rpd_esakip() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url	: ajax.url,
+			type : "post",
+			data : {
+				action: "sync_data_rpd_lokal_esakip",
+				api_key: "<?php echo $api_key; ?>"
+			},
+			dataType: "json",
+			success: function(res){
+				jQuery('#wrap-loading').hide();
+				alert(res.message);
+				if(res.status){
 					edit_val = true;
 					refresh_page();
 				}
