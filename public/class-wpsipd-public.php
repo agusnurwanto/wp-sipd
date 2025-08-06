@@ -27410,9 +27410,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	// =========================================================================
-	// METHOD HANDLER RPJMD & RPD SINKRON ESAKIP
+	// ACTION TO WP-EVAL-SAKIP
 	// =========================================================================
-
 
 	public function is_api_ready_esakip()
 	{
@@ -27668,8 +27667,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
+	// =========================================================================
+	// HELPER METHOD SINKRON ESAKIP RPJMD
+	// =========================================================================
+
 	private $table_data_rpjmd_visi_lokal = 'data_rpjmd_visi_lokal';
 	private $table_data_rpjmd_misi_lokal = 'data_rpjmd_misi_lokal';
+
 	private $table_data_rpjmd_tujuan_lokal = 'data_rpjmd_tujuan_lokal';
 	private $table_data_rpjmd_sasaran_lokal = 'data_rpjmd_sasaran_lokal';
 	private $table_data_rpjmd_program_lokal = 'data_rpjmd_program_lokal';
@@ -27678,6 +27682,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	{
 		global $wpdb;
 
+		$wpdb->update($this->table_data_rpjmd_visi_lokal, ['active' => 0], ['active' => 1]);
+		$wpdb->update($this->table_data_rpjmd_misi_lokal, ['active' => 0], ['active' => 1]);
+
 		$wpdb->update($this->table_data_rpjmd_tujuan_lokal, ['active' => 0], ['active' => 1]);
 		$wpdb->update($this->table_data_rpjmd_sasaran_lokal, ['active' => 0], ['active' => 1]);
 		$wpdb->update($this->table_data_rpjmd_program_lokal, ['active' => 0], ['active' => 1]);
@@ -27685,18 +27692,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$tahun_anggaran_default = get_option(WPSIPD_TAHUN_ANGGARAN);
 
 		foreach ($data as $v) {
+			$id_visi_misi = [];
+			if (!empty($v['keterkaitan_rpjmd'])) {
+				$id_visi_misi = $this->process_insert_and_return_visi_misi_rpjmd($v['keterkaitan_rpjmd'][0]);
+			}
+
 			$datas = [
-				'id_misi'				=> $v['id_misi'],
+				'id_visi'				=> $id_visi_misi['id_visi'] ?? null,
+				'visi_teks'				=> $v['visi_teks'], 
+				'id_misi'				=> $id_visi_misi['id_misi'] ?? null,
+				'misi_teks'				=> $v['misi_teks'],
 				'id_misi_old'			=> $v['id_misi_old'],
 				'id_tujuan'				=> $v['id_tujuan'],
 				'id_unik'				=> $v['id_unik'],
 				'id_unik_indikator'		=> $v['id_unik_indikator'],
-				'id_visi'				=> $v['id_visi'],
 				'indikator_teks'		=> $v['indikator_teks'],
 				'is_locked'				=> $v['is_locked'],
 				'is_locked_indikator'	=> $v['is_locked_indikator'],
 				'misi_lock'				=> $v['misi_lock'],
-				'misi_teks'				=> $v['misi_teks'],
 				'satuan'				=> $v['satuan'],
 				'status'				=> $v['status'],
 				'target_1'				=> $v['target_1'],
@@ -27709,7 +27722,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'tujuan_teks'			=> $v['tujuan_teks'],
 				'urut_misi'				=> $v['urut_misi'],
 				'urut_tujuan'			=> $v['urut_tujuan'],
-				'visi_teks'				=> $v['visi_teks'],
 				'active'				=> 1,
 				'tahun_anggaran'		=> $v['tahun_anggaran'] ?? $tahun_anggaran_default,
 			];
@@ -27733,6 +27745,69 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$this->process_upsert_sasaran_rpjmd_esakip($v['sasaran']);
 			}
 		}
+	}
+
+	private function process_insert_and_return_visi_misi_rpjmd($data)
+	{
+		global $wpdb;
+
+		// VISI
+		$existing_visi_id = $wpdb->get_var(
+			$wpdb->prepare("
+				SELECT id 
+				FROM {$this->table_data_rpjmd_visi_lokal} 
+				WHERE visi_teks = %s
+			", $data['visi']['visi'])
+		);
+
+		$id_visi_final = 0; 
+
+		if (!$existing_visi_id) {
+			$visi_data = [
+				'status'    => 1,
+				'visi_teks' => $data['visi']['visi'],
+				'active'    => 1,
+			];
+
+			$wpdb->insert($this->table_data_rpjmd_visi_lokal, $visi_data);
+
+			$id_visi_final = $wpdb->insert_id;
+		} else {
+			$id_visi_final = $existing_visi_id;
+		}
+
+		// MISI
+		$existing_misi_id = $wpdb->get_var(
+			$wpdb->prepare("
+				SELECT id 
+				FROM {$this->table_data_rpjmd_misi_lokal} 
+				WHERE misi_teks = %s 
+				  AND id_visi = %d
+			", $data['misi']['misi'], $id_visi_final)
+		);
+
+		$id_misi_final = 0;
+
+		if (!$existing_misi_id) {
+			$misi_data = [
+				'id_visi'   => $id_visi_final,
+				'visi_teks' => $data['visi']['visi'], 
+				'misi_teks' => $data['misi']['misi'],
+				'status'    => 1,
+				'active'    => 1,
+			];
+
+			$wpdb->insert($this->table_data_rpjmd_misi_lokal, $misi_data);
+
+			$id_misi_final = $wpdb->insert_id;
+		} else {
+			$id_misi_final = $existing_misi_id;
+		}
+
+		return [
+			'id_visi' => $id_visi_final,
+			'id_misi' => $id_misi_final,
+		];
 	}
 
 	private function process_upsert_sasaran_rpjmd_esakip($data)
@@ -27865,6 +27940,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 		}
 	}
+
+	// =========================================================================
+	// HELPER METHOD SINKRON ESAKIP RPD
+	// =========================================================================
 
 	private $table_data_rpjpd_isu = 'data_rpjpd_isu';
 	private $table_data_rpd_tujuan_lokal = 'data_rpd_tujuan_lokal';
