@@ -20615,7 +20615,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						select 
 							* 
 						from data_rpjmd_visi_lokal
-						where is_locked=0
+						where is_locked = 0
 							AND status=1
 							AND active=1
 					");
@@ -20854,7 +20854,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$sql = $wpdb->prepare("SELECT id FROM data_rpjmd_visi_lokal
 						WHERE visi_teks=%s 
-							AND is_locked=0
+							AND is_locked = 0
 							AND status=1
 							AND active=1", trim($data['visi_teks']));
 
@@ -20918,7 +20918,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$sql = $wpdb->prepare("SELECT id FROM data_rpjmd_visi_lokal
 						WHERE visi_teks=%s
 							AND id!=%d
-							AND is_locked=0
+							AND is_locked = 0
 							AND status=1
 							AND active=1", trim($data['visi_teks']), $data['id_visi']);
 
@@ -20966,7 +20966,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_misi_lokal WHERE id_visi=%d AND is_locked=0 AND status=1 AND active=1", $_POST['id_visi']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_misi_lokal WHERE id_visi=%d AND is_locked = 0 AND status=1 AND active=1", $_POST['id_visi']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Visi sudah digunakan oleh misi", 1);
@@ -21071,7 +21071,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT id FROM data_rpjmd_misi_lokal
 							WHERE misi_teks=%s 
 										AND id_visi=%d
-										AND is_locked=0
+										AND is_locked = 0
 										AND status=1
 										AND active=1
 								", trim($data['misi_teks']), $data['id_visi']));
@@ -21080,7 +21080,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Misi : ' . $data['misi_teks'] . ' sudah ada!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $data['id_visi']));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $data['id_visi']));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi yang dipilih tidak ditemukan!');
@@ -21177,7 +21177,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT id FROM data_rpjmd_misi_lokal
 							WHERE misi_teks=%s 
 									AND id!=%d
-									AND is_locked=0
+									AND is_locked = 0
 									AND status=1
 									AND active=1", trim($data['misi_teks']), $data['id_misi']));
 
@@ -21185,7 +21185,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Misi : ' . $data['misi_teks'] . ' sudah ada!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $data['id_visi']));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $data['id_visi']));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi yang dipilih tidak ditemukan!');
@@ -21231,7 +21231,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_misi=%d AND is_locked=0 AND status=1 AND active=1", $_POST['id_misi']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_misi=%d AND is_locked = 0 AND status=1 AND active=1", $_POST['id_misi']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Misi sudah digunakan oleh tujuan", 1);
@@ -21273,9 +21273,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id_unik IS NOT NULL AND
 								id_unik_indikator IS NULL AND
 								status=1 AND 
-								is_locked=0 AND 
+								is_locked = 0 AND 
 								active=1 ORDER BY id", $_POST['id_misi']);
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+
+					$test = $wpdb->last_query;
 				} else {
 
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -21374,7 +21376,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										AND id_misi=%d
 										AND id_unik is not null
 										AND id_unik_indikator is null
-										AND is_locked=0
+										AND is_locked = 0
 										AND status=1
 										AND active=1
 								", trim($data['tujuan_teks']), $data['id_misi']));
@@ -21383,13 +21385,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Tujuan : ' . $data['tujuan_teks'] . ' sudah ada!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $data['id_misi']));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $data['id_misi']));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -21464,7 +21466,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										AND id_misi=" . $data['id_misi'] . "
 										AND id_unik is not null
 										AND id_unik_indikator is null
-										AND is_locked=0
+										AND is_locked = 0
 										AND status=1
 										AND active=1
 								", trim($data['tujuan_teks']), $data['id_tujuan']));
@@ -21473,13 +21475,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Tujuan : ' . $data['tujuan_teks'] . ' sudah ada!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $data['id_misi']));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $data['id_misi']));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -21545,13 +21547,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE kode_tujuan=%s AND is_locked=0 AND status=1 AND active=1", $_POST['kode_tujuan']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE kode_tujuan=%s AND is_locked = 0 AND status=1 AND active=1", $_POST['kode_tujuan']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Tujuan sudah digunakan oleh sasaran", 1);
 					}
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_tujuan=%d AND id_unik IS NOT NULL AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1", $_POST['id_tujuan']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_tujuan=%d AND id_unik IS NOT NULL AND id_unik_indikator IS NOT NULL AND is_locked = 0 AND status=1 AND active=1", $_POST['id_tujuan']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Tujuan sudah digunakan oleh indikator tujuan", 1);
@@ -21662,19 +21664,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_tujuan']));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_tujuan']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -21787,19 +21789,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_tujuan']));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_tujuan']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -21932,11 +21934,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT 
 							* 
 						FROM data_rpjmd_sasaran_lokal
-						WHERE is_locked=0
+						WHERE is_locked = 0
 							AND kode_tujuan='" . $_POST['kode_tujuan'] . "'
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
+							AND is_locked = 0
 							AND status=1
 							AND active=1
 					");
@@ -21998,26 +22000,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Urut sasaran tidak boleh kosong!');
 					}
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpjmd_sasaran_lokal WHERE sasaran_teks=%s AND kode_tujuan=%s AND is_locked=0 AND status=1 AND active=1
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpjmd_sasaran_lokal WHERE sasaran_teks=%s AND kode_tujuan=%s AND is_locked = 0 AND status=1 AND active=1
 					", $data['sasaran_teks'], $data['kode_tujuan']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Sasaran : ' . $data['sasaran_teks'] . ' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_tujuan']));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_tujuan']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi dari tujuan yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari tujuan yang dipilih tidak ditemukan! Mohon cek misi dari tujuan!');
@@ -22077,7 +22079,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						WHERE id=%d
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
+							AND is_locked = 0
 							AND active=1
 							AND status=1
 						", $_POST['id_sasaran']));
@@ -22133,7 +22135,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								AND id!=%s
 								AND id_unik IS NOT NULL
 								AND id_unik_indikator IS NULL
-								AND is_locked=0
+								AND is_locked = 0
 								AND status=1
 								AND active=1
 					", trim($data['sasaran_teks']), $data['kode_tujuan'], $data['id_sasaran']));
@@ -22142,19 +22144,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Sasaran : ' . $data['sasaran_teks'] . ' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_tujuan']));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_tujuan']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Sasaran tidak terhubung ke Misi, mohon cek relasi antara tujuan dengan misi Rpjm!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Sasaran tidak terhubung ke Visi, mohon cek relasi antara tujuan dan misi Rpjm');
@@ -22219,13 +22221,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE kode_sasaran=%s AND is_locked=0 AND status=1 AND active=1", $_POST['kode_sasaran']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE kode_sasaran=%s AND is_locked = 0 AND status=1 AND active=1", $_POST['kode_sasaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Sasaran sudah digunakan oleh program", 1);
 					}
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id_sasaran=%d AND id_unik IS NOT NULL AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1", $_POST['id_sasaran']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id_sasaran=%d AND id_unik IS NOT NULL AND id_unik_indikator IS NOT NULL AND is_locked = 0 AND status=1 AND active=1", $_POST['id_sasaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Sasaran sudah digunakan oleh indikator sasaran", 1);
@@ -22336,25 +22338,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_sasaran']));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_sasaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan tidak terkoneksi dengan sasaran!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi terkoneksi dengan tujuan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -22470,25 +22472,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_sasaran']));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_sasaran_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['id_sasaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan tidak terkoneksi dengan sasaran!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi yang dipilih tidak ditemukan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
@@ -22626,7 +22628,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id_unik is not null and
 								id_unik_indikator is null and
 								status=1 AND 
-								is_locked=0 AND 
+								is_locked = 0 AND 
 								active=1 ORDER BY id
 						", $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
@@ -22641,7 +22643,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									id_unik IS NOT NULL AND
 									id_unik_indikator IS NULL AND
 									status=1 AND 
-									is_locked=0 AND
+									is_locked = 0 AND
 									active=1
 							", $tahun_anggaran, $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
@@ -22695,25 +22697,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Program sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $data['kode_sasaran']));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $data['kode_sasaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran belum dipilih!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
@@ -22793,7 +22795,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					SELECT * FROM data_rpjmd_program_lokal
 						WHERE id_unik=%s
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
+							AND is_locked = 0
 							AND active=1
 							AND status=1
 						", $_POST['id_unik']), ARRAY_A);
@@ -22845,25 +22847,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Program sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $data['kode_sasaran']));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $data['kode_sasaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran tidak ditemukan!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
@@ -22943,7 +22945,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND id_unik is not null AND id_unik_indikator is not null AND is_locked=0 AND status=1 AND active=1", $_POST['kode_program']));
+					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND id_unik is not null AND id_unik_indikator is not null AND is_locked = 0 AND status=1 AND active=1", $_POST['kode_program']));
 
 					if (!empty($id_cek)) {
 						throw new Exception("Program sudah digunakan oleh indikator program", 1);
@@ -23072,31 +23074,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataProgram = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_program']));
+					$dataProgram = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_program']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataProgram->kode_sasaran));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataProgram->kode_sasaran));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran belum dipilih!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
@@ -23227,31 +23229,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
-					$dataProgram = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_program']));
+					$dataProgram = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL", $data['kode_program']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
 					}
 
-					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataProgram->kode_sasaran));
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataProgram->kode_sasaran));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran belum dipilih!');
 					}
 
-					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked=0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik=%s AND is_locked = 0 AND status=1 AND active=1", $dataSasaran->kode_tujuan));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran!');
 					}
 
-					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataTujuan->id_misi));
+					$dataMisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataTujuan->id_misi));
 
 					if (empty($dataMisi)) {
 						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
 					}
 
-					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked=0 AND status=1 AND active=1", $dataMisi->id_visi));
+					$dataVisi = $wpdb->get_row($wpdb->prepare("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=%d AND is_locked = 0 AND status=1 AND active=1", $dataMisi->id_visi));
 
 					if (empty($dataVisi)) {
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
@@ -27453,8 +27455,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			$response = $this->get_data_jadwal_by_type_esakip($_POST['type']);
-			if (!$response) {
-				throw new Exception('Respon API Esakip tidak sesuai!', 400);
+			if (is_wp_error($response)) {
+				throw new Exception('Gagal menghubungi API Esakip: ' . $response->get_error_message(), 400);
 			}
 
 			echo $response;
@@ -27493,20 +27495,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$response = wp_remote_post(
 			$api_credentials['url'],
 			[
-				'timeout' 	=> 60,
+				'timeout' 	=> 30,
 				'body' 		=> $params
 			]
 		);
 
 		if (is_wp_error($response)) {
-			throw new Exception('Gagal menghubungi API ESAKIP: ' . $response->get_error_message(), 500);
+			error_log('API e-SAKIP Gagal: ' . $response->get_error_message());
+			return $response;
 		}
 
 		$body = wp_remote_retrieve_body($response);
 
 		return $body;
 	}
-	
+
 	public function get_data_rpd_esakip_by_id_jadwal($id_jadwal)
 	{
 		$is_ready = $this->is_api_ready_esakip();
@@ -27525,13 +27528,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$response = wp_remote_post(
 			$api_credentials['url'],
 			[
-				'timeout' 	=> 60,
+				'timeout' 	=> 30,
 				'body' 		=> $params
 			]
 		);
 
 		if (is_wp_error($response)) {
-			throw new Exception('Gagal menghubungi API ESAKIP: ' . $response->get_error_message(), 500);
+			error_log('API e-SAKIP Gagal: ' . $response->get_error_message());
+			return $response;
 		}
 
 		$body = wp_remote_retrieve_body($response);
@@ -27557,13 +27561,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$response = wp_remote_post(
 			$api_credentials['url'],
 			[
-				'timeout' 	=> 60,
+				'timeout' 	=> 30,
 				'body' 		=> $params
 			]
 		);
 
 		if (is_wp_error($response)) {
-			throw new Exception('Gagal menghubungi API ESAKIP: ' . $response->get_error_message(), 500);
+			error_log('API e-SAKIP Gagal: ' . $response->get_error_message());
+			return $response;
 		}
 
 		$body = wp_remote_retrieve_body($response);
@@ -27592,8 +27597,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			$response = $this->get_data_rpd_esakip_by_id_jadwal($active_jadwal['data'][0]['id_jadwal_sakip']);
-			if (!$response) {
-				throw new Exception('Respon API Esakip tidak sesuai!', 400);
+			if (is_wp_error($response)) {
+				throw new Exception('Gagal menghubungi API Esakip: ' . $response->get_error_message(), 400);
 			}
 
 			$api_data = json_decode($response, true);
@@ -27640,8 +27645,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			$response = $this->get_data_rpjmd_esakip_by_id_jadwal($active_jadwal['data'][0]['id_jadwal_sakip']);
-			if (!$response) {
-				throw new Exception('Respon API Esakip tidak sesuai!', 400);
+			if (is_wp_error($response)) {
+				throw new Exception('Gagal menghubungi API Esakip: ' . $response->get_error_message(), 400);
 			}
 
 			$api_data = json_decode($response, true);
@@ -27699,7 +27704,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$datas = [
 				'id_visi'				=> $id_visi_misi['id_visi'] ?? null,
-				'visi_teks'				=> $v['visi_teks'], 
+				'visi_teks'				=> $v['visi_teks'],
 				'id_misi'				=> $id_visi_misi['id_misi'] ?? null,
 				'misi_teks'				=> $v['misi_teks'],
 				'id_misi_old'			=> $v['id_misi_old'],
@@ -27707,11 +27712,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unik'				=> $v['id_unik'],
 				'id_unik_indikator'		=> $v['id_unik_indikator'],
 				'indikator_teks'		=> $v['indikator_teks'],
-				'is_locked'				=> $v['is_locked'],
+				'is_locked'				=> 0,
 				'is_locked_indikator'	=> $v['is_locked_indikator'],
 				'misi_lock'				=> $v['misi_lock'],
 				'satuan'				=> $v['satuan'],
-				'status'				=> $v['status'],
 				'target_1'				=> $v['target_1'],
 				'target_2'				=> $v['target_2'],
 				'target_3'				=> $v['target_3'],
@@ -27722,6 +27726,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'tujuan_teks'			=> $v['tujuan_teks'],
 				'urut_misi'				=> $v['urut_misi'],
 				'urut_tujuan'			=> $v['urut_tujuan'],
+				'status'				=> 1,
 				'active'				=> 1,
 				'tahun_anggaran'		=> $v['tahun_anggaran'] ?? $tahun_anggaran_default,
 			];
@@ -27760,19 +27765,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			", $data['visi']['visi'])
 		);
 
-		$id_visi_final = 0; 
+		$id_visi_final = 0;
+
+		$visi_data = [
+			'status'    => 1,
+			'visi_teks' => $data['visi']['visi'],
+			'active'    => 1,
+		];
 
 		if (!$existing_visi_id) {
-			$visi_data = [
-				'status'    => 1,
-				'visi_teks' => $data['visi']['visi'],
-				'active'    => 1,
-			];
-
 			$wpdb->insert($this->table_data_rpjmd_visi_lokal, $visi_data);
 
 			$id_visi_final = $wpdb->insert_id;
 		} else {
+			$wpdb->update($this->table_data_rpjmd_visi_lokal, $visi_data, ['id' => $existing_visi_id]);
+
 			$id_visi_final = $existing_visi_id;
 		}
 
@@ -27782,25 +27789,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				SELECT id 
 				FROM {$this->table_data_rpjmd_misi_lokal} 
 				WHERE misi_teks = %s 
-				  AND id_visi = %d
+				  AND id_visi = %d  
 			", $data['misi']['misi'], $id_visi_final)
 		);
 
 		$id_misi_final = 0;
 
-		if (!$existing_misi_id) {
-			$misi_data = [
-				'id_visi'   => $id_visi_final,
-				'visi_teks' => $data['visi']['visi'], 
-				'misi_teks' => $data['misi']['misi'],
-				'status'    => 1,
-				'active'    => 1,
-			];
+		$misi_data = [
+			'id_visi'   => $id_visi_final,
+			'visi_teks' => $data['visi']['visi'],
+			'misi_teks' => $data['misi']['misi'],
+			'status'    => 1,
+			'active'    => 1,
+		];
 
+		if (!$existing_misi_id) {
 			$wpdb->insert($this->table_data_rpjmd_misi_lokal, $misi_data);
 
 			$id_misi_final = $wpdb->insert_id;
 		} else {
+			$wpdb->update($this->table_data_rpjmd_misi_lokal, $misi_data, ['id' => $existing_misi_id]);
+
 			$id_misi_final = $existing_misi_id;
 		}
 
@@ -27826,13 +27835,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unik_indikator'		=> $v['id_unik_indikator'],
 				'id_visi'				=> $v['id_visi'],
 				'indikator_teks'		=> $v['indikator_teks'],
-				'is_locked'				=> $v['is_locked'],
+				'is_locked'				=> 0,
 				'is_locked_indikator'	=> $v['is_locked_indikator'],
 				'kode_tujuan'			=> $v['kode_tujuan'],
 				'misi_teks'				=> $v['misi_teks'],
 				'sasaran_teks'			=> $v['sasaran_teks'],
 				'satuan'				=> $v['satuan'],
-				'status'				=> $v['status'],
 				'target_1'				=> $v['target_1'],
 				'target_2'				=> $v['target_2'],
 				'target_3'				=> $v['target_3'],
@@ -27846,6 +27854,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'urut_sasaran'			=> $v['urut_sasaran'],
 				'urut_tujuan'			=> $v['urut_tujuan'],
 				'visi_teks'				=> $v['visi_teks'],
+				'status'				=> 1,
 				'active'				=> 1,
 				'tahun_anggaran'		=> $v['tahun_anggaran'] ?? $tahun_anggaran_default,
 			];
@@ -27888,7 +27897,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unit'				=> $v['id_unit'],
 				'id_visi'				=> $v['id_visi'],
 				'indikator'				=> $v['indikator'],
-				'is_locked'				=> $v['is_locked'],
+				'is_locked'				=> 0,
 				'is_locked_indikator'	=> $v['is_locked_indikator'],
 				'kode_sasaran'			=> $v['kode_sasaran'],
 				'kode_skpd'				=> $v['kode_skpd'],
@@ -27905,7 +27914,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_lock'			=> $v['sasaran_lock'],
 				'sasaran_teks'			=> $v['sasaran_teks'],
 				'satuan'				=> $v['satuan'],
-				'status'				=> $v['status'],
 				'target_1'				=> $v['target_1'],
 				'target_2'				=> $v['target_2'],
 				'target_3'				=> $v['target_3'],
@@ -27919,6 +27927,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'urut_sasaran'			=> $v['urut_sasaran'],
 				'urut_tujuan'			=> $v['urut_tujuan'],
 				'visi_teks'				=> $v['visi_teks'],
+				'status'				=> 1,
 				'active'				=> 1,
 				'tahun_anggaran'		=> $v['tahun_anggaran'] ?? $tahun_anggaran_default,
 				'id_program_lama'		=> $v['id_program_lama'],
@@ -27949,6 +27958,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private $table_data_rpd_tujuan_lokal = 'data_rpd_tujuan_lokal';
 	private $table_data_rpd_sasaran_lokal = 'data_rpd_sasaran_lokal';
 	private $table_data_rpd_program_lokal = 'data_rpd_program_lokal';
+	private $table_data_renstra_sasaran_lokal = 'data_renstra_sasaran_lokal';
 
 	private function process_upsert_tujuan_rpd_esakip($data)
 	{
@@ -27966,7 +27976,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unik'                  => $v['id_unik'],
 				'id_unik_indikator'        => $v['id_unik_indikator'],
 				'indikator_teks'           => $v['indikator_teks'],
-				'is_locked'                => $v['is_locked'],
+				'is_locked'                => 0,
 				'is_locked_indikator'      => $v['is_locked_indikator'],
 				'isu_teks'                 => $v['isu_teks'],
 				'kebijakan_teks'           => $v['kebijakan_teks'],
@@ -27974,7 +27984,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'misi_teks'                => $v['misi_teks'],
 				'saspok_teks'              => $v['saspok_teks'],
 				'satuan'                   => $v['satuan'],
-				'status'                   => $v['status'],
 				'target_1'                 => $v['target_1'],
 				'target_2'                 => $v['target_2'],
 				'target_3'                 => $v['target_3'],
@@ -27991,6 +28000,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'no_urut'                  => $v['no_urut'],
 				'indikator_catatan_teks'   => $v['indikator_catatan_teks'],
 				'catatan_teks_tujuan'      => $v['catatan_teks_tujuan'],
+				'status'                   => 1,
 				'active'                   => 1,
 			];
 
@@ -28028,7 +28038,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unik'				 => $v['id_unik'],
 				'id_unik_indikator'		 => $v['id_unik_indikator'],
 				'indikator_teks'		 => $v['indikator_teks'],
-				'is_locked'				 => $v['is_locked'],
+				'is_locked'				 => 0,
 				'is_locked_indikator'	 => $v['is_locked_indikator'],
 				'isu_teks'				 => $v['isu_teks'],
 				'kebijakan_teks'		 => $v['kebijakan_teks'],
@@ -28038,7 +28048,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_teks'			 => $v['sasaran_teks'],
 				'saspok_teks'			 => $v['saspok_teks'],
 				'satuan'				 => $v['satuan'],
-				'status'				 => $v['status'],
 				'target_1'				 => $v['target_1'],
 				'target_2'				 => $v['target_2'],
 				'target_3'				 => $v['target_3'],
@@ -28056,6 +28065,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_no_urut'		 => $v['sasaran_no_urut'],
 				'sasaran_catatan'		 => $v['sasaran_catatan'],
 				'indikator_catatan_teks' => $v['indikator_catatan_teks'],
+				'status'				 => 1,
 				'active'				 => 1,
 			];
 
@@ -28096,7 +28106,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_unik_indikator'		=> $v['id_unik_indikator'],
 				'id_unit'				=> $v['id_unit'],
 				'indikator'				=> $v['indikator'],
-				'is_locked'				=> $v['is_locked'],
+				'is_locked'				=> 0,
 				'is_locked_indikator'	=> $v['is_locked_indikator'],
 				'isu_teks'				=> $v['isu_teks'],
 				'kebijakan_teks'		=> $v['kebijakan_teks'],
@@ -28117,7 +28127,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_teks'			=> $v['sasaran_teks'],
 				'saspok_teks'			=> $v['saspok_teks'],
 				'satuan'				=> $v['satuan'],
-				'status'				=> $v['status'],
 				'target_1'				=> $v['target_1'],
 				'target_2'				=> $v['target_2'],
 				'target_3'				=> $v['target_3'],
@@ -28133,6 +28142,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'urut_tujuan'			=> $v['urut_tujuan'],
 				'visi_teks'				=> $v['visi_teks'],
 				'catatan'				=> $v['catatan'],
+				'status'				=> 1,
 				'active'				=> 1,
 				'id_program_lama'		=> $v['id_program_lama'],
 			];
@@ -28153,4 +28163,5 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 		}
 	}
+
 }
