@@ -5179,6 +5179,122 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	//Import data SPD SIPD Penatausahaan
+	public function singkron_apbd_per_jadwal()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil Singkron APBD',
+			'action' => $_POST['action'],
+			'id_jadwal' => $_POST['id_jadwal']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $_POST['data'] = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+
+				$id_jadwal_unik = $_POST['id_jadwal'].'999999';
+				foreach ($data as $k => $v) {
+					$kode_bl = $v['id_unit'].'.'.$v['id_sub_skpd'].'.'.$v['id_program'].'.'.$v['id_giat'];
+					$kode_sbl = $kode_bl.'.'.$v['id_sub_giat'];
+					$v['id_rinci_sub_bl'] = $v['id_subs_sub_bl'];
+
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_rinci_sub_bl 
+						from data_rka_history 
+						where tahun_anggaran=%d 
+							AND id_rinci_sub_bl=%s 
+							AND kode_sbl=%s
+					", $_POST['tahun_anggaran'], $v['id_rinci_sub_bl'], $_POST['kode_sbl']));
+					$opsi = array(
+						'harga_satuan' => $v['rincian'],
+						'harga_satuan_murni' => $v['rincian'],
+						'id_daerah' => $v['id_daerah'],
+						'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+						'kode_akun' => $v['kode_akun'],
+						'koefisien' => '1',
+						'koefisien_murni' => '1',
+						'nama_akun' => $v['nama_akun'],
+						'nama_komponen' => $v['subs_bl_teks'],
+						'satuan' => 'paket',
+						'sat1' => 'paket',
+						'volum1' => '1',
+						'volume_murni' => '1',
+						'spek' => $v['subs_bl_teks'],
+						'subs_bl_teks' => $v['subs_bl_teks'],
+						'substeks' => $v['subs_bl_teks'],
+						'id_dana' => $v['id_dana'],
+						'nama_dana' => $v['nama_dana'],
+						'is_paket' => $v['is_paket'],
+						'kode_dana' => $v['kode_dana'],
+						'total_harga' => $v['rincian'],
+						'rincian' => $v['rincian'],
+						'rincian_murni' => $v['rincian'],
+						'user1' => 'Singkron SIPD Per Jadwal',
+						'user2' => 'Singkron SIPD Per Jadwal',
+						'idbl' => '',
+						'idsubbl' => $v['id_sub_bl'],
+						'kode_bl' => $kode_bl,
+						'kode_sbl' => $kode_sbl,
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'id_jadwal' => $id_jadwal_unik
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_rka_history', $opsi, array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+							'kode_sbl' => $kode_sbl
+						));
+					} else {
+						$wpdb->insert('data_rka_history', $opsi);
+					}
+					// print_r($opsi); print_r($wpdb->last_query);
+
+					if (!empty($v['id_rinci_sub_bl'])) {
+						$cek_id = $wpdb->get_var($wpdb->prepare(
+							'
+							select 
+								id 
+							from data_mapping_sumberdana_history 
+							where tahun_anggaran=%d
+								and id_rinci_sub_bl=%d 
+								and active=1',
+							$_POST['tahun_anggaran'],
+							$v['id_rinci_sub_bl']
+						));
+						$opsi = array(
+							'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+							'id_sumber_dana' => $iddana,
+							'user' => 'Singkron SIPD RI per Jadwal',
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_jadwal' => $id_jadwal_unik
+						);
+						if (empty($cek_id)) {
+							$wpdb->insert('data_mapping_sumberdana_history', $opsi);
+						} else if ($update) {
+							$wpdb->update('data_mapping_sumberdana_history', $opsi, array(
+								'id' => $cek_id
+							));
+						}
+					}
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "API KEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
+
 	public function getSSH()
 	{
 		global $wpdb;

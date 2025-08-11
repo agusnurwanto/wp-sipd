@@ -275,6 +275,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_rka',  $plugin_public, 'singkron_rka');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_rka',  $plugin_public, 'singkron_rka');
 
+		$this->loader->add_action('wp_ajax_singkron_apbd_per_jadwal',  $plugin_public, 'singkron_apbd_per_jadwal');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_apbd_per_jadwal',  $plugin_public, 'singkron_apbd_per_jadwal');
+
 		$this->loader->add_action('wp_ajax_singkron_unit',  $plugin_public, 'singkron_unit');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_unit',  $plugin_public, 'singkron_unit');
 
