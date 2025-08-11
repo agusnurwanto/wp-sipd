@@ -1,0 +1,447 @@
+<?php
+global $wpdb;
+
+if (!defined('WPINC')) {
+    die;
+}
+
+$input = shortcode_atts(array(
+    'tahun_anggaran' => '2023'
+), $atts);
+
+if (!empty($_GET) && !empty($_GET['id_skpd'])) {
+    $id_skpd = $_GET['id_skpd'];
+}
+$sql_unit = $wpdb->prepare("
+    SELECT 
+        *
+    FROM data_unit 
+    WHERE 
+        tahun_anggaran=%d
+        AND id_skpd =%d
+        AND active=1
+    order by id_skpd ASC
+    ", $input['tahun_anggaran'], $id_skpd);
+$unit = $wpdb->get_results($sql_unit, ARRAY_A);
+$unit_utama = $unit;
+if ($unit[0]['id_unit'] != $unit[0]['id_skpd']) {
+    $sql_unit_utama = $wpdb->prepare("
+        SELECT 
+            *
+        FROM data_unit
+        WHERE 
+            tahun_anggaran=%d
+            AND id_skpd=%d
+            AND active=1
+        order by id_skpd ASC
+        ", $input['tahun_anggaran'], $unit[0]['id_unit']);
+    $unit_utama = $wpdb->get_results($sql_unit_utama, ARRAY_A);
+}
+
+$unit = (!empty($unit)) ? $unit : array();
+$nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
+
+$cek_jadwal_renja = $wpdb->get_results(
+    $wpdb->prepare('
+        SELECT 
+            *
+        FROM data_jadwal_lokal
+        WHERE status = %d
+          AND id_tipe = %d
+          AND tahun_anggaran = %d
+    ', 0, 16, $input['tahun_anggaran']),
+    ARRAY_A
+);
+
+$selected_tujuan_sasaran = "<option value='-1'>Pilih Tujuan / Sasaran</option>";
+$id_jadwal = 0;
+if (!empty($cek_jadwal_renja)) {
+    foreach ($cek_jadwal_renja as $jadwal_renja) {
+        $id_jadwal = $jadwal_renja['relasi_perencanaan'];
+        $get_data_tujuan = $wpdb->get_results(
+            $wpdb->prepare("
+                SELECT 
+                    id, 
+                    tujuan_teks, 
+                    nama_bidang_urusan
+                FROM data_renstra_tujuan
+                WHERE id_unit=%d
+                  AND id_jadwal=%d 
+                  AND id_unik_indikator IS NULL
+                  AND active=1
+                ORDER BY id
+            ", $id_skpd, $id_jadwal),
+            ARRAY_A
+        );
+
+        $sasaran = $wpdb->get_results(
+            $wpdb->prepare("
+                SELECT 
+                    id, 
+                    sasaran_teks, 
+                    nama_bidang_urusan
+                FROM data_renstra_sasaran 
+                WHERE active=1 
+                  AND id_jadwal=%d
+                  AND id_unit=%d 
+                  AND id_unik_indikator IS NULL
+                ORDER BY id
+            ", $id_jadwal, $id_skpd),
+            ARRAY_A
+        );
+
+        foreach ($get_data_tujuan as $t) {
+            $nama_bidang = preg_replace('/^\d+(\.\d+)*\s*/', '', $t['nama_bidang_urusan']);
+            $selected_tujuan_sasaran .= "<option value='{$t['id']}' data-type='0'>Tujuan | {$t['tujuan_teks']} | {$nama_bidang}</option>";
+        }
+
+        foreach ($sasaran as $s) {
+            $nama_bidang = preg_replace('/^\d+(\.\d+)*\s*/', '', $s['nama_bidang_urusan']);
+            $selected_tujuan_sasaran .= "<option value='{$s['id']}' data-type='1'>Sasaran | {$s['sasaran_teks']} | {$nama_bidang}</option>";
+        }
+
+    }
+}
+
+?>
+<style type="text/css">
+    .wrap-table {
+        overflow: auto;
+        max-height: 100vh;
+        width: 100%;
+    }
+
+    .btn-action-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action-group .btn {
+        margin: 0 5px;
+    }
+
+    .table_manrisk_tujuan_sasaran thead {
+        position: sticky;
+        top: -6px;
+    }
+
+    .table_manrisk_tujuan_sasaran thead th {
+        vertical-align: middle;
+    }
+
+    .table_manrisk_tujuan_sasaran tfoot {
+        position: sticky;
+        bottom: 0;
+    }
+</style>
+<div class="container-md">
+    <div class="cetak">
+        <div style="padding: 10px;margin:0 0 3rem 0;">
+            <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
+            <h1 class="text-center table-title">Manajemen Resiko Tujuan / Sasaran <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+            </h1>
+            <div id='aksi-wpsipd'></div>
+            <div class="wrap-table">
+                <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table_manrisk_tujuan_sasaran table-bordered">
+                    <thead style="background: #ffc491; text-align:center;">
+                        <tr>
+                            <th rowspan="3">No</th>
+                            <th colspan="13">SEBELUM EVALUASI</th>
+                            <th rowspan="3">Rencana Tindak Pengendalian</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">Tujuan Strategis/ Sasaran Strategis Pemda OPD</th>
+                            <th rowspan="2">Indikator Kinerja</th>
+                            <th colspan="3">Risiko</th>
+                            <th colspan="2">Sebab</th>
+                            <th rowspan="2">Controllable / Uncontrollable</th>
+                            <th colspan="2">Dampak</th>
+                            <th rowspan="2">Skala Dampak</th>
+                            <th rowspan="2">Skala Kemungkinan</th>
+                            <th rowspan="2">Nilai Risiko (12x13)</th>
+                        </tr>
+                        <tr>
+                            <th>Uraian</th>
+                            <th>Kode Risiko</th>
+                            <th>Pemilik Risiko</th>
+                            <th>Uraian</th>
+                            <th>Sumber</th>
+                            <th>Uraian</th>
+                            <th>Pihak yang Terkena</th>
+                        </tr>
+                        <tr>
+                            <th>(1)</th>
+                            <th>(2)</th>
+                            <th>(3)</th>
+                            <th>(4)</th>
+                            <th>(5)</th>
+                            <th>(6)</th>
+                            <th>(7)</th>
+                            <th>(8)</th>
+                            <th>(9)</th>
+                            <th>(10)</th>
+                            <th>(11)</th>
+                            <th>(12)</th>
+                            <th>(13)</th>
+                            <th>(14)</th>
+                            <th>(15)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal tambah tujuan sasaran -->
+<div class="modal fade" id="tambahTujuanSasaranModal" tabindex="-1" role="dialog" aria-labelledby="tambahTujuanSasaranModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TambahTujuanSasaranModalLabel">Tambah Tujuan / Sasaran</h5>
+                <h5 class="modal-title" id="editTujuanSasaranModalLabel">Edit Tujuan / Sasaran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+             <div class="modal-body">
+                <form id="formTambahTujuanSasaran">
+                    <input type="hidden" value="" id="id_data">
+                    <input type="hidden" value="" id="idTujuanSasaran">
+                    <input type="hidden" value="" id="id_indikator">
+                    <div class="form-group">
+                        <label for="nama_tujuan_sasaran">Nama Tujuan / Sasaran</label>
+                        <select id="nama_tujuan_sasaran" style='display:block;width: 100%;' onchange="get_indikator();">
+                            <?php echo $selected_tujuan_sasaran; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="indikator_kinerja">Indikator Kinerja</label>
+                        <div id="indikator_kinerja_wrapper">
+                            <select id="indikator_kinerja" style="display:block;width:100%;">
+                                <option value="">Pilih Indikator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="uraian_resiko">Uraian Resiko</label>
+                        <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kode_resiko">Kode Resiko</label>
+                        <input type="text" class="form-control" id="kode_resiko" name="kode_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pemilik_resiko">Pemilik Resiko</label>
+                        <input type="text" class="form-control" id="pemilik_resiko" name="pemilik_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="uraian_sebab">Uraian Sebab</label>
+                        <input type="text" class="form-control" id="uraian_sebab" name="uraian_sebab" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sumber_sebab">Sumber Sebab</label>
+                        <input type="text" class="form-control" id="sumber_sebab" name="sumber_sebab" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="d-block">Controllable / Uncontrollable</label>
+                        <tr>
+                            <td>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input class="custom-control-input" type="radio" name="controllable_status" id="controllable_status_controllable" value="0">
+                                    <label class="custom-control-label" for="controllable_status_controllable">Controllable</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input class="custom-control-input" type="radio" name="controllable_status" id="controllable_status_uncontrollable" value="1">
+                                    <label class="custom-control-label" for="controllable_status_uncontrollable">Uncontrollable</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </div>
+                    <div class="form-group">
+                        <label for="uraian_dampak">Uraian Dampak</label>
+                        <input type="text" class="form-control" id="uraian_dampak" name="uraian_dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pihak_terkena">Pihak yang Terkena</label>
+                        <input type="text" class="form-control" id="pihak_terkena" name="pihak_terkena" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_dampak">Skala Dampak</label>
+                        <input type="text" class="form-control" id="skala_dampak" name="skala_dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_kemungkinan">Skala Kemungkinan</label>
+                        <input type="text" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nilai_resiko">Nilai Resiko</label>
+                        <input type="text" class="form-control" id="nilai_resiko" name="nilai_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rencana_tindak_pengendalian">Rencana Tindak Pengendalian</label>
+                        <textarea type="text" class="form-control" id="rencana_tindak_pengendalian" name="rencana_tindak_pengendalian" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="submit_tujuan_sasaran(); return false">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        get_table_tujuan_sasaran();
+        run_download_excel('', '#aksi-wpsipd');
+        jQuery('#aksi-wpsipd a').first().after('<a style="margin-left: 10px;" onclick="tambah_tujuan_sasaran(); return false;" href="#" class="btn btn-primary">Tambah Tujuan / Sasaran</a>');
+    });
+
+    function get_table_tujuan_sasaran() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_table_tujuan_sasaran',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_jadwal': <?php echo $id_jadwal; ?>,
+                'id_skpd': <?php echo $id_skpd; ?>
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                if (response.status === 'success') {
+                    jQuery('.table_manrisk_tujuan_sasaran tbody').html(response.data);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat tabel!');
+            }
+        });
+    }
+
+    function tambah_tujuan_sasaran() {
+        jQuery('#TambahTujuanSasaranModalLabel').show();
+        jQuery('#editTujuanSasaranModalLabel').hide();
+        jQuery("#idTujuanSasaran").val('');
+        jQuery("#uraian_resiko").val('');
+        jQuery("#kode_resiko").val('');
+        jQuery("#pemilik_resiko").val('');
+        jQuery("#uraian_sebab").val('');
+        jQuery("#sumber_sebab").val('');
+        jQuery("#controllable").val('');
+        jQuery("#uncontrollable").val('');
+        jQuery("#uraian_dampak").val('');
+        jQuery("#pihak_terkena").val('');
+        jQuery("#skala_dampak").val('');
+        jQuery("#skala_kemungkinan").val('');
+        jQuery("#nilai_resiko").val('');
+        jQuery("#rencana_tindak_pengendalian").val('');
+        jQuery('#tambahTujuanSasaranModal').modal('show');
+    }
+
+    function get_indikator(){
+        let selected = jQuery('#nama_tujuan_sasaran').val();    
+        if(!selected || selected == '-1') return;
+
+        jQuery("#wrap-loading").show();
+
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_indikator_tujuan_sasaran',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_skpd': <?php echo $id_skpd; ?>,
+                'id': selected
+            },
+            success:function(response){
+                jQuery("#wrap-loading").hide();
+                if(response.status == 'success'){
+                    jQuery('#indikator_kinerja').html(response.html);
+                }else{
+                    alert(`GAGAL! \n${response.message}`);
+                }
+            }
+        });
+    }
+
+    function submit_tujuan_sasaran() {
+        let id = jQuery('#id_data').val();
+        let selected = jQuery('#nama_tujuan_sasaran').val();
+        let selected_indikator = jQuery("#indikator_kinerja").val();
+        let tipe = jQuery('#nama_tujuan_sasaran option:selected').data('type');
+        let uraian_resiko = jQuery("#uraian_resiko").val();
+        let kode_resiko = jQuery("#kode_resiko").val();
+        let pemilik_resiko = jQuery("#pemilik_resiko").val();
+        let uraian_sebab = jQuery("#uraian_sebab").val();
+        let sumber_sebab = jQuery("#sumber_sebab").val();
+        let controllable_status = jQuery("input[name='controllable_status']:checked").val();
+        let uraian_dampak = jQuery("#uraian_dampak").val();
+        let pihak_terkena = jQuery("#pihak_terkena").val();
+        let skala_dampak = jQuery("#skala_dampak").val();
+        let skala_kemungkinan = jQuery("#skala_kemungkinan").val();
+        let nilai_resiko = jQuery("#nilai_resiko").val();
+        let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian").val();
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'submit_tujuan_sasaran',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id: id, 
+                id_tujuan_sasaran: selected, 
+                id_indikator: selected_indikator,
+                tipe: tipe,
+                uraian_resiko: uraian_resiko,
+                kode_resiko: kode_resiko,
+                pemilik_resiko: pemilik_resiko,
+                uraian_sebab: uraian_sebab,
+                sumber_sebab: sumber_sebab,
+                controllable_status: controllable_status, 
+                uraian_dampak: uraian_dampak,
+                pihak_terkena: pihak_terkena,
+                skala_dampak: skala_dampak,
+                skala_kemungkinan: skala_kemungkinan,
+                nilai_resiko: nilai_resiko,
+                rencana_tindak_pengendalian: rencana_tindak_pengendalian
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status === 'success') {
+                    jQuery('#tambahTujuanSasaranModal').modal('hide');
+                    get_table_tujuan_sasaran();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+</script>

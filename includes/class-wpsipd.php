@@ -1150,6 +1150,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_table_skpd_efisiensi_belanja',  $plugin_public, 'get_table_skpd_efisiensi_belanja');
 		$this->loader->add_action('wp_ajax_edit_efisiensi',  $plugin_public, 'edit_efisiensi');
 		$this->loader->add_action('wp_ajax_simpan_data_efisiensi',  $plugin_public, 'simpan_data_efisiensi');
+		
+		$this->loader->add_action('wp_ajax_get_table_tujuan_sasaran',  $plugin_public, 'get_table_tujuan_sasaran');
+		$this->loader->add_action('wp_ajax_get_indikator_tujuan_sasaran',  $plugin_public, 'get_indikator_tujuan_sasaran');
+		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran',  $plugin_public, 'submit_tujuan_sasaran');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -1316,6 +1320,11 @@ class Wpsipd
 		add_shortcode('efisiensi_belanja',array($plugin_public,'efisiensi_belanja'));
 		add_shortcode('detail_efisiensi_belanja',array($plugin_public,'detail_efisiensi_belanja'));
 		add_shortcode('detail_efisiensi_belanja_pemda',array($plugin_public,'detail_efisiensi_belanja_pemda'));
+
+		add_shortcode('tujuan_sasaran_manrisk',array($plugin_public,'tujuan_sasaran_manrisk'));
+		add_shortcode('program_kegiatan_manrisk',array($plugin_public,'program_kegiatan_manrisk'));
+		add_shortcode('detail_tujuan_sasaran_manrisk',array($plugin_public,'detail_tujuan_sasaran_manrisk'));
+		add_shortcode('detail_program_kegiatan_manrisk',array($plugin_public,'detail_program_kegiatan_manrisk'));
 	}
 
 	/**

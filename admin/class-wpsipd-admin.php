@@ -1006,13 +1006,50 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			if (get_option('_crb_show_menu_sppd_settings') != true) {
 				$sppd = Container::make('theme_options', __('SPPD'))
-					->set_page_menu_position(7)
+					->set_page_menu_position(8)
 					->set_icon('dashicons-airplane');
 
 				if (get_option('_crb_show_submenu_spt_sppd_settings') != true) {
 					Container::make('theme_options', __('SPT (Surat Perintah Tugas)'))
 						->set_page_parent($sppd)
 						->add_fields($this->get_ajax_field(array('type' => 'spt_sppd')));
+				}
+			}
+
+			$show_manajemen_resiko_menu = get_option('_crb_show_menu_manajemen_resiko_settings');
+			if ($show_manajemen_resiko_menu != true) {
+				$manrisk = Container::make('theme_options', __('Manajemen Resiko'))
+					->set_page_menu_position(9)
+					->set_icon('dashicons-media-spreadsheet');
+
+				if (get_option('_crb_show_menu_konteks_resiko_settings') != true) {
+					Container::make('theme_options', __('Konteks Resiko'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'konteks_resiko')));
+				}
+
+				if (get_option('_crb_show_menu_rpjmd_renstra_settings') != true) {
+					Container::make('theme_options', __('RPJMD RENSTRA'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'rpjmd_renstra')));
+				}
+
+				if (get_option('_crb_show_menu_tujuan_sasaran_settings') != true) {
+					Container::make('theme_options', __('Tujuan / Sasaran'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'tujuan_sasaran')));
+				}
+
+				if (get_option('_crb_show_menu_program_kegiatan_settings') != true) {
+					Container::make('theme_options', __('Program / Kegiatan'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'program_kegiatan')));
+				}
+
+				if (get_option('_crb_show_menu_kecurangan_mcp_settings') != true) {
+					Container::make('theme_options', __('Kecurangan MCP'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'kecurangan_mcp')));
 				}
 			}
 		}
@@ -1579,6 +1616,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'aklap_lra') {
 						$url_pemda = $this->generatePage('AKLAP LRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman LRA AKLAP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+					} else if ($_POST['type'] == 'tujuan_sasaran') {
+						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Daftar Resiko Tujuan / Sasaran Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'program_kegiatan') {
+						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Daftar Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					}
 
 					if ($_POST['type'] == 'spt_sppd') {
@@ -1798,6 +1843,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'pohon_kinerja_renja'
 					|| $_POST['type'] == 'aklap_lra'
 					|| $_POST['type'] == 'spt_sppd'
+					|| $_POST['type'] == 'tujuan_sasaran'
+					|| $_POST['type'] == 'program_kegiatan'
 				) {
 					$ret['message'] = $body_all;
 				}
@@ -2479,6 +2526,20 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			Field::make('separator', 'crb_show_menu_sppd_settings', 'Non Aktifkan Menu ( SPPD )'),
 			Field::make('checkbox', 'crb_show_submenu_spt_sppd_settings', 'SPT (Surat Perintah Tugas)')
+				->set_option_value('true'),
+
+			Field::make('separator', 'crb_show_menu_manajemen_resiko', 'Non Aktifkan Menu ( Manajemen Resiko )'),
+			Field::make('checkbox', 'crb_show_menu_manajemen_resiko_settings', 'Manajemen Resiko')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_konteks_resiko_settings', 'Konteks Resiko')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_rpjmd_renstra_settings', 'RPJMD RENSTRA')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_tujuan_sasaran_settings', 'Tujuan / Sasaran')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_program_kegiatan_settings', 'Program / Kegiatan')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_kecurangan_mcp_settings', 'Kecurangan MCP')
 				->set_option_value('true'),
 		);
 		return $field;
