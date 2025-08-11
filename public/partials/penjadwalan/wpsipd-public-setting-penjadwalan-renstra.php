@@ -14,13 +14,14 @@ $sqlTipe = $wpdb->get_results(
 		FROM `data_tipe_perencanaan` 
 		WHERE nama_tipe = %s
 		   OR nama_tipe = %s
-		   OR nama_tipe = %s
-		", 'rpd', 'rpjm', 'monev_rpjmd'),
+		", 'rpd', 'rpjm'),
 	ARRAY_A
 );
 
-$data_rpd_rpjm = $wpdb->get_results(
-	$wpdb->prepare('
+$namaTipeArray = array_column($sqlTipe, 'id');
+$type = implode(', ', $namaTipeArray);
+
+$data_rpd_rpjm = $wpdb->get_results("
 		SELECT
 			id_jadwal_lokal,
 			nama,
@@ -29,13 +30,8 @@ $data_rpd_rpjm = $wpdb->get_results(
 			tahun_anggaran,
 			tahun_akhir_anggaran
 		FROM data_jadwal_lokal
-		WHERE status = 1
-		  AND id_tipe = %d
-		   OR status = 1
-		  AND id_tipe = %d
-		   OR id_tipe = %d
-	', $sqlTipe[0]['id'], $sqlTipe[1]['id'], $sqlTipe[2]['id']),
-	ARRAY_A
+		WHERE id_tipe IN ({$type})
+	", ARRAY_A
 );
 
 if (!empty($data_rpd_rpjm)) {

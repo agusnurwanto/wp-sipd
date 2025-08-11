@@ -152,6 +152,7 @@ $sql = "
 	select 
 		* 
 	from data_rpjmd_visi_lokal
+	WHERE active = 1
 ";
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
 
@@ -169,6 +170,7 @@ foreach ($visi_all as $visi) {
 			* 
 		from data_rpjmd_misi_lokal
 		where id_visi=%s
+		  AND active = 1
 	", $visi['id']);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
 
@@ -332,12 +334,14 @@ if(!empty($misi_ids)){
 			* 
 		from data_rpjmd_misi_lokal
 		where id not in (".implode(',', $misi_ids).")
+		  AND active = 1
 	";
 }else{
 	$sql = "
 		select 
 			* 
 		from data_rpjmd_misi_lokal
+		WHERE active = 1
 	";
 }
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);

@@ -275,6 +275,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_rka',  $plugin_public, 'singkron_rka');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_rka',  $plugin_public, 'singkron_rka');
 
+		$this->loader->add_action('wp_ajax_singkron_apbd_per_jadwal',  $plugin_public, 'singkron_apbd_per_jadwal');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_apbd_per_jadwal',  $plugin_public, 'singkron_apbd_per_jadwal');
+
 		$this->loader->add_action('wp_ajax_singkron_unit',  $plugin_public, 'singkron_unit');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_unit',  $plugin_public, 'singkron_unit');
 
@@ -1086,10 +1089,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
 
 		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
+
 		$this->loader->add_action('wp_ajax_get_jadwal_by_type_esakip',  $plugin_public, 'get_jadwal_by_type_esakip');
 		$this->loader->add_action('wp_ajax_sync_data_rpd_lokal_esakip',  $plugin_public, 'sync_data_rpd_lokal_esakip');
 		$this->loader->add_action('wp_ajax_sync_data_rpjmd_lokal_esakip',  $plugin_public, 'sync_data_rpjmd_lokal_esakip');
-		
+				
 		$this->loader->add_action('wp_ajax_get_data_spd_sipd',  $plugin_public, 'get_data_spd_sipd');
 		$this->loader->add_action('wp_ajax_show_spd',  $plugin_public, 'show_spd');
 

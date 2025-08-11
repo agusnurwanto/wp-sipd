@@ -178,7 +178,6 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 
 			if (is_api_ready_esakip) {
 				const jadwal_rpd_esakip = await get_jadwal_rpjmd_esakip();
-				console.log('aktif integrasi')
 
 				let options = `<option value="">Pilih Jadwal RPJMD</option>`;
 				const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI']
@@ -189,9 +188,13 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 							options += `<option value="${val.id}">${val.nama_jadwal} [${statusMapping[val.status]}] | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}</option>`;
 						}
 					});
-				}
 
-				jQuery(`#id_jadwal_esakip`).empty().append(options);
+					jQuery(`#id_jadwal_esakip`).empty().append(options).removeAttr('disabled');
+				} else {
+					options = `<option value="">Tidak tersedia</option>`;
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', true);
+					alert(jadwal_rpd_esakip.message);
+				}
 
 				jQuery(`#jadwal-esakip-container`).show();
 			}
@@ -235,8 +238,14 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 							options += `<option value="${val.id}">${val.nama_jadwal} [${statusMapping[val.status]}] | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}</option>`;
 						}
 					});
-				}
 
+					jQuery(`#id_jadwal_esakip`).empty().append(options).removeAttr('disabled');
+					jQuery("#id_jadwal_esakip").val(data_jadwal.data.id_jadwal_sakip);
+				} else {
+					options = `<option value="">Tidak tersedia</option>`;
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', true);
+					alert(jadwal_rpd_esakip.message);
+				}
 
 				jQuery(`#id_jadwal_esakip`).empty().append(options);
 				jQuery("#id_jadwal_esakip").val(data_jadwal.data.id_jadwal_sakip);
