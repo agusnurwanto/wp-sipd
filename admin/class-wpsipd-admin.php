@@ -262,7 +262,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if (get_option('_crb_show_menu_wpsipd_api_settings') != true) {
 			Container::make('theme_options', __('API Setting'))
 				->set_page_parent($basic_options_container)
-				->add_fields($this->get_api_setting());
+				->add_tab('🔌 API WP-SIPD', $this->generate_tab_api_wp_sipd())
+				->add_tab('🔌 API WP-EVAL-SAKIP', $this->generate_tab_api_wp_eval_sakip());
 		}
 
 		if (get_option('_crb_show_menu_wpsipd_skpd_settings') != true) {
@@ -303,21 +304,21 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		Container::make('theme_options', __('Auto Login'))
 			->set_page_parent($basic_options_container)
 			->add_fields(array(
-				Field::make( 'complex', 'crb_auto_login', __( 'Setting Auto Login' ) )
-				    ->add_fields(array(
-				    	Field::make( 'text', 'id_login', __( 'Nama / ID unik' ) )
-	        				->set_default_value('xxxxx')
-	        				->set_help_text('Harus diisi unik, tidak boleh kosong dan sama.')
-	        				->set_required( true ),
-				    	Field::make( 'text', 'app_url', __( 'Domain / URL wordpress tujuan' ) )
-	        				->set_default_value('http://localhost')
-	        				->set_help_text('Alamat situs tujuan yang akan dibuat login otomatis.')
-	        				->set_required( true ),
-					    Field::make( 'text', 'api_key', __( 'API Key' ) )
-	        				->set_default_value('xxxxxxxxxxxxxxxxxx')
-	        				->set_help_text('Kode unik untuk validasi user login dari website tujuan.')
-	        				->set_required( true ),
-					    Field::make('html', 'crb_halaman_terkait_bkk_infrastruktur')
+				Field::make('complex', 'crb_auto_login', __('Setting Auto Login'))
+					->add_fields(array(
+						Field::make('text', 'id_login', __('Nama / ID unik'))
+							->set_default_value('xxxxx')
+							->set_help_text('Harus diisi unik, tidak boleh kosong dan sama.')
+							->set_required(true),
+						Field::make('text', 'app_url', __('Domain / URL wordpress tujuan'))
+							->set_default_value('http://localhost')
+							->set_help_text('Alamat situs tujuan yang akan dibuat login otomatis.')
+							->set_required(true),
+						Field::make('text', 'api_key', __('API Key'))
+							->set_default_value('xxxxxxxxxxxxxxxxxx')
+							->set_help_text('Kode unik untuk validasi user login dari website tujuan.')
+							->set_required(true),
+						Field::make('html', 'crb_halaman_terkait_bkk_infrastruktur')
 							->set_html('
 								<a onclick="coba_auto_login(this); return false;" href="#" class="button button-primary">Coba login</a>
 								<br>
@@ -330,7 +331,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 									<li>url berisi link yang diakses setelah berhasil login</li>
 								</ol>
 							')
-        			))
+					))
 			));
 
 		$show_monev_sipd_menu = get_option('_crb_show_menu_monev_monev_sipd_settings');
@@ -536,7 +537,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (get_option('_crb_show_menu_input_jadwal_settings') != true) {
 				Container::make('theme_options', __('Jadwal & Input Perencanaan'))
 					->set_page_parent($input_perencanaan)
-					->add_fields($this->generate_jadwal_perencanaan());
+					->add_tab('🏙️ Input Perencanaan', $this->generate_tab_input_perencanaan())
+					->add_tab('📅 Jadwal Input Perencanaan', $this->generate_tab_jadwal())
+					->add_tab('🎚️ Input Batasan Pagu Sumber Dana', $this->generate_tab_input_batasan_pagu_sumber_dana());
 			}
 
 			if (get_option('_crb_show_menu_input_input_renstra_settings') != true) {
@@ -1291,13 +1294,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				$type = $_POST['type'] ?? '';
 				$tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
 
-				$tahun = $wpdb->get_results('
+				$tahun = $wpdb->get_results(
+					'
 						SELECT DISTINCT
 							tahun_anggaran 
 						FROM data_unit 
 						WHERE active = 1
 						ORDER BY tahun_anggaran DESC
-					', ARRAY_A
+					',
+					ARRAY_A
 				);
 				foreach ($tahun as $k => $v) {
 					$unit = $wpdb->get_results("
@@ -1905,6 +1910,37 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		die(json_encode($ret));
 	}
 
+	public function get_tahun()
+	{
+		global $wpdb;
+
+		$data = $wpdb->get_results('
+			SELECT DISTINCT tahun_anggaran 
+			FROM data_unit
+			ORDER BY tahun_anggaran DESC
+		', ARRAY_A);
+
+		return $data;
+	}
+
+	private function render_accordion($pages)
+	{
+		$html = '';
+
+		foreach ($pages as $v) {
+			$html .= '
+			<h3 class="header-tahun" tahun="' . $v['key'] . '">' . $v['title'] . '</h3>
+			<div class="body-tahun" tahun="' . $v['key'] . '">
+				<ul style="margin-left: 20px;">
+					<li><a target="_blank" href="' . $v['url'] . '">' . $v['title'] . '</a></li>
+				</ul>
+			</div>';
+		}
+
+		return $html;
+	}
+
+
 	public function get_setting_fmis()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_fmis_setting.php') {
@@ -2182,47 +2218,30 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		return array_merge($settings, $sub_unit);
 	}
 
-	public function get_api_setting()
+	public function generate_tab_api_wp_sipd()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_api_setting.php') {
 			return array();
 		}
-		global $wpdb;
-		$unit = array();
+
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		if (empty(!$tahun_anggaran)) {
-			$unit = $wpdb->get_results("
-				SELECT 
-					nama_skpd, 
-					id_skpd, 
-					kode_skpd 
-				from data_unit 
-				where active=1 
-					and tahun_anggaran=" . $tahun_anggaran . ' 
-				order by id_skpd ASC
-			', ARRAY_A);
-		}
 
 		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
-		if (
-			get_option('_crb_url_server_modul_migrasi_data') == admin_url(
-				'admin-ajax.php'
-					|| empty(get_option('_crb_url_server_modul_migrasi_data'))
-			)
-		) {
+		if (get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' || empty(get_option('_crb_url_server_modul_migrasi_data')))) {
 			$disabled = 'disabled';
 		}
 
 		$title = 'Dokumentasi API WP-SIPD';
 		$shortcode = '[dokumentasi_api_wpsipd]';
-		$url_api = $this->generatePage($title, false, $shortcode);
-		$mapping_unit = array(
+		$gen_page = $this->generatePage($title, false, $shortcode);
+
+		return [
 			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
 				->set_html('
 					<h3>Tahun Anggaran: ' . $tahun_anggaran . '</h3>
 					<h4>Halaman Terkait:</h4>
 					<ol>
-						<li><a href="' . $url_api . '" target="_blank">' . $title . '</a></li>
+						<li><a href="' . $gen_page . '" target="_blank">' . $title . '</a></li>
 					</ol>
 				'),
 			Field::make('text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data')
@@ -2232,9 +2251,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('html', 'crb_html_get_sinkron_modul_migrasi_data')
 				->set_html('<a href="#" class="button button-primary" ' . $disabled . '>Sinkron data dari server migrasi data</a>')
 				->set_help_text($this->last_sinkron_api_setting())
-		);
+		];
+	}
 
-		return $mapping_unit;
+	public function generate_tab_api_wp_eval_sakip()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_api_setting.php') {
+			return array();
+		}
+
+		return [
+			Field::make('radio', 'crb_api_wp_eval_sakip_status', 'Status API')
+				->add_options(['0' => 'Dikunci', '1' => 'Dibuka'])
+				->set_default_value('0'),
+			Field::make('text', 'crb_url_wp_eval_sakip', 'Url API WP-EVAL-SAKIP')
+				->set_help_text('Wajib diisi (di aplikasi cek menu E-SAKIP Options -> Konfigurasi Umum).'),
+			Field::make('text', 'crb_api_key_wp_eval_sakip', 'API KEY WP-EVAL-SAKIP')
+				->set_help_text('Wajib diisi (di aplikasi cek menu E-SAKIP Options -> Konfigurasi Umum).'),
+		];
 	}
 
 	public function get_sirup_setting()
@@ -3076,6 +3110,157 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
             ')
 		);
 		return $label;
+	}
+
+	public function generate_tab_jadwal()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
+			return [];
+		}
+
+		$meta_pages = [
+			[
+				'title' => 'Jadwal Input Perencanaan RPJPD',
+				'shortcode' => '[jadwal_rpjpd]'
+			],
+			[
+				'title' => 'Jadwal Input Perencanaan RPJM',
+				'shortcode' => '[jadwal_rpjm]'
+			],
+			[
+				'title' => 'Jadwal Input Perencanaan RPD',
+				'shortcode' => '[jadwal_rpd]'
+			],
+			[
+				'title' => 'Jadwal Input Perencanaan RENSTRA',
+				'shortcode' => '[jadwal_renstra]'
+			]
+		];
+
+		$pages = [];
+		foreach ($meta_pages as $index => $v) {
+			$page_url = $this->generatePage(
+				$v['title'],
+				false,
+				$v['shortcode'],
+				false
+			);
+
+			$pages[] = [
+				'key' 	=> $index + 1,
+				'title' => $v['title'],
+				'url' 	=> $page_url
+			];
+		}
+
+		$html = $this->render_accordion($pages);
+
+		return [
+			Field::make('html', 'crb_jadwal_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_jadwal_menu')
+				->set_html($html)
+		];
+	}
+
+	public function generate_tab_input_perencanaan()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
+			return [];
+		}
+
+		$meta_pages = [
+			[
+				'title' => 'Input Perencanaan RPJPD',
+				'shortcode' => '[input_rpjpd]'
+			],
+			[
+				'title' => 'Input Perencanaan RPJM',
+				'shortcode' => '[input_rpjm]'
+			],
+			[
+				'title' => 'Input Perencanaan RPD',
+				'shortcode' => '[input_rpd]'
+			]
+		];
+
+		$html = '';
+		$pages = [];
+		foreach ($meta_pages as $index => $v) {
+			$page_url = $this->generatePage(
+				$v['title'],
+				false,
+				$v['shortcode'],
+				false
+			);
+
+			$pages[] = [
+				'key' 	=> $index + 1,
+				'title' => $v['title'],
+				'url' 	=> $page_url
+			];
+		}
+
+		$html = $this->render_accordion($pages);
+
+		return [
+			Field::make('html', 'crb_input_perencanaan_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_input_perencanaan_menu')
+				->set_html($html)
+		];
+	}
+
+	public function generate_tab_input_batasan_pagu_sumber_dana()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
+			return [];
+		}
+
+		$tahun_list = $this->get_tahun();
+
+		$html = '';
+		$pages = [];
+		foreach ($tahun_list as $v) {
+			$page_title = 'Input Batasan Pagu per-Sumber Dana | ' . $v['tahun_anggaran'];
+
+			$page_url = $this->generatePage(
+				$page_title,
+				$v['tahun_anggaran'],
+				'[input_batasan_pagu_per_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '"]',
+				false
+			);
+
+			$pages[] = [
+				'key' 	=> $v['tahun_anggaran'],
+				'title' => $page_title,
+				'url' 	=> $page_url
+			];
+		}
+
+		$html = $this->render_accordion($pages);
+
+		return [
+			Field::make('html', 'crb_input_batasan_pagu_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_input_batasan_pagu_menu')
+				->set_html($html)
+		];
 	}
 
 	public function generate_jadwal_monev()
@@ -4740,8 +4925,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			update_option('_crb_daerah', $nama_pemda);
 
 			// dioverwrite hardcode 11-06-2025 (agus)
-			$url = 'https://wpsip'.'d.bakt'.'ine'.'gara.co'.'.id/wp-admin/admin-ajax.php';
-			$api_key_wp_sipd = 'bcvbsdfr'.'12-ret-er'.'t-dfg-hgh'.'j6575';
+			$url = 'https://wpsip' . 'd.bakt' . 'ine' . 'gara.co' . '.id/wp-admin/admin-ajax.php';
+			$api_key_wp_sipd = 'bcvbsdfr' . '12-ret-er' . 't-dfg-hgh' . 'j6575';
 
 			$api_params = array(
 				'action' => 'generate_lisensi_bn',
@@ -5299,54 +5484,56 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		return null;
 	}
 
-	function get_option_complex($key, $type=0){
-        global $wpdb;
-        $ret = $wpdb->get_results('select option_name, option_value from '.$wpdb->prefix.'options where option_name like \''.$key.'|%\'', ARRAY_A);
-        $res = array();
-        $types = array();
-        foreach($ret as $v){
-            $k = explode('|', $v['option_name']);
-            $column = $k[1];
-            $group = $k[3];
-            if($column == ''){
-                $types[$group] = $v['option_value'];
-            }
-        }
-        foreach($ret as $v){
-            $k = explode('|', $v['option_name']);
-            $column = $k[1];
-            $loop = $k[2];
-            $group = $k[3];
-            if($column != ''){
-                if(
-                    isset($types[$loop])
-                    && $type == $types[$loop]
-                ){
-                    if(empty($res[$loop])){
-                        $res[$loop] = array();
-                    }
-                    $res[$loop][$column] = $v['option_value'];
-                }
-            }
-        }
-        return $res;
-    }
+	function get_option_complex($key, $type = 0)
+	{
+		global $wpdb;
+		$ret = $wpdb->get_results('select option_name, option_value from ' . $wpdb->prefix . 'options where option_name like \'' . $key . '|%\'', ARRAY_A);
+		$res = array();
+		$types = array();
+		foreach ($ret as $v) {
+			$k = explode('|', $v['option_name']);
+			$column = $k[1];
+			$group = $k[3];
+			if ($column == '') {
+				$types[$group] = $v['option_value'];
+			}
+		}
+		foreach ($ret as $v) {
+			$k = explode('|', $v['option_name']);
+			$column = $k[1];
+			$loop = $k[2];
+			$group = $k[3];
+			if ($column != '') {
+				if (
+					isset($types[$loop])
+					&& $type == $types[$loop]
+				) {
+					if (empty($res[$loop])) {
+						$res[$loop] = array();
+					}
+					$res[$loop][$column] = $v['option_value'];
+				}
+			}
+		}
+		return $res;
+	}
 
-    function coba_auto_login(){
-    	global $wpdb;
+	function coba_auto_login()
+	{
+		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
 			'message'	=> 'Berhasil get link login!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				if(empty($_POST['domain'])){
+				if (empty($_POST['domain'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Domain tidak boleh kosong!';
-				}elseif(empty($_POST['api_key_tujuan'])){
+				} elseif (empty($_POST['api_key_tujuan'])) {
 					$ret['status'] = 'error';
 					$ret['message'] = 'API KEY tujuan tidak boleh kosong!';
-				}else{
+				} else {
 					$user = wp_get_current_user();
 					$ret['url_login'] = $this->login_to_other_site(array(
 						'user' => $user,
@@ -5363,100 +5550,102 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
-    }
+	}
 
-	function login_to_other_site($opsi = array()){
-        $user_data = array(
-            'login' => $opsi['user']->user_login,
-            'time'  => time()
-        );
+	function login_to_other_site($opsi = array())
+	{
+		$user_data = array(
+			'login' => $opsi['user']->user_login,
+			'time'  => time()
+		);
 
-        $payload = base64_encode(json_encode($user_data));
-        $url_asli = '';
-        if(!empty($opsi['url_asli'])){
-        	$url_asli = $opsi['url_asli'];
-        }
+		$payload = base64_encode(json_encode($user_data));
+		$url_asli = '';
+		if (!empty($opsi['url_asli'])) {
+			$url_asli = $opsi['url_asli'];
+		}
 
-        $url = '';
-        if(!empty($opsi['domain'])){
-        	$signature = hash_hmac('sha256', $payload, $opsi['api_key']);
-            $token = $payload . '.' . $signature;
-            if (substr($opsi['domain'], -1) !== '/') {
-			    $opsi['domain'] .= '/';
+		$url = '';
+		if (!empty($opsi['domain'])) {
+			$signature = hash_hmac('sha256', $payload, $opsi['api_key']);
+			$token = $payload . '.' . $signature;
+			if (substr($opsi['domain'], -1) !== '/') {
+				$opsi['domain'] .= '/';
 			}
-            $url = $opsi['domain'].'sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
-        }else if(!empty($opsi['id_login'])){
-	        $data = $this->get_option_complex('_crb_auto_login');
-	        $url = $url_asli;
-	        foreach($data as $v){
-	            if(
-	                !empty($v['app_url'])
-	                && !empty($v['api_key'])
-	                && $v['id_login'] == $opsi['id_login']
-	            ){
-	                $signature = hash_hmac('sha256', $payload, $v['api_key']);
-	                $token = $payload . '.' . $signature;
-	                if (substr($v['app_url'], -1) !== '/') {
-					    $v['app_url'] .= '/';
+			$url = $opsi['domain'] . 'sso-login?token=' . urlencode($token) . '&redirect=' . $url_asli;
+		} else if (!empty($opsi['id_login'])) {
+			$data = $this->get_option_complex('_crb_auto_login');
+			$url = $url_asli;
+			foreach ($data as $v) {
+				if (
+					!empty($v['app_url'])
+					&& !empty($v['api_key'])
+					&& $v['id_login'] == $opsi['id_login']
+				) {
+					$signature = hash_hmac('sha256', $payload, $v['api_key']);
+					$token = $payload . '.' . $signature;
+					if (substr($v['app_url'], -1) !== '/') {
+						$v['app_url'] .= '/';
 					}
-	                $url = $v['app_url'].'sso-login?token=' . urlencode($token).'&redirect='.$url_asli;
-	            }
-	        }
-        }
-        return $url;
-    }
+					$url = $v['app_url'] . 'sso-login?token=' . urlencode($token) . '&redirect=' . $url_asli;
+				}
+			}
+		}
+		return $url;
+	}
 
-    function handle_sso_login(){
-        if (!is_page('sso-login') || !isset($_GET['token'])) return;
+	function handle_sso_login()
+	{
+		if (!is_page('sso-login') || !isset($_GET['token'])) return;
 
-        $token = sanitize_text_field($_GET['token']);
-        list($payload, $signature) = explode('.', $token);
+		$token = sanitize_text_field($_GET['token']);
+		list($payload, $signature) = explode('.', $token);
 
-        $expected_signature = hash_hmac('sha256', $payload, get_option('_crb_api_key_extension'));
+		$expected_signature = hash_hmac('sha256', $payload, get_option('_crb_api_key_extension'));
 
-        $pesan_error = '';
-        if (!hash_equals($expected_signature, $signature)) {
-            $pesan_error = 'SSO token tidak valid.';
-        }
+		$pesan_error = '';
+		if (!hash_equals($expected_signature, $signature)) {
+			$pesan_error = 'SSO token tidak valid.';
+		}
 
-        if(empty($pesan_error)){
-            $data = json_decode(base64_decode($payload), true);
-            if (!$data || !isset($data['login'])) {
-                $pesan_error = 'Data SSO tidak lengkap.';
-            }
-        }
+		if (empty($pesan_error)) {
+			$data = json_decode(base64_decode($payload), true);
+			if (!$data || !isset($data['login'])) {
+				$pesan_error = 'Data SSO tidak lengkap.';
+			}
+		}
 
-        if(empty($pesan_error)){
-            // Cek kadaluwarsa token (misal 60 detik)
-            if (time() - $data['time'] > 60) {
-                $pesan_error = 'Token kadaluarsa.';
-            }
-        }
+		if (empty($pesan_error)) {
+			// Cek kadaluwarsa token (misal 60 detik)
+			if (time() - $data['time'] > 60) {
+				$pesan_error = 'Token kadaluarsa.';
+			}
+		}
 
-        if(empty($pesan_error)){
-            $user = get_user_by('login', $data['login']);
-            if (!$user) {
-                $pesan_error = 'Pengguna '.$data['login'].' tidak ditemukan di '.site_url();
-            }
-        }
+		if (empty($pesan_error)) {
+			$user = get_user_by('login', $data['login']);
+			if (!$user) {
+				$pesan_error = 'Pengguna ' . $data['login'] . ' tidak ditemukan di ' . site_url();
+			}
+		}
 
-        if(!empty($pesan_error)){
-            update_option('wp_sso_login', $pesan_error);
-            wp_die($pesan_error);
-        }
+		if (!empty($pesan_error)) {
+			update_option('wp_sso_login', $pesan_error);
+			wp_die($pesan_error);
+		}
 
-        // Login otomatis
-        wp_set_current_user($user->ID);
-        wp_set_auth_cookie($user->ID, true);
-        do_action('wp_login', $user->user_login, $user);
+		// Login otomatis
+		wp_set_current_user($user->ID);
+		wp_set_auth_cookie($user->ID, true);
+		do_action('wp_login', $user->user_login, $user);
 
-        update_option('wp_sso_login', 'Berhasil login '. $data['login'].' '.date('Y-m-d H:i:s'));
+		update_option('wp_sso_login', 'Berhasil login ' . $data['login'] . ' ' . date('Y-m-d H:i:s'));
 
-        if(!empty($_GET['redirect'])){
-	        wp_redirect($_GET['redirect']);
-	    }else{
-	        wp_redirect(site_url());
-	    }
-	    exit;
-    }
+		if (!empty($_GET['redirect'])) {
+			wp_redirect($_GET['redirect']);
+		} else {
+			wp_redirect(site_url());
+		}
+		exit;
+	}
 }

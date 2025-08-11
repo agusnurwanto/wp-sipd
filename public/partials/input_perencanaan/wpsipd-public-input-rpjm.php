@@ -68,7 +68,7 @@ if(!empty($jadwal_lokal)){
 		$now = new DateTime(date('Y-m-d H:i:s'));
 
 		if($now >= $awal && $now <= $akhir){
-			$add_rpjm = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJM</a>';
+			$add_rpjm = '<a id="tambah-data" onclick="return false;" href="#" class="btn btn-primary mr-2"><span class="dashicons dashicons-plus"></span> Tambah Data RPJM</a>';
 		}
     }
 }
@@ -152,6 +152,7 @@ $sql = "
 	select 
 		* 
 	from data_rpjmd_visi_lokal
+	WHERE active = 1
 ";
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
 
@@ -169,6 +170,7 @@ foreach ($visi_all as $visi) {
 			* 
 		from data_rpjmd_misi_lokal
 		where id_visi=%s
+		  AND active = 1
 	", $visi['id']);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
 
@@ -332,12 +334,14 @@ if(!empty($misi_ids)){
 			* 
 		from data_rpjmd_misi_lokal
 		where id not in (".implode(',', $misi_ids).")
+		  AND active = 1
 	";
 }else{
 	$sql = "
 		select 
 			* 
 		from data_rpjmd_misi_lokal
+		WHERE active = 1
 	";
 }
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
@@ -848,7 +852,7 @@ foreach ($data_all['data'] as $visi) {
 
 					$isMutakhir='';
 					if(!empty($add_rpjm)){
-						if($program['statusMutakhirProgram']){
+						if(isset($program['statusMutakhirProgram']) && $program['statusMutakhirProgram']){
 							$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilProgram(\''.$program['id_unik'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
 						}
 					}
@@ -903,6 +907,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 }
 
 $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
+
+$is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_esakip('rpjm');
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
@@ -1026,6 +1032,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
+	let is_jadwal_set_integration_esakip = <?php echo json_encode($is_jadwal_set_integration_esakip); ?>;
 
 	var mySpace = '<div style="padding:3rem;"></div>';
 	
@@ -1041,9 +1048,10 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<?php echo $add_rpjm; ?>'
-		+'<a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif;?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpjm; ?><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif;?>'
+		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpjmd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPJMD dari WP-Eval-Sakip</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
 		// +'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
@@ -1146,6 +1154,32 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	        });
 		}
 	});
+
+	jQuery('#generate-data-rpjmd-esakip').on('click', function(){
+		if(confirm("Apakah anda yakin?\nGenerate data dari aplikasi WP-Eval-Sakip dapat menimpa data aktif saat ini.")){
+			generate_data_rpjmd_esakip();
+		}
+	});
+
+	function generate_data_rpjmd_esakip() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url	: ajax.url,
+			type : "post",
+			data : {
+				action: "sync_data_rpjmd_lokal_esakip",
+				api_key: "<?php echo $api_key; ?>"
+			},
+			dataType: "json",
+			success: function(res){
+				jQuery('#wrap-loading').hide();
+				alert(res.message);
+				if (res.status) {
+					location.reload();
+				}
+	        }
+		});
+	}
 
 	jQuery('#tambah-data').on('click', function(){
         visiRpjm();
