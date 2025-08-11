@@ -47,38 +47,41 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		if (!empty($tujuan_exist)) {
-			$sql = "
+			$sql = $wpdb->prepare("
 				SELECT DISTINCT
 					a.id_unik as id_unik_sasaran, 
 					a.sasaran_teks,
 					c.id_unik, 
 					c.tujuan_teks
-				FROM " . $tableA . " a 
-					INNER JOIN " . $tableC . " c
+				FROM {$tableA} a 
+				INNER JOIN {$tableC} c
 						ON a.kode_tujuan=c.id_unik
-				WHERE  
-					a.id_unik='" . $tujuan_exist->kode_sasaran_rpjm . "' AND 
-					a.id_jadwal=" . $params['relasi_perencanaan'] . " AND 
-		            c.id_jadwal=" . $params['relasi_perencanaan'] . " AND 
-					a.active=1 AND
-		            c.active=1 AND
-					a.id_unik IS NOT NULL AND 
-		            c.id_unik IS NOT NULL";
+				WHERE a.id_unik = %s
+				  AND a.id_jadwal = %d
+				  AND c.id_jadwal = %d
+				  AND a.active = 1 
+				  AND c.active = 1 
+				  AND a.id_unik IS NOT NULL 
+				  AND c.id_unik IS NOT NULL", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
 		} else {
-			$sql = "
+			$sql = $wpdb->prepare("
 				SELECT DISTINCT
 					c.id_unik, 
 					c.tujuan_teks
-				FROM " . $tableA . " a 
-					INNER JOIN " . $tableC . " c
+				FROM {$tableA} a 
+				INNER JOIN {$tableB} b
+						ON a.id_unik=b.kode_sasaran
+				INNER JOIN {$tableC} c
 						ON a.kode_tujuan=c.id_unik
-				WHERE  
-					a.id_jadwal=" . $params['relasi_perencanaan'] . " AND 
-		            c.id_jadwal=" . $params['relasi_perencanaan'] . " AND 
-					a.active=1 AND
-		            c.active=1 AND
-					a.id_unik IS NOT NULL AND 
-		            c.id_unik IS NOT NULL";
+				WHERE a.id_jadwal = %d
+				  AND c.id_jadwal = %d
+				  AND a.active = 1 
+				  AND c.active = 1 
+				  AND b.active = 1 
+				  AND b.id_unit = %d 
+				  AND b.id_unik_indikator IS NOT NULL 
+				  AND a.id_unik IS NOT NULL 
+				  AND c.id_unik IS NOT NULL", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
 		}
 		// die($sql);
 		$data =  $wpdb->get_results($sql);
@@ -409,7 +412,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1 
 							AND is_skpd=1 
 							order by id_skpd ASC
-					", $data['id_unit'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_unit'], $_POST['tahun_anggaran']));
 
 					if (empty($dataUnit)) {
 						throw new Exception('Unit kerja tidak ditemukan!');
@@ -425,6 +428,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
 						'kode_skpd' => $dataUnit->kode_skpd,
 						'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'nama_skpd' => $dataUnit->nama_skpd,
 						'status' => 1,
 						'tujuan_teks' => $data['tujuan_teks'],
@@ -565,7 +569,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Bidang urusan untuk SKPD ini tidak ditemukan!');
 					}
 
-					$tujuan = $wpdb->get_row("SELECT a.* FROM data_renstra_tujuan_lokal a WHERE a.id=" . $_POST['id_tujuan']);
+					$tujuan = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT * 
+							FROM data_renstra_tujuan_lokal 
+							WHERE id = %d
+						", $_POST['id_tujuan']), 
+						ARRAY_A
+					);
 					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan);
 					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
 
@@ -651,7 +662,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1 
 							AND is_skpd=1 
 						order by id_skpd ASC
-					", $data['id_unit'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_unit'], $_POST['tahun_anggaran']));
 
 					if (empty($dataUnit)) {
 						throw new Exception('Unit kerja tidak ditemukan!');

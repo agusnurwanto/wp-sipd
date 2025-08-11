@@ -3067,7 +3067,7 @@ $table .= '
 						response.tujuan_parent_selected[0]
 					) {
 						pilihTujuanRpjm(document.getElementById('tujuan-rpjm'), function() {
-							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran);
+							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran + '|' + <?php echo $relasi_perencanaan; ?>);
 						});
 					}
 				} else {
@@ -5485,6 +5485,7 @@ $table .= '
 				'action': action,
 				'api_key': '<?php echo $api_key; ?>',
 				'data': JSON.stringify(form),
+				'tahun_anggaran': <?php echo $tahun_anggaran; ?>,
 			},
 			success: function(response) {
 				jQuery('#wrap-loading').hide();
