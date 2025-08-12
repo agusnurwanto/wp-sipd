@@ -355,9 +355,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 
 			if (get_option('_crb_show_menu_monev_indi_rpjm_settings') != true) {
-				Container::make('theme_options', __('Indikator RPJM'))
+				Container::make('theme_options', __('Indikator RPJM / RPD'))
 					->set_page_parent($monev)
-					->add_fields($this->get_ajax_field(array('type' => 'monev_rpjm')));
+					->add_fields($this->generate_fields_monev_indikator_rpjm());
 			}
 
 			if (get_option('_crb_show_menu_monev_indi_renstra_settings') != true) {
@@ -1506,9 +1506,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'spd') {
 						$url_pemda = $this->generatePage('Halaman SK UP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[sk_up tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $this->add_param_get($url_pemda, $url_nilai_dpa) . '">Halaman SK UP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
-					} else if ($_POST['type'] == 'monev_rpjm') {
-						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman MONEV RPJM Daerah Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'apbdpenjabaran') {
 						$url_penjabaran1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="1"]');
 						$url_penjabaran2 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="' . $v['tahun_anggaran'] . '" lampiran="2"]');
@@ -1818,7 +1815,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					$_POST['type'] == 'rfk'
 					|| $_POST['type'] == 'monev_renja'
 					|| $_POST['type'] == 'monev_renstra'
-					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'apbdperda'
 					|| $_POST['type'] == 'monev_satuan_harga'
@@ -1957,7 +1953,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		die(json_encode($ret));
 	}
 
-	public function get_tahun()
+	private function get_tahun()
 	{
 		global $wpdb;
 
@@ -1966,6 +1962,23 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			FROM data_unit
 			ORDER BY tahun_anggaran DESC
 		', ARRAY_A);
+
+		return $data;
+	}
+
+	private function get_jadwal_by_id_tipe($id_tipe)
+	{
+		global $wpdb;
+
+		$data = $wpdb->get_results(
+			$wpdb->prepare('
+				SELECT *
+				FROM data_jadwal_lokal
+				WHERE status != 2
+				  AND id_tipe = %d
+			', $id_tipe),
+			ARRAY_A
+		);
 
 		return $data;
 	}
@@ -1987,6 +2000,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		return $html;
 	}
 
+	private $status_jadwal_lokal = ['AKTIF', 'DIKUNCI', 'DIHAPUS'];
 
 	public function get_setting_fmis()
 	{
@@ -2315,6 +2329,54 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_help_text('Wajib diisi (di aplikasi cek menu E-SAKIP Options -> Konfigurasi Umum).'),
 			Field::make('text', 'crb_api_key_wp_eval_sakip', 'API KEY WP-EVAL-SAKIP')
 				->set_help_text('Wajib diisi (di aplikasi cek menu E-SAKIP Options -> Konfigurasi Umum).'),
+		];
+	}
+
+	public function generate_fields_monev_indikator_rpjm()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_indikator_rpjm_rpd.php') {
+			return [];
+		}
+
+		$jadwals = $this->get_jadwal_by_id_tipe(17);
+
+		if (!empty($jadwals)) {
+			$pages = [];
+			$status = $this->status_jadwal_lokal;
+			foreach ($jadwals as $index => $v) {	
+				$page_url = $this->generatePage(
+					'Monev Indikator ' . strtoupper($v['jenis_jadwal']) . ' | ' . $v['nama'],
+					$v['id_jadwal_lokal'],
+					'[monitor_monev_rpjm id_jadwal_lokal="' . $v['id_jadwal_lokal'] . '"]',
+					false
+				);
+
+				$pages[] = [
+					'key'   => $index,
+					'title' => "{$v['nama']} [{$status[$v['status']]}] | {$v['tahun_anggaran']} - {$v['tahun_akhir_anggaran']}",
+					'url'   => $page_url
+				];
+			}
+
+			$html = $this->render_accordion($pages);
+		} else {
+			$html = '
+				<span class="badge" style="display:inline-block; padding:5px 10px; background:#ccc; border-radius:5px;">
+					Jadwal Monev RPJMD/RPD tidak tersedia, buat dulu dihalaman Jadwal Monev.
+				</span>';
+		}
+
+
+		return [
+			Field::make('html', 'crb_indi_rpjm_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_indi_rpjm_menu')
+				->set_html($html)
 		];
 	}
 
@@ -3290,26 +3352,35 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 		$tahun_list = $this->get_tahun();
 
-		$html = '';
-		$pages = [];
-		foreach ($tahun_list as $v) {
-			$page_title = 'Input Batasan Pagu per-Sumber Dana | ' . $v['tahun_anggaran'];
+		if (!empty($tahun_list)) {
+			$pages = [];
 
-			$page_url = $this->generatePage(
-				$page_title,
-				$v['tahun_anggaran'],
-				'[input_batasan_pagu_per_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '"]',
-				false
-			);
+			foreach ($tahun_list as $v) {
+				$page_title = 'Input Batasan Pagu per-Sumber Dana | ' . $v['tahun_anggaran'];
 
-			$pages[] = [
-				'key' 	=> $v['tahun_anggaran'],
-				'title' => $page_title,
-				'url' 	=> $page_url
-			];
+				$page_url = $this->generatePage(
+					$page_title,
+					$v['tahun_anggaran'],
+					'[input_batasan_pagu_per_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '"]',
+					false
+				);
+
+				$pages[] = [
+					'key' 	=> $v['tahun_anggaran'],
+					'title' => $page_title,
+					'url' 	=> $page_url
+				];
+			}
+
+			$html = $this->render_accordion($pages);
+		} else {
+			$html = '
+				<span class="badge" style="display:inline-block; padding:5px 10px; background:#ccc; border-radius:5px;">
+					Tahun Anggaran tidak tersedia
+				</span>';
 		}
+		
 
-		$html = $this->render_accordion($pages);
 
 		return [
 			Field::make('html', 'crb_input_batasan_pagu_hide_sidebar')
