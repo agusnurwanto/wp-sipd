@@ -1158,6 +1158,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_table_tujuan_sasaran',  $plugin_public, 'get_table_tujuan_sasaran');
 		$this->loader->add_action('wp_ajax_get_indikator_tujuan_sasaran',  $plugin_public, 'get_indikator_tujuan_sasaran');
 		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran',  $plugin_public, 'submit_tujuan_sasaran');
+		
+		$this->loader->add_action('wp_ajax_get_data_pohon_kinerja',  $plugin_public, 'get_data_pohon_kinerja');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

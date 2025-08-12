@@ -60,6 +60,11 @@ $jadwal_lokal = $wpdb->get_row(
 	', $input['id_jadwal']),
 	ARRAY_A
 );
+if (empty($data_id_jadwal['id_jadwal_sakip'])) {
+    $id_jadwal_wp_sakip = 0;
+} else {
+    $id_jadwal_wp_sakip = $data_id_jadwal['id_jadwal_sakip'];
+}
 $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
 $add_renstra = '';
@@ -2770,6 +2775,11 @@ $table .= '
 <script type="text/javascript">
 	run_download_excel();
 
+    window.id_jadwal_wp_sakip = 6;
+
+    if (id_jadwal_wp_sakip == 0) {
+        alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
+    }
 	let data_all = <?php echo json_encode($data_all); ?>;
 
 	jQuery("#table-renstra th.row_head_1").attr('rowspan', 2);
@@ -2830,108 +2840,134 @@ $table .= '
 	});
 
 	jQuery(document).on('click', '.btn-tambah-tujuan', function() {
+		let level = 1;
+        let parent = 0;
+        let id_skpd = <?php echo $input['id_skpd']; ?>;
+		return get_data_pohon_kinerja(level, parent, id_skpd)
+        .then(function() {
+            return new Promise(function(resolve, reject) {
+            	var key = level + '-' + parent;
+                if (id_skpd != 0) {
+                    key = level + '-' + parent + '-' + id_skpd;
+                }
+                let data_cascading = [];
 
-		jQuery('#wrap-loading').show();
+                var key = level + '-' + parent;
+                if (id_skpd != 0) {
+                    key = level + '-' + parent + '-' + id_skpd;
+                }
+                // let html_input_pokin = `
+		        //     <div class="form-group"> 
+		        //         <label for="pokin-level-${level}">Pilih Pokin Level ${level}</label> 
+		        //         <select class="form-control" multiple name="pokin-level-${level}" id="pokin-level-${level}"'pokin-level-${level}', true)"> 
+		        //         </select> 
+		        //     </div>
+		        // `;
 
-		jQuery.ajax({
-			method: 'POST',
-			url: ajax.url,
-			dataType: 'json',
-			data: {
-				'action': 'add_tujuan_renstra',
-				'api_key': '<?php echo $api_key; ?>',
-				'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-				'id_unit': '<?php echo $input['id_skpd']; ?>',
-				'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
-				'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
-			},
-			success: function(response) {
-				jQuery('#wrap-loading').hide();
-				if (response.status) {
-					var bidur_opd = {};
-					var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
-					response.skpd.map(function(b, i) {
-						var selected = '';
-						if (b.id_skpd == <?php echo $input['id_skpd'] ?>) {
-							selected = 'selected';
-							bidur_opd = b;
+                data_pokin = pokin_level_1[key];
+				jQuery('#wrap-loading').show();
+
+				jQuery.ajax({
+					method: 'POST',
+					url: ajax.url,
+					dataType: 'json',
+					data: {
+						'action': 'add_tujuan_renstra',
+						'api_key': '<?php echo $api_key; ?>',
+						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+						'id_unit': '<?php echo $input['id_skpd']; ?>',
+						'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+						'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
+					},
+					success: function(response) {
+						jQuery('#wrap-loading').hide();
+						if (response.status) {
+							var bidur_opd = {};
+							var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
+							response.skpd.map(function(b, i) {
+								var selected = '';
+								if (b.id_skpd == <?php echo $input['id_skpd'] ?>) {
+									selected = 'selected';
+									bidur_opd = b;
+								}
+								html_opd += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
+							});
+							var html_bidur = '<option value="">Pilih Bidang Urusan</option>';
+							response.bidur.map(function(b, i) {
+								if (
+									bidur_opd.bidur_1 == b.kode_bidang_urusan ||
+									bidur_opd.bidur_2 == b.kode_bidang_urusan ||
+									bidur_opd.bidur_3 == b.kode_bidang_urusan ||
+									bidur_opd.bidur_4 == b.kode_bidang_urusan
+								) {
+									html_bidur += '<option value="' + b.id_bidang_urusan + '" data=\'' + JSON.stringify(b) + '\'>' + b.nama_bidang_urusan + '</opton>';
+								}
+							});
+							let tujuanModal = jQuery("#modal-crud-renstra");
+							let html = '<form id="form-renstra">' +
+								'<input type="hidden" name="id_unit" value="' + <?php echo $input['id_skpd']; ?> + '">' +
+								'<input type="hidden" name="bidur-all" value="">' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Pilih Perangkat Daerah</label>' +
+								'<select class="form-control" id="daftar-skpd" name="nama_unit" disabled>' + html_opd + '</select>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Pilih Bidang Urusan</label>' +
+								'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">' + html_bidur + '</select>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>' +
+								'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">' +
+								'<option value="">Pilih Tujuan</option>';
+							response.data.map(function(value, index) {
+								html += '<option value="' + value.id_unik + '">' + value.tujuan_teks + '</option>';
+							})
+							html += '</select>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>' +
+								'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>' +
+								'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="tujuan_teks">Urut Tujuan</label>' +
+								'<input type="number" class="form-control" name="urut_tujuan" />' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="catatan">Catatan Usulan</label>' +
+								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label for="catatan">Catatan Penetapan</label>' +
+								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
+								'</div>' +
+								'</form>';
+
+							tujuanModal.find('.modal-title').html('Tambah Tujuan');
+							tujuanModal.find('.modal-body').html(html);
+							tujuanModal.find('.modal-footer').html('' +
+								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+								'</button>' +
+								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
+								'data-action="submit_tujuan_renstra" ' +
+								'data-view="tujuanRenstra"' +
+								'>' +
+								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+								'</button>');
+							tujuanModal.find('.modal-dialog').css('maxWidth', '50%');
+							tujuanModal.find('.modal-dialog').css('width', '');
+							tujuanModal.modal('show');
+						} else {
+							alert(response.message);
 						}
-						html_opd += '<option ' + selected + ' value="' + b.id_skpd + '">' + b.kode_skpd + ' ' + b.nama_skpd + '</option>';
-					});
-					var html_bidur = '<option value="">Pilih Bidang Urusan</option>';
-					response.bidur.map(function(b, i) {
-						if (
-							bidur_opd.bidur_1 == b.kode_bidang_urusan ||
-							bidur_opd.bidur_2 == b.kode_bidang_urusan ||
-							bidur_opd.bidur_3 == b.kode_bidang_urusan ||
-							bidur_opd.bidur_4 == b.kode_bidang_urusan
-						) {
-							html_bidur += '<option value="' + b.id_bidang_urusan + '" data=\'' + JSON.stringify(b) + '\'>' + b.nama_bidang_urusan + '</opton>';
-						}
-					});
-					let tujuanModal = jQuery("#modal-crud-renstra");
-					let html = '<form id="form-renstra">' +
-						'<input type="hidden" name="id_unit" value="' + <?php echo $input['id_skpd']; ?> + '">' +
-						'<input type="hidden" name="bidur-all" value="">' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Pilih Perangkat Daerah</label>' +
-						'<select class="form-control" id="daftar-skpd" name="nama_unit" disabled>' + html_opd + '</select>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Pilih Bidang Urusan</label>' +
-						'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">' + html_bidur + '</select>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>' +
-						'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">' +
-						'<option value="">Pilih Tujuan</option>';
-					response.data.map(function(value, index) {
-						html += '<option value="' + value.id_unik + '">' + value.tujuan_teks + '</option>';
-					})
-					html += '</select>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>' +
-						'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>' +
-						'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="tujuan_teks">Urut Tujuan</label>' +
-						'<input type="number" class="form-control" name="urut_tujuan" />' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="catatan">Catatan Usulan</label>' +
-						'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
-						'</div>' +
-						'<div class="form-group">' +
-						'<label for="catatan">Catatan Penetapan</label>' +
-						'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
-						'</div>' +
-						'</form>';
-
-					tujuanModal.find('.modal-title').html('Tambah Tujuan');
-					tujuanModal.find('.modal-body').html(html);
-					tujuanModal.find('.modal-footer').html('' +
-						'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-						'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-						'</button>' +
-						'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
-						'data-action="submit_tujuan_renstra" ' +
-						'data-view="tujuanRenstra"' +
-						'>' +
-						'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-						'</button>');
-					tujuanModal.find('.modal-dialog').css('maxWidth', '');
-					tujuanModal.find('.modal-dialog').css('width', '');
-					tujuanModal.modal('show');
-				} else {
-					alert(response.message);
-				}
-			}
-		});
+					}
+				});
+			});
+        });
 	});
 
 	jQuery(document).on('click', '.btn-edit-tujuan', function() {
@@ -8036,4 +8072,167 @@ $table .= '
 			})
 		}
 	}
+
+	function get_data_pohon_kinerja(level = '1', parent = '0', id_skpd = 0) {
+        return new Promise(function(resolve, reject) {
+            if (typeof pokin_level_1 == 'undefined') {
+                pokin_level_1 = {};
+            }
+            if (typeof pokin_level_2 == 'undefined') {
+                pokin_level_2 = {};
+            }
+            if (typeof pokin_level_3 == 'undefined') {
+                pokin_level_3 = {};
+            }
+            if (typeof pokin_level_4 == 'undefined') {
+                pokin_level_4 = {};
+            }
+            if (typeof pokin_level_5 == 'undefined') {
+                pokin_level_5 = {};
+            }
+            var key = level + '-' + parent;
+            let id_skpd = <?php echo $input['id_skpd']; ?>;
+            if (id_skpd != 0) {
+                key = level + '-' + parent + '-' + id_skpd;
+                id_skpd = id_skpd;
+            }
+            if (level == 1) {
+                if (typeof pokin_level_1[key] == 'undefined') {
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": 'get_data_pohon_kinerja',
+                            "api_key": "<?php echo $api_key; ?>",
+                            "id_skpd": <?php echo $input['id_skpd']; ?>,
+                            "level": level,
+                            "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                window.pokin_level_1[key] = response;
+                            } else {
+                                alert("Data pohon kinerja tidak ditemukan");
+                            }
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else if (level == 2) {
+                if (typeof pokin_level_2[key] == 'undefined') {
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": 'get_data_pohon_kinerja',
+                            "api_key": "<?php echo $api_key; ?>",
+                            "id_skpd": <?php echo $input['id_skpd']; ?>,
+                            "level": level,
+                            "parent": parent,
+                            "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                window.pokin_level_2[key] = response;
+                            } else {
+                                alert("Data pohon kinerja tidak ditemukan");
+                            }
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else if (level == 3) {
+                if (typeof pokin_level_3[key] == 'undefined') {
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": 'get_data_pohon_kinerja',
+                            "api_key": "<?php echo $api_key; ?>",
+                            "id_skpd": <?php echo $input['id_skpd']; ?>,
+                            "level": level,
+                            "parent": parent,
+                            "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                window.pokin_level_3[key] = response;
+                            } else {
+                                alert("Data pohon kinerja tidak ditemukan");
+                            }
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else if (level == 4) {
+                if (typeof pokin_level_4[key] == 'undefined') {
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": 'get_data_pohon_kinerja',
+                            "api_key": "<?php echo $api_key; ?>",
+                            "id_skpd": <?php echo $input['id_skpd']; ?>,
+                            "level": level,
+                            "parent": parent,
+                            "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                window.pokin_level_4[key] = response;
+                            } else {
+                                alert("Data pohon kinerja tidak ditemukan");
+                            }
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else if (level == 5) {
+                if (typeof pokin_level_5[key] == 'undefined') {
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": 'get_data_pohon_kinerja',
+                            "api_key": "<?php echo $api_key; ?>",
+                            "id_skpd": <?php echo $input['id_skpd']; ?>,
+                            "level": level,
+                            "parent": parent,
+                            "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                window.pokin_level_5[key] = response;
+                            } else {
+                                alert("Data pohon kinerja tidak ditemukan");
+                            }
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else {
+                resolve();
+            }
+        });
+    }
 </script>

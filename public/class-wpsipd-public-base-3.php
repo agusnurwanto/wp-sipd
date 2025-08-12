@@ -11424,4 +11424,104 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	    wp_send_json($ret);
 	}
+
+	public function get_data_pohon_kinerja($return_text)
+	{
+		global $wpdb;
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+					if (!empty($_POST['id_skpd'])) {
+						$id_skpd = $_POST['id_skpd'];
+					} else {
+						throw new Exception("Id Skpd Kosong!", 1);
+					}
+					if (!empty($_POST['level'])) {
+						$level = $_POST['level'];
+					} else {
+						throw new Exception("Jenis Data Kosong!", 1);
+					}
+					$parent = '';
+					$id_jadwal_wp_sakip = '';
+					if (
+						$level != '1'
+						&& $level != '2'
+						&& $level != '3'
+						&& $level != '4'
+						&& $level != '5'
+					) {
+						if (!empty($_POST['parent'])) {
+							$parent = $_POST['parent'];
+						} else {
+							throw new Exception("Parent Kosong!", 1);
+						}
+						if (!empty($_POST['id_jadwal'])) {
+							$id_jadwal_wp_sakip = $_POST['id_jadwal'];
+						} else {
+							throw new Exception("ID Jadwal Kosong!", 1);
+						}
+					}
+
+					if ($level == '1' && empty($_POST['id_jadwal_wp_sakip'])) {
+						throw new Exception("Id Jadwal WpSakip Kosong!", 1);
+					} else {
+						$id_jadwal_wp_sakip = $_POST['id_jadwal_wp_sakip'];
+					}
+
+					$api_params = array(
+						'action'		=> 'get_data_pokin',
+						'api_key'		=> get_option('_crb_api_key_wp_eval_sakip'),
+						'id_jadwal'		=> $id_jadwal_wp_sakip,
+						'id_skpd'		=> $id_skpd,
+						'level'			=> $level,
+						'tipe_pokin'	=> 'opd',
+						'parent'		=> $parent
+					);
+					if (
+						$level == '1'
+						|| $level == '2'
+						|| $level == '3'
+						|| $level == '4'
+						|| $level == '5'
+					) {
+						$api_params['id_jadwal'] = $id_jadwal_wp_sakip;
+					}
+
+					$response = wp_remote_post(
+						get_option('_crb_url_wp_eval_sakip'),
+						array(
+							'timeout' 	=> 1000,
+							'sslverify' => false,
+							'body' 		=> $api_params
+						)
+					);
+
+					$response = wp_remote_retrieve_body($response);
+					$response = json_decode($response);
+					$data = $response->data;
+
+					$return = array(
+						'status' => 'success',
+						'level' => $_POST['level'],
+						'data' => $data
+					);
+					if (!empty($return_text)) {
+						return $return;
+					} else {
+						die(json_encode($return));
+					}
+				} else {
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			} else {
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);
+			exit();
+		}
+	}
 }
