@@ -11434,34 +11434,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					if (!empty($_POST['id_skpd'])) {
 						$id_skpd = $_POST['id_skpd'];
 					} else {
-						throw new Exception("Id Skpd Kosong!", 1);
+						throw new Exception("Id Skpd tidak boleh  kosong!", 1);
 					}
-					if (!empty($_POST['level'])) {
-						$level = $_POST['level'];
-					} else {
-						throw new Exception("Jenis Data Kosong!", 1);
-					}
-					$parent = '';
 					$id_jadwal_wp_sakip = '';
-					if (
-						$level != '1'
-						&& $level != '2'
-						&& $level != '3'
-						&& $level != '4'
-						&& $level != '5'
-					) {
-						if (!empty($_POST['parent'])) {
-							$parent = $_POST['parent'];
-						} else {
-							throw new Exception("Parent Kosong!", 1);
-						}
-						if (!empty($_POST['id_jadwal'])) {
-							$id_jadwal_wp_sakip = $_POST['id_jadwal'];
-						} else {
-							throw new Exception("ID Jadwal Kosong!", 1);
-						}
-					}
-
 					if ($level == '1' && empty($_POST['id_jadwal_wp_sakip'])) {
 						throw new Exception("Id Jadwal WpSakip Kosong!", 1);
 					} else {
@@ -11469,25 +11444,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					$api_params = array(
-						'action'		=> 'get_data_pokin',
+						'action'		=> 'get_data_pokin_all',
 						'api_key'		=> get_option('_crb_api_key_wp_eval_sakip'),
 						'id_jadwal'		=> $id_jadwal_wp_sakip,
 						'id_skpd'		=> $id_skpd,
-						'level'			=> $level,
-						'tipe_pokin'	=> 'opd',
-						'parent'		=> $parent
+						'tipe_pokin'	=> 'opd'
 					);
-					if (
-						$level == '1'
-						|| $level == '2'
-						|| $level == '3'
-						|| $level == '4'
-						|| $level == '5'
-					) {
-						$api_params['id_jadwal'] = $id_jadwal_wp_sakip;
-					}
 
-					$response = wp_remote_post(
+					$response_asli = wp_remote_post(
 						get_option('_crb_url_wp_eval_sakip'),
 						array(
 							'timeout' 	=> 1000,
@@ -11496,14 +11460,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						)
 					);
 
-					$response = wp_remote_retrieve_body($response);
+					$response = wp_remote_retrieve_body($response_asli);
 					$response = json_decode($response);
-					$data = $response->data;
 
 					$return = array(
 						'status' => 'success',
 						'level' => $_POST['level'],
-						'data' => $data
+						'response' => $response->data,
+						// 'params' => $api_params,
+						// 'response_asli' => $response_asli
 					);
 					if (!empty($return_text)) {
 						return $return;
