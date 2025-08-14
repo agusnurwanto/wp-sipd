@@ -357,7 +357,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			if (get_option('_crb_show_menu_monev_indi_rpjm_settings') != true) {
 				Container::make('theme_options', __('Indikator RPJM / RPD'))
 					->set_page_parent($monev)
-					->add_fields($this->generate_fields_monev_indikator_rpjm());
+					->add_fields($this->generate_fields_monev_indikator_rpjm_rpd());
 			}
 
 			if (get_option('_crb_show_menu_monev_indi_renstra_settings') != true) {
@@ -2332,7 +2332,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		];
 	}
 
-	public function generate_fields_monev_indikator_rpjm()
+	public function generate_fields_monev_indikator_rpjm_rpd()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_indikator_rpjm_rpd.php') {
 			return [];
@@ -2343,13 +2343,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		if (!empty($jadwals)) {
 			$pages = [];
 			$status = $this->status_jadwal_lokal;
-			foreach ($jadwals as $index => $v) {	
-				$page_url = $this->generatePage(
-					'Monev Indikator ' . strtoupper($v['jenis_jadwal']) . ' | ' . $v['nama'],
-					$v['id_jadwal_lokal'],
-					'[monitor_monev_rpjm id_jadwal_lokal="' . $v['id_jadwal_lokal'] . '"]',
-					false
-				);
+			foreach ($jadwals as $index => $v) {
+				if ($v['jenis_jadwal'] == 'rpd') {
+					$page_url = $this->generatePage(
+						'Monev ' . strtoupper($v['jenis_jadwal']) . ' | ' . $v['nama'],
+						$v['id_jadwal_lokal'],
+						'[monitor_monev_rpd id_jadwal_lokal="' . $v['id_jadwal_lokal'] . '"]',
+						false
+					);
+				} elseif ($v['jenis_jadwal'] == 'rpjmd') {
+					$page_url = $this->generatePage(
+						'Monev ' . strtoupper($v['jenis_jadwal']) . ' | ' . $v['nama'],
+						$v['id_jadwal_lokal'],
+						'[monitor_monev_rpjm id_jadwal_lokal="' . $v['id_jadwal_lokal'] . '"]',
+						false
+					);
+				}
 
 				$pages[] = [
 					'key'   => $index,
