@@ -102,7 +102,14 @@ if (!empty($cek_jadwal_renja)) {
 
     }
 }
-
+$get_data_sesudah = $wpdb->get_results($wpdb->prepare("
+    SELECT 
+        * 
+    FROM data_tujuan_sasaran_manrisk_sesudah
+    WHERE id_skpd = %d
+      AND tahun_anggaran = %d
+      AND active = 1
+", $id_skpd, $input['tahun_anggaran']), ARRAY_A);
 ?>
 <style type="text/css">
     .wrap-table {
@@ -136,21 +143,29 @@ if (!empty($cek_jadwal_renja)) {
     }
 </style>
 <div class="container-md">
-    <div class="cetak">
+    <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title">Manajemen Resiko Tujuan / Sasaran <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table_manrisk_tujuan_sasaran table-bordered">
+                <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table_manrisk_tujuan_sasaran table-bordered"  cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
+                            <!-- sebelum evaluasi -->
                             <th colspan="13">SEBELUM EVALUASI</th>
                             <th rowspan="3">Rencana Tindak Pengendalian</th>
+                            <!-- setelah evaluasi -->
+                            <?php if(!empty($get_data_sesudah)): ?>
+                                <th colspan="13">SETELAH EVALUASI</th>
+                                <th rowspan="3">Rencana Tindak Pengendalian</th>
+                            <?php endif; ?>
+                            <th rowspan="3">Aksi</th>
                         </tr>
                         <tr>
+                            <!-- sebelum evaluasi -->
                             <th rowspan="2">Tujuan Strategis/ Sasaran Strategis Pemda OPD</th>
                             <th rowspan="2">Indikator Kinerja</th>
                             <th colspan="3">Risiko</th>
@@ -160,8 +175,21 @@ if (!empty($cek_jadwal_renja)) {
                             <th rowspan="2">Skala Dampak</th>
                             <th rowspan="2">Skala Kemungkinan</th>
                             <th rowspan="2">Nilai Risiko (12x13)</th>
+                            <!-- setelah evaluasi -->
+                            <?php if(!empty($get_data_sesudah)): ?>
+                            <th rowspan="2">Tujuan Strategis/ Sasaran Strategis Pemda OPD</th>
+                            <th rowspan="2">Indikator Kinerja</th>
+                            <th colspan="3">Risiko</th>
+                            <th colspan="2">Sebab</th>
+                            <th rowspan="2">Controllable / Uncontrollable</th>
+                            <th colspan="2">Dampak</th>
+                            <th rowspan="2">Skala Dampak</th>
+                            <th rowspan="2">Skala Kemungkinan</th>
+                            <th rowspan="2">Nilai Risiko (12x13)</th>
+                            <?php endif; ?>
                         </tr>
                         <tr>
+                            <!-- sebelum evaluasi -->
                             <th>Uraian</th>
                             <th>Kode Risiko</th>
                             <th>Pemilik Risiko</th>
@@ -169,6 +197,16 @@ if (!empty($cek_jadwal_renja)) {
                             <th>Sumber</th>
                             <th>Uraian</th>
                             <th>Pihak yang Terkena</th>
+                            <!-- setelah evaluasi -->
+                            <?php if(!empty($get_data_sesudah)): ?>
+                            <th>Uraian</th>
+                            <th>Kode Risiko</th>
+                            <th>Pemilik Risiko</th>
+                            <th>Uraian</th>
+                            <th>Sumber</th>
+                            <th>Uraian</th>
+                            <th>Pihak yang Terkena</th>
+                            <?php endif; ?>
                         </tr>
                         <tr>
                             <th>(1)</th>
@@ -186,6 +224,23 @@ if (!empty($cek_jadwal_renja)) {
                             <th>(13)</th>
                             <th>(14)</th>
                             <th>(15)</th>
+                            <th>(16)</th>
+                            <?php if(!empty($get_data_sesudah)): ?>
+                            <th>(17)</th>
+                            <th>(18)</th>
+                            <th>(19)</th>
+                            <th>(20)</th>
+                            <th>(21)</th>
+                            <th>(22)</th>
+                            <th>(23)</th>
+                            <th>(24)</th>
+                            <th>(25)</th>
+                            <th>(26)</th>
+                            <th>(27)</th>
+                            <th>(28)</th>
+                            <th>(29)</th>
+                            <th>(30)</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -354,9 +409,16 @@ if (!empty($cek_jadwal_renja)) {
         jQuery('#tambahTujuanSasaranModal').modal('show');
     }
 
-    function get_indikator(){
-        let selected = jQuery('#nama_tujuan_sasaran').val();    
-        if(!selected || selected == '-1') return;
+    function get_indikator(selected_indikator, tipe, callback) {
+        let selected = jQuery('#nama_tujuan_sasaran').val();  
+        if(!selected || selected == '-1') {
+            if (callback) callback();
+            return;
+        }
+
+        if (!tipe) {
+            tipe = jQuery('#nama_tujuan_sasaran option:selected').data('type');  
+        }
 
         jQuery("#wrap-loading").show();
 
@@ -369,15 +431,80 @@ if (!empty($cek_jadwal_renja)) {
                 'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
                 'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                 'id_skpd': <?php echo $id_skpd; ?>,
-                'id': selected
+                'id': selected,
+                'tipe': tipe,
+                'selected_indikator': selected_indikator
             },
-            success:function(response){
+            success: function(response) {
                 jQuery("#wrap-loading").hide();
-                if(response.status == 'success'){
+                if (response.status == 'success') {
+
+                    // masukkan HTML ke dropdown indikator
                     jQuery('#indikator_kinerja').html(response.html);
-                }else{
+
+                    if (callback) callback();
+                } else {
                     alert(`GAGAL! \n${response.message}`);
                 }
+            }
+        });
+    }
+
+
+    function edit_tujuan_sasaran_manrisk(id, id_tujuan_sasaran, id_indikator, tipe) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'edit_tujuan_sasaran_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id: id ,
+                id_tujuan_sasaran: id_tujuan_sasaran ,
+                id_indikator: id_indikator, 
+                tipe: tipe 
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    let data = response.data;
+                    jQuery("#id_data").val(data.id);
+
+                    jQuery("#nama_tujuan_sasaran option").prop("selected", false);
+                    jQuery(`#nama_tujuan_sasaran option[value='${data.id_tujuan_sasaran}'][data-type='${tipe}']`).prop("selected", true);
+
+                    get_indikator(data.id_indikator, tipe, function(){
+                        jQuery("#indikator_kinerja").val(data.id_indikator);
+                    });
+
+
+                    jQuery("#uraian_resiko").val(data.uraian_resiko);
+                    jQuery("#kode_resiko").val(data.kode_resiko);
+                    jQuery("#pemilik_resiko").val(data.pemilik_resiko);
+                    jQuery("#uraian_sebab").val(data.uraian_sebab);
+                    jQuery("#sumber_sebab").val(data.sumber_sebab);
+                    jQuery(`input[name='controllable_status'][value='${data.controllable_status}']`).prop('checked', true);
+                    jQuery("#uraian_dampak").val(data.uraian_dampak);
+                    jQuery("#pihak_terkena").val(data.pihak_terkena);
+                    jQuery("#skala_dampak").val(data.skala_dampak);
+                    jQuery("#skala_kemungkinan").val(data.skala_kemungkinan);
+                    jQuery("#nilai_resiko").val(data.nilai_resiko);
+                    jQuery("#rencana_tindak_pengendalian").val(data.rencana_tindak_pengendalian);
+
+                    jQuery('#TambahTujuanSasaranModalLabel').hide();
+                    jQuery('#editTujuanSasaranModalLabel').show();
+                    jQuery('#tambahTujuanSasaranModal').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data!');
             }
         });
     }
@@ -444,4 +571,35 @@ if (!empty($cek_jadwal_renja)) {
         });
     }
 
+    function hapus_tujuan_sasaran_manrisk(id) {
+        if (!confirm('Apakah Anda yakin ingin menghapus data ini? Data sebelum dan sesudah evaluasi akan terhapus')) {
+            return;
+        }
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'hapus_tujuan_sasaran_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: id
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    alert(response.message);
+                    get_table_tujuan_sasaran();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
 </script>
