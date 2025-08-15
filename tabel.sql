@@ -8134,12 +8134,20 @@ CREATE TABLE `data_tujuan_sasaran_manrisk_sebelum` (
 CREATE TABLE `data_tujuan_sasaran_manrisk_sesudah` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_sebelum` INT(11) DEFAULT NULL,
-  `tujuan_sasaran` TEXT DEFAULT NULL,
-  `indikator_kinerja` TEXT DEFAULT NULL,
+  `id_tujuan_sasaran` INT(11) DEFAULT NULL,
+  `id_indikator` INT(11) DEFAULT NULL,
   `uraian_resiko` TEXT DEFAULT NULL,
   `kode_resiko` TEXT DEFAULT NULL,
   `pemilik_resiko` TEXT DEFAULT NULL,
+  `uraian_sebab` TEXT DEFAULT NULL,
+  `sumber_sebab` TEXT DEFAULT NULL,
+  `controllable` TINYINT(4) DEFAULT 1 COMMENT '0=Controllable, 1=Uncontrollable',
+  `tipe` TINYINT(4) DEFAULT 1 COMMENT '0=Tujuan, 1=Sasaran',
   `uraian_dampak` TEXT DEFAULT NULL,
+  `pihak_terkena` TEXT DEFAULT NULL,
+  `skala_dampak` VARCHAR(255) DEFAULT NULL,
+  `skala_kemungkinan` VARCHAR(255) DEFAULT NULL,
+  `nilai_resiko` VARCHAR(255) DEFAULT NULL,
   `rencana_tindak_pengendalian` TEXT DEFAULT NULL,
   `id_skpd` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -8148,8 +8156,7 @@ CREATE TABLE `data_tujuan_sasaran_manrisk_sesudah` (
   PRIMARY KEY (id),
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `id_skpd` (`id_skpd`),
-  KEY `active` (`active`),
-  KEY `id_sebelum` (`id_sebelum`)
+  KEY `active` (`active`)
 );
 
 CREATE TABLE `data_pokin_renstra` (
