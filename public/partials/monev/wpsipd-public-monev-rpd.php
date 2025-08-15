@@ -1,0 +1,1 @@
+<?php echo esc_html__('Coming Soon', 'wp-sipd'); ?>

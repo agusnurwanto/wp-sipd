@@ -123,7 +123,7 @@ $body = '';
 					</select>
 				</div>
 				<div class="form-group">
-					<label for="id_jadwal_esakip">Pilih Jadwal Eval Sakip</label>
+					<label for="id_jadwal_esakip">Pilih Jadwal Pohon Kinerja SAKIP</label>
 					<select id="id_jadwal_esakip" class="form-control">
 					</select>
 				</div>
@@ -253,16 +253,14 @@ $body = '';
 	        const lama_pelaksanaan = await get_data_standar_lama_pelaksanaan();
 	        const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
 
-	        let optionsDefault = `<option value="">Pilih Jadwal Eval Sakip</option>`;
+	        let optionsDefault = `<option value="">Pilih Jadwal</option>`;
 	        const jadwal_rpd_esakip_all = await get_jadwal_rpd_esakip();
 	        if (jadwal_rpd_esakip_all.status) {
 	            jadwal_rpd_esakip_all.data.forEach((val) => {
-	                if (val.jenis_jadwal_khusus == 'rpd') {
-	                    optionsDefault += `<option value="${val.id}">
-	                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
-	                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
-	                    </option>`;
-	                }
+                    optionsDefault += `<option value="${val.id}">
+                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
+                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
+                    </option>`;
 	            });
 	        } else {
 	            optionsDefault = `<option value="">Tidak tersedia</option>`;
@@ -413,16 +411,14 @@ $body = '';
 	        let data_jadwal = await get_data_jadwal_by_id(id_jadwal_lokal);
 	        const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
 
-	        let optionsDefault = `<option value="">Pilih Jadwal Eval Sakip</option>`;
+	        let optionsDefault = `<option value="">Pilih Jadwal</option>`;
 	        const jadwal_rpd_esakip_all = await get_jadwal_rpd_esakip();
 	        if (jadwal_rpd_esakip_all.status) {
 	            jadwal_rpd_esakip_all.data.forEach((val) => {
-	                if (val.jenis_jadwal_khusus == 'rpd') {
-	                    optionsDefault += `<option value="${val.id}">
-	                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
-	                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
-	                    </option>`;
-	                }
+                    optionsDefault += `<option value="${val.id}">
+                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
+                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
+                    </option>`;
 	            });
 	        } else {
 	            optionsDefault = `<option value="">Tidak tersedia</option>`;
