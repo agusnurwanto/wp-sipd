@@ -8175,12 +8175,15 @@ CREATE TABLE `data_pokin_renstra` (
   PRIMARY KEY (id),
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `id_skpd` (`id_skpd`),
+  KEY `id_unik` (`id_unik`),
   KEY `active` (`active`)
 );
 
 CREATE TABLE `data_pelaksana_renstra` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_satker` VARCHAR(255) DEFAULT NULL,
+  `nama_satker` TEXT DEFAULT NULL,
+  `id_unik` VARCHAR(255) DEFAULT NULL,
   `tipe` INT(11) DEFAULT NULL,
   `id_skpd` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -8189,5 +8192,6 @@ CREATE TABLE `data_pelaksana_renstra` (
   PRIMARY KEY (id),
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `id_skpd` (`id_skpd`),
+  KEY `id_unik` (`id_unik`),
   KEY `active` (`active`)
 );

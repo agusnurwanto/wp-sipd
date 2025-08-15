@@ -1164,6 +1164,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_tujuan_sasaran_manrisk',  $plugin_public, 'hapus_tujuan_sasaran_manrisk');
 		
 		$this->loader->add_action('wp_ajax_get_data_pohon_kinerja',  $plugin_public, 'get_data_pohon_kinerja');
+		$this->loader->add_action('wp_ajax_get_data_satker',  $plugin_public, 'get_data_satker');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
