@@ -8155,8 +8155,11 @@ CREATE TABLE `data_tujuan_sasaran_manrisk_sesudah` (
 CREATE TABLE `data_pokin_renstra` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_pokin` VARCHAR(255) DEFAULT NULL,
-  `level` INT(11) DEFAULT NULL,
-  `tipe` INT(11) DEFAULT NULL,
+  `level` TINYINT(4) DEFAULT NULL,
+  `label` TEXT DEFAULT NULL,
+  `indikator` TEXT DEFAULT NULL,
+  `id_unik` VARCHAR(255) DEFAULT NULL,
+  `tipe` TINYINT(4) DEFAULT NULL COMMENT '1=tujuan, 2=sasaran, 3=program, 4=kegiatan, 5=sub kegiatan',
   `id_skpd` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `tahun_anggaran` YEAR(4) NOT NULL,

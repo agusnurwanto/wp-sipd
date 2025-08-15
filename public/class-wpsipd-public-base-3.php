@@ -380,6 +380,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$data['kode_bidang_urusan'] = $bidur_all['kode_bidang_urusan'];
 					$data['nama_bidang_urusan'] = $bidur_all['nama_bidang_urusan'];
 
+					if (empty($data['pokin-level'])) {
+						throw new Exception('Pohon Kinerja tidak boleh kosong!');
+					}
+
 					if (empty($data['tujuan_teks'])) {
 						throw new Exception('Tujuan tidak boleh kosong!');
 					}
@@ -398,7 +402,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
 							AND active=1
-						", trim($data['tujuan_teks']), $data['id_bidang_urusan'], $data['id_unit']));
+							AND tahun_anggaran=%d
+						", trim($data['tujuan_teks']), $data['id_bidang_urusan'], $data['id_unit'], $_POST['tahun_anggaran']));
+					// die($wpdb->last_query);
 
 					if (!empty($id_cek)) {
 						throw new Exception('Tujuan : ' . $data['tujuan_teks'] . ' sudah ada!');
@@ -419,7 +425,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Unit kerja tidak ditemukan!');
 					}
 
-					$status = $wpdb->insert('data_renstra_tujuan_lokal', [
+					$data_tujuan = array(
 						'id_bidang_urusan' => $data['id_bidang_urusan'],
 						'id_unik' => $this->generateRandomString(), // kode_tujuan
 						'id_unit' => $dataUnit->id_unit,
@@ -437,10 +443,63 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'catatan_usulan' => $data['catatan_usulan'],
 						'catatan' => $data['catatan'],
 						'active' => 1
-					]);
+					);
+
+					$status = $wpdb->insert('data_renstra_tujuan_lokal', $data_tujuan);
 
 					if ($status === false) {
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
+					}
+
+					$wpdb->update("data_pokin_renstra", array("active" => 0), array(
+						"id_unik" => $data_tujuan['id_unik'],
+						"tipe" => 1
+					));
+
+					// cek jika jadwal sakip aktif
+					if(!empty($data['id_jadwal_wp_sakip'])){
+						$_POST['id_skpd'] = $dataUnit->id_unit;
+						$_POST['id_jadwal_wp_sakip'] = $data['id_jadwal_wp_sakip'];
+						$pokin_all = $this->get_data_pohon_kinerja(true);
+						$new_pokin = array();
+						foreach($pokin_all['data'] as $val){
+							$new_pokin[$val->id] = $val;
+						}
+						if(!is_array($data['pokin-level'])){
+							$data['pokin-level'] = array($data['pokin-level']);
+						}
+						foreach($data['pokin-level'] as $id_pokin){
+							if(!empty($new_pokin[$id_pokin])){
+								$data_pokin = array(
+									"id_pokin" => $id_pokin,
+									"level" => $new_pokin[$id_pokin]->level,
+									"label" => $new_pokin[$id_pokin]->label,
+									"indikator" => $new_pokin[$id_pokin]->label,
+									"tipe" => 1,
+									"id_unik" => $data_tujuan['id_unik'],
+									"id_skpd" => $dataUnit->id_unit,
+									"tahun_anggaran" => $_POST['tahun_anggaran'],
+									"active" => 1
+								);
+
+								$cek_id = $wpdb->get_var($wpdb->prepare("
+									SELECT
+										id
+									FROM data_pokin_renstra
+									WHERE id_pokin=%d
+										AND id_unik=%s
+										AND tipe=1
+								", $id_pokin, $data_tujuan['id_unik']));
+
+								if(!empty($cek_id)){
+									$wpdb->update("data_pokin_renstra", $data_pokin, array(
+										"id" => $cek_id
+									));
+								}else{
+									$wpdb->insert("data_pokin_renstra", $data_pokin);
+								}
+							}
+						}
 					}
 
 					echo json_encode([
@@ -581,6 +640,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan);
 					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
 
+					$pokin = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							*
+						FROM data_pokin_renstra
+						WHERE id_unik=%s
+							AND tipe=1
+							AND active=1
+							AND tahun_anggaran=%d
+					", $tujuan['id_unik'], $tujuan['tahun_anggaran']), ARRAY_A);
+
 					echo json_encode([
 						'status' => true,
 						'tujuan' => $tujuan,
@@ -588,6 +657,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'tujuan_parent' => $tujuan_parent,
 						'skpd' => $skpd_db,
 						'bidur' => $bidur_db,
+						'pokin' => $pokin,
 						'message' => 'Sukses get tujuan by id'
 					]);
 					exit;
@@ -746,6 +816,57 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						], [
 							'kode_tujuan' => $data['id_unik']
 						]);
+
+						$wpdb->update("data_pokin_renstra", array("active" => 0), array(
+							"id_unik" => $data['id_unik'],
+							"tipe" => 1
+						));
+
+						// cek jika jadwal sakip aktif
+						if(!empty($data['id_jadwal_wp_sakip'])){
+							$_POST['id_skpd'] = $dataUnit->id_unit;
+							$_POST['id_jadwal_wp_sakip'] = $data['id_jadwal_wp_sakip'];
+							$pokin_all = $this->get_data_pohon_kinerja(true);
+							$new_pokin = array();
+							foreach($pokin_all['data'] as $val){
+								$new_pokin[$val->id] = $val;
+							}
+							if(!is_array($data['pokin-level'])){
+								$data['pokin-level'] = array($data['pokin-level']);
+							}
+							foreach($data['pokin-level'] as $id_pokin){
+								if(!empty($new_pokin[$id_pokin])){
+									$data_pokin = array(
+										"id_pokin" => $id_pokin,
+										"level" => $new_pokin[$id_pokin]->level,
+										"label" => $new_pokin[$id_pokin]->label,
+										"indikator" => $new_pokin[$id_pokin]->label,
+										"tipe" => 1,
+										"id_unik" => $data['id_unik'],
+										"id_skpd" => $dataUnit->id_unit,
+										"tahun_anggaran" => $_POST['tahun_anggaran'],
+										"active" => 1
+									);
+
+									$cek_id = $wpdb->get_var($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pokin_renstra
+										WHERE id_pokin=%d
+											AND id_unik=%s
+											AND tipe=1
+									", $id_pokin, $data_tujuan['id_unik']));
+
+									if(!empty($cek_id)){
+										$wpdb->update("data_pokin_renstra", $data_pokin, array(
+											"id" => $cek_id
+										));
+									}else{
+										$wpdb->insert("data_pokin_renstra", $data_pokin);
+									}
+								}
+							}
+						}
 
 						$wpdb->query('COMMIT');
 
@@ -11613,8 +11734,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$return = array(
 						'status' => 'success',
-						'level' => $_POST['level'],
-						'response' => $response->data,
+						'data' => $response->data,
 						// 'params' => $api_params,
 						// 'response_asli' => $response_asli
 					);
