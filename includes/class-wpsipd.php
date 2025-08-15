@@ -1090,6 +1090,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
 
+		$this->loader->add_action('wp_ajax_copy_data_monev_rpjmd_rpd_from_data_local',  $plugin_public, 'copy_data_monev_rpjmd_rpd_from_data_local');
+
 		$this->loader->add_action('wp_ajax_get_jadwal_by_type_esakip',  $plugin_public, 'get_jadwal_by_type_esakip');
 		$this->loader->add_action('wp_ajax_sync_data_rpd_lokal_esakip',  $plugin_public, 'sync_data_rpd_lokal_esakip');
 		$this->loader->add_action('wp_ajax_sync_data_rpjmd_lokal_esakip',  $plugin_public, 'sync_data_rpjmd_lokal_esakip');
@@ -1203,6 +1205,7 @@ class Wpsipd
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
 		add_shortcode('monitor_monev_renstra_pemda', array($plugin_public, 'monitor_monev_renstra_pemda'));
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
+		add_shortcode('monitor_monev_rpd', array($plugin_public, 'monitor_monev_rpd'));
 		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
 		add_shortcode('data_ssh_sipd', array($plugin_public, 'data_ssh_sipd'));
 		add_shortcode('data_halaman_menu_ssh', array($plugin_public, 'data_halaman_menu_ssh'));
