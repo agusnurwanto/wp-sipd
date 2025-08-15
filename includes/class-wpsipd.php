@@ -1162,6 +1162,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran',  $plugin_public, 'submit_tujuan_sasaran');
 		$this->loader->add_action('wp_ajax_edit_tujuan_sasaran_manrisk',  $plugin_public, 'edit_tujuan_sasaran_manrisk');
 		$this->loader->add_action('wp_ajax_hapus_tujuan_sasaran_manrisk',  $plugin_public, 'hapus_tujuan_sasaran_manrisk');
+		$this->loader->add_action('wp_ajax_verif_tujuan_sasaran_manrisk',  $plugin_public, 'verif_tujuan_sasaran_manrisk');
+		$this->loader->add_action('wp_ajax_submit_verif_tujuan_sasaran',  $plugin_public, 'submit_verif_tujuan_sasaran');
 		
 		$this->loader->add_action('wp_ajax_get_data_pohon_kinerja',  $plugin_public, 'get_data_pohon_kinerja');
 		$this->loader->add_action('wp_ajax_get_data_satker',  $plugin_public, 'get_data_satker');
