@@ -6943,6 +6943,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    );
 
 					    foreach ($data_tujuan_renstra as &$row) {
+					    	$data_jadwal = $wpdb->get_row(
+						        $wpdb->prepare("
+						            SELECT 
+						            	* 
+						            FROM data_jadwal_lokal 
+						            WHERE id_jadwal_lokal = %d 
+						        ", $_POST['id_jadwal']),
+						        ARRAY_A
+						    );
 					        $row['pelaksana_renstra'] = $wpdb->get_results(
 					            $wpdb->prepare("
 					                SELECT 
@@ -6952,7 +6961,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 1
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $data_jadwal['tahun_anggaran']),
 					            ARRAY_A
 					        );
 
@@ -6965,7 +6974,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 1
 					                  AND active = 1
-					            ", $row['id_unik']),
+					            ", $row['id_unik'], $data_jadwal['tahun_anggaran']),
 					            ARRAY_A
 					        );
 					    }
@@ -7004,7 +7013,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 2
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 
@@ -7017,7 +7026,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 2
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 					    }
@@ -7054,7 +7063,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 3
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 
@@ -7067,7 +7076,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 3
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 					    }
@@ -7105,7 +7114,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 4
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 
@@ -7118,7 +7127,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 4
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 					    }
@@ -7156,7 +7165,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 5
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 
@@ -7169,7 +7178,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND tahun_anggaran = %d
 					                  AND tipe = 5
 					                  AND active = 1
-					            ", $row['id']),
+					            ", $row['id_unik'], $_POST['tahun_anggaran']),
 					            ARRAY_A
 					        );
 					    }

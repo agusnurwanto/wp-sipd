@@ -515,22 +515,15 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         }
 
         if (!selected || selected === '-1') {
-            if (jQuery('#nama_tujuan_sasaran_sesudah').length > 0) {
-                selected = jQuery('#nama_tujuan_sasaran_sesudah').val();
-            }
         }
 
         if (!selected || selected === '-1') {
-            jQuery('#indikator_kinerja, #indikator_kinerja_sesudah').html('<option value="">Pilih Indikator</option>');
             if (typeof callback === "function") callback();
             return;
         }
 
         if (!tipe) {
             tipe = jQuery('#nama_tujuan_sasaran option:selected').data('type');
-            if (!tipe) {
-                tipe = jQuery('#nama_tujuan_sasaran_sesudah option:selected').data('type');
-            }
         }
 
         jQuery("#wrap-loading").show();
@@ -551,7 +544,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             success: function (response) {
                 jQuery("#wrap-loading").hide();
                 if (response.status === 'success') {
-                    jQuery('#indikator_kinerja, #indikator_kinerja_sesudah').html(response.html);
+                    jQuery('#indikator_kinerja').html(response.html);
                     if (typeof callback === "function") callback();
                 } else {
                     alert(`GAGAL!\n${response.message}`);
