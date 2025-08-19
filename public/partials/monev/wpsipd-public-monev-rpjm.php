@@ -3,7 +3,6 @@
 if (! defined('WPINC')) {
 	die;
 }
-global $wpdb;
 $input = shortcode_atts(array(
 	'id_jadwal_lokal' => ''
 ), $atts);
@@ -26,6 +25,8 @@ $status_copy_data = false;
 if (!empty($jadwal_lokal_for_copy_data)) {
 	$status_copy_data = true;
 }
+
+global $wpdb;
 
 function button_edit_monev($class = false)
 {
@@ -504,7 +505,6 @@ foreach ($data_all['data'] as $visi) {
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
-			<td class="atas kanan bawah"></td>
 		</tr>
 	';
 	$no_misi = 0;
@@ -699,6 +699,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		</tbody>
 	</table>
 </div>
+
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
@@ -730,10 +731,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 
 		aksi += `
-			<h3 style="margin-top: 20px;">SETTING</h3>
-			<label>
-				<input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator
-			</label>
+			<h3 style="margin-top: 20px;">PENGATURAN</h3>
 			<label style="margin-left: 20px;">
 				<input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM
 			</label>
@@ -756,6 +754,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		`;
 
 		jQuery('#action-sipd').append(aksi);
+
+		jQuery('.edit-monev').on('click', function() {
+			jQuery('#wrap-loading').show();
+			jQuery('#mod-monev').modal('show');
+			jQuery('#wrap-loading').hide();
+		});
 	});
 
 	function filter_skpd(that) {
@@ -833,16 +837,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 
-	function edit_monev_indikator(that) {
+	function showEditBtn(that) {
 		if (jQuery(that).is(':checked')) {
 			jQuery('.edit-monev').show();
 		} else {
 			jQuery('.edit-monev').hide();
 		}
 	}
-	jQuery('.edit-monev').on('click', function() {
-		jQuery('#wrap-loading').show();
-		jQuery('#mod-monev').modal('show');
-		jQuery('#wrap-loading').hide();
-	});
 </script>

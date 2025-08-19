@@ -28293,7 +28293,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private  $table_data_rpd_sasaran = 'data_rpd_sasaran';
 	private  $table_data_rpd_program = 'data_rpd_program';
 
-	  public function copy_data_monev_rpjmd_rpd_from_data_local()
+	public function copy_data_monev_rpjmd_rpd_from_data_local()
     {
         try {
             $this->newValidate($_POST, [
@@ -28352,12 +28352,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$wpdb->query('START TRANSACTION');
 
 		try {
-			$this->deactivate_existing_rpd_data($id_jadwal);
-			$this->process_upsert_tujuan_rpd($id_jadwal);
-			$this->process_upsert_sasaran_rpd($id_jadwal);
-			$this->process_upsert_program_rpd($id_jadwal);
+			$result1 = $this->deactivate_existing_rpd_data($id_jadwal);
+			$result2 = $this->process_upsert_tujuan_rpd($id_jadwal);
+			$result3 = $this->process_upsert_sasaran_rpd($id_jadwal);
+			$result4 = $this->process_upsert_program_rpd($id_jadwal);
+
+			if (!$result2 || !$result3 || !$result4 || !$result1) {
+				throw new Exception("Gagal memperbarui data RPD.");
+			}
 
 			$wpdb->query('COMMIT');
+
+			return true;
 		} catch (Exception $e) {
 			$wpdb->query('ROLLBACK');
 			throw $e;
@@ -28374,9 +28380,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	{
 		global $wpdb;
 		$where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
-		$wpdb->update($this->table_data_rpd_tujuan, ['active' => 0], $where_clause);
-		$wpdb->update($this->table_data_rpd_sasaran, ['active' => 0], $where_clause);
-		$wpdb->update($this->table_data_rpd_program, ['active' => 0], $where_clause);
+		$result1 = $wpdb->update($this->table_data_rpd_tujuan, ['active' => 0], $where_clause);
+		$result2 = $wpdb->update($this->table_data_rpd_sasaran, ['active' => 0], $where_clause);
+		$result3 = $wpdb->update($this->table_data_rpd_program, ['active' => 0], $where_clause);
+		
+		$success = $result1 && $result2 && $result3;
+		if (!$success) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -28395,19 +28408,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		foreach ($data_lokal as $v) {
 			$datas = [
-				'head_teks'           => $v['head_teks'],
-				'id_misi_old'         => $v['id_misi_old'],
 				'id_tujuan'           => $v['id_tujuan'],
 				'id_unik'             => $v['id_unik'],
+				'tujuan_teks'         => $v['tujuan_teks'],
 				'id_unik_indikator'   => $v['id_unik_indikator'],
 				'indikator_teks'      => $v['indikator_teks'],
+				'urut_tujuan'         => $v['urut_tujuan'],
+				
 				'is_locked'           => 0,
 				'is_locked_indikator' => $v['is_locked_indikator'],
-				'isu_teks'            => $v['isu_teks'],
-				'kebijakan_teks'      => $v['kebijakan_teks'],
-				'misi_lock'           => $v['misi_lock'],
-				'misi_teks'           => $v['misi_teks'],
-				'saspok_teks'         => $v['saspok_teks'],
+
 				'satuan'              => $v['satuan'],
 				'target_1'            => $v['target_1'],
 				'target_2'            => $v['target_2'],
@@ -28416,11 +28426,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_5'            => $v['target_5'],
 				'target_akhir'        => $v['target_akhir'],
 				'target_awal'         => $v['target_awal'],
-				'tujuan_teks'         => $v['tujuan_teks'],
-				'urut_misi'           => $v['urut_misi'],
-				'urut_saspok'         => $v['urut_saspok'],
-				'urut_tujuan'         => $v['urut_tujuan'],
-				'visi_teks'           => $v['visi_teks'],
+
 				'status'              => 1,
 				'active'              => 1,
 				'id_jadwal'           => $id_jadwal,
@@ -28437,11 +28443,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
 			if ($existing_id) {
-				$wpdb->update($this->table_data_rpd_tujuan, $datas, ['id' => $existing_id]);
+				$results = $wpdb->update($this->table_data_rpd_tujuan, $datas, ['id' => $existing_id]);
 			} else {
-				$wpdb->insert($this->table_data_rpd_tujuan, $datas);
+				$results = $wpdb->insert($this->table_data_rpd_tujuan, $datas);
+			}
+
+			if ($results === false) {
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -28460,21 +28472,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		foreach ($data_lokal as $v) {
 			$datas = [
-				'head_teks'           => $v['head_teks'],
-				'id_misi_old'         => $v['id_misi_old'],
+				'kode_tujuan'         => $v['kode_tujuan'],
+
 				'id_sasaran'          => $v['id_sasaran'],
 				'id_unik'             => $v['id_unik'],
-				'id_unik_indikator'   => $v['id_unik_indikator'],
+				'sasaran_teks'        => $v['sasaran_teks'],
 				'indikator_teks'      => $v['indikator_teks'],
+				'id_unik_indikator'   => $v['id_unik_indikator'],
+				'urut_sasaran'        => $v['urut_sasaran'],
+				
 				'is_locked'           => 0,
 				'is_locked_indikator' => $v['is_locked_indikator'],
-				'isu_teks'            => $v['isu_teks'],
-				'kebijakan_teks'      => $v['kebijakan_teks'],
-				'kode_tujuan'         => $v['kode_tujuan'],
-				'misi_lock'           => $v['misi_lock'],
-				'misi_teks'           => $v['misi_teks'],
-				'sasaran_teks'        => $v['sasaran_teks'],
-				'saspok_teks'         => $v['saspok_teks'],
+				
 				'satuan'              => $v['satuan'],
 				'target_1'            => $v['target_1'],
 				'target_2'            => $v['target_2'],
@@ -28483,13 +28492,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_5'            => $v['target_5'],
 				'target_akhir'        => $v['target_akhir'],
 				'target_awal'         => $v['target_awal'],
-				'tujuan_lock'         => $v['tujuan_lock'],
-				'tujuan_teks'         => $v['tujuan_teks'],
-				'urut_misi'           => $v['urut_misi'],
-				'urut_sasaran'        => $v['urut_sasaran'],
-				'urut_saspok'         => $v['urut_saspok'],
-				'urut_tujuan'         => $v['urut_tujuan'],
-				'visi_teks'           => $v['visi_teks'],
+
 				'status'              => 1,
 				'active'              => 1,
 				'id_jadwal'           => $id_jadwal,
@@ -28506,11 +28509,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
 			if ($existing_id) {
-				$wpdb->update($this->table_data_rpd_sasaran, $datas, ['id' => $existing_id]);
+				$results = $wpdb->update($this->table_data_rpd_sasaran, $datas, ['id' => $existing_id]);
 			} else {
-				$wpdb->insert($this->table_data_rpd_sasaran, $datas);
+				$results = $wpdb->insert($this->table_data_rpd_sasaran, $datas);
+			}
+
+			if ($results === false) {
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -28529,26 +28538,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		foreach ($data_lokal as $v) {
 			$datas = [
-				'head_teks'           => $v['head_teks'],
+				'kode_sasaran'        => $v['kode_sasaran'],
+
 				'id_bidur_mth'        => $v['id_bidur_mth'],
-				'id_misi_old'         => $v['id_misi_old'],
+				'is_locked'           => 0,
+				'is_locked_indikator' => $v['is_locked_indikator'],
+
 				'id_program'          => $v['id_program'],
 				'id_program_mth'      => $v['id_program_mth'],
 				'id_unik'             => $v['id_unik'],
-				'id_unik_indikator'   => $v['id_unik_indikator'],
-				'id_unit'             => $v['id_unit'],
-				'indikator'           => $v['indikator'],
-				'is_locked'           => 0,
-				'is_locked_indikator' => $v['is_locked_indikator'],
-				'isu_teks'            => $v['isu_teks'],
-				'kebijakan_teks'      => $v['kebijakan_teks'],
-				'kode_sasaran'        => $v['kode_sasaran'],
-				'kode_skpd'           => $v['kode_skpd'],
-				'kode_tujuan'         => $v['kode_tujuan'],
-				'misi_lock'           => $v['misi_lock'],
-				'misi_teks'           => $v['misi_teks'],
 				'nama_program'        => $v['nama_program'],
+				'id_unik_indikator'   => $v['id_unik_indikator'],
+				'indikator'           => $v['indikator'],
+
+				'id_unit'             => $v['id_unit'],
+				'kode_skpd'           => $v['kode_skpd'],
 				'nama_skpd'           => $v['nama_skpd'],
+				
 				'pagu_1'              => $v['pagu_1'],
 				'pagu_2'              => $v['pagu_2'],
 				'pagu_3'              => $v['pagu_3'],
@@ -28558,6 +28564,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_lock'        => $v['sasaran_lock'],
 				'sasaran_teks'        => $v['sasaran_teks'],
 				'saspok_teks'         => $v['saspok_teks'],
+
 				'satuan'              => $v['satuan'],
 				'target_1'            => $v['target_1'],
 				'target_2'            => $v['target_2'],
@@ -28566,15 +28573,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_5'            => $v['target_5'],
 				'target_akhir'        => $v['target_akhir'],
 				'target_awal'         => $v['target_awal'],
-				'tujuan_lock'         => $v['tujuan_lock'],
-				'tujuan_teks'         => $v['tujuan_teks'],
-				'urut_misi'           => $v['urut_misi'],
-				'urut_sasaran'        => $v['urut_sasaran'],
-				'urut_saspok'         => $v['urut_saspok'],
-				'urut_tujuan'         => $v['urut_tujuan'],
-				'visi_teks'           => $v['visi_teks'],
-				'catatan'             => $v['catatan'],
-				'id_program_lama'     => $v['id_program_lama'],
+				
 				'status'              => 1,
 				'active'              => 1,
 				'id_jadwal'           => $id_jadwal,
@@ -28591,12 +28590,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
 			if ($existing_id) {
-				$wpdb->update($this->table_data_rpd_program, $datas, ['id' => $existing_id]);
+				$results = $wpdb->update($this->table_data_rpd_program, $datas, ['id' => $existing_id]);
 			} else {
-				$wpdb->insert($this->table_data_rpd_program, $datas);
+				$results = $wpdb->insert($this->table_data_rpd_program, $datas);
+			}
+
+			if ($results === false) {
+				return false;
 			}
 		}
+
+		return true;
 	}
+
+	// =========================================================================
+	// HELPER METHOD COPY RPJMD
+	// =========================================================================
 
 	private $table_data_rpjmd_tujuan = 'data_rpjmd_tujuan';
 	private  $table_data_rpjmd_sasaran = 'data_rpjmd_sasaran';
@@ -28604,9 +28613,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private  $table_data_rpjmd_visi = 'data_rpjmd_visi';
 	private  $table_data_rpjmd_misi = 'data_rpjmd_misi';
 
-	// =========================================================================
-	// HELPER METHOD COPY RPJMD
-	// =========================================================================
 	private function process_copy_rpjmd_lokal_to_rpjmd_sipd(int $id_jadwal)
     {
         global $wpdb;
@@ -28615,15 +28621,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
         try {
             // 1. Nonaktifkan data lama
-            $this->deactivate_existing_rpjmd_data($id_jadwal);
+            $result1 = $this->deactivate_existing_rpjmd_data($id_jadwal);
 
             // 2. Proses secara hirarki dan dapatkan ID mapping
             $visi_id_map = $this->process_upsert_visi_rpjmd($id_jadwal);
             $misi_id_map = $this->process_upsert_misi_rpjmd($id_jadwal, $visi_id_map);
 
-            $this->process_upsert_tujuan_rpjmd($id_jadwal, $misi_id_map);
-            $this->process_upsert_sasaran_rpjmd($id_jadwal);
-            $this->process_upsert_program_rpjmd($id_jadwal);
+            $result2 = $this->process_upsert_tujuan_rpjmd($id_jadwal, $misi_id_map);
+            $result3 = $this->process_upsert_sasaran_rpjmd($id_jadwal);
+            $result4 = $this->process_upsert_program_rpjmd($id_jadwal);
+
+			if (!$result1 || !$result2 || !$result3 || !$result4) {
+				throw new Exception("Gagal memperbarui data RPJMD.");
+			}
 
             $wpdb->query('COMMIT');
         } catch (Exception $e) {
@@ -28636,11 +28646,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
     {
         global $wpdb;
         $where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
-        $wpdb->update($this->table_data_rpjmd_visi, ['active' => 0], $where_clause);
-        $wpdb->update($this->table_data_rpjmd_misi, ['active' => 0], $where_clause);
-        $wpdb->update($this->table_data_rpjmd_tujuan, ['active' => 0], $where_clause);
-        $wpdb->update($this->table_data_rpjmd_sasaran, ['active' => 0], $where_clause);
-        $wpdb->update($this->table_data_rpjmd_program, ['active' => 0], $where_clause);
+        $result1 = $wpdb->update($this->table_data_rpjmd_visi, ['active' => 0], $where_clause);
+        $result2 = $wpdb->update($this->table_data_rpjmd_misi, ['active' => 0], $where_clause);
+        $result3 = $wpdb->update($this->table_data_rpjmd_tujuan, ['active' => 0], $where_clause);
+        $result4 = $wpdb->update($this->table_data_rpjmd_sasaran, ['active' => 0], $where_clause);
+        $result5 = $wpdb->update($this->table_data_rpjmd_program, ['active' => 0], $where_clause);
+
+        $success = $result1 && $result2 && $result3 && $result4 && $result5;
+
+        if (!$success) {
+            return false;
+        }
+
+        return true;
     }
 	
 	private function process_upsert_visi_rpjmd(int $id_jadwal)
@@ -28788,11 +28806,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
             if ($existing_id) {
-                $wpdb->update($this->table_data_rpjmd_tujuan, $datas, ['id' => $existing_id]);
+                $result = $wpdb->update($this->table_data_rpjmd_tujuan, $datas, ['id' => $existing_id]);
             } else {
-                $wpdb->insert($this->table_data_rpjmd_tujuan, $datas);
+                $result = $wpdb->insert($this->table_data_rpjmd_tujuan, $datas);
             }
+
+			if ($result === false) {
+				return false;
+			}
         }
+
+		return true;
     }
 
 	private function process_upsert_sasaran_rpjmd(int $id_jadwal)
@@ -28845,11 +28869,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
             if ($existing_id) {
-                $wpdb->update($this->table_data_rpjmd_sasaran, $datas, ['id' => $existing_id]);
+                $result = $wpdb->update($this->table_data_rpjmd_sasaran, $datas, ['id' => $existing_id]);
             } else {
-                $wpdb->insert($this->table_data_rpjmd_sasaran, $datas);
+                $result = $wpdb->insert($this->table_data_rpjmd_sasaran, $datas);
             }
+
+			if ($result === false) {
+				return false;
+			}
         }
+
+		return true;
     }
 
 	private function process_upsert_program_rpjmd(int $id_jadwal)
@@ -28913,10 +28943,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
 			if ($existing_id) {
-				$wpdb->update($this->table_data_rpjmd_program, $datas, ['id' => $existing_id]);
+				$result = $wpdb->update($this->table_data_rpjmd_program, $datas, ['id' => $existing_id]);
 			} else {
-				$wpdb->insert($this->table_data_rpjmd_program, $datas);
+				$result = $wpdb->insert($this->table_data_rpjmd_program, $datas);
+			}
+
+			if ($result === false) {
+				return false;
 			}
 		}
+
+		return true;
 	}
 }

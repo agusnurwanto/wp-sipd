@@ -19,7 +19,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		return $user_meta->roles;
 	}
 
-	public function get_tujuan_parent_by_tipe($params = array(), $tujuan_exist = array())
+	public function get_tujuan_parent_by_tipe($params = array(), $tujuan_exist = array(), $is_locked_jadwal = true, $with_program = false)
 	{
 
 		global $wpdb;
@@ -30,15 +30,27 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 		switch ($params['id_tipe_relasi']) {
 			case '2':
-				$tableA = "data_rpjmd_sasaran_lokal_history";
-				$tableB = "data_rpjmd_program_lokal_history";
-				$tableC = "data_rpjmd_tujuan_lokal_history";
+				if ($is_locked_jadwal) {
+					$table_sasaran = "data_rpjmd_sasaran_lokal_history";
+					$table_program = "data_rpjmd_program_lokal_history";
+					$table_tujuan = "data_rpjmd_tujuan_lokal_history";
+				} else {
+					$table_sasaran = "data_rpjmd_sasaran_lokal";
+					$table_program = "data_rpjmd_program_lokal";
+					$table_tujuan = "data_rpjmd_tujuan_lokal";
+				}
 				break;
 
 			case '3':
-				$tableA = "data_rpd_sasaran_lokal_history";
-				$tableB = "data_rpd_program_lokal_history";
-				$tableC = "data_rpd_tujuan_lokal_history";
+				if ($is_locked_jadwal) {
+					$table_sasaran = "data_rpd_sasaran_lokal_history";
+					$table_program = "data_rpd_program_lokal_history";
+					$table_tujuan = "data_rpd_tujuan_lokal_history";
+				} else {
+					$table_sasaran = "data_rpd_sasaran_lokal";
+					$table_program = "data_rpd_program_lokal";
+					$table_tujuan = "data_rpd_tujuan_lokal";
+				}
 				break;
 
 			default:
@@ -46,44 +58,83 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				break;
 		}
 
-		if (!empty($tujuan_exist)) {
-			$sql = $wpdb->prepare("
-				SELECT DISTINCT
-					a.id_unik as id_unik_sasaran, 
-					a.sasaran_teks,
-					c.id_unik, 
-					c.tujuan_teks
-				FROM {$tableA} a 
-				INNER JOIN {$tableC} c
-						ON a.kode_tujuan=c.id_unik
-				WHERE a.id_unik = %s
-				  AND a.id_jadwal = %d
-				  AND c.id_jadwal = %d
-				  AND a.active = 1 
-				  AND c.active = 1 
-				  AND a.id_unik IS NOT NULL 
-				  AND c.id_unik IS NOT NULL", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+		if ($with_program) {
+			if (!empty($tujuan_exist)) {
+				$sql = $wpdb->prepare("
+					SELECT DISTINCT
+						a.id_unik as id_unik_sasaran, 
+						a.sasaran_teks,
+						c.id_unik, 
+						c.tujuan_teks
+					FROM {$table_sasaran} a 
+					INNER JOIN {$table_tujuan} c
+							ON a.kode_tujuan=c.id_unik
+					WHERE a.id_unik = %s
+					  AND a.id_jadwal = %d
+					  AND a.id_unik IS NOT NULL 
+					  AND a.active = 1 
+					  AND c.id_jadwal = %d
+					  AND c.id_unik IS NOT NULL
+					  AND c.active = 1 
+				", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+			} else {
+				$sql = $wpdb->prepare("
+					SELECT DISTINCT
+						c.id_unik, 
+						c.tujuan_teks
+					FROM {$table_sasaran} a 
+					INNER JOIN {$table_program} b
+							ON a.id_unik=b.kode_sasaran
+					INNER JOIN {$table_tujuan} c
+							ON a.kode_tujuan=c.id_unik
+					WHERE a.id_jadwal = %d
+					  AND a.id_unik IS NOT NULL 
+					  AND a.active = 1 
+					  AND b.id_unit = %d 
+					  AND b.id_unik_indikator IS NOT NULL 
+					  AND b.active = 1 
+					  AND c.id_jadwal = %d
+					  AND c.active = 1 
+					  AND c.id_unik IS NOT NULL
+				", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
+			}
 		} else {
-			$sql = $wpdb->prepare("
-				SELECT DISTINCT
-					c.id_unik, 
-					c.tujuan_teks
-				FROM {$tableA} a 
-				INNER JOIN {$tableB} b
-						ON a.id_unik=b.kode_sasaran
-				INNER JOIN {$tableC} c
-						ON a.kode_tujuan=c.id_unik
-				WHERE a.id_jadwal = %d
-				  AND c.id_jadwal = %d
-				  AND a.active = 1 
-				  AND c.active = 1 
-				  AND b.active = 1 
-				  AND b.id_unit = %d 
-				  AND b.id_unik_indikator IS NOT NULL 
-				  AND a.id_unik IS NOT NULL 
-				  AND c.id_unik IS NOT NULL", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
+			if (!empty($tujuan_exist)) {
+				$sql = $wpdb->prepare("
+					SELECT DISTINCT
+						a.id_unik as id_unik_sasaran, 
+						a.sasaran_teks,
+						c.id_unik, 
+						c.tujuan_teks
+					FROM {$table_sasaran} a 
+					INNER JOIN {$table_tujuan} c
+							ON a.kode_tujuan=c.id_unik
+					WHERE a.id_unik = %s
+					  AND a.id_jadwal = %d
+					  AND a.id_unik IS NOT NULL 
+					  AND a.active = 1 
+					  AND c.id_jadwal = %d
+					  AND c.id_unik IS NOT NULL
+					  AND c.active = 1 
+				", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+			} else {
+				$sql = $wpdb->prepare("
+					SELECT DISTINCT
+						c.id_unik, 
+						c.tujuan_teks
+					FROM {$table_sasaran} a
+					INNER JOIN {$table_tujuan} c
+							ON a.kode_tujuan=c.id_unik
+					WHERE a.id_jadwal = %d
+					  AND a.id_unik IS NOT NULL 
+					  AND a.active = 1 
+					  AND c.id_jadwal = %d
+					  AND c.id_unik IS NOT NULL
+					  AND c.active = 1 
+				", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
+			}
 		}
-		// die($sql);
+
 		$data =  $wpdb->get_results($sql);
 		return $data;
 	}
@@ -705,8 +756,21 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						", $_POST['id_tujuan']), 
 						ARRAY_A
 					);
-					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan);
-					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
+
+					if ($_POST['id_tipe_relasi'] == '2') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpjm');
+					} elseif ($_POST['id_tipe_relasi'] == '3') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpd');
+					}
+
+					$is_active = (!empty($jadwal['data'][0]) && $jadwal['data'][0]['status'] == 0);
+					$is_locked_jadwal = true;
+					if ($is_active) {
+						$is_locked_jadwal = false;
+					}
+
+					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan, $is_locked_jadwal);
+					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST, '', $is_locked_jadwal);
 
 					$pokin = $wpdb->get_results($wpdb->prepare("
 						SELECT
