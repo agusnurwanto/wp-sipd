@@ -17972,27 +17972,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+				$data = $this->get_data_jadwal_by_id_jadwal_lokal($_POST['id_jadwal_lokal']);
 
-				$data_penjadwalan_by_id = $wpdb->get_row($wpdb->prepare('
-					SELECT 
-						* 
-					FROM data_jadwal_lokal 
-					WHERE id_jadwal_lokal = %d
-				', $id_jadwal_lokal), ARRAY_A);
+				if (!empty($data->relasi_perencanaan)) {
+					$relasi_perencanaan = $this->get_data_jadwal_by_id_jadwal_lokal($data->relasi_perencanaan);
+
+					$data->relasi_perencanaan = $relasi_perencanaan;
+				}
 
 				$select_option_renja_pergeseran = '<option value="">Pilih Jadwal Pergeseran</option>';
 				$data_renja_pergeseran = $wpdb->get_results(
 					$wpdb->prepare('
-						SELECT
-							*
-						FROM
-							data_jadwal_lokal
+						SELECT *
+						FROM data_jadwal_lokal
 						WHERE id_jadwal_lokal NOT IN (' . $id_jadwal_lokal . ')
 						  AND status=1
 						  AND id_tipe=%d
 						  AND tahun_anggaran=%d
-					', $data_penjadwalan_by_id['id_tipe'], $data_penjadwalan_by_id['tahun_anggaran']),
+					', $data->id_tipe, $data->tahun_anggaran),
 					ARRAY_A
 				);
 
@@ -18002,11 +17999,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$select_option_renja_pergeseran .= '<option value="' . $val_renja['id_jadwal_lokal'] . '">' . $val_renja['nama'] . ' || ' . $tanggal_kunci . '</option>';
 					}
 				}
-				$data_penjadwalan_by_id['select_option_pergeseran_renja'] = $select_option_renja_pergeseran;
+
+				$data->select_option_pergeseran_renja = $select_option_renja_pergeseran;
 
 				$return = array(
 					'status' => 'success',
-					'data' 	 => $data_penjadwalan_by_id
+					'data' 	 => $data
 				);
 			} else {
 				$return = array(
