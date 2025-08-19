@@ -17985,7 +17985,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$wpdb->prepare('
 						SELECT *
 						FROM data_jadwal_lokal
-						WHERE id_jadwal_lokal NOT IN (' . $id_jadwal_lokal . ')
+						WHERE id_jadwal_lokal NOT IN (' . $_POST['id_jadwal_lokal'] . ')
 						  AND status=1
 						  AND id_tipe=%d
 						  AND tahun_anggaran=%d
