@@ -3062,7 +3062,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					WHERE id_unik=%s
 						AND id_unik_indikator IS NULL
 						AND active=1
-					", $_POST['id_unik']), ARRAY_A);
+						AND tahun_anggaran=%d
+					", $_POST['id_unik'], $_POST['tahun_anggaran']), ARRAY_A);
 
 				$pokin = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -3072,7 +3073,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND tipe=3
 							AND active=1
 							AND tahun_anggaran=%d
-					", $data['id_unik'], $sasaran['tahun_anggaran']), ARRAY_A);
+					", $data['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 				$satker = $wpdb->get_results($wpdb->prepare("
 					SELECT
@@ -3082,7 +3083,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						AND tipe=3
 						AND active=1
 						AND tahun_anggaran=%d
-				", $data['id_unik'], $sasaran['tahun_anggaran']), ARRAY_A);
+				", $data['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 				echo json_encode([
 					'status' => true,
@@ -4040,9 +4041,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE k.kode_program=%s AND
 							k.id_unik IS NOT NULL and
 							k.id_unik_indikator IS NULL and
-							k.active=1 
+							k.active=1 and
+							k.tahun_anggaran=%d
 						ORDER BY nama_giat
-					", $_POST['kode_program']);
+					", $_POST['kode_program'], $_POST['tahun_anggaran']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($kegiatan as $k => $keg) {
 
@@ -4101,6 +4103,28 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$kegiatan[$k]['pagu_akumulasi_3_usulan_subkegiatan'] = $pagu->pagu_akumulasi_3_usulan;
 						$kegiatan[$k]['pagu_akumulasi_4_usulan_subkegiatan'] = $pagu->pagu_akumulasi_4_usulan;
 						$kegiatan[$k]['pagu_akumulasi_5_usulan_subkegiatan'] = $pagu->pagu_akumulasi_5_usulan;
+
+						$kegiatan[$k]['pokin'] = $wpdb->get_results($wpdb->prepare("
+							SELECT
+								*
+							FROM data_pokin_renstra
+							WHERE id_unik=%s
+								AND id_skpd=%d
+								AND active=1
+								AND tipe=4
+								AND tahun_anggaran=%d
+						", $keg['id_unik'], $keg['id_unit'], $_POST['tahun_anggaran']), ARRAY_A);
+						
+						$kegiatan[$k]['satker'] = $wpdb->get_results($wpdb->prepare("
+							SELECT
+								*
+							FROM data_pelaksana_renstra
+							WHERE id_unik=%s
+								AND id_skpd=%d
+								AND active=1
+								AND tipe=4
+								AND tahun_anggaran=%d
+						", $keg['id_unik'], $keg['id_unit'], $_POST['tahun_anggaran']), ARRAY_A);
 					}
 				} else {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -4210,7 +4234,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	public function submit_kegiatan_renstra()
 	{
-
 		global $wpdb;
 
 		try {
@@ -4220,6 +4243,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$data = json_decode(stripslashes($_POST['data']), true);
 
 					$this->verify_kegiatan_renstra($data);
+					if(!empty($data['id_jadwal_wp_sakip'])){
+						if (empty($data['pokin-level'])) {
+							throw new Exception('Pohon Kinerja tidak boleh kosong!');
+						}
+						if (empty($data['satker-pelaksana'])) {
+							throw new Exception('Satuan Kerja Pelaksana tidak boleh kosong!');
+						}
+					}
 
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
@@ -4229,7 +4260,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND kode_program=%s
 							AND active=1
 							AND id_unik_indikator IS NULL
-					", $data['id_kegiatan'], $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['id_kegiatan'], $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Kegiatan : ' . $data['kegiatan_teks'] . ' sudah ada! id=' . $id_cek);
@@ -4242,7 +4274,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NULL 
 							AND active=1
-					", $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program tidak ditemukan!');
@@ -4262,7 +4295,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					try {
-						$wpdb->insert('data_renstra_kegiatan_lokal', [
+						$data_kegiatan = array(
 							'bidur_lock' => 0,
 							'giat_lock' => 0,
 							'id_bidang_urusan' => $dataProgram->id_bidang_urusan,
@@ -4295,8 +4328,109 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'urut_tujuan' => $dataProgram->urut_tujuan,
 							'catatan_usulan' => $data['catatan_usulan'],
 							'catatan' => $data['catatan'],
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'active' => 1
-						]);
+						);
+						$wpdb->insert('data_renstra_kegiatan_lokal', $data_kegiatan);
+
+						$wpdb->update("data_pokin_renstra", array("active" => 0), array(
+							"id_unik" => $data_kegiatan['id_unik'],
+							"tipe" => 4,
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+
+						$wpdb->update("data_pelaksana_renstra", array("active" => 0), array(
+							"id_unik" => $data_kegiatan['id_unik'],
+							"tipe" => 4,
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+
+						// cek jika jadwal sakip aktif
+						if(!empty($data['id_jadwal_wp_sakip'])){
+							$_POST['id_skpd'] = $dataProgram->id_unit;
+							$_POST['id_jadwal_wp_sakip'] = $data['id_jadwal_wp_sakip'];
+							$pokin_all = $this->get_data_pohon_kinerja(true);
+							$new_pokin = array();
+							foreach($pokin_all['data'] as $val){
+								$new_pokin[$val->id] = $val;
+							}
+							if(!is_array($data['pokin-level'])){
+								$data['pokin-level'] = array($data['pokin-level']);
+							}
+							foreach($data['pokin-level'] as $id_pokin){
+								if(!empty($new_pokin[$id_pokin])){
+									$data_pokin = array(
+										"id_pokin" => $id_pokin,
+										"level" => $new_pokin[$id_pokin]->level,
+										"label" => $new_pokin[$id_pokin]->label,
+										"indikator" => $new_pokin[$id_pokin]->label,
+										"tipe" => 4,
+										"id_unik" => $data_kegiatan['id_unik'],
+										"id_skpd" => $dataProgram->id_unit,
+										"tahun_anggaran" => $_POST['tahun_anggaran'],
+										"active" => 1
+									);
+
+									$cek_id = $wpdb->get_var($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pokin_renstra
+										WHERE id_pokin=%d
+											AND id_unik=%s
+											AND tipe=4
+											AND tahun_anggaran=%d
+									", $id_pokin, $data_program['id_unik'], $_POST['tahun_anggaran']));
+
+									if(!empty($cek_id)){
+										$wpdb->update("data_pokin_renstra", $data_pokin, array(
+											"id" => $cek_id
+										));
+									}else{
+										$wpdb->insert("data_pokin_renstra", $data_pokin);
+									}
+								}
+							}
+
+							$satker_all = $this->get_data_satker(true);
+							$new_satker = array();
+							foreach($satker_all['data'] as $val){
+								$new_satker[$val->id] = $val;
+							}
+							if(!is_array($data['satker-pelaksana'])){
+								$data['satker-pelaksana'] = array($data['satker-pelaksana']);
+							}
+							foreach($data['satker-pelaksana'] as $id_satker){
+								if(!empty($new_satker[$id_satker])){
+									$data_satker = array(
+										"id_satker" => $id_satker,
+										"nama_satker" => $new_satker[$id_satker]->nama,
+										"tipe" => 4,
+										"id_skpd" => $dataProgram->id_unit,
+										"id_unik" => $data_kegiatan['id_unik'],
+										"tahun_anggaran" => $_POST['tahun_anggaran'],
+										"active" => 1
+									);
+
+									$cek_id = $wpdb->get_var($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pelaksana_renstra
+										WHERE id_satker=%s
+											AND tipe=4
+											AND id_unik=%s
+											AND tahun_anggaran=%d
+									", $id_pokin, $data_program['id_unik'], $_POST['tahun_anggaran']));
+
+									if(!empty($cek_id)){
+										$wpdb->update("data_pelaksana_renstra", $data_satker, array(
+											"id" => $cek_id
+										));
+									}else{
+										$wpdb->insert("data_pelaksana_renstra", $data_satker);
+									}
+								}
+							}
+						}
 
 						echo json_encode([
 							'status' => true,
@@ -4354,11 +4488,34 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							* 
 						FROM data_renstra_kegiatan_lokal
 						WHERE id=%d
-					", $_POST['id_kegiatan']));
+							AND tahun_anggaran=%d
+					", $_POST['id_kegiatan'], $_POST['tahun_anggaran']), ARRAY_A);
+
+					$pokin = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							*
+						FROM data_pokin_renstra
+						WHERE id_unik=%s
+							AND tipe=4
+							AND active=1
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
+
+					$satker = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							*
+						FROM data_pelaksana_renstra
+						WHERE id_unik=%s
+							AND tipe=4
+							AND active=1
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
 
 					echo json_encode([
 						'status' => true,
 						'kegiatan' => $dataKegiatan,
+						'pokin' => $pokin,
+						'satker' => $satker,
 						'data' => array_values($kegiatan)
 					]);
 					exit;
@@ -4379,7 +4536,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	public function update_kegiatan_renstra()
 	{
-
 		global $wpdb;
 
 		try {
@@ -4389,6 +4545,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$data = json_decode(stripslashes($_POST['data']), true);
 
 					$this->verify_kegiatan_renstra($data);
+					if(!empty($data['id_jadwal_wp_sakip'])){
+						if (empty($data['pokin-level'])) {
+							throw new Exception('Pohon Kinerja tidak boleh kosong!');
+						}
+						if (empty($data['satker-pelaksana'])) {
+							throw new Exception('Satuan Kerja Pelaksana tidak boleh kosong!');
+						}
+					}
 
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
@@ -4399,10 +4563,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id!=%d
 							AND active=1
 							AND id_unik_indikator IS NULL
-					", $data['id_kegiatan'], $data['kode_program'], $data['id']));
+							AND tahun_anggaran=%d
+					", $data['id_kegiatan'], $data['kode_program'], $data['id'], $_POST['tahun_anggaran']));
 
+					$tahun_anggaran_wpsipd = get_option('_crb_tahun_anggaran_sipd');
 					if (!empty($id_cek)) {
-						$kegiatan = $wpdb->get_row($wpdb->prepare("SELECT nama_giat FROM data_prog_keg WHERE id_giat=%d AND tahun_anggaran=%d", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+						$kegiatan = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								nama_giat 
+							FROM data_prog_keg 
+							WHERE id_giat=%d 
+								AND tahun_anggaran=%d
+						", $data['id_kegiatan'], $tahun_anggaran_wpsipd));
 						if (empty($kegiatan)) {
 							throw new Exception('Program tidak ditemukan!');
 						}
@@ -4416,7 +4588,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NULL 
 							AND active=1
-					", $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program tidak ditemukan!');
@@ -4429,7 +4602,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_giat=%d AND
 							tahun_anggaran=%d
-					", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_kegiatan'], $tahun_anggaran_wpsipd));
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan tidak ditemukan!');
@@ -4470,7 +4643,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'urut_tujuan' => $dataProgram->urut_tujuan
 						], [
 							'id_unik' => $data['id_unik'], // pake id_unik agar indikator kegiatan ikut terupdate
-							'id_unik_indikator' => 'NULL'
+							'id_unik_indikator' => 'NULL',
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						]);
 
 						// edit kegiatan indikator
@@ -4503,8 +4677,108 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'urut_tujuan' => $dataProgram->urut_tujuan
 						], [
 							'id_unik' => $data['id_unik'],
-							'id_unik_indikator' => 'NOT NULL'
+							'id_unik_indikator' => 'NOT NULL',
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						]);
+
+						$wpdb->update("data_pokin_renstra", array("active" => 0), array(
+							"id_unik" => $data['id_unik'],
+							"tipe" => 4,
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+
+						$wpdb->update("data_pelaksana_renstra", array("active" => 0), array(
+							"id_unik" => $data['id_unik'],
+							"tipe" => 4,
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+
+						// cek jika jadwal sakip aktif
+						if(!empty($data['id_jadwal_wp_sakip'])){
+							$_POST['id_skpd'] = $dataProgram->id_unit;
+							$_POST['id_jadwal_wp_sakip'] = $data['id_jadwal_wp_sakip'];
+							$pokin_all = $this->get_data_pohon_kinerja(true);
+							$new_pokin = array();
+							foreach($pokin_all['data'] as $val){
+								$new_pokin[$val->id] = $val;
+							}
+							if(!is_array($data['pokin-level'])){
+								$data['pokin-level'] = array($data['pokin-level']);
+							}
+							foreach($data['pokin-level'] as $id_pokin){
+								if(!empty($new_pokin[$id_pokin])){
+									$data_pokin = array(
+										"id_pokin" => $id_pokin,
+										"level" => $new_pokin[$id_pokin]->level,
+										"label" => $new_pokin[$id_pokin]->label,
+										"indikator" => $new_pokin[$id_pokin]->label,
+										"tipe" => 4,
+										"id_unik" => $data['id_unik'],
+										"id_skpd" => $dataProgram->id_unit,
+										"tahun_anggaran" => $_POST['tahun_anggaran'],
+										"active" => 1
+									);
+
+									$cek_id = $wpdb->get_var($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pokin_renstra
+										WHERE id_pokin=%d
+											AND id_unik=%s
+											AND tipe=4
+											AND tahun_anggaran=%d
+									", $id_pokin, $data['id_unik'], $_POST['tahun_anggaran']));
+
+									if(!empty($cek_id)){
+										$wpdb->update("data_pokin_renstra", $data_pokin, array(
+											"id" => $cek_id
+										));
+									}else{
+										$wpdb->insert("data_pokin_renstra", $data_pokin);
+									}
+								}
+							}
+
+							$satker_all = $this->get_data_satker(true);
+							$new_satker = array();
+							foreach($satker_all['data'] as $val){
+								$new_satker[$val->id] = $val;
+							}
+							if(!is_array($data['satker-pelaksana'])){
+								$data['satker-pelaksana'] = array($data['satker-pelaksana']);
+							}
+							foreach($data['satker-pelaksana'] as $id_satker){
+								if(!empty($new_satker[$id_satker])){
+									$data_satker = array(
+										"id_satker" => $id_satker,
+										"nama_satker" => $new_satker[$id_satker]->nama,
+										"tipe" => 4,
+										"id_skpd" => $dataProgram->id_unit,
+										"id_unik" => $data['id_unik'],
+										"tahun_anggaran" => $_POST['tahun_anggaran'],
+										"active" => 1
+									);
+
+									$cek_id = $wpdb->get_var($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pelaksana_renstra
+										WHERE id_satker=%s
+											AND tipe=4
+											AND id_unik=%s
+											AND tahun_anggaran=%d
+									", $id_pokin, $data['id_unik'], $_POST['tahun_anggaran']));
+
+									if(!empty($cek_id)){
+										$wpdb->update("data_pelaksana_renstra", $data_satker, array(
+											"id" => $cek_id
+										));
+									}else{
+										$wpdb->insert("data_pelaksana_renstra", $data_satker);
+									}
+								}
+							}
+						}
 
 						remove_filter('query', array($this, 'wpsipd_query'));
 
@@ -4542,6 +4816,21 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						SELECT 
 							* 
 						FROM data_renstra_kegiatan_lokal 
+						WHERE kode_kegiatan=%s 
+							AND id_unik IS NOT NULL 
+							AND id_unik_indikator IS NULL 
+							AND active=1
+							AND tahun_anggaran=%d
+					", $_POST['id_unik'], $_POST['tahun_anggaran']));
+
+					if (!empty($id_cek)) {
+						throw new Exception("Kegiatan sudah digunakan oleh sub kegiatan", 1);
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_kegiatan_lokal 
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NOT NULL 
 							AND active=1
@@ -4551,11 +4840,20 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception("Kegiatan sudah digunakan oleh indikator kegiatan", 1);
 					}
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_kegiatan_lokal 
-						WHERE id=%d
-					", $_POST['id']));
+					$wpdb->update('data_renstra_kegiatan_lokal', array('active' => 0), array(
+						'id_unik' => $_POST['id_unik'],
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					$wpdb->update('data_pokin_renstra', array('active' => 0), array(
+						'id_unik' => $_POST['id_unik'],
+						'tipe' => 4,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					$wpdb->update('data_pelaksana_renstra', array('active' => 0), array(
+						'id_unik' => $_POST['id_unik'],
+						'tipe' => 4,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 
 					echo json_encode([
 						'status' => true,
