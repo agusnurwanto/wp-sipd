@@ -11365,6 +11365,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 	            $id_skpd = intval($_POST['id_skpd']);
 
+	            
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+
 	            $get_data = $wpdb->get_results($wpdb->prepare("
 	                    SELECT 
 	                    	* 
@@ -11511,10 +11515,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					                <td class="text-left">' . $data_sebelum['rencana_tindak_pengendalian'] . '</td>
 					        ';
 						    $id_sesudah = 0;
+						    $tipe_sesudah = 0;
+						    $id_tujuan_sesudah = 0;
+						    $id_indikator_sesudah = 0;
 							if (!empty($get_data_sesudah)) {
 							    foreach ($get_data_sesudah as $data_sesudah) {
 							        $id_sesudah = $data_sesudah['id'];
-
+								    $tipe_sesudah = intval($data_sesudah['tipe']);
+								    $id_tujuan_sesudah = intval($data_sesudah['id_tujuan_sasaran']);
+								    $id_indikator_sesudah = intval($data_sesudah['id_indikator']);
 							        if (isset($data_sesudah['tipe']) && $data_sesudah['tipe'] == 0) {
 							            $get_data_tujuan_sesudah = $wpdb->get_row($wpdb->prepare("
 							                SELECT 
@@ -11539,7 +11548,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							            ", $get_data_tujuan_sesudah['id_unik']), 
 							            ARRAY_A);
 							            $data_sesudah['indikator'] = !empty($get_data_indikator_sesudah) ? $get_data_indikator_sesudah['indikator_teks'] : '';
-							            $data_sesudah['label_tipe'] = 'Tujuan OPD:';
 							        } elseif (isset($data_sesudah['tipe']) && $data_sesudah['tipe'] == 1) {
 							            $get_data_sasaran_sesudah = $wpdb->get_row($wpdb->prepare("
 							                SELECT 
@@ -11564,18 +11572,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							            ", $get_data_sasaran_sesudah['id_unik']), 
 							            ARRAY_A);
 							            $data_sesudah['indikator'] = !empty($get_data_indikator_sesudah) ? $get_data_indikator_sesudah['indikator_teks'] : '';
-							            $data_sesudah['label_tipe'] = 'Sasaran OPD:';
 							        }
+								    $controllable_sesudah = '';
+								    if ($data_sesudah['controllable'] == 0) {
+								        $controllable_sesudah = 'Controllable';
+								    } elseif ($data_sesudah['controllable'] == 1) {
+								        $controllable_sesudah = 'Uncontrollable';
+								    }
 
 							        $html .= '
-							            <td class="text-left"><b>' . $data_sesudah['label_tipe'] . '</b><br> ' . $data_sesudah['nama_tujuan_sasaran'] . '</td>
-							            <td class="text-left">' . $data_sesudah['indikator'] . '</td>
+							            <td class="text-left"><b>' . $data_sebelum['label_tipe'] . '</b><br> ' . $data_sesudah['tujuan_sasaran_teks'] . '</td>
+							            <td class="text-left">' . $data_sesudah['indikator_teks'] . '</td>
 							            <td class="text-left">' . $data_sesudah['uraian_resiko'] . '</td>
 							            <td class="text-left">' . $data_sesudah['kode_resiko'] . '</td>
 							            <td class="text-left">' . $data_sesudah['pemilik_resiko'] . '</td>
 							            <td class="text-left">' . $data_sesudah['uraian_sebab'] . '</td>
 							            <td class="text-left">' . $data_sesudah['sumber_sebab'] . '</td>
-							            <td class="text-left">' . $controllable . '</td>
+							            <td class="text-left">' . $controllable_sesudah . '</td>
 							            <td class="text-left">' . $data_sesudah['uraian_dampak'] . '</td>
 							            <td class="text-left">' . $data_sesudah['pihak_terkena'] . '</td>
 							            <td class="text-left">' . $data_sesudah['skala_dampak'] . '</td>
@@ -11588,18 +11601,27 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 
 						    $html .= '
-				                <td class="text-center">
-				                    <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', ' . $id_tujuan . ', ' . $id_indikator . ', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-				                        <span class="dashicons dashicons-edit"></span>
-				                    </button>
-				                    <button class="btn btn-danger" onclick="hapus_tujuan_sasaran_manrisk(' . $id_tujuan . '); return false;" title="Hapus Data Sebelum">
-				                        <span class="dashicons dashicons-trash"></span>
-				                    </button>
-				                    <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', ' . $id_tujuan . ', ' . $id_indikator . ', ' . $tipe_target . '); return false;" title="Verifikasi Data">
-				                        <span class="dashicons dashicons-yes"></span>
-				                    </button>
-				                </td>
-				            ';
+							    <td class="text-center">
+							        <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', ' . $id_tujuan . ', ' . $id_indikator . ', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
+							            <span class="dashicons dashicons-edit"></span>
+							        </button>
+							        <button class="btn btn-danger" onclick="hapus_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . '); return false;" title="Hapus Data Sebelum">
+							            <span class="dashicons dashicons-trash"></span>
+							        </button>
+							';
+
+							if (in_array("administrator", $user_meta->roles)) {
+							    $html .= '
+							        <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', ' . $id_tujuan_sesudah . ', ' . $id_indikator_sesudah . ', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+							            <span class="dashicons dashicons-yes"></span>
+							        </button>
+							    ';
+							}
+
+							$html .= '
+							    </td>
+							';
+
 						}
 
 	                }
@@ -11910,6 +11932,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					array('id' => $_POST['id']),
 					array('%d')
 				);
+				$wpdb->update(
+					'data_tujuan_sasaran_manrisk_sesudah',
+					array('active' => 0),
+					array('id_sebelum' => $_POST['id']),
+					array('%d')
+				);
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'API key tidak ditemukan!';
@@ -11950,27 +11978,46 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 
 	            if (isset($_POST['tipe']) && is_numeric($_POST['tipe'])) {
-				    $tipe = intval($_POST['tipe']);
-				} else {
-				    $ret['status'] = 'error';
-				    $ret['message'] = 'Tipe kosong atau bukan angka!';
-				    wp_send_json($ret);
-				}
+	                $tipe = intval($_POST['tipe']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tipe kosong atau bukan angka!';
+	                wp_send_json($ret);
+	            }
+
+	            $query = "
+	                SELECT *
+	                FROM data_tujuan_sasaran_manrisk_sesudah
+	                WHERE id = %d
+	                  AND id_sebelum = %d
+	                  AND id_skpd = %d
+	                  AND tahun_anggaran = %d
+	                  AND tipe = %d
+	                  AND active = 1
+	            ";
+
+	            $params = array(
+	                $_POST['id'],
+	                $_POST['id_sebelum'],
+	                $id_skpd,
+	                $tahun_anggaran,
+	                $tipe
+	            );
+
+	            if (!empty($_POST['id_tujuan_sasaran'])) {
+	                $query .= " AND id_tujuan_sasaran = %d";
+	                $params[] = intval($_POST['id_tujuan_sasaran']);
+	            }
+
+	            if (!empty($_POST['id_indikator'])) {
+	                $query .= " AND id_indikator = %d";
+	                $params[] = intval($_POST['id_indikator']);
+	            }
+
+	            $query .= " LIMIT 1";
 
 	            $get_data = $wpdb->get_row(
-	                $wpdb->prepare("
-	                    SELECT 
-	                    	*
-	                    FROM data_tujuan_sasaran_manrisk_sesudah
-	                    WHERE id = %d
-	                    	AND id_tujuan_sasaran = %d
-							AND id_indikator = %d
-							AND id_skpd = %d
-							AND tahun_anggaran = %d
-							AND tipe = %d
-							AND active = 1
-	                    LIMIT 1
-	                ", $_POST['id'], $_POST['id_tujuan_sasaran'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),
+	                $wpdb->prepare($query, $params),
 	                ARRAY_A
 	            );
 	            $ret['data'] = $get_data;
@@ -11986,6 +12033,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	    wp_send_json($ret);
 	}
+
 
 	public function submit_verif_tujuan_sasaran(){
 	    global $wpdb;
@@ -12010,12 +12058,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$ret['message'] = 'ID SKPD kosong!';
 				}
 	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	            $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
 
 	            $data = array(
 	                'id_sebelum'					=> $_POST['id_sebelum'], 
 	                'id_tujuan_sasaran'				=> $_POST['id_tujuan_sasaran'], 
 	                'id_indikator'					=> $_POST['id_indikator'],
-	                'tipe'							=> $_POST['tipe'],
+	                'tujuan_sasaran_teks'			=> $_POST['tujuan_sasaran'], 
+	                'indikator_teks'				=> $_POST['indikator'],
+	                'tipe'							=> $tipe,
 	                'uraian_resiko'					=> $_POST['uraian_resiko'],
 	                'kode_resiko'					=> $_POST['kode_resiko'],
 	                'pemilik_resiko'				=> $_POST['pemilik_resiko'],

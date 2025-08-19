@@ -8144,6 +8144,8 @@ CREATE TABLE `data_tujuan_sasaran_manrisk_sesudah` (
   `id_sebelum` INT(11) DEFAULT NULL,
   `id_tujuan_sasaran` INT(11) DEFAULT NULL,
   `id_indikator` INT(11) DEFAULT NULL,
+  `tujuan_sasaran_teks` TEXT DEFAULT NULL,
+  `indikator_teks` TEXT DEFAULT NULL,
   `uraian_resiko` TEXT DEFAULT NULL,
   `kode_resiko` TEXT DEFAULT NULL,
   `pemilik_resiko` TEXT DEFAULT NULL,
