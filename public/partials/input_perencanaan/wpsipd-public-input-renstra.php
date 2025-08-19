@@ -5298,237 +5298,138 @@ $table .= '
 	});
 
 	jQuery(document).on('click', '.btn-tambah-sub-kegiatan', function() {
-		jQuery("#wrap-loading").show();
-		let kode_giat = jQuery(this).data('kodegiat');
-		let kode_kegiatan = jQuery(this).data('kodekegiatan');
+		var that = this;
+		return get_data_pohon_kinerja()
+        .then(function(data_pokin) {
+            return new Promise(function(resolve, reject) {
+            	var opsi_pokin = '';
+            	data_pokin.data.map(function(b, i){
+            		var indikator = [];
+            		for (var bb in b.indikator){
+            			indikator.push(b.indikator[bb].label);
+            		}
+            		var nomor_urut = '';
+            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+            	})
+                let html_input_pokin = `
+		            <div class="form-group"> 
+		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
+		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
+                			${opsi_pokin}
+		                </select> 
+		            </div>
+		        `;
 
-		let html = '<form id="form-renstra">' +
-			'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
-			'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
-			'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
-			'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
-			'<div class="form-group">' +
-			'<div class="row">' +
-			'<div class="col-md-12">' +
-			'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
-			'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'<div class="form-group">' +
-			'<div class="row">' +
-			'<div class="col-md-12">' +
-			'<label for="sub_unit">Sub Unit</label>' +
-			'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'<div class="form-group">' +
-			'<div class="row">' +
-			'<div class="col-md-6">' +
-			'<div class="card">' +
-			'<div class="card-header">Usulan</div>' +
-			'<div class="card-body">'
-		<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-				+
-				'<div class="form-group">' +
-				'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
-				'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>' +
-				'</div>'
-		<?php }; ?>
-			+
-			'<div class="form-group">' +
-			'<label>Catatan Usulan</label>' +
-			'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'<div class="col-md-6">' +
-			'<div class="card">' +
-			'<div class="card-header">Penetapan</div>' +
-			'<div class="card-body">'
-		<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-				+
-				'<div class="form-group">' +
-				'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
-				'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>' +
-				'</div>'
-		<?php }; ?>
-			+
-			'<div class="form-group">' +
-			'<label>Catatan Penetapan</label>' +
-			'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'</div>' +
-			'</div>'
-		<?php if ($is_admin): ?>
-				+
-				'<div class="row">' +
-				'<div class="col-md-12 text-center">' +
-				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
-				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
-				'</button>' +
-				'</div>' +
-				'</div>'
-		<?php endif; ?>
-			+
-			'</div>' +
-			'</form>';
+		        var opsi_satker = '';
+	        	satker_all.data.map(function(b, i){
+	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
+	        	})
+	            let html_input_satker = `
+		            <div class="form-group"> 
+		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
+		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
+	            			${opsi_satker}
+		                </select> 
+		            </div>
+		        `;
+				jQuery('#wrap-loading').show();
+				let kode_giat = jQuery(this).data('kodegiat');
+				let kode_kegiatan = jQuery(this).data('kodekegiatan');
 
-		jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Sub Kegiatan');
-		jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-		jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
-			'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-			'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-			'</button>' +
-			'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
-			'data-action="submit_sub_kegiatan_renstra" ' +
-			'data-view="subKegiatanRenstra"' +
-			'>' +
-			'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-			'</button>');
-		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
-		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
-		jQuery("#modal-crud-renstra").modal('show');
-
-		get_list_sub_kegiatan({
-			'kode_giat': kode_giat,
-			'id_unit': '<?php echo $unit[0]['id_unit']; ?>',
-			'kode_unit': '<?php echo $unit[0]['kodeunit']; ?>',
-			'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-		}, 'id_sub_kegiatan').then(function() {
-			jQuery("#id_sub_kegiatan").select2({
-				width: '100%'
-			});
-			get_list_unit({
-				'id_skpd': '<?php echo $unit[0]['id_skpd']; ?>',
-				'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-			}, 'id_sub_unit').then(function() {
-				jQuery("#id_sub_unit").select2({
-					width: '100%'
-				});
-				jQuery("#wrap-loading").hide();
-			});
-		});
-	});
-
-	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function() {
-
-		jQuery('#wrap-loading').show();
-
-		let id_sub_kegiatan = jQuery(this).data('id');
-		let kode_giat = jQuery(this).data('kodegiat');
-		let kode_kegiatan = jQuery(this).data('kodekegiatan');
-
-		jQuery.ajax({
-			method: 'POST',
-			url: ajax.url,
-			dataType: 'json',
-			data: {
-				'action': 'edit_sub_kegiatan_renstra',
-				'api_key': '<?php echo $api_key; ?>',
-				'id_sub_kegiatan': id_sub_kegiatan,
-			},
-			success: function(response) {
 				let html = '<form id="form-renstra">' +
-					'<input type="hidden" name="id" value="' + response.sub_kegiatan.id + '"/>' +
-					'<input type="hidden" name="kode_sub_kegiatan" value="' + response.sub_kegiatan.id_unik + '"/>' +
-					'<input type="hidden" name="id_sub_giat" value="' + response.sub_kegiatan.id_sub_giat + '"/>' +
-					'<input type="hidden" name="kode_sub_giat" value="' + response.sub_kegiatan.kode_sub_giat + '"/>' +
-					'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
 					'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
-					'<input type="hidden" name="id_giat" value="' + response.sub_kegiatan.id_giat + '"/>' +
+					'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
 					'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
 					'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
+					'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+					html_input_pokin+
+					html_input_satker+
 					'<div class="form-group">' +
-					'<div class="row">' +
-					'<div class="col-md-12">' +
-					'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
-					'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'<div class="form-group">' +
-					'<div class="row">' +
-					'<div class="col-md-12">' +
-					'<label for="sub_unit">Sub Unit</label>' +
-					'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'<div class="form-group">' +
-					'<div class="row">' +
-					'<div class="col-md-6">' +
-					'<div class="card">' +
-					'<div class="card-header">Usulan</div>' +
-					'<div class="card-body">'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<div class="form-group">' +
-						'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
-						'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan" value="' + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan + '"/>' +
-						'</div>'
-				<?php }; ?>
-					+
-					'<div class="form-group">' +
-					'<label>Catatan Usulan</label>' +
-					'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.sub_kegiatan.catatan_usulan + '</textarea>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'<div class="col-md-6">' +
-					'<div class="card">' +
-					'<div class="card-header">Penetapan</div>' +
-					'<div class="card-body">'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<div class="form-group">' +
-						'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
-						'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?> value="' + response.sub_kegiatan.pagu_<?php echo $i; ?> + '" />' +
-						'</div>'
-				<?php }; ?>
-					+
-					'<div class="form-group">' +
-					'<label>Catatan Penetapan</label>' +
-					'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.sub_kegiatan.catatan + '</textarea>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'</div>' +
-					'</div>'
-				<?php if ($is_admin): ?>
-						+
 						'<div class="row">' +
-						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
-						'</button>' +
+							'<div class="col-md-12">' +
+								'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
+								'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
+							'</div>' +
 						'</div>' +
-						'</div>'
-				<?php endif; ?>
-					+
 					'</div>' +
-					'</form>';
+					'<div class="form-group">' +
+						'<div class="row">' +
+							'<div class="col-md-12">' +
+								'<label for="sub_unit">Sub Unit</label>' +
+								'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
+							'</div>' +
+						'</div>' +
+					'</div>' +
+					'<div class="form-group">' +
+						'<div class="row">' +
+							'<div class="col-md-6">' +
+								'<div class="card">' +
+									'<div class="card-header">Usulan</div>' +
+									'<div class="card-body">'+
+								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+										'<div class="form-group">' +
+											'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
+											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>' +
+										'</div>'+
+								<?php }; ?>
+										'<div class="form-group">' +
+											'<label>Catatan Usulan</label>' +
+											'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
+										'</div>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+							'<div class="col-md-6">' +
+								'<div class="card">' +
+									'<div class="card-header">Penetapan</div>' +
+									'<div class="card-body">'+
+								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+										'<div class="form-group">' +
+											'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
+											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>' +
+										'</div>'+
+								<?php }; ?>
+										'<div class="form-group">' +
+											'<label>Catatan Penetapan</label>' +
+											'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
+										'</div>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+						'</div>'+
+				<?php if ($is_admin): ?>
+						'<div class="row">' +
+							'<div class="col-md-12 text-center">' +
+								'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+									'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+								'</button>' +
+							'</div>' +
+						'</div>'+
+				<?php endif; ?>
+					'</div>' +
+				'</form>';
 
-				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Sub Kegiatan');
+				jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Sub Kegiatan');
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+						'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
 					'</button>' +
-					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
-					'data-action="update_sub_kegiatan_renstra" ' +
-					'data-view="subKegiatanRenstra"' +
-					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
+						'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
 					'</button>');
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
 				jQuery("#modal-crud-renstra").modal('show');
+
+				jQuery('#pokin-level-sub_kegiatan').select2({
+					width: "100%",
+					dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
+				});
+				jQuery('#satker-pelaksana-sub_kegiatan').select2({
+					width: "100%",
+					dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
+				});
 
 				get_list_sub_kegiatan({
 					'kode_giat': kode_giat,
@@ -5536,7 +5437,6 @@ $table .= '
 					'kode_unit': '<?php echo $unit[0]['kodeunit']; ?>',
 					'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
 				}, 'id_sub_kegiatan').then(function() {
-					jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
 					jQuery("#id_sub_kegiatan").select2({
 						width: '100%'
 					});
@@ -5544,14 +5444,207 @@ $table .= '
 						'id_skpd': '<?php echo $unit[0]['id_skpd']; ?>',
 						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
 					}, 'id_sub_unit').then(function() {
-						jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
 						jQuery("#id_sub_unit").select2({
 							width: '100%'
 						});
-						jQuery('#wrap-loading').hide();
+						jQuery("#wrap-loading").hide();
 					});
 				});
-			}
+			});
+		});
+	});
+
+	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function() {
+		var that = this;
+		return get_data_pohon_kinerja()
+        .then(function(data_pokin) {
+            return new Promise(function(resolve, reject) {
+            	var opsi_pokin = '';
+            	data_pokin.data.map(function(b, i){
+            		var indikator = [];
+            		for (var bb in b.indikator){
+            			indikator.push(b.indikator[bb].label);
+            		}
+            		var nomor_urut = '';
+            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+            	})
+                let html_input_pokin = `
+		            <div class="form-group"> 
+		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
+		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
+                			${opsi_pokin}
+		                </select> 
+		            </div>
+		        `;
+
+		        var opsi_satker = '';
+	        	satker_all.data.map(function(b, i){
+	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
+	        	})
+	            let html_input_satker = `
+		            <div class="form-group"> 
+		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
+		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
+	            			${opsi_satker}
+		                </select> 
+		            </div>
+		        `;
+				jQuery('#wrap-loading').show();
+
+				let id_sub_kegiatan = jQuery(that).data('id');
+				let kode_giat = jQuery(that).data('kodegiat');
+				let kode_kegiatan = jQuery(that).data('kodekegiatan');
+
+				jQuery.ajax({
+					method: 'POST',
+					url: ajax.url,
+					dataType: 'json',
+					data: {
+						'action': 'edit_sub_kegiatan_renstra',
+						'api_key': '<?php echo $api_key; ?>',
+						'id_sub_kegiatan': id_sub_kegiatan,
+						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+					},
+					success: function(response) {
+						let html = '<form id="form-renstra">' +
+							'<input type="hidden" name="id" value="' + response.sub_kegiatan.id + '"/>' +
+							'<input type="hidden" name="kode_sub_kegiatan" value="' + response.sub_kegiatan.id_unik + '"/>' +
+							'<input type="hidden" name="id_sub_giat" value="' + response.sub_kegiatan.id_sub_giat + '"/>' +
+							'<input type="hidden" name="kode_sub_giat" value="' + response.sub_kegiatan.kode_sub_giat + '"/>' +
+							'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
+							'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
+							'<input type="hidden" name="id_giat" value="' + response.sub_kegiatan.id_giat + '"/>' +
+							'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
+							'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
+							'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+							html_input_pokin+
+							html_input_satker+
+							'<div class="form-group">' +
+								'<div class="row">' +
+									'<div class="col-md-12">' +
+										'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
+										'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+							'<div class="form-group">' +
+								'<div class="row">' +
+									'<div class="col-md-12">' +
+										'<label for="sub_unit">Sub Unit</label>' +
+										'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+							'<div class="form-group">' +
+								'<div class="row">' +
+									'<div class="col-md-6">' +
+										'<div class="card">' +
+										'<div class="card-header">Usulan</div>' +
+										'<div class="card-body">'+
+									<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+											'<div class="form-group">' +
+											'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
+											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan" value="' + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan + '"/>' +
+											'</div>'+
+									<?php }; ?>
+										'<div class="form-group">' +
+											'<label>Catatan Usulan</label>' +
+											'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.sub_kegiatan.catatan_usulan + '</textarea>' +
+										'</div>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+							'<div class="col-md-6">' +
+								'<div class="card">' +
+									'<div class="card-header">Penetapan</div>' +
+									'<div class="card-body">'+
+								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+										'<div class="form-group">' +
+											'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
+											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?> value="' + response.sub_kegiatan.pagu_<?php echo $i; ?> + '" />' +
+										'</div>'+
+								<?php }; ?>
+										'<div class="form-group">' +
+											'<label>Catatan Penetapan</label>' +
+											'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.sub_kegiatan.catatan + '</textarea>' +
+										'</div>' +
+									'</div>' +
+								'</div>' +
+							'</div>' +
+							'</div>'+
+						<?php if ($is_admin): ?>
+								'<div class="row">' +
+									'<div class="col-md-12 text-center">' +
+										'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+											'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+										'</button>' +
+									'</div>' +
+								'</div>'+
+						<?php endif; ?>
+							'</div>' +
+						'</form>';
+
+						jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Sub Kegiatan');
+						jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+						jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
+							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+							'</button>' +
+							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
+								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+							'</button>');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
+						jQuery("#modal-crud-renstra").modal('show');
+
+						if(response.pokin.length >= 1){
+							var val_pokin = [];
+							response.pokin.map(function(b, i){
+								val_pokin.push(b.id_pokin);
+							});
+							jQuery('#pokin-level-sub_kegiatan').val(val_pokin);
+						}
+						jQuery('#pokin-level-sub_kegiatan').select2({
+							width: "100%",
+							dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
+						});
+
+						if(response.satker.length >= 1){
+							var val_satker = [];
+							response.satker.map(function(b, i){
+								val_satker.push(b.id_satker);
+							});
+							jQuery('#satker-pelaksana-sub_kegiatan').val(val_satker);
+						}
+						jQuery('#satker-pelaksana-sub_kegiatan').select2({
+							width: "100%",
+							dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
+						});
+
+						get_list_sub_kegiatan({
+							'kode_giat': kode_giat,
+							'id_unit': '<?php echo $unit[0]['id_unit']; ?>',
+							'kode_unit': '<?php echo $unit[0]['kodeunit']; ?>',
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+						}, 'id_sub_kegiatan').then(function() {
+							jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
+							jQuery("#id_sub_kegiatan").select2({
+								width: '100%'
+							});
+							get_list_unit({
+								'id_skpd': '<?php echo $unit[0]['id_skpd']; ?>',
+								'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+							}, 'id_sub_unit').then(function() {
+								jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
+								jQuery("#id_sub_unit").select2({
+									width: '100%'
+								});
+								jQuery('#wrap-loading').hide();
+							});
+						});
+					}
+				});
+			});
 		});
 	});
 
@@ -5586,8 +5679,9 @@ $table .= '
 							'kode_giat': kode_giat,
 							'kode_kegiatan': kode_kegiatan
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -7203,50 +7297,50 @@ $table .= '
 
 				let subKegiatan = '' +
 					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sub-kegiatan" data-kodekegiatan="' + params.kode_kegiatan + '" data-kodegiat="' + params.kode_giat + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sub Kegiatan</button></div>' +
+						'<table class="table">' +
+							'<thead>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
+									'<th>' + jQuery('#nama-skpd').text() + '</th>' +
+								'</tr>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
+									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
+								'</tr>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Tujuan</th>' +
+									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
+								'</tr>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Sasaran</th>' +
+									'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
+								'</tr>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Program</th>' +
+									'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
+								'</tr>' +
+								'<tr>' +
+									'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
+									'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + params.kode_kegiatan + '"]').find('td').eq(1).text() + '</th>' +
+								'</tr>' +
+							'</thead>' +
+						'</table>' +
 					'<table class="table">' +
-					'<thead>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Program</th>' +
-					'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-					'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + params.kode_kegiatan + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'</thead>' +
-					'</table>' +
-					'<table class="table">' +
-					'<thead>' +
-					'<tr>' +
-					'<th class="text-center" style="width:45px">No</th>' +
-					'<th class="text-center">Kegiatan</th>' +
-					'<th class="text-center">Sub Unit Pelaksana</th>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
-				<?php } ?>
-					+
-					'<th class="text-center" style="width:10%">Catatan</th>' +
-					'<th class="text-center" style="width:13%">Aksi</th>' +
-					'<tr>' +
-					'</thead>' +
-					'<tbody>';
+						'<thead>' +
+							'<tr>' +
+								'<th class="text-center" style="width:45px">No</th>' +
+								'<th class="text-center">Kegiatan</th>' +
+								'<th class="text-center">Sub Unit Pelaksana</th>'
+							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+									+
+									'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
+							<?php } ?>
+								+
+								'<th class="text-center" style="width:10%">Catatan</th>' +
+								'<th class="text-center" style="width:145px">Aksi</th>' +
+							'<tr>' +
+						'</thead>' +
+						'<tbody>';
 				response.data.map(function(value, index) {
 					for (var i in value) {
 						if (
@@ -7256,30 +7350,44 @@ $table .= '
 							value[i] = '';
 						}
 					}
+					var pokin_html = [];
+					value.pokin.map(function(b, i){
+						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					});
+					var satker_html = [];
+					value.satker.map(function(b, i){
+						satker_html.push('<li>'+b.nama_satker+'</li>')
+					});
 					subKegiatan += '' +
 						'<tr kodesubkegiatan="' + value.id_unik + '">' +
-						'<td class="text-center" rowspan="2">' + (index + 1) + '</td>' +
-						'<td rowspan="2">' + value.nama_sub_giat + '</td>' +
-						'<td rowspan="2">' + value.nama_sub_unit + '</td>'
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+							'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
+							'<td rowspan="2">' + value.nama_sub_giat + '</td>' +
+							'<td rowspan="2">' + value.nama_sub_unit + '</td>'
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+								+
+								'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>) + '</td>'
+						<?php } ?>
 							+
-							'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>) + '</td>'
-					<?php } ?>
-						+
-						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-						'<td class="text-center" rowspan="2">' +
-						'<a href="javascript:void(0)" data-kodesubkegiatan="' + value.id_unik + '" data-idsubgiat="' + value.id_sub_giat + '" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
-						'</td>' +
+							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+							'<td class="text-center" rowspan="2">' +
+								'<a href="javascript:void(0)" data-kodesubkegiatan="' + value.id_unik + '" data-idsubgiat="' + value.id_sub_giat + '" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
+							'</td>' +
 						'</tr>' +
-						'<tr>'
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							+
-							'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>_usulan) + '</td>'
-					<?php } ?>
-						+
-						'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'<tr>'+
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+							'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>_usulan) + '</td>'+
+						<?php } ?>
+							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>'+
+						'<tr>'+
+							'<td><b>Pohon Kinerja</b></td>'+
+							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
+						'</tr>'+
+						'<tr>'+
+							'<td><b>Satuan Kerja Pelaksana</b></td>'+
+							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
 						'</tr>';
 				});
 				subKegiatan += '<tbody>' +
@@ -8161,10 +8269,10 @@ $table .= '
 					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Sub Kegiatan');
 					jQuery("#modal-crud-renstra .modal-body").html(
 						'<nav>' +
-						'<div class="nav nav-tabs" id="nav-tab" role="tablist">' +
-						'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-default" role="tab" aria-controls="nav-sub-giat-default" aria-selected="false" onclick="defaultSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + id + ')">Default</a>' +
-						'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + response.sub_kegiatan.id_unit + ', ' + id + ')">Lintas Sub Kegiatan Existing</a>' +
-						'</div>' +
+							'<div class="nav nav-tabs" id="nav-tab" role="tablist">' +
+								'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-default" role="tab" aria-controls="nav-sub-giat-default" aria-selected="false" onclick="defaultSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + id + ')">Default</a>' +
+								'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + response.sub_kegiatan.id_unit + ', ' + id + ')">Lintas Sub Kegiatan Existing</a>' +
+							'</div>' +
 						'</nav>' +
 						'<div class="tab-content" id="nav-tab-content">' +
 						'<div class="tab-pane fade" id="nav-sub-giat-default" role="tabpanel" aria-labelledby="nav-sub-giat-default">' +
@@ -8198,9 +8306,7 @@ $table .= '
 						'<tr>' +
 						'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
 						'<td>' + response.sub_kegiatan.nama_sub_giat + '</td>' +
-						'</tr>'
-
-						+
+						'</tr>'+
 						'</thead>' +
 						'</table>' +
 						'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>' +
