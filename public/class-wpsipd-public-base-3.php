@@ -58,6 +58,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				break;
 		}
 
+		$where_clause = '';
+		if ($is_locked_jadwal) {
+			$where_clause = $wpdb->prepare("WHERE a.id_jadwal = %d AND c.id_jadwal = %d", $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+		}
+
 		if ($with_program) {
 			if (!empty($tujuan_exist)) {
 				$sql = $wpdb->prepare("
@@ -68,15 +73,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						c.tujuan_teks
 					FROM {$table_sasaran} a 
 					INNER JOIN {$table_tujuan} c
-							ON a.kode_tujuan=c.id_unik
+							ON a.kode_tujuan = c.id_unik
 					WHERE a.id_unik = %s
-					  AND a.id_jadwal = %d
-					  AND a.id_unik IS NOT NULL 
 					  AND a.active = 1 
-					  AND c.id_jadwal = %d
-					  AND c.id_unik IS NOT NULL
 					  AND c.active = 1 
-				", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+					  {$where_clause}
+				", $tujuan_exist['kode_sasaran_rpjm']);
 			} else {
 				$sql = $wpdb->prepare("
 					SELECT DISTINCT
@@ -84,19 +86,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						c.tujuan_teks
 					FROM {$table_sasaran} a 
 					INNER JOIN {$table_program} b
-							ON a.id_unik=b.kode_sasaran
+							ON a.id_unik = b.kode_sasaran
 					INNER JOIN {$table_tujuan} c
-							ON a.kode_tujuan=c.id_unik
-					WHERE a.id_jadwal = %d
-					  AND a.id_unik IS NOT NULL 
-					  AND a.active = 1 
+							ON a.kode_tujuan = c.id_unik
+					WHERE a.active = 1 
 					  AND b.id_unit = %d 
 					  AND b.id_unik_indikator IS NOT NULL 
 					  AND b.active = 1 
-					  AND c.id_jadwal = %d
 					  AND c.active = 1 
-					  AND c.id_unik IS NOT NULL
-				", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
+					  {$where_clause}
+				", $params['id_unit']);
 			}
 		} else {
 			if (!empty($tujuan_exist)) {
@@ -108,30 +107,24 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						c.tujuan_teks
 					FROM {$table_sasaran} a 
 					INNER JOIN {$table_tujuan} c
-							ON a.kode_tujuan=c.id_unik
+							ON a.kode_tujuan = c.id_unik
 					WHERE a.id_unik = %s
-					  AND a.id_jadwal = %d
-					  AND a.id_unik IS NOT NULL 
 					  AND a.active = 1 
-					  AND c.id_jadwal = %d
-					  AND c.id_unik IS NOT NULL
 					  AND c.active = 1 
-				", $tujuan_exist['kode_sasaran_rpjm'], $params['relasi_perencanaan'], $params['relasi_perencanaan']);
+					  {$where_clause}
+				", $tujuan_exist['kode_sasaran_rpjm']);
 			} else {
-				$sql = $wpdb->prepare("
+				$sql = "
 					SELECT DISTINCT
 						c.id_unik, 
 						c.tujuan_teks
 					FROM {$table_sasaran} a
 					INNER JOIN {$table_tujuan} c
-							ON a.kode_tujuan=c.id_unik
-					WHERE a.id_jadwal = %d
-					  AND a.id_unik IS NOT NULL 
-					  AND a.active = 1 
-					  AND c.id_jadwal = %d
-					  AND c.id_unik IS NOT NULL
+							ON a.kode_tujuan = c.id_unik
+					WHERE a.active = 1
 					  AND c.active = 1 
-				", $params['relasi_perencanaan'], $params['relasi_perencanaan'], $params['id_unit']);
+					  {$where_clause}
+				";
 			}
 		}
 
@@ -139,33 +132,42 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		return $data;
 	}
 
-	public function get_sasaran_parent_by_tipe($params = array())
+	public function get_sasaran_parent_by_tipe($params = array(), $is_locked_jadwal = true)
 	{
-
 		global $wpdb;
 
 		if ($params['relasi_perencanaan'] == '-') {
 			return [];
 		}
 
-		$where = '';
+		$where_clause = '';
 		if (!empty($params['kode_sasaran_parent'])) {
-			$where .= " AND a.id_unik='" . $params['kode_sasaran_parent'] . "'";
+			$where_clause .= $wpdb->prepare(" AND id_unik=%s", $params['kode_sasaran_parent']);
 		}
 
 		if (!empty($params['kode_tujuan_rpjm'])) {
-			$where .= " AND a.kode_tujuan='" . $params['kode_tujuan_rpjm'] . "'";
+			$where_clause .= $wpdb->prepare(" AND kode_tujuan=%s", $params['kode_tujuan_rpjm']);
+		}
+
+		if ($is_locked_jadwal) {
+			$where_clause .= $wpdb->prepare(" AND id_jadwal=%d", $params['relasi_perencanaan']);
 		}
 
 		switch ($params['id_tipe_relasi']) {
 			case '2':
-				$tableA = "data_rpjmd_sasaran_lokal_history";
-				$tableB = "data_rpjmd_program_lokal_history";
+				if ($is_locked_jadwal) {
+					$table_sasaran = "data_rpjmd_sasaran_lokal_history";
+				} else {
+					$table_sasaran = "data_rpjmd_sasaran_lokal";
+				}
 				break;
 
 			case '3':
-				$tableA = "data_rpd_sasaran_lokal_history";
-				$tableB = "data_rpd_program_lokal_history";
+				if ($is_locked_jadwal) {
+					$table_sasaran = "data_rpd_sasaran_lokal_history";
+				} else {
+					$table_sasaran = "data_rpd_sasaran_lokal";
+				}
 				break;
 
 			default:
@@ -174,15 +176,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		return $wpdb->get_results("
-				SELECT DISTINCT
-					a.id_unik, 
-					a.sasaran_teks
-				FROM " . $tableA . " a  
-				WHERE 
-					a.id_jadwal=" . $params['relasi_perencanaan'] . " AND 
-					a.active=1 AND
-					a.id_unik IS NOT NULL
-					$where;");
+			SELECT DISTINCT
+				id_unik, 
+				sasaran_teks
+			FROM {$table_sasaran}
+			WHERE active = 1 
+			  {$where_clause}
+		");
 	}
 
 	public function get_sasaran_parent()
@@ -194,7 +194,19 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$sasaran = $this->get_sasaran_parent_by_tipe($_POST);
+					if ($_POST['id_tipe_relasi'] == '2') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpjm');
+					} elseif ($_POST['id_tipe_relasi'] == '3') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpd');
+					}
+
+					$is_active = (!empty($jadwal['data'][0]) && $jadwal['data'][0]['status'] == 0);
+					$is_locked_jadwal = true;
+					if ($is_active) {
+						$is_locked_jadwal = false;
+					}
+
+					$sasaran = $this->get_sasaran_parent_by_tipe($_POST, $is_locked_jadwal);
 
 					echo json_encode([
 						'status' => true,
@@ -403,7 +415,19 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Bidang urusan untuk SKPD ini tidak ditemukan!');
 					}
 
-					$tujuan = $this->get_tujuan_parent_by_tipe($_POST);
+					if ($_POST['id_tipe_relasi'] == '2') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpjm');
+					} elseif ($_POST['id_tipe_relasi'] == '3') {
+						$jadwal = $this->validasi_jadwal_perencanaan('rpd');
+					}
+
+					$is_active = (!empty($jadwal['data'][0]) && $jadwal['data'][0]['status'] == 0);
+					$is_locked_jadwal = true;
+					if ($is_active) {
+						$is_locked_jadwal = false;
+					}
+
+					$tujuan = $this->get_tujuan_parent_by_tipe($_POST, [], $is_locked_jadwal);
 
 					echo json_encode([
 						'status' => true,
@@ -777,7 +801,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan, $is_locked_jadwal);
-					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST, '', $is_locked_jadwal);
+					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST, [], $is_locked_jadwal);
 
 					$pokin = $wpdb->get_results($wpdb->prepare("
 						SELECT

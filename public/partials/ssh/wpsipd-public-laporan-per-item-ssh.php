@@ -206,7 +206,7 @@ foreach($data_sub_komponen['data'] as $kd_skpd => $val_komponen){
 		
 		globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
 		extend_action = ''
-			+'<h3 style="margin-top: 20px;text-align:center;">SETTING</h3>'
+			+'<h3 style="margin-top: 20px;text-align:center;">PENGATURAN</h3>'
 			+'<label style="display:block;text-align:center;"><input type="checkbox" onclick="show_sub_keg(this);"> Tampilkan Sub Kegiatan</label>';
 		jQuery('.title_detail_ssh').after(extend_action);
 	})

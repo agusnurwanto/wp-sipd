@@ -2813,7 +2813,7 @@ $table .= '
 		'<a class="dropdown-item" href="javascript:laporan(\'tc27\', 1)">TC27</a>' +
 		'</div>' +
 		'</div>' +
-		'<h3 style="margin-top: 20px;">SETTING</h3>'
+		'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
 		// +'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
 		+
 		'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading <?php echo $nama_tipe_relasi; ?></label>' +

@@ -1530,7 +1530,7 @@ echo '
             ceklist_penetapan = 'checked';
         }
         var setting = ''
-		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
+		    +'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);" '+ceklist_usulan+'> Sembunyikan Data Usulan</label>'
 		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>'
             +'<label style="margin-left: 20px;"><input type="checkbox" onclick="fokus_sumber_dana(this);"> Fokus Sumber Dana</label>'

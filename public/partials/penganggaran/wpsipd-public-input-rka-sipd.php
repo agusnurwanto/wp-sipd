@@ -1020,7 +1020,7 @@ jQuery(document).ready(function(){
 	});
 <?php endif; ?>
 	var body = '' +
-		'<h3>SETTING</h3>' +
+		'<h3>PENGATURAN</h3>' +
 		'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>' +
 		'<label style="margin-left: 20px;"><input type="checkbox" class="label_nilai_kelompok" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>' +
 		'<label style="margin-left: 20px;"><input type="checkbox" class="label_nilai_keterangan" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>' +

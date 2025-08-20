@@ -1794,7 +1794,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 	jQuery(document).on('ready', function() {
 		var aksi = '' +
 			'<a style="margin-left: 10px;" onclick="copy_renstra_local(); return false;" href="#" class="btn btn-danger">Copy Data Renstra Lokal</a>' +
-			'<h3 style="margin-top: 20px;">SETTING</h3>' +
+			'<h3 style="margin-top: 20px;">PENGATURAN</h3>' +
 			'<label class="action-checkbox"><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;' +
 			'<label class="action-checkbox"><input type="checkbox" onclick="debug_renstra(this);" id="debug-renstra"> Debug Cascading Renstra</label>' +
 			'<label class="action-checkbox">' +

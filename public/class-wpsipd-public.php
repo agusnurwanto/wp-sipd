@@ -28350,18 +28350,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$wpdb->query('START TRANSACTION');
 
 		try {
-			$result1 = $this->deactivate_existing_rpd_data($id_jadwal);
-			$result2 = $this->process_upsert_tujuan_rpd($id_jadwal);
-			$result3 = $this->process_upsert_sasaran_rpd($id_jadwal);
-			$result4 = $this->process_upsert_program_rpd($id_jadwal);
-
-			if (!$result2 || !$result3 || !$result4 || !$result1) {
-				throw new Exception("Gagal memperbarui data RPD.");
-			}
+			$this->deactivate_existing_rpd_data($id_jadwal);
+			$this->process_upsert_tujuan_rpd($id_jadwal);
+			$this->process_upsert_sasaran_rpd($id_jadwal);
+			$this->process_upsert_program_rpd($id_jadwal);
 
 			$wpdb->query('COMMIT');
-
-			return true;
 		} catch (Exception $e) {
 			$wpdb->query('ROLLBACK');
 			throw $e;
@@ -28377,17 +28371,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private function deactivate_existing_rpd_data(int $id_jadwal)
 	{
 		global $wpdb;
-		$where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
-		$result1 = $wpdb->update($this->table_data_rpd_tujuan, ['active' => 0], $where_clause);
-		$result2 = $wpdb->update($this->table_data_rpd_sasaran, ['active' => 0], $where_clause);
-		$result3 = $wpdb->update($this->table_data_rpd_program, ['active' => 0], $where_clause);
 		
-		$success = $result1 && $result2 && $result3;
-		if (!$success) {
-			return false;
-		}
+		$tables_to_deactivate = [
+			$this->table_data_rpd_tujuan  => 'Tujuan RPD',
+			$this->table_data_rpd_sasaran => 'Sasaran RPD',
+			$this->table_data_rpd_program => 'Program RPD',
+		];
 
-		return true;
+		$where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
+
+		foreach ($tables_to_deactivate as $table_name => $entity_name) {
+			$result = $wpdb->update($table_name, ['active' => 0], $where_clause);
+
+			if ($result === false) {
+				throw new Exception("Gagal menonaktifkan {$entity_name}. DB Error: " . $wpdb->last_error);
+			}
+		}
 	}
 
 	/**
@@ -28447,11 +28446,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			if ($results === false) {
-				return false;
+				throw new Exception("Gagal Upsert Tujuan RPD. DB Error: " . $wpdb->last_error);
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -28513,11 +28510,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			if ($results === false) {
-				return false;
+				throw new Exception("Gagal Upsert Sasaran RPD. DB Error: " . $wpdb->last_error);
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -28594,11 +28589,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			if ($results === false) {
-				return false;
+				throw new Exception("Gagal Upsert Program RPD. DB Error: " . $wpdb->last_error);
 			}
 		}
-
-		return true;
 	}
 
 	// =========================================================================
@@ -28619,19 +28612,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
         try {
             // 1. Nonaktifkan data lama
-            $result1 = $this->deactivate_existing_rpjmd_data($id_jadwal);
+            $this->deactivate_existing_rpjmd_data($id_jadwal);
 
             // 2. Proses secara hirarki dan dapatkan ID mapping
             $visi_id_map = $this->process_upsert_visi_rpjmd($id_jadwal);
             $misi_id_map = $this->process_upsert_misi_rpjmd($id_jadwal, $visi_id_map);
 
-            $result2 = $this->process_upsert_tujuan_rpjmd($id_jadwal, $misi_id_map);
-            $result3 = $this->process_upsert_sasaran_rpjmd($id_jadwal);
-            $result4 = $this->process_upsert_program_rpjmd($id_jadwal);
-
-			if (!$result1 || !$result2 || !$result3 || !$result4) {
-				throw new Exception("Gagal memperbarui data RPJMD.");
-			}
+            $this->process_upsert_tujuan_rpjmd($id_jadwal, $misi_id_map);
+            $this->process_upsert_sasaran_rpjmd($id_jadwal);
+            $this->process_upsert_program_rpjmd($id_jadwal);
 
             $wpdb->query('COMMIT');
         } catch (Exception $e) {
@@ -28640,24 +28629,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
         }
     }
 
-	 private function deactivate_existing_rpjmd_data(int $id_jadwal)
-    {
-        global $wpdb;
-        $where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
-        $result1 = $wpdb->update($this->table_data_rpjmd_visi, ['active' => 0], $where_clause);
-        $result2 = $wpdb->update($this->table_data_rpjmd_misi, ['active' => 0], $where_clause);
-        $result3 = $wpdb->update($this->table_data_rpjmd_tujuan, ['active' => 0], $where_clause);
-        $result4 = $wpdb->update($this->table_data_rpjmd_sasaran, ['active' => 0], $where_clause);
-        $result5 = $wpdb->update($this->table_data_rpjmd_program, ['active' => 0], $where_clause);
+	private function deactivate_existing_rpjmd_data(int $id_jadwal)
+	{
+		global $wpdb;
+		
+		$tables_to_deactivate = [
+			$this->table_data_rpjmd_visi    => 'Visi RPJMD',
+			$this->table_data_rpjmd_misi    => 'Misi RPJMD',
+			$this->table_data_rpjmd_tujuan  => 'Tujuan RPJMD',
+			$this->table_data_rpjmd_sasaran => 'Sasaran RPJMD',
+			$this->table_data_rpjmd_program => 'Program RPJMD',
+		];
 
-        $success = $result1 && $result2 && $result3 && $result4 && $result5;
+		$where_clause = ['active' => 1, 'id_jadwal' => $id_jadwal];
 
-        if (!$success) {
-            return false;
-        }
+		foreach ($tables_to_deactivate as $table_name => $entity_name) {
+			$result = $wpdb->update($table_name, ['active' => 0], $where_clause);
 
-        return true;
-    }
+			if ($result === false) {
+				throw new Exception("Gagal menonaktifkan {$entity_name}. DB Error: " . $wpdb->last_error);
+			}
+		}
+	}
 	
 	private function process_upsert_visi_rpjmd(int $id_jadwal)
     {
@@ -28690,12 +28683,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
             if ($existing_id) {
-                $wpdb->update($this->table_data_rpjmd_visi, $datas, ['id' => $existing_id]);
+                $results = $wpdb->update($this->table_data_rpjmd_visi, $datas, ['id' => $existing_id]);
                 $id_map[$v['id']] = $existing_id; 
             } else {
-                $wpdb->insert($this->table_data_rpjmd_visi, $datas);
+                $results = $wpdb->insert($this->table_data_rpjmd_visi, $datas);
                 $id_map[$v['id']] = $wpdb->insert_id;
             }
+			
+			if ($results === false) {
+				throw new Exception("Gagal Upsert Visi RPJMD. DB Error: " . $wpdb->last_error);
+			}
         }
 
         return $id_map;
@@ -28742,12 +28739,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
             if ($existing_id) {
-                $wpdb->update($this->table_data_rpjmd_misi, $datas, ['id' => $existing_id]);
+                $results = $wpdb->update($this->table_data_rpjmd_misi, $datas, ['id' => $existing_id]);
                 $id_map[$v['id']] = $existing_id;
             } else {
-                $wpdb->insert($this->table_data_rpjmd_misi, $datas);
+                $results = $wpdb->insert($this->table_data_rpjmd_misi, $datas);
                 $id_map[$v['id']] = $wpdb->insert_id;
             }
+
+			if ($results === false) {
+				throw new Exception("Gagal Upsert Misi RPJMD. DB Error: " . $wpdb->last_error);
+			}
         }
         return $id_map;
     }
@@ -28810,11 +28811,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             }
 
 			if ($result === false) {
-				return false;
+				throw new Exception("Gagal Upsert Tujuan RPJMD. DB Error: " . $wpdb->last_error);
 			}
         }
-
-		return true;
     }
 
 	private function process_upsert_sasaran_rpjmd(int $id_jadwal)
@@ -28873,11 +28872,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             }
 
 			if ($result === false) {
-				return false;
+				throw new Exception("Gagal Upsert Sasaran RPJMD. DB Error: " . $wpdb->last_error);
 			}
         }
-
-		return true;
     }
 
 	private function process_upsert_program_rpjmd(int $id_jadwal)
@@ -28947,10 +28944,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			if ($result === false) {
-				return false;
+				throw new Exception("Gagal Upsert Program RPJMD. DB Error: " . $wpdb->last_error);
 			}
 		}
-
-		return true;
 	}
 }
