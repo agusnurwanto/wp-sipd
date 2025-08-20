@@ -60,10 +60,10 @@ $jadwal_lokal = $wpdb->get_row(
 	', $input['id_jadwal']),
 	ARRAY_A
 );
-if (empty($data_id_jadwal['id_jadwal_sakip'])) {
+if (empty($jadwal_lokal['id_jadwal_sakip'])) {
     $id_jadwal_wp_sakip = 0;
 } else {
-    $id_jadwal_wp_sakip = $data_id_jadwal['id_jadwal_sakip'];
+    $id_jadwal_wp_sakip = $jadwal_lokal['id_jadwal_sakip'];
 }
 $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
@@ -2775,7 +2775,7 @@ $table .= '
 <script type="text/javascript">
 	run_download_excel();
 
-    window.id_jadwal_wp_sakip = 6;
+    window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
 
     if (id_jadwal_wp_sakip == 0) {
         alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
