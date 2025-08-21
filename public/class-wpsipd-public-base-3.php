@@ -13441,6 +13441,63 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 	}
 
+	public function get_tabel_pokin_cascading($return_text)
+	{
+		global $wpdb;
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+					$pokin_all = $this->get_data_pohon_kinerja(true);
+
+					$pokin_all_new = array();
+					if(!empty($pokin_all['data'])){
+						foreach($pokin_all['data'] as $val){
+							$pokin_all_new[$val->id] = $val;
+						}
+					}
+					$pokin_existing = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								id_pokin,
+								level
+							FROM data_pokin_renstra 
+							WHERE id_skpd = %d 
+							  	AND active = 1 
+							  	AND tahun_anggaran = %d 
+							ORDER BY urut_tujuan
+						", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+					foreach ($pokin_existing as $val) {
+						if(!empty($pokin_all_new[$val['id_pokin']])){
+							unset($pokin_all_new[$val['id_pokin']]);
+						}
+					}
+
+					$return = array(
+						'status' => 'success',
+						'pokin_all' => array_values($pokin_all_new)
+					);
+					if (!empty($return_text)) {
+						return $return;
+					} else {
+						die(json_encode($return));
+					}
+				} else {
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			} else {
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);
+			exit();
+		}
+	}
+
 	public function get_data_satker($return_text)
 	{
 		global $wpdb;

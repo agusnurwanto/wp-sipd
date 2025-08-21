@@ -1172,6 +1172,7 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_data_pohon_kinerja',  $plugin_public, 'get_data_pohon_kinerja');
 		$this->loader->add_action('wp_ajax_get_data_satker',  $plugin_public, 'get_data_satker');
+		$this->loader->add_action('wp_ajax_get_tabel_pokin_cascading',  $plugin_public, 'get_tabel_pokin_cascading');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

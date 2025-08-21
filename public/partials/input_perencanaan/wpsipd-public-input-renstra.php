@@ -2486,7 +2486,7 @@ if ($data_all['pemutakhiran_sub_kegiatan'] > 0) {
 	$warning_pemutakhiran_subgiat = 'bg-danger';
 }
 
-$table = '<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
+$table = '<table cellpadding="2" cellspacing="0" contenteditable="false">
 			<thead>
 				<tr style="background:#ddf0a6">
 					<th class="kiri atas kanan bawah text_tengah lebar1">Pagu Akumulasi Sub Kegiatan Per Tahun Anggaran</th>';
@@ -2575,13 +2575,28 @@ $table .= '
 		width: 20%;
 	}
 
-	#table-renstra thead {
+	#table-renstra thead, #table-renstra-pokin thead {
 		position: sticky;
 		top: -6px;
 		background: #ffc491;
 	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd . 'Tahun ' . $awal_renstra . ' - ' . $akhir_renstra . ' ' . $nama_pemda; ?></h4>
+<h1 class="text-center">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd . 'Tahun ' . $awal_renstra . ' - ' . $akhir_renstra . ' ' . $nama_pemda; ?></h1>
+<?php if($id_jadwal_wp_sakip != 0): ?>
+<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
+	<table class="table table-bordered" id="table-renstra-pokin" cellpadding="2" cellspacing="0" contenteditable="false">
+		<thead>
+			<tr>
+				<th class="text-center" style="width: 60px;">No</th>
+				<th class="text-center" style="width: 50%">Pohon Kinerja yang belum dicascadingkan</th>
+				<th class="text-center">Indikator</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</div>
+<?php endif; ?>
+</table>
 <?php echo $table; ?>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table id="table-renstra" cellpadding="2" cellspacing="0" contenteditable="false">
@@ -2778,7 +2793,15 @@ $table .= '
     window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
 
     if (id_jadwal_wp_sakip == 0) {
-        alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
+    	if(<?php echo in_array("administrator", $user_meta->roles); ?>){
+        	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
+    	}else{
+        	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nHubungi admin!")
+    	}
+    }else{
+    	setTimeout(function(){
+    		get_tabel_pokin_cascading();
+    	}, 500);
     }
 	let data_all = <?php echo json_encode($data_all); ?>;
 
@@ -8710,6 +8733,48 @@ $table .= '
 	        }else{
 	        	resolve(pokin_all);
 	        }
+        });
+    }
+
+    function get_tabel_pokin_cascading(){
+    	jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            data: {
+                "action": 'get_tabel_pokin_cascading',
+                "api_key": "<?php echo $api_key; ?>",
+                "id_skpd": <?php echo $input['id_skpd']; ?>,
+                "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+                "id_jadwal_wp_sakip": id_jadwal_wp_sakip
+            },
+            dataType: "json",
+            success: function(response) {
+            	if(response.status == 'success'){
+	            	var html = `<tr><td colspan="3" class="text-center">Semua Pohon Kinerja sudah dicascadingkan!</td></tr>`;
+            		if(response.pokin_all.length >= 1){
+            			html = '';
+            			response.pokin_all.map(function(b, i){
+            				var no = i+1;
+            				var indikator = [];
+            				for(var bb in b.indikator){
+            					indikator.push(b.indikator[bb].label);
+            				}
+		            		html += `
+		            			<tr>
+		            				<td class="text-center">${no}</td>
+		            				<td>Lv. ${b.level} ${b.label}</td>
+		            				<td>${indikator.join(', ')}</td>
+		            			</tr>
+		            		`;
+            			})
+	            	}
+	            	jQuery('#table-renstra-pokin tbody').html(html);
+	            }else{
+	            	alert(response.message);
+	            }
+            	jQuery('#wrap-loading').hide();
+            }
         });
     }
 </script>

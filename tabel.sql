@@ -3076,7 +3076,7 @@ CREATE TABLE `data_ssh_usulan` (
   `kode_standar_harga` VARCHAR(30) DEFAULT NULL,
   `nama_standar_harga` VARCHAR(700),
   `satuan` TEXT,
-  `spek` VARCHAR(30),
+  `spek` VARCHAR(700),
   `ket_teks` TEXT,
   `created_at` VARCHAR(25) DEFAULT NULL,
   `created_user` INT(11) DEFAULT NULL,
