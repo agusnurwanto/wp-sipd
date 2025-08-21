@@ -21,7 +21,8 @@ $sqlTipe = $wpdb->get_results(
 $namaTipeArray = array_column($sqlTipe, 'id');
 $type = implode(', ', $namaTipeArray);
 
-$data_rpd_rpjm = $wpdb->get_results("
+$data_rpd_rpjm = $wpdb->get_results(
+	"
 		SELECT
 			id_jadwal_lokal,
 			nama,
@@ -31,7 +32,8 @@ $data_rpd_rpjm = $wpdb->get_results("
 			tahun_akhir_anggaran
 		FROM data_jadwal_lokal
 		WHERE id_tipe IN ({$type})
-	", ARRAY_A
+	",
+	ARRAY_A
 );
 
 if (!empty($data_rpd_rpjm)) {
@@ -79,7 +81,7 @@ $body = '';
 		<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 		<h1 class="text-center" style="margin:3rem;">Jadwal Input Perencanaan RENSTRA Lokal</h1>
 		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary" onclick="tambah_jadwal();"><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>
+			<button class="btn btn-primary" onclick="handleAddModal();"><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>
 		</div>
 		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
@@ -111,48 +113,65 @@ $body = '';
 				</button>
 			</div>
 			<div class="modal-body">
-				<div class="form-group">
-					<label for='jadwal_nama'>Nama Tahapan</label>
-					<input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
-				</div>
-				<div class="form-group">
-					<label for="link_rpd_rpjm">Pilih Jadwal RPD atau RPJM</label>
-					<select id="link_rpd_rpjm" class="form-control">
-						<option value="">Pilih RPD atau RPJM</option>
-						<?php echo $select_rpd_rpjm; ?>
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="id_jadwal_esakip">Pilih Jadwal Pohon Kinerja SAKIP</label>
-					<select id="id_jadwal_esakip" class="form-control">
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="jenis_jadwal">Pilih Jenis Jadwal</label>
-					<select id="jenis_jadwal" class="form-control">
-						<option value="usulan" selected>Usulan</option>
-						<option value="penetapan">Penetapan</option>
-					</select>
-				</div>
-				<div class="form-row">
-					<div class="form-group col-md-3">
-						<label for='tahun_mulai_anggaran'>Tahun Mulai Anggaran</label>
-						<input type="number" class="form-control" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" placeholder="Tahun Mulai Anggaran" />
+				<div class="card bg-light shadow-lg mb-2">
+					<div class="card-header">
+						<strong>Jadwal Lokal</strong>
 					</div>
-					<div class="form-group col-md-3">
+					<div class="card-body">
 						<div class="form-group">
-							<label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
-							<div class="input-group">
-								<input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
-								<div class="input-group-append">
-									<span class="input-group-text" id="basic-addon2">Tahun</span>
+							<label for='jadwal_nama'>Nama Tahapan</label>
+							<input type='text' id='jadwal_nama' class="form-control" placeholder='Nama Tahapan'>
+						</div>
+						<div class="form-group">
+							<label for="link_rpd_rpjm">Pilih Jadwal RPD atau RPJM</label>
+							<select id="link_rpd_rpjm" class="form-control">
+								<option value="">Pilih RPD atau RPJM</option>
+								<?php echo $select_rpd_rpjm; ?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="jenis_jadwal">Pilih Jenis Jadwal</label>
+							<select id="jenis_jadwal" class="form-control">
+								<option value="usulan" selected>Usulan</option>
+								<option value="penetapan">Penetapan</option>
+							</select>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-3">
+								<label for='tahun_mulai_anggaran'>Tahun Mulai Anggaran</label>
+								<input type="number" class="form-control" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" placeholder="Tahun Mulai Anggaran" />
+							</div>
+							<div class="form-group col-md-3">
+								<div class="form-group">
+									<label for='lama_pelaksanaan'>Lama Pelaksanaan</label>
+									<div class="input-group">
+										<input type="number" id="lama_pelaksanaan" name="lama_pelaksanaan" class="form-control" aria-describedby="basic-addon2">
+										<div class="input-group-append">
+											<span class="input-group-text" id="basic-addon2">Tahun</span>
+										</div>
+									</div>
 								</div>
+							</div>
+							<div class="form-group col-md-6">
+								<label for='jadwal_tanggal'>Jadwal Pelaksanaan</label>
+								<input type="text" id='jadwal_tanggal' name="jadwal_tanggal" class="form-control" />
 							</div>
 						</div>
 					</div>
-					<div class="form-group col-md-6">
-						<label for='jadwal_tanggal'>Jadwal Pelaksanaan</label>
-						<input type="text" id='jadwal_tanggal' name="jadwal_tanggal" class="form-control" />
+				</div>
+
+				<div class="card bg-light shadow-md mb-2" id="card_jadwal_integrasi">
+					<div class="card-header">
+						<strong>Jadwal Integrasi WP-Eval-Sakip</strong>
+					</div>
+					<div class="card-body">
+						<div class="form-group mb-2">
+							<label for="id_jadwal_esakip">Pilih Jadwal RPJMD/RPD</label>
+							<select id="id_jadwal_esakip" class="form-control">
+							</select>
+							<small class="text-muted">Data Jadwal diambil dari aplikasi <strong>WP-Eval-Sakip</strong></small>
+						</div>
+						<small class="text-justify">Pilih jadwal untuk fitur <strong>Integrasi data Pohon Kinerja</strong> di fitur Input Renstra Lokal (Opsional).</small>
 					</div>
 				</div>
 			</div>
@@ -172,24 +191,27 @@ $body = '';
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
 	jQuery(document).ready(function() {
-
 		globalThis.tipePerencanaan = 'renstra'
-		globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
 		globalThis.tahunAnggaran = "<?php echo get_option('_crb_tahun_anggaran_sipd'); ?>"
 		globalThis.is_api_ready_esakip = <?php echo json_encode($is_api_ready_esakip); ?>;
 
 		get_data_penjadwalan();
 
+		if (is_api_ready_esakip) {
+    		jQuery("#link_rpd_rpjm").on("change", function() {
+				const id_jadwal_lokal = jQuery(this).val();
+				handleJadwalSakipChange(id_jadwal_lokal);
+    		});
+		}
 	});
 
-	/** get data penjadwalan */
 	function get_data_penjadwalan() {
 		jQuery("#wrap-loading").show();
 		globalThis.penjadwalanTable = jQuery('#data_penjadwalan_table').DataTable({
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
-				url: thisAjaxUrl,
+				url: ajax.url,
 				type: "post",
 				data: {
 					'action': "get_data_penjadwalan",
@@ -240,110 +262,67 @@ $body = '';
 		});
 	}
 
-	/** show modal tambah jadwal */
-	async function tambah_jadwal(id_jadwal_lokal_awal = '') {
-	    try {
-	        jQuery("#wrap-loading").show();
-	        jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
-	        jQuery("#modalTambahJadwal .submitBtn")
-	            .attr("onclick", 'submitTambahJadwalForm()')
-	            .attr("disabled", false)
-	            .text("Simpan");
+	async function handleAddModal() {
+		try {
+			jQuery("#wrap-loading").show();
+			jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
+			jQuery("#modalTambahJadwal .submitBtn")
+				.attr("onclick", 'submitTambahJadwalForm()')
+				.attr("disabled", false)
+				.text("Simpan");
 
-	        const lama_pelaksanaan = await get_data_standar_lama_pelaksanaan();
-	        const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
+			const lama_pelaksanaan = await get_data_standar_lama_pelaksanaan();
 
-	        let optionsDefault = `<option value="">Pilih Jadwal</option>`;
-	        const jadwal_rpd_esakip_all = await get_jadwal_rpd_esakip();
-	        if (jadwal_rpd_esakip_all.status) {
-	            jadwal_rpd_esakip_all.data.forEach((val) => {
-                    optionsDefault += `<option value="${val.id}">
-                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
-                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
-                    </option>`;
-	            });
-	        } else {
-	            optionsDefault = `<option value="">Tidak tersedia</option>`;
-	            alert(jadwal_rpd_esakip_all.message);
-	        }
+			if (is_api_ready_esakip) {
+				const jadwal_rpd_esakip = await get_jadwal_rpd_esakip();
+				
+				let options = `<option value="">Pilih Jadwal</option>`;
+				if (jadwal_rpd_esakip.status) {
+					const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
+					jadwal_rpd_esakip.data.forEach((val) => {
+						options += `<option value="${val.id}">${val.nama_jadwal} [${statusMapping[val.status]}] | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}</option>`;
+					});
 
-	        jQuery("#id_jadwal_esakip")
-	            .empty()
-	            .append(optionsDefault)
-	            .removeAttr('disabled');
-	        jQuery("#hidden_id_jadwal_esakip").remove();
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', false);
+				} else {
+					options = `<option value="">Tidak tersedia</option>`;
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', true);
+					alert(jadwal_rpd_esakip.message);
+				}
 
-	        if (id_jadwal_lokal_awal) {
-	            jQuery("#link_rpd_rpjm").val(id_jadwal_lokal_awal).trigger("change");
-	        } else {
-	            jQuery("#link_rpd_rpjm").val('');
-	        }
+				jQuery('#card_jadwal_integrasi').show();
+			}
 
-	        jQuery("#link_rpd_rpjm").off("change").on("change", async function () {
-			    jQuery("#wrap-loading").show();
-			    let id_jadwal_lokal = jQuery(this).val();
+			jQuery("#jadwal_nama").val("");
+			jQuery("#link_rpd_rpjm").val('');
+			jQuery("#tahun_mulai_anggaran").val("");
+			jQuery("#jenis_jadwal").val("usulan");
+			jQuery("#lama_pelaksanaan").val(lama_pelaksanaan.data.lama_pelaksanaan);
+			jQuery('#jadwal_tanggal').data('daterangepicker');
 
-			    jQuery("#id_jadwal_esakip")
-			        .empty()
-			        .append(optionsDefault)
-			        .removeAttr('disabled');
-			    jQuery("#hidden_id_jadwal_esakip").remove();
+			jQuery("#wrap-loading").hide();
+			jQuery('#modalTambahJadwal').modal('show');
+		} catch (error) {
+			jQuery("#wrap-loading").hide();
+			console.error(`terjadi kesalahan saat handleAddModal = ${error}`);
+			alert('terjadi kesalahan saat tambah data');
+		}
+	}
 
-			    if (!id_jadwal_lokal) {
-			        jQuery("#wrap-loading").hide();
-			        return;
-			    }
+	async function handleJadwalSakipChange(id_jadwal_lokal) {
+		if (!id_jadwal_lokal || !is_api_ready_esakip) {
+			return;
+		}
 
-			    let data_jadwal = await get_data_jadwal_by_id(id_jadwal_lokal);
+		jQuery("#wrap-loading").show(); 
+		const data_jadwal = await get_data_jadwal_by_id(id_jadwal_lokal);
 
-			    if (data_jadwal.data && data_jadwal.data.id_jadwal_sakip) {
-			        let jadwal_terpilih = jadwal_rpd_esakip_all.data.find(
-			            val => val.id == data_jadwal.data.id_jadwal_sakip
-			        );
-
-			        if (jadwal_terpilih) {
-			            jQuery("#id_jadwal_esakip")
-			                .empty()
-			                .append(
-			                    `<option value="${jadwal_terpilih.id}" selected>
-			                        ${jadwal_terpilih.nama_jadwal} [${statusMapping[jadwal_terpilih.status]}] 
-			                        | ${jadwal_terpilih.tahun_anggaran} - ${jadwal_terpilih.tahun_selesai_anggaran}
-			                    </option>`
-			                )
-			                .attr('disabled', true);
-			        } else {
-			            jQuery("#id_jadwal_esakip")
-			                .empty()
-			                .append(`<option value="${data_jadwal.data.id_jadwal_sakip}" selected>
-			                    Tidak ditemukan di API (ID: ${data_jadwal.data.id_jadwal_sakip})
-			                </option>`)
-			                .attr('disabled', true);
-			        }
-
-			        jQuery("#id_jadwal_esakip").after(
-			            `<input type="hidden" id="hidden_id_jadwal_esakip" 
-			                name="id_jadwal_esakip" 
-			                value="${data_jadwal.data.id_jadwal_sakip}">`
-			        );
-			    }
-
-			    jQuery("#wrap-loading").hide();
-			});
-
-	        jQuery("#jadwal_nama").val("");
-	        jQuery("#tahun_mulai_anggaran").val("");
-	        jQuery("#jenis_jadwal").val("usulan");
-	        jQuery("#lama_pelaksanaan").val(lama_pelaksanaan.data.lama_pelaksanaan);
-	        jQuery('#jadwal_tanggal').data('daterangepicker');
-
-	        jQuery('#modalTambahJadwal').modal('show');
-	        jQuery("#wrap-loading").hide();
-
-	    } catch (error) {
-	        jQuery("#wrap-loading").hide();
-	        console.error(`terjadi kesalahan saat tambah_jadwal = ${error}`);
-	        alert('terjadi kesalahan saat tambah data');
-	    }
+		if (data_jadwal.status && data_jadwal.data.id_jadwal_sakip) {
+			jQuery("#id_jadwal_esakip").val(data_jadwal.data.id_jadwal_sakip).attr('disabled', true);
+		} else {
+			jQuery("#id_jadwal_esakip").attr('disabled', false);
+		}
+		jQuery("#wrap-loading").hide();
 	}
 
 	/** Submit tambah jadwal */
@@ -363,7 +342,7 @@ $body = '';
 			return false
 		} else {
 			jQuery.ajax({
-				url: thisAjaxUrl,
+				url: ajax.url,
 				type: 'post',
 				dataType: 'json',
 				data: {
@@ -398,104 +377,52 @@ $body = '';
 		}
 	}
 
-	/** edit akun ssh usulan */
 	async function edit_data_penjadwalan(id_jadwal_lokal) {
-	    try {
-	        jQuery("#wrap-loading").show();
-	        jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
-	        jQuery("#modalTambahJadwal .submitBtn")
-	            .attr("onclick", `submitEditJadwalForm(${id_jadwal_lokal})`)
-	            .attr("disabled", false)
-	            .text("Perbarui");
+		try {
+			jQuery("#wrap-loading").show();
+			jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
+			jQuery("#modalTambahJadwal .submitBtn")
+				.attr("onclick", `submitEditJadwalForm(${id_jadwal_lokal})`)
+				.attr("disabled", false)
+				.text("Perbarui");
 
-	        let data_jadwal = await get_data_jadwal_by_id(id_jadwal_lokal);
-	        const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
+			let data_jadwal = await get_data_jadwal_by_id(id_jadwal_lokal);
 
-	        let optionsDefault = `<option value="">Pilih Jadwal</option>`;
-	        const jadwal_rpd_esakip_all = await get_jadwal_rpd_esakip();
-	        if (jadwal_rpd_esakip_all.status) {
-	            jadwal_rpd_esakip_all.data.forEach((val) => {
-                    optionsDefault += `<option value="${val.id}">
-                        ${val.nama_jadwal} [${statusMapping[val.status]}] 
-                        | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}
-                    </option>`;
-	            });
-	        } else {
-	            optionsDefault = `<option value="">Tidak tersedia</option>`;
-	            alert(jadwal_rpd_esakip_all.message);
-	        }
+			if (is_api_ready_esakip) {
+				const jadwal_rpd_esakip = await get_jadwal_rpd_esakip();
+				
+				let options = `<option value="">Pilih Jadwal</option>`;
+				if (jadwal_rpd_esakip.status) {
+					const statusMapping = ['DIHAPUS', 'AKTIF', 'DIKUNCI'];
+					jadwal_rpd_esakip.data.forEach((val) => {
+						options += `<option value="${val.id}">${val.nama_jadwal} [${statusMapping[val.status]}] | ${val.tahun_anggaran} - ${val.tahun_selesai_anggaran}</option>`;
+					});
 
-	        jQuery("#link_rpd_rpjm").off("change").on("change", async function () {
-	            jQuery("#wrap-loading").show();
-	            let id_relasi_perencanaan = jQuery(this).val();
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', false);
+				} else {
+					options = `<option value="">Tidak tersedia</option>`;
+					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', true);
+					alert(jadwal_rpd_esakip.message);
+				}
 
-	            jQuery("#id_jadwal_esakip")
-	                .empty()
-	                .append(optionsDefault)
-	                .removeAttr('disabled');
-	            jQuery("#hidden_id_jadwal_esakip").remove();
+				jQuery('#card_jadwal_integrasi').show();
+			}
 
-	            if (!id_relasi_perencanaan) {
-	                jQuery("#wrap-loading").hide();
-	                return;
-	            }
+			jQuery("#link_rpd_rpjm").val(data_jadwal.data.relasi_perencanaan.id_jadwal_lokal).trigger('change');
+			jQuery("#jadwal_nama").val(data_jadwal.data.nama);
+			jQuery("#tahun_mulai_anggaran").val(data_jadwal.data.tahun_anggaran);
+			jQuery("#lama_pelaksanaan").val(data_jadwal.data.lama_pelaksanaan);
+			jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(data_jadwal.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
+			jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(data_jadwal.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
+			jQuery("#jenis_jadwal").val(data_jadwal.data.jenis_jadwal);
 
-	            let data_jadwal_sakip = await get_data_jadwal_by_id(id_relasi_perencanaan);
-
-	            if (data_jadwal_sakip.data && data_jadwal_sakip.data.id_jadwal_sakip) {
-	                let jadwal_terpilih = jadwal_rpd_esakip_all.data.find(
-	                    val => val.id == data_jadwal_sakip.data.id_jadwal_sakip
-	                );
-
-	                if (jadwal_terpilih) {
-	                    jQuery("#id_jadwal_esakip")
-	                        .empty()
-	                        .append(
-	                            `<option value="${jadwal_terpilih.id}" selected>
-	                                ${jadwal_terpilih.nama_jadwal} [${statusMapping[jadwal_terpilih.status]}] 
-	                                | ${jadwal_terpilih.tahun_anggaran} - ${jadwal_terpilih.tahun_selesai_anggaran}
-	                            </option>`
-	                        )
-	                        .attr('disabled', true);
-	                } else {
-	                    jQuery("#id_jadwal_esakip")
-	                        .empty()
-	                        .append(`<option value="${data_jadwal_sakip.data.id_jadwal_sakip}" selected>
-	                            Tidak ditemukan di API (ID: ${data_jadwal_sakip.data.id_jadwal_sakip})
-	                        </option>`)
-	                        .attr('disabled', true);
-	                }
-
-	                jQuery("#id_jadwal_esakip").after(
-	                    `<input type="hidden" id="hidden_id_jadwal_esakip" 
-	                        name="id_jadwal_esakip" 
-	                        value="${data_jadwal_sakip.data.id_jadwal_sakip}">`
-	                );
-	            }
-
-	            jQuery("#wrap-loading").hide();
-	        });
-
-	        if (data_jadwal.data.relasi_perencanaan) {
-	            jQuery("#link_rpd_rpjm").val(data_jadwal.data.relasi_perencanaan).trigger("change");
-	        } else {
-	            jQuery("#link_rpd_rpjm").val('').trigger("change");
-	        }
-
-	        jQuery("#jadwal_nama").val(data_jadwal.data.nama);
-	        jQuery("#tahun_mulai_anggaran").val(data_jadwal.data.tahun_anggaran);
-	        jQuery("#lama_pelaksanaan").val(data_jadwal.data.lama_pelaksanaan);
-	        jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(data_jadwal.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
-	        jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(data_jadwal.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
-	        jQuery("#jenis_jadwal").val(data_jadwal.data.jenis_jadwal).change();
-
-	        jQuery('#modalTambahJadwal').modal('show');
-	        jQuery("#wrap-loading").hide();
-	    } catch (error) {
-	        jQuery("#wrap-loading").hide();
-	        console.error(`terjadi kesalahan saat edit_data_penjadwalan = ${error}`);
-	        alert('terjadi kesalahan saat edit data');
-	    }
+			jQuery("#wrap-loading").hide();
+			jQuery('#modalTambahJadwal').modal('show');
+		} catch (error) {
+			jQuery("#wrap-loading").hide();
+			console.error(`terjadi kesalahan saat edit_data_penjadwalan = ${error}`);
+			alert('terjadi kesalahan saat edit data');
+		}
 	}
 
 
@@ -515,7 +442,7 @@ $body = '';
 			return false
 		} else {
 			jQuery.ajax({
-				url: thisAjaxUrl,
+				url: ajax.url,
 				type: 'post',
 				dataType: 'json',
 				data: {
@@ -556,7 +483,7 @@ $body = '';
 		if (confirmDelete) {
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
-				url: thisAjaxUrl,
+				url: ajax.url,
 				type: 'post',
 				data: {
 					'action': 'submit_delete_schedule',
@@ -591,7 +518,7 @@ $body = '';
 			if (result.isConfirmed) {
 				jQuery('#wrap-loading').show();
 				jQuery.ajax({
-					url: thisAjaxUrl,
+					url: ajax.url,
 					type: 'post',
 					data: {
 						'action': 'submit_lock_schedule_renstra',
@@ -946,7 +873,7 @@ $body = '';
 				}
 			});
 		});
-	}	
+	}
 
 	function get_jadwal_rpd_esakip() {
 		return jQuery.ajax({

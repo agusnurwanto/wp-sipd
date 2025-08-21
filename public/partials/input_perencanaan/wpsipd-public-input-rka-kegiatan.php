@@ -1819,7 +1819,7 @@ foreach ($bl as $k => $sub_bl) {
 	jQuery(document).ready(function(){
 		window.master_sumberdana = <?php echo json_encode($data_sumber_dana); ?>;
 		var body = ''
-			+'<h3>SETTING</h3>'
+			+'<h3>PENGATURAN</h3>'
 			+'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>'

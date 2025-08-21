@@ -1030,7 +1030,7 @@ CREATE TABLE `data_prog_keg` (
   `id_giat` INT(11) NOT NULL,
   `id_sub_giat` INT(11) NOT NULL,
   `id_urusan` INT(11) NOT NULL,
-  `is_locked` INT(11) NOT NULL,
+  `is_locked` INT(11) DEFAULT NULL,
   `kode_bidang_urusan` VARCHAR(50) NOT NULL,
   `kode_giat` VARCHAR(50) NOT NULL,
   `kode_program` VARCHAR(50) NOT NULL,

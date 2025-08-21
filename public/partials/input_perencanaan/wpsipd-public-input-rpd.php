@@ -1256,7 +1256,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpd; ?><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPD dari WP-Eval-Sakip</a><?php endif; ?>'
-		+'<h3 style="margin-top: 20px;">SETTING</h3>'
+		+'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPD</label>'
 		+'<label style="margin-left: 20px;">'

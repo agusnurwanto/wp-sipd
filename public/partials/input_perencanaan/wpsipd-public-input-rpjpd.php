@@ -729,7 +729,7 @@ foreach ($data_all['data'] as $visi) {
 	var aksi = ''
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJPD</a><?php endif; ?>'
-		+'<h3 style="margin-top: 20px;">SETTING</h3>'
+		+'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJPD</label>'
 		+'<label style="margin-left: 20px;">'

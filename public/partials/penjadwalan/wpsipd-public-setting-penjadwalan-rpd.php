@@ -114,13 +114,13 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 						<strong>Jadwal Integrasi WP-Eval-Sakip</strong>
 					</div>
 					<div class="card-body">
-						<div class="form-group">
+						<div class="form-group mb-2">
 							<label for="id_jadwal_esakip">Pilih Jadwal RPD</label>
 							<select id="id_jadwal_esakip" class="form-control">
 							</select>
 							<small class="text-muted">Data Jadwal diambil dari Aplikasi <strong>WP-Eval-Sakip</strong></small>
 						</div>
-						<div class="badge badge-info text-light d-block p-3">Pilih jadwal untuk fitur <strong>Integrasi data RPD (Visi RPJPD, Tujuan, Sasaran, Program)</strong> (opsional).</div>
+						<small class="text-justify">Pilih jadwal untuk fitur <strong>Integrasi data RPD (Visi RPJPD, Tujuan, Sasaran, Program)</strong> (opsional).</small>
 					</div>
 				</div>
 			</div>

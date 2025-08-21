@@ -3,44 +3,6 @@
 if (!defined('WPINC')) {
     die;
 }
-
-global $wpdb;
-
-$select_rpd_rpjm = '';
-
-$sqlTipe = $wpdb->get_var(
-    $wpdb->prepare("
-        SELECT id
-        FROM `data_tipe_perencanaan` 
-        WHERE nama_tipe=%s
-    ", 'monev_rpjmd')
-);
-
-$data_rpd_rpjm = $wpdb->get_results(
-    $wpdb->prepare('
-        SELECT *
-        FROM data_jadwal_lokal
-        WHERE status=0
-          AND id_tipe=%d
-    ', $sqlTipe),
-    ARRAY_A
-);
-
-if (!empty($data_rpd_rpjm)) {
-    foreach ($data_rpd_rpjm as $val_rpd_rpjm) {
-        $tipe = [];
-        foreach ($sqlTipe as $val_tipe) {
-            $tipe[$val_tipe['id']] = strtoupper($val_tipe['nama_tipe']);
-        }
-        $select_rpd_rpjm .=
-            '<option value="' . $val_rpd_rpjm['id_jadwal_lokal'] . '" selected>
-            ' . $tipe[$val_rpd_rpjm['id_tipe']] . ' | ' . $val_rpd_rpjm['nama'] . ' | 
-            ' . $val_rpd_rpjm['tahun_anggaran'] . ' - ' . $val_rpd_rpjm['tahun_akhir_anggaran'] .
-            '</option>';
-    }
-}
-
-$body = '';
 ?>
 <style>
 </style>
@@ -78,11 +40,8 @@ $body = '';
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="link_rpd_rpjm">Pilih Jadwal RPD atau RPJM</label>
-                    <select id="link_rpd_rpjm" class="form-control" disabled>
-                        <option value="">Pilih RPD atau RPJM</option>
-                        <?php echo $select_rpd_rpjm; ?>
-                    </select>
+                    <label for="link_rpd_rpjm">Jadwal Monev RPD/RPJMD</label>
+                    <input type="text" id="link_rpd_rpjm" name="link_rpd_rpjm" class="form-control" disabled>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-4">
@@ -189,7 +148,6 @@ $body = '';
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
-        let relasi_perencanaan = jQuery("#link_rpd_rpjm").val()
         let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
         if (nama.trim() == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == '') {
             jQuery("#wrap-loading").hide()
@@ -206,7 +164,6 @@ $body = '';
                     'nama': nama,
                     'tahun_anggaran': this_tahun_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
-                    'relasi_perencanaan': relasi_perencanaan,
                     'lama_pelaksanaan': this_lama_pelaksanaan
                 },
                 beforeSend: function() {
@@ -232,7 +189,6 @@ $body = '';
     }
 
     function edit_data_penjadwalan(id_jadwal_lokal) {
-        jQuery('#modalTambahJadwal').modal('show');
         jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
         jQuery("#modalTambahJadwal .submitBtn")
             .attr("onclick", 'submitEditJadwalForm(' + id_jadwal_lokal + ')')
@@ -249,12 +205,18 @@ $body = '';
             },
             dataType: "json",
             success: function(response) {
-                jQuery('#wrap-loading').hide();
                 jQuery("#jadwal_nama").val(response.data.nama);
                 jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
                 jQuery("#data_monev_renstra").val(response.data.data_monev_renstra);
                 jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
-                jQuery("#link_rpd_rpjm").val(response.data.relasi_perencanaan).change();
+
+                let dataJadwalRelasi = response.data.relasi_perencanaan;
+                if (dataJadwalRelasi) {
+                    let namaJadwalRelasi = `${dataJadwalRelasi.nama} (${dataJadwalRelasi.tahun_anggaran} - ${dataJadwalRelasi.tahun_akhir_anggaran})`;
+                    jQuery("#link_rpd_rpjm").val(namaJadwalRelasi);
+                }
+                jQuery('#wrap-loading').hide();
+                jQuery('#modalTambahJadwal').modal('show');
             }
         })
     }
@@ -263,7 +225,6 @@ $body = '';
         jQuery("#wrap-loading").show()
         let nama = jQuery('#jadwal_nama').val()
         let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
-        let relasi_perencanaan = jQuery("#link_rpd_rpjm").val()
         let data_monev_renstra = jQuery("#data_monev_renstra").val()
         let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
         if (nama.trim() == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == '') {
@@ -282,7 +243,6 @@ $body = '';
                     'id_jadwal_lokal': id_jadwal_lokal,
                     'tahun_anggaran': this_tahun_anggaran,
                     'tipe_perencanaan': tipePerencanaan,
-                    'relasi_perencanaan': relasi_perencanaan,
                     'lama_pelaksanaan': this_lama_pelaksanaan,
                     'data_monev_renstra': data_monev_renstra
                 },

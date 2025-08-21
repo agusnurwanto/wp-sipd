@@ -54,10 +54,11 @@ if(!empty($jadwal_lokal)){
 		$id_tipe_relasi = $relasi->id_tipe;
 	}
 
-	$tahun_anggaran = !empty($jadwal_lokal[0]['tahun_anggaran']) ? $jadwal_lokal[0]['tahun_anggaran'] : 2022;
+	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
+	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$tahun_selesai =$tahun_anggaran + $lama_pelaksanaan - 1;
 	$awal_rpjmd = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = !empty($jadwal_lokal[0]['nama']) ? $jadwal_lokal[0]['nama'] : '-';
-	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
     $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
     if(in_array("administrator", $user_meta->roles)){
@@ -72,19 +73,6 @@ if(!empty($jadwal_lokal)){
 		}
     }
 }
-
-// $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
-// if(!empty($jadwal_lokal)){
-// 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-// 	$namaJadwal = $jadwal_lokal[0]['nama'];
-// 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-// 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-// }else{
-// 	$tahun_anggaran = '2022';
-// 	$namaJadwal = '-';
-// 	$mulaiJadwal = '-';
-// 	$selesaiJadwal = '-';
-// }
 
 $timezone = get_option('timezone_string');
 
@@ -155,7 +143,7 @@ $sql = "
 	WHERE active = 1
 ";
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
-
+$count_prog = 0;
 foreach ($visi_all as $visi) {
 	if(empty($data_all['data'][$visi['id']])){
 		$data_all['data'][$visi['id']] = array(
@@ -291,6 +279,7 @@ foreach ($visi_all as $visi) {
 								'nama' => $program_indikator['indikator'],
 								'data' => $program_indikator
 							);
+							$count_prog++;
 						}
 					}
 				}
@@ -906,8 +895,6 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
 }
 
-$tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
-
 $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_esakip('rpjm');
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
@@ -918,6 +905,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
 <?php echo $table; ?>
+<?php echo "Jumlah Prog : " . $count_prog; ?>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -1052,7 +1040,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpjm; ?><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif;?>'
 		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpjmd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPJMD dari WP-Eval-Sakip</a><?php endif; ?>'
-		+'<h3 style="margin-top: 20px;">SETTING</h3>'
+		+'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
 		// +'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
 		+'<label style="margin-left: 20px;">'

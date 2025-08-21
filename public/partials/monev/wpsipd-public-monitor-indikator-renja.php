@@ -2337,7 +2337,7 @@ foreach ($monev_triwulan as $k => $v) {
 		let lama_pelaksanaan = <?php echo $lama_pelaksanaan; ?>
 
 		var aksi = '' +
-			'<h3 style="margin-top: 20px;">SETTING</h3>' +
+			'<h3 style="margin-top: 20px;">PENGATURAN</h3>' +
 			'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>' +
 			'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_indikator_renstra(this);"> Tampilkan indikator RENSTRA</label>';
 		jQuery('#action-sipd').append(aksi);
