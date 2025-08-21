@@ -14231,8 +14231,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							FROM data_pokin_renstra 
 							WHERE id_skpd = %d 
 							  	AND active = 1 
-							  	AND tahun_anggaran = %d 
-							ORDER BY urut_tujuan
+							  	AND tahun_anggaran = %d
 						", $_POST['id_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
