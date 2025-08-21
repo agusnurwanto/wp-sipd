@@ -2924,8 +2924,7 @@ $table .= '
 									'<label for="tujuan_teks">Pilih Bidang Urusan</label>' +
 									'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">' + html_bidur + '</select>' +
 								'</div>' +
-								html_input_pokin+
-								html_input_satker+
+							<?php if($id_tipe_relasi != '-'): ?>
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>' +
 									'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">' +
@@ -2933,15 +2932,24 @@ $table .= '
 									response.data.map(function(value, index) {
 										html += '<option value="' + value.id_unik + '">' + value.tujuan_teks + '</option>';
 									})
-							html += '</select>' +
+								html += '</select>' +
 								'</div>' +
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>' +
 									'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>' +
 								'</div>' +
+								html_input_pokin+
+								html_input_satker+
 								'<div class="form-group">' +
-									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>' +
-									'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>' +
+									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
+							<?php else: ?>
+								html += ''+
+								html_input_pokin+
+								html_input_satker+
+								'<div class="form-group">' +
+									'<label for="tujuan_teks">Tujuan Renstra</label>';
+							<?php endif; ?>
+							html += '<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>' +
 								'</div>' +
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Urut Tujuan</label>' +
@@ -3092,6 +3100,7 @@ $table .= '
 									'<label for="tujuan_teks">Pilih Bidang Urusan</label>' +
 									'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);" disabled>' + html_bidur + '</select>' +
 								'</div>' +
+							<?php if($id_tipe_relasi != '-'): ?>
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>' +
 									'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">' +
@@ -3107,7 +3116,7 @@ $table .= '
 									}
 									html += '<option ' + selected + ' value="' + value.id_unik + '">' + value.tujuan_teks + '</option>';
 								})
-						html += '</select>' +
+								html += '</select>' +
 								'</div>' +
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>' +
@@ -3116,7 +3125,15 @@ $table .= '
 								html_input_pokin+
 								html_input_satker+
 								'<div class="form-group">' +
-									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>' +
+									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
+							<?php else: ?>
+								html += ''+
+								html_input_pokin+
+								html_input_satker+
+								'<div class="form-group">' +
+									'<label for="tujuan_teks">Tujuan Renstra</label>';
+							<?php endif; ?>
+								html += ''+
 									'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">' + response.tujuan.tujuan_teks + '</textarea>' +
 								'</div>' +
 								'<div class="form-group">' +
@@ -3497,8 +3514,9 @@ $table .= '
 						indikatorTujuanRenstra({
 							'id_unik': id_unik
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -4054,8 +4072,9 @@ $table .= '
 						indikatorSasaranRenstra({
 							'id_unik': id_unik
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -4675,8 +4694,9 @@ $table .= '
 						indikatorProgramRenstra({
 							'kode_program': kode_program
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -5281,8 +5301,9 @@ $table .= '
 						indikatorKegiatanRenstra({
 							'id_unik': kode_kegiatan
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -5986,8 +6007,9 @@ $table .= '
 							'id_sub_giat': id_sub_giat,
 							'id_unik': kode_sub_kegiatan
 						});
+					}else{
+						jQuery('#wrap-loading').hide();
 					}
-					jQuery('#wrap-loading').hide();
 
 				}
 			})
@@ -6286,6 +6308,7 @@ $table .= '
 				"action": "get_indikator_tujuan_renstra",
 				"api_key": "<?php echo $api_key; ?>",
 				'id_unik': params.id_unik,
+				"tahun_anggaran": "<?php echo $tahun_anggaran; ?>",
 				'type': 1
 			},
 			dataType: "json",

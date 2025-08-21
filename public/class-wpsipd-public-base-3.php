@@ -1523,13 +1523,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_tujuan_lokal 
-						WHERE id=%d 
-							AND id_unik_indikator IS NOT NULL 
-							AND active=1
-					", $_POST['id']));
+					$wpdb->update('data_renstra_tujuan_lokal', array('active' => 0), array(
+						'id' => $_POST['id']
+					));
 
 					echo json_encode([
 						'status' => true,
@@ -2373,8 +2369,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							WHERE 
 								id_unik=%s AND 
 								id_unik_indikator IS NOT NULL AND 
-								active=1
-							ORDER BY id", $_POST['id_unik']);
+								active=1 AND
+								tahun_anggaran=%d
+							ORDER BY id", $_POST['id_unik'], $_POST['tahun_anggaran']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					} else {
 						$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -2432,7 +2429,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
@@ -2445,8 +2443,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NULL AND 
-							active=1
-					", $data['id_unik']));
+							active=1 AND
+							tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
@@ -2472,6 +2471,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'tujuan_teks' => $dataSasaran->tujuan_teks,
 						'urut_sasaran' => $dataSasaran->urut_sasaran,
 						'urut_tujuan' => $dataSasaran->urut_tujuan,
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'active' => 1
 					];
 
@@ -2679,14 +2679,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_sasaran_lokal 
-						WHERE 
-							id=%d AND
-							id_unik_indikator IS NOT NULL AND 
-							active=1
-					", $_POST['id']));
+					$wpdb->update('data_renstra_sasaran_lokal', array('active' => 0), array(
+						'id' => $_POST['id']
+					));
 
 					echo json_encode([
 						'status' => true,
@@ -3708,9 +3703,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							WHERE 
 								id_unik=%s AND 
 								id_unik_indikator IS NOT NULL AND 
-								active=1
+								active=1 AND
+								tahun_anggaran=%d
 							ORDER BY id
-						", $_POST['kode_program']);
+						", $_POST['kode_program'], $_POST['tahun_anggaran']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 						$program = $this->get_pagu_indikator_program($_POST['kode_program']);
 					} else {
@@ -3769,7 +3765,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
@@ -3782,7 +3779,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND active=1 
 							AND id_unik_indikator IS NULL
-					", $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
@@ -3815,6 +3813,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'tujuan_teks' => $dataProgram->tujuan_teks,
 						'urut_sasaran' => $dataProgram->urut_sasaran,
 						'urut_tujuan' => $dataProgram->urut_tujuan,
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'active' => 1
 					];
 					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
@@ -4055,13 +4054,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_program_lokal 
-						WHERE id=%d 
-							AND id_unik_indikator IS NOT NULL 
-							AND active=1 
-					", $_POST['id']));
+					$wpdb->update('data_renstra_program_lokal', array('active' => 0), array(
+						'id' => $_POST['id']
+					));
 
 					echo json_encode([
 						'status' => true,
@@ -5086,9 +5081,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NOT NULL AND 
-							active=1
+							active=1 AND
+							tahun_anggaran=%d
 						ORDER BY id
-						", $_POST['id_unik']);
+						", $_POST['id_unik'], $_POST['tahun_anggaran']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 						$kegiatan = $this->get_pagu_indikator_kegiatan($_POST['id_unik']);
 					} else {
@@ -5147,7 +5143,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
@@ -5160,7 +5157,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND active=1 
 							AND id_unik_indikator IS NULL
-					", $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
@@ -5198,6 +5196,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'tujuan_teks' => $dataKegiatan->tujuan_teks,
 						'urut_sasaran' => $dataKegiatan->urut_sasaran,
 						'urut_tujuan' => $dataKegiatan->urut_tujuan,
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'active' => 1
 					];
 					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
@@ -5443,11 +5442,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_kegiatan_lokal 
-						WHERE id=%d
-					", $_POST['id']));
+					$wpdb->update('data_renstra_kegiatan_lokal', array('active' => 0), array(
+						'id' => $_POST['id']
+					));
 
 					echo json_encode([
 						'status' => true,
@@ -8852,9 +8849,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NOT NULL AND 
-							active=1
+							active=1 AND
+							tahun_anggaran=%d
 						ORDER BY id
-						", $_POST['id_unik']);
+						", $_POST['id_unik'], $_POST['tahun_anggaran']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
 
@@ -8892,14 +8890,26 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$this->verify_indikator_sub_kegiatan_renstra($data);
 
 					if (!empty($data['id_indikator_usulan'])) {
-						$usulan = $wpdb->get_row($wpdb->prepare("SELECT id, indikator FROM data_master_indikator_subgiat WHERE id=%d", $data['id_indikator_usulan']));
+						$usulan = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id, 
+								indikator 
+							FROM data_master_indikator_subgiat 
+							WHERE id=%d
+						", $data['id_indikator_usulan']));
 						if (empty($usulan)) {
 							throw new Exception('Indikator usulan tidak ditemukan!');
 						}
 					}
 
 					if (!empty($data['id_indikator'])) {
-						$penetapan = $wpdb->get_row($wpdb->prepare("SELECT id, indikator FROM data_master_indikator_subgiat WHERE id=%d", $data['id_indikator']));
+						$penetapan = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id, 
+								indikator 
+							FROM data_master_indikator_subgiat 
+							WHERE id=%d
+						", $data['id_indikator']));
 						if (empty($usulan)) {
 							throw new Exception('Indikator penetapan tidak ditemukan!');
 						}
@@ -8913,7 +8923,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['id_indikator_usulan'], $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['id_indikator_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
@@ -8926,7 +8937,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND active=1 
 							AND id_unik_indikator IS NULL
-					", $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan yang dipilih tidak ditemukan!');
@@ -8970,6 +8982,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						'tujuan_teks' => $dataSubKegiatan->tujuan_teks,
 						'urut_sasaran' => $dataSubKegiatan->urut_sasaran,
 						'urut_tujuan' => $dataSubKegiatan->urut_tujuan,
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'active' => 1
 					];
 					$inputs['indikator_usulan'] = $usulan->indikator;
@@ -9220,11 +9233,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$wpdb->get_results($wpdb->prepare("
-						DELETE 
-						FROM data_renstra_sub_kegiatan_lokal 
-						WHERE id=%d
-					", $_POST['id']));
+					$wpdb->update('data_renstra_sub_kegiatan_lokal', array('active' => 0), array(
+						'id' => $_POST['id']
+					));
 
 					echo json_encode([
 						'status' => true,
