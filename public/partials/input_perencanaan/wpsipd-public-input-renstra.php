@@ -2793,11 +2793,11 @@ $table .= '
     window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
 
     if (id_jadwal_wp_sakip == 0) {
-    	if(<?php echo in_array("administrator", $user_meta->roles); ?>){
+    	<?php if($is_admin): ?>
         	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
-    	}else{
+    	<?php else: ?>
         	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nHubungi admin!")
-    	}
+    	<?php endif; ?>
     }else{
     	setTimeout(function(){
     		get_tabel_pokin_cascading();
