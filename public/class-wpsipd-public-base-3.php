@@ -11893,7 +11893,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-					$checkProgramRpjm = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpjmd_program_lokal WHERE id_program=%d AND active=1 AND status=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
+					$checkProgramRpjm = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT id 
+							FROM data_rpjmd_program_lokal 
+							WHERE id_program=%d 
+							  AND active=1 
+							  AND status=1 
+							  AND id_unik_indikator IS NULL 
+							  AND tahun_anggaran = %d
+							ORDER BY id ASC
+						", $_POST['id_program'], $_POST['tahun_anggaran'])
+					);
 
 					if (!empty($checkProgramRpjm)) {
 						throw new Exception('Program Pemutakhiran sudah pernah ditambahkan!');

@@ -3,15 +3,13 @@
 if (! defined('WPINC')) {
 	die;
 }
+if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
+	die('<h1 class="text-center">Parameter id_jadwal atau id_skpd tidak ditemukan!</h1>');
+}
 global $wpdb;
 
 date_default_timezone_set('Asia/Jakarta');
 $timezone = get_option('timezone_string');
-
-$input = shortcode_atts(array(
-	'id_skpd' => '',
-	'id_jadwal' => ''
-), $atts);
 
 $user_id = um_user('ID');
 $user_meta = get_userdata($user_id);
@@ -57,9 +55,12 @@ $jadwal_lokal = $wpdb->get_row(
 		SELECT *
 		FROM data_jadwal_lokal
 		WHERE id_jadwal_lokal = %d	
-	', $input['id_jadwal']),
+	', $_GET['id_jadwal']),
 	ARRAY_A
 );
+if (empty($jadwal_lokal)) {
+	die('<h1 class="text-center">Data Jadwal dengan id_jadwal_lokal=' . $_GET['id_jadwal'] . ' tidak ditemukan!</h1>');
+}
 if (empty($jadwal_lokal['id_jadwal_sakip'])) {
     $id_jadwal_wp_sakip = 0;
 } else {
@@ -127,15 +128,24 @@ switch ($id_tipe_relasi) {
 
 $akhir_renstra = $awal_renstra + $lama_pelaksanaan - 1;
 $urut = $tahun_anggaran - $awal_renstra;
-$rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=" . $tahun_anggaran, ARRAY_A);
+
+$rumus_indikator_db = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_rumus_indikator 
+		WHERE active=1 
+		  AND tahun_anggaran=%d
+	", $tahun_anggaran),
+	ARRAY_A
+);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v) {
 	$rumus_indikator .= '<option value="' . $v['id'] . '">' . $v['rumus'] . '</option>';
 }
 
 $where_skpd = '';
-if (!empty($input['id_skpd'])) {
-	$where_skpd = "AND id_skpd=" . $input['id_skpd'];
+if (!empty($_GET['id_skpd'])) {
+	$where_skpd = $wpdb->prepare("AND id_skpd=%d", $_GET['id_skpd']);
 }
 
 $is_admin = false;
@@ -146,23 +156,21 @@ if (in_array("administrator", $user_meta->roles)) {
 }
 
 $sql = $wpdb->prepare("
-	SELECT 
-		* 
+	SELECT * 
 	FROM data_unit 
-	WHERE tahun_anggaran=%d
-		" . $where_skpd . "
-		AND active=1
+	WHERE tahun_anggaran = %d
+	  AND active = 1
+	  {$where_skpd}
 	ORDER BY id_skpd ASC
 ", $tahun_anggaran);
-
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 if (empty($unit)) {
-	die('<h1>Data SKPD dengan id_skpd=' . $input['id_skpd'] . ' dan tahun_anggaran=' . $tahun_anggaran . ' tidak ditemukan!</h1>');
+	die('<h1 class="text-center">Data SKPD dengan id_skpd=' . $_GET['id_skpd'] . ' dan tahun_anggaran=' . $tahun_anggaran . ' tidak ditemukan!</h1>');
 }
 
 $judul_skpd = '';
-if (!empty($input['id_skpd'])) {
+if (!empty($_GET['id_skpd'])) {
 	$judul_skpd = $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>';
 }
 $nama_pemda = get_option('_crb_daerah');
@@ -203,7 +211,7 @@ $tujuan_all = $wpdb->get_results(
 		  AND active = 1 
 		  AND tahun_anggaran = %d 
 		ORDER BY urut_tujuan
-	", $input['id_skpd'], $tahun_anggaran),
+	", $_GET['id_skpd'], $tahun_anggaran),
 	ARRAY_A
 );
 
@@ -887,7 +895,7 @@ if (!empty($sasaran_ids)) {
 		  AND active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
@@ -895,7 +903,7 @@ if (!empty($sasaran_ids)) {
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
@@ -1190,7 +1198,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 								WHERE kode_kegiatan = %s 
 								  AND kode_program = %s 
 								  AND kode_sasaran = %s 
-								  AND tahun_anggaran = %s 
+								  AND tahun_anggaran = %d 
 								  AND active = 1 
 								ORDER BY kode_sub_giat ASC, id_unik_indikator ASC
 							", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tahun_anggaran),
@@ -1233,21 +1241,16 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
 
 								// check sub kegiatan ke master data_prog_keg
-								$checkSubKeg = $wpdb->get_row($wpdb->prepare(
-									"
-										SELECT 
-											id_sub_giat 
-										FROM 
-											data_prog_keg 
-										WHERE 
-											kode_sub_giat=%s AND
-											active=%d AND
-											tahun_anggaran=%d
-											",
-									$sub_kegiatan_value['kode_sub_giat'],
-									1,
-									$tahun_anggaran
-								), ARRAY_A);
+								$checkSubKeg = $wpdb->get_row(
+									$wpdb->prepare("
+										SELECT id_sub_giat 
+										FROM data_prog_keg 
+										WHERE kode_sub_giat = %s 
+										  AND active = %d 
+										  AND tahun_anggaran = %d
+									", $sub_kegiatan_value['kode_sub_giat'], 1, $tahun_anggaran),
+									ARRAY_A
+								);
 
 								$statusMutakhirSubKeg = 1;
 								if (empty($checkSubKeg['id_sub_giat'])) {
@@ -1321,7 +1324,7 @@ if (!empty($program_ids)) {
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
 		  AND active = 1
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
@@ -1329,7 +1332,7 @@ if (!empty($program_ids)) {
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 }
 $program_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
@@ -1677,7 +1680,7 @@ if (!empty($kegiatan_ids)) {
 		  AND active = 1
 		  AND tahun_anggaran = %d
 		  AND id_unit = %d
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
@@ -1685,7 +1688,7 @@ if (!empty($kegiatan_ids)) {
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
-	", $input['id_skpd'], $tahun_anggaran);
+	", $_GET['id_skpd'], $tahun_anggaran);
 }
 $kegiatan_all = $wpdb->get_results($sql, ARRAY_A);
 
@@ -1697,8 +1700,8 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 				SELECT id_giat 
 				FROM data_prog_keg 
 				WHERE kode_giat = %s 
-				AND active=%d 
-				AND tahun_anggaran=%d
+				  AND active=%d 
+				  AND tahun_anggaran=%d
 			", $kegiatan_value['kode_giat'], 1, $tahun_anggaran),
 			ARRAY_A
 		);
@@ -1908,7 +1911,7 @@ if (empty($data_all['data']['tujuan_kosong']['data'])) {
 	unset($data_all['data']['tujuan_kosong']);
 }
 
-$bidur_skpd_db = $this->get_skpd_db($input['id_skpd']);
+$bidur_skpd_db = $this->get_skpd_db($_GET['id_skpd']);
 $bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
 $no_tujuan = 0;
@@ -2906,7 +2909,7 @@ $table .= '
 						'action': 'add_tujuan_renstra',
 						'api_key': '<?php echo $api_key; ?>',
 						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-						'id_unit': '<?php echo $input['id_skpd']; ?>',
+						'id_unit': '<?php echo $_GET['id_skpd']; ?>',
 						'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 						'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 					},
@@ -2917,7 +2920,7 @@ $table .= '
 							var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
 							response.skpd.map(function(b, i) {
 								var selected = '';
-								if (b.id_skpd == <?php echo $input['id_skpd'] ?>) {
+								if (b.id_skpd == <?php echo $_GET['id_skpd'] ?>) {
 									selected = 'selected';
 									bidur_opd = b;
 								}
@@ -2936,7 +2939,7 @@ $table .= '
 							});
 							let tujuanModal = jQuery("#modal-crud-renstra");
 							let html = '<form id="form-renstra">' +
-								'<input type="hidden" name="id_unit" value="' + <?php echo $input['id_skpd']; ?> + '">' +
+								'<input type="hidden" name="id_unit" value="' + <?php echo $_GET['id_skpd']; ?> + '">' +
 								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
 								'<input type="hidden" name="bidur-all" value="">' +
 								'<div class="form-group">' +
@@ -3063,7 +3066,7 @@ $table .= '
 					"api_key": "<?php echo $api_key; ?>",
 					'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
 					'id_tujuan': idtujuan,
-					'id_unit': '<?php echo $input['id_skpd'] ?>',
+					'id_unit': '<?php echo $_GET['id_skpd'] ?>',
 					'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 					'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 				},
@@ -3075,7 +3078,7 @@ $table .= '
 						var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
 						response.skpd.map(function(b, i) {
 							var selected = '';
-							if (b.id_skpd == <?php echo $input['id_skpd'] ?>) {
+							if (b.id_skpd == <?php echo $_GET['id_skpd'] ?>) {
 								selected = 'selected';
 								bidur_opd = b;
 							}
@@ -3112,7 +3115,7 @@ $table .= '
 							'<form id="form-renstra">' +
 								'<input type="hidden" name="id" value="' + response.tujuan.id + '">' +
 								'<input type="hidden" name="id_unik" value="' + response.tujuan.id_unik + '">' +
-								'<input type="hidden" name="id_unit" value="' + <?php echo $input['id_skpd']; ?> + '">' +
+								'<input type="hidden" name="id_unit" value="' + <?php echo $_GET['id_skpd']; ?> + '">' +
 								'<input type="hidden" name="bidur-all" value=\'' + bidur_all_value + '\'>' +
 								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
 								'<div class="form-group">' +
@@ -3589,7 +3592,7 @@ $table .= '
 		        `;
 				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
 				let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
-				let id_unit = '<?php echo $input['id_skpd']; ?>';
+				let id_unit = '<?php echo $_GET['id_skpd']; ?>';
 
 				let sasaranModal = jQuery("#modal-crud-renstra");
 				let kode_tujuan = jQuery(that).data('kodetujuan');
@@ -3684,7 +3687,7 @@ $table .= '
 		        `;
 				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
 				let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
-				let id_unit = '<?php echo $input['id_skpd']; ?>';
+				let id_unit = '<?php echo $_GET['id_skpd']; ?>';
 				let id_sasaran = jQuery(that).data('idsasaran');
 				let sasaranModal = jQuery("#modal-crud-renstra");
 
@@ -6142,7 +6145,7 @@ $table .= '
 				'action': action,
 				'option': option,
 				'api_key': '<?php echo $api_key; ?>',
-				'id_unit': '<?php echo $input['id_skpd']; ?>',
+				'id_unit': '<?php echo $_GET['id_skpd']; ?>',
 				'id_jadwal_lokal': '<?php echo $jadwal_lokal['id_jadwal_lokal']; ?>',
 				'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
 			},
@@ -6183,7 +6186,7 @@ $table .= '
 				'action': 'get_sasaran_parent',
 				'api_key': '<?php echo $api_key; ?>',
 				'kode_tujuan_rpjm': kode_tujuan_rpjm,
-				'id_unit': '<?php echo $input['id_skpd']; ?>',
+				'id_unit': '<?php echo $_GET['id_skpd']; ?>',
 				'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 				'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 			},
@@ -6225,7 +6228,7 @@ $table .= '
 			data: {
 				"action": "get_tujuan_renstra",
 				"api_key": "<?php echo $api_key; ?>",
-				"id_skpd": "<?php echo $input['id_skpd']; ?>",
+				"id_skpd": "<?php echo $_GET['id_skpd']; ?>",
 				"tahun_anggaran": "<?php echo $tahun_anggaran; ?>",
 				"type": 1
 			},
@@ -7662,7 +7665,7 @@ $table .= '
 						data: {
 							"action": "get_bidang_urusan_renstra",
 							"api_key": "<?php echo $api_key; ?>",
-							"id_unit": "<?php echo $input['id_skpd']; ?>",
+							"id_unit": "<?php echo $_GET['id_skpd']; ?>",
 							'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 							'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 							"type": 1
@@ -7695,7 +7698,7 @@ $table .= '
 						data: {
 							"action": "get_bidang_urusan",
 							"api_key": "<?php echo $api_key; ?>",
-							"id_unit": "<?php echo $input['id_skpd']; ?>",
+							"id_unit": "<?php echo $_GET['id_skpd']; ?>",
 							'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 							'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 							"type": 0
@@ -7861,7 +7864,7 @@ $table .= '
 				data: {
 					"action": "copy_usulan_renstra",
 					"api_key": "<?php echo $api_key; ?>",
-					"id_unit": "<?php echo $input['id_skpd']; ?>"
+					"id_unit": "<?php echo $_GET['id_skpd']; ?>"
 				},
 				dataType: "json",
 				success: function(res) {
@@ -8698,7 +8701,7 @@ $table .= '
 	                data: {
 	                    "action": 'get_data_pohon_kinerja',
 	                    "api_key": "<?php echo $api_key; ?>",
-	                    "id_skpd": <?php echo $input['id_skpd']; ?>,
+	                    "id_skpd": <?php echo $_GET['id_skpd']; ?>,
 	                    "id_jadwal_wp_sakip": id_jadwal_wp_sakip
 	                },
 	                dataType: "json",
@@ -8716,7 +8719,7 @@ $table .= '
 			                data: {
 			                    "action": 'get_data_satker',
 			                    "api_key": "<?php echo $api_key; ?>",
-			                    "id_skpd": <?php echo $input['id_skpd']; ?>
+			                    "id_skpd": <?php echo $_GET['id_skpd']; ?>
 			                },
 			                dataType: "json",
 			                success: function(response) {

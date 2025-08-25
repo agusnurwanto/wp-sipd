@@ -532,23 +532,35 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$input_perencanaan = Container::make('theme_options', __('Input Perencanaan'))
 				->set_page_menu_position(4)
 				->set_icon('dashicons-welcome-write-blog')
-				->add_fields($this->generate_jadwal_perencanaan());
+				->add_tab('📅 Jadwal Input Perencanaan', $this->generate_tab_jadwal_input_perencanaan())
+				->add_tab('🎚️ Input Batasan Pagu Sumber Dana', $this->generate_tab_input_batasan_pagu_sumber_dana());
 
 			if (get_option('_crb_show_menu_input_jadwal_settings') != true) {
-				Container::make('theme_options', __('Jadwal & Input Perencanaan'))
+				Container::make('theme_options', __('Jadwal Input Perencanaan'))
 					->set_page_parent($input_perencanaan)
-					->add_tab('🏙️ Input Perencanaan', $this->generate_tab_input_perencanaan())
-					->add_tab('📅 Jadwal Input Perencanaan', $this->generate_tab_jadwal())
+					->add_tab('📅 Jadwal Input Perencanaan', $this->generate_tab_jadwal_input_perencanaan())
 					->add_tab('🎚️ Input Batasan Pagu Sumber Dana', $this->generate_tab_input_batasan_pagu_sumber_dana());
 			}
 
-			if (get_option('_crb_show_menu_input_input_renstra_settings') != true) {
-				Container::make('theme_options', __('Input RENSTRA'))
+			if (get_option('_crb_show_menu_input_rpjpd_settings') != true) {
+				Container::make('theme_options', __('Input RPJPD'))
 					->set_page_parent($input_perencanaan)
-					->add_fields($this->generate_input_renstra());
+					->add_fields($this->generate_input_perencanaan_rpjpd());
 			}
 
-			if (get_option('_crb_show_menu_input_input_renja_settings') != true) {
+			if (get_option('_crb_show_menu_input_rpjmd_rpd_settings') != true) {
+				Container::make('theme_options', __('Input RPJMD / RPD'))
+					->set_page_parent($input_perencanaan)
+					->add_fields($this->generate_input_perencanaan_rpjmd_rpd());
+			}
+
+			if (get_option('_crb_show_menu_input_renstra_settings') != true) {
+				Container::make('theme_options', __('Input RENSTRA'))
+					->set_page_parent($input_perencanaan)
+					->add_fields($this->generate_input_perencanaan_renstra());
+			}
+
+			if (get_option('_crb_show_menu_input_renja_settings') != true) {
 				Container::make('theme_options', __('Input RENJA'))
 					->set_page_parent($input_perencanaan)
 					->add_fields(array(
@@ -955,7 +967,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				'verifikator_pupr' => 'Verifikator Pekerjaan Umum (PUPR)'
 			);
 			global $wpdb;
-			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+			$tahun = $this->get_tahun();
 			$list_data_rka = "";
 			foreach ($tahun as $k => $v) {
 				$title = 'Jadwal Verifikasi RKA | ' . $v['tahun_anggaran'];
@@ -2552,11 +2564,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('separator', 'crb_show_menu_input_perencanaan_settings', 'Non Aktifkan Menu ( Input Perencanaan )'),
 			Field::make('checkbox', 'crb_show_menu_input_sipd_settings', 'Input Perencanaan')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_input_jadwal_settings', 'Jadwal & Input Perencanaan')
+			Field::make('checkbox', 'crb_show_menu_input_jadwal_settings', 'Jadwal Input Perencanaan')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_input_input_renstra_settings', 'Input RENSTRA')
+			Field::make('checkbox', 'crb_show_menu_input_rpjpd_settings', 'Input RPJPD')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_input_input_renja_settings', 'Input RENJA')
+			Field::make('checkbox', 'crb_show_menu_input_rpjmd_rpd_settings', 'Input RPJMD / RPD')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_input_renstra_settings', 'Input RENSTRA')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_input_renja_settings', 'Input RENJA')
 				->set_option_value('true'),
 
 			Field::make('separator', 'crb_show_menu_keuangan_pemdes_settings', 'Non Aktifkan Menu ( Keuangan Pemdes )'),
@@ -3162,89 +3178,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 	}
 
-	public function generate_jadwal_perencanaan()
-	{
-		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
-			return array();
-		}
-		global $wpdb;
-		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
-		$list_data = '';
-
-		$title = 'Jadwal Input Perencanaan RPJPD';
-		$shortcode = '[jadwal_rpjpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Input Perencanaan RPJPD';
-		$shortcode = '[input_rpjpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Jadwal Input Perencanaan RPJM';
-		$shortcode = '[jadwal_rpjm]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Input Perencanaan RPJM';
-		$shortcode = '[input_rpjm]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Jadwal Input Perencanaan RPD';
-		$shortcode = '[jadwal_rpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Input Perencanaan RPD';
-		$shortcode = '[input_rpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$title = 'Jadwal Input Perencanaan RENSTRA';
-		$shortcode = '[jadwal_renstra]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-
-		$no = 0;
-		foreach ($tahun as $k => $v) {
-			$title = 'Jadwal Input Perencanaan RENJA | ' . $v['tahun_anggaran'];
-			$shortcode = '[jadwal_renja tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
-			$update = false;
-			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-		}
-		foreach ($tahun as $k => $v) {
-			$title = 'Input Batasan Pagu per-Sumber Dana | ' . $v['tahun_anggaran'];
-			$shortcode = '[input_batasan_pagu_per_sumber_dana tahun_anggaran="' . $v['tahun_anggaran'] . '"]';
-			$update = false;
-			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-			$list_data .= '<li><a href="' . $page_url . '" target="_blank">' . $title . '</a></li>';
-		}
-		$label = array(
-			Field::make('html', 'crb_hide_sidebar')
-				->set_html('
-				<style>
-					.postbox-container { display: none; }
-					#poststuff #post-body.columns-2 { margin: 0 !important; }
-				</style>
-        	'),
-			Field::make('html', 'crb_jadwal_perencanaan')
-				->set_html('
-            		<ol>' . $list_data . '</ol>
-            ')
-		);
-		return $label;
-	}
-
-	public function generate_tab_jadwal()
+	public function generate_tab_jadwal_input_perencanaan()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
 			return [];
@@ -3287,6 +3221,35 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 		$html = $this->render_accordion($pages);
 
+		$tahun_list = $this->get_tahun();
+		if (!empty($tahun_list)) {
+			$pages_renja = [];
+
+			foreach ($tahun_list as $v) {
+				$page_title = 'Jadwal Input Perencanaan RENJA | ' . $v['tahun_anggaran'];
+
+				$page_url = $this->generatePage(
+					$page_title,
+					$v['tahun_anggaran'],
+					'[jadwal_renja tahun_anggaran="' . $v['tahun_anggaran'] . '"]',
+					false
+				);
+
+				$pages_renja[] = [
+					'key' 	=> $v['tahun_anggaran'],
+					'title' => $page_title,
+					'url' 	=> $page_url
+				];
+			}
+
+			$html_renja = $this->render_accordion($pages_renja);
+		} else {
+			$html_renja = '
+				<span class="badge" style="display:inline-block; padding:5px 10px; background:#ccc; border-radius:5px;">
+					Tahun Anggaran tidak tersedia
+				</span>';
+		}
+
 		return [
 			Field::make('html', 'crb_jadwal_hide_sidebar')
 				->set_html('
@@ -3296,13 +3259,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					</style>
 				'),
 			Field::make('html', 'crb_jadwal_menu')
-				->set_html($html)
+				->set_html($html),
+			Field::make('html', 'crb_jadwal_renja_menu')
+				->set_html($html_renja),
 		];
 	}
 
-	public function generate_tab_input_perencanaan()
+	public function generate_input_perencanaan_rpjpd()
 	{
-		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_input_perencanaan.php') {
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_input_rpjpd1.php') {
 			return [];
 		}
 
@@ -3310,14 +3275,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			[
 				'title' => 'Input Perencanaan RPJPD',
 				'shortcode' => '[input_rpjpd]'
-			],
-			[
-				'title' => 'Input Perencanaan RPJM',
-				'shortcode' => '[input_rpjm]'
-			],
-			[
-				'title' => 'Input Perencanaan RPD',
-				'shortcode' => '[input_rpd]'
 			]
 		];
 
@@ -3339,6 +3296,70 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		}
 
 		$html = $this->render_accordion($pages);
+
+		return [
+			Field::make('html', 'crb_input_perencanaan_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_input_perencanaan_menu')
+				->set_html($html)
+		];
+	}
+
+	public function generate_input_perencanaan_rpjmd_rpd()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_input_rpjmd_rpd.php') {
+			return [];
+		}
+
+		global $wpdb;
+
+		$jadwals = $wpdb->get_results("
+			SELECT *
+			FROM data_jadwal_lokal
+			WHERE id_tipe IN (2, 3)
+			  AND status != 2
+		", ARRAY_A);
+
+		$html = '';
+		$pages = [];
+		if (!empty($jadwals)) {
+			foreach ($jadwals as $index => $v) {
+				if ($v['id_tipe'] == 2) {
+					$page_url = $this->generatePage(
+						'Input Perencanaan RPJMD Lokal',
+						false,
+						'[input_rpjm]',
+						false
+					);
+				} elseif ($v['id_tipe'] == 3) {
+					$page_url = $this->generatePage(
+						'Input Perencanaan RPD Lokal',
+						false,
+						'[input_rpd]',
+						false
+					);
+				}
+
+				$tahun_akhir_anggaran = $v['tahun_anggaran'] + $v['lama_pelaksanaan'] - 1;
+				$pages[] = [
+					'key' 	=> $index + 1,
+					'title' => "{$v['nama']} ({$v['tahun_anggaran']} - {$tahun_akhir_anggaran}) [{$this->status_jadwal_lokal[$v['status']]}]",
+					'url' 	=> $page_url . '&id_jadwal_lokal=' . $v['id_jadwal_lokal']
+				];
+			}
+
+			$html = $this->render_accordion($pages);
+		} else {
+			$html = '
+				<span class="badge" style="display:inline-block; padding:5px 10px; background:#ccc; border-radius:5px;">
+					Jadwal RPJM/RPD tidak tersedia, Silahkan buat jadwal terlebih dahulu di <a href="' . admin_url('admin.php?page=crb_carbon_fields_container_jadwal_input_perencanaan.php') . '">sini</a>
+				</span>';
+		}
 
 		return [
 			Field::make('html', 'crb_input_perencanaan_hide_sidebar')
@@ -3389,8 +3410,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				</span>';
 		}
 		
-
-
 		return [
 			Field::make('html', 'crb_input_batasan_pagu_hide_sidebar')
 				->set_html('
@@ -3476,7 +3495,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		return $label;
 	}
 
-	public function generate_input_renstra()
+	public function generate_input_perencanaan_renstra()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_input_renstra.php') {
 			return array();
@@ -3517,24 +3536,26 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					ARRAY_A
 				);
 
-				$status = ($jadwal['status'] == 0) ? '<b>[TERBUKA]</b>' : '<b>[DIKUNCI]</b>';
+				$status = ($jadwal['status'] == 0) ? '[TERBUKA]' : '[DIKUNCI]';
 				$tahun_akhir_anggaran = $jadwal['tahun_anggaran'] + $jadwal['lama_pelaksanaan'] - 1;
 
 				$return .= '
-					<div class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</div>
+					<h3 class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</h3>
 					<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">
 					<ul style="margin-left : 20px;">
 				';
 
 				if (!empty($units)) {
 					foreach ($units as $unit) {
-						$url_skpd = $this->generatePage(
-							'Input RENSTRA  ' . $jadwal['nama'] . ' | ' . $unit['kode_skpd'] . ' - ' . $unit['nama_skpd'],
+						$gen_page = $this->generatePage(
+							'Input RENSTRA Lokal',
 							null,
-							'[input_renstra id_skpd="' . $unit['id_skpd'] . '" id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+							'[input_renstra]'
 						);
+
+						$url_skpd = $gen_page . '&id_skpd=' . $unit['id_skpd'] . '&id_jadwal=' . $jadwal['id_jadwal_lokal'];
 						$return .= '<li>
-							<a target="_blank" href="' . $url_skpd . '">Halaman Input RENSTRA ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
+							<a target="_blank" href="' . $url_skpd . '" >Halaman Input RENSTRA ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
 						</li>';
 					}
 				} else {

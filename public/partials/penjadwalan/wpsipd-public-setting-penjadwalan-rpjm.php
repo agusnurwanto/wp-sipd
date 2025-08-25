@@ -92,7 +92,7 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 							</select>
 							<small class="text-muted">Data Jadwal diambil dari Aplikasi <strong>WP-Eval-Sakip</strong></small>
 						</div>
-						<div class="badge badge-info text-light d-block p-3">Pilih jadwal untuk fitur <strong>Integrasi data RPJMD (Visi RPJMD, Misi RPJMD, Tujuan, Sasaran, Program)</strong> (opsional).</div>
+						<small class="text-justify">Pilih jadwal untuk fitur <strong>Integrasi data RPJMD (Visi RPJMD, Misi RPJMD, Tujuan, Sasaran, Program)</strong> (opsional).</small>
 					</div>
 				</div>
 			</div>

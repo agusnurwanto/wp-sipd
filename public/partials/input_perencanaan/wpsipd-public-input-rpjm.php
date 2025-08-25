@@ -3,11 +3,16 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+if (!$_GET['id_jadwal_lokal']) {
+	die('<h1 class="text-center">ID Jadwal Lokal tidak ditemukan!</h1>');
+}
+$data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($_GET['id_jadwal_lokal']);
+if (empty($data_jadwal)) {
+	die('<h1 class="text-center">Jadwal tidak valid.</h1>');
+}
 global $wpdb;
-$input = shortcode_atts( array(
-	'id_skpd' => '',
-	'tahun_anggaran' => '2022'
-), $atts );
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
 
 function button_edit_monev($class=false){
 	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
@@ -30,85 +35,59 @@ function parsing_nama_kode($nama_kode){
 	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
 }
 
-$api_key = get_option('_crb_api_key_extension' );
-$user_id = um_user( 'ID' );
-$user_meta = get_userdata($user_id);
-
-$cek_jadwal = $this->validasi_jadwal_perencanaan('rpjm');
-$jadwal_lokal = $cek_jadwal['data'];
-$add_rpjm = '';
-$tahun_anggaran = '2022';
-$namaJadwal = '-';
-$mulaiJadwal = '-';
-$selesaiJadwal = '-';
-
-if(!empty($jadwal_lokal)){
-	if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
-		$relasi = $wpdb->get_row("
-					SELECT 
-						id_tipe 
-					FROM `data_jadwal_lokal`
-					WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
-
-		$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
-		$id_tipe_relasi = $relasi->id_tipe;
-	}
-
-	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
-	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-	$tahun_selesai =$tahun_anggaran + $lama_pelaksanaan - 1;
-	$awal_rpjmd = $jadwal_lokal[0]['tahun_anggaran'];
-	$namaJadwal = !empty($jadwal_lokal[0]['nama']) ? $jadwal_lokal[0]['nama'] : '-';
-    $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
-
-    if(in_array("administrator", $user_meta->roles)){
-    	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-		$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-		$awal = new DateTime($mulaiJadwal);
-		$akhir = new DateTime($selesaiJadwal);
-		$now = new DateTime(date('Y-m-d H:i:s'));
-
-		if($now >= $awal && $now <= $akhir){
-			$add_rpjm = '<a id="tambah-data" onclick="return false;" href="#" class="btn btn-primary mr-2"><span class="dashicons dashicons-plus"></span> Tambah Data RPJM</a>';
-		}
+// check jadwal is running bool;
+$is_running_jadwal_lokal = $this->is_running_jadwal_lokal($data_jadwal->id_jadwal_lokal);
+if ($is_running_jadwal_lokal) {
+    if (in_array("administrator", $user_meta->roles)) {
+		$add_rpjm = '<a id="tambah-data" onclick="return false;" href="#" class="btn btn-primary mr-2"><span class="dashicons dashicons-plus"></span> Tambah Data RPJM</a>';
     }
+} else {
+	$add_rpjm = '<button onclick="return false;" href="#" class="btn btn-primary mr-2 disabled" disabled><span class="dashicons dashicons-plus"></span> Tambah Data RPJM</button>';
 }
 
 $timezone = get_option('timezone_string');
+$tahun_selesai = $data_jadwal->tahun_anggaran + $data_jadwal->lama_pelaksanaan - 1;
 
-$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$tahun_anggaran, ARRAY_A);
+$rumus_indikator_db = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_rumus_indikator 
+		WHERE active = 1 
+		  AND tahun_anggaran=%d
+	", $data_jadwal->tahun_anggaran),
+	ARRAY_A
+);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
 	$rumus_indikator .= '<option value="'.$v['id'].'">'.$v['rumus'].'</option>';
 }
 
 $where_skpd = '';
-if(!empty($input['id_skpd'])){
-	$where_skpd = "and id_skpd =".$input['id_skpd'];
+if(!empty($_GET['id_skpd'])){
+	$where_skpd = $wpdb->prepare("AND id_skpd = %d", $_GET['id_skpd']);
 }
 
 $sql = $wpdb->prepare("
-	select 
-		* 
-	from data_unit 
-	where tahun_anggaran=%d
-		".$where_skpd."
-		and active=1
-	order by id_skpd ASC
-", $tahun_anggaran);
+	SELECT * 
+	FROM data_unit 
+	WHERE tahun_anggaran=%d
+	  {$where_skpd}
+	  AND active=1
+	ORDER BY id_skpd ASC
+", $data_jadwal->tahun_anggaran);
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 $judul_skpd = '';
-if(!empty($input['id_skpd'])){
+if(!empty($_GET['id_skpd'])){
 	$judul_skpd = $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>';
-
 }
-$pengaturan = $wpdb->get_results($wpdb->prepare("
-	select 
-		* 
-	from data_pengaturan_sipd 
-	where tahun_anggaran=%d
-", $tahun_anggaran), ARRAY_A);
+$pengaturan = $wpdb->get_results(
+	$wpdb->prepare("
+		SELECT * 
+		FROM data_pengaturan_sipd 
+		WHERE tahun_anggaran=%d
+	", $data_jadwal->tahun_anggaran), ARRAY_A
+);
 
 $awal_rpjmd = 2018;
 $akhir_rpjmd = 2023;
@@ -116,7 +95,7 @@ if(!empty($pengaturan)){
 	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
-$urut = $tahun_anggaran-$awal_rpjmd;
+$urut = $data_jadwal->tahun_anggaran-$awal_rpjmd;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
@@ -136,14 +115,13 @@ $sasaran_ids = array();
 $program_ids = array();
 $skpd_filter = array();
 
-$sql = "
-	select 
-		* 
-	from data_rpjmd_visi_lokal
+$sql = $wpdb->prepare("
+	SELECT * 
+	FROM data_rpjmd_visi_lokal
 	WHERE active = 1
-";
+	  AND tahun_anggaran = %d
+", $data_jadwal->tahun_anggaran);
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
-$count_prog = 0;
 foreach ($visi_all as $visi) {
 	if(empty($data_all['data'][$visi['id']])){
 		$data_all['data'][$visi['id']] = array(
@@ -154,12 +132,12 @@ foreach ($visi_all as $visi) {
 
 	$visi_ids[$visi['id']] = "'".$visi['id']."'";
 	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpjmd_misi_lokal
-		where id_visi=%s
+		SELECT * 
+		FROM data_rpjmd_misi_lokal
+		WHERE id_visi=%s
 		  AND active = 1
-	", $visi['id']);
+		  AND tahun_anggaran = %d
+	", $visi['id'], $data_jadwal->tahun_anggaran);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
 
 	foreach ($misi_all as $misi) {
@@ -172,11 +150,13 @@ foreach ($visi_all as $visi) {
 
 		$misi_ids[$misi['id']] = "'".$misi['id']."'";
 		$sql = $wpdb->prepare("
-			select 
-				* 
-			from data_rpjmd_tujuan_lokal
-			where id_misi=%s and id_unik_indikator is null
-		", $misi['id']);
+			SELECT * 
+			FROM data_rpjmd_tujuan_lokal
+			WHERE id_misi=%s 
+			  AND id_unik_indikator IS NULL
+			  AND tahun_anggaran = %d
+			  AND active = 1
+		", $misi['id'], $data_jadwal->tahun_anggaran);
 		$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($tujuan_all as $tujuan) {
 			if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']])){
@@ -188,24 +168,26 @@ foreach ($visi_all as $visi) {
 			}
 
 			$sql = $wpdb->prepare("
-				select 
-					* 
-				from data_rpjmd_tujuan_lokal
-				where id_tujuan=%s
-			", $tujuan['id']);
+				SELECT * 
+				FROM data_rpjmd_tujuan_lokal
+				WHERE id_tujuan=%s
+				  AND tahun_anggaran = %d
+				  AND active = 1
+			", $tujuan['id'], $data_jadwal->tahun_anggaran);
 			$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($tujuan_indikator_all as $tujuan_indikator) {
 				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
 			}
-
 			$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
-			$sql = $wpdb->prepare("
-				select 
-					* 
-				from data_rpjmd_sasaran_lokal
-				where kode_tujuan=%s and id_unik_indikator is null
-			", $tujuan['id_unik']);
 
+			$sql = $wpdb->prepare("
+				SELECT * 
+				FROM data_rpjmd_sasaran_lokal
+				WHERE kode_tujuan=%s 
+				  AND id_unik_indikator IS NULL
+				  AND tahun_anggaran = %d
+				  AND active = 1
+			", $tujuan['id_unik'], $data_jadwal->tahun_anggaran);
 			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($sasaran_all as $sasaran) {
 				if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
@@ -217,31 +199,41 @@ foreach ($visi_all as $visi) {
 				}
 
 				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_sasaran_lokal
-					where id_sasaran=%s
-				", $sasaran['id']);
+					SELECT * 
+					FROM data_rpjmd_sasaran_lokal
+					WHERE id_sasaran=%s
+					  AND tahun_anggaran = %d
+					  AND active = 1
+				", $sasaran['id'], $data_jadwal->tahun_anggaran);
 				$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($sasaran_indikator_all as $sasaran_indikator) {
 					$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
 				}				
-
 				$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+
 				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_program_lokal
-					where kode_sasaran=%s and id_unik_indikator is null and active=1
-				", $sasaran['id_unik']);
+					SELECT * 
+					FROM data_rpjmd_program_lokal
+					WHERE kode_sasaran=%s 
+					  AND id_unik_indikator IS NULL 
+					  AND active=1
+					  AND tahun_anggaran = %d
+				", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
-					
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
 					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-
 						$kode_program = explode(" ", $program['nama_program']);
-						$checkProgram = $wpdb->get_row($wpdb->prepare("SELECT distinct kode_program FROM data_prog_keg WHERE kode_program=%s AND active=%d AND tahun_anggaran=%d", $kode_program[0], 1,$tahun_anggaran), ARRAY_A);
+						$checkProgram = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT DISTINCT kode_program 
+								FROM data_prog_keg 
+								WHERE kode_program=%s 
+								  AND active=%d 
+								  AND tahun_anggaran=%d
+							", $kode_program[0], 1,$data_jadwal->tahun_anggaran),
+							ARRAY_A
+						);
 											
 						$statusMutakhirProgram = 0;
 						if(empty($checkProgram['kode_program'])){
@@ -258,11 +250,13 @@ foreach ($visi_all as $visi) {
 					}
 
 					$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null and active=1
-					", $program['id_unik']);
+						SELECT * 
+						FROM data_rpjmd_program_lokal
+						WHERE id_unik=%s 
+						  AND id_unik_indikator IS NOT NULL 
+						  AND active=1
+						  AND tahun_anggaran=%d
+					", $program['id_unik'], $data_jadwal->tahun_anggaran);
 					$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($program_indikator_all as $program_indikator) {
 						if(empty($program_indikator['kode_skpd'])){
@@ -279,7 +273,6 @@ foreach ($visi_all as $visi) {
 								'nama' => $program_indikator['indikator'],
 								'data' => $program_indikator
 							);
-							$count_prog++;
 						}
 					}
 				}
@@ -318,20 +311,20 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan
 
 // select misi yang belum terselect
 if(!empty($misi_ids)){
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_misi_lokal
-		where id not in (".implode(',', $misi_ids).")
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_misi_lokal
+		WHERE id NOT IN (".implode(',', $misi_ids).")
 		  AND active = 1
-	";
+		  AND tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_misi_lokal
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_misi_lokal
 		WHERE active = 1
-	";
+		  AND tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($misi_all_kosong as $misi) {
@@ -341,11 +334,12 @@ foreach ($misi_all_kosong as $misi) {
 			'data' => array()
 		);
 	}
+
 	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpjmd_tujuan_lokal
-		where id=%s
+		SELECT * 
+		FROM data_rpjmd_tujuan_lokal
+		WHERE id=%s
+		AND active = 1
 	", $misi['id']);
 	$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($tujuan_all_kosong as $tujuan) {
@@ -358,22 +352,24 @@ foreach ($misi_all_kosong as $misi) {
 			);
 		}
 		$sql = $wpdb->prepare("
-				select 
-					* 
-				from data_rpjmd_tujuan_lokal
-				where id_tujuan=%s
-			", $tujuan['id']);
+			SELECT * 
+			FROM data_rpjmd_tujuan_lokal
+			WHERE id_tujuan=%s
+			  AND tahun_anggaran = %d
+			  AND active = 1
+		", $tujuan['id'], $data_jadwal->tahun_anggaran);
 		$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($tujuan_indikator_all as $tujuan_indikator) {
 			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
 		}
 
 		$sql = $wpdb->prepare("
-			select 
-				* 
-			from data_rpjmd_sasaran_lokal
-			where kode_tujuan=%s
-		", $tujuan['id_unik']);
+			SELECT * 
+			FROM data_rpjmd_sasaran_lokal
+			WHERE kode_tujuan=%s
+			  AND tahun_anggaran = %d
+			  AND active = 1
+		", $tujuan['id_unik'], $data_jadwal->tahun_anggaran);
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
 			$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
@@ -386,22 +382,24 @@ foreach ($misi_all_kosong as $misi) {
 			}
 
 			$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_sasaran_lokal
-					where id_sasaran=%s
-				", $sasaran['id']);
+				SELECT * 
+				FROM data_rpjmd_sasaran_lokal
+				WHERE id_sasaran=%s
+				  AND tahun_anggaran = %d
+				  AND active = 1
+			", $sasaran['id'], $data_jadwal->tahun_anggaran);
 			$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($sasaran_indikator_all as $sasaran_indikator) {
 				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
 			}
 
 			$sql = $wpdb->prepare("
-				select 
-					* 
-				from data_rpjmd_program_lokal
-				where kode_sasaran=%s and active=1
-			", $sasaran['id_unik']);
+				SELECT * 
+				FROM data_rpjmd_program_lokal
+				WHERE kode_sasaran=%s 
+				  AND active=1
+				  AND tahun_anggaran = %d
+			", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 			$program_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_all as $program) {
 				$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -413,11 +411,13 @@ foreach ($misi_all_kosong as $misi) {
 				}
 
 				$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null and active=1
-					", $program['id_unik']);
+					SELECT * 
+					FROM data_rpjmd_program_lokal
+					WHERE id_unik=%s 
+					  AND id_unik_indikator IS NOT NULL 
+					  AND active=1
+					  AND tahun_anggaran = %d
+				", $program['id_unik'], $data_jadwal->tahun_anggaran);
 				$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_indikator_all as $program_indikator) {
 					if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
@@ -434,18 +434,20 @@ foreach ($misi_all_kosong as $misi) {
 
 // select tujuan yang belum terselect
 if(!empty($tujuan_ids)){
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_tujuan_lokal
-		where id_unik not in (".implode(',', $tujuan_ids).")
-	";
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_tujuan_lokal
+		WHERE id_unik NOT IN (".implode(',', $tujuan_ids).")
+		  AND tahun_anggaran = %d
+		  AND active = 1
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_tujuan_lokal
-	";
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_tujuan_lokal
+		WHERE tahun_anggaran = %d
+		  AND active = 1
+	", $data_jadwal->tahun_anggaran);
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all_kosong as $tujuan) {
@@ -458,22 +460,23 @@ foreach ($tujuan_all_kosong as $tujuan) {
 	}
 
 	$sql = $wpdb->prepare("
-				select 
-					* 
-				from data_rpjmd_tujuan_lokal
-				where id_tujuan=%s
-			", $tujuan['id']);
+		SELECT * 
+		FROM data_rpjmd_tujuan_lokal
+		WHERE id_tujuan=%s
+		  AND active = 1
+	", $tujuan['id']);
 	$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($tujuan_indikator_all as $tujuan_indikator) {
 		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
 	}
 
 	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpjmd_sasaran_lokal
-		where kode_tujuan=%s
-	", $tujuan['id_unik']);
+		SELECT * 
+		FROM data_rpjmd_sasaran_lokal
+		WHERE kode_tujuan=%s
+		  AND tahun_anggaran = %d
+		  AND active = 1
+	", $tujuan['id_unik'], $data_jadwal->tahun_anggaran);
 	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_all as $sasaran) {
 		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
@@ -486,22 +489,23 @@ foreach ($tujuan_all_kosong as $tujuan) {
 		}
 
 		$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_sasaran_lokal
-					where id_sasaran=%s
-				", $sasaran['id']);
+			SELECT * 
+			FROM data_rpjmd_sasaran_lokal
+			WHERE id_sasaran=%s
+			AND active = 1
+		", $sasaran['id']);
 		$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_indikator_all as $sasaran_indikator) {
 			$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
 		}
 
 		$sql = $wpdb->prepare("
-			select 
-				* 
-			from data_rpjmd_program_lokal
-			where kode_sasaran=%s and active=1
-		", $sasaran['id_unik']);
+			SELECT * 
+			FROM data_rpjmd_program_lokal
+			WHERE kode_sasaran=%s 
+			  AND active=1
+			  AND tahun_anggaran = %d
+		", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 		$program_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_all as $program) {
 			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -513,11 +517,13 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			}
 
 			$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null and active=1
-					", $program['id_unik']);
+				SELECT * 
+				FROM data_rpjmd_program_lokal
+				WHERE id_unik=%s 
+				  AND id_unik_indikator IS NOT NULL
+				  AND active=1
+				  AND tahun_anggaran = %d
+			", $program['id_unik'], $data_jadwal->tahun_anggaran);
 			$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_indikator_all as $program_indikator) {
 				if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
@@ -533,18 +539,21 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 // select sasaran yang belum terselect
 if(!empty($sasaran_ids)){
-	$sql = "
-		select 
+	$sql = $wpdb->prepare("
+		SELECT 
 			* 
-		from data_rpjmd_sasaran_lokal
-		where id_unik not in (".implode(',', $sasaran_ids).")
-	";
+		FROM data_rpjmd_sasaran_lokal
+		WHERE id_unik NOT IN (".implode(',', $sasaran_ids).")
+		AND tahun_anggaran = %d
+		AND active = 1
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_sasaran_lokal
-	";
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_sasaran_lokal
+		WHERE tahun_anggaran = %d
+		AND active = 1
+	", $data_jadwal->tahun_anggaran);
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
@@ -558,22 +567,23 @@ foreach ($sasaran_all_kosong as $sasaran) {
 	}
 
 	$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_sasaran_lokal
-					where id_sasaran=%s
-				", $sasaran['id']);
+		SELECT * 
+		FROM data_rpjmd_sasaran_lokal
+		WHERE id_sasaran=%s
+		AND active = 1
+	", $sasaran['id']);
 	$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_indikator_all as $sasaran_indikator) {
 		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
 	}
 
 	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpjmd_program_lokal
-		where kode_sasaran=%s and active=1
-	", $sasaran['id_unik']);
+		SELECT * 
+		FROM data_rpjmd_program_lokal
+		WHERE kode_sasaran=%s 
+		  AND active=1
+		  AND tahun_anggaran = %d
+	", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 	$program_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_all as $program) {
 		$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -591,11 +601,13 @@ foreach ($sasaran_all_kosong as $sasaran) {
 		}
 
 		$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_program_lokal
-					where id_unik=%s and id_unik_indikator is not null and active=1
-				", $program['id_unik']);
+			SELECT * 
+			FROM data_rpjmd_program_lokal
+			WHERE id_unik=%s 
+			  AND id_unik_indikator IS NOT NULL 
+			  AND active=1
+			  AND tahun_anggaran = %d
+		", $program['id_unik'], $data_jadwal->tahun_anggaran);
 		$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_indikator_all as $program_indikator) {
 			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
@@ -610,18 +622,20 @@ foreach ($sasaran_all_kosong as $sasaran) {
 
 // select program yang belum terselect
 if(!empty($program_ids)){
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_program_lokal
-		where id_unik not in (".implode(',', $program_ids).") and active=1
-	";
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_program_lokal
+		WHERE id_unik NOT IN (".implode(',', $program_ids).") 
+		  AND active=1 
+		  AND tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
-		select 
-			* 
-		from data_rpjmd_program_lokal where active=1
-	";
+	$sql = $wpdb->prepare("
+		SELECT * 
+		FROM data_rpjmd_program_lokal
+		WHERE active=1
+		  AND tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }
 $program_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($program_all as $program) {
@@ -635,11 +649,12 @@ foreach ($program_all as $program) {
 	}
 
 	$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_program_lokal
-					where id_unik=%s and id_unik_indikator is not null
-			", $program['id_unik']);
+		SELECT * 
+		FROM data_rpjmd_program_lokal
+		WHERE id_unik=%s AND id_unik_indikator IS NOT NULL
+		  AND active=1
+		  AND tahun_anggaran = %d
+	", $program['id_unik'], $data_jadwal->tahun_anggaran);
 	$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_indikator_all as $program_indikator) {
 		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
@@ -673,7 +688,6 @@ foreach ($data_all['data'] as $visi) {
 		<tr class="tr-visi">
 			<td class="kiri atas kanan bawah">'.$no_visi.'</td>
 			<td class="atas kanan bawah">'.$visi['nama'].'</td>
-			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
@@ -903,10 +917,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	.indikator_program { min-height: 40px; }
 	.modal {overflow-y:auto;}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$data_jadwal->tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
 <?php echo $table; ?>
-<?php echo "Jumlah Prog : " . $count_prog; ?>
-<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
+<div id="cetak" title="Input Perencanaan RPJM Lokal <?php echo $judul_skpd.'Jadwal '.$data_jadwal->nama; ?>" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
@@ -1027,22 +1040,21 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	jQuery('body').prepend(mySpace);
 
 	var dataHitungMundur = {
-		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
-		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
-		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'namaJadwal' : '<?php echo ucwords($data_jadwal->nama); ?>',
+		'mulaiJadwal' : '<?php echo $data_jadwal->waktu_awal; ?>',
+		'selesaiJadwal' : '<?php echo $data_jadwal->waktu_akhir; ?>',
 		'thisTimeZone' : '<?php echo $timezone ?>'
 	}
 
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif;?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpjm; ?><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif;?>'
-		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpjmd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPJMD dari WP-Eval-Sakip</a><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif;?>'
+		+'<?php if($is_running_jadwal_lokal): ?><?php echo $add_rpjm; ?><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif;?>'
+		+'<?php if($is_running_jadwal_lokal && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpjmd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPJMD dari WP-Eval-Sakip</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
-		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
-		// +'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
+		// +'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
 			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
@@ -1131,8 +1143,8 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "singkron_rpjmd_sipd_lokal",
-	          		"api_key": "<?php echo $api_key; ?>",
-	      			"tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+	          		"api_key": ajax.api_key,
+	      			"tahun_anggaran": <?php echo $data_jadwal->tahun_anggaran; ?>,
 	          		"user": "<?php echo $current_user->display_name; ?>"
 	          	},
 	          	dataType: "json",
@@ -1156,7 +1168,8 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			type : "post",
 			data : {
 				action: "sync_data_rpjmd_lokal_esakip",
-				api_key: "<?php echo $api_key; ?>"
+				api_key: ajax.api_key,
+				id_jadwal: <?php echo $data_jadwal->id_jadwal_lokal;?>
 			},
 			dataType: "json",
 			success: function(res){
@@ -1205,7 +1218,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'edit_visi_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
 				'id': jQuery(this).data('id')
 			},
 			success:function(response){
@@ -1248,7 +1261,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action':'delete_visi_rpjm',
-					'api_key':'<?php echo $api_key; ?>',
+					'api_key': ajax.api_key,
 					'id_visi':id_visi
 				},
 				success:function(response){
@@ -1309,7 +1322,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'edit_misi_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
 				'id': jQuery(this).data('id')
 			},
 			success:function(response){
@@ -1361,7 +1374,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action':'delete_misi_rpjm',
-					'api_key':'<?php echo $api_key; ?>',
+					'api_key': ajax.api_key,
 					'id_misi':id_misi
 				},
 				success:function(response){
@@ -1423,7 +1436,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_tujuan_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id_tujuan': jQuery(this).data('idtujuan')
           	},
           	dataType: "json",
@@ -1479,7 +1492,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action':'delete_tujuan_rpjm',
-					'api_key':'<?php echo $api_key; ?>',
+					'api_key': ajax.api_key,
 					'id_tujuan':id_tujuan,
 					'kode_tujuan':kode_tujuan,
 				},
@@ -1575,7 +1588,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_indikator_tujuan_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id': id,
 				'id_tujuan': id_tujuan
           	},
@@ -1656,7 +1669,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_tujuan_rpjm',
-		          	'api_key': '<?php echo $api_key; ?>',
+		          	'api_key':  ajax.api_key,
 					'id': id,
 					'id_tujuan': id_tujuan,
 				},
@@ -1723,7 +1736,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_sasaran_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id_sasaran': jQuery(this).data('idsasaran')
           	},
           	dataType: "json",
@@ -1775,7 +1788,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action': 'delete_sasaran_rpjm',
-		          	'api_key': '<?php echo $api_key; ?>',
+		          	'api_key':  ajax.api_key,
 					'id_sasaran': id_sasaran,
 					'kode_sasaran': kode_sasaran
 				},
@@ -1871,7 +1884,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_indikator_sasaran_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id': id,
 				'id_sasaran': id_sasaran
           	},
@@ -1952,7 +1965,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_sasaran_rpjm',
-		          	'api_key': '<?php echo $api_key; ?>',
+		          	'api_key':  ajax.api_key,
 					'id': id,
 					'id_sasaran': id_sasaran,
 				},
@@ -2036,8 +2049,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
-				'id_unik': jQuery(this).data('kodeprogram')
+          		"api_key": ajax.api_key,
+				'id_unik': jQuery(this).data('kodeprogram'),
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>
           	},
           	dataType: "json",
           	success: function(res){
@@ -2105,7 +2119,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action': 'delete_program_rpjm',
-		          	'api_key': '<?php echo $api_key; ?>',
+		          	'api_key':  ajax.api_key,
 					'kode_program': kode_program,
 				},
 				success:function(response){
@@ -2259,7 +2273,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_indikator_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id': id,
 				'kode_program': kode_program
           	},
@@ -2394,7 +2408,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_program_rpjm',
-		          	'api_key': '<?php echo $api_key; ?>',
+		          	'api_key':  ajax.api_key,
 					'id': id,
 					'kode_program': kode_program,
 				},
@@ -2432,7 +2446,8 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': action,
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
+	          	'tahun_anggaran':  <?php echo $data_jadwal->tahun_anggaran; ?>,
 				'data': JSON.stringify(form),
 			},
 			success:function(response){
@@ -2470,7 +2485,8 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_visi_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
+				"tahun_anggaran": <?php echo $data_jadwal->tahun_anggaran; ?>,
           		"type": 1
           	},
           	dataType: "json",
@@ -2520,8 +2536,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'get_misi_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
 				'id_visi': params.id_visi,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
           		'type': 1
 			},
 			success:function(response){
@@ -2575,8 +2592,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'get_tujuan_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
 				'id_misi': params.id_misi,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
 				'type': 1
 			},
 			success:function(response){
@@ -2635,8 +2653,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_indikator_tujuan_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id_tujuan': params.id_tujuan,
+				'tahun_anggaran' : <?php echo $data_jadwal->tahun_anggaran; ?>,
 				'type':1
           	},
           	dataType: "json",
@@ -2713,8 +2732,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'get_sasaran_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
 				'kode_tujuan': params.kode_tujuan,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
 				'type':1
 			},
 			success:function(response){
@@ -2779,8 +2799,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_indikator_sasaran_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id_sasaran': params.id_sasaran,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
 				"type": 1
           	},
           	dataType: "json",
@@ -2857,7 +2878,8 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			dataType:'json',
 			data:{
 				'action': 'get_program_rpjm',
-	          	'api_key': '<?php echo $api_key; ?>',
+	          	'api_key':  ajax.api_key,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
 				'kode_sasaran': params.kode_sasaran,
 				'type':1
 			},
@@ -2927,8 +2949,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_indikator_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'kode_program': params.kode_program,
+				'tahun_anggaran': <?php echo $data_jadwal->tahun_anggaran; ?>,
 				"type": 1
           	},
           	dataType: "json",
@@ -3084,7 +3107,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			          	type: "post",
 			          	data: {
 			          		"action": "get_bidang_urusan",
-			          		"api_key": "<?php echo $api_key; ?>",
+			          		"api_key": ajax.api_key,
 			          		"type": 1
 			          	},
 			          	dataType: "json",
@@ -3114,7 +3137,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			          	type: "post",
 			          	data: {
 			          		"action": "get_bidang_urusan",
-			          		"api_key": "<?php echo $api_key; ?>",
+			          		"api_key": ajax.api_key,
 			          		"type": 0
 			          	},
 			          	dataType: "json",
@@ -3190,7 +3213,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			type : "post",
 			data : {
 				"action": "get_data_program_renstra",
-				"api_key": "<?php echo $api_key; ?>",
+				"api_key": ajax.api_key,
 				"type":"rpjm"
 			},
 			dataType: "json",
@@ -3219,8 +3242,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "edit_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
-				'id_unik': id_unik
+          		"api_key": ajax.api_key,
+				'id_unik': id_unik,
+				'tahun_anggaran': '<?php echo $data_jadwal->tahun_anggaran; ?>'
           	},
           	dataType: "json",
           	success: function(res){
@@ -3297,11 +3321,11 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "mutakhirkan_program_rpjm",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		'id': id,
 	          		'id_program': id_program,
 	          		'id_unik': id_unik,
-			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+			       	'tahun_anggaran': '<?php echo $data_jadwal->tahun_anggaran; ?>'
 	          	},
 	          	dataType: "json",
 	          	success: function(response){
