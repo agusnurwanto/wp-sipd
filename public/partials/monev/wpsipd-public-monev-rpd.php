@@ -522,10 +522,10 @@ foreach ($data_all['data'] as $tujuan) {
     // if (empty($tujuan['detail'][0]['id_isu'])) {
     //     $warning = "style='background: #80000014;'";
     // }
-    $no_urut = '';
-    if (!empty($tujuan['detail'][0]['no_urut'])) {
-        $no_urut = $tujuan['detail'][0]['no_urut'];
-    }
+    // $no_urut = '';
+    // if (!empty($tujuan['detail'][0]['no_urut'])) {
+    //     $no_urut = $tujuan['detail'][0]['no_urut'];
+    // }
     $body .= '
 		<tr class="tr-tujuan" ' . $warning . '>
 			<td class="kiri atas kanan bawah">' . $no_tujuan . '</td>
