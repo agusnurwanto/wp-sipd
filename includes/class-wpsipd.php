@@ -1093,8 +1093,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_copy_data_monev_rpjmd_rpd_from_data_local',  $plugin_public, 'copy_data_monev_rpjmd_rpd_from_data_local');
 
 		$this->loader->add_action('wp_ajax_get_jadwal_by_type_esakip',  $plugin_public, 'get_jadwal_by_type_esakip');
-		$this->loader->add_action('wp_ajax_sync_data_rpd_lokal_esakip',  $plugin_public, 'sync_data_rpd_lokal_esakip');
-		$this->loader->add_action('wp_ajax_sync_data_rpjmd_lokal_esakip',  $plugin_public, 'sync_data_rpjmd_lokal_esakip');
+		$this->loader->add_action('wp_ajax_sync_data_rpjmd_rpd_lokal_esakip',  $plugin_public, 'sync_data_rpjmd_rpd_lokal_esakip');
 				
 		$this->loader->add_action('wp_ajax_get_data_spd_sipd',  $plugin_public, 'get_data_spd_sipd');
 		$this->loader->add_action('wp_ajax_show_spd',  $plugin_public, 'show_spd');

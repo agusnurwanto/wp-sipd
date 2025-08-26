@@ -1167,7 +1167,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			url	: ajax.url,
 			type : "post",
 			data : {
-				action: "sync_data_rpjmd_lokal_esakip",
+				action: "sync_data_rpjmd_rpd_lokal_esakip",
 				api_key: ajax.api_key,
 				id_jadwal: <?php echo $data_jadwal->id_jadwal_lokal;?>
 			},

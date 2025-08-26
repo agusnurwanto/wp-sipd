@@ -3,7 +3,16 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+if (!$_GET['id_jadwal_lokal']) {
+	die('<h1 class="text-center">ID Jadwal Lokal tidak ditemukan!</h1>');
+}
+$data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($_GET['id_jadwal_lokal']);
+if (empty($data_jadwal)) {
+	die('<h1 class="text-center">Jadwal tidak valid.</h1>');
+}
 global $wpdb;
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
 
 function button_edit_monev($class=false){
 	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
@@ -25,39 +34,21 @@ function parsing_nama_kode($nama_kode){
 	unset($nama_kodes[0]);
 	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
 }
-
-$api_key = get_option('_crb_api_key_extension' );
-$cek_jadwal = $this->validasi_jadwal_perencanaan('rpd');
-$jadwal_lokal = $cek_jadwal['data'];
-$id_jadwal_rpjpd = "";
-$lama_pelaksanaan = 4;
-$tahun_anggaran = '2022';
-$namaJadwal = '-';
-$mulaiJadwal = '-';
-$selesaiJadwal = '-';
-
-$add_rpd='';
-if(!empty($jadwal_lokal)){
-	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-	$namaJadwal = $jadwal_lokal[0]['nama'];
-	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-    $id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
-    $lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
-
-    $awal = new DateTime($mulaiJadwal);
-	$akhir = new DateTime($selesaiJadwal);
-	$now = new DateTime(date('Y-m-d H:i:s'));
-
-	if($now >= $awal && $now <= $akhir){
+// check jadwal is running bool;
+$is_running_jadwal_lokal = $this->is_running_jadwal_lokal($data_jadwal->id_jadwal_lokal);
+if ($is_running_jadwal_lokal) {
+    if (in_array("administrator", $user_meta->roles)) {
 		$add_rpd = '<a id="tambah-data" onclick="return false;" href="#" class="btn btn-primary mr-2"><span class="dashicons dashicons-plus"></span> Tambah Data RPD</a>';
-	}
+    }
+} else {
+	$add_rpd = '<button onclick="return false;" href="#" class="btn btn-primary mr-2 disabled" disabled><span class="dashicons dashicons-plus"></span> Tambah Data RPD</button>';
 }
 
 $timezone = get_option('timezone_string');
 
-$awal_rpd = $tahun_anggaran;
-$akhir_rpd = $awal_rpd+$lama_pelaksanaan-1;
+$awal_rpd = $data_jadwal->tahun_anggaran;
+$lama_pelaksanaan = $data_jadwal->lama_pelaksanaan;
+$akhir_rpd = $awal_rpd + $lama_pelaksanaan - 1;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
@@ -151,7 +142,7 @@ foreach ($tujuan_all as $tujuan) {
 
 						//check program
 						$kode_program = explode(" ", $program['nama_program']);
-						$checkProgram = $wpdb->get_row($wpdb->prepare("SELECT kode_program FROM data_prog_keg WHERE kode_program=%s AND tahun_anggaran=%d AND active=%d", $kode_program[0], $tahun_anggaran, 1), ARRAY_A);
+						$checkProgram = $wpdb->get_row($wpdb->prepare("SELECT kode_program FROM data_prog_keg WHERE kode_program=%s AND tahun_anggaran=%d AND active=%d", $kode_program[0], $data_jadwal->tahun_anggaran, 1), ARRAY_A);
 
 						$statusMutakhirProgram=0;
 						if(empty($checkProgram['kode_program'])){
@@ -1243,21 +1234,21 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	jQuery('body').prepend(mySpace);
 
 	var dataHitungMundur = {
-		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
-		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
-		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'namaJadwal' : '<?php echo ucwords($data_jadwal->nama); ?>',
+		'mulaiJadwal' : '<?php echo $data_jadwal->waktu_awal; ?>',
+		'selesaiJadwal' : '<?php echo $data_jadwal->waktu_akhir; ?>',
 		'thisTimeZone' : '<?php echo $timezone ?>'
 	}
 
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpd; ?><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success' && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPD dari WP-Eval-Sakip</a><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><a id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger mr-2"><span class="dashicons dashicons-database-import"></span> Ambil data dari SIPD lokal</a><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><?php echo $add_rpd; ?><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><a id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data Program Dari RENSTRA</a><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal && $is_jadwal_set_integration_esakip): ?><a id="generate-data-rpd-esakip" onclick="return false;" href="#" class="btn btn-success mr-2"><span class="dashicons dashicons-admin-generic"></span> Generate Data RPD dari WP-Eval-Sakip</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
+		+'<?php if($is_running_jadwal_lokal): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPD</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
@@ -1364,7 +1355,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "singkron_rpd_sipd_lokal",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"user": "<?php echo $current_user->display_name; ?>"
 	          	},
 	          	dataType: "json",
@@ -1387,7 +1378,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_tujuan_lokal",
           		"type": 1
           	},
@@ -1502,7 +1493,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_sasaran_lokal",
           		"id_unik_tujuan": id_unik_tujuan,
           		"type": 1
@@ -1626,7 +1617,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_program_lokal",
           		"id_unik_sasaran": id_unik_sasaran,
           		"type": 1
@@ -1761,7 +1752,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_tujuan_lokal",
           		"id_unik_tujuan": id_tujuan,
           		"type": 1
@@ -1830,7 +1821,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_sasaran_lokal",
           		"id_unik_sasaran": id_sasaran,
           		"type": 1
@@ -1861,7 +1852,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_program_lokal",
           		"id_unik_program": id_program,
           		"type": 1
@@ -2055,7 +2046,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_tujuan_lokal",
           		"id_unik_tujuan": id_unik_tujuan,
           		"type": 1
@@ -2131,7 +2122,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_sasaran_lokal",
           		"id_unik_sasaran": id_unik_sasaran,
           		"type": 1
@@ -2162,7 +2153,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			          	type: "post",
 			          	data: {
 			          		"action": "get_bidang_urusan",
-			          		"api_key": "<?php echo $api_key; ?>",
+			          		"api_key": ajax.api_key,
 			          		"type": 1
 			          	},
 			          	dataType: "json",
@@ -2195,7 +2186,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			          	type: "post",
 			          	data: {
 			          		"action": "get_bidang_urusan",
-			          		"api_key": "<?php echo $api_key; ?>",
+			          		"api_key": ajax.api_key,
 			          		"type": 0
 			          	},
 			          	dataType: "json",
@@ -2230,7 +2221,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_program_lokal",
           		"id_unik_program": id_unik_program,
           		"type": 1
@@ -2261,7 +2252,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_tujuan_lokal",
           		"id_unik_tujuan_indikator": id_unik_tujuan_indikator,
           		"type": 1
@@ -2331,7 +2322,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_sasaran_lokal",
           		"id_unik_sasaran_indikator": id_unik_sasaran_indikator,
           		"type": 1
@@ -2365,7 +2356,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
           		"table": "data_rpd_program_lokal",
           		"id_unik_program_indikator": id_unik_program_indikator,
           		"type": 1
@@ -2432,7 +2423,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"data": tujuan_teks,
 	          		"id_isu": id_isu,
@@ -2480,7 +2471,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_sasaran_lokal',
 	          		"data": sasaran_teks,
 	          		"id_tujuan": id_unik_tujuan,
@@ -2523,7 +2514,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_program_lokal',
 	          		"data": id_program_master,
 	          		"nama_program": program_teks,
@@ -2553,7 +2544,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"id": id_tujuan_unik
 	          	},
@@ -2579,7 +2570,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_sasaran_lokal',
 	          		"id": id_sasaran_unik
 	          	},
@@ -2605,7 +2596,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_program_lokal',
 	          		"id": id_program_unik
 	          	},
@@ -2631,7 +2622,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"id_unik_tujuan_indikator": id_unik_tujuan_indikator
 	          	},
@@ -2657,7 +2648,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_sasaran_lokal',
 	          		"id_unik_sasaran_indikator": id_unik_sasaran_indikator
 	          	},
@@ -2683,7 +2674,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "hapus_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_program_lokal',
 	          		"id_unik_program_indikator": id_unik_program_indikator
 	          	},
@@ -2738,7 +2729,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"data": tujuan_teks_indikator,
 	          		"id_tujuan": id_tujuan,
@@ -2802,7 +2793,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_sasaran_lokal',
 	          		"data": sasaran_teks_indikator,
 	          		"id_sasaran": id_sasaran,
@@ -2871,7 +2862,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "simpan_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": 'data_rpd_program_lokal',
 	          		"data": program_teks_indikator,
 	          		"id_program": id_program,
@@ -2910,7 +2901,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "get_rpjpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		"table": table,
 	          		"id": id
 	          	},
@@ -2942,7 +2933,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			type : "post",
 			data : {
 				"action": "get_data_program_renstra",
-				"api_key": "<?php echo $api_key; ?>"
+				"api_key": ajax.api_key
 			},
 			dataType: "json",
 			success: function(res){
@@ -2961,8 +2952,9 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			url	: ajax.url,
 			type : "post",
 			data : {
-				action: "sync_data_rpd_lokal_esakip",
-				api_key: "<?php echo $api_key; ?>"
+				action: "sync_data_rpjmd_rpd_lokal_esakip",
+				api_key: ajax.api_key,
+				id_jadwal: <?php echo $data_jadwal->id_jadwal_lokal; ?>
 			},
 			dataType: "json",
 			success: function(res){
@@ -3067,7 +3059,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"table": "data_rpd_program_lokal",
-          		"api_key": "<?php echo $api_key; ?>",
+          		"api_key": ajax.api_key,
 				'id_unik_program': id_unik,
 				'type':1
           	},
@@ -3132,11 +3124,11 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	type: "post",
 	          	data: {
 	          		"action": "mutakhirkan_program_rpd",
-	          		"api_key": "<?php echo $api_key; ?>",
+	          		"api_key": ajax.api_key,
 	          		'id': id,
 	          		'id_program': id_program,
 	          		'id_unik': id_unik,
-			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+			       	'tahun_anggaran': '<?php echo $data_jadwal->tahun_anggaran; ?>'
 	          	},
 	          	dataType: "json",
 	          	success: function(response){
