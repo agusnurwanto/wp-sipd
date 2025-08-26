@@ -223,7 +223,6 @@ if (!empty($tujuan_ids)) {
 		WHERE t.id_unik not in (" . implode(',', $tujuan_ids) . ")
 		  AND t.active = 1
           AND t.id_jadwal = %d
-		ORDER BY t.no_urut
 	", $input['id_jadwal_lokal']);
 } else {
     $sql = $wpdb->prepare("
@@ -232,7 +231,6 @@ if (!empty($tujuan_ids)) {
 		FROM data_rpd_tujuan t
 		WHERE t.active = 1
           AND t.id_jadwal = %d
-		ORDER BY t.no_urut
 	", $input['id_jadwal_lokal']);
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
