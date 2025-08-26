@@ -1070,19 +1070,19 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
                                 $data['id_unik_indikator'] = $this->generateRandomString(5);
-                                $cek_id = $wpdb->get_var($wpdb->prepare("
-                                    select 
-                                        id 
-                                    from $table
-                                    where indikator=%s
-                                        and id_unik=%s
-                                ", $_POST['data'], $_POST['id_program']));
-                                if(!empty($cek_id)){
-                                    $ret['status'] = 'error';
-                                    $ret['message'] = 'Indikator program sudah ada!';
-                                }else{
-                                    $wpdb->insert($table, $data);
-                                }
+                                $wpdb->insert($table, $data);
+                                // $cek_id = $wpdb->get_var($wpdb->prepare("
+                                //     select 
+                                //         id 
+                                //     from $table
+                                //     where indikator=%s
+                                //         and id_unik=%s
+                                // ", $_POST['data'], $_POST['id_program']));
+                                // if(!empty($cek_id)){
+                                //     $ret['status'] = 'error';
+                                //     $ret['message'] = 'Indikator program sudah ada!';
+                                // }else{
+                                // }
                             }
                         // simpan atau edit program
                         }else{
