@@ -236,7 +236,7 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 			jQuery("#tahun_mulai_anggaran").val('');
 			jQuery('#jadwal_tanggal').data('daterangepicker');
 			jQuery('#jadwal_tanggal').data('daterangepicker');
-			jQuery("#link_rpjpd").val('').change();
+			jQuery("#link_rpjpd").val('');
 			jQuery("#lama_pelaksanaan").val(lama_pelaksanaan.data.lama_pelaksanaan);
 
 			jQuery('#modalTambahJadwal').modal('show');
@@ -343,7 +343,7 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 			jQuery("#lama_pelaksanaan").val(data_jadwal.data.lama_pelaksanaan);
 			jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(data_jadwal.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
 			jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(data_jadwal.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
-			jQuery("#link_rpjpd").val(data_jadwal.data.relasi_perencanaan).change();
+			jQuery("#link_rpjpd").val(data_jadwal.data.relasi_perencanaan.id_jadwal_lokal);
 
 			jQuery('#modalTambahJadwal').modal('show');
 			jQuery("#wrap-loading").hide();

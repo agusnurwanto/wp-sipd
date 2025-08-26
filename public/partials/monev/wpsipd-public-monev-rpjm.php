@@ -119,7 +119,6 @@ $tujuan_ids = array();
 $sasaran_ids = array();
 $program_ids = array();
 $skpd_filter = array();
-$count_prog = 0;
 
 $sql = $wpdb->prepare("
 	select 
@@ -221,7 +220,6 @@ foreach ($visi_all as $visi) {
 							'nama' => $program['indikator'],
 							'data' => $program
 						);
-						$count_prog++;
 					}
 				}
 			}
@@ -661,7 +659,6 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		min-height: 40px;
 	}
 </style>
-<?php echo "Jumlah Prog : " . $count_prog; ?>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah)<br><?php echo $judul_skpd . ' ' . $data_jadwal->nama . ' ' . $nama_pemda; ?></h4>
 <div id="cetak" title="Indikator RPJMD - <?php echo $judul_skpd . ' ' . $data_jadwal->nama; ?>" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
