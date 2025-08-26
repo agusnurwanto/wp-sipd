@@ -1105,7 +1105,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                         id 
                                     from $table
                                     where nama_program=%s
-                                ", $_POST['nama_program']));
+                                        AND kode_sasaran=%s
+                                ", $_POST['nama_program'], $_POST['id_sasaran']));
                                 if(!empty($cek_id)){
                                     $ret['status'] = 'error';
                                     $ret['message'] = 'Program teks sudah ada!';
