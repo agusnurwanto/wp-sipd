@@ -218,11 +218,8 @@ if (empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])) {
 if (!empty($tujuan_ids)) {
     $sql = $wpdb->prepare("
 		SELECT 
-			t.*,
-			i.isu_teks 
+			t.*
 		FROM data_rpd_tujuan t
-		LEFT JOIN data_rpjpd_isu i 
-               ON t.id_isu = i.id
 		WHERE t.id_unik not in (" . implode(',', $tujuan_ids) . ")
 		  AND t.active = 1
           AND t.id_jadwal = %d
@@ -231,11 +228,8 @@ if (!empty($tujuan_ids)) {
 } else {
     $sql = $wpdb->prepare("
 		SELECT 
-			t.*,
-			i.isu_teks 
+			t.*
 		FROM data_rpd_tujuan t
-		LEFT JOIN data_rpjpd_isu i 
-               ON t.id_isu = i.id
 		WHERE t.active = 1
           AND t.id_jadwal = %d
 		ORDER BY t.no_urut
@@ -527,9 +521,9 @@ foreach ($data_all['data'] as $tujuan) {
         $target_html .= '<td class="atas kanan bawah text_tengah"><b>(' . $this->_number_format($tujuan['total_akumulasi_' . $i]) . ')</b></td>';
     }
     $warning = "";
-    if (empty($tujuan['detail'][0]['id_isu'])) {
-        $warning = "style='background: #80000014;'";
-    }
+    // if (empty($tujuan['detail'][0]['id_isu'])) {
+    //     $warning = "style='background: #80000014;'";
+    // }
     $no_urut = '';
     if (!empty($tujuan['detail'][0]['no_urut'])) {
         $no_urut = $tujuan['detail'][0]['no_urut'];
