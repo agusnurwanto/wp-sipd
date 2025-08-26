@@ -272,6 +272,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->add_fields($this->get_skpd_settings());
 		}
 
+		Container::make('theme_options', __('Tampilan Beranda'))
+			->set_page_parent($basic_options_container)
+			->add_tab(__('👤 Menu Profile User'), $this->generate_fields_profile_user());
+
 		if (get_option('_crb_show_menu_wpsipd_simda_settings') != true) {
 			Container::make('theme_options', __('SIMDA Setting'))
 				->set_page_parent($basic_options_container)
@@ -3423,6 +3427,23 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		];
 	}
 
+	public function generate_fields_profile_user()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_tampilan_beranda.php') {
+			return array();
+		}
+
+		return array(
+			Field::make('html', 'crb_menu_user_wpsipd_note')
+				->set_html('<ol><li style="font-weight: bold;">Tampilan <i>Menu User Profile</i> dapat diaktifkan melalui shortcode <code>[menu_monev]</code>.</li>
+				<li style="font-weight: bold;">Tampilan <i>Latar Belakang (Background)</i> dapat diaktifkan melalui shortcode <code>[background_menu_wpsipd]</code>. Khusus shortcode ini disesuaikan hanya untuk halaman <code>Login dan Account (Ultimate Member)</code></li></ol>'),
+
+			Field::make('image', 'crb_bg_menu_user_wpsipd', __('Latar Belakang'))
+				->set_value_type('url')
+				->set_help_text('Upload Latar Belakang untuk menu user.'),
+		);
+	}
+
 	public function generate_jadwal_monev()
 	{
 		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_jadwal_monev.php') {
@@ -3724,10 +3745,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 				}
 			}
-			// echo '<pre>';
-			// print_r($subkeg_all);
-			// echo '</pre>';
-			// die();
 
 			$tematik = $wpdb->get_results(
 				$wpdb->prepare("
@@ -3776,11 +3793,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 				}
 			}
-			// echo '<pre>';
-			// print_r($tematik_all);
-			// echo '</pre>';
-			// die();
-
 
 			foreach ($html_sections as $key => &$html) {
 				$title = "Laporan APBD per Label / Tag Sub Kegiatan | Tahun Anggaran $tahun_anggaran";
