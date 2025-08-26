@@ -539,7 +539,7 @@ foreach ($data_all['data'] as $tujuan) {
 			<td class="atas kanan bawah text_tengah">' . $target_akhir . '</td>
 			<td class="atas kanan bawah">' . $satuan . '</td>
 			<td class="atas kanan bawah"></td>
-			<td class="atas kanan bawah">' . $no_urut . '</td>
+			<td class="atas kanan bawah"></td>
 		</tr>
 	';
     $no_sasaran = 0;
