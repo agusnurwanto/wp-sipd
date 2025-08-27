@@ -2969,7 +2969,6 @@ $table .= '
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
 							<?php else: ?>
-								html += ''+
 								html_input_pokin+
 								html_input_satker+
 								'<div class="form-group">' +
@@ -3153,7 +3152,6 @@ $table .= '
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
 							<?php else: ?>
-								html += ''+
 								html_input_pokin+
 								html_input_satker+
 								'<div class="form-group">' +
