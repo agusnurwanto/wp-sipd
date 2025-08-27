@@ -2937,8 +2937,8 @@ $table .= '
 									html_bidur += '<option value="' + b.id_bidang_urusan + '" data=\'' + JSON.stringify(b) + '\'>' + b.nama_bidang_urusan + '</opton>';
 								}
 							});
-							let tujuanModal = jQuery("#modal-crud-renstra");
-							let html = '<form id="form-renstra">' +
+							var tujuanModal = jQuery("#modal-crud-renstra");
+							var html = '<form id="form-renstra">' +
 								'<input type="hidden" name="id_unit" value="' + <?php echo $_GET['id_skpd']; ?> + '">' +
 								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
 								'<input type="hidden" name="bidur-all" value="">' +
@@ -8747,7 +8747,7 @@ $table .= '
             data: {
                 "action": 'get_tabel_pokin_cascading',
                 "api_key": "<?php echo $api_key; ?>",
-                "id_skpd": <?php echo $input['id_skpd']; ?>,
+                "id_skpd": <?php echo $_GET['id_skpd']; ?>,
                 "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
                 "id_jadwal_wp_sakip": id_jadwal_wp_sakip
             },
