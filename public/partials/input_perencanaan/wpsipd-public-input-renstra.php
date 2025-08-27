@@ -54,10 +54,14 @@ $jadwal_lokal = $wpdb->get_row(
 	$wpdb->prepare('
 		SELECT *
 		FROM data_jadwal_lokal
-		WHERE id_jadwal_lokal = %d	
+		WHERE id_jadwal_lokal = %d
 	', $_GET['id_jadwal']),
 	ARRAY_A
 );
+$is_locked_renstra_lokal = false;
+if ($jadwal_lokal['status'] == 1) {
+	$is_locked_renstra_lokal = true;
+}
 if (empty($jadwal_lokal)) {
 	die('<h1 class="text-center">Data Jadwal dengan id_jadwal_lokal=' . $_GET['id_jadwal'] . ' tidak ditemukan!</h1>');
 }
@@ -243,17 +247,24 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 		];
 
 		if (!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-') {
-			$table = 'data_rpjmd_sasaran_lokal';
-			switch ($id_tipe_relasi) {
-				case '2':
-					$table = 'data_rpjmd_sasaran_lokal_history';
-					break;
-				case '3':
-					$table = 'data_rpd_sasaran_lokal_history';
-					break;
-				case '4':
-					$table = 'data_rpjmd_sasaran_lokal_history';
-					break;
+			if ($is_locked_renstra_lokal) {
+				switch ($id_tipe_relasi) {
+					case '2':
+						$table = 'data_rpjmd_sasaran_lokal_history';
+						break;
+					case '3':
+						$table = 'data_rpd_sasaran_lokal_history';
+						break;
+				}
+			} else {
+				switch ($id_tipe_relasi) {
+					case '2':
+						$table = 'data_rpjmd_sasaran_lokal';
+						break;
+					case '3':
+						$table = 'data_rpd_sasaran_lokal';
+						break;
+				}
 			}
 
 			$sasaran_rpjm = $wpdb->get_var(
@@ -2870,14 +2881,16 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.data) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
@@ -2888,9 +2901,11 @@ $table .= '
 		        `;
 
 		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
+				if (satker_all.data) {
+					satker_all.data.map(function(b, i){
+						opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
+					})
+				}
 	            let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 

@@ -399,6 +399,7 @@ $body = '';
 					});
 
 					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', false);
+					jQuery(`#id_jadwal_esakip`).val(data_jadwal.data.id_jadwal_sakip);
 				} else {
 					options = `<option value="">Tidak tersedia</option>`;
 					jQuery(`#id_jadwal_esakip`).empty().append(options).attr('disabled', true);
@@ -408,7 +409,11 @@ $body = '';
 				jQuery('#card_jadwal_integrasi').show();
 			}
 
-			jQuery("#link_rpd_rpjm").val(data_jadwal.data.relasi_perencanaan.id_jadwal_lokal).trigger('change');
+			if (data_jadwal.data.relasi_perencanaan) {
+				jQuery("#link_rpd_rpjm").val(data_jadwal.data.relasi_perencanaan.id_jadwal_lokal);
+			} else {
+				jQuery("#link_rpd_rpjm").val('');
+			}
 			jQuery("#jadwal_nama").val(data_jadwal.data.nama);
 			jQuery("#tahun_mulai_anggaran").val(data_jadwal.data.tahun_anggaran);
 			jQuery("#lama_pelaksanaan").val(data_jadwal.data.lama_pelaksanaan);
