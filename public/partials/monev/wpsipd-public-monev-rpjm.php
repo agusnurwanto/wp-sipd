@@ -254,80 +254,82 @@ if (empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujua
 }
 
 // select misi yang belum terselect
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_misi
-	where id_jadwal=%d
-		and active=1
-		and id_misi not in (" . implode(',', $misi_ids) . ")
-", $input['id_jadwal_lokal']);
-$misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
-foreach ($misi_all_kosong as $misi) {
-	if (empty($data_all['data']['visi_kosong']['data'][$misi['id']])) {
-		$data_all['data']['visi_kosong']['data'][$misi['id']]['data'] = array(
-			'nama' => $misi['misi_teks'],
-			'data' => array()
-		);
-	}
+if (!empty($misi_ids)) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_tujuan
+		from data_rpjmd_misi
 		where id_jadwal=%d
-			and id_misi=%s
 			and active=1
-	", $input['id_jadwal_lokal'], $misi['id']);
-	$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
-	foreach ($tujuan_all_kosong as $tujuan) {
-		$tujuan_ids[$tujuan['id_unik']] = "'" . $tujuan['id_unik'] . "'";
-		if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']])) {
-			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']] = array(
-				'nama' => $tujuan['sasaran_teks'],
+			and id_misi not in (" . implode(',', $misi_ids) . ")
+	", $input['id_jadwal_lokal']);
+	$misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($misi_all_kosong as $misi) {
+		if (empty($data_all['data']['visi_kosong']['data'][$misi['id']])) {
+			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'] = array(
+				'nama' => $misi['misi_teks'],
 				'data' => array()
 			);
 		}
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpjmd_sasaran
+			from data_rpjmd_tujuan
 			where id_jadwal=%d
-				and kode_tujuan=%s
+				and id_misi=%s
 				and active=1
-		", $input['id_jadwal_lokal'], $tujuan['id_unik']);
-		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
-		foreach ($sasaran_all as $sasaran) {
-			$sasaran_ids[$sasaran['id_unik']] = "'" . $sasaran['id_unik'] . "'";
-			if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])) {
-				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
-					'nama' => $sasaran['sasaran_teks'],
+		", $input['id_jadwal_lokal'], $misi['id']);
+		$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($tujuan_all_kosong as $tujuan) {
+			$tujuan_ids[$tujuan['id_unik']] = "'" . $tujuan['id_unik'] . "'";
+			if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']])) {
+				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']] = array(
+					'nama' => $tujuan['sasaran_teks'],
 					'data' => array()
 				);
 			}
 			$sql = $wpdb->prepare("
 				select 
 					* 
-				from data_rpjmd_program
+				from data_rpjmd_sasaran
 				where id_jadwal=%d
-					and kode_sasaran=%s
+					and kode_tujuan=%s
 					and active=1
-			", $input['id_jadwal_lokal'], $sasaran['id_unik']);
-			$program_all = $wpdb->get_results($sql, ARRAY_A);
-			foreach ($program_all as $program) {
-				$program_ids[$program['id_unik']] = "'" . $program['id_unik'] . "'";
-				if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])) {
-					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
-						'nama' => $program['nama_program'],
-						'kode_skpd' => $program['kode_skpd'],
-						'nama_skpd' => $program['nama_skpd'],
+			", $input['id_jadwal_lokal'], $tujuan['id_unik']);
+			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($sasaran_all as $sasaran) {
+				$sasaran_ids[$sasaran['id_unik']] = "'" . $sasaran['id_unik'] . "'";
+				if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])) {
+					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+						'nama' => $sasaran['sasaran_teks'],
 						'data' => array()
 					);
 				}
-				if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])) {
-					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-						'nama' => $program['indikator'],
-						'data' => array()
-					);
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_program
+					where id_jadwal=%d
+						and kode_sasaran=%s
+						and active=1
+				", $input['id_jadwal_lokal'], $sasaran['id_unik']);
+				$program_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($program_all as $program) {
+					$program_ids[$program['id_unik']] = "'" . $program['id_unik'] . "'";
+					if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])) {
+						$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+							'nama' => $program['nama_program'],
+							'kode_skpd' => $program['kode_skpd'],
+							'nama_skpd' => $program['nama_skpd'],
+							'data' => array()
+						);
+					}
+					if (empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])) {
+						$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+							'nama' => $program['indikator'],
+							'data' => array()
+						);
+					}
 				}
 			}
 		}
@@ -399,7 +401,7 @@ if (!empty($tujuan_ids)) {
 	}
 }
 
-	// select sasaran yang belum terselect
+// select sasaran yang belum terselect
 if (!empty($sasaran_ids)) {
 	$sql = $wpdb->prepare("
 		select 

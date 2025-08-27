@@ -9782,13 +9782,168 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return;
 	}
 
+	function background_menu_wpsipd() 
+	{
+		//css for background
+		if (get_option('_crb_bg_menu_user_wpsipd')) {
+			echo '
+				<style>
+					body {
+						background-image: url("'. get_option('_crb_bg_menu_user_wpsipd') .'") !important;
+						background-size: cover !important; 
+						background-position: center !important;
+						background-repeat: no-repeat !important;
+					}
+			
+					/* Overlay */
+					body::before {
+						content: "";
+						position: fixed;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						background-color: rgba(0, 0, 0, 0.2); /* Warna hitam transparan */
+					}
+					
+					.um-account-tab,
+					.um-account-side {
+						background: rgba(255, 255, 255, 1); /* Warna putih solid */
+						border-radius: 15px;
+						padding: 20px;
+						box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+						position: relative;
+						z-index: 3; /* Pastikan di atas overlay */
+					}
+
+					.um-form {
+						background: rgba(255, 255, 255, 1); /* Warna putih solid */
+						border-radius: 15px;
+						padding: 30px;
+						margin: 20px;
+						box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+						position: relative;
+						z-index: 3; /* Pastikan di atas overlay */
+					}
+
+					.entry-title {
+						display : none;
+					}
+
+				</style>';
+		} else {
+			echo '
+				<style>
+					.um-account-tab,
+					.um-account-side,
+					.um-form {
+						background: rgba(255, 255, 255, 1); /* Warna putih solid */
+						border-radius: 15px;
+						padding: 25px;
+						box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+						position: relative;
+						z-index: 3; /* Pastikan di atas overlay */
+					}
+
+					.entry-title {
+						display : none;
+					}
+
+				</style>';
+		}
+	}
+
 	public function menu_monev()
 	{
 		global $wpdb;
 		$user_id = um_user('ID');
 		$user_meta = get_userdata($user_id);
+
+		if (get_option('_crb_bg_menu_user_wpsipd')) {
+			echo '
+			<style>
+				body {
+					background-image: url("'. get_option('_crb_bg_menu_user_wpsipd') .'") !important;
+					background-size: cover !important; 
+					background-position: center !important;
+					background-repeat: no-repeat !important;
+					background-attachment: fixed !important;
+					position: relative;
+					min-height: 100vh;
+				}
+		
+				/* Overlay */
+				body::before {
+					content: "";
+					position: fixed;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					background-color: rgba(0, 0, 0, 0.3); /* Overlay gelap */
+					z-index: 0;
+				}
+		
+				/* Card Styling */
+				.custom-blur, .um-header {
+					background: rgba(255, 255, 255, 0.8);
+					border-radius: 15px;
+					padding: 20px; 
+					max-width: 700px; 
+					margin: 20px auto;
+					border: 1px solid rgba(255, 255, 255, 0.3);
+					box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+					backdrop-filter: blur(12px);
+					-webkit-backdrop-filter: blur(12px);
+					position: relative;
+					z-index: 2;
+				}
+
+				/* Form */
+				.um-form {
+					background: rgba(255, 255, 255, 0.2);
+					padding: 40px;
+					border-radius: 10px;
+				}
+				
+				.entry-title {
+					display : none;
+				}
+			</style>';
+		} else {
+			echo '
+				<style>
+					body {
+						background-color: #f4f4f4;
+						min-height: 100vh;
+					}
+
+					.custom-blur,
+					.um-header {
+						border-radius: 15px;
+						padding: 20px; 
+						max-width: 700px; 
+						margin: 20px auto; 
+					}
+					
+					.um-form,
+					.um-header {
+						background-color: rgba(255, 255, 255, 0.2);
+						box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+						padding: 20px;
+					}
+
+					.entry-title {
+						display : none;
+					}
+				</style>';
+		}
+
 		if (!empty($_GET) && !empty($_GET['tahun'])) {
-			echo '<h1 class="text-center">TAHUN ANGGARAN TERPILIH<br>' . $_GET['tahun'] . '</h1>';
+			echo '
+				<div class="card custom-blur shadow-lg">
+					<div class="card-body">
+						<h1 class="text-center">TAHUN ANGGARAN TERPILIH<br>' . $_GET['tahun'] . '</h1>';
 		}
 		$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
 
@@ -10029,6 +10184,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				echo 'User ini tidak dapat akses halaman ini :)';
 			}
 		}
+		if (!empty($_GET) && !empty($_GET['tahun'])) {
+			echo '</div></div>';
+		}
 	}
 
 	public function tampil_menu_rpjm()
@@ -10063,8 +10221,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 		echo "
-		<h5 class='text_tengah' style='" . $class_hide . "'>PILIH TAHUN ANGGARAN</h5>
-		<ul class='daftar-tahun text_tengah'>";
+		<div class='card custom-blur shadow-lg'>
+			<h5 class='text_tengah' style='" . $class_hide . "'>PILIH TAHUN ANGGARAN</h5>
+				<ul class='daftar-tahun text_tengah' style='margin: 0 !important'>";
 		foreach ($tahun as $k => $v) {
 			$class = 'btn-primary';
 			if ($tahun_aktif == $v['tahun_anggaran']) {
@@ -10072,7 +10231,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 			echo "<li><a href='?tahun=" . $v['tahun_anggaran'] . "' class='btn " . $class . "'>" . $v['tahun_anggaran'] . "</a></li>";
 		}
-		echo "</ul>";
+		echo "
+			</ul>
+		</div>";
 	}
 
 	public function simpan_rfk()
