@@ -54,10 +54,14 @@ $jadwal_lokal = $wpdb->get_row(
 	$wpdb->prepare('
 		SELECT *
 		FROM data_jadwal_lokal
-		WHERE id_jadwal_lokal = %d	
+		WHERE id_jadwal_lokal = %d
 	', $_GET['id_jadwal']),
 	ARRAY_A
 );
+$is_locked_renstra_lokal = false;
+if ($jadwal_lokal['status'] == 1) {
+	$is_locked_renstra_lokal = true;
+}
 if (empty($jadwal_lokal)) {
 	die('<h1 class="text-center">Data Jadwal dengan id_jadwal_lokal=' . $_GET['id_jadwal'] . ' tidak ditemukan!</h1>');
 }
@@ -243,17 +247,24 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 		];
 
 		if (!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-') {
-			$table = 'data_rpjmd_sasaran_lokal';
-			switch ($id_tipe_relasi) {
-				case '2':
-					$table = 'data_rpjmd_sasaran_lokal_history';
-					break;
-				case '3':
-					$table = 'data_rpd_sasaran_lokal_history';
-					break;
-				case '4':
-					$table = 'data_rpjmd_sasaran_lokal_history';
-					break;
+			if ($is_locked_renstra_lokal) {
+				switch ($id_tipe_relasi) {
+					case '2':
+						$table = 'data_rpjmd_sasaran_lokal_history';
+						break;
+					case '3':
+						$table = 'data_rpd_sasaran_lokal_history';
+						break;
+				}
+			} else {
+				switch ($id_tipe_relasi) {
+					case '2':
+						$table = 'data_rpjmd_sasaran_lokal';
+						break;
+					case '3':
+						$table = 'data_rpd_sasaran_lokal';
+						break;
+				}
 			}
 
 			$sasaran_rpjm = $wpdb->get_var(
@@ -2870,14 +2881,16 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.data) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
@@ -2888,9 +2901,11 @@ $table .= '
 		        `;
 
 		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
+				if (satker_all.data) {
+					satker_all.data.map(function(b, i){
+						opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
+					})
+				}
 	            let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -2937,8 +2952,8 @@ $table .= '
 									html_bidur += '<option value="' + b.id_bidang_urusan + '" data=\'' + JSON.stringify(b) + '\'>' + b.nama_bidang_urusan + '</opton>';
 								}
 							});
-							let tujuanModal = jQuery("#modal-crud-renstra");
-							let html = '<form id="form-renstra">' +
+							var tujuanModal = jQuery("#modal-crud-renstra");
+							var html = '<form id="form-renstra">' +
 								'<input type="hidden" name="id_unit" value="' + <?php echo $_GET['id_skpd']; ?> + '">' +
 								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
 								'<input type="hidden" name="bidur-all" value="">' +
@@ -2969,7 +2984,6 @@ $table .= '
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
 							<?php else: ?>
-								html += ''+
 								html_input_pokin+
 								html_input_satker+
 								'<div class="form-group">' +
@@ -3153,7 +3167,6 @@ $table .= '
 								'<div class="form-group">' +
 									'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary btn-sm" style="margin-left: 20px;">Copy dari sasaran <?php echo $nama_tipe_relasi; ?></span></label>';
 							<?php else: ?>
-								html += ''+
 								html_input_pokin+
 								html_input_satker+
 								'<div class="form-group">' +
@@ -8747,7 +8760,7 @@ $table .= '
             data: {
                 "action": 'get_tabel_pokin_cascading',
                 "api_key": "<?php echo $api_key; ?>",
-                "id_skpd": <?php echo $input['id_skpd']; ?>,
+                "id_skpd": <?php echo $_GET['id_skpd']; ?>,
                 "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
                 "id_jadwal_wp_sakip": id_jadwal_wp_sakip
             },

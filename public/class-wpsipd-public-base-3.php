@@ -4582,7 +4582,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND tipe=4
 							AND active=1
 							AND tahun_anggaran=%d
-					", $data['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
+					", $dataKegiatan['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
 
 					$satker = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -4592,7 +4592,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND tipe=4
 							AND active=1
 							AND tahun_anggaran=%d
-					", $data['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
+					", $dataKegiatan['id_unik'], $dataKegiatan['tahun_anggaran']), ARRAY_A);
 
 					echo json_encode([
 						'status' => true,
