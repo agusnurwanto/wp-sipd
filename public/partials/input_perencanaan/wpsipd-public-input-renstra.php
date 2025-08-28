@@ -5441,8 +5441,8 @@ $table .= '
 		            </div>
 		        `;
 				jQuery('#wrap-loading').show();
-				let kode_giat = jQuery(this).data('kodegiat');
-				let kode_kegiatan = jQuery(this).data('kodekegiatan');
+				let kode_giat = jQuery(that).data('kodegiat');
+				let kode_kegiatan = jQuery(that).data('kodekegiatan');
 
 				let html = '<form id="form-renstra">' +
 					'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
