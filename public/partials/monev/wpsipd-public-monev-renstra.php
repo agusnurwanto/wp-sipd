@@ -133,16 +133,29 @@ if (!empty($tujuan)) {
 		if (empty($data_all['data'][$tujuan_key])) {
 			$status_rpjmd = '';
 			if (!empty($tujuan_value['kode_sasaran_rpjm'])) {
-				$cek_status_rpjmd = $wpdb->get_results(
-					$wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_rpjmd_sasaran 
-						WHERE active=1 
-						  AND id_unik=%s 
-					", $tujuan_value['kode_sasaran_rpjm']),
-					ARRAY_A
-				);
+				if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
+					$cek_status_rpjmd = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								id 
+							FROM data_rpjmd_sasaran 
+							WHERE active=1 
+							  AND id_unik=%s 
+						", $tujuan_value['kode_sasaran_rpjm']),
+						ARRAY_A
+					);
+				} else {
+					$cek_status_rpjmd = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								id 
+							FROM data_rpd_sasaran 
+							WHERE active=1 
+							  AND id_unik=%s 
+						", $tujuan_value['kode_sasaran_rpjm']),
+						ARRAY_A
+					);
+				}
 
 				if (!empty($cek_status_rpjmd)) {
 					$status_rpjmd = 'TERKONEKSI';
@@ -2178,8 +2191,8 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 						}
 					});
 
-					tbody.html(htmlRows);					
-					modal.find('.modal-title').html('Data Keterkaitan RPJMD/RPD <br> <?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>Tahun ' . $tahun_anggaran_sipd . ' <br> ' . $nama_pemda; ?>');
+					tbody.html(htmlRows);
+					modal.find('.modal-title').html(`Data Keterkaitan ${jenis_jadwal.toUpperCase()} <br> <?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>Tahun ' . $tahun_anggaran_sipd . ' <br> ' . $nama_pemda; ?>`);
 				} else {
 					const colspan = jQuery('#modal-rpjmd thead th').length;
 					jQuery("#body-rpjmd").html(`<tr><td colspan="${colspan}" class="text-center">${response.message || 'Gagal memuat data.'}</td></tr>`);
