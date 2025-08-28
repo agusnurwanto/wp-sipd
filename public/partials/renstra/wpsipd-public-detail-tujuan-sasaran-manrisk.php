@@ -498,8 +498,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     function tambah_tujuan_sasaran() {
         jQuery('#TambahTujuanSasaranModalLabel').show();
         jQuery('#editTujuanSasaranModalLabel').hide();
-        jQuery("#nama_tujuan_sasaran").val('');
-        jQuery("#indikator_kinerja").val('');
+        jQuery("#nama_tujuan_sasaran").trigger('change');
+        jQuery("#indikator_kinerja").html('<option value="0">Pilih Indikator</option>');
         jQuery("#uraian_resiko").val('');
         jQuery("#kode_resiko").val('');
         jQuery("#pemilik_resiko").val('');
@@ -513,32 +513,37 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("#skala_kemungkinan").val('');
         jQuery("#nilai_resiko").val('');
         jQuery("#rencana_tindak_pengendalian").val('');
+
         jQuery('#tambahTujuanSasaranModal').modal('show');
     }
 
-    function get_indikator(selected_indikator, tipe, callback) {
+    function get_indikator(selected_indikator, tipe, callback, context = 'tambah') {
         let selected = null;
 
-        if (jQuery('#nama_tujuan_sasaran').length > 0) {
-            selected = jQuery('#nama_tujuan_sasaran').val();
-        }
-
-        if (!selected || selected === '-1' || selected === '') {
+        if (context === 'tambah') {
+            if (jQuery('#nama_tujuan_sasaran').length > 0) {
+                selected = jQuery('#nama_tujuan_sasaran').val();
+            }
+        } else {
             if (jQuery('#get_tujuan_sasaran').length > 0) {
                 selected = jQuery('#get_tujuan_sasaran').val();
             }
         }
 
         if (!selected || selected === '-1' || selected === '') {
-            selected = 0;
-            jQuery('#indikator_kinerja, #get_indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
+            if (context === 'tambah') {
+                jQuery('#indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
+            } else {
+                jQuery('#get_indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
+            }
             if (typeof callback === "function") callback();
             return;
         }
 
         if (!tipe) {
-            tipe = jQuery('#nama_tujuan_sasaran option:selected').data('type');
-            if (!tipe) {
+            if (context === 'tambah') {
+                tipe = jQuery('#nama_tujuan_sasaran option:selected').data('type');
+            } else {
                 tipe = jQuery('#get_tujuan_sasaran option:selected').data('type');
             }
         }
@@ -561,7 +566,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             success: function (response) {
                 jQuery("#wrap-loading").hide();
                 if (response.status === 'success') {
-                    jQuery('#indikator_kinerja, #get_indikator_kinerja').html(response.html);
+                    if (context === 'tambah') {
+                        jQuery('#indikator_kinerja').html(response.html);
+                    } else {
+                        jQuery('#get_indikator_kinerja').html(response.html);
+                    }
                     if (typeof callback === "function") callback();
                 } else {
                     alert(`GAGAL!\n${response.message}`);
@@ -721,7 +730,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function verif_tujuan_sasaran_manrisk(id, id_sebelum, id_tujuan_sasaran, id_indikator, tipe_sesudah) {
+    function verif_tujuan_sasaran_manrisk(id, id_sebelum, id_tujuan_sasaran, id_indikator, tipe_sesudah) { 
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -750,7 +759,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
 
                         get_indikator(data.id_indikator, data.tipe, function(){
                             jQuery("#get_indikator_kinerja").val(data.id_indikator);
-                        });
+                        }, 'verif');
 
                         jQuery('#nama_tujuan_sasaran_sesudah').val(data.tujuan_sasaran_teks);
                         jQuery('#indikator_kinerja_sesudah').val(data.indikator_teks);
