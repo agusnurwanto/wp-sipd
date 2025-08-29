@@ -1351,6 +1351,7 @@ class Wpsipd
 		add_shortcode('detail_program_kegiatan_manrisk',array($plugin_public,'detail_program_kegiatan_manrisk'));
 		
 		add_shortcode('background_menu_wpsipd',array($plugin_public,'background_menu_wpsipd'));
+		add_shortcode('konsistensi_rpjm_rkpd_kua',array($plugin_public,'konsistensi_rpjm_rkpd_kua'));
 	}
 
 	/**

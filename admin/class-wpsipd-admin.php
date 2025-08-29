@@ -493,8 +493,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			}
 
 			if (get_option('_crb_show_menu_laporan_rpjm_renstra_settings') != true) {
-				Container::make('theme_options', __('RPJM & RENSTRA'))
-					->set_page_parent($laporan);
+				Container::make('theme_options', __('Konsistensi Program'))
+					->set_page_parent($laporan)
+					->add_fields(
+						array(
+							Field::make('html', 'crb_konsistensi_program')
+								->set_html('
+							<style>
+								.postbox-container { display: none; }
+								#poststuff #post-body.columns-2 { margin: 0 !important; }
+							</style>
+							<ol>
+								<li><a target="_blank" href="' . $this->generatePage('Konsistensi Program RPJMD / RPD, RKPD dan KUA/PPAS', false, '[konsistensi_rpjm_rkpd_kua]') . '">Konsistensi Program RPJMD / RPD, RKPD dan KUA/PPAS</a></li>
+							</ol>
+							')
+						)
+					);
 			}
 
 			if (get_option('_crb_show_menu_laporan_penatausahaan_settings') != true) {
