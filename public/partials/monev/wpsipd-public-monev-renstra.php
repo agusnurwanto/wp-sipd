@@ -42,12 +42,12 @@ $data_jadwal_relasi = $wpdb->get_row(
 	", $data_jadwal['relasi_perencanaan'], 0),
 	ARRAY_A
 );
-// die(print_r($data_jadwal_relasi));
-
 
 if (empty($data_jadwal) || empty($data_jadwal_relasi)) {
 	die("<h1>Jadwal Tidak Tersedia</h1>");
 }
+
+$tahun_anggaran_akhir_relasi = $data_jadwal_relasi['tahun_anggaran'] + $data_jadwal_relasi['lama_pelaksanaan'] - 1; 
 $nama_jadwal = $data_jadwal['nama'];
 $tahun_awal_jadwal = $data_jadwal['tahun_anggaran'];
 $tahun_akhir_jadwal = $data_jadwal['tahun_akhir_anggaran'];
@@ -75,15 +75,14 @@ foreach ($rumus_indikator_db as $k => $v) {
 	$keterangan_indikator_html .= '<li data-id="' . $v['id'] . '" style="display: none;">' . $v['keterangan'] . '</li>';
 }
 $sql = $wpdb->prepare("
-	SELECT 
-		* 
+	SELECT * 
 	FROM data_unit 
 	WHERE id_skpd = %d
 	  AND tahun_anggaran=%d
 	  AND active=1
 	ORDER BY id_skpd ASC
 ", $input['id_skpd'], $tahun_anggaran_sipd);
-$unit = $wpdb->get_results($sql, ARRAY_A);
+$unit = $wpdb->get_row($sql, ARRAY_A);
 
 $nama_pemda = get_option('_crb_daerah');
 
@@ -134,31 +133,29 @@ if (!empty($tujuan)) {
 			$status_rpjmd = '';
 			if (!empty($tujuan_value['kode_sasaran_rpjm'])) {
 				if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
-					$cek_status_rpjmd = $wpdb->get_results(
+					$sasaran_teks = $wpdb->get_var(
 						$wpdb->prepare("
-							SELECT 
-								id 
+							SELECT sasaran_teks
 							FROM data_rpjmd_sasaran 
-							WHERE active=1 
+							WHERE active = 1 
 							  AND id_unik=%s 
-						", $tujuan_value['kode_sasaran_rpjm']),
-						ARRAY_A
+							  AND tahun_anggaran = %d
+						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
 					);
 				} else {
-					$cek_status_rpjmd = $wpdb->get_results(
+					$sasaran_teks = $wpdb->get_var(
 						$wpdb->prepare("
-							SELECT 
-								id 
+							SELECT sasaran_teks
 							FROM data_rpd_sasaran 
-							WHERE active=1 
-							  AND id_unik=%s 
-						", $tujuan_value['kode_sasaran_rpjm']),
-						ARRAY_A
+							WHERE active = 1 
+							  AND id_unik = %s 
+							  AND tahun_anggaran = %d
+						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
 					);
 				}
 
-				if (!empty($cek_status_rpjmd)) {
-					$status_rpjmd = 'TERKONEKSI';
+				if (!empty($sasaran_teks)) {
+					$status_rpjmd = $sasaran_teks;
 				}
 			}
 
@@ -783,7 +780,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$realisasi_pagu_5
 	);
 
-	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $data_jadwal['tahun_anggaran'] . '\', \'' . $input['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
+	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $input['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
 	            	' . $tujuan['status_rpjmd'] . '
 	            	</a>' : $tujuan['status_rpjmd'];
 
@@ -823,7 +820,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	$body_monev .= '
             <td class="text_tengah kanan bawah text_blok total_renstra">' . $target_akhir . '</td>
             <td class="text_tengah kanan bawah text_blok total_renstra">' . $satuan . '</td>
-    		<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
+    		<td class="kanan bawah text_blok">' . $unit['nama_skpd'] . '</td>
     		<td class="kanan bawah keterangan">' . $keterangan . '</td>
         </tr>';
 	foreach ($tujuan['data'] as $key => $sasaran) {
@@ -938,7 +935,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$body_monev .= '
 	            <td class="text_tengah kanan bawah text_blok total_renstra">' . $target_akhir . '</td>
 	            <td class="text_tengah kanan bawah text_blok total_renstra">' . $satuan . '</td>
-        		<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
+        		<td class="kanan bawah text_blok">' . $unit['nama_skpd'] . '</td>
         		<td class="kanan bawah keterangan">' . $keterangan . '</td>
 	        </tr>';
 
@@ -1074,7 +1071,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			$body_monev .= '
 		            <td class="text_tengah kanan bawah text_blok total_renstra">' . $target_akhir . '</td>
 		            <td class="text_tengah kanan bawah text_blok total_renstra">' . $satuan . '</td>
-	        		<td class="kanan bawah text_blok">' . $unit[0]['nama_skpd'] . '</td>
+	        		<td class="kanan bawah text_blok">' . $unit['nama_skpd'] . '</td>
 	        		<td class="kanan bawah keterangan">' . $keterangan . '</td>
 		        </tr>';
 
@@ -1212,7 +1209,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$body_monev .= '
 			            <td class="text_tengah kanan bawah total_renstra">' . $target_akhir . '</td>
 			            <td class="text_tengah kanan bawah total_renstra">' . $satuan . '</td>
-		        		<td class="kanan bawah">' . $unit[0]['nama_skpd'] . '</td>
+		        		<td class="kanan bawah">' . $unit['nama_skpd'] . '</td>
 		        		<td class="kanan bawah keterangan">' . $keterangan . '</td>
 			        </tr>';
 
@@ -1338,7 +1335,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$body_monev .= '
 				            <td class="text_tengah kanan bawah total_renstra">' . $target_akhir . '</td>
 				            <td class="text_tengah kanan bawah total_renstra">' . $satuan . '</td>
-			        		<td class="kanan bawah">' . $unit[0]['nama_skpd'] . '</td>
+			        		<td class="kanan bawah">' . $unit['nama_skpd'] . '</td>
 			        		<td class="kanan bawah keterangan">' . $keterangan . '</td>
 				        </tr>';
 				}
@@ -1442,8 +1439,8 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 <input type="hidden" value="<?php echo $tahun_anggaran_sipd; ?>" id="tahun_anggaran">
-<input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
-<h1 class="text-center">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br> ' . $nama_jadwal . ' ( ' . $tahun_awal_jadwal . ' - ' . $tahun_akhir_jadwal . ' ) </br>' . $nama_pemda; ?></h1>
+<input type="hidden" value="<?php echo $unit['id_skpd']; ?>" id="id_skpd">
+<h1 class="text-center">Monitoring dan Evaluasi Rencana Strategis <br><?php echo $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br> ' . $nama_jadwal . ' ( ' . $tahun_awal_jadwal . ' - ' . $tahun_akhir_jadwal . ' ) </br>' . $nama_pemda; ?></h1>
 <div class="content flex-row-fluid" style="max-width: 1500px; margin:auto; padding: 10px;">
 	<div class="row gy-5 g-xl-8 mb-5">
 		<div class="col-md-12">
@@ -1790,7 +1787,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
 							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
 							<th style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator <?php echo strtoupper($jenis_jadwal_relasi); ?> (Tujuan, Sasaran, Program)</th>
+							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator Program</th>
 						</tr>
 					</thead>
 					<tbody id="body-rpjmd">
@@ -2057,7 +2054,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 		}
 	}
 
-	function show_rpjm(tahun_anggaran, id_unit, kode_sasaran_rpjm) {
+	function show_rpjm(id_unit, kode_sasaran_rpjm) {
 		jQuery('#wrap-loading').show();
 		var modal = jQuery("#modal-rpjmd");
 		jQuery.ajax({
@@ -2066,10 +2063,9 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 			data: {
 				"action": "get_data_rpjm",
 				"api_key": ajax.api_key,
-				"tahun_anggaran": tahun_anggaran,
 				"id_unit": id_unit,
 				"kode_sasaran_rpjm": kode_sasaran_rpjm,
-				"jenis_jadwal": "<?php echo $data_jadwal_relasi['jenis_jadwal']; ?>",
+				"id_jadwal": "<?php echo $data_jadwal_relasi['id_jadwal_lokal']; ?>",
 			},
 			dataType: "json", 
 			success: function(response) {
@@ -2078,121 +2074,98 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 					const tbody = jQuery("#body-rpjmd");
 					tbody.empty();
 
+					const processParentChildArray = (arr, textKey, indicatorKey) => {
+						if (!arr || arr.length === 0) return { text: '', indicators: [], visi: null, misi: null };
+						
+						// Cari objek induk (yang bukan indikator)
+						const parent = arr.find(item => !item.id_unik_indikator);
+						// Cari semua objek indikator
+						const indicators = arr.filter(item => item.id_unik_indikator)
+											.map(item => item[indicatorKey]);
+						
+						return {
+							text: parent ? parent[textKey] : (arr[0] ? arr[0][textKey] : ''), // Fallback ke item pertama jika induk tidak ditemukan
+							indicators: indicators || [],
+							// Ambil objek visi dan misi dari 'parent' yang ditemukan
+							visi: parent?.visi || null,
+							misi: parent?.misi || null
+						};
+					};
+
+					const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks', 'indikator_teks');
+					const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks', 'indikator_teks');
+					
 					const groupedPrograms = {};
 					if (data.program && data.program.length > 0) {
 						data.program.forEach(p => {
-							if (p.id_unik && !p.id_unik_indikator) {
-								if (!groupedPrograms[p.id_unik]) {
-									groupedPrograms[p.id_unik] = {
-										nama_program: p.nama_program,
-										nama_skpd: p.nama_skpd,
-										indicators: []
-									};
-								}
+							if (!p.id_unik) return;
+							if (!groupedPrograms[p.id_unik]) {
+								groupedPrograms[p.id_unik] = {
+									nama_program: p.nama_program,
+									indicators: []
+								};
 							}
-						});
-
-						data.program.forEach(p => {
-							if (p.id_unik && p.id_unik_indikator && groupedPrograms[p.id_unik]) {
-								groupedPrograms[p.id_unik].indicators.push({
-									text: p.indikator,
-									satuan: p.satuan,
-								});
+							if (p.indikator) {
+								groupedPrograms[p.id_unik].indicators.push(p.indikator);
 							}
 						});
 					}
 
-					let totalRows = 0;
-					if (data.tujuan && data.tujuan.id_unik_indikator) {
-						totalRows += 1;
-					}
-					if (data.sasaran && data.sasaran.id_unik_indikator) {
-						totalRows += 1;
-					}
-					Object.values(groupedPrograms).forEach(prog => {
-						totalRows += Math.max(1, prog.indicators.length);
-					});
+					const totalRows = Object.keys(groupedPrograms).length;
 					
+					// Jika tidak ada program, tampilkan pesan.
 					if (totalRows === 0) {
 						const colspan = jQuery('#modal-rpjmd thead th').length;
-						tbody.html(`<tr><td colspan="${colspan}" class="text-center">Tidak ada data untuk ditampilkan.</td></tr>`);
-						jQuery('#wrap-loading').hide();
+						tbody.html(`<tr><td colspan="${colspan}" class="text-center">Tidak ada data program untuk ditampilkan.</td></tr>`);
 						modal.modal('show');
-						return;
+						jQuery('#wrap-loading').hide();
+						return; 
 					}
 					
+					let tujuanHtml = `<strong>${tujuanData.text}</strong>`;
+					if (tujuanData.indicators.length > 0) {
+						tujuanHtml += `<br><small style='font-style: italic; color: #555;'><strong>Indikator:</strong> ${tujuanData.indicators.join(', ')}</small>`;
+					}
+					
+					let sasaranHtml = `<strong>${sasaranData.text}</strong>`;
+					if (sasaranData.indicators.length > 0) {
+						sasaranHtml += `<br><small style='font-style: italic; color: #555;'><strong>Indikator:</strong> ${sasaranData.indicators.join(', ')}</small>`;
+					}
+
 					let htmlRows = '';
-					let isFirstRow = true;
 					const jenis_jadwal = "<?php echo $jenis_jadwal_relasi; ?>";
+					const visi_teks = tujuanData.visi?.visi_teks || '';
+        			const misi_teks = tujuanData.misi?.misi_teks || '';
 
-					const visi_teks = data.tujuan?.visi?.visi_teks || '';
-					const misi_teks = data.tujuan?.misi?.misi_teks || '';
-
-					if (data.tujuan && data.tujuan.id_unik_indikator) {
+					Object.values(groupedPrograms).forEach((prog, index) => {
 						htmlRows += '<tr>';
-						if (isFirstRow) {
+						
+						if (index === 0) {
 							if (jenis_jadwal === 'rpjmd') {
 								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
 								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
 							}
 							if (jenis_jadwal === 'rpd') {
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`; 
+								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">Isu RPJPD</td>`; // Ganti dengan data jika ada
 							}
-							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-							isFirstRow = false;
+							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${tujuanHtml}</td>`;
+							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${sasaranHtml}</td>`;
 						}
-						htmlRows += `<td class='kiri kanan bawah'></td>`; 
-						htmlRows += `<td class='kiri kanan bawah'>${data.tujuan.indikator_teks || ''}</td>`;
-						htmlRows += '</tr>';
-					}
 
-					Object.values(groupedPrograms).forEach(prog => {
+						htmlRows += `<td class='kiri kanan bawah'>${prog.nama_program}</td>`;
+						
+						let indicatorListHtml = '-';
 						if (prog.indicators.length > 0) {
-							let isFirstIndicatorForProgram = true;
-							prog.indicators.forEach(indicator => {
-								htmlRows += '<tr>';
-								if (isFirstRow) {
-									if (jenis_jadwal === 'rpjmd') {
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
-									}
-									if (jenis_jadwal === 'rpd') {
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`;
-									}
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-									isFirstRow = false;
-								}
-								if (isFirstIndicatorForProgram) {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${prog.indicators.length}">${prog.nama_program || ''}</td>`;
-									isFirstIndicatorForProgram = false;
-								}
-								htmlRows += `<td class='kiri kanan bawah'>${indicator.text || ''}</td>`;
-								htmlRows += '</tr>';
-							});
-						} else {
-							htmlRows += '<tr>';
-							if (isFirstRow) {
-								if (jenis_jadwal === 'rpjmd') {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
-								}
-								if (jenis_jadwal === 'rpd') {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`;
-								}
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-								isFirstRow = false;
-							}
-							htmlRows += `<td class='kiri kanan bawah'>${prog.nama_program || ''}</td>`;
-							htmlRows += `<td class='kiri kanan bawah'>-</td>`; // Kolom indikator kosong
-							htmlRows += '</tr>';
+							const listItems = prog.indicators.map(ind => `<li>${ind}</li>`).join('');
+							indicatorListHtml = `<ul style="margin: 0; padding-left: 20px;">${listItems}</ul>`;
 						}
+						htmlRows += `<td class='kiri kanan bawah'>${indicatorListHtml}</td>`;
+						
+						htmlRows += '</tr>';
 					});
 
 					tbody.html(htmlRows);
-					modal.find('.modal-title').html(`Data Keterkaitan ${jenis_jadwal.toUpperCase()} <br> <?php echo $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>Tahun ' . $tahun_anggaran_sipd . ' <br> ' . $nama_pemda; ?>`);
+					modal.find('.modal-title').html(`Data Keterkaitan ${jenis_jadwal.toUpperCase()} <br> <?php echo $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>Tahun ' . $data_jadwal_relasi['tahun_anggaran'] . ' - ' . $tahun_anggaran_akhir_relasi . ' <br> ' . $nama_pemda; ?>`);
 				} else {
 					const colspan = jQuery('#modal-rpjmd thead th').length;
 					jQuery("#body-rpjmd").html(`<tr><td colspan="${colspan}" class="text-center">${response.message || 'Gagal memuat data.'}</td></tr>`);
@@ -2202,7 +2175,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				jQuery('#wrap-loading').hide();
 			}
 		});
-
+		
 	}
 
 	function copy_renstra_local() {

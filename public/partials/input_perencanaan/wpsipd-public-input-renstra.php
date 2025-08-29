@@ -1981,7 +1981,7 @@ foreach ($data_all['data'] as $tujuan) {
 	$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 	$sasaran_rpjm = '';
 	if (!empty($tujuan['sasaran_rpjm'])) {
-		$sasaran_rpjm = '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $tahun_anggaran . '\', \'' . $_GET['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
+		$sasaran_rpjm = '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $_GET['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
 			' . $tujuan['sasaran_rpjm'] . '
 		</a>';
 	}
@@ -2834,7 +2834,7 @@ $table .= '
 							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
 							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
 							<th style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
-							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator <?php echo strtoupper($jenis_jadwal_relasi); ?> (Tujuan, Sasaran, Program)</th>
+							<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator Program</th>
 						</tr>
 					</thead>
 					<tbody id="body-rpjmd">
@@ -8237,7 +8237,7 @@ $table .= '
 		}
 	}
 
-	function show_rpjm(tahun_anggaran, id_unit, kode_sasaran_rpjm) {
+	function show_rpjm(id_unit, kode_sasaran_rpjm) {
 		jQuery('#wrap-loading').show();
 		var modal = jQuery("#modal-rpjmd");
 		jQuery.ajax({
@@ -8246,10 +8246,9 @@ $table .= '
 			data: {
 				"action": "get_data_rpjm",
 				"api_key": ajax.api_key,
-				"tahun_anggaran": tahun_anggaran,
 				"id_unit": id_unit,
 				"kode_sasaran_rpjm": kode_sasaran_rpjm,
-				"jenis_jadwal": "<?php echo $jenis_jadwal_relasi; ?>",
+				"id_jadwal": "<?php echo $relasi->id_jadwal_lokal; ?>",
 			},
 			dataType: "json", 
 			success: function(response) {
@@ -8258,117 +8257,94 @@ $table .= '
 					const tbody = jQuery("#body-rpjmd");
 					tbody.empty();
 
+					const processParentChildArray = (arr, textKey, indicatorKey) => {
+						if (!arr || arr.length === 0) return { text: '', indicators: [], visi: null, misi: null };
+						
+						// Cari objek induk (yang bukan indikator)
+						const parent = arr.find(item => !item.id_unik_indikator);
+						// Cari semua objek indikator
+						const indicators = arr.filter(item => item.id_unik_indikator)
+											.map(item => item[indicatorKey]);
+						
+						return {
+							text: parent ? parent[textKey] : (arr[0] ? arr[0][textKey] : ''), // Fallback ke item pertama jika induk tidak ditemukan
+							indicators: indicators || [],
+							// Ambil objek visi dan misi dari 'parent' yang ditemukan
+							visi: parent?.visi || null,
+							misi: parent?.misi || null
+						};
+					};
+
+					const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks', 'indikator_teks');
+					const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks', 'indikator_teks');
+					
 					const groupedPrograms = {};
 					if (data.program && data.program.length > 0) {
 						data.program.forEach(p => {
-							if (p.id_unik && !p.id_unik_indikator) {
-								if (!groupedPrograms[p.id_unik]) {
-									groupedPrograms[p.id_unik] = {
-										nama_program: p.nama_program,
-										nama_skpd: p.nama_skpd,
-										indicators: []
-									};
-								}
+							if (!p.id_unik) return;
+							if (!groupedPrograms[p.id_unik]) {
+								groupedPrograms[p.id_unik] = {
+									nama_program: p.nama_program,
+									indicators: []
+								};
 							}
-						});
-
-						data.program.forEach(p => {
-							if (p.id_unik && p.id_unik_indikator && groupedPrograms[p.id_unik]) {
-								groupedPrograms[p.id_unik].indicators.push({
-									text: p.indikator,
-									satuan: p.satuan,
-								});
+							if (p.indikator) {
+								groupedPrograms[p.id_unik].indicators.push(p.indikator);
 							}
 						});
 					}
 
-					let totalRows = 0;
-					if (data.tujuan && data.tujuan.id_unik_indikator) {
-						totalRows += 1;
-					}
-					if (data.sasaran && data.sasaran.id_unik_indikator) {
-						totalRows += 1;
-					}
-					Object.values(groupedPrograms).forEach(prog => {
-						totalRows += Math.max(1, prog.indicators.length);
-					});
+					const totalRows = Object.keys(groupedPrograms).length;
 					
+					// Jika tidak ada program, tampilkan pesan.
 					if (totalRows === 0) {
 						const colspan = jQuery('#modal-rpjmd thead th').length;
-						tbody.html(`<tr><td colspan="${colspan}" class="text-center">Tidak ada data untuk ditampilkan.</td></tr>`);
-						jQuery('#wrap-loading').hide();
+						tbody.html(`<tr><td colspan="${colspan}" class="text-center">Tidak ada data program untuk ditampilkan.</td></tr>`);
 						modal.modal('show');
-						return;
+						jQuery('#wrap-loading').hide();
+						return; 
 					}
 					
+					let tujuanHtml = `<strong>${tujuanData.text}</strong>`;
+					if (tujuanData.indicators.length > 0) {
+						tujuanHtml += `<br><small style='font-style: italic; color: #555;'><strong>Indikator:</strong> ${tujuanData.indicators.join(', ')}</small>`;
+					}
+					
+					let sasaranHtml = `<strong>${sasaranData.text}</strong>`;
+					if (sasaranData.indicators.length > 0) {
+						sasaranHtml += `<br><small style='font-style: italic; color: #555;'><strong>Indikator:</strong> ${sasaranData.indicators.join(', ')}</small>`;
+					}
+
 					let htmlRows = '';
-					let isFirstRow = true;
 					const jenis_jadwal = "<?php echo $jenis_jadwal_relasi; ?>";
+					const visi_teks = tujuanData.visi?.visi_teks || '';
+        			const misi_teks = tujuanData.misi?.misi_teks || '';
 
-					const visi_teks = data.tujuan?.visi?.visi_teks || '';
-					const misi_teks = data.tujuan?.misi?.misi_teks || '';
-
-					if (data.tujuan && data.tujuan.id_unik_indikator) {
+					Object.values(groupedPrograms).forEach((prog, index) => {
 						htmlRows += '<tr>';
-						if (isFirstRow) {
+						
+						if (index === 0) {
 							if (jenis_jadwal === 'rpjmd') {
 								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
 								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
 							}
 							if (jenis_jadwal === 'rpd') {
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`; 
+								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">Isu RPJPD</td>`; // Ganti dengan data jika ada
 							}
-							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-							isFirstRow = false;
+							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${tujuanHtml}</td>`;
+							htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${sasaranHtml}</td>`;
 						}
-						htmlRows += `<td class='kiri kanan bawah'></td>`; 
-						htmlRows += `<td class='kiri kanan bawah'>${data.tujuan.indikator_teks || ''}</td>`;
-						htmlRows += '</tr>';
-					}
 
-					Object.values(groupedPrograms).forEach(prog => {
+						htmlRows += `<td class='kiri kanan bawah'>${prog.nama_program}</td>`;
+						
+						let indicatorListHtml = '-';
 						if (prog.indicators.length > 0) {
-							let isFirstIndicatorForProgram = true;
-							prog.indicators.forEach(indicator => {
-								htmlRows += '<tr>';
-								if (isFirstRow) {
-									if (jenis_jadwal === 'rpjmd') {
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
-									}
-									if (jenis_jadwal === 'rpd') {
-										htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`;
-									}
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-									isFirstRow = false;
-								}
-								if (isFirstIndicatorForProgram) {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${prog.indicators.length}">${prog.nama_program || ''}</td>`;
-									isFirstIndicatorForProgram = false;
-								}
-								htmlRows += `<td class='kiri kanan bawah'>${indicator.text || ''}</td>`;
-								htmlRows += '</tr>';
-							});
-						} else {
-							htmlRows += '<tr>';
-							if (isFirstRow) {
-								if (jenis_jadwal === 'rpjmd') {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${visi_teks}</td>`;
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${misi_teks}</td>`;
-								}
-								if (jenis_jadwal === 'rpd') {
-									htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.isu_rpjpd_teks || 'Isu RPJPD'}</td>`;
-								}
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.tujuan.tujuan_teks || ''}</td>`;
-								htmlRows += `<td class='kiri kanan bawah' rowspan="${totalRows}">${data.sasaran.sasaran_teks || ''}</td>`;
-								isFirstRow = false;
-							}
-							htmlRows += `<td class='kiri kanan bawah'>${prog.nama_program || ''}</td>`;
-							htmlRows += `<td class='kiri kanan bawah'>-</td>`; // Kolom indikator kosong
-							htmlRows += '</tr>';
+							const listItems = prog.indicators.map(ind => `<li>${ind}</li>`).join('');
+							indicatorListHtml = `<ul style="margin: 0; padding-left: 20px;">${listItems}</ul>`;
 						}
+						htmlRows += `<td class='kiri kanan bawah'>${indicatorListHtml}</td>`;
+						
+						htmlRows += '</tr>';
 					});
 
 					tbody.html(htmlRows);
@@ -8382,7 +8358,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 			}
 		});
-
+		
 	}
 
 	function tampilKegiatan(id) {

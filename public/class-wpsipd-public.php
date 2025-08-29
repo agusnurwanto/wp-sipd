@@ -12631,8 +12631,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             $this->newValidate($_POST, [
                 'api_key' 			=> 'required|string',
                 'kode_sasaran_rpjm' => 'required|string',
-                'tahun_anggaran' 	=> 'required|numeric',
-                'jenis_jadwal' 		=> 'required|in:rpjmd,rpd',
+                'id_jadwal' 		=> 'required|numeric',
                 'id_unit' 			=> 'required|numeric'
             ]);
 
@@ -12640,30 +12639,74 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                 throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
             }
 
-			$jenis_jadwal    = $_POST['jenis_jadwal'];
-			$kode_sasaran    = $_POST['kode_sasaran_rpjm'];
-			$tahun           = $_POST['tahun_anggaran'];
-			$id_unit         = $_POST['id_unit'];
+			$data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($_POST['id_jadwal']);
+			if (empty($data_jadwal)) {
+				throw new Exception("Data Jadwal tidak ditemukan!", 401);
+			}
 
-			$sasaran_data = $this->get_sasaran_rpd_rpjmd_by_id_unik($jenis_jadwal, $kode_sasaran, $tahun);
+			$kode_sasaran = $_POST['kode_sasaran_rpjm'];
+			$id_unit      = $_POST['id_unit'];
+			$tahun        = $data_jadwal->tahun_anggaran;
+			$is_locked    = 1;
+			$prefix_lokal = '';
+			$prefix_history = '';
+
+			switch ($data_jadwal->id_tipe) {
+				case 2:
+					$jenis_jadwal = 'rpjmd';
+				break;
+				case 3:
+					$jenis_jadwal = 'rpd';
+				break;
+				case 17:
+					$jenis_jadwal = $data_jadwal->jenis_jadwal;
+					$prefix_lokal = '_lokal';
+				break;
+			}
+
+			if ($data_jadwal->status == $is_locked) {
+				$prefix_history = '_history';
+			}
+
+			$prefix = $prefix_lokal . $prefix_history;
+
+			$sasaran_data = $this->get_sasaran_rpd_rpjmd_by_id_unik($jenis_jadwal, $kode_sasaran, $tahun, $prefix);
 			if (empty($sasaran_data)) {
 				throw new Exception("Data sasaran tidak ditemukan!", 404);
 			}
 
-			$tujuan_data = $this->get_tujuan_rpd_rpjmd_by_id_unik($jenis_jadwal, $sasaran_data['kode_tujuan'], $tahun);
-			if (empty($tujuan_data)) {
-				throw new Exception("Data tujuan tidak ditemukan!", 404);
-			}
-
-			$misi_data = $this->get_misi_rpjmd_by_id($tujuan_data['id_misi'], $tahun);
-			if (!empty($misi_data)) {
-				$tujuan_data['misi'] = $misi_data;
-				$visi_data = $this->get_visi_rpjmd_by_id($misi_data['id_visi'], $tahun);
-				if (!empty($visi_data)) {
-					$tujuan_data['visi'] = $visi_data;
+			foreach ($sasaran_data as $v) {
+				if ($v['id_unik_indikator'] == null) {
+					$tujuan_data = $this->get_tujuan_rpd_rpjmd_by_id_unik($jenis_jadwal, $v['kode_tujuan'], $tahun, $prefix);
+				}
+				if (empty($tujuan_data)) {
+					throw new Exception("Data tujuan tidak ditemukan!", 404);
 				}
 			}
-			$program_data = $this->get_all_program_rpd_rpjmd_by_parent($jenis_jadwal, $sasaran_data['id_unik'], $tahun);
+
+			if ($jenis_jadwal == 'rpjmd') {
+				foreach ($tujuan_data as $index => $v) {
+					if ($v['id_unik_indikator'] == null) {
+						$misi_data = $this->get_misi_rpjmd_by_id($v['id_misi'], $tahun, $prefix);
+						if (!empty($misi_data)) {
+							$tujuan_data[$index]['misi'] = $misi_data;
+							$visi_data = $this->get_visi_rpjmd_by_id($misi_data['id_visi'], $tahun, $prefix);
+							if (!empty($visi_data)) {
+								$tujuan_data[$index]['visi'] = $visi_data;
+							}
+						}
+					}
+				}
+			}
+
+			foreach ($sasaran_data as $v) {
+				if ($v['id_unik_indikator'] == null) {
+					$program_data = $this->get_all_program_rpd_rpjmd_by_parent($jenis_jadwal, $v['id_unik'], $tahun, null, $prefix);
+				}
+				if (empty($tujuan_data)) {
+					throw new Exception("Data tujuan tidak ditemukan!", 404);
+				}
+			}
 
 			$data = [
 				'tujuan'  => $tujuan_data,
@@ -12687,17 +12730,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
         wp_die();
 	}
 
-	function get_misi_rpjmd_by_id($id, $tahun_anggaran)
+	function get_misi_rpjmd_by_id($id, $tahun_anggaran, $prefix = '')
 	{
 		global $wpdb;
 
 		$data = $wpdb->get_row(
 			$wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_misi 
+				FROM data_rpjmd_misi{$prefix}
 				WHERE active = 1 
-					AND id = %d
-					AND tahun_anggaran = %d
+				  AND id = %d
+				  AND tahun_anggaran = %d
 			", $id, $tahun_anggaran),
 			ARRAY_A
 		);
@@ -12705,17 +12748,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data;
 	}
 
-	function get_visi_rpjmd_by_id($id, $tahun_anggaran)
+	function get_visi_rpjmd_by_id($id, $tahun_anggaran, $prefix = '')
 	{
 		global $wpdb;
 
 		$data = $wpdb->get_row(
 			$wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_visi 
+				FROM data_rpjmd_visi{$prefix}
 				WHERE active = 1 
-					AND id = %d
-					AND tahun_anggaran = %d
+				  AND id = %d
+				  AND tahun_anggaran = %d
 			", $id, $tahun_anggaran),
 			ARRAY_A
 		);
@@ -12723,15 +12766,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data;
 	}
 
-	function get_tujuan_rpd_rpjmd_by_id_unik($jenis, $id_unik, $tahun_anggaran)
+	function get_tujuan_rpd_rpjmd_by_id_unik($jenis, $id_unik, $tahun_anggaran, $prefix = '')
 	{
 		global $wpdb;
 
 		if ($jenis == 'rpd') {
-			$data = $wpdb->get_row(
+			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpd_tujuan 
+					FROM data_rpd_tujuan{$prefix}
 					WHERE active = 1 
 					  AND id_unik = %s
 					  AND tahun_anggaran = %d
@@ -12739,10 +12782,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				ARRAY_A
 			);
 		} else {
-			$data = $wpdb->get_row(
+			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_tujuan 
+					FROM data_rpjmd_tujuan{$prefix}
 					WHERE active = 1
 					  AND id_unik = %s
 					  AND tahun_anggaran = %d
@@ -12754,15 +12797,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data;
 	}
 
-	function get_sasaran_rpd_rpjmd_by_id_unik($jenis, $id_unik, $tahun_anggaran)
+	function get_sasaran_rpd_rpjmd_by_id_unik($jenis, $id_unik, $tahun_anggaran, $prefix = '')
 	{
 		global $wpdb;
 
 		if ($jenis == 'rpd') {
-			$data = $wpdb->get_row(
+			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpd_sasaran 
+					FROM data_rpd_sasaran{$prefix}
 					WHERE active = 1 
 					  AND id_unik = %s
 					  AND tahun_anggaran = %d
@@ -12770,10 +12813,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				ARRAY_A
 			);
 		} else {
-			$data = $wpdb->get_row(
+			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_sasaran 
+					FROM data_rpjmd_sasaran{$prefix}
 					WHERE active = 1
 					  AND id_unik = %s
 					  AND tahun_anggaran = %d
@@ -12785,7 +12828,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data;
 	}
 
-	function get_all_program_rpd_rpjmd_by_parent($jenis, $kode_sasaran, $tahun_anggaran, $id_unit = null)
+	function get_all_program_rpd_rpjmd_by_parent($jenis, $kode_sasaran, $tahun_anggaran, $id_unit = null, $prefix = '')
 	{
 		global $wpdb;
 
@@ -12798,7 +12841,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpd_program 
+					FROM data_rpd_program{$prefix}
 					WHERE active = 1 
 					  AND kode_sasaran = %s
 					  AND tahun_anggaran = %d
@@ -12810,7 +12853,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$data = $wpdb->get_results(
 				$wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_program 
+					FROM data_rpjmd_program{$prefix}
 					WHERE active = 1
 					  AND kode_sasaran = %s
 					  AND tahun_anggaran = %d
