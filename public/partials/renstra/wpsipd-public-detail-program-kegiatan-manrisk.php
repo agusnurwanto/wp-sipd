@@ -269,7 +269,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <input type="hidden" value="" id="id_data">
                     <div class="form-group">
                         <label for="nama_program_kegiatan">Nama Program / Kegiatan</label>
-                        <select id="nama_program_kegiatan" style='display:block;width: 100%;' onchange="get_indikator();">
+                        <select id="nama_program_kegiatan" style='display:block;width: 100%;' onchange="get_indikator_tambah();">
                             <?php echo $selected_program_kegiatan; ?>
                         </select>
                     </div>
@@ -368,7 +368,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <input type="hidden" value="" id="tipe_sebelum">
                     <div class="form-group">
                         <label for="get_program_kegiatan">Program / Kegiatan RPD</label>
-                        <select id="get_program_kegiatan" style='display:block;width: 100%;' onchange="get_indikator();">
+                        <select id="get_program_kegiatan" style='display:block;width: 100%;' onchange="get_indikator_verifikasi();">
                             <?php echo $selected_program_kegiatan; ?>
                         </select>
                     </div>
@@ -464,6 +464,21 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         get_table_program_kegiatan();
         run_download_excel('', '#aksi-wpsipd');
         jQuery('#aksi-wpsipd a').first().after('<a style="margin-left: 10px;" onclick="tambah_program_kegiatan(); return false;" href="#" class="btn btn-primary">Tambah Program / Kegiatan</a>');
+        jQuery(document).on('change', '#nama_program_kegiatan', function() {
+            get_indikator_tambah();
+        });
+        
+        jQuery(document).on('change', '#get_program_kegiatan', function() {
+            get_indikator_verifikasi();
+        });
+        
+        jQuery('#tambahProgramKegiatanModal').on('hidden.bs.modal', function () {
+            reset_form_tambah();
+        });
+        
+        jQuery('#VerifikasiModal').on('hidden.bs.modal', function () {
+            reset_form_verifikasi();
+        });
     });
 
     function get_table_program_kegiatan() {
@@ -500,54 +515,28 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     function tambah_program_kegiatan() {
         jQuery('#TambahProgramKegiatanModalLabel').show();
         jQuery('#editProgramKegiatanModalLabel').hide();
-        jQuery("#nama_program_kegiatan").trigger('change');
-        jQuery("#indikator_kinerja").html('<option value="0">Pilih Indikator</option>');
-        jQuery("#uraian_resiko").val('');
-        jQuery("#kode_resiko").val('');
-        jQuery("#pemilik_resiko").val('');
-        jQuery("#uraian_sebab").val('');
-        jQuery("#sumber_sebab").val('');
-        jQuery("#controllable").val('');
-        jQuery("#uncontrollable").val('');
-        jQuery("#uraian_dampak").val('');
-        jQuery("#pihak_terkena").val('');
-        jQuery("#skala_dampak").val('');
-        jQuery("#skala_kemungkinan").val('');
-        jQuery("#nilai_resiko").val('');
-        jQuery("#rencana_tindak_pengendalian").val('');
-
+        
+        reset_form_tambah();
+        
         jQuery('#tambahProgramKegiatanModal').modal('show');
     }
 
-    function get_indikator(selected_indikator, tipe, callback, context = 'tambah') {
+    function get_indikator_tambah(selected_indikator, tipe, callback) {
         let selected = null;
 
-        if (context === 'tambah') {
-            if (jQuery('#nama_program_kegiatan').length > 0) {
-                selected = jQuery('#nama_program_kegiatan').val();
-            }
-        } else {
-            if (jQuery('#get_program_kegiatan').length > 0) {
-                selected = jQuery('#get_program_kegiatan').val();
-            }
+        if (jQuery('#nama_program_kegiatan').length > 0) {
+            selected = jQuery('#nama_program_kegiatan').val();
         }
 
         if (!selected || selected === '-1' || selected === '') {
-            if (context === 'tambah') {
-                jQuery('#indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
-            } else {
-                jQuery('#get_indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
-            }
+            selected = 0;
+            jQuery('#indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
             if (typeof callback === "function") callback();
             return;
         }
 
         if (!tipe) {
-            if (context === 'tambah') {
-                tipe = jQuery('#nama_program_kegiatan option:selected').data('type');
-            } else {
-                tipe = jQuery('#get_program_kegiatan option:selected').data('type');
-            }
+            tipe = jQuery('#nama_program_kegiatan option:selected').data('type');
         }
 
         jQuery("#wrap-loading").show();
@@ -568,11 +557,52 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             success: function (response) {
                 jQuery("#wrap-loading").hide();
                 if (response.status === 'success') {
-                    if (context === 'tambah') {
-                        jQuery('#indikator_kinerja').html(response.html);
-                    } else {
-                        jQuery('#get_indikator_kinerja').html(response.html);
-                    }
+                    jQuery('#indikator_kinerja').html(response.html);
+                    if (typeof callback === "function") callback();
+                } else {
+                    alert(`GAGAL!\n${response.message}`);
+                }
+            }
+        });
+    }
+
+    function get_indikator_verifikasi(selected_indikator, tipe, callback) {
+        let selected = null;
+
+        if (jQuery('#get_program_kegiatan').length > 0) {
+            selected = jQuery('#get_program_kegiatan').val();
+        }
+
+        if (!selected || selected === '-1' || selected === '') {
+            selected = 0;
+            jQuery('#get_indikator_kinerja').html('<option value="0">Pilih Indikator</option>');
+            if (typeof callback === "function") callback();
+            return;
+        }
+
+        if (!tipe) {
+            tipe = jQuery('#get_program_kegiatan option:selected').data('type');
+        }
+
+        jQuery("#wrap-loading").show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'get_indikator_program_kegiatan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id: selected,
+                tipe: tipe,
+                selected_indikator: selected_indikator || 0
+            },
+            success: function (response) {
+                jQuery("#wrap-loading").hide();
+                if (response.status === 'success') {
+                    jQuery('#get_indikator_kinerja').html(response.html);
                     if (typeof callback === "function") callback();
                 } else {
                     alert(`GAGAL!\n${response.message}`);
@@ -606,7 +636,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     jQuery("#nama_program_kegiatan option").prop("selected", false);
                     jQuery(`#nama_program_kegiatan option[value='${data.id_program_kegiatan}'][data-type='${tipe}']`).prop("selected", true);
 
-                    get_indikator(data.id_indikator, tipe, function(){
+                    get_indikator_tambah(data.id_indikator, tipe, function(){
                         jQuery("#indikator_kinerja").val(data.id_indikator);
                     });
 
@@ -732,8 +762,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    
-    function verif_program_kegiatan_manrisk(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah) { 
+    function verif_program_kegiatan_manrisk(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -760,9 +789,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         jQuery("#get_program_kegiatan option").prop("selected", false);
                         jQuery(`#get_program_kegiatan option[value='${data.id_program_kegiatan}'][data-type='${data.tipe}']`).prop("selected", true);
 
-                        get_indikator(data.id_indikator, data.tipe, function(){
+                        get_indikator_verifikasi(data.id_indikator, data.tipe, function(){
                             jQuery("#get_indikator_kinerja").val(data.id_indikator);
-                        }, 'verif');
+                        });
 
                         jQuery('#nama_program_kegiatan_sesudah').val(data.program_kegiatan_teks);
                         jQuery('#indikator_kinerja_sesudah').val(data.indikator_teks);
@@ -779,23 +808,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         jQuery("#nilai_resiko_sesudah").val(data.nilai_resiko);
                         jQuery("#rencana_tindak_pengendalian_sesudah").val(data.rencana_tindak_pengendalian);
                     } else {
-                        jQuery("#id_data_sesudah").val('');
-                        jQuery("#get_program_kegiatan").val(0);
-                        jQuery("#get_indikator_kinerja").html('<option value="0">Pilih Indikator</option>');
-                        jQuery('#nama_program_kegiatan_sesudah').val('');
-                        jQuery('#indikator_kinerja_sesudah').val('');
-                        jQuery('#uraian_resiko_sesudah').val('');
-                        jQuery('#kode_resiko_sesudah').val('');
-                        jQuery('#pemilik_resiko_sesudah').val('');
-                        jQuery('#uraian_sebab_sesudah').val('');
-                        jQuery('#sumber_sebab_sesudah').val('');
-                        jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
-                        jQuery('#uraian_dampak_sesudah').val('');
-                        jQuery('#pihak_terkena_sesudah').val('');
-                        jQuery('#skala_dampak_sesudah').val('');
-                        jQuery('#skala_kemungkinan_sesudah').val('');
-                        jQuery('#nilai_resiko_sesudah').val('');
-                        jQuery('#rencana_tindak_pengendalian_sesudah').val('');
+                        reset_form_verifikasi();
                     }
 
                     jQuery('#id_sebelum').val(id_sebelum);
@@ -814,6 +827,43 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
+    function reset_form_verifikasi() {
+        jQuery("#id_data_sesudah").val('');
+        jQuery("#get_program_kegiatan").prop('selectedIndex', 0);
+        jQuery("#get_indikator_kinerja").html('<option value="0">Pilih Indikator</option>');
+        jQuery('#nama_program_kegiatan_sesudah').val('');
+        jQuery('#indikator_kinerja_sesudah').val('');
+        jQuery('#uraian_resiko_sesudah').val('');
+        jQuery('#kode_resiko_sesudah').val('');
+        jQuery('#pemilik_resiko_sesudah').val('');
+        jQuery('#uraian_sebab_sesudah').val('');
+        jQuery('#sumber_sebab_sesudah').val('');
+        jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
+        jQuery('#uraian_dampak_sesudah').val('');
+        jQuery('#pihak_terkena_sesudah').val('');
+        jQuery('#skala_dampak_sesudah').val('');
+        jQuery('#skala_kemungkinan_sesudah').val('');
+        jQuery('#nilai_resiko_sesudah').val('');
+        jQuery('#rencana_tindak_pengendalian_sesudah').val('');
+    }
+
+    function reset_form_tambah() {
+        jQuery("#nama_program_kegiatan").prop('selectedIndex', 0);
+        jQuery("#indikator_kinerja").html('<option value="0">Pilih Indikator</option>');
+        jQuery("#uraian_resiko").val('');
+        jQuery("#kode_resiko").val('');
+        jQuery("#pemilik_resiko").val('');
+        jQuery("#uraian_sebab").val('');
+        jQuery("#sumber_sebab").val('');
+        jQuery("#controllable").val('');
+        jQuery("#uncontrollable").val('');
+        jQuery("#uraian_dampak").val('');
+        jQuery("#pihak_terkena").val('');
+        jQuery("#skala_dampak").val('');
+        jQuery("#skala_kemungkinan").val('');
+        jQuery("#nilai_resiko").val('');
+        jQuery("#rencana_tindak_pengendalian").val('');
+    }
 
     function submit_verif_program_kegiatan() {
         let id = jQuery('#id_data_sesudah').val();
