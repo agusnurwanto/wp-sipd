@@ -12254,11 +12254,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$wpdb->update('data_renstra_tujuan', array('active' => 0), $filter_renstra);
 
 					// Ambil data tujuan lokal
-					$tujuan_lokal = $wpdb->get_results($wpdb->prepare("
-						SELECT * 
-						FROM data_renstra_tujuan_lokal 
-						WHERE active=%d $where_skpd
-					", 1), ARRAY_A);
 
 					$data_jadwal_renstra = $wpdb->get_var(
 						$wpdb->prepare('
@@ -12268,6 +12263,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							WHERE id_jadwal_lokal=%d
 						', $_POST['id_jadwal'])
 					);
+
+					$tujuan_lokal = $wpdb->get_results($wpdb->prepare("
+						SELECT * 
+						FROM data_renstra_tujuan_lokal 
+						WHERE active=%d 
+							AND tahun_anggaran=%d
+							$where_skpd
+					", 1, $data_jadwal_renstra), ARRAY_A);
 					if (!empty($tujuan_lokal)) {
 						foreach ($tujuan_lokal as $tujuan_value) {
 							$data = $tujuan_value;
@@ -12322,9 +12325,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								SELECT * 
 								FROM data_renstra_sasaran_lokal 
 								WHERE kode_tujuan=%s 
-								  AND active=1
-								  $where_skpd
-							", $tujuan_value['id_unik']), ARRAY_A);
+								 	AND active=1
+									AND tahun_anggaran=%d
+								 	$where_skpd
+							", $tujuan_value['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 							if (!empty($sasaran_lokal)) {
 								foreach ($sasaran_lokal as $sasaran_value) {
@@ -12378,9 +12382,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										SELECT * 
 										FROM data_renstra_program_lokal 
 										WHERE kode_sasaran=%s 
-										  AND active=1
-										  $where_skpd
-									", $sasaran_value['id_unik']), ARRAY_A);
+											AND active=1
+											AND tahun_anggaran=%d
+											$where_skpd
+									", $sasaran_value['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 									if (!empty($program_lokal)) {
 										foreach ($program_lokal as $program_value) {
@@ -12434,9 +12439,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												SELECT * 
 												FROM data_renstra_kegiatan_lokal 
 												WHERE kode_program=%s 
-												  AND active=1
-												  $where_skpd
-											", $program_value['id_unik']), ARRAY_A);
+													AND active=1
+													AND tahun_anggaran=%d
+													$where_skpd
+											", $program_value['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 											if (!empty($kegiatan_lokal)) {
 												foreach ($kegiatan_lokal as $kegiatan_value) {
@@ -12495,9 +12501,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 														SELECT * 
 														FROM data_renstra_sub_kegiatan_lokal 
 														WHERE kode_kegiatan=%s 
-														  AND active=1
-														  $where_skpd
-													", $kegiatan_value['id_unik']), ARRAY_A);
+															AND active=1
+															AND tahun_anggaran=%d
+															$where_skpd
+													", $kegiatan_value['id_unik'], $data['tahun_anggaran']), ARRAY_A);
 
 													if (!empty($sub_kegiatan_lokal)) {
 														foreach ($sub_kegiatan_lokal as $sub_kegiatan_value) {
