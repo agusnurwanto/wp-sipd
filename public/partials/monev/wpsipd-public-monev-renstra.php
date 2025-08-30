@@ -132,11 +132,12 @@ if (!empty($tujuan)) {
 		if (empty($data_all['data'][$tujuan_key])) {
 			$status_rpjmd = '';
 			if (!empty($tujuan_value['kode_sasaran_rpjm'])) {
+				$prefix_history = $data_jadwal_relasi['status'] == 1 ? '_history' : '';
 				if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
 					$sasaran_teks = $wpdb->get_var(
 						$wpdb->prepare("
 							SELECT sasaran_teks
-							FROM data_rpjmd_sasaran 
+							FROM data_rpjmd_sasaran{$prefix_history}
 							WHERE active = 1 
 							  AND id_unik=%s 
 							  AND tahun_anggaran = %d
@@ -146,7 +147,7 @@ if (!empty($tujuan)) {
 					$sasaran_teks = $wpdb->get_var(
 						$wpdb->prepare("
 							SELECT sasaran_teks
-							FROM data_rpd_sasaran 
+							FROM data_rpd_sasaran{$prefix_history}
 							WHERE active = 1 
 							  AND id_unik = %s 
 							  AND tahun_anggaran = %d
