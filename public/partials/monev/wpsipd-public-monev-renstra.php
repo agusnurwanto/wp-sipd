@@ -2035,23 +2035,28 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 		}
 	}
 
-	function show_rpjm(id_unit, kode_sasaran_rpjm) {
+	function show_rpjm(id_unit, kode_sasaran) {
 		jQuery('#wrap-loading').show();
 		var modal = jQuery("#modal-rpjmd");
 		jQuery.ajax({
 			url: ajax.url,
 			type: "post",
 			data: {
-				"action": "get_data_rpjm",
+				"action": "get_data_rpjmd_rpd_by_kode_sasaran",
 				"api_key": ajax.api_key,
 				"id_unit": id_unit,
-				"kode_sasaran_rpjm": kode_sasaran_rpjm,
+				"kode_sasaran": kode_sasaran,
 				"id_jadwal": "<?php echo $data_jadwal_relasi['id_jadwal_lokal']; ?>",
 			},
 			dataType: "json", 
 			success: function(response) {
 				const lama_pelaksanaan = <?php echo $data_jadwal_relasi['lama_pelaksanaan']; ?>;
 				const jenis_jadwal_relasi = '<?php echo $jenis_jadwal_relasi; ?>';
+				const tahun_akhir_relasi = <?php echo $tahun_anggaran_akhir_relasi; ?>;
+				const unit_kode_skpd = '<?php echo $unit['kode_skpd']; ?>';
+				const unit_nama_skpd = '<?php echo $unit['nama_skpd']; ?>';
+				const jadwal_tahun = '<?php echo $data_jadwal_relasi['tahun_anggaran']; ?>';
+				const nama_pemda = '<?php echo $nama_pemda; ?>';
 
 				const modalBody = jQuery("#detail-rpjmd-body");
 				modalBody.empty();
@@ -2059,11 +2064,10 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				if (response.status && response.data) {
 					const data = response.data;
 
-					// Proses Data
-					const processParentChildArray = (arr, textKey, indicatorKey) => {
+					const processParentChildArray = (arr, textKey) => {
 						if (!arr || arr.length === 0) return { text: '', indicators: [], visi: null, misi: null };
 						const parent = arr.find(item => !item.id_unik_indikator);
-						const indicators = arr.filter(item => item.id_unik_indikator).map(item => item[indicatorKey]);
+						const indicators = arr.filter(item => item.id_unik_indikator);
 						return {
 							text: parent ? parent[textKey] : (arr[0] ? arr[0][textKey] : ''),
 							indicators: indicators || [],
@@ -2072,116 +2076,184 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 						};
 					};
 
-					const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks', 'indikator_teks');
-					const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks', 'indikator_teks');
+					const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks');
+					const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks');
 					
-					// Proses program untuk mengelompokkan indikator di bawah program induknya
 					const groupedPrograms = {};
 					if (data.program && data.program.length > 0) {
-						// Cari program induk
 						data.program.forEach(p => {
 							if (p.id_unik && !p.id_unik_indikator) {
-								if (!groupedPrograms[p.id_unik]) {
-									groupedPrograms[p.id_unik] = { nama_program: p.nama_program, indicators: [] };
-								}
+								if (!groupedPrograms[p.id_unik]) groupedPrograms[p.id_unik] = { nama_program: p.nama_program, indicators: [] };
 							}
 						});
-						// Masukkan indikator ke program yang sesuai
 						data.program.forEach(p => {
 							if (p.id_unik && p.id_unik_indikator && groupedPrograms[p.id_unik]) {
-								// Masukkan seluruh objek indikator
 								groupedPrograms[p.id_unik].indicators.push(p);
 							}
 						});
 					}
 
-					// HTML INFO
-					let headerInfoHtml = `<div style="margin-bottom: 20px; font-size: 14px;">`;
+					// visi misi
+					let visi_misi_html = '';
 					if (jenis_jadwal_relasi == 'rpjmd') {
-						headerInfoHtml += `
-							<p style="margin-bottom: 5px;"><strong>Visi : </strong> ${tujuanData.visi?.visi_teks || '-'}</p>
-							<p style="margin-bottom: 5px;"><strong>Misi : </strong> ${tujuanData.misi?.misi_teks || '-'}</p>
-							<hr>`;
-					}
-					
-					headerInfoHtml += `
-							<p style="margin-bottom: 5px;"><strong>Tujuan : </strong> ${tujuanData.text}</p>
-							<p style="margin-bottom: 5px;"><strong>Indikator Tujuan : </strong></p>
-							<ul style="margin-top: 0; padding-left: 20px;">
-								${tujuanData.indicators.length > 0 ? tujuanData.indicators.map(i => `<li>${i}</li>`).join('') : '<li>-</li>'}
-							</ul>
-							<hr>
-							<p style="margin-bottom: 5px;"><strong>Sasaran : </strong> ${sasaranData.text}</p>
-							<p style="margin-bottom: 5px;"><strong>Indikator Sasaran : </strong></p>
-							<ul style="margin-top: 0; padding-left: 20px;">
-								${sasaranData.indicators.length > 0 ? sasaranData.indicators.map(i => `<li>${i}</li>`).join('') : '<li>-</li>'}
-							</ul>
+						const generateHeaderInfoHtml = (visi, misi) => `
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="card h-100">
+									<div class="card-header bg-light"><strong>Visi</strong></div>
+									<div class="card-body"><p class="card-text">${visi || '-'}</p></div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="card h-100">
+									<div class="card-header bg-light"><strong>Misi</strong></div>
+									<div class="card-body"><p class="card-text">${misi || '-'}</p></div>
+								</div>
+							</div>
 						</div>
-					`;
+						<hr>`;
 
-					// HTML TABEL PROGRAM
-					let tableHtml = '<p class="text-center"><strong>Daftar Program Terkait : </strong></p>';
-					
-					if (Object.keys(groupedPrograms).length > 0) {
-						tableHtml += '<table class="table table-bordered" style="width:100%;">';
+						const visi_teks = tujuanData.visi?.visi_teks;
+						const misi_teks = tujuanData.misi?.misi_teks;
 
-						// header 
-						let tableHead = '<thead><tr>';
-						tableHead += '<th rowspan="2" class="text-center align-middle">Program</th>';
-						tableHead += '<th rowspan="2" class="text-center align-middle">Indikator</th>';
-						tableHead += '<th rowspan="2" class="text-center align-middle">Satuan</th>';
-						tableHead += `<th colspan="${lama_pelaksanaan}" class="text-center">Pagu</th>`;
-						tableHead += '<th rowspan="2" class="text-center align-middle">Target Awal</th>';
-						tableHead += `<th colspan="${lama_pelaksanaan}" class="text-center">Target</th>`;
-						tableHead += '<th rowspan="2" class="text-center align-middle">Target Akhir</th>';
-						tableHead += '</tr><tr>';
-						for (let i = 1; i <= lama_pelaksanaan; i++) { tableHead += `<th class="text-center">T${i}</th>`; }
-						for (let i = 1; i <= lama_pelaksanaan; i++) { tableHead += `<th class="text-center">T${i}</th>`; }
-						tableHead += '</tr></thead>';
+						visi_misi_html += generateHeaderInfoHtml(visi_teks, misi_teks);
+					}
+
+					// tujuan sasaran
+					const generateMetaCardHtml = (title, data) => {
+						if (!data.text) return '';
+
+						let html = `
+							<div class="card mb-3">
+								<div class="card-header"><strong>${title}</strong></div>
+								<div class="card-body" style="padding:0;">
+									<table class="table table-bordered mb-0">
+										<tbody>
+											<tr>
+												<td colspan="2"><strong>${data.text}</strong></td>
+											</tr>`;
 						
-						tableHtml += tableHead;
-						tableHtml += '<tbody>';
+						if (data.indicators.length > 0) {
+							html += `   <tr>
+											<td colspan="2" style="padding: 8px;">
+												<table class="table table-sm table-hover" style="font-size: 12px; margin-bottom: 0;">
+													<thead class="bg-dark text-light">
+														<tr>
+															<th class="text-center">Indikator</th>
+															<th class="text-center">Satuan</th>`;
+							for (let i = 1; i <= lama_pelaksanaan; i++) { 
+								html += `					<th class="text-center">Target ${i}</th>`;
+							}
+							html += `               	</tr>
+													</thead>
+												<tbody>`;
+							data.indicators.forEach(ind => {
+								html += `           <tr>
+														<td>${ind.indikator_teks || '-'}</td>
+														<td class="text-center">${ind.satuan || '-'}</td>`;
+								for (let i = 1; i <= lama_pelaksanaan; i++) {
+									html += `           <td class="text-right">${ind['target_' + i] || '-'}</td>`;
+								}
+								html += `           </tr>`;
+							});
+							html += `           </tbody>
+												</table>
+											</td>
+										</tr>`;
+						} else {
+							html += `<tr><td colspan="2"><small class="pl-2">Tidak ada indikator.</small></td></tr>`;
+						}
 
-						// Isi body tabel program dan indikator
-						Object.values(groupedPrograms).forEach(prog => {
-							const indicatorCount = prog.indicators.length > 0 ? prog.indicators.length : 1;
+						html += `       </tbody>
+									</table>
+								</div>
+							</div>`;
+						return html;
+					};
+
+					// program
+					const generateProgramsCardHtml = (programs) => {
+						if (Object.keys(programs).length === 0) return '<p>Tidak ada data program untuk ditampilkan.</p>';
+						
+						let html = `
+							<div class="card">
+								<div class="card-header"><strong>Program</strong></div>
+								<div class="card-body" style="padding:0;">
+									<div class="container-fluid">
+										<table class="table table-bordered mb-2 mt-2">
+											<thead class="bg-dark text-light">
+												<tr>
+													<th class="text-center" style="width:5%;">No</th>
+													<th class="text-center">Program</th>
+													<th class="text-center" style="width:25%;">Keterangan</th>
+												</tr>
+											</thead>
+											<tbody>`;
+
+						Object.values(programs).forEach((prog, progIndex) => {
+							html += `   <tr>
+											<td class="text-center">${progIndex + 1}</td>
+											<td><strong>${prog.nama_program}</strong></td>
+											<td>-</td>
+										</tr>`;
+
 							if (prog.indicators.length > 0) {
-								prog.indicators.forEach((indicator, index) => {
-									tableHtml += '<tr>';
-									if (index === 0) {
-										tableHtml += `<td rowspan="${indicatorCount}">${prog.nama_program}</td>`;
-									}
-									tableHtml += `<td>${indicator.indikator || '-'}</td>`;
-									tableHtml += `<td>${indicator.satuan || '-'}</td>`;
-									// Pagu dinamis
+								html += `<tr>
+											<td colspan="3" style="padding: 8px;">
+												<table class="table table-sm table-hover" style="font-size: 12px; margin-bottom: 0;">
+													<thead class="bg-dark text-light">
+														<tr>
+															<th class="text-center" style="width:5%;">No</th>
+															<th class="text-center">Indikator</th>
+															<th class="text-center">Satuan</th>`;
+								for (let i = 1; i <= lama_pelaksanaan; i++) { 
+									html += `
+															<th class="text-center">Target ${i}</th>
+															<th class="text-center">Pagu ${i}</th>
+									`;
+								}
+								html += `
+															<th class="text-center">Keterangan</th>
+														</tr>
+													</thead>
+													<tbody>`;
+								prog.indicators.forEach((ind, indIndex) => {
+									html += `       <tr>
+														<td class="text-center">${progIndex + 1}.${indIndex + 1}</td>
+														<td class="text-left">${ind.indikator}</td>
+														<td class="text-center">${ind.satuan || '-'}</td>`;
 									for (let i = 1; i <= lama_pelaksanaan; i++) {
-										tableHtml += `<td class="text-right">${indicator['pagu_' + i] || '0.00'}</td>`;
+										html += `       <td class="text-right">${ind['target_' + i] || '-'}</td>
+														<td class="text-right">${ind['pagu_' + i] || '0.00'}</td>`;
 									}
-									tableHtml += `<td class="text-center">${indicator.target_awal || '-'}</td>`;
-									// Target dinamis
-									for (let i = 1; i <= lama_pelaksanaan; i++) {
-										tableHtml += `<td class="text-center">${indicator['target_' + i] || '-'}</td>`;
-									}
-									tableHtml += `<td class="text-center">${indicator.target_akhir || '-'}</td>`;
-									tableHtml += '</tr>';
+									html += `
+														<td class="text-left">-</td>
+													</tr>`;
 								});
-							} else {
-								// Jika program tidak punya indikator
-								tableHtml += '<tr>';
-								tableHtml += `<td>${prog.nama_program}</td>`;
-								tableHtml += `<td colspan="${3 + (lama_pelaksanaan * 2)}">Tidak ada indikator.</td>`;
-								tableHtml += '</tr>';
+								html += `           </tbody>
+												</table>
+											</td>
+										</tr>`;
 							}
 						});
+						html += `      </tbody>
+									</table>
+								</div>
+							</div>
+						</div>`;
 
-						tableHtml += '</tbody></table>';
-					} else {
-						tableHtml += '<p>Tidak ada data program untuk ditampilkan.</p>';
-					}
+						return html;
+					};
 
-					modalBody.html(headerInfoHtml + tableHtml);
+					const finalHtml =
+						visi_misi_html +
+						generateMetaCardHtml('Tujuan', tujuanData) +
+						generateMetaCardHtml('Sasaran', sasaranData) +
+						generateProgramsCardHtml(groupedPrograms);
 
-					modal.find('.modal-title').html(`Data Keterkaitan ${jenis_jadwal_relasi.toUpperCase()} <br> <?php echo $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>Tahun ' . $data_jadwal_relasi['tahun_anggaran'] . ' - ' . $tahun_anggaran_akhir_relasi . '<br> ' . $nama_pemda; ?>`);
+					modalBody.html(finalHtml);
+
+					modal.find('.modal-title').html(`Data Keterkaitan ${jenis_jadwal_relasi.toUpperCase()} <br> ${unit_kode_skpd} ${unit_nama_skpd} <br>Tahun ${jadwal_tahun} - ${tahun_akhir_relasi} <br> ${nama_pemda}`);
 				} else {
 					modalBody.html(`<div class="alert alert-danger text-center">${response.message || 'Gagal memuat data.'}</div>`);
 				}

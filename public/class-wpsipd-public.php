@@ -12625,12 +12625,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function get_data_rpjm()
+	function get_data_rpjmd_rpd_by_kode_sasaran()
 	{
 		try {
             $this->newValidate($_POST, [
                 'api_key' 			=> 'required|string',
-                'kode_sasaran_rpjm' => 'required|string',
+                'kode_sasaran' 		=> 'required|string',
                 'id_jadwal' 		=> 'required|numeric',
                 'id_unit' 			=> 'required|numeric'
             ]);
@@ -12644,7 +12644,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("Data Jadwal tidak ditemukan!", 401);
 			}
 
-			$kode_sasaran = $_POST['kode_sasaran_rpjm'];
+			$kode_sasaran = $_POST['kode_sasaran'];
 			$id_unit      = $_POST['id_unit'];
 			$tahun        = $data_jadwal->tahun_anggaran;
 			$is_locked    = 1;
@@ -12866,7 +12866,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data;
 	}
 
-	// function get_data_rpjm()
+	// function get_data_rpjmd_rpd_by_kode_sasaran()
 	// {
 	// 	global $wpdb;
 	// 	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
