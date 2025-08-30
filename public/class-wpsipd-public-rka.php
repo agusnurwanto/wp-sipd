@@ -1,6 +1,7 @@
 <?php
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-base-4-konsistensi.php";
 
-class Wpsipd_Public_RKA
+class Wpsipd_Public_RKA extends Wpsipd_Public_Base_4_Konsistensi
 {
 
     public function input_rka_pendapatan_sipd($atts)
