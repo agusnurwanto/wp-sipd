@@ -35,6 +35,12 @@ function parsing_nama_kode($nama_kode){
 	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
 }
 // check jadwal is running bool;
+$prefix_history = '';
+$is_locked_jadwal_lokal = $data_jadwal->status == 1 ? true : false;
+if ($is_locked_jadwal_lokal) {
+	$prefix_history = '_history';
+}
+
 $is_running_jadwal_lokal = $this->is_running_jadwal_lokal($data_jadwal->id_jadwal_lokal);
 if ($is_running_jadwal_lokal) {
     if (in_array("administrator", $user_meta->roles)) {
@@ -66,25 +72,28 @@ $sasaran_ids = array();
 $program_ids = array();
 $skpd_filter = array();
 
-$sql = "
+$sql = $wpdb->prepare("
 	select 
 		t.*,
 		i.isu_teks 
-	from data_rpd_tujuan_lokal t
+	from data_rpd_tujuan_lokal{$prefix_history} t
 	left join data_rpjpd_isu i on t.id_isu = i.id
 	where t.active=1
+	  AND tahun_anggaran = %d
 	order by t.no_urut asc
-";
+", $data_jadwal->tahun_anggaran);
+
 if(!empty($id_jadwal_rpjpd)){
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			t.*,
 			i.isu_teks 
-		from data_rpd_tujuan_lokal t
+		from data_rpd_tujuan_lokal{$prefix_history} t
 		left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 		where t.active=1
+		  AND tahun_anggaran = %d
 		order by t.no_urut asc
-	";
+	", $data_jadwal->tahun_anggaran);
 }
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all as $tujuan) {
@@ -103,11 +112,12 @@ foreach ($tujuan_all as $tujuan) {
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpd_sasaran_lokal
+			from data_rpd_sasaran_lokal{$prefix_history}
 			where kode_tujuan=%s
 				and active=1
+				AND tahun_anggaran = %d
 				order by sasaran_no_urut asc
-		", $tujuan['id_unik']);
+		", $tujuan['id_unik'], $data_jadwal->tahun_anggaran);
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
 			if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
@@ -125,11 +135,12 @@ foreach ($tujuan_all as $tujuan) {
 				$sql = $wpdb->prepare("
 					select 
 						* 
-					from data_rpd_program_lokal
+					from data_rpd_program_lokal{$prefix_history}
 					where kode_sasaran=%s
 						and active=1
+						AND tahun_anggaran = %d
 						order by nama_program ASC
-				", $sasaran['id_unik']);
+				", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -237,48 +248,52 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
 
 // select tujuan yang belum terselect
 if(!empty($tujuan_ids)){
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			t.*,
 			i.isu_teks 
-		from data_rpd_tujuan_lokal t
+		from data_rpd_tujuan_lokal{$prefix_history} t
 		left join data_rpjpd_isu i on t.id_isu = i.id
 		where t.id_unik not in (".implode(',', $tujuan_ids).")
 			and t.active=1
+			AND t.tahun_anggaran = %d
 		order by t.no_urut
-	";
+	", $data_jadwal->tahun_anggaran);
 	if(!empty($id_jadwal_rpjpd)){
-		$sql = "
+		$sql = $wpdb->prepare("
 			select 
 				t.*,
 				i.isu_teks 
-			from data_rpd_tujuan_lokal t
+			from data_rpd_tujuan_lokal{$prefix_history} t
 			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 			where t.id_unik not in (".implode(',', $tujuan_ids).")
 				and t.active=1
+				AND t.tahun_anggaran = %d
 			order by t.no_urut
-		";
+		", $data_jadwal->tahun_anggaran);
 	}
 }else{
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			t.*,
 			i.isu_teks 
-		from data_rpd_tujuan_lokal t
+		from data_rpd_tujuan_lokal{$prefix_history} t
 		left join data_rpjpd_isu i on t.id_isu = i.id
 		where t.active=1
+		AND t.tahun_anggaran = %d
 		order by t.no_urut
-	";
+	", $data_jadwal->tahun_anggaran);
 	if(!empty($id_jadwal_rpjpd)){
-		$sql = "
+		$sql = $wpdb->prepare("
 			select 
 				t.*,
 				i.isu_teks 
-			from data_rpd_tujuan_lokal t
+			from data_rpd_tujuan_lokal{$prefix_history} t
 			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 			where t.active=1
+			AND t.tahun_anggaran = %d
 			order by t.no_urut
-		";
+		", $data_jadwal->tahun_anggaran);
 	}
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
@@ -299,11 +314,12 @@ foreach ($tujuan_all_kosong as $tujuan) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_sasaran_lokal
+		from data_rpd_sasaran_lokal{$prefix_history}
 		where kode_tujuan=%s
 			and active=1
+			AND tahun_anggaran = %d
 		order by sasaran_no_urut
-	", $tujuan['id_unik']);
+	", $tujuan['id_unik'], $data_jadwal->tahun_anggaran);
 	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_all as $sasaran) {
 		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
@@ -323,10 +339,11 @@ foreach ($tujuan_all_kosong as $tujuan) {
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpd_program_lokal
+			from data_rpd_program_lokal{$prefix_history}
 			where kode_sasaran=%s
 				and active=1
-		", $sasaran['id_unik']);
+				AND tahun_anggaran = %d
+		", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 		$program_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_all as $program) {
 			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -375,22 +392,24 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 // select sasaran yang belum terselect
 if(!empty($sasaran_ids)){
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_sasaran_lokal
+		from data_rpd_sasaran_lokal{$prefix_history}
 		where id_unik not in (".implode(',', $sasaran_ids).")
 			and active=1
+			AND tahun_anggaran = %d
 		order by sasaran_no_urut
-	";
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_sasaran_lokal
+		from data_rpd_sasaran_lokal{$prefix_history}
 		where active=1
+			AND tahun_anggaran = %d
 		order by sasaran_no_urut
-	";
+	", $data_jadwal->tahun_anggaran);
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($sasaran_all_kosong as $sasaran) {
@@ -410,10 +429,11 @@ foreach ($sasaran_all_kosong as $sasaran) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_program_lokal
+		from data_rpd_program_lokal{$prefix_history}
 		where kode_sasaran=%s
+			and tahun_anggaran = %d
 			and active=1
-	", $sasaran['id_unik']);
+	", $sasaran['id_unik'], $data_jadwal->tahun_anggaran);
 	$program_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_all as $program) {
 		$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -461,20 +481,22 @@ foreach ($sasaran_all_kosong as $sasaran) {
 
 // select program yang belum terselect
 if(!empty($program_ids)){
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_program_lokal
+		from data_rpd_program_lokal{$prefix_history}
 		where id_unik not in (".implode(',', $program_ids).")
 			and active=1
-	";
+			and tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }else{
-	$sql = "
+	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpd_program_lokal
+		from data_rpd_program_lokal{$prefix_history}
 		where active=1
-	";
+			and tahun_anggaran = %d
+	", $data_jadwal->tahun_anggaran);
 }
 $program_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($program_all as $program) {
@@ -1379,7 +1401,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_tujuan_lokal",
+          		"table": "data_rpd_tujuan_lokal{$prefix_history}",
           		"type": 1
           	},
           	dataType: "json",
@@ -1494,7 +1516,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_sasaran_lokal",
+          		"table": "data_rpd_sasaran_lokal{$prefix_history}",
           		"id_unik_tujuan": id_unik_tujuan,
           		"type": 1
           	},
@@ -1618,7 +1640,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_program_lokal",
+          		"table": "data_rpd_program_lokal{$prefix_history}",
           		"id_unik_sasaran": id_unik_sasaran,
           		"type": 1
           	},
@@ -1753,7 +1775,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_tujuan_lokal",
+          		"table": "data_rpd_tujuan_lokal{$prefix_history}",
           		"id_unik_tujuan": id_tujuan,
           		"type": 1
           	},
@@ -1822,7 +1844,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_sasaran_lokal",
+          		"table": "data_rpd_sasaran_lokal{$prefix_history}",
           		"id_unik_sasaran": id_sasaran,
           		"type": 1
           	},
@@ -1853,7 +1875,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_program_lokal",
+          		"table": "data_rpd_program_lokal{$prefix_history}",
           		"id_unik_program": id_program,
           		"type": 1
           	},
@@ -2047,7 +2069,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_tujuan_lokal",
+          		"table": "data_rpd_tujuan_lokal{$prefix_history}",
           		"id_unik_tujuan": id_unik_tujuan,
           		"type": 1
           	},
@@ -2123,7 +2145,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_sasaran_lokal",
+          		"table": "data_rpd_sasaran_lokal{$prefix_history}",
           		"id_unik_sasaran": id_unik_sasaran,
           		"type": 1
           	},
@@ -2222,7 +2244,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_program_lokal",
+          		"table": "data_rpd_program_lokal{$prefix_history}",
           		"id_unik_program": id_unik_program,
           		"type": 1
           	},
@@ -2253,7 +2275,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_tujuan_lokal",
+          		"table": "data_rpd_tujuan_lokal{$prefix_history}",
           		"id_unik_tujuan_indikator": id_unik_tujuan_indikator,
           		"type": 1
           	},
@@ -2323,7 +2345,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_sasaran_lokal",
+          		"table": "data_rpd_sasaran_lokal{$prefix_history}",
           		"id_unik_sasaran_indikator": id_unik_sasaran_indikator,
           		"type": 1
           	},
@@ -2357,7 +2379,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	data: {
           		"action": "get_rpd",
           		"api_key": ajax.api_key,
-          		"table": "data_rpd_program_lokal",
+          		"table": "data_rpd_program_lokal{$prefix_history}",
           		"id_unik_program_indikator": id_unik_program_indikator,
           		"type": 1
           	},
@@ -2424,7 +2446,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_tujuan_lokal',
+	          		"table": 'data_rpd_tujuan_lokal{$prefix_history}',
 	          		"data": tujuan_teks,
 	          		"id_isu": id_isu,
 	          		"id": id_tujuan,
@@ -2472,7 +2494,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_sasaran_lokal',
+	          		"table": 'data_rpd_sasaran_lokal{$prefix_history}',
 	          		"data": sasaran_teks,
 	          		"id_tujuan": id_unik_tujuan,
 	          		"id": id_sasaran,
@@ -2515,7 +2537,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_program_lokal',
+	          		"table": 'data_rpd_program_lokal{$prefix_history}',
 	          		"data": id_program_master,
 	          		"nama_program": program_teks,
 	          		"catatan": jQuery('#catatan-teks-program').val(),
@@ -2545,7 +2567,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_tujuan_lokal',
+	          		"table": 'data_rpd_tujuan_lokal{$prefix_history}',
 	          		"id": id_tujuan_unik
 	          	},
 	          	dataType: "json",
@@ -2571,7 +2593,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_sasaran_lokal',
+	          		"table": 'data_rpd_sasaran_lokal{$prefix_history}',
 	          		"id": id_sasaran_unik
 	          	},
 	          	dataType: "json",
@@ -2597,7 +2619,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_program_lokal',
+	          		"table": 'data_rpd_program_lokal{$prefix_history}',
 	          		"id": id_program_unik
 	          	},
 	          	dataType: "json",
@@ -2623,7 +2645,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_tujuan_lokal',
+	          		"table": 'data_rpd_tujuan_lokal{$prefix_history}',
 	          		"id_unik_tujuan_indikator": id_unik_tujuan_indikator
 	          	},
 	          	dataType: "json",
@@ -2649,7 +2671,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_sasaran_lokal',
+	          		"table": 'data_rpd_sasaran_lokal{$prefix_history}',
 	          		"id_unik_sasaran_indikator": id_unik_sasaran_indikator
 	          	},
 	          	dataType: "json",
@@ -2675,7 +2697,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "hapus_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_program_lokal',
+	          		"table": 'data_rpd_program_lokal{$prefix_history}',
 	          		"id_unik_program_indikator": id_unik_program_indikator
 	          	},
 	          	dataType: "json",
@@ -2730,7 +2752,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_tujuan_lokal',
+	          		"table": 'data_rpd_tujuan_lokal{$prefix_history}',
 	          		"data": tujuan_teks_indikator,
 	          		"id_tujuan": id_tujuan,
 	          		"vol_awal": vol_awal,
@@ -2794,7 +2816,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_sasaran_lokal',
+	          		"table": 'data_rpd_sasaran_lokal{$prefix_history}',
 	          		"data": sasaran_teks_indikator,
 	          		"id_sasaran": id_sasaran,
 	          		"satuan": satuan,
@@ -2863,7 +2885,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 	          	data: {
 	          		"action": "simpan_rpd",
 	          		"api_key": ajax.api_key,
-	          		"table": 'data_rpd_program_lokal',
+	          		"table": 'data_rpd_program_lokal{$prefix_history}',
 	          		"data": program_teks_indikator,
 	          		"id_program": id_program,
 	          		"id_skpd": id_skpd,
@@ -3058,7 +3080,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
           	type: "post",
           	data: {
           		"action": "get_rpd",
-          		"table": "data_rpd_program_lokal",
+          		"table": "data_rpd_program_lokal{$prefix_history}",
           		"api_key": ajax.api_key,
 				'id_unik_program': id_unik,
 				'type':1

@@ -28731,6 +28731,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'indikator_catatan_teks'   => $v['indikator_catatan_teks'] ?? '-',
 				'catatan_teks_tujuan'      => $v['catatan_teks_tujuan'] ?? '-',
 
+				'tahun_anggaran'           => $tahun_anggaran,
 				'is_locked'                => 0,
 				'is_locked_indikator'      => 0,
 				'status'                   => 1,
@@ -28743,7 +28744,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					FROM {$this->table_data_rpd_tujuan_lokal} 
 					WHERE id_unik = %s
 					  AND id_unik_indikator = %s
-				", $v['id_unik'], $v['id_unik_indikator'])
+					  AND tahun_anggaran = %d
+				", $v['id_unik'], $v['id_unik_indikator'], $tahun_anggaran)
 			);
 
 			if ($existing_id) {
@@ -28800,6 +28802,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'sasaran_catatan'		 => $v['sasaran_catatan'],
 				'indikator_catatan_teks' => $v['indikator_catatan_teks'],
 
+				'tahun_anggaran'		 => $tahun_anggaran,
 				'is_locked'				 => 0,
 				'is_locked_indikator'	 => 0,
 				'status'				 => 1,
@@ -28812,7 +28815,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					FROM {$this->table_data_rpd_sasaran_lokal} 
 					WHERE id_unik = %s
 					  AND id_unik_indikator = %s
-				", $v['id_unik'], $v['id_unik_indikator'])
+					  AND tahun_anggaran = %d
+				", $v['id_unik'], $v['id_unik_indikator'], $tahun_anggaran)
 			);
 
 			if ($existing_id) {
@@ -28881,6 +28885,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'visi_teks'				=> $v['visi_teks'],
 				'catatan'				=> $v['catatan'],
 				
+				'tahun_anggaran'		=> $tahun_anggaran,
 				'is_locked'				=> 0,
 				'is_locked_indikator'	=> 0,
 				'status'				=> 1,
@@ -28894,7 +28899,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					FROM {$this->table_data_rpd_program_lokal} 
 					WHERE id_unik = %s
 					  AND id_unik_indikator = %s
-				", $v['id_unik'], $v['id_unik_indikator'])
+					  AND tahun_anggaran = %d
+				", $v['id_unik'], $v['id_unik_indikator'], $tahun_anggaran)
 			);
 
 			if ($existing_id) {
@@ -29029,6 +29035,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_akhir'        => $v['target_akhir'],
 				'target_awal'         => $v['target_awal'],
 
+				'tahun_anggaran'      => $tahun_anggaran,
 				'status'              => 1,
 				'is_locked'           => 0,
 				'is_locked_indikator' => 0,
@@ -29091,6 +29098,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_akhir'        => $v['target_akhir'],
 				'target_awal'         => $v['target_awal'],
 
+				'tahun_anggaran'      => $tahun_anggaran,
 				'status'              => 1,
 				'active'              => 1,
 				'is_locked'           => 0,
@@ -29168,6 +29176,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'target_awal'         => $v['target_awal'],
 				
 				'status'              => 1,
+				'tahun_anggaran'      => $tahun_anggaran,
 				'active'              => 1,
 				'is_locked'           => 0,
 				'is_locked_indikator' => 0,
