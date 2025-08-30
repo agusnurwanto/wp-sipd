@@ -12653,14 +12653,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			switch ($data_jadwal->id_tipe) {
 				case 2:
+					//lokal
 					$jenis_jadwal = 'rpjmd';
+					$prefix_lokal = '_lokal';
 				break;
 				case 3:
+					//lokal
 					$jenis_jadwal = 'rpd';
+					$prefix_lokal = '_lokal';
 				break;
 				case 17:
+					//monev
 					$jenis_jadwal = $data_jadwal->jenis_jadwal;
-					$prefix_lokal = '_lokal';
 				break;
 			}
 
