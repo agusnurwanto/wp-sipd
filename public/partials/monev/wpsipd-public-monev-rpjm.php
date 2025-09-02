@@ -68,25 +68,23 @@ foreach ($rumus_indikator_db as $k => $v) {
 	$rumus_indikator .= '<option value="' . $v['id'] . '">' . $v['rumus'] . '</option>';
 }
 
-$where_skpd = '';
-if (!empty($input['id_skpd'])) {
-	$where_skpd = "and id_skpd =" . $input['id_skpd'];
+$units = $this->get_all_skpd_by_tahun_anggaran($data_jadwal->tahun_anggaran);
+if (empty($units)) {
+	die('<h1 class="text-center">Unit tidak ditemukan.</h1>');
 }
 
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_unit 
-	where tahun_anggaran=%d
-		" . $where_skpd . "
-		and active=1
-	order by id_skpd ASC
-", $data_jadwal->tahun_anggaran);
-$unit = $wpdb->get_results($sql, ARRAY_A);
+$all_skpd = [];
+foreach ($units as $v) {
+	$all_skpd[$v['id_skpd']] = $v;
+}
+
+if (!empty($input['id_skpd'])) {
+	$unit = $units[$input['id_skpd']];
+}
 
 $judul_skpd = '';
 if (!empty($input['id_skpd'])) {
-	$judul_skpd = $unit[0]['kode_skpd'] . '&nbsp;' . $unit[0]['nama_skpd'] . '<br>';
+	$judul_skpd = $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>';
 }
 $pengaturan = $wpdb->get_results($wpdb->prepare("
 	select 
@@ -197,29 +195,50 @@ foreach ($visi_all as $visi) {
 					from data_rpjmd_program
 					where id_jadwal=%d
 						and kode_sasaran=%s
+						and id_unik_indikator IS NULL
 						and active=1
 				", $input['id_jadwal_lokal'], $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'" . $program['id_unik'] . "'";
-					if (empty($program['kode_skpd'])) {
-						$program['kode_skpd'] = '00';
-						$program['nama_skpd'] = 'SKPD Kosong';
-					}
-					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
+					
 					if (empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])) {
 						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
-							'kode_skpd' => $program['kode_skpd'],
-							'nama_skpd' => $program['nama_skpd'],
+							'kode_skpd' => '-',
+							'nama_skpd' => '-',
 							'data' => array()
 						);
 					}
-					if (empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])) {
-						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-							'nama' => $program['indikator'],
-							'data' => $program
-						);
+
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_program
+						where id_jadwal=%d
+							and id_unik=%s
+							and id_unik_indikator IS NOT NULL
+							and active=1
+					", $input['id_jadwal_lokal'], $program['id_unik']);
+					$indikator_program_all = $wpdb->get_results($sql, ARRAY_A);
+					foreach ($indikator_program_all as $indikator_program) {
+						$parent_program =& $data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']];
+						
+						if ($parent_program['kode_skpd'] === '-') {
+							if (!empty($indikator_program['id_unit']) && isset($all_skpd[$indikator_program['id_unit']])) {
+								$parent_program['kode_skpd'] = $all_skpd[$indikator_program['id_unit']]['kode_skpd'] ?? '00';
+								$parent_program['nama_skpd'] = $all_skpd[$indikator_program['id_unit']]['nama_skpd'] ?? 'SKPD Kosong';
+							}
+						}
+
+						$skpd_filter[$parent_program['kode_skpd']] = $parent_program['nama_skpd'];
+
+						if (empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$indikator_program['id_unik_indikator']])) {
+							$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$indikator_program['id_unik_indikator']] = array(
+								'nama' => $indikator_program['indikator'],
+								'data' => $indikator_program
+							);
+						}
 					}
 				}
 			}
@@ -661,8 +680,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		min-height: 40px;
 	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah)<br><?php echo $judul_skpd . ' ' . $data_jadwal->nama . ' ' . $nama_pemda; ?></h4>
-<div id="cetak" title="Indikator RPJMD - <?php echo $judul_skpd . ' ' . $data_jadwal->nama; ?>" style="padding: 5px; overflow: auto; height: 80vh;">
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah)<br><?php echo $judul_skpd . ' Tahun ' . $data_jadwal->tahun_anggaran . ' - ' . $data_jadwal->tahun_akhir_anggaran . ' ' . $nama_pemda; ?></h4>
+<div id="cetak" title="Indikator RPJMD - <?php echo $judul_skpd . ' ' . $data_jadwal->nama; ?>" style="padding: 5px; overflow: auto; height: 80vh; margin-top: 10px;">
 	<table cellpadding="2" cellspacing="0" style="font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
