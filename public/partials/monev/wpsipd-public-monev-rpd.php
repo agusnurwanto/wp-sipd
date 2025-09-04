@@ -26,6 +26,12 @@ if (!empty($jadwal_lokal_for_copy_data)) {
     $status_copy_data = true;
 }
 
+$jadwal_renstra_koneksi = $this->get_jadwal_koneksi_relasi_perencanaan($data_jadwal->id_jadwal_lokal);
+$status_koneksi_renstra = false;
+if (!empty($jadwal_renstra_koneksi)) {
+    $status_koneksi_renstra = true;
+}
+
 global $wpdb;
 
 function button_edit_monev($class = false)
@@ -70,6 +76,7 @@ $tujuan_ids = array();
 $sasaran_ids = array();
 $program_ids = array();
 $skpd_filter = array();
+$all_program_rpd = array();
 
 $sql = $wpdb->prepare("
 	SELECT *
@@ -249,7 +256,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
         );
     }
     $data_all['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
-    
+
     $sql = $wpdb->prepare("
 		SELECT * 
 		FROM data_rpd_sasaran
@@ -594,6 +601,13 @@ foreach ($data_all['data'] as $tujuan) {
 		';
         $no_program = 0;
         foreach ($sasaran['data'] as $program) {
+            $program_parts = explode(' ', $program['nama']);
+            $kode_program = $program_parts[0];
+
+            if (empty($all_program_rpd[$kode_program])) {
+                $all_program_rpd[$kode_program] = $program;
+            }
+
             $no_program++;
             $text_indikator = array();
             $target_awal = array();
@@ -610,7 +624,11 @@ foreach ($data_all['data'] as $tujuan) {
             $target_akhir = array();
             $satuan = array();
             $nama_skpd = array();
+
+            $all_program_rpd[$kode_program]['indikator'] = [];
             foreach ($program['data'] as $indikator_program) {
+                $all_program_rpd[$kode_program]['indikator'][$indikator_program['nama']] = $indikator_program['data'];
+
                 $text_indikator[] = '<div class="indikator_program">' . $indikator_program['nama'] . button_edit_monev($tujuan['detail'][0]['id_unik'] . '||' . $sasaran['detail'][0]['id_unik'] . '||' . $indikator_program['data']['id_unik'] . '|' . $indikator_program['data']['id_unik_indikator']) . '</div>';
                 $target_awal[] = '<div class="indikator_program">' . $indikator_program['data']['target_awal'] . '</div>';
                 $target_1[] = '<div class="indikator_program">' . $indikator_program['data']['target_1'] . '</div>';
@@ -625,7 +643,7 @@ foreach ($data_all['data'] as $tujuan) {
                 $pagu_5[] = '<div class="indikator_program">' . $this->_number_format($indikator_program['data']['pagu_5']) . '</div>';
                 $target_akhir[] = '<div class="indikator_program">' . $indikator_program['data']['target_akhir'] . '</div>';
                 $satuan[] = '<div class="indikator_program">' . $indikator_program['data']['satuan'] . '</div>';
-                $nama_skpd[] = '<div class="indikator_program">' . $indikator_program['data']['kode_skpd'] . ' ' . $indikator_program['data']['nama_skpd'] . '</div>';
+                $nama_skpd[] = '<div class="indikator_program"><a href="javascript:void(0)" onclick="show_renstra(\'' . $indikator_program['data']['id_unit'] . '\',\'' . $sasaran['detail'][0]['id_unik'] . '\', \'' . $indikator_program['data']['kode_skpd'] . ' ' . $indikator_program['data']['nama_skpd'] . '\')">' . $indikator_program['data']['kode_skpd'] . ' ' . $indikator_program['data']['nama_skpd'] . '</a></div>';
             }
             $text_indikator = implode('', $text_indikator);
             $target_awal = implode('', $target_awal);
@@ -753,18 +771,17 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
     </table>
 </div>
 
-<div class="modal fade" id="modal-raw" tabindex="-2" role="dialog" aria-labelledby="modal-crud-RPD-label" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="modal-rpd" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog" style="min-width:1200px" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header bgpanel-theme">
+                <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold"></h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="detail-rpd-body">
             </div>
-            <div class="modal-footer"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -774,6 +791,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         run_download_excel();
 
         let data_all = <?php echo json_encode($data_all); ?>;
+        let all_program_rpd = <?php echo json_encode($all_program_rpd); ?>;
         let status_jadwal_lokal = <?php echo $status_copy_data; ?>;
 
         let aksi = ``;
@@ -792,17 +810,17 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			</label>
 			<label style="margin-left: 20px;">
 				Sembunyikan Baris 
-				<SELECT id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">
+				<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">
 					<option value="">Pilih Baris</option>
 					<option value="tr-sasaran">Sasaran</option>
 					<option value="tr-program">Program</option>
-				</SELECT>
+				</select>
 			</label>
 			<label style="margin-left: 20px;">
 				Filter SKPD 
-				<SELECT onchange="filter_skpd(this);" style="padding: 5px 10px; min-width: 200px; max-width: 400px;">
+				<select onchange="filter_skpd(this);" style="padding: 5px 10px; min-width: 200px; max-width: 400px;">
 					<?php echo $skpd_filter_html; ?>
-				</SELECT>
+				</select>
 			</label>
 		`;
         jQuery('#action-sipd').append(aksi);
@@ -821,7 +839,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
                 url: ajax.url,
                 type: "post",
                 data: {
-                    action: 'copy_data_monev_rpjmd_rpd_from_data_local',
+                    action: 'copy_data_monev_RPD_rpd_from_data_local',
                     api_key: ajax.api_key,
                     type: 'rpd',
                     id_jadwal: <?php echo $input['id_jadwal_lokal']; ?>
@@ -882,5 +900,284 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         } else {
             jQuery('.edit-monev').hide();
         }
+    }
+
+    async function show_renstra(idUnit, kodeSasaran, namaUnit) {
+        jQuery('#wrap-loading').show();
+        const dataRenstra = await get_data_renstra_by_kode_sasaran_koneksi(idUnit, kodeSasaran);
+
+        const modal = jQuery("#modal-rpd");
+        const modalBody = jQuery("#detail-rpd-body");
+        modalBody.empty();
+
+        if (dataRenstra.status && dataRenstra.data) {
+            const data = dataRenstra.data;
+
+            const lama_pelaksanaan = <?php echo $jadwal_renstra_koneksi->lama_pelaksanaan; ?>;
+            const jadwal_tahun = '<?php echo $jadwal_renstra_koneksi->tahun_anggaran; ?>';
+
+            const tahun_akhir_relasi = <?php echo $jadwal_renstra_koneksi->tahun_akhir_anggaran; ?>;
+            const nama_pemda = '<?php echo $nama_pemda; ?>';
+
+            const processParentChildArray = (arr, textKey) => {
+                if (!arr || arr.length === 0) return {
+                    text: '',
+                    indicators: []
+                };
+                const parent = arr.find(item => !item.id_unik_indikator);
+                const indicators = arr.filter(item => item.id_unik_indikator);
+                return {
+                    text: parent ? parent[textKey] : (arr[0] ? arr[0][textKey] : ''),
+                    indicators: indicators || []
+                };
+            };
+
+            const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks');
+            const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks');
+
+            const groupedPrograms = {};
+            if (data.program && data.program.length > 0) {
+                data.program.forEach(p => {
+                    if (p.id_unik && !p.id_unik_indikator) {
+                        if (!groupedPrograms[p.id_unik]) groupedPrograms[p.id_unik] = {
+                            id_unik: p.id_unik,
+                            nama_program: p.nama_program,
+                            indicators: []
+                        };
+                    }
+                });
+                data.program.forEach(p => {
+                    if (p.id_unik && p.id_unik_indikator && groupedPrograms[p.id_unik]) {
+                        groupedPrograms[p.id_unik].indicators.push(p);
+                    }
+                });
+            }
+
+            // tujuan sasaran
+            const generateMetaCardHtml = (title, data) => {
+                if (!data.text) return '';
+
+                let html = `
+					<div class="card mb-3">
+						<div class="card-header"><strong>${title} RENSTRA</strong></div>
+						<div class="card-body" style="padding:0;">
+							<table class="table table-bordered mb-0">
+								<tbody>
+									<tr>
+										<td colspan="2"><strong>${data.text}</strong></td>
+									</tr>`;
+
+                if (data.indicators.length > 0) {
+                    html += `   <tr>
+									<td colspan="2" style="padding: 8px;">
+										<table class="table table-sm table-hover" style="font-size: 12px; margin-bottom: 0;">
+											<thead class="bg-dark text-light">
+												<tr>
+													<th class="text-center">Indikator</th>
+													<th class="text-center">Satuan</th>`;
+                    for (let i = 1; i <= lama_pelaksanaan; i++) {
+                        html += `					<th class="text-center">Target ${i}</th>`;
+                    }
+                    html += `               	</tr>
+											</thead>
+										<tbody>`;
+                    data.indicators.forEach(ind => {
+                        html += `           <tr>
+												<td>${ind.indikator_teks || '-'}</td>
+												<td class="text-center">${ind.satuan || '-'}</td>`;
+                        for (let i = 1; i <= lama_pelaksanaan; i++) {
+                            html += `           <td class="text-right">${ind['target_' + i] || '-'}</td>`;
+                        }
+                        html += `           </tr>`;
+                    });
+                    html += `           </tbody>
+										</table>
+									</td>
+								</tr>`;
+                } else {
+                    html += `<tr><td colspan="2"><small class="pl-2">Tidak ada indikator.</small></td></tr>`;
+                }
+
+                html += `       </tbody>
+							</table>
+						</div>
+					</div>`;
+                return html;
+            };
+
+            // program
+            const generateProgramsCardHtml = (programs) => {
+                if (Object.keys(programs).length === 0) return '<p class="text-center">Tidak ada data program untuk ditampilkan.</p>';
+                let html = `
+					<div class="card">
+						<div class="card-header"></div>
+						<div class="card-body" style="padding:0;">
+							<div class="container-fluid">
+								<table class="table table-bordered mb-2 mt-2">
+									<thead class="bg-dark text-light">
+										<tr>
+											<th class="text-center" style="width:5%;">No</th>
+											<th class="text-center">Program RENSTRA</th>
+											<th class="text-center" style="width:20%;">Keterangan</th>
+										</tr>
+									</thead>
+									<tbody>`;
+
+                Object.values(programs).forEach((prog, progIndex) => {
+
+                    html += `   <tr>
+									<td class="text-center">${progIndex + 1}</td>
+									<td><strong>${prog.nama_program}</strong></td>
+									<td class="prog-ket-${prog.id_unik}">-</td>
+								</tr>`;
+
+                    if (prog.indicators.length > 0) {
+                        html += `<tr>
+									<td colspan="3" style="padding: 8px;">
+										<table class="table table-sm table-hover" style="font-size: 12px; margin-bottom: 0;">
+											<thead class="bg-dark text-light">
+												<tr>
+													<th class="text-center" style="width:5%;">No</th>
+													<th class="text-center" style="width:200px;">Indikator</th>
+													<th class="text-center">Satuan</th>`;
+                        for (let i = 1; i <= lama_pelaksanaan; i++) {
+                            html += `
+													<th class="text-center">Target ${i}</th>
+													<th class="text-center">Pagu ${i}</th>
+							`;
+                        }
+                        html += `
+													<th class="text-center" style="width:20%;">Keterangan</th>
+												</tr>
+											</thead>
+											<tbody>`;
+                        prog.indicators.forEach((ind, indIndex) => {
+                            html += `       <tr>
+												<td class="text-center">${progIndex + 1}.${indIndex + 1}</td>
+												<td class="text-left">${ind.indikator}</td>
+												<td class="text-center">${ind.satuan || '-'}</td>`;
+                            for (let i = 1; i <= lama_pelaksanaan; i++) {
+                                html += `       <td class="text-right">${ind['target_' + i] || '-'}</td>
+												<td class="text-right">${ind['pagu_' + i] || '0.00'}</td>`;
+                            }
+                            html += `
+												<td class="text-left errMsg-${ind.id_unik_indikator}">-</td>
+											</tr>`;
+                        });
+                        html += `           </tbody>
+										</table>
+									</td>
+								</tr>`;
+                    }
+                });
+                html += `      </tbody>
+							</table>
+						</div>
+					</div>
+				</div>`;
+
+                return html;
+            };
+
+            const finalHtml =
+                generateMetaCardHtml('Tujuan', tujuanData) +
+                generateMetaCardHtml('Sasaran', sasaranData) +
+                generateProgramsCardHtml(groupedPrograms);
+
+            modalBody.html(finalHtml);
+
+            await validateRPD(groupedPrograms);
+
+            modal.find('.modal-title').html(`Data Keterkaitan RENSTRA <br> ${namaUnit} <br>Tahun ${jadwal_tahun} - ${tahun_akhir_relasi} <br> ${nama_pemda}`);
+        } else {
+            modalBody.html(`<div class="alert alert-danger text-center">${dataRenstra.message || 'Gagal memuat data.'}</div>`);
+        }
+
+        modal.modal('show');
+        jQuery('#wrap-loading').hide();
+    }
+
+    async function validateRPD(groupedPrograms) {
+        window.js = groupedPrograms;
+        const all_program_rpd = window.all_program_rpd;
+
+        if (!all_program_rpd) {
+            console.error('Variabel global all_program_rpd tidak ditemukan.');
+            return;
+        }
+
+        const lama_pelaksanaan = <?php echo $jadwal_renstra_koneksi->lama_pelaksanaan; ?>;
+
+        for (const [progIdUnik, progData] of Object.entries(groupedPrograms)) {
+            let kodeProgram = progData.nama_program.split(' ')[0];
+
+            const programErrorField = jQuery(`.prog-ket-${progIdUnik}`);
+            const rpdProgram = all_program_rpd[kodeProgram];
+
+            if (!rpdProgram) {
+                programErrorField.html('Program tidak ditemukan di RPD.').addClass('text-danger font-weight-bold');
+                continue;
+            }
+
+            if (progData.nama_program !== rpdProgram.nama) {
+                programErrorField.html(`Nama program tidak sesuai (RPD: ${rpdProgram.nama})`).addClass('text-danger');
+            } else {
+                programErrorField.html('Sesuai RPD').addClass('text-success font-weight-bold');
+            }
+
+            progData.indicators.forEach(indikator => {
+                let errors = [];
+                const indicatorErrorField = jQuery(`.errMsg-${indikator.id_unik_indikator}`);
+
+                const rpjmIndikator = rpdProgram.indikator?.[indikator.indikator];
+
+                if (!rpjmIndikator) {
+                    indicatorErrorField.html('Indikator tidak ditemukan di RPD.').addClass('text-danger font-weight-bold');
+                    return;
+                }
+
+                if (indikator.satuan !== rpjmIndikator.satuan) {
+                    errors.push(`Satuan tidak sesuai (RPD: ${rpjmIndikator.satuan})`);
+                }
+
+                for (let i = 1; i <= lama_pelaksanaan; i++) {
+                    const targetKey = 'target_' + i;
+                    const paguKey = 'pagu_' + i;
+
+                    const currentTarget = indikator[targetKey] || '';
+                    const rpjmTarget = rpjmIndikator[targetKey] || '';
+                    if (currentTarget.toString() !== rpjmTarget.toString()) {
+                        errors.push(`Target ${i} tidak sesuai (RPD: ${rpjmTarget})`);
+                    }
+
+                    const currentPagu = parseFloat(indikator[paguKey] || 0);
+                    const rpjmPagu = parseFloat(rpjmIndikator[paguKey] || 0);
+                    if (currentPagu !== rpjmPagu) {
+                        errors.push(`Pagu ${i} tidak sesuai (RPD: ${rpjmPagu})`);
+                    }
+                }
+
+                if (errors.length > 0) {
+                    indicatorErrorField.html(errors.join(',<br>')).addClass('text-danger');
+                } else {
+                    indicatorErrorField.html('Sesuai RPD').addClass('text-success');
+                }
+            });
+        }
+    }
+
+    function get_data_renstra_by_kode_sasaran_koneksi(idUnit, kodeSasaran) {
+        return jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: 'JSON',
+            data: {
+                action: "get_data_renstra_by_kode_sasaran_koneksi",
+                api_key: ajax.api_key,
+                id_unit: idUnit,
+                kode_sasaran: kodeSasaran,
+                id_jadwal: <?php echo $jadwal_renstra_koneksi->id_jadwal_lokal; ?>
+            }
+        });
     }
 </script>

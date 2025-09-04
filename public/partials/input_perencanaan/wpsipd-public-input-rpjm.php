@@ -36,6 +36,12 @@ function parsing_nama_kode($nama_kode){
 }
 
 // check jadwal is running bool;
+$prefix_history = '';
+$is_locked_jadwal_lokal = $data_jadwal->status == 1 ? true : false;
+if ($is_locked_jadwal_lokal) {
+	$prefix_history = '_history';
+}
+
 $is_running_jadwal_lokal = $this->is_running_jadwal_lokal($data_jadwal->id_jadwal_lokal);
 if ($is_running_jadwal_lokal) {
     if (in_array("administrator", $user_meta->roles)) {
@@ -117,7 +123,7 @@ $skpd_filter = array();
 
 $sql = $wpdb->prepare("
 	SELECT * 
-	FROM data_rpjmd_visi_lokal
+	FROM data_rpjmd_visi_lokal{$prefix_history}
 	WHERE active = 1
 	  AND tahun_anggaran = %d
 ", $data_jadwal->tahun_anggaran);
@@ -133,7 +139,7 @@ foreach ($visi_all as $visi) {
 	$visi_ids[$visi['id']] = "'".$visi['id']."'";
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_misi_lokal
+		FROM data_rpjmd_misi_lokal{$prefix_history}
 		WHERE id_visi=%s
 		  AND active = 1
 		  AND tahun_anggaran = %d
@@ -151,7 +157,7 @@ foreach ($visi_all as $visi) {
 		$misi_ids[$misi['id']] = "'".$misi['id']."'";
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_tujuan_lokal
+			FROM data_rpjmd_tujuan_lokal{$prefix_history}
 			WHERE id_misi=%s 
 			  AND id_unik_indikator IS NULL
 			  AND tahun_anggaran = %d
@@ -169,7 +175,7 @@ foreach ($visi_all as $visi) {
 
 			$sql = $wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_tujuan_lokal
+				FROM data_rpjmd_tujuan_lokal{$prefix_history}
 				WHERE id_tujuan=%s
 				  AND tahun_anggaran = %d
 				  AND active = 1
@@ -182,7 +188,7 @@ foreach ($visi_all as $visi) {
 
 			$sql = $wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_sasaran_lokal
+				FROM data_rpjmd_sasaran_lokal{$prefix_history}
 				WHERE kode_tujuan=%s 
 				  AND id_unik_indikator IS NULL
 				  AND tahun_anggaran = %d
@@ -200,7 +206,7 @@ foreach ($visi_all as $visi) {
 
 				$sql = $wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_sasaran_lokal
+					FROM data_rpjmd_sasaran_lokal{$prefix_history}
 					WHERE id_sasaran=%s
 					  AND tahun_anggaran = %d
 					  AND active = 1
@@ -213,7 +219,7 @@ foreach ($visi_all as $visi) {
 
 				$sql = $wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_program_lokal
+					FROM data_rpjmd_program_lokal{$prefix_history}
 					WHERE kode_sasaran=%s 
 					  AND id_unik_indikator IS NULL 
 					  AND active=1
@@ -251,7 +257,7 @@ foreach ($visi_all as $visi) {
 
 					$sql = $wpdb->prepare("
 						SELECT * 
-						FROM data_rpjmd_program_lokal
+						FROM data_rpjmd_program_lokal{$prefix_history}
 						WHERE id_unik=%s 
 						  AND id_unik_indikator IS NOT NULL 
 						  AND active=1
@@ -313,7 +319,7 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan
 if(!empty($misi_ids)){
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_misi_lokal
+		FROM data_rpjmd_misi_lokal{$prefix_history}
 		WHERE id NOT IN (".implode(',', $misi_ids).")
 		  AND active = 1
 		  AND tahun_anggaran = %d
@@ -321,7 +327,7 @@ if(!empty($misi_ids)){
 }else{
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_misi_lokal
+		FROM data_rpjmd_misi_lokal{$prefix_history}
 		WHERE active = 1
 		  AND tahun_anggaran = %d
 	", $data_jadwal->tahun_anggaran);
@@ -337,7 +343,7 @@ foreach ($misi_all_kosong as $misi) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_tujuan_lokal
+		FROM data_rpjmd_tujuan_lokal{$prefix_history}
 		WHERE id=%s
 		AND active = 1
 	", $misi['id']);
@@ -353,7 +359,7 @@ foreach ($misi_all_kosong as $misi) {
 		}
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_tujuan_lokal
+			FROM data_rpjmd_tujuan_lokal{$prefix_history}
 			WHERE id_tujuan=%s
 			  AND tahun_anggaran = %d
 			  AND active = 1
@@ -365,7 +371,7 @@ foreach ($misi_all_kosong as $misi) {
 
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_sasaran_lokal
+			FROM data_rpjmd_sasaran_lokal{$prefix_history}
 			WHERE kode_tujuan=%s
 			  AND tahun_anggaran = %d
 			  AND active = 1
@@ -383,7 +389,7 @@ foreach ($misi_all_kosong as $misi) {
 
 			$sql = $wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_sasaran_lokal
+				FROM data_rpjmd_sasaran_lokal{$prefix_history}
 				WHERE id_sasaran=%s
 				  AND tahun_anggaran = %d
 				  AND active = 1
@@ -395,7 +401,7 @@ foreach ($misi_all_kosong as $misi) {
 
 			$sql = $wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_program_lokal
+				FROM data_rpjmd_program_lokal{$prefix_history}
 				WHERE kode_sasaran=%s 
 				  AND active=1
 				  AND tahun_anggaran = %d
@@ -412,7 +418,7 @@ foreach ($misi_all_kosong as $misi) {
 
 				$sql = $wpdb->prepare("
 					SELECT * 
-					FROM data_rpjmd_program_lokal
+					FROM data_rpjmd_program_lokal{$prefix_history}
 					WHERE id_unik=%s 
 					  AND id_unik_indikator IS NOT NULL 
 					  AND active=1
@@ -436,7 +442,7 @@ foreach ($misi_all_kosong as $misi) {
 if(!empty($tujuan_ids)){
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_tujuan_lokal
+		FROM data_rpjmd_tujuan_lokal{$prefix_history}
 		WHERE id_unik NOT IN (".implode(',', $tujuan_ids).")
 		  AND tahun_anggaran = %d
 		  AND active = 1
@@ -444,7 +450,7 @@ if(!empty($tujuan_ids)){
 }else{
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_tujuan_lokal
+		FROM data_rpjmd_tujuan_lokal{$prefix_history}
 		WHERE tahun_anggaran = %d
 		  AND active = 1
 	", $data_jadwal->tahun_anggaran);
@@ -461,7 +467,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_tujuan_lokal
+		FROM data_rpjmd_tujuan_lokal{$prefix_history}
 		WHERE id_tujuan=%s
 		  AND active = 1
 	", $tujuan['id']);
@@ -472,7 +478,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_sasaran_lokal
+		FROM data_rpjmd_sasaran_lokal{$prefix_history}
 		WHERE kode_tujuan=%s
 		  AND tahun_anggaran = %d
 		  AND active = 1
@@ -490,7 +496,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_sasaran_lokal
+			FROM data_rpjmd_sasaran_lokal{$prefix_history}
 			WHERE id_sasaran=%s
 			AND active = 1
 		", $sasaran['id']);
@@ -501,7 +507,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_program_lokal
+			FROM data_rpjmd_program_lokal{$prefix_history}
 			WHERE kode_sasaran=%s 
 			  AND active=1
 			  AND tahun_anggaran = %d
@@ -518,7 +524,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 
 			$sql = $wpdb->prepare("
 				SELECT * 
-				FROM data_rpjmd_program_lokal
+				FROM data_rpjmd_program_lokal{$prefix_history}
 				WHERE id_unik=%s 
 				  AND id_unik_indikator IS NOT NULL
 				  AND active=1
@@ -542,7 +548,7 @@ if(!empty($sasaran_ids)){
 	$sql = $wpdb->prepare("
 		SELECT 
 			* 
-		FROM data_rpjmd_sasaran_lokal
+		FROM data_rpjmd_sasaran_lokal{$prefix_history}
 		WHERE id_unik NOT IN (".implode(',', $sasaran_ids).")
 		AND tahun_anggaran = %d
 		AND active = 1
@@ -550,7 +556,7 @@ if(!empty($sasaran_ids)){
 }else{
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_sasaran_lokal
+		FROM data_rpjmd_sasaran_lokal{$prefix_history}
 		WHERE tahun_anggaran = %d
 		AND active = 1
 	", $data_jadwal->tahun_anggaran);
@@ -568,7 +574,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_sasaran_lokal
+		FROM data_rpjmd_sasaran_lokal{$prefix_history}
 		WHERE id_sasaran=%s
 		AND active = 1
 	", $sasaran['id']);
@@ -579,7 +585,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_program_lokal
+		FROM data_rpjmd_program_lokal{$prefix_history}
 		WHERE kode_sasaran=%s 
 		  AND active=1
 		  AND tahun_anggaran = %d
@@ -602,7 +608,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 
 		$sql = $wpdb->prepare("
 			SELECT * 
-			FROM data_rpjmd_program_lokal
+			FROM data_rpjmd_program_lokal{$prefix_history}
 			WHERE id_unik=%s 
 			  AND id_unik_indikator IS NOT NULL 
 			  AND active=1
@@ -624,7 +630,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 if(!empty($program_ids)){
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_program_lokal
+		FROM data_rpjmd_program_lokal{$prefix_history}
 		WHERE id_unik NOT IN (".implode(',', $program_ids).") 
 		  AND active=1 
 		  AND tahun_anggaran = %d
@@ -632,7 +638,7 @@ if(!empty($program_ids)){
 }else{
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_program_lokal
+		FROM data_rpjmd_program_lokal{$prefix_history}
 		WHERE active=1
 		  AND tahun_anggaran = %d
 	", $data_jadwal->tahun_anggaran);
@@ -650,7 +656,7 @@ foreach ($program_all as $program) {
 
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_rpjmd_program_lokal
+		FROM data_rpjmd_program_lokal{$prefix_history}
 		WHERE id_unik=%s AND id_unik_indikator IS NOT NULL
 		  AND active=1
 		  AND tahun_anggaran = %d

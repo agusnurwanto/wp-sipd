@@ -5305,6 +5305,7 @@ CREATE TABLE `data_rpd_tujuan_history` (
   `update_at` DATETIME NOT NULL,
   `id_jadwal` INT(11) NOT NULL,
   `id_asli` INT(11) NOT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id),
   KEY `id_jadwal` (`id_jadwal`),
   KEY `id_unik` (`id_unik`),
@@ -5349,6 +5350,7 @@ CREATE TABLE `data_rpd_sasaran_history` (
   `update_at` DATETIME NOT NULL,
   `id_jadwal` INT(11) NOT NULL,
   `id_asli` INT(11) NOT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id),
   KEY `id_jadwal` (`id_jadwal`),
   KEY `kode_tujuan` (`kode_tujuan`),
@@ -5408,6 +5410,7 @@ CREATE TABLE `data_rpd_program_history` (
   `update_at` DATETIME NOT NULL,
   `id_jadwal` INT(11) NOT NULL,
   `id_asli` INT(11) NOT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -5448,6 +5451,7 @@ CREATE TABLE `data_rpd_tujuan_lokal_history` (
   `catatan_teks_tujuan` TEXT NOT NULL,
   `indikator_catatan_teks` TEXT NOT NULL,
   `active` TINYINT(4) NOT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id),
   KEY `id_jadwal` (`id_jadwal`),
   KEY `id_tujuan` (`id_tujuan`),
@@ -5497,6 +5501,7 @@ CREATE TABLE `data_rpd_sasaran_lokal_history` (
   `indikator_catatan_teks` TEXT NOT NULL,
   `active` TINYINT(4) NOT NULL,
   `id_program_lama` INT(11) DEFAULT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id),
   KEY `id_jadwal` (`id_jadwal`),
   KEY `id_sasaran` (`id_sasaran`),
@@ -5558,6 +5563,7 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   `id_asli` INT(11) NOT NULL,
   `active` TINYINT(4) NOT NULL,
   `id_program_lama` INT(11) DEFAULT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
   PRIMARY KEY (id),
   KEY `id_jadwal` (`id_jadwal`),
   KEY `id_program` (`id_program`),
