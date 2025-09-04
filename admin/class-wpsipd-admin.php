@@ -1038,6 +1038,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->set_page_menu_position(9)
 					->set_icon('dashicons-media-spreadsheet');
 
+				if (get_option('_crb_show_menu_jadwal_manrisk_settings') != true) {
+					Container::make('theme_options', __('Jadwal Manajemen Resiko'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'jadwal_manrisk')));
+				}
+
 				if (get_option('_crb_show_menu_konteks_resiko_settings') != true) {
 					Container::make('theme_options', __('Konteks Resiko'))
 						->set_page_parent($manrisk)
@@ -1629,6 +1635,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					} else if ($_POST['type'] == 'aklap_lra') {
 						$url_pemda = $this->generatePage('AKLAP LRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman LRA AKLAP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
+					} else if ($_POST['type'] == 'jadwal_manrisk') {
+						$url_jadwal_manrisk = $this->generatePage('Jadwal Manajemen Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_jadwal_manrisk . '">Jadwal Manajemen Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'tujuan_sasaran') {
 						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Daftar Resiko Tujuan / Sasaran Tahun ' . $v['tahun_anggaran'] . '</a>';
@@ -1855,6 +1865,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'pohon_kinerja_renja'
 					|| $_POST['type'] == 'aklap_lra'
 					|| $_POST['type'] == 'spt_sppd'
+					|| $_POST['type'] == 'jadwal_manrisk'
 					|| $_POST['type'] == 'tujuan_sasaran'
 					|| $_POST['type'] == 'program_kegiatan'
 				) {
@@ -2621,6 +2632,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			Field::make('separator', 'crb_show_menu_manajemen_resiko', 'Non Aktifkan Menu ( Manajemen Resiko )'),
 			Field::make('checkbox', 'crb_show_menu_manajemen_resiko_settings', 'Manajemen Resiko')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_jadwal_manrisk_settings', 'Jadwal Manajemen Resiko')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_konteks_resiko_settings', 'Konteks Resiko')
 				->set_option_value('true'),

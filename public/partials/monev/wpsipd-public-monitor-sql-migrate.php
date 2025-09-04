@@ -119,7 +119,8 @@
 		array('id' => 16,'nama_tipe' => 'monev_renja','keterangan_tipe' => '','lama_pelaksanaan' => 1),
 		array('id' => 17,'nama_tipe' => 'monev_rpjmd','keterangan_tipe' => '','lama_pelaksanaan' => 5),
 		array('id' => 18,'nama_tipe' => 'tagging_rincian','keterangan_tipe' => '','lama_pelaksanaan' => 1),
-		array('id' => 19,'nama_tipe' => 'efisiensi_belanja','keterangan_tipe' => '','lama_pelaksanaan' => 1)
+		array('id' => 19,'nama_tipe' => 'efisiensi_belanja','keterangan_tipe' => '','lama_pelaksanaan' => 1),
+		array('id' => 20,'nama_tipe' => 'manajemen_resiko','keterangan_tipe' => '','lama_pelaksanaan' => 1)
 	);
 
 	update_option('data_master_tipe_perencanaan', $data_statis_tipe_perencanaan);

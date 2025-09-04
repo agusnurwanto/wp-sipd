@@ -7107,6 +7107,48 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        $ret['message'] = 'Berhasil get program renja!';
 					    }
 
+					} else if ($jenis == 'program') {
+						if (empty($_POST['tahun_anggaran'])) {
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+						}
+						$skpd = $wpdb->get_results(
+							$wpdb->prepare('
+								SELECT *
+								FROM data_unit
+								WHERE id_unit = %d
+								  AND active = 1
+								  AND tahun_anggaran = %d
+							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+						$id_skpd = array();
+						foreach ($skpd as $v) {
+							$id_skpd[] = $v['id_skpd'];
+						}
+						$data_program_renstra = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									kode_program,
+									nama_program,
+									kode_sub_skpd,
+									nama_sub_skpd,
+									id_sub_skpd,
+									SUM(pagu) as pagu 
+								FROM data_sub_keg_bl 
+								WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
+								  AND active=1 
+								  AND tahun_anggaran=%d 
+								GROUP BY kode_program, id_sub_skpd  
+								ORDER BY kode_program
+							", $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+
+						if (!empty($data_program_renstra)) {
+							$ret['data'] = $data_program_renstra;
+							$ret['message'] = 'Berhasil get program renja!';
+							$ret['sql'] = $wpdb->last_query;
+						}
 					} else if ($jenis == 'kegiatan_renstra') {
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
@@ -7168,6 +7210,39 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        $ret['message'] = 'Berhasil get kegiatan renstra!';
 					    }
 
+					} else if ($jenis == 'kegiatan') {
+						if (empty($_POST['parent_cascading'])) {
+							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+
+						if (empty($_POST['tahun_anggaran'])) {
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+						}
+
+						$data_kegiatan_renja = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									kode_giat,
+									nama_giat,
+									kode_sub_skpd,
+									nama_sub_skpd,
+									id_sub_skpd,
+									SUM(pagu) as pagu 
+								FROM data_sub_keg_bl 
+								WHERE id_sub_skpd=%d 
+								  AND active=1 
+								  AND tahun_anggaran=%d 
+								  AND kode_program=%s
+								GROUP BY kode_giat, id_sub_skpd 
+								ORDER BY kode_giat
+							", $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']),
+							ARRAY_A
+						);
+
+						if (!empty($data_kegiatan_renja)) {
+							$ret['data'] = $data_kegiatan_renja;
+							$ret['message'] = 'Berhasil get kegiatan renja!';
+						}
 					} else if ($jenis == 'sub_giat_renstra') {
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
@@ -7228,6 +7303,32 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        $ret['data'] = $data_sub_giat_renstra;
 					        $ret['message'] = 'Berhasil get kegiatan renstra!';
 					    }
+					} else if ($jenis == 'sub_kegiatan') {
+						if (empty($_POST['parent_cascading'])) {
+							throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+						}
+
+						if (empty($_POST['tahun_anggaran'])) {
+							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+						}
+
+						$data_sub_kegiatan_renja = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT * 
+								FROM data_sub_keg_bl 
+								WHERE id_sub_skpd = %d 
+								  AND active = 1 
+								  AND tahun_anggaran = %d 
+								  AND kode_giat = %s
+								ORDER BY kode_sbl
+							", $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']),
+							ARRAY_A
+						);
+
+						if (!empty($data_sub_kegiatan_renja)) {
+							$ret['data'] = $data_sub_kegiatan_renja;
+							$ret['message'] = 'Berhasil get sub kegiatan renja!';
+						}
 					}
 
 				} else {

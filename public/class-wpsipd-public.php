@@ -17934,7 +17934,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$edit = '';
 							$delete = '';
 							$lock = '';
-							$report = '<a class="btn btn-sm btn-primary action-btn" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							if ($tipe_perencanaan != 'manajemen_resiko') {
+								$report = '<a class="btn btn-sm btn-primary action-btn" onclick="report(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							}
 							$status = array(
 								0 => '<span class="badge badge-success" style="font-size:inherit;">Terbuka</span>',
 								1 => '<span class="badge badge-info" style="font-size:inherit;">Dikunci</span>',
@@ -17943,17 +17945,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 							if ($is_admin) {
 								$edit = '<a class="btn btn-sm btn-warning action-btn" onclick="edit_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-								$delete = '<a class="btn btn-sm btn-danger action-btn" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								if ($tipe_perencanaan != 'manajemen_resiko') {
+									$delete = '<a class="btn btn-sm btn-danger action-btn" onclick="hapus_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								}
 								if ($recVal['status'] == 1) {
 									$edit = '';
 									$delete = '';
 									$lock = '<a class="btn btn-sm btn-success action-btn disabled" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								} else {
 									$checkOpenedSchedule++;
-									if ($tipe_perencanaan == 'renstra') {
-										$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\', \'' . $recVal['tahun_anggaran'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-									} else {
-										$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+									if ($tipe_perencanaan != 'manajemen_resiko') {
+										if ($tipe_perencanaan == 'renstra') {
+											$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\', \'' . $recVal['tahun_anggaran'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+										} else {
+											$lock = '<a class="btn btn-sm btn-success action-btn" onclick="lock_data_penjadwalan(\'' . $recVal['id_jadwal_lokal'] . '\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+										}
 									}
 								}
 								if (
@@ -18289,6 +18295,54 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$return = [
 										'status'  => 'success',
 										'message' => 'Berhasil Tambah Jadwal Efisiensi Belanja!',
+									];
+								} else {
+									$return = [
+										'status'  => 'error',
+										'message' => 'Harap diisi semua, tidak boleh ada yang kosong!'
+									];
+								}
+
+								break;
+							case 'manajemen_resiko':
+								// Tambah Jadwal Efisiensi Belanja
+								if (
+									!empty($nama)
+									&& !empty($tahun_anggaran)
+									&& !empty($jadwal_mulai)
+									&& !empty($jadwal_selesai)
+								) {
+									$cek_jadwal_terbuka = $wpdb->get_row(
+										$wpdb->prepare('
+											SELECT 
+												*
+											FROM data_jadwal_lokal
+											WHERE id_tipe = %d
+											  AND status = %d
+											  AND tahun_anggaran = %d
+										', 19, 0, $tahun_anggaran)
+									);
+									if (!empty($cek_jadwal_terbuka)) {
+										$return = [
+											'status'  => 'error',
+											'message' => 'GAGAL! Masih terdapat jadwal terbuka!'
+										];
+										die(json_encode($return));
+									}
+									$data_jadwal = [
+										'nama'              => $nama,
+										'waktu_awal'       	=> $jadwal_mulai,
+										'waktu_akhir'       => $jadwal_selesai,
+										'tahun_anggaran'    => $tahun_anggaran,
+										'id_tipe'  			=> $sqlTipe['id'],
+										'lama_pelaksanaan'  => 1,
+										'status'            => 0,
+									];
+									$wpdb->insert('data_jadwal_lokal', $data_jadwal);
+
+									$return = [
+										'status'  => 'success',
+										'message' => 'Berhasil Tambah Jadwal Manajemen Resiko!',
 									];
 								} else {
 									$return = [
@@ -29560,5 +29614,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("Gagal Upsert Program RPJMD. DB Error: " . $wpdb->last_error);
 			}
 		}
+	}
+
+	public function jadwal_manrisk($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penjadwalan/wpsipd-public-jadwal-manrisk.php';
 	}
 }
