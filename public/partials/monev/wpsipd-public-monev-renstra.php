@@ -2178,7 +2178,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 
 			// program
 			const generateProgramsCardHtml = (programs) => {
-				if (Object.keys(programs).length === 0) return '<p>Tidak ada data program untuk ditampilkan.</p>';
+				if (Object.keys(programs).length === 0) return '<p class="text-center">Tidak ada data program untuk ditampilkan.</p>';
 				let html = `
 					<div class="card">
 						<div class="card-header"></div>
@@ -2287,7 +2287,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 			const renstraProgram = all_program_renstra[kodeProgram];
 
 			if (!renstraProgram) {
-				programErrorField.html('Program tidak ditemukan di Renstra.').addClass('text-danger font-weight-bold');
+				programErrorField.html('Program tidak ditemukan di RENSTRA.').addClass('text-danger font-weight-bold');
 				continue; 
 			}
 
@@ -2301,10 +2301,10 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				let errors = [];
 				const indicatorErrorField = jQuery(`.errMsg-${indikator.id_unik_indikator}`);
 				
-				const renstraIndikator = renstraProgram.indicators?.[indikator.id_unik_indikator];
+				const renstraIndikator = renstraProgram.indikator?.[indikator.indikator];
 
 				if (!renstraIndikator) {
-					indicatorErrorField.html('Indikator tidak ditemukan di Renstra.').addClass('text-danger font-weight-bold');
+					indicatorErrorField.html('Indikator tidak ditemukan di RENSTRA.').addClass('text-danger font-weight-bold');
 					return;
 				}
 

@@ -12625,6 +12625,162 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function get_data_renstra_by_kode_sasaran_koneksi()
+	{
+		try {
+            $this->newValidate($_POST, [
+                'api_key' 			=> 'required|string',
+                'kode_sasaran' 		=> 'required|string',
+                'id_jadwal' 		=> 'required|numeric',
+                'id_unit' 			=> 'required|numeric'
+            ]);
+
+            if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+                throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
+            }
+
+			$data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($_POST['id_jadwal']);
+			if (empty($data_jadwal) || $data_jadwal->id_tipe != 15) {
+				throw new Exception("Data Jadwal tidak valid!", 401);
+			}
+
+			$koneksi_tujuan = $this->get_tujuan_renstra_by_kode_sasaran_koneksi($_POST['kode_sasaran'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
+			if (empty($koneksi_tujuan)) {
+				throw new Exception("Data Tujuan Koneksi Renstra tidak ditemukan!", 404);
+			}
+
+			$tujuan = $this->get_tujuan_renstra_by_id_unik($koneksi_tujuan['id_unik'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
+			if (empty($tujuan)) {
+				throw new Exception("Data Tujuan Koneksi Renstra tidak ditemukan!", 404);
+			}
+
+			$sasaran = $this->get_sasaran_renstra_by_parent($tujuan[0]['id_unik'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
+			if (!empty($sasaran)) {
+				$program = $this->get_program_renstra_by_parent($sasaran[0]['id_unik'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
+			}
+
+			$data = [
+				'tujuan'  => $tujuan,
+				'sasaran' => $sasaran,
+				'program' => $program
+			];
+
+            echo json_encode([
+                'status'  => true,
+                'message' => "Berhasil Get Renstra dari kode Koneksi Sasaran.",
+				'data'    => $data
+            ]);
+        } catch (Exception $e) {
+            $code = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
+            http_response_code($code);
+            echo json_encode([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+        wp_die();
+	}
+
+	private $table_data_renstra_tujuan = 'data_renstra_tujuan';
+	private $table_data_renstra_sasaran = 'data_renstra_sasaran';
+	private $table_data_renstra_program = 'data_renstra_program';
+
+	function get_tujuan_renstra_by_kode_sasaran_koneksi($kode_sasaran, $id_jadwal, $id_unit = null)
+	{
+		global $wpdb;
+
+		$where_clause = '';
+		if ($id_unit !== null) {
+			$where_clause .= $wpdb->prepare(" AND id_unit = %d", $id_unit);
+		}
+
+		$data = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT * 
+				FROM {$this->table_data_renstra_tujuan}
+				WHERE active = 1 
+				  AND id_jadwal = %d
+				  AND kode_sasaran_rpjm = %s
+				  {$where_clause}
+			", $id_jadwal, $kode_sasaran),
+			ARRAY_A
+		);
+
+		return $data;	
+	}
+
+	function get_tujuan_renstra_by_id_unik($id_unik, $id_jadwal, $id_unit = null)
+	{
+		global $wpdb;
+
+		$where_clause = '';
+		if ($id_unit !== null) {
+			$where_clause .= $wpdb->prepare(" AND id_unit = %d", $id_unit);
+		}
+
+		$data = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM {$this->table_data_renstra_tujuan}
+				WHERE active = 1 
+				  AND id_jadwal = %d
+				  AND id_unik = %s
+				  {$where_clause}
+			", $id_jadwal, $id_unik),
+			ARRAY_A
+		);
+
+		return $data;	
+	}
+
+	function get_sasaran_renstra_by_parent($kode_tujuan, $id_jadwal, $id_unit = null)
+	{
+		global $wpdb;
+
+		$where_clause = '';
+		if ($id_unit !== null) {
+			$where_clause .= $wpdb->prepare(" AND id_unit = %d", $id_unit);
+		}
+
+		$data = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM {$this->table_data_renstra_sasaran}
+				WHERE active = 1 
+				  AND id_jadwal = %d
+				  AND kode_tujuan = %s
+				  {$where_clause}
+			", $id_jadwal, $kode_tujuan),
+			ARRAY_A
+		);
+
+		return $data;	
+	}
+	
+	function get_program_renstra_by_parent($kode_sasaran, $id_jadwal, $id_unit = null)
+	{
+		global $wpdb;
+
+		$where_clause = '';
+		if ($id_unit !== null) {
+			$where_clause .= $wpdb->prepare(" AND id_unit = %d", $id_unit);
+		}
+
+		$data = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT * 
+				FROM {$this->table_data_renstra_program}
+				WHERE active = 1 
+				  AND id_jadwal = %d
+				  AND kode_sasaran = %s
+				  {$where_clause}
+			", $id_jadwal, $kode_sasaran),
+			ARRAY_A
+		);
+
+		return $data;	
+	}
+
 	function get_data_rpjmd_rpd_by_kode_sasaran()
 	{
 		try {
@@ -18289,6 +18445,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			FROM {$this->table_data_jadwal_lokal}
 			WHERE id_jadwal_lokal = %d 
 			",
+			$id_jadwal_lokal
+		);
+
+		// The second parameter, OBJECT, ensures the result is an object.
+		$data = $wpdb->get_row($sql, OBJECT);
+
+		return $data;
+	}
+
+	public function get_jadwal_koneksi_relasi_perencanaan($id_jadwal_lokal)
+	{
+		global $wpdb;
+
+		$sql = $wpdb->prepare("
+			SELECT *
+			FROM {$this->table_data_jadwal_lokal}
+			WHERE relasi_perencanaan = %d",
 			$id_jadwal_lokal
 		);
 
