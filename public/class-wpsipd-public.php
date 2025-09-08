@@ -9681,35 +9681,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if ($vv['is_skpd'] == 1) {
 						if (!empty($daftar_tombol_list[8])) {
-							$jadwal_input_renstra = $wpdb->get_row(
+							$jadwal_input_renstra = $wpdb->get_var(
 								$wpdb->prepare('
 									SELECT 
-										id_jadwal_lokal,
-										nama,
-										tahun_anggaran,
-										tahun_akhir_anggaran,
-										status,
-										lama_pelaksanaan
+										id_jadwal_lokal
 									FROM data_jadwal_lokal 
-									WHERE id_tipe = %d     
-									  AND tahun_anggaran = %d
-								', 4, $tahun),
-								ARRAY_A
+									WHERE id_tipe = %d
+								', 4)
 							);
 
 							if (!empty($jadwal_input_renstra)) {
-								$gen_page = $this->generatePage(
-									'Input RENSTRA Lokal',
-									null,
-									'[input_renstra]'
-								);
-								$status = ($jadwal_input_renstra['status'] == 0) ? '<b>[TERBUKA]</b>' : '<b>[DIKUNCI]</b>';
-								$tahun_akhir_anggaran = $jadwal_input_renstra['tahun_anggaran'] + $jadwal_input_renstra['lama_pelaksanaan'] - 1;
-								$url_skpd = $gen_page . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $jadwal_input_renstra['id_jadwal_lokal'];
-
-								echo '<li><a href="' . $url_skpd . '" target="_blank" class="btn btn-info">Input Renstra | ' . $jadwal_input_renstra['nama'] . ' | ' . $jadwal_input_renstra['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
+    							echo '<li><button type="button" class="btn btn-info" onclick="showModalPilihRenstraLokal(' . $id_skpd . ')">Input Perencanaan Renstra</button></li>';
 							} else {
-								echo '<li><a href="#" class="btn btn-secondary">Jadwal Input Renstra belum diset</a></li>';
+								echo '<li><a href="#" class="btn btn-secondary disabled" aria-disabled="true">Jadwal Input Renstra belum diset</a></li>';
 							}
 						}
 					}
@@ -29624,5 +29608,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penjadwalan/wpsipd-public-jadwal-manrisk.php';
+	}
+
+	public function get_link_input_renstra_lokal()
+	{
+		global $wpdb;
+		try {
+			$this->newValidate($_POST, [
+				'api_key' => 'required|string',
+				'id_skpd' => 'required|numeric'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
+			}
+
+			$response = $this->process_get_link_input_renstra_lokal($_POST['id_skpd']);
+			echo json_encode([
+				'status'  => true,
+				'message' => 'Berhasil mendapatkan link input RENSTRA Lokal.',
+				'data'    => $response
+			]);
+		} catch (Exception $e) {
+			$code = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
+			http_response_code($code);
+			echo json_encode([
+				'status'  => false,
+				'message' => $e->getMessage()
+			]);
+		}
+		wp_die();
+	}
+
+	function process_get_link_input_renstra_lokal($id_skpd)
+	{
+		global $wpdb;
+		$jadwal_input_renstra = $wpdb->get_results(
+			$wpdb->prepare('
+				SELECT 
+					id_jadwal_lokal,
+					nama,
+					tahun_anggaran,
+					tahun_akhir_anggaran,
+					status,
+					lama_pelaksanaan
+				FROM data_jadwal_lokal 
+				WHERE id_tipe = %d
+			', 4),
+			ARRAY_A
+		);
+		if (empty($jadwal_input_renstra)) {
+			throw new Exception("Jadwal Input RENSTRA Lokal tidak ditemukan.", 404);
+		}
+		$list_page_renstra_lokal = '';
+		foreach ($jadwal_input_renstra as $item) {
+			$gen_page = $this->generatePage(
+				'Input RENSTRA Lokal',
+				null,
+				'[input_renstra]'
+			);
+
+			$status = ($item['status'] == 0) ? '<b class="text-light">[TERBUKA]</b>' : '<b class="text-secondary">[DIKUNCI]</b>';
+			$tahun_akhir_anggaran = $item['tahun_anggaran'] + $item['lama_pelaksanaan'] - 1;
+			$url_skpd = $gen_page . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $item['id_jadwal_lokal'];
+
+			$list_page_renstra_lokal .= '<li class="mb-2"><a href="' . $url_skpd . '" target="_blank" class="btn btn-info btn-block text-center">' . $item['nama'] . ' | ' . $item['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
+		}
+
+		return $list_page_renstra_lokal;
 	}
 }
