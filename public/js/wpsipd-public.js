@@ -609,43 +609,66 @@ function formatTanggal(date) {
 	return `${tanggal} ${bulan} ${tahun}`;
 }
 
-function showModalPilihRenstraLokal(id_skpd) {
+function showModalPilihJadwal(idSkpd, idTipe) {
 	jQuery(`#wrap-loading`).show();
+	jQuery('#modalPilihJadwal').remove();
 	jQuery.ajax({
 		url: ajax.url,
 		type: "post",
 		data: {
-			action: 'get_link_input_renstra_lokal',
-			id_skpd: id_skpd,
+			action: 'get_link_button_by_jadwal',
 			api_key: ajax.api_key,
+			id_skpd: idSkpd,
+			id_tipe: idTipe,
 		},
 		dataType: "json",
 		success: function (res) {
 			jQuery("#wrap-loading").hide();
 			if (res.status) {
 				jQuery('body').append(`
-					<div class='modal fade' id='modalPilihRenstra' tabindex='-1' role='dialog' aria-labelledby='modalPilihRenstraLabel' aria-hidden='true'>
+					<div class='modal fade' id='modalPilihJadwal' tabindex='-1' role='dialog' aria-labelledby='modalPilihJadwalLabel' aria-hidden='true'>
 					<div class='modal-dialog modal-lg' role='document'>
 						<div class='modal-content'>
 							<div class='modal-header'>
-								<h5 class='modal-title' id='modalPilihRenstraLabel'>Pilih Jadwal Input Renstra</h5>
+								<h5 class='modal-title' id='modalPilihJadwalLabel'>Pilih Jadwal</h5>
 								<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
 									<span aria-hidden='true'>&times;</span>
 								</button>
 							</div>
 							<div class='modal-body'>
-								<p>Silakan pilih salah satu jadwal perencanaan Renstra yang tersedia di bawah ini:</p>
-								<ul class='list-unstyled'>
-									${res.data}
-								</ul>
+								<table id="tableJadwal">
+									<thead class="bg-dark text-light">
+										<tr>
+											<th class="text-center">Nama</th>
+											<th class="text-center">Tahun</th>
+											<th class="text-center">Status</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
 							</div>
 							<div class='modal-footer'>
-								<button type='button' class='btn btn-secondary' data-dismiss='modal'>Tutup</button>
 							</div>
 						</div>
 					</div>
 				</div>`);
-				jQuery(`#modalPilihRenstra`).modal('show');
+				let tbody;
+
+				if (res.data) {
+					res.data.forEach(val => {
+						tbody += `
+						<tr>
+							<td class="text-left"><a href="${val.link}">${val.nama}</a></td>
+							<td class="text-center">${val.tahun_anggaran} - ${val.tahun_anggaran_selesai}</td>
+							<td class="text-center">${val.status}</td>
+						</tr>`;
+					});
+				} else {
+					tbody = `<tr><td colspan="3">Tidak ada data tersedia</td></tr>`;
+				}
+				jQuery(`#tableJadwal tbody`).html(tbody);
+				jQuery(`#modalPilihJadwal`).modal('show');
 			} else {
 				alert(res.message);
 			}
