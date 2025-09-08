@@ -352,46 +352,46 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <tbody>
                             <tr>
                                 <td>
-                                <div class="form-group">
-                                    <label class="d-block">Controllable / Uncontrollable</label>
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_controllable_usulan" value="0" disabled>
-                                        <label class="custom-control-label" for="controllable_status_controllable_usulan">Controllable</label>
+                                    <div class="form-group">
+                                        <label class="d-block">Controllable / Uncontrollable</label>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_controllable_usulan" value="0" disabled>
+                                            <label class="custom-control-label" for="controllable_status_controllable_usulan">Controllable</label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_uncontrollable_usulan" value="1" disabled>
+                                            <label class="custom-control-label" for="controllable_status_uncontrollable_usulan">Uncontrollable</label>
+                                        </div>
                                     </div>
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_uncontrollable_usulan" value="1" disabled>
-                                        <label class="custom-control-label" for="controllable_status_uncontrollable_usulan">Uncontrollable</label>
+                                    <div class="form-group">
+                                        <label for="pemilik_resiko_usulan">Pilih Pemilik Resiko</label>
+                                        <select id="pemilik_resiko_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="kepala_daerah">Kepala Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="kepala_bidang">Kepala Bidang</option>
+                                        </select>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="pemilik_resiko_usulan">Pilih Pemilik Resiko</label>
-                                    <select id="pemilik_resiko_usulan" class="form-control" disabled>
-                                        <option value="" selected>Pilih Pemilik Resiko</option>
-                                        <option value="kepala_daerah">Kepala Daerah</option>
-                                        <option value="kepala_opd">Kepala OPD</option>
-                                        <option value="kepala_bidang">Kepala Bidang</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sumber_sebab_usulan">Pilih Sumber Sebab</label>
-                                    <select id="sumber_sebab_usulan" class="form-control" disabled>
-                                        <option value="" selected>Pilih Sumber Sebab</option>
-                                        <option value="internal">Internal</option>
-                                        <option value="eksternal">Eksternal</option>
-                                        <option value="internal_eksternal">Internal & Eksternal</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="pihak_terkena_usulan">Pilih Pihak Dampak yang Terkena</label>
-                                    <select id="pihak_terkena_usulan" class="form-control" disabled>
-                                        <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                                        <option value="pemda">Pemerintah</option>
-                                        <option value="perangkat_daerah">Perangkat Daerah</option>
-                                        <option value="kepala_opd">Kepala OPD</option>
-                                        <option value="pegawai_opd">Pegawai OPD</option>
-                                        <option value="masyarakat">Masyarakat</option>
-                                    </select>
-                                </div>
+                                    <div class="form-group">
+                                        <label for="sumber_sebab_usulan">Pilih Sumber Sebab</label>
+                                        <select id="sumber_sebab_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="internal">Internal</option>
+                                            <option value="eksternal">Eksternal</option>
+                                            <option value="internal_eksternal">Internal & Eksternal</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pihak_terkena_usulan">Pilih Pihak Dampak yang Terkena</label>
+                                        <select id="pihak_terkena_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="pemda">Pemerintah</option>
+                                            <option value="perangkat_daerah">Perangkat Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="pegawai_opd">Pegawai OPD</option>
+                                            <option value="masyarakat">Masyarakat</option>
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
