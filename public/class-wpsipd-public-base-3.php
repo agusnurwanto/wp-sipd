@@ -8170,7 +8170,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_prog_keg 
 						WHERE id_sub_giat=%d
 							AND tahun_anggaran=%d
-					", $data['id_sub_kegiatan'], $_POST['tahun_anggaran']));
+					", $data['id_sub_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
