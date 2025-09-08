@@ -8170,7 +8170,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_prog_keg 
 						WHERE id_sub_giat=%d
 							AND tahun_anggaran=%d
-					", $data['id_sub_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
@@ -12984,14 +12984,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							    if ($now >= $awal && $now <= $akhir) {
 							      $html .= '
 							          <td class="text-center">
-							              <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-							                  <span class="dashicons dashicons-edit"></span>
-							              </button>
-							      ';
-							      $html .= '
-							          <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
-							              <span class="dashicons dashicons-yes"></span>
-							          </button>
+							              <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+								              <span class="dashicons dashicons-yes"></span>
+								          </button>
 							      ';
 							    }
 							  } else if ($jenisJadwal == 'usulan') {
@@ -14171,11 +14166,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							    if ($now >= $awal && $now <= $akhir) {
 							      $html .= '
 							          <td class="text-center">
-							              <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-							                  <span class="dashicons dashicons-edit"></span>
-							              </button>
-							      ';
-							      $html .= '
 							          <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
 							              <span class="dashicons dashicons-yes"></span>
 							          </button>

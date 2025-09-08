@@ -135,7 +135,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         </tr>
                         <tr>
                             <!-- sebelum evaluasi -->
-                            <th rowspan="2">Program Strategis/ Kegiatan Strategis Pemda OPD</th>
+                            <th rowspan="2">Program / Kegiatan Pemda OPD</th>
                             <th rowspan="2">Indikator Kinerja</th>
                             <th colspan="3">Risiko</th>
                             <th colspan="2">Sebab</th>
@@ -145,7 +145,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th rowspan="2">Skala Kemungkinan</th>
                             <th rowspan="2">Nilai Risiko (12x13)</th>
                             <!-- setelah evaluasi -->
-                            <th rowspan="2" class="kolom-sesudah">Program Strategis/ Kegiatan Strategis Pemda OPD</th>
+                            <th rowspan="2" class="kolom-sesudah">Program / Kegiatan Pemda OPD</th>
                             <th rowspan="2" class="kolom-sesudah">Indikator Kinerja</th>
                             <th colspan="3" class="kolom-sesudah">Risiko</th>
                             <th colspan="2" class="kolom-sesudah">Sebab</th>
@@ -153,7 +153,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th colspan="2" class="kolom-sesudah">Dampak</th>
                             <th rowspan="2" class="kolom-sesudah">Skala Dampak</th>
                             <th rowspan="2" class="kolom-sesudah">Skala Kemungkinan</th>
-                            <th rowspan="2" class="kolom-sesudah">Nilai Risiko (12x13)</th>
+                            <th rowspan="2" class="kolom-sesudah">Nilai Risiko (26x27)</th>
                         </tr>
                         <tr>
                             <!-- sebelum evaluasi -->
