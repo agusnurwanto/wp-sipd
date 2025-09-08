@@ -29,25 +29,25 @@ jQuery(document).ready(function () {
 	});
 });
 
-function relayAjax(options, retries=20, delay=30000, timeout=1090000){
+function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
 	options.timeout = timeout;
-	if(!options.success_rewrite){
+	if (!options.success_rewrite) {
 		options.success_rewrite = options.success;
 	}
-	options.success = function(response, status, xhr){ 
-	    options.success_rewrite(response);
+	options.success = function (response, status, xhr) {
+		options.success_rewrite(response);
 	}
-    jQuery.ajax(options)
-    .fail(function(){
-        if (retries > 0) {
-            console.log('Koneksi error. Coba lagi '+retries);
-            setTimeout(function(){ 
-                relayAjax(options, --retries, delay, timeout);
-            },delay);
-        } else {
-            alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
-        }
-    });
+	jQuery.ajax(options)
+		.fail(function () {
+			if (retries > 0) {
+				console.log('Koneksi error. Coba lagi ' + retries);
+				setTimeout(function () {
+					relayAjax(options, --retries, delay, timeout);
+				}, delay);
+			} else {
+				alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
+			}
+		});
 }
 
 function to_number(text) {
@@ -599,13 +599,60 @@ function terbilang(nilai) {
 }
 
 function formatTanggal(date) {
-    const bulanIndonesia = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    
-    const tanggalObj = new Date(date);
-    const tanggal = tanggalObj.getDate();
-    const bulan = bulanIndonesia[tanggalObj.getMonth()];
-    const tahun = tanggalObj.getFullYear();
+	const bulanIndonesia = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-    return `${tanggal} ${bulan} ${tahun}`;
+	const tanggalObj = new Date(date);
+	const tanggal = tanggalObj.getDate();
+	const bulan = bulanIndonesia[tanggalObj.getMonth()];
+	const tahun = tanggalObj.getFullYear();
+
+	return `${tanggal} ${bulan} ${tahun}`;
+}
+
+function showModalPilihRenstraLokal(id_skpd) {
+	jQuery(`#wrap-loading`).show();
+	jQuery.ajax({
+		url: ajax.url,
+		type: "post",
+		data: {
+			action: 'get_link_input_renstra_lokal',
+			id_skpd: id_skpd,
+			api_key: ajax.api_key,
+		},
+		dataType: "json",
+		success: function (res) {
+			jQuery("#wrap-loading").hide();
+			if (res.status) {
+				jQuery('body').append(`
+					<div class='modal fade' id='modalPilihRenstra' tabindex='-1' role='dialog' aria-labelledby='modalPilihRenstraLabel' aria-hidden='true'>
+					<div class='modal-dialog modal-lg' role='document'>
+						<div class='modal-content'>
+							<div class='modal-header'>
+								<h5 class='modal-title' id='modalPilihRenstraLabel'>Pilih Jadwal Input Renstra</h5>
+								<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+									<span aria-hidden='true'>&times;</span>
+								</button>
+							</div>
+							<div class='modal-body'>
+								<p>Silakan pilih salah satu jadwal perencanaan Renstra yang tersedia di bawah ini:</p>
+								<ul class='list-unstyled'>
+									${res.data}
+								</ul>
+							</div>
+							<div class='modal-footer'>
+								<button type='button' class='btn btn-secondary' data-dismiss='modal'>Tutup</button>
+							</div>
+						</div>
+					</div>
+				</div>`);
+				jQuery(`#modalPilihRenstra`).modal('show');
+			} else {
+				alert(res.message);
+			}
+		},
+		error: function (e) {
+			console.log(e);
+		}
+	});
 }
 
