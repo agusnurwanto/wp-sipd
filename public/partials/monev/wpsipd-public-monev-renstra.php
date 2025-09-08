@@ -11,13 +11,8 @@ if(!empty($_GET) && !empty($_GET['iku'])){
 }
 
 global $wpdb;
-$input = shortcode_atts(array(
-	'id_skpd' => '',
-	'id_jadwal' => '',
-), $atts);
-// die(print_r($input['id_jadwal']));
-if (empty($input['id_skpd'])) {
-	die('<h1 class="text-center">SKPD tidak ditemukan!</h1>');
+if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
+	die('<h1 class="text-center">Parameter id_jadwal atau id_skpd tidak ditemukan!</h1>');
 }
 
 $tahun_anggaran_sipd = get_option(WPSIPD_TAHUN_ANGGARAN);
@@ -29,7 +24,7 @@ $data_jadwal = $wpdb->get_row(
         WHERE id_jadwal_lokal = %d
 		  AND status = %d
           AND id_tipe = %d
-    ",$input['id_jadwal'], 0, 15),
+    ",$_GET['id_jadwal'], 0, 15),
 	ARRAY_A
 );
 $data_jadwal_relasi = $wpdb->get_row(
@@ -80,7 +75,7 @@ $sql = $wpdb->prepare("
 	  AND tahun_anggaran=%d
 	  AND active=1
 	ORDER BY id_skpd ASC
-", $input['id_skpd'], $tahun_anggaran_sipd);
+", $_GET['id_skpd'], $tahun_anggaran_sipd);
 $unit = $wpdb->get_row($sql, ARRAY_A);
 
 $nama_pemda = get_option('_crb_daerah');
@@ -121,7 +116,7 @@ $tujuan = $wpdb->get_results(
 		  AND id_jadwal=%d 
 		  AND active=1
 		ORDER BY id
-	", $input['id_skpd'], $input['id_jadwal']),
+	", $_GET['id_skpd'], $_GET['id_jadwal']),
 	ARRAY_A
 );
 
@@ -202,7 +197,7 @@ if (!empty($tujuan)) {
 					  AND id_bidang_urusan=%d 
 					  AND urut_tujuan=%d 
 					ORDER BY id
-				", $input['id_jadwal'], $input['id_skpd'], $tujuan_value['id_unik'], $tujuan_value['id_bidang_urusan'], $tujuan_value['urut_tujuan']),
+				", $_GET['id_jadwal'], $_GET['id_skpd'], $tujuan_value['id_unik'], $tujuan_value['id_bidang_urusan'], $tujuan_value['urut_tujuan']),
 				ARRAY_A
 			);
 
@@ -266,7 +261,7 @@ if (!empty($tujuan)) {
 								  AND id_unit=%d 
 								  AND kode_sasaran=%s
 								ORDER BY id
-								", $input['id_jadwal'], $input['id_skpd'], $sasaran_value['id_unik']),
+								", $_GET['id_jadwal'], $_GET['id_skpd'], $sasaran_value['id_unik']),
 							ARRAY_A
 						);
 
@@ -319,7 +314,7 @@ if (!empty($tujuan)) {
 													OR kode_unik_program=%s
 												  )
 											ORDER BY id
-										", $input['id_jadwal'], $input['id_skpd'], $p_value['id_unik'], $p_value['id_unik']),
+										", $_GET['id_jadwal'], $_GET['id_skpd'], $p_value['id_unik'], $p_value['id_unik']),
 										ARRAY_A
 									);
 
@@ -370,7 +365,7 @@ if (!empty($tujuan)) {
 														  AND kode_kegiatan=%s
 														  AND active=1
 														ORDER BY id
-													", $input['id_skpd'], $input['id_jadwal'], $k_value['id_unik']),
+													", $_GET['id_skpd'], $_GET['id_jadwal'], $k_value['id_unik']),
 													ARRAY_A
 												);
 
@@ -693,7 +688,7 @@ if (!empty($tujuan)) {
 	}
 }
 
-$bidur_skpd_db = $this->get_skpd_db($input['id_skpd']);
+$bidur_skpd_db = $this->get_skpd_db($_GET['id_skpd']);
 $bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
 // echo '<pre>';print_r($data_all['data']);echo '</pre>'; die();
@@ -731,7 +726,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 	$target_akhir = '';
 	$keterangan = '';
 	foreach ($tujuan['indikator'] as $k => $v) {
-		$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-1');
+		$indikator_teks = $v['indikator'] . button_edit_monev($_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $v['id'] . '-1');
 		$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 		$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 		$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -780,7 +775,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$realisasi_pagu_5
 	);
 
-	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $input['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
+	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $_GET['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
 	            	' . $tujuan['status_rpjmd'] . '
 	            	</a>' : $tujuan['status_rpjmd'];
 
@@ -852,7 +847,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$target_akhir = '';
 		$keterangan = '';
 		foreach ($sasaran['indikator'] as $k => $v) {
-			$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-2');
+			$indikator_teks = $v['indikator'] . button_edit_monev($_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $v['id'] . '-2');
 			$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 			$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 			$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -991,7 +986,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				// for validate
 				$all_program_renstra[$key]['indikator'][$v['indikator']] = $v;
 				
-				$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-3');
+				$indikator_teks = $v['indikator'] . button_edit_monev($_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $v['id'] . '-3');
 				$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 				$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 				$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1049,7 +1044,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$program['nama_teks'] = str_replace('X.XX', $bidur_skpd, $program['nama_teks']);
 			}
 			$body_monev .= '
-				<tr class="program tr-program" data-kode="' . $input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $program['kode_tujuan'] . '-' . $program['kode_sasaran'] . '-' . $program['kode_program'] . '" style="background-color:' . $backgroundColor . '">
+				<tr class="program tr-program" data-kode="' . $_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $program['kode_tujuan'] . '-' . $program['kode_sasaran'] . '-' . $program['kode_program'] . '" style="background-color:' . $backgroundColor . '">
 		            <td class="kiri kanan bawah text_blok">' . $no_tujuan . "." . $no_sasaran . "." . $no_program . '</td>
 	            	<td class="kiri kanan bawah text_blok"></td>
 		            <td class="text_kiri kanan bawah text_blok">
@@ -1127,7 +1122,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$target_akhir = '';
 				$keterangan = '';
 				foreach ($kegiatan['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-4');
+					$indikator_teks = $v['indikator'] . button_edit_monev($_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $v['id'] . '-4');
 					$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 					$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 					$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1251,7 +1246,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$target_akhir = '';
 					$keterangan = '';
 					foreach ($sub_kegiatan['indikator'] as $k => $v) {
-						$indikator_teks = $v['indikator'] . button_edit_monev($input['id_jadwal'] . '-' . $input['id_skpd'] . '-' . $v['id'] . '-5');
+						$indikator_teks = $v['indikator'] . button_edit_monev($_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $v['id'] . '-5');
 						$target_1 .= '<div class="indikator target-1">' . $v['target_1'] . '</div>';
 						$target_2 .= '<div class="indikator target-2">' . $v['target_2'] . '</div>';
 						$target_3 .= '<div class="indikator target-3">' . $v['target_3'] . '</div>';
@@ -1893,7 +1888,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 					'realisasi_anggaran': realisasi_anggaran,
 					'realisasi_target': realisasi_target,
 					'keterangan': keterangan,
-					'id_jadwal': "<?php echo $input['id_jadwal']; ?>"
+					'id_jadwal': "<?php echo $_GET['id_jadwal']; ?>"
 				},
 				dataType: 'json',
 				success: function(result) {
@@ -2362,7 +2357,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				data: {
 					"action": "copy_data_renstra_lokal",
 					"api_key": ajax.api_key,
-					'id_jadwal': "<?php echo $input['id_jadwal']; ?>",
+					'id_jadwal': "<?php echo $_GET['id_jadwal']; ?>",
 					"id_unit": jQuery("#id_skpd").val(),
 				},
 				dataType: "json",

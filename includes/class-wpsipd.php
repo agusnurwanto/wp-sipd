@@ -607,6 +607,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_nopriv_get_data_json',  $plugin_public, 'get_data_json');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
+		$this->loader->add_action('wp_ajax_get_link_button_by_jadwal',  $plugin_public, 'get_link_button_by_jadwal');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');

@@ -1743,11 +1743,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 									', ARRAY_A);
 								$body_pemda = '<ul style="margin-left: 20px;">';
 								foreach ($data_unit as $kk => $vv) {
-									$url_skpd = $this->generatePage(
-										'Monitoring Evaluasi RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'],
+									$gen_page = $this->generatePage(
+										'Monitoring Evaluasi RENSTRA',
 										'',
-										'[monitor_monev_renstra id_skpd="' . $vv['id_skpd'] . '" id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+										'[monitor_monev_renstra]'
 									);
+									$url_skpd = $gen_page . '&id_skpd=' . $vv['id_skpd'] . '&id_jadwal=' . $jadwal['id_jadwal_lokal'];
 									$body_pemda .= '<li><a target="_blank" href="' . $url_skpd . '">Halaman MONEV RENSTRA ' . $vv['kode_skpd'] . ' ' . $vv['nama_skpd'] . '</a> (NIP: ' . $vv['nipkepala'] . ')</li>';
 								}
 								$body_pemda .= '</ul>';
@@ -2017,6 +2018,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				FROM data_jadwal_lokal
 				WHERE status != 2
 				  AND id_tipe = %d
+				ORDER BY tahun_anggaran DESC
 			', $id_tipe),
 			ARRAY_A
 		);

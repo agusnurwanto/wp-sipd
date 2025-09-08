@@ -238,7 +238,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <div class="form-group">
                         <label for="uraian_resiko">Uraian Resiko</label>
                         <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
-                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran / IKU</small>
+                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                     </div>
                     <div class="form-group">
                         <label for="kode_resiko">Kode Resiko</label>
@@ -300,11 +300,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     </div>
                     <div class="form-group">
                         <label for="skala_dampak">Skala Dampak</label>
-                        <input type="text" class="form-control" id="skala_dampak" name="skala_dampak" required>
+                        <input type="number" class="form-control" id="skala_dampak" name="skala_dampak" required>
                     </div>
                     <div class="form-group">
                         <label for="skala_kemungkinan">Skala Kemungkinan</label>
-                        <input type="text" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
+                        <input type="number" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
                     </div>
                     <div class="form-group">
                         <label for="rencana_tindak_pengendalian">Rencana Tindak Pengendalian</label>
@@ -342,52 +342,6 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <label for="indikator_kinerja_sesudah">Indikator Kinerja</label>
                         <input type="text" class="form-control" id="indikator_kinerja_sesudah" name="indikator_kinerja_sesudah" disabled required>
                     </div>
-                    <div class="form-group">
-                        <label class="d-block">Controllable / Uncontrollable</label>
-                        <tr>
-                            <td>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input class="custom-control-input" type="radio" name="controllable_status_sesudah" id="controllable_status_controllable_sesudah" value="0">
-                                    <label class="custom-control-label" for="controllable_status_controllable_sesudah">Controllable</label>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input class="custom-control-input" type="radio" name="controllable_status_sesudah" id="controllable_status_uncontrollable_sesudah" value="1">
-                                    <label class="custom-control-label" for="controllable_status_uncontrollable_sesudah">Uncontrollable</label>
-                                </div>
-                            </td>
-                        </tr>
-                    </div>
-                    <div class="form-group">
-                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Resiko</label>
-                        <select id="pemilik_resiko_sesudah" class="form-control">
-                            <option value="" selected>Pilih Pemilik Resiko</option>
-                            <option value="kepala_daerah">Kepala Daerah</option>
-                            <option value="kepala_opd">Kepala OPD</option>
-                            <option value="kepala_bidang">Kepala Bidang</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sumber_sebab_sesudah">Pilih Sumber Sebab</label>
-                        <select id="sumber_sebab_sesudah" class="form-control">
-                            <option value="" selected>Pilih Sumber Sebab</option>
-                            <option value="internal">Internal</option>
-                            <option value="eksternal">Eksternal</option>
-                            <option value="internal_eksternal">Internal & Eksternal</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="pihak_terkena_sesudah">Pilih Pihak Dampak yang Terkena</label>
-                        <select id="pihak_terkena_sesudah" class="form-control">
-                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                            <option value="pemda">Pemerintah</option>
-                            <option value="perangkat_daerah">Perangkat Daerah</option>
-                            <option value="kepala_opd">Kepala OPD</option>
-                            <option value="pegawai_opd">Pegawai OPD</option>
-                            <option value="masyarakat">Masyarakat</option>
-                        </select>
-                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -398,11 +352,50 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <tbody>
                             <tr>
                                 <td>
-
+                                    <div class="form-group">
+                                        <label class="d-block">Controllable / Uncontrollable</label>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_controllable_usulan" value="0" disabled>
+                                            <label class="custom-control-label" for="controllable_status_controllable_usulan">Controllable</label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_usulan" id="controllable_status_uncontrollable_usulan" value="1" disabled>
+                                            <label class="custom-control-label" for="controllable_status_uncontrollable_usulan">Uncontrollable</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pemilik_resiko_usulan">Pilih Pemilik Resiko</label>
+                                        <select id="pemilik_resiko_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="kepala_daerah">Kepala Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="kepala_bidang">Kepala Bidang</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sumber_sebab_usulan">Pilih Sumber Sebab</label>
+                                        <select id="sumber_sebab_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="internal">Internal</option>
+                                            <option value="eksternal">Eksternal</option>
+                                            <option value="internal_eksternal">Internal & Eksternal</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pihak_terkena_usulan">Pilih Pihak Dampak yang Terkena</label>
+                                        <select id="pihak_terkena_usulan" class="form-control" disabled>
+                                            <option value="" selected></option>
+                                            <option value="pemda">Pemerintah</option>
+                                            <option value="perangkat_daerah">Perangkat Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="pegawai_opd">Pegawai OPD</option>
+                                            <option value="masyarakat">Masyarakat</option>
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran / IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_usulan">Kode Resiko</label>
@@ -418,11 +411,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_dampak_usulan">Skala Dampak</label>
-                                        <input type="text" class="form-control" id="skala_dampak_usulan" name="skala_dampak_usulan" disabled required>
+                                        <input type="number" class="form-control" id="skala_dampak_usulan" name="skala_dampak_usulan" disabled required>
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_kemungkinan_usulan">Skala Kemungkinan</label>
-                                        <input type="text" class="form-control" id="skala_kemungkinan_usulan" name="skala_kemungkinan_usulan" disabled required>
+                                        <input type="number" class="form-control" id="skala_kemungkinan_usulan" name="skala_kemungkinan_usulan" disabled required>
                                     </div>
                                     <div class="form-group">
                                         <label for="rencana_tindak_pengendalian_usulan">Rencana Tindak Pengendalian</label>
@@ -431,9 +424,49 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                 </td>
                                 <td>
                                     <div class="form-group">
+                                        <label class="d-block">Controllable / Uncontrollable</label>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_sesudah" id="controllable_status_controllable_sesudah" value="0">
+                                            <label class="custom-control-label" for="controllable_status_controllable_sesudah">Controllable</label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input class="custom-control-input" type="radio" name="controllable_status_sesudah" id="controllable_status_uncontrollable_sesudah" value="1">
+                                            <label class="custom-control-label" for="controllable_status_uncontrollable_sesudah">Uncontrollable</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Resiko</label>
+                                        <select id="pemilik_resiko_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Pemilik Resiko</option>
+                                            <option value="kepala_daerah">Kepala Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="kepala_bidang">Kepala Bidang</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sumber_sebab_sesudah">Pilih Sumber Sebab</label>
+                                        <select id="sumber_sebab_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Sumber Sebab</option>
+                                            <option value="internal">Internal</option>
+                                            <option value="eksternal">Eksternal</option>
+                                            <option value="internal_eksternal">Internal & Eksternal</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pihak_terkena_sesudah">Pilih Pihak Dampak yang Terkena</label>
+                                        <select id="pihak_terkena_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
+                                            <option value="pemda">Pemerintah</option>
+                                            <option value="perangkat_daerah">Perangkat Daerah</option>
+                                            <option value="kepala_opd">Kepala OPD</option>
+                                            <option value="pegawai_opd">Pegawai OPD</option>
+                                            <option value="masyarakat">Masyarakat</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="uraian_resiko_sesudah">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah" name="uraian_resiko_sesudah" required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran / IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_sesudah">Kode Resiko</label>
@@ -449,11 +482,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_dampak_sesudah">Skala Dampak</label>
-                                        <input type="text" class="form-control" id="skala_dampak_sesudah" name="skala_dampak_sesudah" required>
+                                        <input type="number" class="form-control" id="skala_dampak_sesudah" name="skala_dampak_sesudah" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_kemungkinan_sesudah">Skala Kemungkinan</label>
-                                        <input type="text" class="form-control" id="skala_kemungkinan_sesudah" name="skala_kemungkinan_sesudah" required>
+                                        <input type="number" class="form-control" id="skala_kemungkinan_sesudah" name="skala_kemungkinan_sesudah" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="rencana_tindak_pengendalian_sesudah">Rencana Tindak Pengendalian</label>
@@ -717,6 +750,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     let data = response.data;
                     let data_sebelum = response.data_sebelum;
+                    jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
                     jQuery("#uraian_resiko_usulan").val(data_sebelum.uraian_resiko);
                     jQuery("#kode_resiko_usulan").val(data_sebelum.kode_resiko);
                     jQuery("#pemilik_resiko_usulan").val(data_sebelum.pemilik_resiko);
@@ -768,14 +802,15 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             
             const uraian_resiko = jQuery("#uraian_resiko_usulan").val();
             const kode_resiko = jQuery("#kode_resiko_usulan").val();
-            const pemilik_resiko = jQuery("#pemilik_resiko_sesudah").val();
+            const pemilik_resiko = jQuery("#pemilik_resiko_usulan").val();
             const uraian_sebab = jQuery("#uraian_sebab_usulan").val();
-            const sumber_sebab = jQuery("#sumber_sebab_sesudah").val();
+            const sumber_sebab = jQuery("#sumber_sebab_usulan").val();
             const uraian_dampak = jQuery("#uraian_dampak_usulan").val();
-            const pihak_terkena = jQuery("#pihak_terkena_sesudah").val();
+            const pihak_terkena = jQuery("#pihak_terkena_usulan").val();
             const skala_dampak = jQuery("#skala_dampak_usulan").val();
             const skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
             const rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
+            const controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
             
             jQuery("#uraian_resiko_sesudah").val(uraian_resiko);
             jQuery("#kode_resiko_sesudah").val(kode_resiko);
@@ -787,13 +822,19 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             jQuery("#skala_dampak_sesudah").val(skala_dampak);
             jQuery("#skala_kemungkinan_sesudah").val(skala_kemungkinan);
             jQuery("#rencana_tindak_pengendalian_sesudah").val(rencana_tindak_pengendalian);
+            jQuery("#controllable_status_sesudah").val(controllable_status);
             
             jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan');
             jQuery(button).removeClass('btn-success').addClass('btn-danger');
             jQuery(button).prop('disabled', false);
+
+            if (controllable_status) {
+                jQuery(`input[name='controllable_status_sesudah'][value='${controllable_status}']`).prop('checked', true);
+            }
             
             const penetapanFields = [
-                "#uraian_resiko_sesudah", "#kode_resiko_sesudah",
+                "#pemilik_resiko_sesudah","#sumber_sebab_sesudah","#pihak_terkena_sesudah",
+                "#controllable_status_sesudah","#uraian_resiko_sesudah", "#kode_resiko_sesudah",
                 "#uraian_sebab_sesudah", "#uraian_dampak_sesudah",
                 "#skala_dampak_sesudah", "#skala_kemungkinan_sesudah",
                 "#rencana_tindak_pengendalian_sesudah"

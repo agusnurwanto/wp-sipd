@@ -29,25 +29,25 @@ jQuery(document).ready(function () {
 	});
 });
 
-function relayAjax(options, retries=20, delay=30000, timeout=1090000){
+function relayAjax(options, retries = 20, delay = 30000, timeout = 1090000) {
 	options.timeout = timeout;
-	if(!options.success_rewrite){
+	if (!options.success_rewrite) {
 		options.success_rewrite = options.success;
 	}
-	options.success = function(response, status, xhr){ 
-	    options.success_rewrite(response);
+	options.success = function (response, status, xhr) {
+		options.success_rewrite(response);
 	}
-    jQuery.ajax(options)
-    .fail(function(){
-        if (retries > 0) {
-            console.log('Koneksi error. Coba lagi '+retries);
-            setTimeout(function(){ 
-                relayAjax(options, --retries, delay, timeout);
-            },delay);
-        } else {
-            alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
-        }
-    });
+	jQuery.ajax(options)
+		.fail(function () {
+			if (retries > 0) {
+				console.log('Koneksi error. Coba lagi ' + retries);
+				setTimeout(function () {
+					relayAjax(options, --retries, delay, timeout);
+				}, delay);
+			} else {
+				alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
+			}
+		});
 }
 
 function to_number(text) {
@@ -599,13 +599,83 @@ function terbilang(nilai) {
 }
 
 function formatTanggal(date) {
-    const bulanIndonesia = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    
-    const tanggalObj = new Date(date);
-    const tanggal = tanggalObj.getDate();
-    const bulan = bulanIndonesia[tanggalObj.getMonth()];
-    const tahun = tanggalObj.getFullYear();
+	const bulanIndonesia = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-    return `${tanggal} ${bulan} ${tahun}`;
+	const tanggalObj = new Date(date);
+	const tanggal = tanggalObj.getDate();
+	const bulan = bulanIndonesia[tanggalObj.getMonth()];
+	const tahun = tanggalObj.getFullYear();
+
+	return `${tanggal} ${bulan} ${tahun}`;
+}
+
+function showModalPilihJadwal(idSkpd, idTipe) {
+	jQuery(`#wrap-loading`).show();
+	jQuery('#modalPilihJadwal').remove();
+	jQuery.ajax({
+		url: ajax.url,
+		type: "post",
+		data: {
+			action: 'get_link_button_by_jadwal',
+			api_key: ajax.api_key,
+			id_skpd: idSkpd,
+			id_tipe: idTipe,
+		},
+		dataType: "json",
+		success: function (res) {
+			jQuery("#wrap-loading").hide();
+			if (res.status) {
+				jQuery('body').append(`
+					<div class='modal fade' id='modalPilihJadwal' tabindex='-1' role='dialog' aria-labelledby='modalPilihJadwalLabel' aria-hidden='true'>
+					<div class='modal-dialog modal-lg' role='document'>
+						<div class='modal-content'>
+							<div class='modal-header'>
+								<h5 class='modal-title' id='modalPilihJadwalLabel'>Pilih Jadwal</h5>
+								<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+									<span aria-hidden='true'>&times;</span>
+								</button>
+							</div>
+							<div class='modal-body'>
+								<table id="tableJadwal">
+									<thead class="bg-dark text-light">
+										<tr>
+											<th class="text-center">Nama</th>
+											<th class="text-center">Tahun</th>
+											<th class="text-center">Status</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+							<div class='modal-footer'>
+							</div>
+						</div>
+					</div>
+				</div>`);
+				let tbody;
+
+				if (res.data) {
+					res.data.forEach(val => {
+						tbody += `
+						<tr>
+							<td class="text-left"><a href="${val.link}">${val.nama}</a></td>
+							<td class="text-center">${val.tahun_anggaran} - ${val.tahun_anggaran_selesai}</td>
+							<td class="text-center">${val.status}</td>
+						</tr>`;
+					});
+				} else {
+					tbody = `<tr><td colspan="3">Tidak ada data tersedia</td></tr>`;
+				}
+				jQuery(`#tableJadwal tbody`).html(tbody);
+				jQuery(`#modalPilihJadwal`).modal('show');
+			} else {
+				alert(res.message);
+			}
+		},
+		error: function (e) {
+			console.log(e);
+		}
+	});
 }
 
