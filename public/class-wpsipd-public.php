@@ -9698,15 +9698,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							);
 
 							if (!empty($jadwal_input_renstra)) {
-								$url_menu = $this->generatePage(
-									'Input RENSTRA  ' . $jadwal_input_renstra['nama'] . ' | ' . $vv['kode_skpd'] . ' - ' . $vv['nama_skpd'],
+								$gen_page = $this->generatePage(
+									'Input RENSTRA Lokal',
 									null,
-									'[input_renstra id_skpd="' . $vv['id_skpd'] . '" id_jadwal="' . $jadwal_input_renstra['id_jadwal_lokal'] . '"]'
+									'[input_renstra]'
 								);
 								$status = ($jadwal_input_renstra['status'] == 0) ? '<b>[TERBUKA]</b>' : '<b>[DIKUNCI]</b>';
 								$tahun_akhir_anggaran = $jadwal_input_renstra['tahun_anggaran'] + $jadwal_input_renstra['lama_pelaksanaan'] - 1;
+								$url_skpd = $gen_page . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $jadwal_input_renstra['id_jadwal_lokal'];
 
-								echo '<li><a href="' . $url_menu . '" target="_blank" class="btn btn-info">Input Renstra | ' . $jadwal_input_renstra['nama'] . ' | ' . $jadwal_input_renstra['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
+								echo '<li><a href="' . $url_skpd . '" target="_blank" class="btn btn-info">Input Renstra | ' . $jadwal_input_renstra['nama'] . ' | ' . $jadwal_input_renstra['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
 							} else {
 								echo '<li><a href="#" class="btn btn-secondary">Jadwal Input Renstra belum diset</a></li>';
 							}
