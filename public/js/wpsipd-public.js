@@ -659,7 +659,7 @@ function showModalPilihJadwal(idSkpd, idTipe) {
 					res.data.forEach(val => {
 						tbody += `
 						<tr>
-							<td class="text-left"><a href="${val.link}">${val.nama}</a></td>
+							<td class="text-left"><a href="${val.link}" target="_blank">${val.nama}</a></td>
 							<td class="text-center">${val.tahun_anggaran} - ${val.tahun_anggaran_selesai}</td>
 							<td class="text-center">${val.status}</td>
 						</tr>`;
