@@ -5582,6 +5582,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     ");
 				}
 				$ret['data'] = $data;
+				if (in_array('administrator', $this->role())) {
+					$ret['sql'] = $wpdb->last_query;
+				}
 			} else {
 				$ret = array(
 					'status' => 'error',
