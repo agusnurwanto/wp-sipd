@@ -9651,27 +9651,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						echo '<li><a href="' . $url_monev_renja . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
 					}
 
-					if ($vv['is_skpd'] == 1) {
-						$data_jadwal_renstra = $wpdb->get_results(
-							$wpdb->prepare('
-								SELECT * 
-								FROM `data_jadwal_lokal` 
-								WHERE id_tipe = %d 
-								  AND `status` = %d
-								ORDER BY tahun_anggaran DESC
-							', 15, 0),
-							ARRAY_A
-						);
-						foreach ($data_jadwal_renstra as $jadwal) {
-							$nama_page_monev_renstra = 'Monitoring Evaluasi RENSTRA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $jadwal['nama'];
-							$custom_post = $this->get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
-							$url_monev_renstra = $this->get_link_post($custom_post);
-							if (!empty($daftar_tombol_list[5])) {
-								echo '<li><a href="' . $url_monev_renstra . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
-							}
-						}
-					}
-
 					if (!empty($daftar_tombol_list[7])) {
 						$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
@@ -9680,21 +9659,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if ($vv['is_skpd'] == 1) {
+						if (!empty($daftar_tombol_list[5])) {
+							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 15)">Monev Indikator Renstra</button></li>';
+						}
 						if (!empty($daftar_tombol_list[8])) {
-							$jadwal_input_renstra = $wpdb->get_var(
-								$wpdb->prepare('
-									SELECT 
-										id_jadwal_lokal
-									FROM data_jadwal_lokal 
-									WHERE id_tipe = %d
-								', 4)
-							);
-
-							if (!empty($jadwal_input_renstra)) {
-    							echo '<li><button type="button" class="btn btn-info" onclick="showModalPilihRenstraLokal(' . $id_skpd . ')">Input Perencanaan Renstra</button></li>';
-							} else {
-								echo '<li><a href="#" class="btn btn-secondary disabled" aria-disabled="true">Jadwal Input Renstra belum diset</a></li>';
-							}
+							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 4)">Input Perencanaan Renstra</button></li>';
 						}
 					}
 
@@ -29610,23 +29579,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penjadwalan/wpsipd-public-jadwal-manrisk.php';
 	}
 
-	public function get_link_input_renstra_lokal()
+	public function get_link_button_by_jadwal()
 	{
 		global $wpdb;
 		try {
 			$this->newValidate($_POST, [
 				'api_key' => 'required|string',
-				'id_skpd' => 'required|numeric'
+				'id_skpd' => 'required|numeric',
+				'id_tipe' => 'required|numeric',
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
 				throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
 			}
 
-			$response = $this->process_get_link_input_renstra_lokal($_POST['id_skpd']);
+			$response = $this->process_get_link_by_tipe_jadwal($_POST['id_skpd'], $_POST['id_tipe']);
 			echo json_encode([
 				'status'  => true,
-				'message' => 'Berhasil mendapatkan link input RENSTRA Lokal.',
+				'message' => 'Berhasil mendapatkan link button.',
 				'data'    => $response
 			]);
 		} catch (Exception $e) {
@@ -29640,41 +29610,61 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
-	function process_get_link_input_renstra_lokal($id_skpd)
+	private function get_jadwal_by_id_tipe($id_tipe)
 	{
 		global $wpdb;
-		$jadwal_input_renstra = $wpdb->get_results(
+
+		$data = $wpdb->get_results(
 			$wpdb->prepare('
-				SELECT 
-					id_jadwal_lokal,
-					nama,
-					tahun_anggaran,
-					tahun_akhir_anggaran,
-					status,
-					lama_pelaksanaan
-				FROM data_jadwal_lokal 
-				WHERE id_tipe = %d
-			', 4),
+				SELECT *
+				FROM data_jadwal_lokal
+				WHERE status != 2
+				  AND id_tipe = %d
+				ORDER BY tahun_anggaran DESC
+			', $id_tipe),
 			ARRAY_A
 		);
-		if (empty($jadwal_input_renstra)) {
-			throw new Exception("Jadwal Input RENSTRA Lokal tidak ditemukan.", 404);
+
+		return $data;
+	}
+
+	public $status_jadwal_lokal = ['AKTIF', 'DIKUNCI', 'DIHAPUS'];
+
+	function process_get_link_by_tipe_jadwal($id_skpd, $id_tipe)
+	{
+		$data_jadwal = $this->get_jadwal_by_id_tipe($id_tipe);
+
+		if (empty($data_jadwal)) {
+			throw new Exception("Jadwal tidak ditemukan.", 404);
 		}
+
 		$list_page_renstra_lokal = '';
-		foreach ($jadwal_input_renstra as $item) {
+		$judul = [
+			4 => [
+				'judul' => 'Input RENSTRA Lokal',
+				'shortcode' => '[input_renstra]'
+			],
+			15 => [
+				'judul' => 'Monitoring Evaluasi RENSTRA',
+				'shortcode' => '[monitor_monev_renstra]'
+			],
+		];
+
+		foreach ($data_jadwal as &$item) {
 			$gen_page = $this->generatePage(
-				'Input RENSTRA Lokal',
+				$judul[$id_tipe]['judul'],
 				null,
-				'[input_renstra]'
+				$judul[$id_tipe]['shortcode']
 			);
 
-			$status = ($item['status'] == 0) ? '<b class="text-light">[TERBUKA]</b>' : '<b class="text-secondary">[DIKUNCI]</b>';
-			$tahun_akhir_anggaran = $item['tahun_anggaran'] + $item['lama_pelaksanaan'] - 1;
 			$url_skpd = $gen_page . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $item['id_jadwal_lokal'];
+			$tahun_akhir_anggaran = $item['tahun_anggaran'] + $item['lama_pelaksanaan'] - 1;
 
-			$list_page_renstra_lokal .= '<li class="mb-2"><a href="' . $url_skpd . '" target="_blank" class="btn btn-info btn-block text-center">' . $item['nama'] . ' | ' . $item['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</a></li>';
+			$item['link'] = $url_skpd;
+			$item['tahun_anggaran_selesai'] = $tahun_akhir_anggaran;
+			$item['status'] = $this->status_jadwal_lokal[$item['status']];
 		}
 
-		return $list_page_renstra_lokal;
+		return $data_jadwal;
 	}
 }

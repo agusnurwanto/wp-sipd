@@ -5535,6 +5535,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$where .= $wpdb->prepare(" and (s.id_skpd=%d or u.kode_bidang_urusan='X.XX')", $_POST['id_unit']);
 					}
 
+					// program RENSTRA tidak harus ada di RPJMD - agus 08/09/2025
+					/* 
 					if ($_POST['relasi_perencanaan'] != '-') {
 						if ($_POST['id_tipe_relasi'] == 2) {
 							$join .= " INNER JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
@@ -5542,6 +5544,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							$join .= " INNER JOIN data_rpd_program_lokal t on t.id_unit = s.id_skpd";
 						}
 					}
+					*/
 				}
 
 				if (!empty($_POST['type']) && $_POST['type'] == 1) {
@@ -5582,6 +5585,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     ");
 				}
 				$ret['data'] = $data;
+				if (in_array('administrator', $this->role())) {
+					$ret['sql'] = $wpdb->last_query;
+				}
 			} else {
 				$ret = array(
 					'status' => 'error',

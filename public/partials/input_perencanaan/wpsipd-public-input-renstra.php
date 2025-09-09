@@ -70,6 +70,7 @@ if (empty($jadwal_lokal['id_jadwal_sakip'])) {
 $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
 $add_renstra = '';
+$is_locked_jadwal_relasi = false;
 if (!empty($jadwal_lokal)) {
 	if (!empty($jadwal_lokal['relasi_perencanaan'])) {
 		$relasi_perencanaan = $jadwal_lokal['relasi_perencanaan'];
@@ -81,7 +82,6 @@ if (!empty($jadwal_lokal)) {
 			", $relasi_perencanaan)
 		);
 
-		$is_locked_jadwal_relasi = false;
 		if ($relasi->status == 1) {
 			$is_locked_jadwal_relasi = true;
 		}
@@ -128,6 +128,30 @@ switch ($id_tipe_relasi) {
 	case '3':
 		$nama_tipe_relasi = 'RPD';
 		break;
+}
+
+if ($is_locked_jadwal_relasi) {
+	switch ($id_tipe_relasi) {
+		case '2':
+			$table = 'data_rpjmd_sasaran_lokal_history';
+			$jenis_jadwal_relasi = 'rpjmd';
+			break;
+		case '3':
+			$table = 'data_rpd_sasaran_lokal_history';
+			$jenis_jadwal_relasi = 'rpd';
+			break;
+	}
+} else {
+	switch ($id_tipe_relasi) {
+		case '2':
+			$table = 'data_rpjmd_sasaran_lokal';
+			$jenis_jadwal_relasi = 'rpjmd';
+			break;
+		case '3':
+			$table = 'data_rpd_sasaran_lokal';
+			$jenis_jadwal_relasi = 'rpd';
+			break;
+	}
 }
 
 $akhir_renstra = $awal_renstra + $lama_pelaksanaan - 1;
@@ -247,30 +271,6 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 		];
 
 		if (!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-') {
-			if ($is_locked_jadwal_relasi) {
-				switch ($id_tipe_relasi) {
-					case '2':
-						$table = 'data_rpjmd_sasaran_lokal_history';
-						$jenis_jadwal_relasi = 'rpjmd';
-						break;
-					case '3':
-						$table = 'data_rpd_sasaran_lokal_history';
-						$jenis_jadwal_relasi = 'rpd';
-						break;
-				}
-			} else {
-				switch ($id_tipe_relasi) {
-					case '2':
-						$table = 'data_rpjmd_sasaran_lokal';
-						$jenis_jadwal_relasi = 'rpjmd';
-						break;
-					case '3':
-						$table = 'data_rpd_sasaran_lokal';
-						$jenis_jadwal_relasi = 'rpd';
-						break;
-				}
-			}
-
 			$sasaran_rpjm = $wpdb->get_var(
 				$wpdb->prepare("
 					SELECT DISTINCT
