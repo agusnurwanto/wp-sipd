@@ -1635,32 +1635,25 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<th class='atas kanan bawah text_tengah text_blok'>9</th>
 				<?php
-				$target_temp = 10;
-				for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
-					if ($i != 1) {
-						$target_temp = $pagu_temp + 1;
+					$counter = 10;
+					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
 					}
-					$pagu_temp = $target_temp + 1;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
 				?>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $target_temp ?></th>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp ?></th>
-				<?php
-				}
-				?>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 1 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 2 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 3 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 4 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 5 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 6 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 7 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 8 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 9 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 10 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 11 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 12 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 13 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 14 ?></th>
 			</tr>
 		</thead>
 		<tbody>
