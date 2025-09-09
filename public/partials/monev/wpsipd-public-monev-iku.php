@@ -35,8 +35,6 @@ $data_jadwal_relasi = $wpdb->get_row(
 	", $data_jadwal['relasi_perencanaan'], 0),
 	ARRAY_A
 );
-// die(print_r($data_jadwal_relasi));
-
 
 if (empty($data_jadwal) || empty($data_jadwal_relasi)) {
 	die("<h1>Jadwal Tidak Tersedia</h1>");
@@ -120,19 +118,31 @@ if (!empty($tujuan)) {
 		if (empty($data_all['data'][$tujuan_key])) {
 			$status_rpjmd = '';
 			if (!empty($tujuan_value['kode_sasaran_rpjm'])) {
-				$cek_status_rpjmd = $wpdb->get_results(
-					$wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_rpjmd_sasaran 
-						WHERE active=1 
-						  AND id_unik=%s 
-					", $tujuan_value['kode_sasaran_rpjm']),
-					ARRAY_A
-				);
+				$prefix_history = $data_jadwal_relasi['status'] == 1 ? '_history' : '';
+				if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
+					$sasaran_teks = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT sasaran_teks
+							FROM data_rpjmd_sasaran{$prefix_history}
+							WHERE active = 1 
+							  AND id_unik=%s 
+							  AND tahun_anggaran = %d
+						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
+					);
+				} else {
+					$sasaran_teks = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT sasaran_teks
+							FROM data_rpd_sasaran{$prefix_history}
+							WHERE active = 1 
+							  AND id_unik = %s 
+							  AND tahun_anggaran = %d
+						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
+					);
+				}
 
-				if (!empty($cek_status_rpjmd)) {
-					$status_rpjmd = 'TERKONEKSI';
+				if (!empty($sasaran_teks)) {
+					$status_rpjmd = $sasaran_teks;
 				}
 			}
 
@@ -757,9 +767,10 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$realisasi_pagu_5
 	);
 
-	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $input['id_jadwal'] . '\', \'' . $input['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
-	            	' . $tujuan['status_rpjmd'] . '
-	            	</a>' : $tujuan['status_rpjmd'];
+	$status_rpjmd = '';
+	if (!empty($tujuan['status_rpjmd'])) {
+		$status_rpjmd = $tujuan['status_rpjmd'];
+	}
 
 	$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
 	$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#f7d2a1';
@@ -1366,7 +1377,7 @@ foreach ($data_all['data'] as $key => $tujuan) {
 			<?php
 			$row_head = '<tr>
 				<th style="width: 85px;" rowspan="2" class="row_head_1 atas kiri kanan bawah text_tengah text_blok">No</th>
-				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran ' . $jenis_jadwal_relasi . '</th>
+				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran ' . strtoupper($jenis_jadwal_relasi) . '</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
 				<th style="width: 200px;" rowspan="2" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran (Indikator Kinerja Utama)</th>
@@ -1423,6 +1434,10 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 8 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 9 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 10 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 11 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 12 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 13 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 14 ?></th>
 			</tr>
 		</thead>
 		<tbody>

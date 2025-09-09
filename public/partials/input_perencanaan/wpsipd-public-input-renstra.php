@@ -104,7 +104,7 @@ if (!empty($jadwal_lokal)) {
 		$now = new DateTime(date('Y-m-d H:i:s'));
 
 		if ($now >= $awal && $now <= $akhir) {
-			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
 	} else if ($jenisJadwal == 'usulan') {
 		$mulaiJadwal = $jadwal_lokal['waktu_awal'];
@@ -114,7 +114,7 @@ if (!empty($jadwal_lokal)) {
 		$now = new DateTime(date('Y-m-d H:i:s'));
 
 		if ($now >= $awal && $now <= $akhir) {
-			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
 	}
 }
@@ -2866,41 +2866,55 @@ $table .= '
 
 	penjadwalanHitungMundur(dataHitungMundur);
 
-	var aksi = ''
-	<?php if ($is_admin): ?>
-			+
-			'<a style="margin-left: 10px; display: none;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>' +
-			'<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>' +
-			'<a style="margin-left: 10px; display: none;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">Singkronisasi Kegiatan</a>'
-	<?php endif; ?>
-		+
-		'<?php echo $add_renstra; ?>' +
-		'<div class="dropdown" style="margin:30px">' +
-		'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">LAPORAN</button>' +
-		'<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-		'<a class="dropdown-item" href="javascript:laporan(\'tc27\', 1)">TC27</a>' +
-		'</div>' +
-		'</div>' +
-		'<h3 style="margin-top: 20px;">PENGATURAN</h3>'
-		// +'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
-		+
-		'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading <?php echo $nama_tipe_relasi; ?></label>' +
-		'<label style="margin-left: 20px;">' +
-		'Sembunyikan Baris ' +
-		'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">' +
-		'<option value="">Pilih Baris</option>' +
-		'<option value="tr-sasaran">Sasaran</option>' +
-		'<option value="tr-program">Program</option>' +
-		'<option value="tr-kegiatan">Kegiatan</option>' +
-		'<option value="tr-sub-kegiatan">Sub Kegiatan</option>' +
-		'</select>' +
-		'<label style="margin-left: 20px;">' +
-		'Sembunyikan Kolom ' +
-		'<select onchange="sembunyikan_kolom(this);" style="padding: 5px 10px; min-width: 200px;">' +
-		'<option value="">Pilih Kolom</option>' +
-		'<option value="usulan">Usulan</option>' +
-		'</select>' +
-		'</label>';
+	let aksi = `
+		<?php if ($is_admin): ?>
+			<a style="margin-left: 10px; display: none;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">
+				Ambil data dari SIPD lokal
+			</a>
+			<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">
+				<span class="dashicons dashicons-admin-page"></span> Copy Data Usulan ke Penetapan
+			</a>
+			<a style="margin-left: 10px; display: none;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">
+				Singkronisasi Kegiatan
+			</a>
+		<?php endif; ?>
+
+		<?php echo $add_renstra; ?>
+
+		<div class="dropdown" style="margin: 30px;">
+			<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				LAPORAN
+			</button>
+			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+				<a class="dropdown-item" href="javascript:laporan('tc27', 1)">TC27</a>
+			</div>
+		</div>
+
+		<h3 style="margin-top: 20px;">PENGATURAN</h3>
+		
+		<label style="margin-left: 20px;">
+			<input type="checkbox" onclick="show_debug(this);"> Debug Cascading <?php echo $nama_tipe_relasi; ?>
+		</label>
+		
+		<label style="margin-left: 20px;">
+			Sembunyikan Baris
+			<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">
+				<option value="">Pilih Baris</option>
+				<option value="tr-sasaran">Sasaran</option>
+				<option value="tr-program">Program</option>
+				<option value="tr-kegiatan">Kegiatan</option>
+				<option value="tr-sub-kegiatan">Sub Kegiatan</option>
+			</select>
+		</label>
+		
+		<label style="margin-left: 20px;">
+			Sembunyikan Kolom
+			<select onchange="sembunyikan_kolom(this);" style="padding: 5px 10px; min-width: 200px;">
+				<option value="">Pilih Kolom</option>
+				<option value="usulan">Usulan</option>
+			</select>
+		</label>
+	`;
 	jQuery('#action-sipd').append(aksi);
 
 	jQuery('#tambah-data').on('click', function() {
@@ -8135,46 +8149,46 @@ $table .= '
 				get_bidang_urusan().then(function() {
 					jQuery('#wrap-loading').hide();
 					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Program');
-					jQuery("#modal-crud-renstra .modal-body").html(
-						'<h4 style="text-align:center"><span>EXISTING</span></h4>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-						'<td>' + response.data.nama_skpd + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Urusan</th>' +
-						'<td><select class="form-control" name="id_urusan" id="urusan-teks"></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Bidang</th>' +
-						'<td><select class="form-control" name="id_bidang" id="bidang-teks"></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-						'<td>' + response.data.tujuan_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-						'<td>' + response.data.sasaran_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Program</th>' +
-						'<td>' + response.data.nama_program + '</td>' +
-						'</tr>' +
-						'</thead>' +
-						'</table>' +
-						'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Program</th>' +
-						'<td><select id="program-teks" name="id_program"></select></td>' +
-						'</tr>' +
-						'</thead>' +
-						'</table>'
-					);
+					jQuery("#modal-crud-renstra .modal-body").html(`
+						<h4 style="text-align:center"><span>EXISTING</span></h4>
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+									<td>${response.data.nama_skpd}</td>
+								</tr>
+								<tr>
+									<th class="text-center" style="width: 160px;">Urusan</th>
+									<td><select class="form-control" name="id_urusan" id="urusan-teks"></select></td>
+								</tr>
+								<tr>
+									<th class="text-center" style="width: 160px;">Bidang</th>
+									<td><select class="form-control" name="id_bidang" id="bidang-teks"></select></td>
+								</tr>
+								<tr>
+									<th class="text-center" style="width: 160px;">Tujuan</th>
+									<td>${response.data.tujuan_teks}</td>
+								</tr>
+								<tr>
+									<th class="text-center" style="width: 160px;">Sasaran</th>
+									<td>${response.data.sasaran_teks}</td>
+								</tr>
+								<tr>
+									<th class="text-center" style="width: 160px;">Program</th>
+									<td>${response.data.nama_program}</td>
+								</tr>
+							</thead>
+						</table>
+						<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="text-center" style="width: 160px;">Program</th>
+									<td><select id="program-teks" name="id_program"></select></td>
+								</tr>
+							</thead>
+						</table>
+					`);
 
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '1350px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -8466,46 +8480,46 @@ $table .= '
 
 				jQuery('#wrap-loading').hide();
 				jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Kegiatan');
-				jQuery("#modal-crud-renstra .modal-body").html(
-					'<h4 style="text-align:center"><span>EXISTING</span></h4>' +
-					'<table class="table">' +
-					'<thead>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-					'<td>' + response.kegiatan.nama_skpd + '</td>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-					'<td>' + response.kegiatan.nama_bidang_urusan + '</td>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-					'<td>' + response.kegiatan.tujuan_teks + '</td>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-					'<td>' + response.kegiatan.sasaran_teks + '</td>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Program</th>' +
-					'<td>' + response.kegiatan.nama_program + '</td>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center">Kegiatan</th>' +
-					'<td>' + response.kegiatan.nama_giat + '</td>' +
-					'</tr>' +
-					'</thead>' +
-					'</table>' +
-					'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>' +
-					'<table class="table">' +
-					'<thead>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-					'<td><select id="list-kegiatan" name="list-kegiatan"></select></td>' +
-					'</tr>' +
-					'</thead>' +
-					'</table>'
-				);
+				jQuery("#modal-crud-renstra .modal-body").html(`
+					<h4 style="text-align:center"><span>EXISTING</span></h4>
+					<table class="table">
+						<thead>
+							<tr>
+								<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+								<td> ${response.kegiatan.nama_skpd} </td>
+							</tr>
+							<tr>
+								<th class="text-center" style="width: 160px;">Bidang Urusan</th>
+								<td> ${response.kegiatan.nama_bidang_urusan} </td>
+							</tr>
+							<tr>
+								<th class="text-center" style="width: 160px;">Tujuan</th>
+								<td> ${response.kegiatan.tujuan_teks} </td>
+							</tr>
+							<tr>
+								<th class="text-center" style="width: 160px;">Sasaran</th>
+								<td> ${response.kegiatan.sasaran_teks} </td>
+							</tr>
+							<tr>
+								<th class="text-center" style="width: 160px;">Program</th>
+								<td> ${response.kegiatan.nama_program} </td>
+							</tr>
+							<tr>
+								<th class="text-center">Kegiatan</th>
+								<td> ${response.kegiatan.nama_giat} </td>
+							</tr>
+						</thead>
+					</table>
+					<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>
+					<table class="table">
+					<thead>
+						<tr>
+							<th class="text-center" style="width: 160px;">Kegiatan</th>
+							<td><select id="list-kegiatan" name="list-kegiatan"></select></td>
+						</tr>
+					</thead>
+					</table>
+				`);
 
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '1350px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -8590,167 +8604,169 @@ $table .= '
 			success: function(response) {
 				get_bidang_urusan().then(function() {
 					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Sub Kegiatan');
-					jQuery("#modal-crud-renstra .modal-body").html(
-						'<nav>' +
-							'<div class="nav nav-tabs" id="nav-tab" role="tablist">' +
-								'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-default" role="tab" aria-controls="nav-sub-giat-default" aria-selected="false" onclick="defaultSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + id + ')">Default</a>' +
-								'<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + response.sub_kegiatan.id_unit + ', ' + id + ')">Lintas Sub Kegiatan Existing</a>' +
-							'</div>' +
-						'</nav>' +
-						'<div class="tab-content" id="nav-tab-content">' +
-						'<div class="tab-pane fade" id="nav-sub-giat-default" role="tabpanel" aria-labelledby="nav-sub-giat-default">' +
-						'<h4 style="text-align:center"><span>EXISTING</span></h4>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-						'<td>' + response.sub_kegiatan.nama_sub_unit + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-						'<td>' + response.sub_kegiatan.nama_bidang_urusan + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-						'<td>' + response.sub_kegiatan.tujuan_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-						'<td>' + response.sub_kegiatan.sasaran_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Program</th>' +
-						'<td>' + response.sub_kegiatan.nama_program + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-						'<td>' + response.sub_kegiatan.nama_giat + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
-						'<td>' + response.sub_kegiatan.nama_sub_giat + '</td>' +
-						'</tr>'+
-						'</thead>' +
-						'</table>' +
-						'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
-						'<td><select id="select-sub-kegiatan" onchange="listIndikatorSubKegiatan()"></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Indikator Sub Kegiatan</th>' +
-						'<td><select id="select-indikator-sub-kegiatan" class="select-indikator-sub-kegiatan"></select></td>' +
-						'</tr>' +
-						'</thead>' +
-						'</table>' +
-						'</div>' +
-						'<div class="tab-pane fade" id="nav-sub-giat-lintas" role="tabpanel" aria-labelledby="nav-sub-giat-lintas">' +
-						'<h4 style="text-align:center"><span>EXISTING</span></h4>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-						'<td>' + response.sub_kegiatan.nama_sub_unit + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-						'<td>' + response.sub_kegiatan.nama_bidang_urusan + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-						'<td>' + response.sub_kegiatan.tujuan_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-						'<td>' + response.sub_kegiatan.sasaran_teks + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Program</th>' +
-						'<td>' + response.sub_kegiatan.nama_program + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-						'<td>' + response.sub_kegiatan.nama_giat + '</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
-						'<td>' + response.sub_kegiatan.nama_sub_giat + '</td>' +
-						'</tr>' +
-						'</thead>' +
-						'</table>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Pagu</th>' +
-						'<td>Usulan</td>' +
-						'<td>Penetapan</td>' +
-						'</tr>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> +
-							'<tr>' +
-							'<th class="text-center" style="width: 160px;">Tahun ' + <?php echo $i; ?> + '</th>' +
-							'<td>' + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan_temp + '</td>' +
-							'<td>' + response.sub_kegiatan.pagu_<?php echo $i; ?>_temp + '</td>' +
-							'</tr>'
-						<?php }; ?> +
-						'</thead>' +
-						'</table>' +
-						'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>' +
-						'<form id="pemutakhiran_subgiat_form">' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Urusan</th>' +
-						'<td colspan="3"><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Bidang</th>' +
-						'<td colspan="3"><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Program</th>' +
-						'<td><select id="program-teks" name="id_program" onchange="listKegiatanByProgram(this.value);"></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-						'<td><select id="list-kegiatan" name="kegiatan" onchange="listSubGiat(\'' + response.sub_kegiatan.id_unit + '\', ' + <?php echo $tahun_anggaran; ?> + ');"></select></td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
-						'<td><select id="select-sub-kegiatan-2" name="sub_kegiatan_2"></select></td>' +
-						'</tr>' +
-						'</thead>' +
-						'</table>' +
-						'<table class="table">' +
-						'<thead>' +
-						'<tr>' +
-						'<th class="text-center" style="width: 160px;">Pagu</th>' +
-						'<td>Usulan</td>' +
-						'<td>Penetapan</td>' +
-						'<td>Usulan Asli</td>' +
-						'<td>Penetapan Asli</td>' +
-						'</tr>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> +
-							'<tr>' +
-							'<th class="text-center" style="width: 160px;">Tahun ' + <?php echo $i; ?> + '</th>' +
-							'<td><input type="number" class="form-control" name="pagu_' + <?php echo $i; ?> + '_usulan"></td>' +
-							'<td><input type="number" class="form-control" name="pagu_' + <?php echo $i; ?> + '"></td>' +
-							'<td><input type="number" class="form-control" name="pagu_' + <?php echo $i; ?> + '_usulan_asli" readonly></td>' +
-							'<td><input type="number" class="form-control" name="pagu_' + <?php echo $i; ?> + '_asli" readonly></td>' +
-							'</tr>'
-						<?php }; ?> +
-						'</thead>' +
-						'</table>' +
-						'</form>' +
-						'<div class="row">' +
-						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;"><i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
-						'</button>' +
-						'</div>' +
-						'</div>' +
-						'</div>' +
-						'</div>');
+					jQuery("#modal-crud-renstra .modal-body").html(`
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab" role="tablist">
+								<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-default" role="tab" aria-controls="nav-sub-giat-default" aria-selected="false" onclick="defaultSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + id + ')">Default</a>
+								<a class="nav-item nav-link" data-toggle="tab" href="#nav-sub-giat-lintas" role="tab" aria-controls="nav-sub-giat-lintas" aria-selected="false" onclick="lintasSubgiat(' + response.sub_kegiatan.id_sub_giat + ', ' + response.sub_kegiatan.id_unit + ', ' + id + ')">Lintas Sub Kegiatan Existing</a>
+							</div>
+						</nav>
+						<div class="tab-content" id="nav-tab-content">
+							<div class="tab-pane fade" id="nav-sub-giat-default" role="tabpanel" aria-labelledby="nav-sub-giat-default">
+								<h4 style="text-align:center"><span>EXISTING</span></h4>
+								<table class="table">
+									<thead>
+										<tr>
+											<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+											<td>${response.sub_kegiatan.nama_sub_unit}</td>
+										</tr>
+										<tr>
+											<th class="text-center" style="width: 160px;">Bidang Urusan</th>
+											<td>${response.sub_kegiatan.nama_bidang_urusan}</td>
+										</tr>
+										<tr>
+											<th class="text-center" style="width: 160px;">Tujuan</th>
+											<td>${response.sub_kegiatan.tujuan_teks}</td>
+										</tr>
+										<tr>
+											<th class="text-center" style="width: 160px;">Sasaran</th>
+											<td>${response.sub_kegiatan.sasaran_teks}</td>
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Program</th> 
+											<td>${response.sub_kegiatan.nama_program}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Kegiatan</th> 
+											<td>${response.sub_kegiatan.nama_giat}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<td>${response.sub_kegiatan.nama_sub_giat}</td> 
+										</tr>
+									</thead> 
+								</table> 
+								<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4> 
+								<table class="table"> 
+									<thead> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<td><select id="select-sub-kegiatan" onchange="listIndikatorSubKegiatan()"></select></td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Indikator Sub Kegiatan</th> 
+											<td><select id="select-indikator-sub-kegiatan" class="select-indikator-sub-kegiatan"></select></td> 
+										</tr> 
+									</thead> 
+								</table> 
+							</div> 
+							<div class="tab-pane fade" id="nav-sub-giat-lintas" role="tabpanel" aria-labelledby="nav-sub-giat-lintas"> 
+								<h4 style="text-align:center"><span>EXISTING</span></h4> 
+								<table class="table"> 
+									<thead> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Perangkat Daerah</th> 
+											<td>${response.sub_kegiatan.nama_sub_unit}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Bidang Urusan</th> 
+											<td>${response.sub_kegiatan.nama_bidang_urusan}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Tujuan</th> 
+											<td>${response.sub_kegiatan.tujuan_teks}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Sasaran</th> 
+											<td>${response.sub_kegiatan.sasaran_teks}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Program</th> 
+											<td>${response.sub_kegiatan.nama_program}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Kegiatan</th> 
+											<td>${response.sub_kegiatan.nama_giat}</td> 
+										</tr> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<td>${response.sub_kegiatan.nama_sub_giat}</td> 
+										</tr> 
+									</thead> 
+								</table> 
+								<table class="table"> 
+									<thead> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Pagu</th> 
+											<td>Usulan</td> 
+											<td>Penetapan</td> 
+										</tr>
+									<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> 
+										<tr> 
+											<th class="text-center" style="width: 160px;">Tahun <?php echo $i; ?> </th> 
+											<td>` + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan_temp + `</td> 
+											<td>` + response.sub_kegiatan.pagu_<?php echo $i; ?>_temp + `</td> 
+										</tr>
+									<?php }; ?> 
+									</thead> 
+								</table> 
+								<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4> 
+								<form id="pemutakhiran_subgiat_form"> 
+									<table class="table"> 
+										<thead> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Urusan</th> 
+												<td colspan="3"><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td> 
+											</tr> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Bidang</th> 
+												<td colspan="3"><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td> 
+											</tr> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Program</th> 
+												<td><select id="program-teks" name="id_program" onchange="listKegiatanByProgram(this.value);"></select></td> 
+											</tr> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Kegiatan</th> 
+												<td><select id="list-kegiatan" name="kegiatan" onchange="listSubGiat(${response.sub_kegiatan.id_unit}, <?php echo $tahun_anggaran; ?>);"></select></td> 
+											</tr> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+												<td><select id="select-sub-kegiatan-2" name="sub_kegiatan_2"></select></td> 
+											</tr> 
+										</thead> 
+									</table> 
+									<table class="table"> 
+										<thead> 
+											<tr> 
+												<th class="text-center" style="width: 160px;">Pagu</th> 
+												<td>Usulan</td> 
+												<td>Penetapan</td> 
+												<td>Usulan Asli</td> 
+												<td>Penetapan Asli</td> 
+											</tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> 
+												<tr> 
+													<th class="text-center" style="width: 160px;">Tahun <?php echo $i; ?></th> 
+													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"></td> 
+													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_temp"></td> 
+													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan_asli" readonly></td> 
+													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_asli" readonly></td> 
+												</tr>
+											<?php }; ?> 
+										</thead> 
+									</table> 
+								</form> 
+								<div class="row"> 
+									<div class="col-md-12 text-center"> 
+										<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
+											<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
+										</button> 
+									</div> 
+								</div> 
+							</div> 
+						</div>
+					`);
 
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '1350px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
