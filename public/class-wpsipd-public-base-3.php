@@ -12664,7 +12664,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	            $user_id = um_user('ID');
 	            $user_meta = get_userdata($user_id);
-
+				$nama_pemda = get_option('_crb_daerah');
+				if (empty($nama_pemda) || $nama_pemda == 'false') {
+				    $nama_pemda = '';
+				}
 	            $get_data = $wpdb->get_results($wpdb->prepare("
 	                    SELECT 
 	                        * 
@@ -12829,7 +12832,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 
 	                        if ($data_sebelum['pihak_terkena'] == 'pemda') {
-	                            $pihak_terkena = 'Pemerintah';
+	                            $pihak_terkena = 'Pemerintah ' . $nama_pemda;
 	                        } elseif ($data_sebelum['pihak_terkena'] == 'perangkat_daerah') {
 	                            $pihak_terkena = 'Perangkat Daerah';
 	                        } elseif ($data_sebelum['pihak_terkena'] == 'kepala_opd') {
@@ -12917,7 +12920,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			                        }
 
 			                        if ($data_sesudah['pihak_terkena'] == 'pemda') {
-			                            $pihak_terkena_sesudah = 'Pemerintah';
+			                            $pihak_terkena_sesudah = 'Pemerintah ' . $nama_pemda;
 			                        } elseif ($data_sesudah['pihak_terkena'] == 'perangkat_daerah') {
 			                            $pihak_terkena_sesudah = 'Perangkat Daerah';
 			                        } elseif ($data_sesudah['pihak_terkena'] == 'kepala_opd') {
@@ -13844,7 +13847,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	            $user_id = um_user('ID');
 	            $user_meta = get_userdata($user_id);
-
+	            $nama_pemda = get_option('_crb_daerah');
+				if (empty($nama_pemda) || $nama_pemda == 'false') {
+				    $nama_pemda = '';
+				}
 	            $get_data = $wpdb->get_results($wpdb->prepare("
 	                    SELECT 
 	                        * 
@@ -14010,7 +14016,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 
 	                        if ($data_sebelum['pihak_terkena'] == 'pemda') {
-	                            $pihak_terkena = 'Pemerintah';
+	                            $pihak_terkena = 'Pemerintah ' . $nama_pemda;
 	                        } elseif ($data_sebelum['pihak_terkena'] == 'perangkat_daerah') {
 	                            $pihak_terkena = 'Perangkat Daerah';
 	                        } elseif ($data_sebelum['pihak_terkena'] == 'kepala_opd') {
@@ -14099,7 +14105,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			                        }
 
 			                        if ($data_sesudah['pihak_terkena'] == 'pemda') {
-			                            $pihak_terkena_sesudah = 'Pemerintah';
+			                            $pihak_terkena_sesudah = 'Pemerintah ' . $nama_pemda;
 			                        } elseif ($data_sesudah['pihak_terkena'] == 'perangkat_daerah') {
 			                            $pihak_terkena_sesudah = 'Perangkat Daerah';
 			                        } elseif ($data_sesudah['pihak_terkena'] == 'kepala_opd') {
