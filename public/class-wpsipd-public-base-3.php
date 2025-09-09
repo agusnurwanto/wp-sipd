@@ -12983,37 +12983,37 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							  $namaJadwal = $jadwal_lokal['nama'];
 							  $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 
-							  if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
-							    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-							    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-							    $awal = new DateTime($mulaiJadwal);
-							    $akhir = new DateTime($selesaiJadwal);
-							    $now = new DateTime(date('Y-m-d H:i:s'));
+								if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
+								    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+								    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+								    $awal = new DateTime($mulaiJadwal);
+								    $akhir = new DateTime($selesaiJadwal);
+								    $now = new DateTime(date('Y-m-d H:i:s'));
 
-							    if ($now >= $awal && $now <= $akhir) {
-							      $html .= '
-							          <td class="text-center">
-							              <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
-								              <span class="dashicons dashicons-yes"></span>
-								          </button>
-							      ';
-							    }
-							  } else if ($jenisJadwal == 'usulan') {
-							    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-							    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-							    $awal = new DateTime($mulaiJadwal);
-							    $akhir = new DateTime($selesaiJadwal);
-							    $now = new DateTime(date('Y-m-d H:i:s'));
+								    if ($now >= $awal && $now <= $akhir) {
+								      $html .= '
+								          <td class="text-center">
+								              <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+									              <span class="dashicons dashicons-yes"></span>
+									          </button>
+								      ';
+								    }
+								} else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
+								    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+								    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+								    $awal = new DateTime($mulaiJadwal);
+								    $akhir = new DateTime($selesaiJadwal);
+								    $now = new DateTime(date('Y-m-d H:i:s'));
 
-							    if ($now >= $awal && $now <= $akhir) {
-							      $html .= '
-							          <td class="text-center">
-							              <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-							                  <span class="dashicons dashicons-edit"></span>
-							              </button>
-							      ';
-							    }
-							  }
+								    if ($now >= $awal && $now <= $akhir) {
+								      $html .= '
+								          <td class="text-center">
+								              <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
+								                  <span class="dashicons dashicons-edit"></span>
+								              </button>
+								      ';
+								    }
+								}
 							}
 
 	                        $html .= '
@@ -14168,37 +14168,37 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							  $namaJadwal = $jadwal_lokal['nama'];
 							  $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 
-							  if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
-							    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-							    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-							    $awal = new DateTime($mulaiJadwal);
-							    $akhir = new DateTime($selesaiJadwal);
-							    $now = new DateTime(date('Y-m-d H:i:s'));
+								if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
+								    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+								    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+								    $awal = new DateTime($mulaiJadwal);
+								    $akhir = new DateTime($selesaiJadwal);
+								    $now = new DateTime(date('Y-m-d H:i:s'));
 
-							    if ($now >= $awal && $now <= $akhir) {
-							      $html .= '
-							          <td class="text-center">
-							          <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
-							              <span class="dashicons dashicons-yes"></span>
-							          </button>
-							      ';
-							    }
-							  } else if ($jenisJadwal == 'usulan') {
-							    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-							    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-							    $awal = new DateTime($mulaiJadwal);
-							    $akhir = new DateTime($selesaiJadwal);
-							    $now = new DateTime(date('Y-m-d H:i:s'));
+								    if ($now >= $awal && $now <= $akhir) {
+								      $html .= '
+								          <td class="text-center">
+								          <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+								              <span class="dashicons dashicons-yes"></span>
+								          </button>
+								      ';
+								    }
+								} else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
+								    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+								    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+								    $awal = new DateTime($mulaiJadwal);
+								    $akhir = new DateTime($selesaiJadwal);
+								    $now = new DateTime(date('Y-m-d H:i:s'));
 
-							    if ($now >= $awal && $now <= $akhir) {
-							      $html .= '
-							          <td class="text-center">
-							              <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-							                  <span class="dashicons dashicons-edit"></span>
-							              </button>
-							      ';
-							    }
-							  }
+								    if ($now >= $awal && $now <= $akhir) {
+								      $html .= '
+								          <td class="text-center">
+								              <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
+								                  <span class="dashicons dashicons-edit"></span>
+								              </button>
+								      ';
+								    }
+								}
 							}
 
 	                        $html .= '
