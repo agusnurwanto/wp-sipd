@@ -376,10 +376,25 @@ function changeUrl(option) {
 
 function onlyNumber(e) {
 	var _string = String.fromCharCode(e.which);
-	// console.log('e.which', e.which, _string);
 	if (isNaN(String.fromCharCode(e.which)) && _string != ".") {
 		e.preventDefault();
 	}
+}
+
+function cleanPaste(event) {
+	event.preventDefault();
+	let text = (event.clipboardData || window.clipboardData).getData('text/plain');
+	
+	let sanitizedText = text.replace(/[^0-9.]/g, ''); 
+
+	const selection = window.getSelection();
+	if (!selection.rangeCount) return;
+	
+	const range = selection.getRangeAt(0);
+	range.deleteContents(); 
+	range.insertNode(document.createTextNode(sanitizedText)); 
+
+	range.collapse(false);
 }
 
 function penjadwalanHitungMundur(dataHitungMundur = {}) {

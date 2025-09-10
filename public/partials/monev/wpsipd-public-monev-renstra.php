@@ -1461,7 +1461,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-4">
+						<div class="col-md-4" style="box-shadow: 1px 1px 5px #666;">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-warning rounded m-0 text-center">Anggaran</h2>
@@ -1470,7 +1470,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							<div class="d-flex align-items-center mb-9 bg-light-warning rounded" style="margin-top: 3rem;">
 								<!--begin::Title-->
 								<div class="col-md-12">
-									<table class="table">
+									<table class="borderless-table">
 										<tr>
 											<td style="width:20px;">
 												<h2 class="font-weight-bolder text-warning py-1 m-0">Total</h2>
@@ -1489,7 +1489,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							</div>
 						</div>
 
-						<div class="col-md-4">
+						<div class="col-md-4" style="box-shadow: 1px 1px 5px #666;">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-primary rounded m-0 text-center">Realisasi</h2>
@@ -1498,7 +1498,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							<div class="d-flex align-items-center mb-9 bg-light-primary rounded" style="margin-top: 3rem;">
 								<!--begin::Title-->
 								<div class="col-md-12">
-									<table class="table">
+									<table class="borderless-table">
 										<tr>
 											<td style="width:20px;">
 												<h2 class="font-weight-bolder text-primary py-1 m-0">Total</h2>
@@ -1516,7 +1516,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 								<!--end::Title-->
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-4" style="box-shadow: 1px 1px 5px #666;">
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="font-weight-bolder text-white p-5 bg-success rounded m-0 text-center">Persentase</h2>
@@ -1525,7 +1525,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							<div class="d-flex align-items-center mb-9 bg-light-success rounded p-5">
 								<!--begin::Title-->
 								<div class="col-md-12">
-									<table class="table">
+									<table class="borderless-table">
 										<tr>
 											<td style="width:20px;">
 												<h2 class="font-weight-bolder text-success py-1 m-0">Total</h2>
@@ -1544,7 +1544,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 							</div>
 						</div>
 					</div>
-					<div class="row mb-5">
+					<div class="row mb-5 mt-5">
 						<div class="col-md-6 offset-md-3 offset-sm-0">
 							<div class="card card-primary" style="box-shadow: 1px 1px 5px #666;">
 								<div class="card-header bg-primary text-white p-5">
@@ -1635,32 +1635,25 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<th class='atas kanan bawah text_tengah text_blok'>9</th>
 				<?php
-				$target_temp = 10;
-				for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
-					if ($i != 1) {
-						$target_temp = $pagu_temp + 1;
+					$counter = 10;
+					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
+						echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+						$counter++;
 					}
-					$pagu_temp = $target_temp + 1;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
+					$counter++;
+					echo "<th class='atas kanan bawah text_tengah text_blok'>" . $counter . "</th>";
 				?>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $target_temp ?></th>
-					<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp ?></th>
-				<?php
-				}
-				?>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 1 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 2 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 3 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 4 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 5 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 6 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 7 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 8 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 9 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 10 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 11 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 12 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 13 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp + 14 ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1697,7 +1690,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 					<input type="hidden" id="type_indikator">
 					<input type="hidden" id="target_indikator">
 					<div class="form-group">
-						<table class="table table-bordered">
+						<table class="borderless-table">
 							<tbody>
 								<tr>
 									<th style="width: 200px;" id="jenis-indikator">Tujuan / Sasaran / Program / Kegiatan</th>
@@ -1791,25 +1784,31 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 	run_download_excel('', '#aksi-wp-sipd');
 	var data_all = <?php echo json_encode($data_all); ?>;
 	window.all_program_renstra = <?php echo json_encode($all_program_renstra); ?>;
+	window.reload = false;
 
 	jQuery(document).on('ready', function() {
-		var aksi = '' +
-			'<a style="margin-left: 10px;" onclick="copy_renstra_local(); return false;" href="#" class="btn btn-danger">Copy Data Renstra Lokal</a>' +
-			'<h3 style="margin-top: 20px;">PENGATURAN</h3>' +
-			'<label class="action-checkbox"><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;' +
-			'<label class="action-checkbox"><input type="checkbox" onclick="debug_renstra(this);" id="debug-renstra"> Debug Cascading Renstra</label>' +
-			'<label class="action-checkbox">' +
-			'Sembunyikan Baris ' +
-			'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">' +
-			'<option value="">Pilih Baris</option>' +
-			'<option value="tr-tujuan">Tujuan</option>' +
-			'<option value="tr-sasaran">Sasaran</option>' +
-			'<option value="tr-program">Program</option>' +
-			'<option value="tr-kegiatan">Kegiatan</option>' +
-			'</select>' +
-			'</label>'
+		var aksi = `
+			<a style="margin-left: 10px;" onclick="copy_renstra_local(); return false;" href="#" class="btn btn-danger">Copy Data Renstra Lokal</a>
+			<h3 style="margin-top: 20px;">PENGATURAN</h3>
+			<label class="action-checkbox">
+				<input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator
+			</label>&nbsp;
+			<label class="action-checkbox">
+				<input type="checkbox" onclick="debug_renstra(this);" id="debug-renstra"> Debug Cascading Renstra
+			</label>
+			<label class="action-checkbox"> Sembunyikan Baris 
+				<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">
+					<option value="">Pilih Baris</option>
+					<option value="tr-tujuan">Tujuan</option>
+					<option value="tr-sasaran">Sasaran</option>
+					<option value="tr-program">Program</option>
+					<option value="tr-kegiatan">Kegiatan</option>
+				</select>
+			</label>`;
 		jQuery('#action-sipd').append(aksi);
+
 		jQuery('#debug-renstra').click();
+
 		jQuery('.edit-monev').on('click', function() {
 			jQuery('#wrap-loading').show();
 			var tr = jQuery(this).closest('tr');
@@ -1873,7 +1872,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 
 			for (var i = 1; i <= <?php echo $lama_pelaksanaan; ?>; i++) {
 				realisasi_anggaran[i] = to_number(jQuery('.realisasi_pagu_' + i).html());
-				realisasi_target[i] = to_number(jQuery('.realisasi_target_' + i).html());
+				realisasi_target[i] = parseFloat(jQuery('.realisasi_target_' + i).html().replace(',', '.'));
 				keterangan[i] = jQuery('.keterangan_' + i).html();
 			}
 
@@ -1896,6 +1895,8 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 					jQuery('#wrap-loading').hide();
 					if (result.status == 'success') {
 						jQuery('#modal-monev').modal('hide');
+						reload = true;
+						reload_page();
 					}
 				}
 			});
@@ -1906,6 +1907,15 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 		});
 		google.charts.setOnLoadCallback(drawColColors);
 	});
+
+	function reload_page() {
+		if (reload) {
+			let confirm = confirm('Data renstra telah berubah, silahkan klik OK untuk me-refresh halaman ini');
+			if (confirm) {
+				location.reload();
+			}
+		}
+	}
 
 	function drawColColors() {
 		var data_cart = <?php echo json_encode($data_all_js); ?>;

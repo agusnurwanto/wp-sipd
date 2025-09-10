@@ -52,6 +52,10 @@ if ($unit[0]['id_unit'] != $unit[0]['id_skpd']) {
 
 $unit = (!empty($unit)) ? $unit : array();
 $nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
+$nama_pemda = get_option('_crb_daerah');
+if (empty($nama_pemda) || $nama_pemda == 'false') {
+    $nama_pemda = '';
+}
 
 $cek_jadwal_renja = $wpdb->get_results(
     $wpdb->prepare('
@@ -291,7 +295,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <label for="pihak_terkena">Pilih Pihak Dampak yang Terkena</label>
                         <select id="pihak_terkena" class="form-control">
                             <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                            <option value="pemda">Pemerintah</option>
+                            <option value="pemda">Pemerintah <?php echo $nama_pemda; ?></option>
                             <option value="perangkat_daerah">Perangkat Daerah</option>
                             <option value="kepala_opd">Kepala OPD</option>
                             <option value="pegawai_opd">Pegawai OPD</option>
@@ -364,33 +368,17 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_usulan">Pilih Pemilik Resiko</label>
-                                        <select id="pemilik_resiko_usulan" class="form-control" disabled>
-                                            <option value="" selected></option>
-                                            <option value="kepala_daerah">Kepala Daerah</option>
-                                            <option value="kepala_opd">Kepala OPD</option>
-                                            <option value="kepala_bidang">Kepala Bidang</option>
-                                        </select>
+                                        <label for="pemilik_resiko_usulan">Pemilik Resiko</label>
+                                        <input type="text" class="form-control" id="pemilik_resiko_usulan" disabled>
                                     </div>
                                     <div class="form-group">
-                                        <label for="sumber_sebab_usulan">Pilih Sumber Sebab</label>
-                                        <select id="sumber_sebab_usulan" class="form-control" disabled>
-                                            <option value="" selected></option>
-                                            <option value="internal">Internal</option>
-                                            <option value="eksternal">Eksternal</option>
-                                            <option value="internal_eksternal">Internal & Eksternal</option>
-                                        </select>
+                                        <label for="sumber_sebab_usulan">Sumber Sebab</label>
+                                        <input type="text" class="form-control" id="sumber_sebab_usulan" disabled>
                                     </div>
+
                                     <div class="form-group">
-                                        <label for="pihak_terkena_usulan">Pilih Pihak Dampak yang Terkena</label>
-                                        <select id="pihak_terkena_usulan" class="form-control" disabled>
-                                            <option value="" selected></option>
-                                            <option value="pemda">Pemerintah</option>
-                                            <option value="perangkat_daerah">Perangkat Daerah</option>
-                                            <option value="kepala_opd">Kepala OPD</option>
-                                            <option value="pegawai_opd">Pegawai OPD</option>
-                                            <option value="masyarakat">Masyarakat</option>
-                                        </select>
+                                        <label for="pihak_terkena_usulan">Pihak Dampak yang Terkena</label>
+                                        <input type="text" class="form-control" id="pihak_terkena_usulan" disabled>
                                     </div>
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
@@ -456,7 +444,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         <label for="pihak_terkena_sesudah">Pilih Pihak Dampak yang Terkena</label>
                                         <select id="pihak_terkena_sesudah" class="form-control">
                                             <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                                            <option value="pemda">Pemerintah</option>
+                                            <option value="pemda">Pemerintah <?php echo $nama_pemda; ?></option>
                                             <option value="perangkat_daerah">Perangkat Daerah</option>
                                             <option value="kepala_opd">Kepala OPD</option>
                                             <option value="pegawai_opd">Pegawai OPD</option>
@@ -750,21 +738,73 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     let data = response.data;
                     let data_sebelum = response.data_sebelum;
-                    jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
+
+                    window.values = {
+                        pemilik_resiko: data_sebelum.pemilik_resiko,
+                        sumber_sebab: data_sebelum.sumber_sebab,
+                        pihak_terkena: data_sebelum.pihak_terkena
+                    };
+
+                    if (data_sebelum.pemilik_resiko == 'kepala_daerah') {
+                        pemilik_resiko = 'Kepala Daerah';
+                    } else if (data_sebelum.pemilik_resiko == 'kepala_opd') {
+                        pemilik_resiko = 'Kepala OPD';
+                    } else if (data_sebelum.pemilik_resiko == 'kepala_bidang') {
+                        pemilik_resiko = 'Kepala Bidang';
+                    } else {
+                         pemilik_resiko = '';
+                    }
+
+                    if (data_sebelum.sumber_sebab == 'internal') {
+                        sumber_sebab = 'Internal';
+                    } else if (data_sebelum.sumber_sebab == 'eksternal') {
+                        sumber_sebab = 'Eksternal';
+                    } else if (data_sebelum.sumber_sebab == 'internal_eksternal') {
+                        sumber_sebab = 'Internal & Eksternal';
+                    } else {
+                         sumber_sebab = '';
+                    }
+
+                    if (data_sebelum.pihak_terkena == 'pemda') {
+                        pihak_terkena = 'Pemerintah <?php echo $nama_pemda; ?>';
+                    } else if (data_sebelum.pihak_terkena == 'perangkat_daerah') {
+                        pihak_terkena = 'Perangkat Daerah';
+                    } else if (data_sebelum.pihak_terkena == 'kepala_opd') {
+                        pihak_terkena = 'Kepala OPD';
+                    } else if (data_sebelum.pihak_terkena == 'pegawai_opd') {
+                        pihak_terkena = 'Pegawai OPD';
+                    } else if (data_sebelum.pihak_terkena == 'masyarakat') {
+                        pihak_terkena = 'Masyarakat';
+                    } else {
+                         pihak_terkena = '';
+                    }
+                    
+                    if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
+                        jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
+                    } else {
+                        jQuery("input[name='controllable_status_usulan']").prop('checked', false);
+                    }
+                    
                     jQuery("#uraian_resiko_usulan").val(data_sebelum.uraian_resiko);
                     jQuery("#kode_resiko_usulan").val(data_sebelum.kode_resiko);
-                    jQuery("#pemilik_resiko_usulan").val(data_sebelum.pemilik_resiko);
+                    jQuery("#pemilik_resiko_usulan").val(pemilik_resiko);
                     jQuery("#uraian_sebab_usulan").val(data_sebelum.uraian_sebab);
-                    jQuery("#sumber_sebab_usulan").val(data_sebelum.sumber_sebab);
+                    jQuery("#sumber_sebab_usulan").val(sumber_sebab);
                     jQuery("#uraian_dampak_usulan").val(data_sebelum.uraian_dampak);
-                    jQuery("#pihak_terkena_usulan").val(data_sebelum.pihak_terkena);
+                    jQuery("#pihak_terkena_usulan").val(pihak_terkena);
                     jQuery("#skala_dampak_usulan").val(data_sebelum.skala_dampak);
                     jQuery("#skala_kemungkinan_usulan").val(data_sebelum.skala_kemungkinan);
                     jQuery("#rencana_tindak_pengendalian_usulan").val(data_sebelum.rencana_tindak_pengendalian);
+                    
                     if (data && Object.keys(data).length > 0) {
                         jQuery("#id_data_sesudah").val(data.id);
                         jQuery('#nama_tujuan_sasaran_sesudah').val(data.nama_tujuan_sasaran);
                         jQuery('#indikator_kinerja_sesudah').val(data.indikator_teks);
+                        if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
+                            jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
+                        } else {
+                            jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
+                        }
                         jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
                         jQuery("#uraian_resiko_sesudah").val(data.uraian_resiko);
                         jQuery("#kode_resiko_sesudah").val(data.kode_resiko);
@@ -800,17 +840,18 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         try {
             jQuery(button).prop('disabled', true);
             
-            const uraian_resiko = jQuery("#uraian_resiko_usulan").val();
-            const kode_resiko = jQuery("#kode_resiko_usulan").val();
-            const pemilik_resiko = jQuery("#pemilik_resiko_usulan").val();
-            const uraian_sebab = jQuery("#uraian_sebab_usulan").val();
-            const sumber_sebab = jQuery("#sumber_sebab_usulan").val();
-            const uraian_dampak = jQuery("#uraian_dampak_usulan").val();
-            const pihak_terkena = jQuery("#pihak_terkena_usulan").val();
-            const skala_dampak = jQuery("#skala_dampak_usulan").val();
-            const skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
-            const rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
-            const controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
+            let uraian_resiko = jQuery("#uraian_resiko_usulan").val();
+            let kode_resiko = jQuery("#kode_resiko_usulan").val();
+            let uraian_sebab = jQuery("#uraian_sebab_usulan").val();
+            let uraian_dampak = jQuery("#uraian_dampak_usulan").val();
+            let skala_dampak = jQuery("#skala_dampak_usulan").val();
+            let skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
+            let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
+            let controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
+            
+            let pemilik_resiko = window.values ? window.values.pemilik_resiko : '';
+            let sumber_sebab = window.values ? window.values.sumber_sebab : '';
+            let pihak_terkena = window.values ? window.values.pihak_terkena : '';
             
             jQuery("#uraian_resiko_sesudah").val(uraian_resiko);
             jQuery("#kode_resiko_sesudah").val(kode_resiko);
@@ -822,7 +863,10 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             jQuery("#skala_dampak_sesudah").val(skala_dampak);
             jQuery("#skala_kemungkinan_sesudah").val(skala_kemungkinan);
             jQuery("#rencana_tindak_pengendalian_sesudah").val(rencana_tindak_pengendalian);
-            jQuery("#controllable_status_sesudah").val(controllable_status);
+            
+            jQuery("#pemilik_resiko_sesudah").trigger('change');
+            jQuery("#sumber_sebab_sesudah").trigger('change');
+            jQuery("#pihak_terkena_sesudah").trigger('change');
             
             jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan');
             jQuery(button).removeClass('btn-success').addClass('btn-danger');
@@ -832,7 +876,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery(`input[name='controllable_status_sesudah'][value='${controllable_status}']`).prop('checked', true);
             }
             
-            const penetapanFields = [
+            let penetapan = [
                 "#pemilik_resiko_sesudah","#sumber_sebab_sesudah","#pihak_terkena_sesudah",
                 "#controllable_status_sesudah","#uraian_resiko_sesudah", "#kode_resiko_sesudah",
                 "#uraian_sebab_sesudah", "#uraian_dampak_sesudah",
@@ -840,12 +884,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 "#rencana_tindak_pengendalian_sesudah"
             ];
             
-            penetapanFields.forEach(function(selector) {
+            penetapan.forEach(function(selector) {
                 jQuery(selector).addClass('field-updated');
             });
             
             setTimeout(function() {
-                penetapanFields.forEach(function(selector) {
+                penetapan.forEach(function(selector) {
                     jQuery(selector).removeClass('field-updated');
                 });
             }, 3000);
