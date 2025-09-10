@@ -13464,10 +13464,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<tr>
 								<td class="text-center">' . ($_POST['tahun_awal'] + $i - 1) . '</td>
 								<td class="text-right pagu_' . $i . '">' . $this->_number_format($anggaran['pagu_' . $i]) . '</td>
-								<td class="text-right realisasi_pagu_' . $i . '" ' . $edit_realisasi_pagu . ' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $this->_number_format($anggaran['realisasi_pagu_' . $i]) . '</td>
+								<td class="text-right realisasi_pagu_' . $i . '" ' . $edit_realisasi_pagu . ' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);" onpaste="cleanPaste(event);">' . $this->_number_format($anggaran['realisasi_pagu_' . $i]) . '</td>
 								<td class="text-center capaian_pagu_' . $i . '">' . $this->pembulatan($capaian_pagu) . '</td>
 								<td class="text-center target_' . $i . '">' . $indikator['target_' . $i] . '</td>
-								<td class="text-center realisasi_target_' . $i . '" contenteditable="true" onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $indikator['realisasi_target_' . $i] . '</td>
+								<td class="text-center realisasi_target_' . $i . '" contenteditable="true" onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);" onpaste="cleanPaste(event);">' . $indikator['realisasi_target_' . $i] . '</td>
 								<td class="text-center capaian_target_' . $i . '">' . $this->pembulatan($capaian_target) . '</td>
 								<td class="keterangan_' . $i . '" contenteditable="true">' . $indikator['keterangan_' . $i] . '</td>
 							</tr>';
