@@ -1176,7 +1176,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					$wpdb->update('data_renstra_tujuan_lokal', array('active' => 0), array(
-						'kode_tujuan' => $_POST['id_unik'],
+						'id_unik' => $_POST['id_unik'],
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 					$wpdb->update('data_pokin_renstra', array('active' => 0), array(
@@ -2304,7 +2304,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					$wpdb->update('data_renstra_sasaran_lokal', array('active' => 0), array(
-						'kode_sasaran' => $_POST['kode_sasaran'],
+						'id_unik' => $_POST['kode_sasaran'],
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 					$wpdb->update('data_pokin_renstra', array('active' => 0), array(
