@@ -2979,7 +2979,13 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd']) && !empty($_POST['kode_sbl'])){
-                    if(in_array('administrator', $this->role()) || in_array('PA', $this->role()) || in_array('PLT', $this->role())){
+                    if(
+                        in_array('administrator', $this->role()) 
+                        || in_array('PA', $this->role()) 
+                        || in_array('PLT', $this->role())
+                        || in_array('KPA', $this->role())
+                        || in_array('PLH', $this->role())
+                    ){
                         $tahun_anggaran = $_POST['tahun_anggaran'];
                         $kode_sbl = $_POST['kode_sbl'];
                         // if(empty($_POST['id_skpd'])){

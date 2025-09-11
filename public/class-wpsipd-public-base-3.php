@@ -698,6 +698,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				in_array("administrator", $user_meta->roles)
 				|| in_array("mitra_bappeda", $user_meta->roles)
 				|| in_array("PLT", $user_meta->roles)
+				|| in_array("PLH", $user_meta->roles)
 				|| in_array("PA", $user_meta->roles)
 				|| in_array("KPA", $user_meta->roles)
 			) {
@@ -9694,6 +9695,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						in_array("PA", $this->role())
 						|| in_array("KPA", $this->role())
 						|| in_array("PLT", $this->role())
+						|| in_array("PLH", $this->role())
 					) {
 						$nipkepala = get_user_meta($user_id, '_nip');
 						$skpd_db = $wpdb->get_results($wpdb->prepare("
