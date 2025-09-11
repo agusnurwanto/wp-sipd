@@ -4376,7 +4376,7 @@ $table .= '
 							programModal.modal('show');
 							if(res.pokin.length >= 1){
 								var val_pokin = [];
-								response.pokin.map(function(b, i){
+								res.pokin.map(function(b, i){
 									val_pokin.push(b.id_pokin);
 								});
 								jQuery('#pokin-level-program').val(val_pokin);
@@ -4388,7 +4388,7 @@ $table .= '
 
 							if(res.satker.length >= 1){
 								var val_satker = [];
-								response.satker.map(function(b, i){
+								res.satker.map(function(b, i){
 									val_satker.push(b.id_satker);
 								});
 								jQuery('#satker-pelaksana-program').val(val_satker);
