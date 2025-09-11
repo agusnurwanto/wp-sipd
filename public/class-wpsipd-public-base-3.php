@@ -2077,7 +2077,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_visi' => $data['id_visi'],
 							'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
 							'kode_skpd' => $dataTujuan->kode_skpd,
-							'kode_tujuan' => $dataTujuan->kode_tujuan,
+							'kode_tujuan' => $dataTujuan->id_unik,
 							'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
 							'nama_skpd' => $dataTujuan->nama_skpd,
 							'sasaran_teks' => $data['sasaran_teks'],
@@ -2087,6 +2087,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'catatan_usulan' => $data['catatan_usulan'],
 							'catatan' => $data['catatan'],
 							'urut_tujuan' => $dataTujuan->urut_tujuan,
+							'update_at' => current_time('mysql')
 						], [
 							'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
 							'id_unik_indikator' => 'NULL',
@@ -2101,7 +2102,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_visi' => $data['id_visi'],
 							'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
 							'kode_skpd' => $dataTujuan->kode_skpd,
-							'kode_tujuan' => $dataTujuan->kode_tujuan,
+							'kode_tujuan' => $dataTujuan->id_unik,
 							'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
 							'nama_skpd' => $dataTujuan->nama_skpd,
 							'sasaran_teks' => $data['sasaran_teks'],
@@ -2109,6 +2110,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'tujuan_teks' => $dataTujuan->tujuan_teks,
 							'urut_sasaran' => $data['urut_sasaran'],
 							'urut_tujuan' => $dataTujuan->urut_tujuan,
+							'update_at' => current_time('mysql')
 						], [
 							'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
 							'id_unik_indikator' => 'NOT NULL',
