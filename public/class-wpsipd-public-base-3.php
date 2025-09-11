@@ -2582,7 +2582,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							id 
 						FROM data_renstra_sasaran_lokal
 						WHERE indikator_teks_usulan=%s
-							AND id_unik!=%s
+							AND id_unik=%s
 							AND id!=%d
 							AND active=1
 							AND tahun_anggaran=%d

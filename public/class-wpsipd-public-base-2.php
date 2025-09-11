@@ -1930,6 +1930,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 					}
 					$ret['data'] = $data_sub_kegiatan;
+					$ret['bidur'] = $bidur_db;
 					$ret['sql'] = $wpdb->last_query;
 				} else {
 					$ret['status'] = 'error';
