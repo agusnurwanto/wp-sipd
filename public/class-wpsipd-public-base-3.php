@@ -2585,7 +2585,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik!=%s
 							AND id!=%d
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
@@ -2598,8 +2599,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NULL AND 
-							active=1
-					", $data['id_unik']));
+							active=1 AND
+							tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
@@ -3941,7 +3943,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id_unik=%s
 							AND id_unik_indikator is not null
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
@@ -3955,7 +3958,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND active=1 
 							AND id_unik IS NOT NULL 
 							AND id_unik_indikator IS NULL
-					", $data['kode_program']));
+							AND tahun_anggaran=%d
+					", $data['kode_program'], $_POST['tahun_anggaran']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
@@ -5324,7 +5328,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id!=%d
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
+							AND tahun_anggaran=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
@@ -5337,7 +5342,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND active=1 
 							AND id_unik_indikator IS NULL
-					", $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
@@ -9100,14 +9106,24 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$this->verify_indikator_sub_kegiatan_renstra($data);
 
 					if (!empty($data['id_indikator_usulan'])) {
-						$usulan = $wpdb->get_row($wpdb->prepare("SELECT id, indikator FROM data_master_indikator_subgiat WHERE id=%d", $data['id_indikator_usulan']));
+						$usulan = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id, indikator 
+							FROM data_master_indikator_subgiat 
+							WHERE id=%d
+						", $data['id_indikator_usulan']));
 						if (empty($usulan)) {
 							throw new Exception('Indikator usulan tidak ditemukan!');
 						}
 					}
 
 					if (!empty($data['id_indikator'])) {
-						$penetapan = $wpdb->get_row($wpdb->prepare("SELECT id, indikator FROM data_master_indikator_subgiat WHERE id=%d", $data['id_indikator']));
+						$penetapan = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								id, indikator 
+							FROM data_master_indikator_subgiat 
+							WHERE id=%d
+						", $data['id_indikator']));
 						if (empty($usulan)) {
 							throw new Exception('Indikator penetapan tidak ditemukan!');
 						}
@@ -9122,7 +9138,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND id!=%d
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['id_indikator_usulan'], $data['id_unik'], $data['id']));
+							AND tahun_anggaran=%d
+					", $data['id_indikator_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
@@ -9135,7 +9152,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_unik=%s 
 							AND active=1 
 							AND id_unik_indikator IS NULL
-					", $data['id_unik']));
+							AND tahun_anggaran=%d
+					", $data['id_unik'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan yang dipilih tidak ditemukan!');
