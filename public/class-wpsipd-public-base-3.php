@@ -2145,13 +2145,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						]);
 
 						$wpdb->update("data_pokin_renstra", array("active" => 0), array(
-							"id_unik" => $data['id_unik'],
+							"id_unik" => $data['kode_sasaran'],
 							"tipe" => 2,
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 
 						$wpdb->update("data_pelaksana_renstra", array("active" => 0), array(
-							"id_unik" => $data['id_unik'],
+							"id_unik" => $data['kode_sasaran'],
 							"tipe" => 2,
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
