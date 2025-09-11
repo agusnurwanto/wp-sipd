@@ -13503,16 +13503,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
 				$data = array(
-					'realisasi_target_1' => $_POST['realisasi_target'][1],
-					'realisasi_target_2' => $_POST['realisasi_target'][2],
-					'realisasi_target_3' => $_POST['realisasi_target'][3],
-					'realisasi_target_4' => $_POST['realisasi_target'][4],
-					'realisasi_target_5' => $_POST['realisasi_target'][5],
-					'keterangan_1' => $_POST['keterangan'][1],
-					'keterangan_2' => $_POST['keterangan'][2],
-					'keterangan_3' => $_POST['keterangan'][3],
-					'keterangan_4' => $_POST['keterangan'][4],
-					'keterangan_5' => $_POST['keterangan'][5],
+					'realisasi_target_1' => $_POST['realisasi_target'][1] ?? NULL,
+					'realisasi_target_2' => $_POST['realisasi_target'][2] ?? NULL,
+					'realisasi_target_3' => $_POST['realisasi_target'][3] ?? NULL,
+					'realisasi_target_4' => $_POST['realisasi_target'][4] ?? NULL,
+					'realisasi_target_5' => $_POST['realisasi_target'][5] ?? NULL,
+					'keterangan_1' => $_POST['keterangan'][1] ?? NULL,
+					'keterangan_2' => $_POST['keterangan'][2] ?? NULL,
+					'keterangan_3' => $_POST['keterangan'][3] ?? NULL,
+					'keterangan_4' => $_POST['keterangan'][4] ?? NULL,
+					'keterangan_5' => $_POST['keterangan'][5] ?? NULL,
 					'update_at' => current_time('mysql')
 				);
 

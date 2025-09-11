@@ -1440,6 +1440,12 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 	.peringatan {
 		background: #f5c9c9;
 	}
+
+	.display-indikator-renstra tr,
+	.display-indikator-renstra td,
+	.display-indikator-renstra th {
+		border: 1px solid black;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
 <input type="hidden" value="<?php echo $tahun_anggaran_sipd; ?>" id="tahun_anggaran">
@@ -1717,35 +1723,35 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 										<table class="display-indikator-renstra">
 											<thead>
 												<tr>
-													<th class="text_tengah" style="width: 50px;">Tahun</th>
-													<th class="text_tengah" style="width: 140px;">Anggaran</th>
-													<th class="text_tengah" style="width: 140px;">Realisasi</th>
-													<th class="text_tengah" style="width: 50px;">Capaian Penyerapan</th>
-													<th class="text_tengah" style="width: 50px;">Target</th>
-													<th class="text_tengah" style="width: 50px;">Realisasi Target</th>
-													<th class="text_tengah" style="width: 50px;">Capaian Target</th>
-													<th class="text_tengah">Keteragan</th>
+													<th class="text-center" style="width: 50px;">Tahun</th>
+													<th class="text-center" style="width: 140px;">Anggaran</th>
+													<th class="text-center" style="width: 140px;">Realisasi</th>
+													<th class="text-center" style="width: 50px;">Capaian Penyerapan</th>
+													<th class="text-center" style="width: 50px;">Target</th>
+													<th class="text-center" style="width: 50px;">Realisasi Target</th>
+													<th class="text-center" style="width: 50px;">Capaian Target</th>
+													<th class="text-center">Keteragan</th>
 												</tr>
 												<tr>
-													<th class="text_tengah">1</th>
-													<th class="text_tengah">2</th>
-													<th class="text_tengah">3</th>
-													<th class="text_tengah">4=(3/2)*100</th>
-													<th class="text_tengah">5</th>
-													<th class="text_tengah">6</th>
-													<th class="text_tengah">7=(6/5)*100</th>
-													<th class="text_tengah">8</th>
+													<th class="text-center">1</th>
+													<th class="text-center">2</th>
+													<th class="text-center">3</th>
+													<th class="text-center">4=(3/2)*100</th>
+													<th class="text-center">5</th>
+													<th class="text-center">6</th>
+													<th class="text-center">7=(6/5)*100</th>
+													<th class="text-center">8</th>
 												</tr>
 											</thead>
 											<tbody id="monev-body-renstra">
 											</tbody>
 											<tfoot>
 												<tr>
-													<th class="text_tengah">Total</th>
-													<th class="text_kanan" id="total_pagu">0</th>
-													<th class="text_kanan" id="total_realisasi_pagu">0</th>
-													<th class="text_tengah" id="total_capaian_pagu">0</th>
-													<th class="text_tengah" colspan="4"></th>
+													<th class="text-center">Total</th>
+													<th class="text-right" id="total_pagu">0</th>
+													<th class="text-right" id="total_realisasi_pagu">0</th>
+													<th class="text-center" id="total_capaian_pagu">0</th>
+													<th class="text-center" colspan="4"></th>
 												</tr>
 											</tfoot>
 										</table>
@@ -1870,10 +1876,17 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 			var realisasi_target = {};
 			var keterangan = {};
 
+			let realisasi_target_value;
+			let keterangan_value;
+			let realisasi_anggaran_value;
 			for (var i = 1; i <= <?php echo $lama_pelaksanaan; ?>; i++) {
-				realisasi_anggaran[i] = to_number(jQuery('.realisasi_pagu_' + i).html());
-				realisasi_target[i] = parseFloat(jQuery('.realisasi_target_' + i).html().replace(',', '.'));
-				keterangan[i] = jQuery('.keterangan_' + i).html();
+				realisasi_target_value = parseFloat(jQuery('.realisasi_target_' + i).html().replace(',', '.'));
+				keterangan_value = jQuery('.keterangan_' + i).html();
+				realisasi_anggaran_value = parseFloat(jQuery('.realisasi_pagu_' + i).html().replace(',', '.'));
+
+				realisasi_anggaran[i] = realisasi_anggaran_value ? realisasi_anggaran_value : '';
+				realisasi_target[i] = realisasi_target_value ? realisasi_target_value : '';
+				keterangan[i] = keterangan_value ? keterangan_value : '';
 			}
 
 			jQuery.ajax({
