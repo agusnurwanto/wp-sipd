@@ -2941,7 +2941,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -2956,7 +2957,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -3097,7 +3099,8 @@ $table .= '
 	                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 	                <select class="form-control" multiple name="pokin-level" id="pokin-level">
             			${opsi_pokin}
-	                </select> 
+	                </select>
+					<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 	            </div>
 	        `;
 
@@ -3110,7 +3113,8 @@ $table .= '
 	                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 	                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana">
             			${opsi_satker}
-	                </select> 
+	                </select>
+					<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 	            </div>
 	        `;
 			jQuery('#wrap-loading').show();
@@ -3632,7 +3636,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sasaran">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -3645,7 +3650,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sasaran">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
@@ -3727,7 +3733,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sasaran">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -3740,7 +3747,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sasaran">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
@@ -4190,7 +4198,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-program">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -4203,7 +4212,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-program">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				let kode_sasaran = jQuery(that).data('kodesasaran');
@@ -4288,7 +4298,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-program">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -4301,7 +4312,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-program">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				let programModal = jQuery("#modal-crud-renstra");
@@ -4813,7 +4825,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-kegiatan">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -4826,7 +4839,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-kegiatan">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				jQuery('#wrap-loading').show();
@@ -4926,7 +4940,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-kegiatan">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -4939,7 +4954,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-kegiatan">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				jQuery('#wrap-loading').show();
@@ -5421,7 +5437,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -5434,7 +5451,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				jQuery('#wrap-loading').show();
@@ -5578,7 +5596,8 @@ $table .= '
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
                 			${opsi_pokin}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 
@@ -5591,7 +5610,8 @@ $table .= '
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
 	            			${opsi_satker}
-		                </select> 
+		                </select>
+						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
 				jQuery('#wrap-loading').show();
