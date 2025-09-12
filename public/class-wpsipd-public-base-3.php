@@ -4275,19 +4275,39 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$cek_pemda['status'] == 1
 						&& $tahun_anggaran >= 2024
 					) {
-						$where .= ' AND set_kab_kota=1';
-					} else if ($cek_pemda['status'] == 2) {
-						$where .= ' AND set_prov=1';
+						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else if(!empty($cek_pemda['kabkot'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+						}else if(!empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else{
+							$where .= ' AND u.set_kab_kota=1 AND u.id_daerah_khusus=0';
+						}
+					} else if (
+						$cek_pemda['status'] == 2
+						&& $tahun_anggaran >= 2024
+					) {
+						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else if(!empty($cek_pemda['kabkot'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+						}else if(!empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else{
+							$where .= ' AND u.set_prov=1 AND u.id_daerah_khusus=0';
+						}
 					}
 
 					$sql = $wpdb->prepare("
 						SELECT 
 							* 
-						FROM data_prog_keg
-						WHERE kode_program=%s
-							AND tahun_anggaran=%d
-							AND active=%d
+						FROM data_prog_keg u
+						WHERE u.kode_program=%s
+							AND u.tahun_anggaran=%d
+							AND u.active=%d
 							$where
+                        ORDER BY u.id_daerah_khusus DESC 
 					", $kode_program, $tahun_anggaran, 1);
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
@@ -5528,9 +5548,28 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$cek_pemda['status'] == 1
 					&& $tahun_anggaran >= 2024
 				) {
-					$where .= ' AND u.set_kab_kota=1';
-				} else if ($cek_pemda['status'] == 2) {
-					$where .= ' AND u.set_prov=1';
+					if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+						$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+					}else if(!empty($cek_pemda['kabkot'])){
+						$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+					}else if(!empty($cek_pemda['prov'])){
+						$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+					}else{
+						$where .= ' AND u.set_kab_kota=1 AND u.id_daerah_khusus=0';
+					}
+				} else if (
+					$cek_pemda['status'] == 2
+					&& $tahun_anggaran >= 2024
+				) {
+					if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+						$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+					}else if(!empty($cek_pemda['kabkot'])){
+						$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+					}else if(!empty($cek_pemda['prov'])){
+						$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+					}else{
+						$where .= ' AND u.set_prov=1 AND u.id_daerah_khusus=0';
+					}
 				}
 
 				if (!empty($_POST['id_unit'])) {
@@ -5569,7 +5608,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                         	u.active=1
                         	$where
                         GROUP BY u.kode_program
-                        ORDER BY u.kode_program ASC 
+                        ORDER BY u.kode_program ASC, u.id_daerah_khusus DESC 
                     ");
 				} else {
 					$data = $wpdb->get_results("
@@ -5589,8 +5628,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                             and s.tahun_anggaran=u.tahun_anggaran
                         " . $join . "
                         WHERE u.tahun_anggaran=$tahun_anggaran
+                        	u.active=1
+                        	$where
                         GROUP BY u.kode_program, s.kode_skpd
-                        ORDER BY u.kode_program ASC, s.kode_skpd ASC 
+                        ORDER BY u.kode_program ASC, s.kode_skpd ASC, u.id_daerah_khusus DESC
                     ");
 				}
 				$ret['data'] = $data;
