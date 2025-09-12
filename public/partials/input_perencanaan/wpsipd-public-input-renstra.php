@@ -7456,7 +7456,7 @@ $table .= '
 						'<thead>' +
 							'<tr>' +
 								'<th class="text-center" style="width:45px">No</th>' +
-								'<th class="text-center">Kegiatan</th>' +
+								'<th class="text-center">Sub Kegiatan</th>' +
 								'<th class="text-center">Sub Unit Pelaksana</th>'
 							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 									+

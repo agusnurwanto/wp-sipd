@@ -3339,6 +3339,60 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						]);
 
+						// update kegiatan
+						$wpdb->update('data_renstra_kegiatan_lokal', [
+							'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
+							'id_misi' => $dataSasaran->id_misi,
+							'id_program' => $dataProgram->id_program,
+							'id_unit' => $dataSasaran->id_unit,
+							'id_visi' => $dataSasaran->id_visi,
+							'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
+							'kode_program' => $data['id_unik'],
+							'kode_sasaran' => $dataSasaran->id_unik,
+							'kode_skpd' => $dataSasaran->kode_skpd,
+							'kode_tujuan' => $dataSasaran->kode_tujuan,
+							'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
+							'nama_program' => $dataProgram->nama_program,
+							'nama_skpd' => $dataSasaran->nama_skpd,
+							'sasaran_lock' => $dataSasaran->is_locked,
+							'sasaran_teks' => $dataSasaran->sasaran_teks,
+							'tujuan_lock' => $dataSasaran->tujuan_lock,
+							'tujuan_teks' => $dataSasaran->tujuan_teks,
+							'urut_sasaran' => $dataSasaran->urut_sasaran,
+							'urut_tujuan' => $dataSasaran->urut_tujuan,
+							'update_at' => date('Y-m-d H:i:s')
+						], [
+							'kode_program' => $data['id_unik'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						]);
+
+						// update sub kegiatan
+						$wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
+							'id_misi' => $dataSasaran->id_misi,
+							'id_program' => $dataProgram->id_program,
+							'id_unit' => $dataSasaran->id_unit,
+							'id_visi' => $dataSasaran->id_visi,
+							'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
+							'kode_program' => $data['id_unik'],
+							'kode_sasaran' => $dataSasaran->id_unik,
+							'kode_skpd' => $dataSasaran->kode_skpd,
+							'kode_tujuan' => $dataSasaran->kode_tujuan,
+							'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
+							'nama_program' => $dataProgram->nama_program,
+							'nama_skpd' => $dataSasaran->nama_skpd,
+							'sasaran_lock' => $dataSasaran->is_locked,
+							'sasaran_teks' => $dataSasaran->sasaran_teks,
+							'tujuan_lock' => $dataSasaran->tujuan_lock,
+							'tujuan_teks' => $dataSasaran->tujuan_teks,
+							'urut_sasaran' => $dataSasaran->urut_sasaran,
+							'urut_tujuan' => $dataSasaran->urut_tujuan,
+							'update_at' => date('Y-m-d H:i:s')
+						], [
+							'kode_program' => $data['id_unik'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						]);
+
 						$wpdb->update("data_pokin_renstra", array("active" => 0), array(
 							"id_unik" => $data['id_unik'],
 							"tipe" => 3,
@@ -4750,7 +4804,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'urut_sasaran' => $dataProgram->urut_sasaran,
 							'catatan_usulan' => $data['catatan_usulan'],
 							'catatan' => $data['catatan'],
-							'urut_tujuan' => $dataProgram->urut_tujuan
+							'urut_tujuan' => $dataProgram->urut_tujuan,
+							'update_at' => current_time('mysql')
 						], [
 							'id_unik' => $data['id_unik'], // pake id_unik agar indikator kegiatan ikut terupdate
 							'id_unik_indikator' => 'NULL',
@@ -4784,10 +4839,45 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'tujuan_lock' => $dataProgram->tujuan_lock,
 							'tujuan_teks' => $dataProgram->tujuan_teks,
 							'urut_sasaran' => $dataProgram->urut_sasaran,
-							'urut_tujuan' => $dataProgram->urut_tujuan
+							'urut_tujuan' => $dataProgram->urut_tujuan,
+							'update_at' => current_time('mysql')
 						], [
 							'id_unik' => $data['id_unik'],
 							'id_unik_indikator' => 'NOT NULL',
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						]);
+
+						// edit sub kegiatan
+						$wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'bidur_lock' => 0,
+							'giat_lock' => 0,
+							'id_bidang_urusan' => $dataProgram->id_bidang_urusan,
+							'id_giat' => $dataKegiatan->id,
+							'id_misi' => $dataProgram->id_misi,
+							'id_program' => $dataProgram->id_program,
+							'id_unit' => $dataProgram->id_unit,
+							'id_visi' => $dataProgram->id_visi,
+							'kode_bidang_urusan' => $dataProgram->kode_bidang_urusan,
+							'kode_giat' => $dataKegiatan->kode_giat,
+							'kode_program' => $dataProgram->id_unik,
+							'kode_sasaran' => $dataProgram->kode_sasaran,
+							'kode_skpd' => $dataProgram->kode_skpd,
+							'kode_tujuan' => $dataProgram->kode_tujuan,
+							'nama_bidang_urusan' => $dataProgram->nama_bidang_urusan,
+							'nama_giat' => $dataKegiatan->nama_giat,
+							'nama_program' => $dataProgram->nama_program,
+							'nama_skpd' => $dataProgram->nama_skpd,
+							'program_lock' => $dataProgram->program_lock,
+							'renstra_prog_lock' => $dataProgram->program_lock,
+							'sasaran_lock' => $dataProgram->sasaran_lock,
+							'sasaran_teks' => $dataProgram->sasaran_teks,
+							'tujuan_lock' => $dataProgram->tujuan_lock,
+							'tujuan_teks' => $dataProgram->tujuan_teks,
+							'urut_sasaran' => $dataProgram->urut_sasaran,
+							'urut_tujuan' => $dataProgram->urut_tujuan,
+							'update_at' => current_time('mysql')
+						], [
+							'kode_kegiatan' => $data['id_unik'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						]);
 
@@ -8614,6 +8704,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['tujuan_teks'] = $dataKegiatan->tujuan_teks;
 						$inputs['urut_sasaran'] = $dataKegiatan->urut_sasaran;
 						$inputs['urut_tujuan'] = $dataKegiatan->urut_tujuan;
+						$inputs['update_at'] = current_time('mysql');
 
 						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
 						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
@@ -8678,6 +8769,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs_indikator['tujuan_teks'] = $dataKegiatan->tujuan_teks;
 						$inputs_indikator['urut_sasaran'] = $dataKegiatan->urut_sasaran;
 						$inputs_indikator['urut_tujuan'] = $dataKegiatan->urut_tujuan;
+						$inputs_indikator['update_at'] = current_time('mysql');
 
 						$status = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs_indikator, [
 							'id_unik' => $data['kode_sub_kegiatan'],
