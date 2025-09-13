@@ -909,7 +909,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Tujuan : ' . $data['tujuan_teks'] . ' sudah ada!');
 					}
 
-					$tahun_anggaran_wpsipd = get_option('_crb_tahun_anggaran_sipd');
+					$tahun_anggaran_wpsipd = $_POST['tahun_anggaran'];
 					$dataUnit = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -2946,7 +2946,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							FROM data_prog_keg 
 							WHERE id_program=%d 
 								AND tahun_anggaran=%d
-						", $data['id_program'], get_option('_crb_tahun_anggaran_sipd')));
+						", $data['id_program'], $_POST['tahun_anggaran']));
 						if (empty($program)) {
 							throw new Exception('Program tidak ditemukan!');
 						}
@@ -2978,7 +2978,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                         	AND id_program=%d
                         GROUP BY u.kode_program
                         ORDER BY u.kode_program ASC 
-                    ", get_option('_crb_tahun_anggaran_sipd'), $data['id_program']));
+                    ", $_POST['tahun_anggaran'], $data['id_program']));
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program tidak ditemukan!');
@@ -3229,7 +3229,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND tahun_anggaran=%d
 						", $data['id_program'], $data['id_unik'], $data['kode_sasaran'], $_POST['tahun_anggaran']));
 
-					$tahun_anggaran_wpsipd = get_option('_crb_tahun_anggaran_sipd');
+					$tahun_anggaran_wpsipd = $_POST['tahun_anggaran'];
 
 					if (!empty($id_cek)) {
 						$program = $wpdb->get_row($wpdb->prepare("
@@ -4314,7 +4314,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		try {
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-					$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$kode_program = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							kode_program 
@@ -4452,7 +4452,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_giat=%d AND
 							tahun_anggaran=%d
-					", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_kegiatan'], $_POST['tahun_anggaran']));
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan tidak ditemukan!');
@@ -4634,7 +4634,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE 
 							id_program=%d AND
 							tahun_anggaran=%d
-					", $_POST['id_program'], get_option('_crb_tahun_anggaran_sipd'));
+					", $_POST['id_program'], $_POST['tahun_anggaran']);
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
 					$kegiatan = [];
@@ -4730,7 +4730,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND tahun_anggaran=%d
 					", $data['id_kegiatan'], $data['kode_program'], $data['id'], $_POST['tahun_anggaran']));
 
-					$tahun_anggaran_wpsipd = get_option('_crb_tahun_anggaran_sipd');
+					$tahun_anggaran_wpsipd = $_POST['tahun_anggaran'];
 					if (!empty($id_cek)) {
 						$kegiatan = $wpdb->get_row($wpdb->prepare("
 							SELECT 
@@ -8316,16 +8316,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_prog_keg 
 						WHERE id_sub_giat=%d
 							AND tahun_anggaran=%d
-					", $data['id_sub_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+					", $data['id_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
 					}
 
-					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], $_POST['tahun_anggaran']));
 
 					if (empty($dataSubUnit)) {
-						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran ' . get_option('_crb_tahun_anggaran_sipd') . '!');
+						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran ' . $_POST['tahun_anggaran'] . '!');
 					}
 
 					try {
@@ -8642,7 +8642,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Kegiatan tidak ditemukan!');
 					}
 
-					$tahun_anggaran_wpsipd = get_option('_crb_tahun_anggaran_sipd');
+					$tahun_anggaran_wpsipd = $_POST['tahun_anggaran'];
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -8665,7 +8665,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					", $data['id_sub_unit'], $tahun_anggaran_wpsipd));
 
 					if (empty($dataSubUnit)) {
-						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran ' . get_option('_crb_tahun_anggaran_sipd') . '!');
+						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran ' . $_POST['tahun_anggaran'] . '!');
 					}
 
 					try {

@@ -1899,6 +1899,7 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 					'type_indikator': jQuery("#type_indikator").val(),
 					'realisasi_anggaran': realisasi_anggaran,
 					'realisasi_target': realisasi_target,
+					'tahun_anggaran': <?php echo $data_jadwal['tahun_anggaran']; ?>,
 					'keterangan': keterangan,
 					'id_jadwal': "<?php echo $_GET['id_jadwal']; ?>"
 				},
@@ -1923,8 +1924,8 @@ if (!empty($data_all['total']) && !empty($data_all['realisasi'])) {
 
 	function reload_page() {
 		if (reload) {
-			let confirm = confirm('Data renstra telah berubah, silahkan klik OK untuk me-refresh halaman ini');
-			if (confirm) {
+			let confirmReload = confirm('Data renstra telah berubah, mau me-refresh halaman ini?');
+			if (confirmReload) {
 				location.reload();
 			}
 		}

@@ -13501,6 +13501,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id_indikator']) || empty($_POST['type_indikator']) || empty($_POST['tahun_anggaran'])) {
+					$return['status'] = 'error';
+					$return['message'] = 'REQUEST TIDAK SPESIFIK';
+					echo json_encode($return);
+					exit();
+				}
 
 				$data = array(
 					'realisasi_target_1' => $_POST['realisasi_target'][1] ?? NULL,
@@ -13549,15 +13555,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								AND tahun_anggaran=%d
 						", $cek_data['id_unik'], $_POST['tahun_anggaran']));
 						$wpdb->update($table, array(
-							'realisasi_pagu_1' => $_POST['realisasi_anggaran'][1],
-							'realisasi_pagu_2' => $_POST['realisasi_anggaran'][2],
-							'realisasi_pagu_3' => $_POST['realisasi_anggaran'][3],
-							'realisasi_pagu_4' => $_POST['realisasi_anggaran'][4],
-							'realisasi_pagu_5' => $_POST['realisasi_anggaran'][5],
+							'realisasi_pagu_1' => $_POST['realisasi_anggaran'][1] ?? NULL,
+							'realisasi_pagu_2' => $_POST['realisasi_anggaran'][2] ?? NULL,
+							'realisasi_pagu_3' => $_POST['realisasi_anggaran'][3] ?? NULL,
+							'realisasi_pagu_4' => $_POST['realisasi_anggaran'][4] ?? NULL,
+							'realisasi_pagu_5' => $_POST['realisasi_anggaran'][5] ?? NULL,
 						), array('id' => $id_sub));
 					}
 				}
-				$return['sql'] = $wpdb->last_query;
 			} else {
 				$return['status'] = 'error';
 				$return['message'] = 'APIKEY tidak sesuai!';
