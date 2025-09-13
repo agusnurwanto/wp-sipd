@@ -1881,11 +1881,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						&& $tahun_anggaran >= 2024
 					) {
 						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
-							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
 						}else if(!empty($cek_pemda['kabkot'])){
-							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
 						}else if(!empty($cek_pemda['prov'])){
-							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
 						}else{
 							$where .= ' AND u.set_kab_kota=1 AND u.id_daerah_khusus=0';
 						}
@@ -1894,11 +1894,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						&& $tahun_anggaran >= 2024
 					) {
 						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
-							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
 						}else if(!empty($cek_pemda['kabkot'])){
-							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
 						}else if(!empty($cek_pemda['prov'])){
-							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
 						}else{
 							$where .= ' AND u.set_prov=1 AND u.id_daerah_khusus=0';
 						}
