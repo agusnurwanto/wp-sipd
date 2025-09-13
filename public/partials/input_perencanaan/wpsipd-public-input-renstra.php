@@ -49,6 +49,8 @@ $id_tipe_relasi = '-';
 $lama_pelaksanaan = 5;
 $disabled = 'readonly';
 $disabled_admin = '';
+$tahun_anggaran_relasi = 0;
+$tahun_akhir_relasi = 0;
 
 $jadwal_lokal = $wpdb->get_row(
 	$wpdb->prepare('
@@ -129,6 +131,7 @@ switch ($id_tipe_relasi) {
 		$nama_tipe_relasi = 'RPD';
 		break;
 }
+$jenis_jadwal_relasi = '-';
 
 if ($is_locked_jadwal_relasi) {
 	switch ($id_tipe_relasi) {
@@ -8265,16 +8268,16 @@ $table .= '
 				"api_key": ajax.api_key,
 				"id_unit": id_unit,
 				"kode_sasaran": kode_sasaran,
-				"id_jadwal": "<?php echo $relasi->id_jadwal_lokal; ?>",
+				"id_jadwal": "<?php echo $relasi_perencanaan; ?>",
 			},
 			dataType: "json", 
 			success: function(response) {
-				const lama_pelaksanaan = <?php echo $relasi->lama_pelaksanaan; ?>;
+				const lama_pelaksanaan = <?php echo $lama_pelaksanaan; ?>;
 				const jenis_jadwal_relasi = '<?php echo $jenis_jadwal_relasi; ?>';
 				const tahun_akhir_relasi = <?php echo $tahun_akhir_relasi; ?>;
 				const unit_kode_skpd = '<?php echo $unit['kode_skpd']; ?>';
 				const unit_nama_skpd = '<?php echo $unit['nama_skpd']; ?>';
-				const jadwal_tahun = '<?php echo $relasi->tahun_anggaran; ?>';
+				const jadwal_tahun = '<?php echo $tahun_anggaran_relasi; ?>';
 				const nama_pemda = '<?php echo $nama_pemda; ?>';
 
 				const modalBody = jQuery("#detail-rpjmd-body");
