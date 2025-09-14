@@ -5849,10 +5849,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		update_option('wp_sso_login', 'Berhasil login ' . $data['login'] . ' ' . date('Y-m-d H:i:s'));
 
 		if (!empty($_GET['redirect'])) {
-			$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
-			$tahun = explode('renstra|', $url_baru);
-			$nipkepala = get_user_meta($user->ID, '_nip');
 			$url_baru = $_GET['redirect'];
+			$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
+
+			$tahun = explode('|', $url_baru);
+			$nipkepala = get_user_meta($user->ID, '_nip');
 			if(!empty($nipkepala)){
 				if(str_contains($url_baru, 'renstra|')){
 					$skpd_db = $wpdb->get_results($wpdb->prepare("
@@ -5865,7 +5866,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						where nipkepala=%s 
 							and tahun_anggaran=%d
 							and is_skpd=1
-						group by id_skpd", $nipkepala[0], $tahun_skpd), ARRAY_A);
+						group by id_skpd
+					", $nipkepala[0], $tahun_skpd), ARRAY_A);
 					$all_skpd = array();
 					foreach ($skpd_db as $skpd) {
 						$all_skpd[] = $skpd['id_skpd'];
@@ -5900,7 +5902,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						from data_unit 
 						where nipkepala=%s 
 							and tahun_anggaran=%d
-						group by id_skpd", $nipkepala[0], $tahun_skpd), ARRAY_A);
+						group by id_skpd
+					", $nipkepala[0], $tahun_skpd), ARRAY_A);
 					$all_skpd = array();
 					foreach ($skpd_db as $skpd) {
 						$all_skpd[] = $skpd;
@@ -5911,8 +5914,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$nama_page = 'RFK ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_rfk tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}else if(str_contains($url_baru, 'renja|')){
-							$nama_page = 'MONEV ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $jadwal['tahun_anggaran'];
-							$url_baru = $this->generatePage($name_page, $tahun[1], '[monitor_monev_renja tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
+							$nama_page = 'MONEV ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
+							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_monev_renja tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}
 					}
 				}
