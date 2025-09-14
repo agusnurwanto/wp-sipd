@@ -5799,6 +5799,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 	function handle_sso_login()
 	{
+		global $wpdb;
 		if (!is_page('sso-login') || !isset($_GET['token'])) return;
 
 		$token = sanitize_text_field($_GET['token']);
@@ -5837,6 +5838,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			wp_die($pesan_error);
 		}
 
+		// Logout pengguna saat ini, jika ada
+        wp_logout();
+
 		// Login otomatis
 		wp_set_current_user($user->ID);
 		wp_set_auth_cookie($user->ID, true);
@@ -5845,7 +5849,47 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		update_option('wp_sso_login', 'Berhasil login ' . $data['login'] . ' ' . date('Y-m-d H:i:s'));
 
 		if (!empty($_GET['redirect'])) {
-			wp_redirect($_GET['redirect']);
+			$url_baru = $_GET['redirect'];
+			if(str_contains($url_baru, 'renstra|')){
+				$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
+				$tahun = explode('renstra|', $url_baru);
+				$nipkepala = get_user_meta($user->ID, '_nip');
+				if(!empty($nipkepala)){
+					$skpd_db = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							is_skpd
+						from data_unit 
+						where nipkepala=%s 
+							and tahun_anggaran=%d
+							and is_skpd=1
+						group by id_skpd", $nipkepala[0], $tahun_skpd), ARRAY_A);
+					$all_skpd = array();
+					foreach ($skpd_db as $skpd) {
+						$all_skpd[] = $skpd['id_skpd'];
+					}
+
+					if(count($all_skpd) == 1){
+						$data = $wpdb->get_row(
+							$wpdb->prepare('
+								SELECT *
+								FROM data_jadwal_lokal
+								WHERE status != 2
+								  	AND id_tipe = 15
+								  	AND tahun_anggaran=%d
+							', $tahun[1]),
+							ARRAY_A
+						);
+						if(!empty($data)){
+							$url_baru = $this->generatePage('Monitoring Evaluasi RENSTRA', false, '[monitor_monev_renstra]');
+							$url_baru .=  '&id_skpd=' . $all_skpd['id'] . '&id_jadwal=' . $data['id'];
+						}
+					}
+				}
+			}
+			wp_redirect($url_baru);
 		} else {
 			wp_redirect(site_url());
 		}
