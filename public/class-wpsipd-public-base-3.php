@@ -543,14 +543,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 					$data = json_decode(stripslashes($_POST['data']), true);
 
-					$bidur_multiple = json_encode($data['bidang-urusan']);
-					if (empty($bidur_multiple)) {
+					if (empty($data['sasaran-rpjm'])) {
+						throw new Exception('Sasaran RPJM/RPD tidak boleh kosong!');
+					}
+					if (empty($data['bidang-urusan'])) {
 						throw new Exception('Bidang urusan tidak boleh kosong!');
 					}
 
-					$sasaran_multiple = json_encode($data['sasaran-rpjm']);
-					if (empty($sasaran_multiple)) {
-						throw new Exception('Sasaran RPJM/RPD tidak boleh kosong!');
+					if (is_array($data['sasaran-rpjm'])) {
+						$sasaran_multiple = json_encode($data['sasaran-rpjm']);
+					} else {
+						$sasaran_multiple = json_encode(array($data['sasaran-rpjm']));
+					}
+
+					if (is_array($data['bidang-urusan'])) {
+						$bidur_multiple = json_encode($data['bidang-urusan']);
+					} else {
+						$bidur_multiple = json_encode(array($data['bidang-urusan']));
 					}
 
 					if(!empty($data['id_jadwal_wp_sakip'])){
@@ -961,14 +970,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Urut tujuan tidak boleh kosong!');
 					}
 
-					$sasaran_multiple = json_encode($data['sasaran-rpjm']);
-					if (empty($sasaran_multiple)) {
+					if (empty($data['sasaran-rpjm'])) {
 						throw new Exception('Sasaran RPJM/RPD tidak boleh kosong!');
 					}
-
-					$bidur_multiple = json_encode($data['bidang-urusan']);
-					if (empty($bidur_multiple)) {
+					if (empty($data['bidang-urusan'])) {
 						throw new Exception('Bidang urusan tidak boleh kosong!');
+					}
+
+					if (is_array($data['sasaran-rpjm'])) {
+						$sasaran_multiple = json_encode($data['sasaran-rpjm']);
+					} else {
+						$sasaran_multiple = json_encode(array($data['sasaran-rpjm']));
+					}
+
+					if (is_array($data['bidang-urusan'])) {
+						$bidur_multiple = json_encode($data['bidang-urusan']);
+					} else {
+						$bidur_multiple = json_encode(array($data['bidang-urusan']));
 					}
 
 					$id_cek = $wpdb->get_var($wpdb->prepare("
