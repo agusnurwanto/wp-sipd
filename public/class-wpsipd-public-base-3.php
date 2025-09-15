@@ -579,11 +579,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 						foreach($data['pokin-level'] as $id_pokin){
 							if(!empty($new_pokin[$id_pokin])){
+								$indikator = array();
+								foreach($new_pokin[$id_pokin]->indikator as $indikator){
+									$indikator[] = $indikator['label'];
+								}
 								$data_pokin = array(
 									"id_pokin" => $id_pokin,
 									"level" => $new_pokin[$id_pokin]->level,
 									"label" => $new_pokin[$id_pokin]->label,
-									"indikator" => $new_pokin[$id_pokin]->label,
+									"indikator" => implode(', ', $indikator),
 									"tipe" => 1,
 									"id_unik" => $data_tujuan['id_unik'],
 									"id_skpd" => $dataUnit->id_unit,
@@ -897,13 +901,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE tujuan_teks=%s
 							AND id!=%d 
 							$where_sasaran_rpjm
-							AND id_bidang_urusan=%s
 							AND id_unit=%d
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
 							AND active=1
 							AND tahun_anggaran=%d
-						", trim($data['tujuan_teks']), $data['id'], $data['id_bidang_urusan'], $data['id_unit'], $_POST['tahun_anggaran']));
+						", trim($data['tujuan_teks']), $data['id'], $data['id_unit'], $_POST['tahun_anggaran']));
 
 					if (!empty($id_cek)) {
 						throw new Exception('Tujuan : ' . $data['tujuan_teks'] . ' sudah ada!');
@@ -971,7 +974,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						// update data tujuan di table sasaran dan indikator
 						$wpdb->update('data_renstra_sasaran_lokal', [
-							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan'],
 						], [
@@ -981,7 +983,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						// update data tujuan di table program dan indikator
 						$wpdb->update('data_renstra_program_lokal', [
-							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan']
 						], [
@@ -991,7 +992,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						// update data tujuan di table kegiatan dan indikator
 						$wpdb->update('data_renstra_kegiatan_lokal', [
-							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan']
 						], [
@@ -1001,7 +1001,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						// update data tujuan di table sub kegiatan dan indikator
 						$wpdb->update('data_renstra_sub_kegiatan_lokal', [
-							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan']
 						], [
@@ -1035,11 +1034,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 1,
 										"id_unik" => $data['id_unik'],
 										"id_skpd" => $dataUnit->id_unit,
@@ -1845,11 +1848,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 						foreach($data['pokin-level'] as $id_pokin){
 							if(!empty($new_pokin[$id_pokin])){
+								$indikator = array();
+								foreach($new_pokin[$id_pokin]->indikator as $indikator){
+									$indikator[] = $indikator['label'];
+								}
 								$data_pokin = array(
 									"id_pokin" => $id_pokin,
 									"level" => $new_pokin[$id_pokin]->level,
 									"label" => $new_pokin[$id_pokin]->label,
-									"indikator" => $new_pokin[$id_pokin]->label,
+									"indikator" => implode(', ', $indikator),
 									"tipe" => 2,
 									"id_unik" => $data_sasaran['id_unik'],
 									"id_skpd" => $dataTujuan->id_unit,
@@ -2170,11 +2177,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 2,
 										"id_unik" => $data['kode_sasaran'],
 										"id_skpd" => $dataTujuan->id_unit,
@@ -3044,11 +3055,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 3,
 										"id_unik" => $data_program['id_unik'],
 										"id_skpd" => $dataSasaran->id_unit,
@@ -3419,11 +3434,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 3,
 										"id_unik" => $data['id_unik'],
 										"id_skpd" => $dataSasaran->id_unit,
@@ -4523,11 +4542,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 4,
 										"id_unik" => $data_kegiatan['id_unik'],
 										"id_skpd" => $dataProgram->id_unit,
@@ -4907,11 +4930,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 4,
 										"id_unik" => $data['id_unik'],
 										"id_skpd" => $dataProgram->id_unit,
@@ -8424,11 +8451,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 5,
 										"id_unik" => $inputs['id_unik'],
 										"id_skpd" => $dataKegiatan->id_unit,
@@ -8812,11 +8843,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 							foreach($data['pokin-level'] as $id_pokin){
 								if(!empty($new_pokin[$id_pokin])){
+									$indikator = array();
+									foreach($new_pokin[$id_pokin]->indikator as $indikator){
+										$indikator[] = $indikator['label'];
+									}
 									$data_pokin = array(
 										"id_pokin" => $id_pokin,
 										"level" => $new_pokin[$id_pokin]->level,
 										"label" => $new_pokin[$id_pokin]->label,
-										"indikator" => $new_pokin[$id_pokin]->label,
+										"indikator" => implode(', ', $indikator),
 										"tipe" => 5,
 										"id_unik" => $data['kode_sub_kegiatan'],
 										"id_skpd" => $dataKegiatan->id_unit,
@@ -14879,16 +14914,17 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$pokin_all = $this->get_data_pohon_kinerja(true);
 
 					$pokin_all_new = array();
+					$cek_pokin_all = array();
 					if(!empty($pokin_all['data'])){
 						foreach($pokin_all['data'] as $val){
 							$pokin_all_new[$val->id] = $val;
+							$cek_pokin_all[$val->id] = $val;
 						}
 					}
 					$pokin_existing = $wpdb->get_results(
 						$wpdb->prepare("
 							SELECT 
-								id_pokin,
-								level
+								*
 							FROM data_pokin_renstra 
 							WHERE id_skpd = %d 
 							  	AND active = 1 
@@ -14896,15 +14932,20 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						", $_POST['id_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
+					$unset_pokin_esisting = array();
 					foreach ($pokin_existing as $val) {
 						if(!empty($pokin_all_new[$val['id_pokin']])){
 							unset($pokin_all_new[$val['id_pokin']]);
+						}
+						if(empty($cek_pokin_all[$val['id_pokin']])){
+							$unset_pokin_esisting[$val['id_pokin']] = $val;
 						}
 					}
 
 					$return = array(
 						'status' => 'success',
-						'pokin_all' => array_values($pokin_all_new)
+						'pokin_all' => array_values($pokin_all_new),
+						'unset_pokin_esisting' => array_values($unset_pokin_esisting)
 					);
 					if (!empty($return_text)) {
 						return $return;

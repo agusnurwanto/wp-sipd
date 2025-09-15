@@ -2601,14 +2601,13 @@ $table .= '
 	}
 
 	#table-renstra {
-		font-family: \'Open Sans\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;
-		border-collapse: collapse;
-		font-size: 70%;
 		border: 0;
 		table-layout: fixed;
 	}
 
-	#table-renstra thead, #table-renstra-pokin thead {
+	#table-renstra thead, 
+	#table-renstra-pokin thead,
+	#table-renstra-pokin-existing thead, {
 		position: sticky;
 		top: -6px;
 		background: #ffc491;
@@ -2622,6 +2621,18 @@ $table .= '
 			<tr>
 				<th class="text-center" style="width: 60px;">No</th>
 				<th class="text-center" style="width: 50%">Pohon Kinerja yang belum dicascadingkan</th>
+				<th class="text-center">Indikator</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</div>
+<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
+	<table class="table table-bordered" id="table-renstra-pokin-existing" cellpadding="2" cellspacing="0" contenteditable="false">
+		<thead>
+			<tr>
+				<th class="text-center" style="width: 60px;">No</th>
+				<th class="text-center" style="width: 50%">Label Pohon Kinerja tercascading yang tidak ada di master data Pohon Kinerja</th>
 				<th class="text-center">Indikator</th>
 			</tr>
 		</thead>
@@ -9086,6 +9097,24 @@ $table .= '
             			})
 	            	}
 	            	jQuery('#table-renstra-pokin tbody').html(html);
+
+	            	if(response.unset_pokin_esisting.length >= 1){
+	            		var html = '';
+            			response.unset_pokin_esisting.map(function(b, i){
+            				var no = i+1;
+		            		html += `
+		            			<tr>
+		            				<td class="text-center">${no}</td>
+		            				<td>Lv. ${b.level} ${b.label}</td>
+		            				<td>${b.indikator}</td>
+		            			</tr>
+		            		`;
+            			})
+	            		jQuery('#table-renstra-pokin-existing tbody').html(html);
+	            	}else{
+	            		console.log('hapus response.unset_pokin_esisting', response.unset_pokin_esisting);
+	            		jQuery('#table-renstra-pokin-existing').parent().remove();
+	            	}
 	            }else{
 	            	alert(response.message);
 	            }

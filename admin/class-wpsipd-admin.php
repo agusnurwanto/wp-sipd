@@ -5855,7 +5855,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			$tahun = explode('|', $url_baru);
 			$nipkepala = get_user_meta($user->ID, '_nip');
 			if(!empty($nipkepala)){
-				if(str_contains($url_baru, 'renstra|')){
+				if(
+					$tahun[0] == 'renstra'
+					|| $tahun[0] == 'input_renstra'
+				){
 					$skpd_db = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							nama_skpd, 
@@ -5874,24 +5877,41 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 
 					if(count($all_skpd) == 1){
-						$data = $wpdb->get_row(
-							$wpdb->prepare('
-								SELECT *
-								FROM data_jadwal_lokal
-								WHERE status != 2
-								  	AND id_tipe = 15
-								  	AND tahun_anggaran=%d
-							', $tahun[1]),
-							ARRAY_A
-						);
-						if(!empty($data)){
-							$url_baru = $this->generatePage('Monitoring Evaluasi RENSTRA', false, '[monitor_monev_renstra]');
-							$url_baru .=  '&id_skpd=' . $all_skpd[0] . '&id_jadwal=' . $data['id_jadwal_lokal'];
+						if($tahun[0] == 'input_renstra'){
+							$data = $wpdb->get_row(
+								$wpdb->prepare('
+									SELECT *
+									FROM data_jadwal_lokal
+									WHERE status != 2
+									  	AND id_tipe = 4
+									  	AND tahun_anggaran=%d
+								', $tahun[1]),
+								ARRAY_A
+							);
+							if(!empty($data)){
+								$url_baru = $this->generatePage('Input RENSTRA Lokal', false, '[input_renstra]');
+								$url_baru .=  '&id_skpd=' . $all_skpd[0] . '&id_jadwal=' . $data['id_jadwal_lokal'];
+							}
+						}else if($tahun[0] == 'renstra'){
+							$data = $wpdb->get_row(
+								$wpdb->prepare('
+									SELECT *
+									FROM data_jadwal_lokal
+									WHERE status != 2
+									  	AND id_tipe = 15
+									  	AND tahun_anggaran=%d
+								', $tahun[1]),
+								ARRAY_A
+							);
+							if(!empty($data)){
+								$url_baru = $this->generatePage('Monitoring Evaluasi RENSTRA', false, '[monitor_monev_renstra]');
+								$url_baru .=  '&id_skpd=' . $all_skpd[0] . '&id_jadwal=' . $data['id_jadwal_lokal'];
+							}
 						}
 					}
 				}else if(
-					str_contains($url_baru, 'renja|')
-					|| str_contains($url_baru, 'rfk|')
+					$tahun[0] == 'renja'
+					|| $tahun[0] == 'rfk'
 				){
 					$skpd_db = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -5910,10 +5930,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					}
 
 					if(count($all_skpd) == 1){
-						if(str_contains($url_baru, 'rfk|')){
+						if($tahun[0] == 'rfk'){
 							$nama_page = 'RFK ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_rfk tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
-						}else if(str_contains($url_baru, 'renja|')){
+						}else if($tahun[0] == 'renja'){
 							$nama_page = 'MONEV ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_monev_renja tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}
