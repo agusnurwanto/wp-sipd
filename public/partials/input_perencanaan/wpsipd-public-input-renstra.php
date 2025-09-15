@@ -6571,7 +6571,7 @@ $table .= '
 					'</tr>' +
 					'<tr>' +
 					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.id_unik + '"]').find('td').eq(2).text().join('<br>') + '</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.id_unik + '"]').find('td').eq(2).text() + '</th>' +
 					'</tr>' +
 					'</thead>' +
 					'</table>' +
