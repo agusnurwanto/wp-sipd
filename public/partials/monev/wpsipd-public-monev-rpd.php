@@ -839,7 +839,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
                 url: ajax.url,
                 type: "post",
                 data: {
-                    action: 'copy_data_monev_RPD_rpd_from_data_local',
+                    action: 'copy_data_monev_rpjmd_rpd_from_data_local',
                     api_key: ajax.api_key,
                     type: 'rpd',
                     id_jadwal: <?php echo $input['id_jadwal_lokal']; ?>

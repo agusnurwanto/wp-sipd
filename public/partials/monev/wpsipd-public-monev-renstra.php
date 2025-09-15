@@ -123,38 +123,80 @@ $tujuan = $wpdb->get_results(
 $all_program_renstra = [];
 if (!empty($tujuan)) {
 	foreach ($tujuan as $t => $tujuan_value) {
-		$tujuan_key = $tujuan_value['id_bidang_urusan'] . "-" . $tujuan_value['id_unik'];
+		$tujuan_key = $tujuan_value['id_unik'];
 		if (empty($data_all['data'][$tujuan_key])) {
-			$status_rpjmd = '';
-			if (!empty($tujuan_value['kode_sasaran_rpjm'])) {
+			$status_rpjmd = [];
+			if (!empty($tujuan_value['kode_sasaran_multiple'])) {
 				$prefix_history = $data_jadwal_relasi['status'] == 1 ? '_history' : '';
-				if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
-					$sasaran_teks = $wpdb->get_var(
-						$wpdb->prepare("
-							SELECT sasaran_teks
-							FROM data_rpjmd_sasaran{$prefix_history}
-							WHERE active = 1 
-							  AND id_unik=%s 
-							  AND tahun_anggaran = %d
-						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
-					);
-				} else {
-					$sasaran_teks = $wpdb->get_var(
-						$wpdb->prepare("
-							SELECT sasaran_teks
-							FROM data_rpd_sasaran{$prefix_history}
-							WHERE active = 1 
-							  AND id_unik = %s 
-							  AND tahun_anggaran = %d
-						", $tujuan_value['kode_sasaran_rpjm'], $data_jadwal_relasi['tahun_anggaran'])
-					);
+				
+				$sasarans = json_decode($tujuan_value['kode_sasaran_multiple']);
+				$sasarans_value = [];
+				foreach ($sasarans as $s) {
+					if ($data_jadwal_relasi['jenis_jadwal'] == 'rpjmd') {
+						$sasaran_teks = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT 
+									id_unik,
+									sasaran_teks
+								FROM data_rpjmd_sasaran{$prefix_history}
+								WHERE active = 1 
+								  AND id_unik=%s 
+								  AND tahun_anggaran = %d
+							", $s, $data_jadwal_relasi['tahun_anggaran']),
+							ARRAY_A
+						);
+					} else {
+						$sasaran_teks = $wpdb->get_row(
+							$wpdb->prepare("
+								SELECT
+									id_unik, 
+									sasaran_teks
+								FROM data_rpd_sasaran{$prefix_history}
+								WHERE active = 1 
+								  AND id_unik = %s 
+								  AND tahun_anggaran = %d
+							", $s, $data_jadwal_relasi['tahun_anggaran']),
+							ARRAY_A
+						);
+					}
+
+					if (!empty($sasaran_teks)) {
+						$sasarans_value[] = $sasaran_teks;
+					}
 				}
 
-				if (!empty($sasaran_teks)) {
-					$status_rpjmd = $sasaran_teks;
+				if (!empty($sasarans_value)) {
+					$status_rpjmd[] = $sasarans_value;
 				}
 			}
 
+			$bidur_html = ''; 
+			if (!empty($tujuan_value['kode_bidang_urusan_multiple'])) {
+				$bidur_value = json_decode($tujuan_value['kode_bidang_urusan_multiple']);
+				$bidur_all = [];
+				foreach ($bidur_value as $b) {
+					$bidang_urusan_query = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT *
+							FROM data_prog_keg
+							WHERE kode_bidang_urusan=%s
+								AND active=1
+								AND tahun_anggaran=%d
+						", $b, $data_jadwal['tahun_anggaran'])
+						, ARRAY_A
+					);
+
+					$bidur_all[] = $bidang_urusan_query;
+				}
+				
+				if (!empty($bidur_all)) {
+					$bidur_html .= '<ul>';
+					foreach ($bidur_all as $v) {
+						$bidur_html .= "<li>{$v['nama_bidang_urusan']}</li>"; 
+					}
+					$bidur_html .= '</ul>';
+				}
+			}
 			$nama = explode("||", $tujuan_value['tujuan_teks']);
 			$nama_bidang_urusan = explode("||", $tujuan_value['nama_bidang_urusan']);
 			$data_all['data'][$tujuan_key] = array(
@@ -167,10 +209,10 @@ if (!empty($tujuan)) {
 				'kode_sasaran_rpjm' => $tujuan_value['kode_sasaran_rpjm'],
 				'kode_tujuan' => $tujuan_value['id_unik'],
 				'urut_tujuan' => $tujuan_value['urut_tujuan'],
-				'id_bidang_urusan' => $tujuan_value['id_bidang_urusan'],
-				'kode_bidang_urusan' => $tujuan_value['kode_bidang_urusan'],
-				'nama_bidang_urusan' => $tujuan_value['nama_bidang_urusan'],
-				'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
+				// 'id_bidang_urusan' => $tujuan_value['id_bidang_urusan'],
+				// 'kode_bidang_urusan' => $tujuan_value['kode_bidang_urusan'],
+				'nama_bidang_urusan' => $bidur_html,
+				'nama_bidang_urusan_teks' => $bidur_html,
 				'pagu_1' => 0,
 				'pagu_2' => 0,
 				'pagu_3' => 0,
@@ -194,10 +236,9 @@ if (!empty($tujuan)) {
 					  AND id_jadwal=%d
 					  AND id_unit=%d 
 					  AND kode_tujuan=%s 
-					  AND id_bidang_urusan=%d 
 					  AND urut_tujuan=%d 
 					ORDER BY id
-				", $_GET['id_jadwal'], $_GET['id_skpd'], $tujuan_value['id_unik'], $tujuan_value['id_bidang_urusan'], $tujuan_value['urut_tujuan']),
+				", $_GET['id_jadwal'], $_GET['id_skpd'], $tujuan_value['id_unik'], $tujuan_value['urut_tujuan']),
 				ARRAY_A
 			);
 
@@ -217,7 +258,7 @@ if (!empty($tujuan)) {
 					}
 
 					if (empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])) {
-						$nama_bidang_urusan = explode("||", $sasaran_value['nama_bidang_urusan']);
+						// $nama_bidang_urusan = explode("||", $sasaran_value['nama_bidang_urusan']);
 						$data_all['data'][$tujuan_key]['data'][$sasaran_key] = array(
 							'id' => $sasaran_value['id'],
 							'id_unit' => $sasaran_value['id_unit'],
@@ -229,10 +270,10 @@ if (!empty($tujuan)) {
 							'urut_sasaran' => $sasaran_value['urut_sasaran'],
 							'kode_tujuan' => $sasaran_value['kode_tujuan'],
 							'urut_tujuan' => $sasaran_value['urut_tujuan'],
-							'id_bidang_urusan' => $sasaran_value['id_bidang_urusan'],
-							'kode_bidang_urusan' => $sasaran_value['kode_bidang_urusan'],
-							'nama_bidang_urusan' => $sasaran_value['nama_bidang_urusan'],
-							'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
+							// 'id_bidang_urusan' => $sasaran_value['id_bidang_urusan'],
+							// 'kode_bidang_urusan' => $sasaran_value['kode_bidang_urusan'],
+							'nama_bidang_urusan' => $bidur_html,
+							'nama_bidang_urusan_teks' => $bidur_html,
 							'id_misi' => $sasaran_value['id_misi'],
 							'id_visi' => $sasaran_value['id_visi'],
 							'pagu' => 0,
@@ -269,7 +310,7 @@ if (!empty($tujuan)) {
 							foreach ($program as $p => $p_value) {
 								if (empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']])) {
 									$nama = explode("||", $p_value['nama_program']);
-									$nama_bidang_urusan = explode("||", $p_value['nama_bidang_urusan']);
+									// $nama_bidang_urusan = explode("||", $p_value['nama_bidang_urusan']);
 									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']] = array(
 										'id' => $p_value['id'],
 										'id_unit' => $p_value['id_unit'],
@@ -282,10 +323,10 @@ if (!empty($tujuan)) {
 										'urut_sasaran' => $p_value['urut_sasaran'],
 										'kode_tujuan' => $p_value['kode_tujuan'],
 										'urut_tujuan' => $p_value['urut_tujuan'],
-										'id_bidang_urusan' => $p_value['id_bidang_urusan'],
-										'kode_bidang_urusan' => $p_value['kode_bidang_urusan'],
-										'nama_bidang_urusan' => $p_value['nama_bidang_urusan'],
-										'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
+										// 'id_bidang_urusan' => $p_value['id_bidang_urusan'],
+										// 'kode_bidang_urusan' => $p_value['kode_bidang_urusan'],
+										'nama_bidang_urusan' => $bidur_html,
+										'nama_bidang_urusan_teks' => $bidur_html,
 										'id_misi' => $p_value['id_misi'],
 										'id_visi' => $p_value['id_visi'],
 										'pagu_1' => 0,
@@ -322,7 +363,7 @@ if (!empty($tujuan)) {
 										foreach ($kegiatan as $k => $k_value) {
 											if (empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']])) {
 												$nama = explode("||", $k_value['nama_giat']);
-												$nama_bidang_urusan = explode("||", $k_value['nama_bidang_urusan']);
+												// $nama_bidang_urusan = explode("||", $k_value['nama_bidang_urusan']);
 												$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']] = array(
 													'id' => $k_value['id'],
 													'id_unit' => $k_value['id_unit'],
@@ -336,10 +377,10 @@ if (!empty($tujuan)) {
 													'urut_sasaran' => $k_value['urut_sasaran'],
 													'kode_tujuan' => $k_value['kode_tujuan'],
 													'urut_tujuan' => $k_value['urut_tujuan'],
-													'id_bidang_urusan' => $k_value['id_bidang_urusan'],
-													'kode_bidang_urusan' => $k_value['kode_bidang_urusan'],
-													'nama_bidang_urusan' => $k_value['nama_bidang_urusan'],
-													'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
+													// 'id_bidang_urusan' => $k_value['id_bidang_urusan'],
+													// 'kode_bidang_urusan' => $k_value['kode_bidang_urusan'],
+													'nama_bidang_urusan' => $bidur_html,
+													'nama_bidang_urusan_teks' => $bidur_html,
 													'id_misi' => $k_value['id_misi'],
 													'id_visi' => $k_value['id_visi'],
 													'pagu_1' => 0,
@@ -401,10 +442,10 @@ if (!empty($tujuan)) {
 																'urut_sasaran' => $sk_value['urut_sasaran'],
 																'kode_tujuan' => $sk_value['kode_tujuan'],
 																'urut_tujuan' => $sk_value['urut_tujuan'],
-																'id_bidang_urusan' => $sk_value['id_bidang_urusan'],
-																'kode_bidang_urusan' => $sk_value['kode_bidang_urusan'],
-																'nama_bidang_urusan' => $sk_value['nama_bidang_urusan'],
-																'nama_bidang_urusan_teks' => $nama_bidang_urusan[0],
+																// 'id_bidang_urusan' => $sk_value['id_bidang_urusan'],
+																// 'kode_bidang_urusan' => $sk_value['kode_bidang_urusan'],
+																'nama_bidang_urusan' => $bidur_html,
+																'nama_bidang_urusan_teks' => $bidur_html,
 																'id_misi' => $sk_value['id_misi'],
 																'id_visi' => $sk_value['id_visi'],
 																'pagu_1' => $pagu_1,
@@ -774,10 +815,15 @@ foreach ($data_all['data'] as $key => $tujuan) {
 		$realisasi_pagu_4,
 		$realisasi_pagu_5
 	);
-
-	$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $_GET['id_skpd'] . '\', \'' . $tujuan['kode_sasaran_rpjm'] . '\')">
-	            	' . $tujuan['status_rpjmd'] . '
-	            	</a>' : $tujuan['status_rpjmd'];
+	$status_rpjmd = '<ul>';
+	if (!empty($tujuan['status_rpjmd'])) {
+		foreach ($tujuan['status_rpjmd'] as $value) {
+			foreach ($value as $v) {
+				$status_rpjmd .= '<li><a href="javascript:void(0)" onclick="show_rpjm(\'' . $_GET['id_skpd'] . '\', \'' . $v['id_unik'] . '\')">' . $v['sasaran_teks'] . '</a></li>';
+        	}
+    	}
+	}
+	$status_rpjmd .= '</ul>';
 
 	$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
 	$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#f7d2a1';
