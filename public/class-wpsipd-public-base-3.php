@@ -966,6 +966,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Sasaran RPJM/RPD tidak boleh kosong!');
 					}
 
+					$bidur_multiple = json_encode($data['bidang-urusan']);
+					if (empty($bidur_multiple)) {
+						throw new Exception('Bidang urusan tidak boleh kosong!');
+					}
+
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT id FROM data_renstra_tujuan_lokal
 						WHERE tujuan_teks=%s
@@ -1008,6 +1013,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$wpdb->update('data_renstra_tujuan_lokal', [
 							'id_unit' => $dataUnit->id_unit,
 							'kode_sasaran_multiple' => $sasaran_multiple,
+							'kode_bidang_urusan_multiple' => $bidur_multiple,
 							'kode_skpd' => $dataUnit->kode_skpd,
 							'nama_skpd' => $dataUnit->nama_skpd,
 							'tujuan_teks' => $data['tujuan_teks'],
@@ -1027,6 +1033,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$wpdb->update('data_renstra_tujuan_lokal', [
 							'id_unit' => $dataUnit->id_unit,
 							'kode_sasaran_multiple' => $sasaran_multiple,
+							'kode_bidang_urusan_multiple' => $bidur_multiple,
 							'kode_skpd' => $dataUnit->kode_skpd,
 							'nama_skpd' => $dataUnit->nama_skpd,
 							'tujuan_teks' => $data['tujuan_teks'],
