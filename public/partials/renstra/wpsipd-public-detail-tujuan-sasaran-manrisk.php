@@ -948,6 +948,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#indikator_kinerja').val(indikator_teks);
         
         jQuery("input[name='controllable_status']").prop('checked', false);
+        jQuery("#id_data").val('');
         jQuery("#uraian_resiko").val('');
         jQuery("#kode_resiko").val('');
         jQuery("#pemilik_resiko").val('');
