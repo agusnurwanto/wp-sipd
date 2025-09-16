@@ -12921,7 +12921,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-program-kegiatan-manrisk.php';
 	}
 
-	
+	public function manrisk_list($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-manrisk.php';
+	}
 
 	public function get_table_tujuan_sasaran()
 	{
@@ -13374,7 +13382,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        if ($now >= $awal && $now <= $akhir) {
 	                                            $html .= '
 	                                                <td class="text-center">
-	                                                    <button class="btn btn-success" onclick="tambah_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', \'' . $tujuan_sasaran_group['nama_tujuan_sasaran'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
+	                                                    <button class="btn btn-success" onclick="tambah_tujuan_sasaran_manrisk( \'' . $id_tujuan . '\', \'' . $id_indikator . '\', \'' . $tujuan_sasaran_group['nama_tujuan_sasaran'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
 	                                                        <span class="dashicons dashicons-plus"></span>
 	                                                    </button>
 	                                                    <button class="btn btn-primary" onclick="edit_tujuan_sasaran_manrisk(' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
@@ -13544,16 +13552,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                         $id_sebelum = $wpdb->insert_id;
                     } else {
                         $id_sebelum = $existing_data_sebelum['id'];
-                        
-                        if ($existing_data_sebelum['active'] == 0) {
-                            $wpdb->update(
-                                'data_tujuan_sasaran_manrisk_sebelum',
-                                array('active' => 1),
-                                array('id' => $existing_data_sebelum['id']),
-                                array('%d'),
-                                array('%d')
-                            );
-                        }
                     }
 
                     $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
@@ -13609,16 +13607,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                         $id_sebelum = $wpdb->insert_id;
                     } else {
                         $id_sebelum = $existing_data_sebelum['id'];
-                        
-                        if ($existing_data_sebelum['active'] == 0) {
-                            $wpdb->update(
-                                'data_program_kegiatan_manrisk_sebelum',
-                                array('active' => 1),
-                                array('id' => $existing_data_sebelum['id']),
-                                array('%d'),
-                                array('%d')
-                            );
-                        }
                     }
 
                     $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
@@ -13803,6 +13791,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			      $ret['message'] = 'ID SKPD kosong!';
 			    }
               	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+              	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+              	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
 
               	$data = array(
                   	'id_tujuan_sasaran'       		=> $_POST['id_tujuan_sasaran'],
@@ -13816,8 +13806,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                   	'controllable'          		=> intval($_POST['controllable_status']), 
                   	'uraian_dampak'         		=> $_POST['uraian_dampak'],
                   	'pihak_terkena'         		=> $_POST['pihak_terkena'],
-                  	'skala_dampak'          		=> $_POST['skala_dampak'],
-                  	'skala_kemungkinan'      		=> $_POST['skala_kemungkinan'],
+                  	'skala_dampak'          		=> $skala_dampak,
+                  	'skala_kemungkinan'      		=> $skala_kemungkinan,
                   	'rencana_tindak_pengendalian'	=> $_POST['rencana_tindak_pengendalian'],
                   	'id_skpd'           			=> $id_skpd,
                   	'tahun_anggaran'        		=> $tahun_anggaran,
@@ -14202,6 +14192,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		        }
 	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 	            $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
+              	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+              	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
 
 	            $data = array(
 	                'id_tujuan_sasaran'       		=> $_POST['id_tujuan_sasaran'],
@@ -14217,8 +14209,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'controllable'          		=> intval($_POST['controllable_status']), 
 	                'uraian_dampak'         		=> $_POST['uraian_dampak'],
 	                'pihak_terkena'         		=> $_POST['pihak_terkena'],
-	                'skala_dampak'          		=> $_POST['skala_dampak'],
-	                'skala_kemungkinan'       		=> $_POST['skala_kemungkinan'],
+	                'skala_dampak'          		=> $skala_dampak,
+	                'skala_kemungkinan'       		=> $skala_kemungkinan,
 	                'rencana_tindak_pengendalian' 	=> $_POST['rencana_tindak_pengendalian'],
 	                'id_skpd'           			=> $id_skpd,
 	                'tahun_anggaran'        		=> $tahun_anggaran,
@@ -14743,7 +14735,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                                             if ($now >= $awal && $now <= $akhir) {
                                               $html .= '
                                                   <td class="text-center">
-                                                      <button class="btn btn-success" onclick="tambah_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', \'' . $program_kegiatan_group['nama_program_kegiatan'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
+                                                      <button class="btn btn-success" onclick="tambah_program_kegiatan_manrisk( \'' . $id_program . '\', \'' . $id_indikator . '\', \'' . $program_kegiatan_group['nama_program_kegiatan'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
                                                           <span class="dashicons dashicons-plus"></span>
                                                       </button>
                                                     <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
@@ -14818,6 +14810,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     $ret['message'] = 'ID SKPD kosong!';
                 }
                 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+              	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+              	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
 
                 $data = array(
                     'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
@@ -14831,8 +14825,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     'controllable'                  => intval($_POST['controllable_status']), 
                     'uraian_dampak'                 => $_POST['uraian_dampak'],
                     'pihak_terkena'                 => $_POST['pihak_terkena'],
-                    'skala_dampak'                  => $_POST['skala_dampak'],
-                    'skala_kemungkinan'             => $_POST['skala_kemungkinan'],
+                    'skala_dampak'                  => $skala_dampak,
+                    'skala_kemungkinan'             => $skala_kemungkinan,
                     'rencana_tindak_pengendalian'   => $_POST['rencana_tindak_pengendalian'],
                     'id_skpd'                       => $id_skpd,
                     'tahun_anggaran'                => $tahun_anggaran,
@@ -15223,6 +15217,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                 }
                 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
                 $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
+              	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+              	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
 
                 $data = array(
                     'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
@@ -15238,8 +15234,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     'controllable'                  => intval($_POST['controllable_status']), 
                     'uraian_dampak'                 => $_POST['uraian_dampak'],
                     'pihak_terkena'                 => $_POST['pihak_terkena'],
-                    'skala_dampak'                  => $_POST['skala_dampak'],
-                    'skala_kemungkinan'             => $_POST['skala_kemungkinan'],
+                    'skala_dampak'                  => $skala_dampak,
+                    'skala_kemungkinan'             => $skala_kemungkinan,
                     'rencana_tindak_pengendalian'   => $_POST['rencana_tindak_pengendalian'],
                     'id_skpd'                       => $id_skpd,
                     'tahun_anggaran'                => $tahun_anggaran,

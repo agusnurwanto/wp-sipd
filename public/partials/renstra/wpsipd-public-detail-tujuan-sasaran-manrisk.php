@@ -573,7 +573,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function tambah_tujuan_sasaran_manrisk(id, id_tujuan_sasaran, id_indikator, nama_tujuan_sasaran, indikator_teks, tipe) {
+    function tambah_tujuan_sasaran_manrisk(id_tujuan_sasaran, id_indikator, nama_tujuan_sasaran, indikator_teks, tipe) {
         jQuery('#TambahTujuanSasaranModalLabel').show();
         jQuery('#editTujuanSasaranModalLabel').hide();
         

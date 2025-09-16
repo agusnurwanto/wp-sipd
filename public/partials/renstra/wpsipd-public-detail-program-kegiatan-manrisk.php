@@ -573,7 +573,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function tambah_program_kegiatan_manrisk(id, id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
+    function tambah_program_kegiatan_manrisk(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
         jQuery('#TambahProgramKegiatanModalLabel').show();
         jQuery('#editProgramKegiatanModalLabel').hide();
         

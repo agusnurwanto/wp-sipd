@@ -1358,6 +1358,7 @@ class Wpsipd
 		add_shortcode('detail_tujuan_sasaran_manrisk',array($plugin_public,'detail_tujuan_sasaran_manrisk'));
 		add_shortcode('detail_program_kegiatan_manrisk',array($plugin_public,'detail_program_kegiatan_manrisk'));
 
+		add_shortcode('manrisk_list',array($plugin_public,'manrisk_list'));
 		add_shortcode('jadwal_manrisk',array($plugin_public,'jadwal_manrisk'));
 		
 		add_shortcode('background_menu_wpsipd',array($plugin_public,'background_menu_wpsipd'));

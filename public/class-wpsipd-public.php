@@ -9726,6 +9726,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 						echo '<li><a href="' . $detail_efisiensi_belanja . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN EFISIENSI BELANJA</a></li>';
 					}
+					if (!empty($daftar_tombol_list[15])) {
+						$manrisk_page = $this->generatePage(
+							'Halaman List Manajemen Resiko | ' . $tahun,
+							$tahun,
+							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
+						);
+						echo '<li><a href="' . $manrisk_page . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
