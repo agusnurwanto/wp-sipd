@@ -623,6 +623,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_rka_simda',  $plugin_public, 'get_rka_simda');
 		$this->loader->add_action('wp_ajax_get_dpa_simda',  $plugin_public, 'get_dpa_simda');
 		
+		$this->loader->add_action('wp_ajax_get_sasaran_lokal_by_id_jadwal',  $plugin_public, 'get_sasaran_lokal_by_id_jadwal');
+
 		$this->loader->add_action('wp_ajax_reset_rfk_pemda',  $plugin_public, 'reset_rfk_pemda');
 		$this->loader->add_action('wp_ajax_get_monev_renstra',  $plugin_public, 'get_monev_renstra');
 		$this->loader->add_action('wp_ajax_save_monev_renstra',  $plugin_public, 'save_monev_renstra');

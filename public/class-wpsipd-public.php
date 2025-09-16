@@ -13464,10 +13464,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<tr>
 								<td class="text-center">' . ($_POST['tahun_awal'] + $i - 1) . '</td>
 								<td class="text-right pagu_' . $i . '">' . $this->_number_format($anggaran['pagu_' . $i]) . '</td>
-								<td class="text-right realisasi_pagu_' . $i . '" ' . $edit_realisasi_pagu . ' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $this->_number_format($anggaran['realisasi_pagu_' . $i]) . '</td>
+								<td class="text-right realisasi_pagu_' . $i . '" ' . $edit_realisasi_pagu . ' onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);" onpaste="cleanPaste(event);">' . $this->_number_format($anggaran['realisasi_pagu_' . $i]) . '</td>
 								<td class="text-center capaian_pagu_' . $i . '">' . $this->pembulatan($capaian_pagu) . '</td>
 								<td class="text-center target_' . $i . '">' . $indikator['target_' . $i] . '</td>
-								<td class="text-center realisasi_target_' . $i . '" contenteditable="true" onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);">' . $indikator['realisasi_target_' . $i] . '</td>
+								<td class="text-center realisasi_target_' . $i . '" contenteditable="true" onkeyup="setTotalRealisasi();" onkeypress="onlyNumber(event);" onpaste="cleanPaste(event);">' . $indikator['realisasi_target_' . $i] . '</td>
 								<td class="text-center capaian_target_' . $i . '">' . $this->pembulatan($capaian_target) . '</td>
 								<td class="keterangan_' . $i . '" contenteditable="true">' . $indikator['keterangan_' . $i] . '</td>
 							</tr>';
@@ -13501,18 +13501,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id_indikator']) || empty($_POST['type_indikator']) || empty($_POST['tahun_anggaran'])) {
+					$return['status'] = 'error';
+					$return['message'] = 'REQUEST TIDAK SPESIFIK';
+					echo json_encode($return);
+					exit();
+				}
 
 				$data = array(
-					'realisasi_target_1' => $_POST['realisasi_target'][1],
-					'realisasi_target_2' => $_POST['realisasi_target'][2],
-					'realisasi_target_3' => $_POST['realisasi_target'][3],
-					'realisasi_target_4' => $_POST['realisasi_target'][4],
-					'realisasi_target_5' => $_POST['realisasi_target'][5],
-					'keterangan_1' => $_POST['keterangan'][1],
-					'keterangan_2' => $_POST['keterangan'][2],
-					'keterangan_3' => $_POST['keterangan'][3],
-					'keterangan_4' => $_POST['keterangan'][4],
-					'keterangan_5' => $_POST['keterangan'][5],
+					'realisasi_target_1' => $_POST['realisasi_target'][1] ?? NULL,
+					'realisasi_target_2' => $_POST['realisasi_target'][2] ?? NULL,
+					'realisasi_target_3' => $_POST['realisasi_target'][3] ?? NULL,
+					'realisasi_target_4' => $_POST['realisasi_target'][4] ?? NULL,
+					'realisasi_target_5' => $_POST['realisasi_target'][5] ?? NULL,
+					'keterangan_1' => $_POST['keterangan'][1] ?? NULL,
+					'keterangan_2' => $_POST['keterangan'][2] ?? NULL,
+					'keterangan_3' => $_POST['keterangan'][3] ?? NULL,
+					'keterangan_4' => $_POST['keterangan'][4] ?? NULL,
+					'keterangan_5' => $_POST['keterangan'][5] ?? NULL,
 					'update_at' => current_time('mysql')
 				);
 
@@ -13549,15 +13555,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								AND tahun_anggaran=%d
 						", $cek_data['id_unik'], $_POST['tahun_anggaran']));
 						$wpdb->update($table, array(
-							'realisasi_pagu_1' => $_POST['realisasi_anggaran'][1],
-							'realisasi_pagu_2' => $_POST['realisasi_anggaran'][2],
-							'realisasi_pagu_3' => $_POST['realisasi_anggaran'][3],
-							'realisasi_pagu_4' => $_POST['realisasi_anggaran'][4],
-							'realisasi_pagu_5' => $_POST['realisasi_anggaran'][5],
+							'realisasi_pagu_1' => $_POST['realisasi_anggaran'][1] ?? NULL,
+							'realisasi_pagu_2' => $_POST['realisasi_anggaran'][2] ?? NULL,
+							'realisasi_pagu_3' => $_POST['realisasi_anggaran'][3] ?? NULL,
+							'realisasi_pagu_4' => $_POST['realisasi_anggaran'][4] ?? NULL,
+							'realisasi_pagu_5' => $_POST['realisasi_anggaran'][5] ?? NULL,
 						), array('id' => $id_sub));
 					}
 				}
-				$return['sql'] = $wpdb->last_query;
 			} else {
 				$return['status'] = 'error';
 				$return['message'] = 'APIKEY tidak sesuai!';

@@ -1880,13 +1880,30 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$cek_pemda['status'] == 1
 						&& $tahun_anggaran >= 2024
 					) {
-						$where .= ' AND set_kab_kota=1';
-
-						// sementara, kalau daerah khusus perlu diset query dengan id_daerah_khusus
-						$where .= ' AND id_daerah_khusus=0';
-					} else if ($cek_pemda['status'] == 2) {
-						$where .= ' AND set_prov=1';
+						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else if(!empty($cek_pemda['kabkot'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+						}else if(!empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_kab_kota=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else{
+							$where .= ' AND u.set_kab_kota=1 AND u.id_daerah_khusus=0';
+						}
+					} else if (
+						$cek_pemda['status'] == 2
+						&& $tahun_anggaran >= 2024
+					) {
+						if(!empty($cek_pemda['kabkot']) && !empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].' OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else if(!empty($cek_pemda['kabkot'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['kabkot'].')';
+						}else if(!empty($cek_pemda['prov'])){
+							$where .= ' AND u.set_prov=1 AND (u.id_daerah_khusus=0 OR u.id_daerah_khusus IS NULL OR u.id_daerah_khusus='.$cek_pemda['prov'].')';
+						}else{
+							$where .= ' AND u.set_prov=1 AND u.id_daerah_khusus=0';
+						}
 					}
+
 					$data_sub_kegiatan = array();
 					foreach ($bidur_db as $k_bidur => $v_bidur) {
 						if (!empty($_POST['kode_giat'])) {
@@ -1896,12 +1913,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									id_sub_giat,
 									kode_sub_giat,
 									nama_sub_giat
-								FROM data_prog_keg
-								WHERE id_bidang_urusan=%d
-									AND tahun_anggaran=%d
-									AND active=1
-									AND kode_giat=%s
+								FROM data_prog_keg u
+								WHERE u.id_bidang_urusan=%d
+									AND u.tahun_anggaran=%d
+									AND u.active=1
+									AND u.kode_giat=%s
 									' . $where . '
+                        		ORDER BY u.id_daerah_khusus DESC 
 							',
 								$v_bidur['id_bidang_urusan'],
 								$tahun_anggaran,
@@ -1914,11 +1932,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									id_sub_giat,
 									kode_sub_giat,
 									nama_sub_giat
-								FROM data_prog_keg
-								WHERE id_bidang_urusan=%d
-									AND tahun_anggaran=%d
-									AND active=1
+								FROM data_prog_keg u
+								WHERE u.id_bidang_urusan=%d
+									AND u.tahun_anggaran=%d
+									AND u.active=1
 									' . $where . '
+                        		ORDER BY u.id_daerah_khusus DESC 
 							',
 								$v_bidur['id_bidang_urusan'],
 								$tahun_anggaran
@@ -1930,6 +1949,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 					}
 					$ret['data'] = $data_sub_kegiatan;
+					$ret['bidur'] = $bidur_db;
 					$ret['sql'] = $wpdb->last_query;
 				} else {
 					$ret['status'] = 'error';
