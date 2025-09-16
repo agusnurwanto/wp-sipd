@@ -217,7 +217,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         </div>
     </div>
 </div>
-<!-- Modal edit program kegiatan sebelum-->
+<!-- Modal crud program kegiatan sebelum-->
 <div class="modal fade" id="editProgramKegiatanModal" tabindex="-1" role="dialog" aria-labelledby="editProgramKegiatanModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
         <div class="modal-content">
@@ -231,6 +231,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
              <div class="modal-body">
                 <form id="formTambahProgramKegiatan">
                     <input type="hidden" value="" id="id_data">
+                    <input type="hidden" value="" id="id_program_kegiatan">
+                    <input type="hidden" value="" id="id_indikator">
+                    <input type="hidden" value="" id="tipe_sebelum">
                     <div class="form-group">
                         <label for="nama_program_kegiatan">Nama Program / Kegiatan</label>
                         <input type="text" class="form-control" id="nama_program_kegiatan" name="nama_program_kegiatan" disabled required>
@@ -242,7 +245,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <div class="form-group">
                         <label for="uraian_resiko">Uraian Resiko</label>
                         <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
-                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
+                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                     </div>
                     <div class="form-group">
                         <label for="kode_resiko">Kode Resiko</label>
@@ -337,7 +340,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 <form id="formTambahProgramKegiatanSesudah">
                     <input type="hidden" value="" id="id_data_sesudah">
                     <input type="hidden" value="" id="id_sebelum">
-                    <input type="hidden" value="" id="tipe_sebelum">
+                    <input type="hidden" value="" id="id_program_kegiatan_sesudah">
+                    <input type="hidden" value="" id="id_indikator_sesudah">
+                    <input type="hidden" value="" id="tipe_sesudah">
                     <div class="form-group">
                         <label for="nama_program_kegiatan_sesudah">Program / Kegiatan</label>
                         <input type="text" class="form-control" id="nama_program_kegiatan_sesudah" name="nama_program_kegiatan_sesudah" disabled required>
@@ -383,7 +388,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_usulan">Kode Resiko</label>
@@ -454,7 +459,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     <div class="form-group">
                                         <label for="uraian_resiko_sesudah">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah" name="uraian_resiko_sesudah" required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_sesudah">Kode Resiko</label>
@@ -514,7 +519,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
         
         jQuery('#editProgramKegiatanModal').on('hidden.bs.modal', function () {
-            reset_form_edit();
+            reset_form_tambah();
         });
         
         jQuery('#VerifikasiModal').on('hidden.bs.modal', function () {
@@ -568,11 +573,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function edit_program_kegiatan() {
+    function tambah_program_kegiatan_manrisk(id, id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
         jQuery('#TambahProgramKegiatanModalLabel').show();
         jQuery('#editProgramKegiatanModalLabel').hide();
         
-        reset_form_edit();
+        reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe);
         
         jQuery('#editProgramKegiatanModal').modal('show');
     }
@@ -589,7 +594,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 id_skpd: <?php echo $id_skpd; ?>,
                 id: id ,
                 id_jadwal: <?php echo $id_jadwal; ?>,
-                id_program_kegiatan: id_program_kegiatan ,
+                id_program_kegiatan: id_program_kegiatan,
                 id_indikator: id_indikator, 
                 tipe: tipe 
             },
@@ -598,8 +603,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
                     let data = response.data;
-                    jQuery("#id_data").val(data.id);
+                    jQuery("#id_data").val(data.id);        
 
+                    jQuery('#id_program_kegiatan').val(id_program_kegiatan);
+                    jQuery('#id_indikator').val(id_indikator);
+                    jQuery('#tipe_sebelum').val(tipe);
                     jQuery("#nama_program_kegiatan").val(data.nama_program_kegiatan);
                     jQuery("#indikator_kinerja").val(data.indikator);
                     jQuery("#uraian_resiko").val(data.uraian_resiko);
@@ -631,6 +639,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
 
     function submit_program_kegiatan() {
         let id = jQuery('#id_data').val();
+        let id_program_kegiatan = jQuery("#id_program_kegiatan").val();
+        let id_indikator = jQuery("#id_indikator").val();
+        let tipe_sebelum = jQuery("#tipe_sebelum").val();
         let uraian_resiko = jQuery("#uraian_resiko").val();
         let kode_resiko = jQuery("#kode_resiko").val();
         let pemilik_resiko = jQuery("#pemilik_resiko").val();
@@ -655,6 +666,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
                 id: id, 
+                id_program_kegiatan: id_program_kegiatan,
+                id_indikator: id_indikator,
+                tipe: tipe_sebelum,
                 uraian_resiko: uraian_resiko,
                 kode_resiko: kode_resiko,
                 pemilik_resiko: pemilik_resiko,
@@ -795,7 +809,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     jQuery("#skala_dampak_usulan").val(data_sebelum.skala_dampak);
                     jQuery("#skala_kemungkinan_usulan").val(data_sebelum.skala_kemungkinan);
                     jQuery("#rencana_tindak_pengendalian_usulan").val(data_sebelum.rencana_tindak_pengendalian);
-                    
+                     
+
+                    jQuery('#id_program_kegiatan_sesudah').val(id_program_kegiatan);
+                    jQuery('#id_indikator_sesudah').val(id_indikator);
+                    jQuery('#tipe_sesudah').val(tipe_sesudah);
                     if (data && Object.keys(data).length > 0) {
                         jQuery("#id_data_sesudah").val(data.id);
                         jQuery('#nama_program_kegiatan_sesudah').val(data.nama_program_kegiatan);
@@ -805,6 +823,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         } else {
                             jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
                         }
+                        jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
                         jQuery("#uraian_resiko_sesudah").val(data.uraian_resiko);
                         jQuery("#kode_resiko_sesudah").val(data.kode_resiko);
                         jQuery("#pemilik_resiko_sesudah").val(data.pemilik_resiko);
@@ -921,9 +940,14 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("#rencana_tindak_pengendalian_sesudah").val('');
     }
 
-    function reset_form_edit() {
-        jQuery("#nama_program_kegiatan").val('');
-        jQuery("#indikator_kinerja").val('');
+    function reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
+        jQuery('#id_program_kegiatan').val(id_program_kegiatan);
+        jQuery('#id_indikator').val(id_indikator);
+        jQuery('#tipe_sebelum').val(tipe);
+        jQuery('#nama_program_kegiatan').val(nama_program_kegiatan);
+        jQuery('#indikator_kinerja').val(indikator_teks);
+        
+        jQuery("input[name='controllable_status']").prop('checked', false);
         jQuery("#uraian_resiko").val('');
         jQuery("#kode_resiko").val('');
         jQuery("#pemilik_resiko").val('');
@@ -941,6 +965,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     function submit_verif_program_kegiatan() {
         let id = jQuery('#id_data_sesudah').val();
         let id_sebelum = jQuery('#id_sebelum').val();
+        let id_program_kegiatan = jQuery("#id_program_kegiatan_sesudah").val();
+        let id_indikator = jQuery("#id_indikator_sesudah").val();
+        let tipe_sesudah = jQuery("#tipe_sesudah").val();
         let uraian_resiko = jQuery("#uraian_resiko_sesudah").val();
         let kode_resiko = jQuery("#kode_resiko_sesudah").val();
         let pemilik_resiko = jQuery("#pemilik_resiko_sesudah").val();
@@ -966,6 +993,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 id_skpd: <?php echo $id_skpd; ?>,
                 id: id,  
                 id_sebelum: id_sebelum, 
+                id_program_kegiatan: id_program_kegiatan,
+                id_indikator: id_indikator,
+                tipe: tipe_sesudah,
                 uraian_resiko: uraian_resiko,
                 kode_resiko: kode_resiko,
                 pemilik_resiko: pemilik_resiko,

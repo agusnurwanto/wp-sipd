@@ -25,7 +25,7 @@ $tbody = '';
 $no = 1;
 foreach ($data_unit as $id_sub_skpd => $unit) {
     $title = 'Detail Manrisk Program Kegiatan | ' . $input['tahun_anggaran'];
-    $shortcode = '[detail_tujuan_sasaran_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
+    $shortcode = '[detail_program__manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
     $update = false;
     $url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
     $tbody .= "<tr>";
