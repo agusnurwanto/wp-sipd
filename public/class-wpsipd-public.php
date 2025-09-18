@@ -26912,7 +26912,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					// getting total number records without any search
 					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
-					$sqlRec = "SELECT " . implode(', ', $columns) . " FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'];
+					$sqlRec = "SELECT " . implode(', ', $columns) . " FROM `data_jadwal_lokal` WHERE id_tipe =" . $sqlTipe[0]['id'] . " ORDER BY tahun_anggaran DESC";
 					if (isset($where) && $where != '') {
 						$sqlTot .= $where;
 						$sqlRec .= $where;
