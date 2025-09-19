@@ -13378,6 +13378,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								AND id_unit=%d
 								AND id_unik=%s
 						", $_POST['id_jadwal'], $_POST['id_skpd'], $indikator['id_unik']), ARRAY_A);
+
+						$return['id_sub_unit'] = $indikator['id_sub_unit'];
 						break;
 
 					case '4':
@@ -26915,6 +26917,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlTot .= $where;
 						$sqlRec .= $where;
 					}
+					$sqlRec .= ' ORDER BY tahun_anggaran DESC';
 
 					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
