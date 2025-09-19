@@ -245,33 +245,23 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <div class="form-group">
                         <label for="uraian_resiko">Uraian Resiko</label>
                         <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
-                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
+                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
                     </div>
                     <div class="form-group">
                         <label for="kode_resiko">Kode Resiko</label>
                         <input type="text" class="form-control" id="kode_resiko" name="kode_resiko" required>
                     </div>
                     <div class="form-group">
-                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
-                        <select id="pemilik_resiko" class="form-control">
-                            <option value="" selected>Pilih Pemilik Resiko</option>
-                            <option value="kepala_daerah">Kepala Daerah</option>
-                            <option value="kepala_opd">Kepala OPD</option>
-                            <option value="kepala_bidang">Kepala Bidang</option>
-                        </select>
+                        <label for="pemilik_resiko">Pemilik Resiko</label>
+                        <input type="text" class="form-control" id="pemilik_resiko" name="pemilik_resiko" required>
                     </div>
                     <div class="form-group">
                         <label for="uraian_sebab">Uraian Sebab</label>
                         <input type="text" class="form-control" id="uraian_sebab" name="uraian_sebab" required>
                     </div>
                     <div class="form-group">
-                        <label for="sumber_sebab">Pilih Sumber Sebab</label>
-                        <select id="sumber_sebab" class="form-control">
-                            <option value="" selected>Pilih Sumber Sebab</option>
-                            <option value="internal">Internal</option>
-                            <option value="eksternal">Eksternal</option>
-                            <option value="internal_eksternal">Internal & Eksternal</option>
-                        </select>
+                        <label for="sumber_sebab">Sumber Sebab</label>
+                        <input type="text" class="form-control" id="sumber_sebab" name="sumber_sebab" required>
                     </div>
                     <div class="form-group">
                         <label class="d-block">Controllable / Uncontrollable</label>
@@ -295,15 +285,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <input type="text" class="form-control" id="uraian_dampak" name="uraian_dampak" required>
                     </div>
                     <div class="form-group">
-                        <label for="pihak_terkena">Pilih Pihak Dampak yang Terkena</label>
-                        <select id="pihak_terkena" class="form-control">
-                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                            <option value="pemda">Pemerintah <?php echo $nama_pemda; ?></option>
-                            <option value="perangkat_daerah">Perangkat Daerah</option>
-                            <option value="kepala_opd">Kepala OPD</option>
-                            <option value="pegawai_opd">Pegawai OPD</option>
-                            <option value="masyarakat">Masyarakat</option>
-                        </select>
+                        <label for="pihak_terkena">Pihak Dampak yang Terkena</label>
+                        <input type="text" class="form-control" id="pihak_terkena" name="pihak_terkena" required>
                     </div>
                     <div class="form-group">
                         <label for="skala_dampak">Skala Dampak</label>
@@ -388,7 +371,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_usulan">Kode Resiko</label>
@@ -428,38 +411,21 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Resiko</label>
-                                        <select id="pemilik_resiko_sesudah" class="form-control">
-                                            <option value="" selected>Pilih Pemilik Resiko</option>
-                                            <option value="kepala_daerah">Kepala Daerah</option>
-                                            <option value="kepala_opd">Kepala OPD</option>
-                                            <option value="kepala_bidang">Kepala Bidang</option>
-                                        </select>
+                                        <label for="pemilik_resiko_sesudah">Pemilik Resiko</label>
+                                        <input type="text" class="form-control" id="pemilik_resiko_sesudah" name="pemilik_resiko_sesudah" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="sumber_sebab_sesudah">Pilih Sumber Sebab</label>
-                                        <select id="sumber_sebab_sesudah" class="form-control">
-                                            <option value="" selected>Pilih Sumber Sebab</option>
-                                            <option value="internal">Internal</option>
-                                            <option value="eksternal">Eksternal</option>
-                                            <option value="internal_eksternal">Internal & Eksternal</option>
-                                        </select>
+                                        <label for="sumber_sebab_sesudah">Sumber Sebab</label>
+                                        <input type="text" class="form-control" id="sumber_sebab_sesudah" name="sumber_sebab_sesudah" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pihak_terkena_sesudah">Pilih Pihak Dampak yang Terkena</label>
-                                        <select id="pihak_terkena_sesudah" class="form-control">
-                                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
-                                            <option value="pemda">Pemerintah <?php echo $nama_pemda; ?></option>
-                                            <option value="perangkat_daerah">Perangkat Daerah</option>
-                                            <option value="kepala_opd">Kepala OPD</option>
-                                            <option value="pegawai_opd">Pegawai OPD</option>
-                                            <option value="masyarakat">Masyarakat</option>
-                                        </select>
+                                        <label for="pihak_terkena_sesudah">Pihak Dampak yang Terkena</label>
+                                        <input type="text" class="form-control" id="pihak_terkena_sesudah" name="pihak_terkena_sesudah" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="uraian_resiko_sesudah">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah" name="uraian_resiko_sesudah" required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_sesudah">Kode Resiko</label>
@@ -752,46 +718,6 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     let data = response.data;
                     let data_sebelum = response.data_sebelum;
-
-                    window.values = {
-                        pemilik_resiko: data_sebelum.pemilik_resiko,
-                        sumber_sebab: data_sebelum.sumber_sebab,
-                        pihak_terkena: data_sebelum.pihak_terkena
-                    };
-
-                    if (data_sebelum.pemilik_resiko == 'kepala_daerah') {
-                        pemilik_resiko = 'Kepala Daerah';
-                    } else if (data_sebelum.pemilik_resiko == 'kepala_opd') {
-                        pemilik_resiko = 'Kepala OPD';
-                    } else if (data_sebelum.pemilik_resiko == 'kepala_bidang') {
-                        pemilik_resiko = 'Kepala Bidang';
-                    } else {
-                         pemilik_resiko = '';
-                    }
-
-                    if (data_sebelum.sumber_sebab == 'internal') {
-                        sumber_sebab = 'Internal';
-                    } else if (data_sebelum.sumber_sebab == 'eksternal') {
-                        sumber_sebab = 'Eksternal';
-                    } else if (data_sebelum.sumber_sebab == 'internal_eksternal') {
-                        sumber_sebab = 'Internal & Eksternal';
-                    } else {
-                         sumber_sebab = '';
-                    }
-
-                    if (data_sebelum.pihak_terkena == 'pemda') {
-                        pihak_terkena = 'Pemerintah <?php echo $nama_pemda; ?>';
-                    } else if (data_sebelum.pihak_terkena == 'perangkat_daerah') {
-                        pihak_terkena = 'Perangkat Daerah';
-                    } else if (data_sebelum.pihak_terkena == 'kepala_opd') {
-                        pihak_terkena = 'Kepala OPD';
-                    } else if (data_sebelum.pihak_terkena == 'pegawai_opd') {
-                        pihak_terkena = 'Pegawai OPD';
-                    } else if (data_sebelum.pihak_terkena == 'masyarakat') {
-                        pihak_terkena = 'Masyarakat';
-                    } else {
-                         pihak_terkena = '';
-                    }
                     
                     if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
                         jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
@@ -801,11 +727,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     
                     jQuery("#uraian_resiko_usulan").val(data_sebelum.uraian_resiko);
                     jQuery("#kode_resiko_usulan").val(data_sebelum.kode_resiko);
-                    jQuery("#pemilik_resiko_usulan").val(pemilik_resiko);
+                    jQuery("#pemilik_resiko_usulan").val(data_sebelum.pemilik_resiko);
                     jQuery("#uraian_sebab_usulan").val(data_sebelum.uraian_sebab);
-                    jQuery("#sumber_sebab_usulan").val(sumber_sebab);
+                    jQuery("#sumber_sebab_usulan").val(data_sebelum.sumber_sebab);
                     jQuery("#uraian_dampak_usulan").val(data_sebelum.uraian_dampak);
-                    jQuery("#pihak_terkena_usulan").val(pihak_terkena);
+                    jQuery("#pihak_terkena_usulan").val(data_sebelum.pihak_terkena);
                     jQuery("#skala_dampak_usulan").val(data_sebelum.skala_dampak);
                     jQuery("#skala_kemungkinan_usulan").val(data_sebelum.skala_kemungkinan);
                     jQuery("#rencana_tindak_pengendalian_usulan").val(data_sebelum.rencana_tindak_pengendalian);
@@ -861,15 +787,14 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             let uraian_resiko = jQuery("#uraian_resiko_usulan").val();
             let kode_resiko = jQuery("#kode_resiko_usulan").val();
             let uraian_sebab = jQuery("#uraian_sebab_usulan").val();
+            let pemilik_resiko = jQuery("#pemilik_resiko_usulan").val();
+            let sumber_sebab = jQuery("#sumber_sebab_usulan").val();
+            let pihak_terkena = jQuery("#pihak_terkena_usulan").val();
             let uraian_dampak = jQuery("#uraian_dampak_usulan").val();
             let skala_dampak = jQuery("#skala_dampak_usulan").val();
             let skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
             let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
             let controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
-            
-            let pemilik_resiko = window.values ? window.values.pemilik_resiko : '';
-            let sumber_sebab = window.values ? window.values.sumber_sebab : '';
-            let pihak_terkena = window.values ? window.values.pihak_terkena : '';
             
             jQuery("#uraian_resiko_sesudah").val(uraian_resiko);
             jQuery("#kode_resiko_sesudah").val(kode_resiko);

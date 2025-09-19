@@ -13364,7 +13364,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        if ($now >= $awal && $now <= $akhir) {
 	                                            $html .= '
 	                                                <td class="text-center">
-	                                                    <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+	                                                    <button class="btn btn-success" onclick="verif_tujuan_sasaran_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_tujuan . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
 	                                                        <span class="dashicons dashicons-yes"></span>
 	                                                    </button>
 	                                                </td>
@@ -13372,7 +13372,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        } else {
 	                                            $html .= '<td class="text-center"></td>';
 	                                        }
-	                                    } else if ($jenisJadwal == 'usulan') {
+	                                    } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
 	                                        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
 	                                        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
 	                                        $awal = new DateTime($mulaiJadwal);
@@ -13793,6 +13793,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
               	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
               	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
               	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+              	$controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
 
               	$data = array(
                   	'id_tujuan_sasaran'       		=> $_POST['id_tujuan_sasaran'],
@@ -13803,7 +13804,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                   	'pemilik_resiko'        		=> $_POST['pemilik_resiko'],
                   	'uraian_sebab'          		=> $_POST['uraian_sebab'],
                   	'sumber_sebab'          		=> $_POST['sumber_sebab'],
-                  	'controllable'          		=> intval($_POST['controllable_status']), 
+                  	'controllable'          		=> $controllable_status, 
                   	'uraian_dampak'         		=> $_POST['uraian_dampak'],
                   	'pihak_terkena'         		=> $_POST['pihak_terkena'],
                   	'skala_dampak'          		=> $skala_dampak,
@@ -14194,6 +14195,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
               	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
               	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+              	$controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
 
 	            $data = array(
 	                'id_tujuan_sasaran'       		=> $_POST['id_tujuan_sasaran'],
@@ -14206,7 +14208,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'pemilik_resiko'        		=> $_POST['pemilik_resiko'],
 	                'uraian_sebab'          		=> $_POST['uraian_sebab'],
 	                'sumber_sebab'          		=> $_POST['sumber_sebab'],
-	                'controllable'          		=> intval($_POST['controllable_status']), 
+	                'controllable'          		=> $controllable_status, 
 	                'uraian_dampak'         		=> $_POST['uraian_dampak'],
 	                'pihak_terkena'         		=> $_POST['pihak_terkena'],
 	                'skala_dampak'          		=> $skala_dampak,
@@ -14514,33 +14516,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                                         $controllable = 'Uncontrollable';
                                     }
 
-                                    if ($data_sebelum['pemilik_resiko'] == 'kepala_daerah') {
-                                        $pemilik_resiko = 'Kepala Daerah';
-                                    } elseif ($data_sebelum['pemilik_resiko'] == 'kepala_opd') {
-                                        $pemilik_resiko = 'Kepala OPD';
-                                    } elseif ($data_sebelum['pemilik_resiko'] == 'kepala_bidang') {
-                                        $pemilik_resiko = 'Kepala Bidang';
-                                    }
+                                    $pemilik_resiko = $data_sebelum['pemilik_resiko'];
 
-                                    if ($data_sebelum['sumber_sebab'] == 'internal') {
-                                        $sumber_sebab = 'Internal';
-                                    } elseif ($data_sebelum['sumber_sebab'] == 'eksternal') {
-                                        $sumber_sebab = 'Eksternal';
-                                    } elseif ($data_sebelum['sumber_sebab'] == 'internal_eksternal') {
-                                        $sumber_sebab = 'Internal Eksternal';
-                                    }
+                                    $sumber_sebab = $data_sebelum['sumber_sebab'];
 
-                                    if ($data_sebelum['pihak_terkena'] == 'pemda') {
-                                        $pihak_terkena = 'Pemerintah ' . $nama_pemda;
-                                    } elseif ($data_sebelum['pihak_terkena'] == 'perangkat_daerah') {
-                                        $pihak_terkena = 'Perangkat Daerah';
-                                    } elseif ($data_sebelum['pihak_terkena'] == 'kepala_opd') {
-                                        $pihak_terkena = 'Kepala OPD';
-                                    } elseif ($data_sebelum['pihak_terkena'] == 'pegawai_opd') {
-                                        $pihak_terkena = 'Pegawai OPD';
-                                    } elseif ($data_sebelum['pihak_terkena'] == 'masyarakat') {
-                                        $pihak_terkena = 'Masyarakat';
-                                    }
+                                    $pihak_terkena = $data_sebelum['pihak_terkena'];
 
                                     $nilai_resiko = $data_sebelum['skala_dampak']*$data_sebelum['skala_kemungkinan'];
                                     $id_program = $data_sebelum['id_program_kegiatan'];
@@ -14617,33 +14597,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                                                 $controllable_sesudah = 'Uncontrollable';
                                             }
 
-                                            if ($data_sesudah['pemilik_resiko'] == 'kepala_daerah') {
-                                                $pemilik_resiko_sesudah = 'Kepala Daerah';
-                                            } elseif ($data_sesudah['pemilik_resiko'] == 'kepala_opd') {
-                                                $pemilik_resiko_sesudah = 'Kepala OPD';
-                                            } elseif ($data_sesudah['pemilik_resiko'] == 'kepala_bidang') {
-                                                $pemilik_resiko_sesudah = 'Kepala Bidang';
-                                            }
+                                            $pemilik_resiko_sesudah = $data_sesudah['pemilik_resiko'];
 
-                                            if ($data_sesudah['sumber_sebab'] == 'internal') {
-                                                $sumber_sebab_sesudah = 'Internal';
-                                            } elseif ($data_sesudah['sumber_sebab'] == 'eksternal') {
-                                                $sumber_sebab_sesudah = 'Eksternal';
-                                            } elseif ($data_sesudah['sumber_sebab'] == 'internal_eksternal') {
-                                                $sumber_sebab_sesudah = 'Internal Eksternal';
-                                            }
+                                            $sumber_sebab_sesudah = $data_sesudah['sumber_sebab'];
 
-                                            if ($data_sesudah['pihak_terkena'] == 'pemda') {
-                                                $pihak_terkena_sesudah = 'Pemerintah ' . $nama_pemda;
-                                            } elseif ($data_sesudah['pihak_terkena'] == 'perangkat_daerah') {
-                                                $pihak_terkena_sesudah = 'Perangkat Daerah';
-                                            } elseif ($data_sesudah['pihak_terkena'] == 'kepala_opd') {
-                                                $pihak_terkena_sesudah = 'Kepala OPD';
-                                            } elseif ($data_sesudah['pihak_terkena'] == 'pegawai_opd') {
-                                                $pihak_terkena_sesudah = 'Pegawai OPD';
-                                            } elseif ($data_sesudah['pihak_terkena'] == 'masyarakat') {
-                                                $pihak_terkena_sesudah = 'Masyarakat';
-                                            }
+                                            $pihak_terkena_sesudah = $data_sesudah['pihak_terkena'];
             
                                             $nilai_resiko_sesudah = $data_sesudah['skala_dampak']*$data_sesudah['skala_kemungkinan'];
                                             
@@ -14717,7 +14675,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                                             if ($now >= $awal && $now <= $akhir) {
                                               $html .= '
                                                   <td class="text-center">
-                                                      <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program_sesudah . '\', \'' . $id_indikator_sesudah . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+                                                      <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
                                                           <span class="dashicons dashicons-yes"></span>
                                                       </button>
                                                   </td>
@@ -14725,7 +14683,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                                             } else {
                                                 $html .= '<td class="text-center"></td>';
                                             }
-                                        } else if ($jenisJadwal == 'usulan') {
+                                        } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
                                             $mulaiJadwal = $jadwal_lokal['waktu_awal'];
                                             $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
                                             $awal = new DateTime($mulaiJadwal);
@@ -14812,6 +14770,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
               	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
               	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+              	$controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
 
                 $data = array(
                     'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
@@ -14822,7 +14781,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     'pemilik_resiko'                => $_POST['pemilik_resiko'],
                     'uraian_sebab'                  => $_POST['uraian_sebab'],
                     'sumber_sebab'                  => $_POST['sumber_sebab'],
-                    'controllable'                  => intval($_POST['controllable_status']), 
+                    'controllable'                  => $controllable_status, 
                     'uraian_dampak'                 => $_POST['uraian_dampak'],
                     'pihak_terkena'                 => $_POST['pihak_terkena'],
                     'skala_dampak'                  => $skala_dampak,
@@ -15219,6 +15178,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                 $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
               	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
               	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+              	$controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
 
                 $data = array(
                     'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
@@ -15231,7 +15191,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     'pemilik_resiko'                => $_POST['pemilik_resiko'],
                     'uraian_sebab'                  => $_POST['uraian_sebab'],
                     'sumber_sebab'                  => $_POST['sumber_sebab'],
-                    'controllable'                  => intval($_POST['controllable_status']), 
+                    'controllable'                  => $controllable_status, 
                     'uraian_dampak'                 => $_POST['uraian_dampak'],
                     'pihak_terkena'                 => $_POST['pihak_terkena'],
                     'skala_dampak'                  => $skala_dampak,
