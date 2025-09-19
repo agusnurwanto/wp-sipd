@@ -2677,8 +2677,9 @@ $table .= '
 		<thead>
 			<tr>
 				<th class="text-center" style="width: 60px;">No</th>
-				<th class="text-center" style="width: 50%">Label Pohon Kinerja tercascading yang tidak ada di master data Pohon Kinerja</th>
+				<th class="text-center" style="width: 30%">Label Pohon Kinerja tercascading yang tidak ada di master data Pohon Kinerja</th>
 				<th class="text-center">Indikator</th>
+				<th class="text-center">Cascading</th>
 			</tr>
 		</thead>
 		<tbody></tbody>
@@ -9247,10 +9248,11 @@ $table .= '
             			response.unset_pokin_esisting.map(function(b, i){
             				var no = i+1;
 		            		html += `
-		            			<tr>
+		            			<tr data-id="${b.id}" id-unik="${b.id_unik}">
 		            				<td class="text-center">${no}</td>
 		            				<td>Lv. ${b.level} ${b.label}</td>
 		            				<td>${b.indikator}</td>
+		            				<td>${b.cascading}</td>
 		            			</tr>
 		            		`;
             			})
