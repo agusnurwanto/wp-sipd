@@ -304,7 +304,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			->set_page_parent($basic_options_container)
 			->add_fields($this->get_wpsipd_menu_setting());
 
-		$this->generatePage('SSO Login', false, '[sso_login]');
+		$this->generatePage('SSO Login', false, '[sso_login]', false, 'publish');
 		Container::make('theme_options', __('Auto Login'))
 			->set_page_parent($basic_options_container)
 			->add_fields(array(
@@ -5913,6 +5913,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				}else if(
 					$tahun[0] == 'renja'
 					|| $tahun[0] == 'rfk'
+					|| $tahun[0] == 'manrisk'
 				){
 					$skpd_db = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -5937,6 +5938,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						}else if($tahun[0] == 'renja'){
 							$nama_page = 'MONEV ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_monev_renja tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
+						}else if($tahun[0] == 'manrisk'){
+							$nama_page = 'Manajemen Resiko ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
+							$url_baru = $this->generatePage($nama_page, $tahun[1], '[manrisk_list tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}
 					}
 				}
