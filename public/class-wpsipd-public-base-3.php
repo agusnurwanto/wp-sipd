@@ -15356,12 +15356,109 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						ARRAY_A
 					);
 					$unset_pokin_esisting = array();
+					$pokin_tujuan = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id_unik, 
+							tujuan_teks
+						FROM data_renstra_tujuan_lokal
+						WHERE id_unit=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unik_indikator IS NULL
+					", $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					$unset_pokin_tujuan = array();
+					foreach($pokin_tujuan as $val){
+						$unset_pokin_tujuan[$val['id_unik']] = $val;
+					}
+
+					$pokin_sasaran = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id_unik, 
+							sasaran_teks
+						FROM data_renstra_sasaran_lokal
+						WHERE id_unit=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unik_indikator IS NULL
+					", $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					$unset_pokin_sasaran = array();
+					foreach($pokin_sasaran as $val){
+						$unset_pokin_sasaran[$val['id_unik']] = $val;
+					}
+
+					$pokin_program = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id_unik, 
+							nama_program
+						FROM data_renstra_program_lokal
+						WHERE id_unit=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unik_indikator IS NULL
+					", $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					$unset_pokin_program = array();
+					foreach($pokin_program as $val){
+						$unset_pokin_program[$val['id_unik']] = $val;
+					}
+
+					$pokin_giat = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id_unik, 
+							nama_giat
+						FROM data_renstra_kegiatan_lokal
+						WHERE id_unit=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unik_indikator IS NULL
+					", $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					$unset_pokin_giat = array();
+					foreach($pokin_giat as $val){
+						$unset_pokin_giat[$val['id_unik']] = $val;
+					}
+
+					$pokin_sub_giat = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id_unik, 
+							nama_sub_giat
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_unit=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unik_indikator IS NULL
+					", $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+					$unset_pokin_sub_giat = array();
+					foreach($pokin_sub_giat as $val){
+						$unset_pokin_sub_giat[$val['id_unik']] = $val;
+					}
+					
 					foreach ($pokin_existing as $val) {
 						if(!empty($pokin_all_new[$val['id_pokin']])){
 							unset($pokin_all_new[$val['id_pokin']]);
 						}
 						if(empty($cek_pokin_all[$val['id_pokin']])){
 							$unset_pokin_esisting[$val['id_pokin']] = $val;
+							$unset_pokin_esisting[$val['id_pokin']]['cascading'] = 'Cascading tidak ditemukan! id='.$val['id'];
+							if($val['tipe'] == 1){
+								if(!empty($unset_pokin_tujuan[$val['id_unik']])){
+									$unset_pokin_esisting[$val['id_pokin']]['cascading'] = '(Tujuan) '.$unset_pokin_tujuan[$val['id_unik']]['tujuan_teks'];
+								}
+							}else if($val['tipe'] == 2){
+								if(!empty($unset_pokin_sasaran[$val['id_unik']])){
+									$unset_pokin_esisting[$val['id_pokin']]['cascading'] = '(Sasaran) '.$unset_pokin_sasaran[$val['id_unik']]['sasaran_teks'];
+								}
+							}else if($val['tipe'] == 3){
+								if(!empty($unset_pokin_program[$val['id_unik']])){
+									$unset_pokin_esisting[$val['id_pokin']]['cascading'] = '(Program) '.$unset_pokin_program[$val['id_unik']]['nama_program'];
+								}
+							}else if($val['tipe'] == 4){
+								if(!empty($unset_pokin_giat[$val['id_unik']])){
+									$unset_pokin_esisting[$val['id_pokin']]['cascading'] = '(Kegiatan) '.$unset_pokin_giat[$val['id_unik']]['nama_giat'];
+								}
+							}else if($val['tipe'] == 5){
+								if(!empty($unset_pokin_sub_giat[$val['id_unik']])){
+									$unset_pokin_esisting[$val['id_pokin']]['cascading'] = '(Sub Kegiatan) '.$unset_pokin_sub_giat[$val['id_unik']]['nama_sub_giat'];
+								}
+							}
 						}
 					}
 
