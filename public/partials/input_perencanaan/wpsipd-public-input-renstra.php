@@ -57,6 +57,7 @@ $jadwal_lokal = $wpdb->get_row(
 		SELECT *
 		FROM data_jadwal_lokal
 		WHERE id_jadwal_lokal = %d
+		 AND status !=2
 	', $_GET['id_jadwal']),
 	ARRAY_A
 );
@@ -73,38 +74,40 @@ $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
 $add_renstra = '';
 $is_locked_jadwal_relasi = false;
-if (!empty($jadwal_lokal)) {
-	if (!empty($jadwal_lokal['relasi_perencanaan'])) {
-		$relasi_perencanaan = $jadwal_lokal['relasi_perencanaan'];
-		$relasi = $wpdb->get_row(
-			$wpdb->prepare("
-				SELECT *
-				FROM `data_jadwal_lokal`
-				WHERE id_jadwal_lokal = %d
-			", $relasi_perencanaan)
-		);
+$prefix_history = '';
 
-		if ($relasi->status == 1) {
-			$is_locked_jadwal_relasi = true;
-		}
+if (!empty($jadwal_lokal['relasi_perencanaan'])) {
+	$relasi_perencanaan = $jadwal_lokal['relasi_perencanaan'];
+	$relasi = $wpdb->get_row(
+		$wpdb->prepare("
+			SELECT *
+			FROM `data_jadwal_lokal`
+			WHERE id_jadwal_lokal = %d
+		", $relasi_perencanaan)
+	);
 
-		$id_tipe_relasi = $relasi->id_tipe;
-		$tahun_anggaran_relasi = $relasi->tahun_anggaran;
-		$tahun_akhir_relasi = $tahun_anggaran_relasi + $relasi->lama_pelaksanaan - 1;
+	if ($relasi->status == 1) {
+		$is_locked_jadwal_relasi = true;
 	}
 
-	$awal_renstra = $jadwal_lokal['tahun_anggaran'];
-	$namaJadwal = $jadwal_lokal['nama'];
-	$lama_pelaksanaan = $jadwal_lokal['lama_pelaksanaan'];
-	$jenisJadwal = $jadwal_lokal['jenis_jadwal'];
+	$id_tipe_relasi = $relasi->id_tipe;
+	$tahun_anggaran_relasi = $relasi->tahun_anggaran;
+	$tahun_akhir_relasi = $tahun_anggaran_relasi + $relasi->lama_pelaksanaan - 1;
+}
 
+$awal_renstra = $jadwal_lokal['tahun_anggaran'];
+$namaJadwal = $jadwal_lokal['nama'];
+$lama_pelaksanaan = $jadwal_lokal['lama_pelaksanaan'];
+$jenisJadwal = $jadwal_lokal['jenis_jadwal'];
+
+if ($jadwal_lokal['status'] == 0) {
 	if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
 		$mulaiJadwal = $jadwal_lokal['waktu_awal'];
 		$selesaiJadwal = $jadwal_lokal['waktu_akhir'];
 		$awal = new DateTime($mulaiJadwal);
 		$akhir = new DateTime($selesaiJadwal);
 		$now = new DateTime(date('Y-m-d H:i:s'));
-
+	
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
@@ -114,11 +117,13 @@ if (!empty($jadwal_lokal)) {
 		$awal = new DateTime($mulaiJadwal);
 		$akhir = new DateTime($selesaiJadwal);
 		$now = new DateTime(date('Y-m-d H:i:s'));
-
+	
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
 	}
+} else {
+	$prefix_history = '_history';
 }
 
 $nama_tipe_relasi = 'RPJMD / RPD';
@@ -159,20 +164,6 @@ if ($is_locked_jadwal_relasi) {
 
 $akhir_renstra = $awal_renstra + $lama_pelaksanaan - 1;
 $urut = $tahun_anggaran - $awal_renstra;
-
-$rumus_indikator_db = $wpdb->get_results(
-	$wpdb->prepare("
-		SELECT * 
-		FROM data_rumus_indikator 
-		WHERE active=1 
-		  AND tahun_anggaran=%d
-	", $tahun_anggaran),
-	ARRAY_A
-);
-$rumus_indikator = '';
-foreach ($rumus_indikator_db as $k => $v) {
-	$rumus_indikator .= '<option value="' . $v['id'] . '">' . $v['rumus'] . '</option>';
-}
 
 $where_skpd = '';
 if (!empty($_GET['id_skpd'])) {
@@ -237,7 +228,7 @@ $nama_pemda = get_option('_crb_daerah');
 $tujuan_all = $wpdb->get_results(
 	$wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_tujuan_lokal 
+		FROM data_renstra_tujuan_lokal{$prefix_history}
 		WHERE id_unit = %d 
 		  AND active = 1 
 		  AND tahun_anggaran = %d 
@@ -359,7 +350,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 		$sasaran_all = $wpdb->get_results(
 			$wpdb->prepare("
 				SELECT * 
-				FROM data_renstra_sasaran_lokal 
+				FROM data_renstra_sasaran_lokal{$prefix_history} 
 				WHERE kode_tujuan = %s 
 				  AND active = 1
 				  AND tahun_anggaran = %d
@@ -427,7 +418,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 				$program_all = $wpdb->get_results(
 					$wpdb->prepare("
 						SELECT * 
-						FROM data_renstra_program_lokal 
+						FROM data_renstra_program_lokal{$prefix_history} 
 						WHERE kode_sasaran = %s 
 						  AND kode_tujuan = %s 
 						  AND tahun_anggaran = %d 
@@ -546,7 +537,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						$kegiatan_all = $wpdb->get_results(
 							$wpdb->prepare("
 								SELECT * 
-								FROM data_renstra_kegiatan_lokal 
+								FROM data_renstra_kegiatan_lokal{$prefix_history} 
 								WHERE kode_program = %s 
 								  AND kode_sasaran = %s 
 								  AND kode_tujuan = %s 
@@ -665,7 +656,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								$sub_kegiatan_all = $wpdb->get_results(
 									$wpdb->prepare("
 										SELECT * 
-										FROM data_renstra_sub_kegiatan_lokal 
+										FROM data_renstra_sub_kegiatan_lokal{$prefix_history} 
 										WHERE kode_kegiatan = %s 
 										  AND kode_program = %s 
 										  AND kode_sasaran = %s 
@@ -943,7 +934,7 @@ if (empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['
 if (!empty($sasaran_ids)) {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_sasaran_lokal
+		FROM data_renstra_sasaran_lokal{$prefix_history}
 		WHERE id_unik NOT IN (" . implode(',', $sasaran_ids) . ") 
 		  AND active = 1
 		  AND id_unit = %d
@@ -952,7 +943,7 @@ if (!empty($sasaran_ids)) {
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_sasaran_lokal 
+		FROM data_renstra_sasaran_lokal{$prefix_history} 
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
@@ -1017,7 +1008,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 		$program_all = $wpdb->get_results(
 			$wpdb->prepare("
 				SELECT * 
-				FROM data_renstra_program_lokal 
+				FROM data_renstra_program_lokal{$prefix_history} 
 				WHERE kode_sasaran = %s 
 				  AND tahun_anggaran = %d 
 				  AND active = 1 
@@ -1132,7 +1123,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 				$kegiatan_all = $wpdb->get_results(
 					$wpdb->prepare("
 						SELECT * 
-						FROM data_renstra_kegiatan_lokal 
+						FROM data_renstra_kegiatan_lokal{$prefix_history} 
 						WHERE kode_program = %s 
 						  AND kode_sasaran = %s 
 						  AND tahun_anggaran = %d 
@@ -1247,7 +1238,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 						$sub_kegiatan_all = $wpdb->get_results(
 							$wpdb->prepare("
 								SELECT * 
-								FROM data_renstra_sub_kegiatan_lokal 
+								FROM data_renstra_sub_kegiatan_lokal{$prefix_history} 
 								WHERE kode_kegiatan = %s 
 								  AND kode_program = %s 
 								  AND kode_sasaran = %s 
@@ -1372,7 +1363,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 if (!empty($program_ids)) {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_program_lokal
+		FROM data_renstra_program_lokal{$prefix_history}
 		WHERE id_unik NOT IN (" . implode(',', $program_ids) . ") 
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
@@ -1381,7 +1372,7 @@ if (!empty($program_ids)) {
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_program_lokal 
+		FROM data_renstra_program_lokal{$prefix_history} 
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
@@ -1499,7 +1490,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 		$kegiatan_all = $wpdb->get_results(
 			$wpdb->prepare("
 				SELECT *  
-				FROM data_renstra_kegiatan_lokal 
+				FROM data_renstra_kegiatan_lokal{$prefix_history} 
 				WHERE kode_program = %s 
 				  AND tahun_anggaran = %d 
 				  AND active = 1 
@@ -1613,7 +1604,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 				$sub_kegiatan_all = $wpdb->get_results(
 					$wpdb->prepare("
 						SELECT * 
-						FROM data_renstra_sub_kegiatan_lokal 
+						FROM data_renstra_sub_kegiatan_lokal{$prefix_history} 
 						WHERE kode_kegiatan = %s 
 						  AND kode_program = %s 
 						  AND tahun_anggaran = %d 
@@ -1728,7 +1719,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 if (!empty($kegiatan_ids)) {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_kegiatan_lokal
+		FROM data_renstra_kegiatan_lokal{$prefix_history}
 		WHERE id_unik NOT IN (" . implode(',', $kegiatan_ids) . ") 
 		  AND active = 1
 		  AND tahun_anggaran = %d
@@ -1737,7 +1728,7 @@ if (!empty($kegiatan_ids)) {
 } else {
 	$sql = $wpdb->prepare("
 		SELECT * 
-		FROM data_renstra_kegiatan_lokal 
+		FROM data_renstra_kegiatan_lokal{$prefix_history} 
 		WHERE active = 1
 		  AND id_unit = %d
 		  AND tahun_anggaran = %d
@@ -1850,7 +1841,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 		$sub_kegiatan_all = $wpdb->get_results(
 			$wpdb->prepare("
 				SELECT * 
-				FROM data_renstra_sub_kegiatan_lokal 
+				FROM data_renstra_sub_kegiatan_lokal{$prefix_history} 
 				WHERE kode_kegiatan = %s 
 				  AND tahun_anggaran = %d 
 				  AND active = 1 
