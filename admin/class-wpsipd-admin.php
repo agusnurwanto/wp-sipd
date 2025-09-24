@@ -1653,13 +1653,17 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_jadwal_manrisk = $this->generatePage('Jadwal Manajemen Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_jadwal_manrisk . '">Jadwal Manajemen Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'konteks_resiko') {
+						$url_konteks_resiko = $this->generatePage('Konteks Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[konteks_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_konteks_resiko . '">Halaman Konteks Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'tujuan_sasaran') {
 						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Daftar Resiko Tujuan / Sasaran Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Resiko Tujuan / Sasaran Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'program_kegiatan') {
 						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Daftar Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					}
 
@@ -1881,6 +1885,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'aklap_lra'
 					|| $_POST['type'] == 'spt_sppd'
 					|| $_POST['type'] == 'jadwal_manrisk'
+					|| $_POST['type'] == 'konteks_resiko'
 					|| $_POST['type'] == 'tujuan_sasaran'
 					|| $_POST['type'] == 'program_kegiatan'
 				) {

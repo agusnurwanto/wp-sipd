@@ -12881,6 +12881,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 	}
 
+	public function konteks_resiko_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-konteks-resiko-manrisk.php';
+	}
+
 	public function tujuan_sasaran_manrisk($atts)
 	{
 
@@ -12899,6 +12909,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-program-kegiatan-manrisk.php';
+	}
+
+	public function detail_konteks_resiko_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-konteks-resiko-manrisk.php';
 	}
 
 	public function detail_tujuan_sasaran_manrisk($atts)
@@ -15262,6 +15282,68 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
         die(json_encode($ret));
     }
+
+	public function get_data_iku($return_text)
+	{
+		global $wpdb;
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+					if (!empty($_POST['id_skpd'])) {
+						$id_skpd = $_POST['id_skpd'];
+					} else {
+						throw new Exception("Id Skpd tidak boleh  kosong!", 1);
+					}
+					$id_jadwal = '';
+					if (empty($_POST['id_jadwal'])) {
+						throw new Exception("Id Jadwal Kosong!", 1);
+					} else {
+						$id_jadwal = $_POST['id_jadwal'];
+					}
+
+					$api_params = array(
+						'action'		=> 'get_data_iku_all',
+						'api_key'		=> get_option('_crb_api_key_wp_eval_sakip'),
+						'id_jadwal'		=> $id_jadwal,
+						'id_skpd'		=> $id_skpd,
+						'tipe_iku'		=> 'opd'
+					);
+					$response_asli = wp_remote_post(
+						get_option('_crb_url_wp_eval_sakip'),
+						array(
+							'timeout' 	=> 1000,
+							'sslverify' => false,
+							'body' 		=> $api_params
+						)
+					);
+
+					$response = wp_remote_retrieve_body($response_asli);
+					$response = json_decode($response);
+					$return = array(
+						'status' => 'success',
+						'data' => $response->data,
+						// 'params' => $api_params,
+						// 'response_asli' => $response_asli
+					);
+					if (!empty($return_text)) {
+						return $return;
+					} else {
+						die(json_encode($return));
+					}
+				} else {
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			} else {
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);
+			exit();
+		}
+	}
 
 	public function get_data_pohon_kinerja($return_text)
 	{
