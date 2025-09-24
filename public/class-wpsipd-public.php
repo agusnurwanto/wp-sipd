@@ -20242,7 +20242,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_tujuan_lokal', $data_this_id['id_jadwal_lokal']);
 
-								$columns_4 = array('bidur_lock', 'id_bidang_urusan', 'id_unik', 'id_unik_indikator', 'id_unit', 'indikator_teks', 'indikator_teks_usulan', 'is_locked', 'is_locked_indikator', 'kode_bidang_urusan', 'kode_sasaran_rpjm', 'kode_skpd', 'nama_bidang_urusan', 'nama_skpd', 'satuan', 'status', 'target_1', 'target_2', 'target_3', 'target_4', 'target_5', 'target_akhir', 'target_awal', 'satuan_usulan', 'target_1_usulan', 'target_2_usulan', 'target_3_usulan', 'target_4_usulan', 'target_5_usulan', 'target_akhir_usulan', 'target_awal_usulan', 'catatan_usulan', 'catatan', 'catatan_tujuan', 'tujuan_teks', 'urut_tujuan', 'active', 'update_at', 'tahun_anggaran');
+								$columns_4 = array('bidur_lock', 'id_bidang_urusan', 'id_unik', 'id_unik_indikator', 'id_unit', 'indikator_teks', 'indikator_teks_usulan', 'is_locked', 'is_locked_indikator', 'kode_bidang_urusan', 'kode_sasaran_rpjm', 'kode_skpd', 'nama_bidang_urusan', 'nama_skpd', 'satuan', 'status', 'target_1', 'target_2', 'target_3', 'target_4', 'target_5', 'target_akhir', 'target_awal', 'satuan_usulan', 'target_1_usulan', 'target_2_usulan', 'target_3_usulan', 'target_4_usulan', 'target_5_usulan', 'target_akhir_usulan', 'target_awal_usulan', 'catatan_usulan', 'catatan', 'catatan_tujuan', 'tujuan_teks', 'urut_tujuan', 'active', 'update_at', 'tahun_anggaran', 'kode_bidang_urusan_multiple', 'kode_sasaran_multiple');
 
 								$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (" . implode(', ', $columns_4) . ",id_jadwal,id_asli)
 											SELECT " . implode(', ', $columns_4) . ", " . $data_this_id['id_jadwal_lokal'] . ", id as id_asli
@@ -24192,10 +24192,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					SELECT 
 						DISTINCT id_unik 
 					FROM data_renstra_tujuan_lokal 
-					WHERE
-						id_unit=%d AND 
-						active=1 $where ORDER BY urut_tujuan
-				", $unit['id_skpd']), ARRAY_A);
+					WHERE id_unit=%d 
+					  AND active=1
+					  AND tahun_anggaran = %d
+					ORDER BY urut_tujuan
+				", $unit['id_skpd'], $opt['tahun_anggaran']), ARRAY_A);
 
 				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 
@@ -24203,15 +24204,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT 
 							DISTINCT id_unik 
 						FROM data_renstra_sasaran_lokal 
-						WHERE 
-							kode_tujuan=%s AND 
-							active=1 ORDER BY urut_sasaran
-						", $tujuan_value['id_unik']), ARRAY_A);
+						WHERE kode_tujuan=%s 
+						  AND active=1 
+						  AND tahun_anggaran = %d
+						ORDER BY urut_sasaran
+						", $tujuan_value['id_unik'], $opt['tahun_anggaran']), ARRAY_A);
 
 					foreach ($sasaran_all as $keySasaran => $sasaran_value) {
 
-						$program_all = $wpdb->get_results($wpdb->prepare(
-							"
+						$program_all = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								id_unik,
 								id_unik_indikator,
@@ -24222,13 +24223,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								COALESCE(pagu_4, 0) AS pagu_4,
 								COALESCE(pagu_5, 0) AS pagu_5 
 							FROM data_renstra_program_lokal 
-							WHERE 
-								kode_sasaran=%s AND 
-								kode_tujuan=%s AND
-								active=1 ORDER BY id",
-							$sasaran_value['id_unik'],
-							$tujuan_value['id_unik']
-						), ARRAY_A);
+							WHERE kode_sasaran=%s 
+							  AND kode_tujuan=%s 
+							  AND tahun_anggaran=%d 
+							  AND active=1 
+							ORDER BY id
+						", $sasaran_value['id_unik'], $tujuan_value['id_unik'], $opt['tahun_anggaran']), ARRAY_A);
 
 						foreach ($program_all as $keyProgram => $program_value) {
 
@@ -24275,8 +24275,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 
 							if (empty($program_value['id_unik_indikator'])) {
-								$kegiatan_all = $wpdb->get_results($wpdb->prepare(
-									"
+								$kegiatan_all = $wpdb->get_results($wpdb->prepare("
 									SELECT 
 										id_unik,
 										id_unik_indikator,
@@ -24287,15 +24286,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										COALESCE(pagu_4, 0) AS pagu_4,
 										COALESCE(pagu_5, 0) AS pagu_5
 									FROM data_renstra_kegiatan_lokal
-									WHERE 
-										kode_program=%s AND
-										kode_sasaran=%s AND
-										kode_tujuan=%s AND
-										active=1 ORDER BY id",
-									$program_value['id_unik'],
-									$sasaran_value['id_unik'],
-									$tujuan_value['id_unik']
-								), ARRAY_A);
+									WHERE kode_program=%s 
+									  AND kode_sasaran=%s 
+									  AND kode_tujuan=%s 
+									  AND tahun_anggaran=%d
+									  AND active=1 
+									ORDER BY id
+								", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik'], $opt['tahun_anggaran']), ARRAY_A);
 
 								foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 
@@ -24342,8 +24339,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									}
 
 									if (empty($kegiatan_value['id_unik_indikator'])) {
-										$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare(
-											"
+										$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
 											SELECT
 												nama_sub_giat, 
 												COALESCE(pagu_1, 0) AS pagu_1, 
@@ -24352,43 +24348,42 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 												COALESCE(pagu_4, 0) AS pagu_4, 
 												COALESCE(pagu_5, 0) AS pagu_5
 											FROM data_renstra_sub_kegiatan_lokal 
-											WHERE 
-												kode_kegiatan=%s AND 
-												kode_program=%s AND 
-												kode_sasaran=%s AND 
-												kode_tujuan=%s AND
-												id_unik_indikator IS NULL AND 
-												active=1 ORDER BY id",
-											$kegiatan_value['id_unik'],
-											$program_value['id_unik'],
-											$sasaran_value['id_unik'],
-											$tujuan_value['id_unik']
-										), ARRAY_A);
+											WHERE kode_kegiatan=%s 
+											  AND kode_program=%s 
+											  AND kode_sasaran=%s 
+											  AND kode_tujuan=%s 
+											  AND tahun_anggaran=%d 
+											  AND id_unik_indikator IS NULL 
+											  AND active=1 
+											ORDER BY id
+										", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik'], $opt['tahun_anggaran']), ARRAY_A);
 
-										foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_subkegiatan'] += $sub_kegiatan_value['pagu_1'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_subkegiatan'] += $sub_kegiatan_value['pagu_2'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_subkegiatan'] += $sub_kegiatan_value['pagu_3'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_subkegiatan'] += $sub_kegiatan_value['pagu_4'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_subkegiatan'] += $sub_kegiatan_value['pagu_5'];
+										if (!empty($sub_kegiatan_all)) {
+											foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_subkegiatan'] += $sub_kegiatan_value['pagu_1'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_subkegiatan'] += $sub_kegiatan_value['pagu_2'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_subkegiatan'] += $sub_kegiatan_value['pagu_3'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_subkegiatan'] += $sub_kegiatan_value['pagu_4'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_subkegiatan'] += $sub_kegiatan_value['pagu_5'];
 
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_subkegiatan'] += $sub_kegiatan_value['pagu_1'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_subkegiatan'] += $sub_kegiatan_value['pagu_2'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_subkegiatan'] += $sub_kegiatan_value['pagu_3'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_subkegiatan'] += $sub_kegiatan_value['pagu_4'];
-											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_subkegiatan'] += $sub_kegiatan_value['pagu_5'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_subkegiatan'] += $sub_kegiatan_value['pagu_1'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_subkegiatan'] += $sub_kegiatan_value['pagu_2'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_subkegiatan'] += $sub_kegiatan_value['pagu_3'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_subkegiatan'] += $sub_kegiatan_value['pagu_4'];
+												$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_subkegiatan'] += $sub_kegiatan_value['pagu_5'];
 
-											$data_all['data'][$unit['id_skpd']]['pagu_1_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_1'];
-											$data_all['data'][$unit['id_skpd']]['pagu_2_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_2'];
-											$data_all['data'][$unit['id_skpd']]['pagu_3_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_3'];
-											$data_all['data'][$unit['id_skpd']]['pagu_4_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_4'];
-											$data_all['data'][$unit['id_skpd']]['pagu_5_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_5'];
+												$data_all['data'][$unit['id_skpd']]['pagu_1_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_1'];
+												$data_all['data'][$unit['id_skpd']]['pagu_2_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_2'];
+												$data_all['data'][$unit['id_skpd']]['pagu_3_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_3'];
+												$data_all['data'][$unit['id_skpd']]['pagu_4_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_4'];
+												$data_all['data'][$unit['id_skpd']]['pagu_5_sub_kegiatan_opd'] += $sub_kegiatan_value['pagu_5'];
 
-											$data_all['pagu_1_subkegiatan_kab'] += $sub_kegiatan_value['pagu_1'];
-											$data_all['pagu_2_subkegiatan_kab'] += $sub_kegiatan_value['pagu_2'];
-											$data_all['pagu_3_subkegiatan_kab'] += $sub_kegiatan_value['pagu_3'];
-											$data_all['pagu_4_subkegiatan_kab'] += $sub_kegiatan_value['pagu_4'];
-											$data_all['pagu_5_subkegiatan_kab'] += $sub_kegiatan_value['pagu_5'];
+												$data_all['pagu_1_subkegiatan_kab'] += $sub_kegiatan_value['pagu_1'];
+												$data_all['pagu_2_subkegiatan_kab'] += $sub_kegiatan_value['pagu_2'];
+												$data_all['pagu_3_subkegiatan_kab'] += $sub_kegiatan_value['pagu_3'];
+												$data_all['pagu_4_subkegiatan_kab'] += $sub_kegiatan_value['pagu_4'];
+												$data_all['pagu_5_subkegiatan_kab'] += $sub_kegiatan_value['pagu_5'];
+											}
 										}
 									}
 								}
