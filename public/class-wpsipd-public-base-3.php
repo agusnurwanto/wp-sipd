@@ -12891,6 +12891,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-konteks-resiko-manrisk.php';
 	}
 
+	public function skor_resiko_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-skor-resiko-manrisk.php';
+	}
+
 	public function kode_resiko_manrisk($atts)
 	{
 

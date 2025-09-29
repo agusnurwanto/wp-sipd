@@ -1358,6 +1358,7 @@ class Wpsipd
 		add_shortcode('detail_efisiensi_belanja_pemda',array($plugin_public,'detail_efisiensi_belanja_pemda'));
 
 		add_shortcode('konteks_resiko_manrisk',array($plugin_public,'konteks_resiko_manrisk'));
+		add_shortcode('skor_resiko_manrisk',array($plugin_public,'skor_resiko_manrisk'));
 		add_shortcode('kode_resiko_manrisk',array($plugin_public,'kode_resiko_manrisk'));
 		add_shortcode('rpjmd_renstra_manrisk',array($plugin_public,'rpjmd_renstra_manrisk'));
 		add_shortcode('tujuan_sasaran_manrisk',array($plugin_public,'tujuan_sasaran_manrisk'));
