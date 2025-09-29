@@ -2817,7 +2817,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					) {
 						$kategori = trim(htmlspecialchars($_POST['kategori']));
 						$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
+						$jml_huruf = strlen($nama_standar_harga);
+						if($jml_huruf > 600){
+							throw new Exception('Jumlah huruf Nama Komponen tidak boleh lebih dari 600 karakter! Jumlah huruf saat ini adalah '.$jml_huruf);
+						}
 						$spek = trim(htmlspecialchars($_POST['spesifikasi']));
+						$jml_huruf = strlen($spek);
+						if($jml_huruf > 600){
+							throw new Exception('Jumlah huruf Spesifikasi tidak boleh lebih dari 600 karakter! Jumlah huruf saat ini adalah '.$jml_huruf);
+						}
 						$satuan = trim(htmlspecialchars($_POST['satuan']));
 						$harga = trim(htmlspecialchars($_POST['harga_satuan']));
 						$akun = $_POST['akun'];
