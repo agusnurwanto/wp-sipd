@@ -575,7 +575,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     jQuery('#id_indikator').val(id_indikator);
                     jQuery('#tipe_sebelum').val(tipe);
                     jQuery("#nama_program_kegiatan").val(data.nama_program_kegiatan);
-                    jQuery("#indikator_kinerja").val(data.outputteks);
+                    jQuery("#indikator_kinerja").val(data.capaian_teks);
                     jQuery("#uraian_resiko").val(data.uraian_resiko);
                     jQuery("#kode_resiko").val(data.kode_resiko);
                     jQuery("#pemilik_resiko").val(data.pemilik_resiko);
@@ -743,7 +743,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     if (data && Object.keys(data).length > 0) {
                         jQuery("#id_data_sesudah").val(data.id);
                         jQuery('#nama_program_kegiatan_sesudah').val(data.nama_program_kegiatan);
-                        jQuery('#indikator_kinerja_sesudah').val(data.outputteks);
+                        jQuery('#indikator_kinerja_sesudah').val(data.capaian_teks);
                         if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
                             jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
                         } else {
