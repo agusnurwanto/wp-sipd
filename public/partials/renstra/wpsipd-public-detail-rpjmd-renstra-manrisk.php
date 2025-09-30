@@ -119,7 +119,6 @@ if (!empty($cek_jadwal_renja)) {
                 <table id="cetak" title="RPJMD / RENSTRA SKPD" class="table_manrisk_rpjmd_renstra table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
-                            <th rowspan="2">No</th>
                             <th colspan="7">RPD</th>
                             <th colspan="5">RENSTRA</th>
                             <th rowspan="2">Program Prioritas terkait di RPJMN/ Indikator Program</th>
@@ -156,7 +155,6 @@ if (!empty($cek_jadwal_renja)) {
                             <th>(13)</th>
                             <th>(14)</th>
                             <th>(15)</th>
-                            <th>(16)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
