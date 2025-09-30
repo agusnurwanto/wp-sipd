@@ -73,24 +73,24 @@ $unit = (!empty($unit)) ? $unit : array();
                     <tbody>
                         <tr>
                             <td class="text-center">RSP-</td>
-                            <td class="text-center">24-</td>
-                            <td class="text-center">1.01-</td>
-                            <td class="text-center">1.01.2.19.0.00.03.0000</td>
-                            <td class="text-center">RSP-24-1.01-1.01.2.19.0.00.03.0000</td>
+                            <td class="text-center"><?php echo substr($input['tahun_anggaran'], -2); ?>-</td>
+                            <td class="text-center"><?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-</td>
+                            <td class="text-center"><?php echo $unit[0]['kode_skpd']; ?></td>
+                            <td class="text-center">RSP-<?php echo substr($input['tahun_anggaran'], -2); ?>-<?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-<?php echo $unit[0]['kode_skpd']; ?></td>
                         </tr>
                         <tr>
                             <td class="text-center">RSO-</td>
-                            <td class="text-center">24-</td>
-                            <td class="text-center">1.01-</td>
-                            <td class="text-center">1.01.2.19.0.00.03.0000</td>
-                            <td class="text-center">RSO-24-1.01-1.01.2.19.0.00.03.0000</td>
+                            <td class="text-center"><?php echo substr($input['tahun_anggaran'], -2); ?>-</td>
+                            <td class="text-center"><?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-</td>
+                            <td class="text-center"><?php echo $unit[0]['kode_skpd']; ?></td>
+                            <td class="text-center">RSO-<?php echo substr($input['tahun_anggaran'], -2); ?>-<?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-<?php echo $unit[0]['kode_skpd']; ?></td>
                         </tr>
                         <tr>
                             <td class="text-center">ROO-</td>
-                            <td class="text-center">24-</td>
-                            <td class="text-center">1.01-</td>
-                            <td class="text-center">1.01.2.19.0.00.03.0000</td>
-                            <td class="text-center">ROO-24-1.01-1.01.2.19.0.00.03.0000</td>
+                            <td class="text-center"><?php echo substr($input['tahun_anggaran'], -2); ?>-</td>
+                            <td class="text-center"><?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-</td>
+                            <td class="text-center"><?php echo $unit[0]['kode_skpd']; ?></td>
+                            <td class="text-center">ROO-<?php echo substr($input['tahun_anggaran'], -2); ?>-<?php echo $data_risiko[0]['kode_bidang_urusan']; ?>-<?php echo $unit[0]['kode_skpd']; ?></td>
                         </tr>
                     </tbody>
                 </table>
