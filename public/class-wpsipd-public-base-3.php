@@ -12891,6 +12891,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-konteks-resiko-manrisk.php';
 	}
 
+	public function skor_resiko_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-skor-resiko-manrisk.php';
+	}
+
 	public function kode_resiko_manrisk($atts)
 	{
 
@@ -13483,389 +13493,622 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    die(json_encode($ret));
 	}
 
-  	public function get_data_renstra_manrisk($tahun_anggaran, $id_skpd, $id_jadwal, $tipe_renstra)
-    {
-        global $wpdb;
-        
-        if ($tipe_renstra == 'tujuan_sasaran') {
-            $data_tujuan = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    id, 
-                    id_unik, 
-                    tujuan_teks,
-                    active
-                FROM data_renstra_tujuan 
-                WHERE id_unik_indikator IS NULL 
-                    AND id_jadwal = %d 
-                    AND id_unit = %d 
-            ", $id_jadwal, $id_skpd), ARRAY_A);
+	public function get_data_renstra_manrisk($tahun_anggaran, $id_skpd, $id_jadwal, $tipe_renstra)
+	{
+	    global $wpdb;
+	    
+	    if ($tipe_renstra == 'tujuan_sasaran') {
+	        $data_tujuan = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                id, 
+	                id_unik, 
+	                tujuan_teks,
+	                active
+	            FROM data_renstra_tujuan 
+	            WHERE id_unik_indikator IS NULL 
+	                AND id_jadwal = %d 
+	                AND id_unit = %d 
+	        ", $id_jadwal, $id_skpd), ARRAY_A);
 
-            $data_sasaran = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    id, 
-                    id_unik, 
-                    sasaran_teks,
-                    active
-                FROM data_renstra_sasaran 
-                WHERE id_unik_indikator IS NULL 
-                    AND id_jadwal = %d 
-                    AND id_unit = %d 
-            ", $id_jadwal, $id_skpd), ARRAY_A);
+	        $data_sasaran = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                id, 
+	                id_unik, 
+	                sasaran_teks,
+	                active
+	            FROM data_renstra_sasaran 
+	            WHERE id_unik_indikator IS NULL 
+	                AND id_jadwal = %d 
+	                AND id_unit = %d 
+	        ", $id_jadwal, $id_skpd), ARRAY_A);
 
-            foreach ($data_tujuan as $tujuan) {
-                $this->get_data_manrisk($tujuan, 0, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_renstra_tujuan', $tipe_renstra);
-            }
+	        foreach ($data_tujuan as $tujuan) {
+	            $this->get_data_manrisk($tujuan, 0, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_renstra_tujuan', $tipe_renstra);
+	        }
 
-            foreach ($data_sasaran as $sasaran) {
-                $this->get_data_manrisk($sasaran, 1, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_renstra_sasaran', $tipe_renstra);
-            }
-        } else if ($tipe_renstra == 'program_kegiatan') {
-            $data_program = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    kode_program,
-                    nama_program,
-                    kode_sbl,
-                    1 as active
-                FROM data_sub_keg_bl 
-                WHERE id_sub_skpd=%d
-                  AND active=1 
-                  AND tahun_anggaran=%d 
-                GROUP BY kode_program, id_sub_skpd  
-                ORDER BY kode_program
-            ", $id_skpd, $tahun_anggaran), ARRAY_A);
+	        foreach ($data_sasaran as $sasaran) {
+	            $this->get_data_manrisk($sasaran, 1, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_renstra_sasaran', $tipe_renstra);
+	        }
+	    } else if ($tipe_renstra == 'program_kegiatan') {
+	        $data_program = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                kode_program,
+	                nama_program,
+	                kode_sbl,
+	                active
+	            FROM data_sub_keg_bl 
+	            WHERE id_sub_skpd=%d
+	              AND active=1 
+	              AND tahun_anggaran=%d 
+	            GROUP BY kode_program, id_sub_skpd  
+	            ORDER BY kode_program
+	        ", $id_skpd, $tahun_anggaran), ARRAY_A);
 
-            foreach ($data_program as $program) {
-                $this->get_data_manrisk($program, 0, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_sub_keg_bl', $tipe_renstra);
-            }
+	        foreach ($data_program as $program) {
+	            $this->get_data_manrisk($program, 0, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_sub_keg_bl', $tipe_renstra);
+	        }
 
-            $data_kegiatan = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    kode_giat,
-                    nama_giat,
-                    kode_sbl,
-                    1 as active
-                FROM data_sub_keg_bl 
-                WHERE id_sub_skpd=%d
-                  AND active=1 
-                  AND tahun_anggaran=%d 
-                ORDER BY kode_giat
-            ", $id_skpd, $tahun_anggaran), ARRAY_A);
+	        $data_kegiatan = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                kode_giat,
+	                nama_giat,
+	                kode_sbl,
+	                active
+	            FROM data_sub_keg_bl 
+	            WHERE id_sub_skpd=%d
+	              AND active=1 
+	              AND tahun_anggaran=%d 
+	            ORDER BY kode_giat
+	        ", $id_skpd, $tahun_anggaran), ARRAY_A);
 
-            foreach ($data_kegiatan as $kegiatan) {
-                $this->get_data_manrisk($kegiatan, 1, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_sub_keg_bl', $tipe_renstra);
-            }
-        }
-    }
+	        foreach ($data_kegiatan as $kegiatan) {
+	            $this->get_data_manrisk($kegiatan, 1, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_sub_keg_bl', $tipe_renstra);
+	        }
 
-    public function get_data_manrisk($data, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra)
-    {
-        global $wpdb;
-        
-        if ($tipe_renstra == 'tujuan_sasaran') {
-            $indikator_data = $wpdb->get_results($wpdb->prepare("
-                SELECT 
-                    id_unik_indikator 
-                FROM {$table_name}
-                WHERE id_unik = %s 
-                    AND id_unik_indikator IS NOT NULL 
-                    AND active = 1
-            ", $data['id_unik']), ARRAY_A);
+	        $data_sub_kegiatan = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                kode_sub_giat,
+	                nama_sub_giat,
+	                kode_sbl,
+	                active
+	            FROM data_sub_keg_bl 
+	            WHERE id_sub_skpd=%d
+	              AND active=1 
+	              AND tahun_anggaran=%d 
+	            ORDER BY kode_sbl
+	        ", $id_skpd, $tahun_anggaran), ARRAY_A);
 
-            $indikator_list = !empty($indikator_data) ? array_column($indikator_data, 'id_unik_indikator') : array(0);
-            
-            foreach ($indikator_list as $id_indikator) {
-                $existing_data_sebelum = $wpdb->get_row($wpdb->prepare("
-                    SELECT 
-                        id, 
-                        active 
-                    FROM data_tujuan_sasaran_manrisk_sebelum 
-                    WHERE id_tujuan_sasaran = %s 
-                        AND id_indikator = %s 
-                        AND tipe = %d 
-                        AND tahun_anggaran = %d 
-                        AND id_skpd = %d
-                ", $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
+	        foreach ($data_sub_kegiatan as $sub_kegiatan) {
+	            $this->get_data_manrisk($sub_kegiatan, 2, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_sub_keg_bl', $tipe_renstra);
+	        }
+	    }
+	}
 
-                if ($data['active'] == 1) {
-                    if (empty($existing_data_sebelum)) {
-                        $wpdb->insert(
-                            'data_tujuan_sasaran_manrisk_sebelum',
-                            array(
-                                'id_tujuan_sasaran' => $data['id_unik'],
-                                'id_indikator' => $id_indikator,
-                                'tipe' => $tipe,
-                                'controllable' => 2,
-                                'tahun_anggaran' => $tahun_anggaran,
-                                'id_skpd' => $id_skpd,
-                                'active' => 1,
-                                'created_at' => current_time('mysql')
-                            )
-                        );
-                        
-                        $id_sebelum = $wpdb->insert_id;
-                    } else {
-                        $id_sebelum = $existing_data_sebelum['id'];
-                    }
+  	public function get_data_manrisk($data, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra)
+	{
+	    global $wpdb;
+	    
+	    if ($tipe_renstra == 'tujuan_sasaran') {
+	        $indikator_data = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	            	id_unik_indikator 
+	            FROM {$table_name}
+	            WHERE id_unik = %s 
+	             	AND id_unik_indikator IS NOT NULL 
+	             	AND active = 1
+	        ", $data['id_unik']), ARRAY_A);
 
-                    $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
+	        $indikator_list = !empty($indikator_data) ? array_column($indikator_data, 'id_unik_indikator') : array(0);
+	        
+	        foreach ($indikator_list as $id_indikator) {
+	            $existing_data_sebelum = $wpdb->get_row($wpdb->prepare("
+	                SELECT 
+	                	id, 
+	                	active
+	                FROM data_tujuan_sasaran_manrisk_sebelum 
+	                WHERE id_tujuan_sasaran = %s 
+	                 	AND id_indikator = %s 
+	                 	AND tipe = %d 
+	                 	AND tahun_anggaran = %d 
+	                 	AND id_skpd = %d
+	            ", $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
 
-                } else {
-                    if (!empty($existing_data_sebelum)) {
-                        $wpdb->update(
-                            'data_tujuan_sasaran_manrisk_sebelum',
-                            array('active' => 0),
-                            array('id' => $existing_data_sebelum['id']),
-                            array('%d'),
-                            array('%d')
-                        );
+	            if ($data['active'] == 1) {
+	                if (empty($existing_data_sebelum)) {
+	                    $wpdb->insert(
+	                        'data_tujuan_sasaran_manrisk_sebelum',
+	                        array(
+	                            'id_tujuan_sasaran' => $data['id_unik'],
+	                            'id_indikator'      => $id_indikator,
+	                            'tipe'              => $tipe,
+	                            'controllable'      => 2,
+	                            'tahun_anggaran'    => $tahun_anggaran,
+	                            'id_skpd'           => $id_skpd,
+	                            'active'            => 1,
+	                            'status'            => 0,
+	                            'created_at'        => current_time('mysql')
+	                        )
+	                    );
+	                    $id_sebelum = $wpdb->insert_id;
+	                } else {
+	                    $id_sebelum = $existing_data_sebelum['id'];
+	                }
 
-                        $wpdb->update(
-                            'data_tujuan_sasaran_manrisk_sesudah',
-                            array('active' => 0),
-                            array('id_sebelum' => $existing_data_sebelum['id']),
-                            array('%d'),
-                            array('%d')
-                        );
-                    }
-                }
-            }
-        } else if ($tipe_renstra == 'program_kegiatan') {
-            if ($tipe == 0) { 
-                $indikator_data = $wpdb->get_results($wpdb->prepare("
-                    SELECT 
-                        kode_sbl 
-                    FROM data_capaian_prog_sub_keg
-                    WHERE tahun_anggaran = %d 
-                        AND active = 1 
-                        AND kode_sbl = %s 
-                        AND capaianteks != '' 
-                    ORDER BY id ASC
-                ", $tahun_anggaran, $data['kode_sbl']), ARRAY_A);
-            } else { 
-                $indikator_data = $wpdb->get_results($wpdb->prepare("
-                    SELECT 
-                        kode_sbl 
-                    FROM data_output_giat_sub_keg
-                    WHERE tahun_anggaran = %d 
-                        AND kode_sbl = %s 
-                        AND active = 1 
-                    ORDER BY id ASC
-                ", $tahun_anggaran, $data['kode_sbl']), ARRAY_A);
-            }
-            
-            $indikator_list = !empty($indikator_data) ? array_column($indikator_data, 'kode_sbl') : array('0');
-            
-            foreach ($indikator_list as $kode_indikator) {
-                if ($tipe == 0) { 
-                    $id_program_kegiatan = $data['kode_program'];
-                } else { 
-                    $id_program_kegiatan = $data['kode_giat'];
-                }
+	                $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
 
-                $existing_data_sebelum = $wpdb->get_row($wpdb->prepare("
-                    SELECT 
-                        id, 
-                        active 
-                    FROM data_program_kegiatan_manrisk_sebelum 
-                    WHERE id_program_kegiatan = %s 
-                        AND id_indikator = %s 
-                        AND tipe = %d 
-                        AND tahun_anggaran = %d 
-                        AND id_skpd = %d
-                ", $id_program_kegiatan, $kode_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
+	            } else {
+	                if (!empty($existing_data_sebelum) && $existing_data_sebelum['active'] == 1) {
+	                    $wpdb->update(
+	                        'data_tujuan_sasaran_manrisk_sebelum',
+	                        array(
+	                            'active' => 0,
+	                            'status' => 1
+	                        ),
+	                        array('id' => $existing_data_sebelum['id']),
+	                        array('%d', '%d'),
+	                        array('%d')
+	                    );
 
-                if ($data['active'] == 1) {
-                    if (empty($existing_data_sebelum)) {
-                        $wpdb->insert(
-                            'data_program_kegiatan_manrisk_sebelum',
-                            array(
-                                'id_program_kegiatan' => $id_program_kegiatan,
-                                'id_indikator' => $kode_indikator,
-                                'tipe' => $tipe,
-                                'controllable' => 2,
-                                'tahun_anggaran' => $tahun_anggaran,
-                                'id_skpd' => $id_skpd,
-                                'active' => 1,
-                                'created_at' => current_time('mysql')
-                            )
-                        );
-                        
-                        $id_sebelum = $wpdb->insert_id;
-                    } else {
-                        $id_sebelum = $existing_data_sebelum['id'];
-                    }
+	                    $wpdb->update(
+	                        'data_tujuan_sasaran_manrisk_sesudah',
+	                        array(
+	                            'active' => 0,
+	                            'status' => 1
+	                        ),
+	                        array('id_sebelum' => $existing_data_sebelum['id']),
+	                        array('%d', '%d'),
+	                        array('%d')
+	                    );
+	                }
+	            }
+	        }
+	    } else if ($tipe_renstra == 'program_kegiatan') {
+	        if ($tipe == 0) {
+	            $master_data_ind = $wpdb->get_results($wpdb->prepare("
+	                SELECT  
+	                    SUBSTRING_INDEX(kode_sbl, '.', 3) AS kode_sbl,
+	                    satuancapaian,
+	                    targetcapaianteks,
+	                    capaianteks,
+	                    targetcapaian 
+	                FROM data_capaian_prog_sub_keg 
+	                WHERE tahun_anggaran = %d  
+	                 	AND active = 1  
+	                 	AND capaianteks != ''  
+	                 	AND kode_sbl LIKE %s 
+	                ORDER BY id ASC
+	            ", $tahun_anggaran, $data['kode_sbl'].'%'), ARRAY_A);
 
-                    $this->get_data_sesudah($id_sebelum, $data, $kode_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
+	        } else if ($tipe == 1) {       
+	            $master_data_ind = $wpdb->get_results($wpdb->prepare("
+	                SELECT  
+	                    SUBSTRING_INDEX(kode_sbl, '.', 4) AS kode_sbl,
+	                    outputteks as capaianteks,
+	                    satuanoutput as satuancapaian,
+	                    targetoutput as targetcapaian,
+	                    targetoutputteks as targetcapaianteks 
+	                FROM data_output_giat_sub_keg 
+	                WHERE tahun_anggaran = %d  
+	                 	AND active = 1  
+	                 	AND outputteks != ''  
+	                 	AND kode_sbl LIKE %s 
+	                ORDER BY id ASC
+	            ", $tahun_anggaran, $data['kode_sbl'].'%'), ARRAY_A);
 
-                } else {
-                    if (!empty($existing_data_sebelum)) {
-                        $wpdb->update(
-                            'data_program_kegiatan_manrisk_sebelum',
-                            array('active' => 0),
-                            array('id' => $existing_data_sebelum['id']),
-                            array('%d'),
-                            array('%d')
-                        );
+	        } else if ($tipe == 2) {     
+	            $master_data_ind = $wpdb->get_results($wpdb->prepare("
+	                SELECT  
+	                    SUBSTRING_INDEX(kode_sbl, '.', 5) AS kode_sbl,
+	                    outputteks as capaianteks,
+	                    targetoutput as targetcapaian,
+	                    satuanoutput as satuancapaian,
+	                    targetoutputteks as targetcapaianteks
+	                FROM data_sub_keg_indikator 
+	                WHERE tahun_anggaran = %d  
+	                 	AND active = 1  
+	                 	AND outputteks != ''  
+	                 	AND kode_sbl LIKE %s 
+	                ORDER BY id ASC
+	            ", $tahun_anggaran, $data['kode_sbl'].'%'), ARRAY_A);
+	        }
 
-                        $wpdb->update(
-                            'data_program_kegiatan_manrisk_sesudah',
-                            array('active' => 0),
-                            array('id_sebelum' => $existing_data_sebelum['id']),
-                            array('%d'),
-                            array('%d')
-                        );
-                    }
-                }
-            }
-        }
-    }
+	        if ($tipe == 0) {
+	            $id_program_kegiatan = $data['kode_program'];
+	        } else if ($tipe == 1) {
+	            $id_program_kegiatan = $data['kode_giat'];
+	        } else if ($tipe == 2) {
+	            $id_program_kegiatan = $data['kode_sub_giat'];
+	        }
 
-    public function get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra)
-    {
-        global $wpdb;
-        
-        if ($tipe_renstra == 'tujuan_sasaran') {
-            if ($tipe == 0) { 
-                $text_field = 'tujuan_teks';
-                $data_text = $data['tujuan_teks'];
-            } else { 
-                $text_field = 'sasaran_teks';
-                $data_text = $data['sasaran_teks'];
-            }
-            
-            $indikator_text = '';
-            if ($id_indikator > 0) {
-                $indikator_text = $wpdb->get_var($wpdb->prepare("
-                    SELECT 
-                        indikator_teks 
-                    FROM {$table_name}
-                    WHERE id = %d 
-                        AND active = 1
-                ", $id_indikator));
-            }
+	        $existing_manrisk_data = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                id,
+	                id_indikator,
+	                satuan_capaian,
+	                target_capaian_teks,
+	                capaian_teks,
+	                target_capaian,
+	                active,
+	                status
+	            FROM data_program_kegiatan_manrisk_sebelum
+	            WHERE id_program_kegiatan = %s
+	             	AND tipe = %d
+	             	AND tahun_anggaran = %d
+	             	AND id_skpd = %d
+	            ORDER BY id_indikator ASC
+	        ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
 
-            $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
-                SELECT 
-                    id, 
-                    active 
-                FROM data_tujuan_sasaran_manrisk_sesudah 
-                WHERE id_sebelum = %d 
-                    AND id_tujuan_sasaran = %s 
-                    AND id_indikator = %s 
-                    AND tipe = %d 
-                    AND tahun_anggaran = %d 
-                    AND id_skpd = %d
-            ", $id_sebelum, $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
+	        if (!empty($master_data_ind) && $data['active'] == 1) {
+	            $grouped_data = array();
+	            foreach ($master_data_ind as $item) {
+	                $key = $item['capaianteks'];
+	                if (!isset($grouped_data[$key])) {
+	                    $grouped_data[$key] = $item;
+	                }
+	            }
+	            
+	            $indikator_data = array_values($grouped_data);
+	            $total_indikator = count($indikator_data);
+	            
+	            $grouped_master = array();
+	            foreach ($indikator_data as $index => $master_item) {
+	                $key = $index + 1;
+	                if ($total_indikator > 1) {
+	                    $kode_indikator = $master_item['kode_sbl'] . '.' . $key;
+	                } else {
+	                    $kode_indikator = $master_item['kode_sbl'];
+	                }
+	                $grouped_master[$kode_indikator] = $master_item;
+	            }
+	            
+	            $kode = $indikator_data[0]['kode_sbl'];
+	            
+	            $get_id_indikator = array();
+	            foreach ($existing_manrisk_data as $manrisk_item) {
+	                if ($manrisk_item['active'] == 0) continue; 
+	                
+	                foreach ($grouped_master as $kode_ind => $master_item) {
+	                    if ($manrisk_item['capaian_teks'] == $master_item['capaianteks'] &&
+	                        $manrisk_item['satuan_capaian'] == $master_item['satuancapaian'] &&
+	                        $manrisk_item['target_capaian_teks'] == $master_item['targetcapaianteks'] &&
+	                        $manrisk_item['target_capaian'] == $master_item['targetcapaian']) {
+	                        $get_id_indikator[] = $manrisk_item['id_indikator'];
+	                        break;
+	                    }
+	                }
+	            }
+	            
+	            foreach ($grouped_master as $kode_indikator => $master_item) {
+	                $cek_data = false;
+	                
+	                if (in_array($kode_indikator, $get_id_indikator)) {
+	                    $cek_data = true;
+	                    continue;
+	                }
+	                
+	                foreach ($existing_manrisk_data as $manrisk_item) {
+	                    if ($manrisk_item['id_indikator'] == $kode_indikator) {
+	                        if ($master_item['satuancapaian'] != $manrisk_item['satuan_capaian'] ||
+	                            $master_item['targetcapaianteks'] != $manrisk_item['target_capaian_teks'] ||
+	                            $master_item['capaianteks'] != $manrisk_item['capaian_teks'] ||
+	                            $master_item['targetcapaian'] != $manrisk_item['target_capaian']) {
+	                            
+	                            if ($manrisk_item['active'] == 1 && $manrisk_item['status'] != 1) {
+	                                $wpdb->update(
+	                                    'data_program_kegiatan_manrisk_sebelum',
+	                                    array('status' => 1),
+	                                    array('id' => $manrisk_item['id']),
+	                                    array('%d'),
+	                                    array('%d')
+	                                );
+	                                
+	                                $wpdb->update(
+	                                    'data_program_kegiatan_manrisk_sesudah',
+	                                    array('status' => 1),
+	                                    array('id_sebelum' => $manrisk_item['id']),
+	                                    array('%d'),
+	                                    array('%d')
+	                                );
+	                            }
+	                            
+	                            $cek_data_baru = $wpdb->get_var($wpdb->prepare("
+	                                SELECT 
+	                                	COUNT(*) 
+	                                FROM data_program_kegiatan_manrisk_sebelum
+	                                WHERE id_program_kegiatan = %s
+	                                 	AND tipe = %d
+	                                 	AND tahun_anggaran = %d
+	                                 	AND id_skpd = %d
+	                                 	AND capaian_teks = %s
+	                                 	AND satuan_capaian = %s
+	                                 	AND target_capaian_teks = %s
+	                                 	AND target_capaian = %s
+	                                 	AND active = 1
+	                            ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, 
+	                               $master_item['capaianteks'], $master_item['satuancapaian'], 
+	                               $master_item['targetcapaianteks'], $master_item['targetcapaian']));
+	                            
+	                            if ($cek_data_baru == 0) {
+	                                $cek_kode = $wpdb->get_var($wpdb->prepare("
+	                                    SELECT 
+	                                    	MAX(CAST(SUBSTRING_INDEX(id_indikator, '.', -1) AS UNSIGNED)) 
+	                                    FROM data_program_kegiatan_manrisk_sebelum
+	                                    WHERE id_program_kegiatan = %s
+	                                     	AND tipe = %d
+	                                     	AND tahun_anggaran = %d
+	                                     	AND id_skpd = %d
+	                                     	AND id_indikator LIKE %s
+	                                ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, $kode . '%'));
+	                                
+	                                $new_kode = ($cek_kode ? intval($cek_kode) : 0) + 1;
+	                                $id_indikator_baru = $kode . '.' . $new_kode;
+	                                
+	                                $wpdb->insert(
+	                                    'data_program_kegiatan_manrisk_sebelum',
+	                                    array(
+	                                        'id_program_kegiatan' => $id_program_kegiatan,
+	                                        'id_indikator'        => $id_indikator_baru,
+	                                        'satuan_capaian'      => $master_item['satuancapaian'],
+	                                        'target_capaian_teks' => $master_item['targetcapaianteks'],
+	                                        'capaian_teks'        => $master_item['capaianteks'],
+	                                        'target_capaian'      => $master_item['targetcapaian'],
+	                                        'tipe'                => $tipe,
+	                                        'controllable'        => 2,
+	                                        'tahun_anggaran'      => $tahun_anggaran,
+	                                        'id_skpd'             => $id_skpd,
+	                                        'active'              => 1,
+	                                        'status'              => 0,
+	                                        'created_at'          => current_time('mysql')
+	                                    )
+	                                );
+	                                $id_sebelum = $wpdb->insert_id;
+	                                
+	                                $this->get_data_sesudah($id_sebelum, $data, $id_indikator_baru, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
+	                            }
+	                        }
+	                        $cek_data = true;
+	                        break;
+	                    }
+	                }
+	                
+	                if (!$cek_data) {
+	                    $cek_data_baru = $wpdb->get_var($wpdb->prepare("
+	                        SELECT 
+	                        	COUNT(*) 
+	                        FROM data_program_kegiatan_manrisk_sebelum
+	                        WHERE id_program_kegiatan = %s
+	                         	AND id_indikator = %s
+	                         	AND tipe = %d
+	                         	AND tahun_anggaran = %d
+	                         	AND id_skpd = %d
+	                         	AND active = 1
+	                    ", $id_program_kegiatan, $kode_indikator, $tipe, $tahun_anggaran, $id_skpd));
+	                    
+	                    if ($cek_data_baru == 0) {
+	                        $wpdb->insert(
+	                            'data_program_kegiatan_manrisk_sebelum',
+	                            array(
+	                                'id_program_kegiatan' => $id_program_kegiatan,
+	                                'id_indikator'        => $kode_indikator,
+	                                'satuan_capaian'      => $master_item['satuancapaian'],
+	                                'target_capaian_teks' => $master_item['targetcapaianteks'],
+	                                'capaian_teks'        => $master_item['capaianteks'],
+	                                'target_capaian'      => $master_item['targetcapaian'],
+	                                'tipe'                => $tipe,
+	                                'controllable'        => 2,
+	                                'tahun_anggaran'      => $tahun_anggaran,
+	                                'id_skpd'             => $id_skpd,
+	                                'active'              => 1,
+	                                'status'              => 0,
+	                                'created_at'          => current_time('mysql')
+	                            )
+	                        );
+	                        $id_sebelum = $wpdb->insert_id;
+	                        
+	                        $this->get_data_sesudah($id_sebelum, $data, $kode_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
+	                    }
+	                }
+	            }
+	            
+	            foreach ($existing_manrisk_data as $manrisk_item) {
+	                if ($manrisk_item['active'] == 1) {
+	                    $ada_di_master = false;
+	                    foreach ($grouped_master as $master_item) {
+	                        if ($manrisk_item['capaian_teks'] == $master_item['capaianteks'] &&
+	                            $manrisk_item['satuan_capaian'] == $master_item['satuancapaian'] &&
+	                            $manrisk_item['target_capaian_teks'] == $master_item['targetcapaianteks'] &&
+	                            $manrisk_item['target_capaian'] == $master_item['targetcapaian']) {
+	                            $ada_di_master = true;
+	                            break;
+	                        }
+	                    }
+	                    
+	                    if (!$ada_di_master && $manrisk_item['status'] != 1) {
+	                        $wpdb->update(
+	                            'data_program_kegiatan_manrisk_sebelum',
+	                            array('status' => 1),
+	                            array('id' => $manrisk_item['id']),
+	                            array('%d'),
+	                            array('%d')
+	                        );
+	                        
+	                        $wpdb->update(
+	                            'data_program_kegiatan_manrisk_sesudah',
+	                            array('status' => 1),
+	                            array('id_sebelum' => $manrisk_item['id']),
+	                            array('%d'),
+	                            array('%d')
+	                        );
+	                    }
+	                }
+	            }
+	            
+	        } else if ($data['active'] == 0) {
+	            $wpdb->query($wpdb->prepare("
+	                UPDATE 
+	                	data_program_kegiatan_manrisk_sebelum 
+	                SET status = 1
+	                WHERE id_program_kegiatan = %s 
+	                 	AND tipe = %d 
+	                 	AND tahun_anggaran = %d 
+	                 	AND id_skpd = %d
+	                 	AND active = 1
+	            ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd));
+	            
+	            $wpdb->query($wpdb->prepare("
+	                UPDATE 
+	                	data_program_kegiatan_manrisk_sesudah s
+	                INNER JOIN data_program_kegiatan_manrisk_sebelum b ON s.id_sebelum = b.id
+	                SET s.status = 1
+	                WHERE b.id_program_kegiatan = %s 
+	                 	AND b.tipe = %d 
+	                 	AND b.tahun_anggaran = %d 
+	                 	AND b.id_skpd = %d
+	                 	AND s.active = 1
+	            ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd));
+	        }
+	    }
+	}
 
-            if (empty($existing_data_sesudah)) {
-                $wpdb->insert(
-                    'data_tujuan_sasaran_manrisk_sesudah',
-                    array(
-                        'id_sebelum' => $id_sebelum,
-                        'id_tujuan_sasaran' => $data['id_unik'],
-                        'id_indikator' => $id_indikator,
-                        'tipe' => $tipe,
-                        'controllable' => 2,
-                        'tahun_anggaran' => $tahun_anggaran,
-                        'id_skpd' => $id_skpd,
-                        'active' => 1,
-                        'created_at' => current_time('mysql')
-                    )
-                );
-            } else {
-                $update_data = array(
-                    'id_tujuan_sasaran' => $data['id_unik'],
-                    'id_indikator' => $id_indikator,
-                    'active' => 1
-                );
-                
-                $wpdb->update(
-                    'data_tujuan_sasaran_manrisk_sesudah',
-                    $update_data,
-                    array('id' => $existing_data_sesudah['id']),
-                    array('%s', '%s', '%d'), 
-                    array('%d') 
-                );
-            }
-        } else if ($tipe_renstra == 'program_kegiatan') {
-            if ($tipe == 0) { 
-                $id_program_kegiatan = $data['kode_program'];
-                $text_field = 'nama_program';
-                $data_text = $data['nama_program'];
-            } else { 
-                $id_program_kegiatan = $data['kode_giat'];
-                $text_field = 'nama_giat';
-                $data_text = $data['nama_giat'];
-            }
-            
-            $indikator_text = '';
-            if ($id_indikator != '0') {
-                if ($tipe == 0) { 
-                    $indikator_text = $wpdb->get_var($wpdb->prepare("
-                        SELECT 
-                            capaianteks 
-                        FROM data_capaian_prog_sub_keg
-                        WHERE kode_sbl = %s 
-                            AND active = 1 
-                            AND tahun_anggaran = %d
-                    ", $id_indikator, $tahun_anggaran));
-                } else { 
-                    $indikator_text = $wpdb->get_var($wpdb->prepare("
-                        SELECT 
-                            outputteks 
-                        FROM data_output_giat_sub_keg
-                        WHERE kode_sbl = %s 
-                            AND active = 1 
-                            AND tahun_anggaran = %d
-                    ", $id_indikator, $tahun_anggaran));
-                }
-            }
+	public function get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra, $satuan_capaian = '', $target_capaian_teks = '', $capaian_teks = '', $target_capaian = '')
+	{
+	    global $wpdb;
+	    
+	    if ($tipe_renstra == 'tujuan_sasaran') {
+	        if ($tipe == 0) { 
+	            $text_field = 'tujuan_teks';
+	            $data_text = $data['tujuan_teks'];
+	        } else { 
+	            $text_field = 'sasaran_teks';
+	            $data_text = $data['sasaran_teks'];
+	        }
+	        
+	        $indikator_text = '';
+	        if ($id_indikator > 0) {
+	            $indikator_text = $wpdb->get_var($wpdb->prepare("
+	                SELECT 
+	                    indikator_teks 
+	                FROM {$table_name}
+	                WHERE id = %d 
+	                   	AND active = 1
+	            ", $id_indikator));
+	        }
 
-            $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
-                SELECT 
-                    id, 
-                    active 
-                FROM data_program_kegiatan_manrisk_sesudah 
-                WHERE id_sebelum = %d 
-                    AND id_program_kegiatan = %s 
-                    AND id_indikator = %s 
-                    AND tipe = %d 
-                    AND tahun_anggaran = %d 
-                    AND id_skpd = %d
-            ", $id_sebelum, $id_program_kegiatan, $id_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
+	        $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
+	            SELECT 
+	                id, 
+	                active 
+	            FROM data_tujuan_sasaran_manrisk_sesudah 
+	            WHERE id_sebelum = %d 
+	               	AND id_tujuan_sasaran = %s 
+	               	AND id_indikator = %s 
+	               	AND tipe = %d 
+	               	AND tahun_anggaran = %d 
+	               	AND id_skpd = %d
+	        ", $id_sebelum, $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
 
-            if (empty($existing_data_sesudah)) {
-                $wpdb->insert(
-                    'data_program_kegiatan_manrisk_sesudah',
-                    array(
-                        'id_sebelum' => $id_sebelum,
-                        'id_program_kegiatan' => $id_program_kegiatan,
-                        'id_indikator' => $id_indikator,
-                        'tipe' => $tipe,
-                        'controllable' => 2,
-                        'tahun_anggaran' => $tahun_anggaran,
-                        'id_skpd' => $id_skpd,
-                        'active' => 1,
-                        'created_at' => current_time('mysql')
-                    )
-                );
-            } else {
-                $update_data = array(
-                    'id_program_kegiatan' => $id_program_kegiatan,
-                    'id_indikator' => $id_indikator,
-                    'active' => 1
-                );
-                
-                $wpdb->update(
-                    'data_program_kegiatan_manrisk_sesudah',
-                    $update_data,
-                    array('id' => $existing_data_sesudah['id']),
-                    array('%s', '%s', '%d'), 
-                    array('%d') 
-                );
-            }
-        }
-    }
+	        if (empty($existing_data_sesudah)) {
+	            $wpdb->insert(
+	                'data_tujuan_sasaran_manrisk_sesudah',
+	                array(
+	                    'id_sebelum' => $id_sebelum,
+	                    'id_tujuan_sasaran' => $data['id_unik'],
+	                    'id_indikator' => $id_indikator,
+	                    'tipe' => $tipe,
+	                    'controllable' => 2,
+	                    'tahun_anggaran' => $tahun_anggaran,
+	                    'id_skpd' => $id_skpd,
+	                    'active' => 1,
+	                    'status' => 0,
+	                    'created_at' => current_time('mysql')
+	                )
+	            );
+	        } else {
+	            $update_data = array(
+	                'id_tujuan_sasaran' => $data['id_unik'],
+	                'id_indikator' => $id_indikator,
+	                'active' => 1
+	            );
+	            
+	            $wpdb->update(
+	                'data_tujuan_sasaran_manrisk_sesudah',
+	                $update_data,
+	                array('id' => $existing_data_sesudah['id']),
+	                array('%s', '%s', '%d'), 
+	                array('%d') 
+	            );
+	        }
+	    } else if ($tipe_renstra == 'program_kegiatan') {
+	        if ($tipe == 0) {
+	            $id_program_kegiatan = $data['kode_program'];
+	            $text_field = 'nama_program';
+	            $data_text = $data['nama_program'];
+	        } else if ($tipe == 1) {
+	            $id_program_kegiatan = $data['kode_giat'];
+	            $text_field = 'nama_giat';
+	            $data_text = $data['nama_giat'];
+	        } else if ($tipe == 2) {
+	            $id_program_kegiatan = $data['kode_sub_giat'];
+	            $text_field = 'nama_sub_giat';
+	            $data_text = $data['nama_sub_giat'];
+	        }
+
+	        $kode_indikator = $id_indikator;
+
+	        $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
+	            SELECT 
+	            	id, 
+	            	active  
+	            FROM data_program_kegiatan_manrisk_sesudah  
+	            WHERE id_sebelum = %d  
+	             	AND id_program_kegiatan = %s  
+	             	AND id_indikator = %s  
+	             	AND tipe = %d  
+	             	AND tahun_anggaran = %d  
+	             	AND id_skpd = %d
+	        ", $id_sebelum, $id_program_kegiatan, $kode_indikator, $tipe, $tahun_anggaran, $id_skpd), ARRAY_A);
+
+	        if (empty($existing_data_sesudah)) {
+	            $wpdb->insert(
+	                'data_program_kegiatan_manrisk_sesudah',
+	                array(
+	                    'id_sebelum'         => $id_sebelum,
+	                    'id_program_kegiatan'=> $id_program_kegiatan,
+	                    'id_indikator'       => $kode_indikator, 
+	                    'satuan_capaian'     => $satuan_capaian,
+	                    'target_capaian_teks'=> $target_capaian_teks,
+	                    'capaian_teks'       => $capaian_teks,
+	                    'target_capaian'     => $target_capaian,
+	                    'tipe'               => $tipe,
+	                    'controllable'       => 2,
+	                    'tahun_anggaran'     => $tahun_anggaran,
+	                    'id_skpd'            => $id_skpd,
+	                    'active'             => 1,
+	                    'status'             => 0,
+	                    'created_at'         => current_time('mysql')
+	                )
+	            );
+	        } else {
+	            $update_data = array(
+	                'id_program_kegiatan' => $id_program_kegiatan,
+	                'id_indikator'        => $kode_indikator,
+	                'satuan_capaian'      => $satuan_capaian,
+	                'target_capaian_teks' => $target_capaian_teks,
+	                'capaian_teks'        => $capaian_teks,
+	                'target_capaian'      => $target_capaian,
+	                'active'              => 1
+	            );
+
+	            $wpdb->update(
+	                'data_program_kegiatan_manrisk_sesudah',
+	                $update_data,
+	                array('id' => $existing_data_sesudah['id']),
+	                array('%s', '%s', '%s', '%s', '%s', '%s', '%d'),
+	                array('%d')
+	            );
+	        }
+	    }
+	}
 
   	public function submit_tujuan_sasaran()
   	{
@@ -14134,12 +14377,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                     ", $_POST['id'], $_POST['id_sebelum'], $_POST['id_tujuan_sasaran'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),ARRAY_A);
 
                   	if ($get_data) {
-                      // Ambil dari get_data jika id ada
                      	$id_tujuan_sasaran = $get_data['id_tujuan_sasaran'];
                      	$id_indikator = $get_data['id_indikator'];
                  	}
               	} else {
-                  // Jika POST id kosong, langsung ambil dari $_POST
                  	if (!empty($_POST['id_tujuan_sasaran'])) {
                      	$id_tujuan_sasaran = $_POST['id_tujuan_sasaran'];
                  	} else {
@@ -14218,7 +14459,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                   	}
               	}
 
-              	// Ambil data sebelum jika id_sebelum ada
               	$get_data_sebelum = null;
               	if (!empty($_POST['id_sebelum'])) {
                   	$get_data_sebelum = $wpdb->get_row(
@@ -14238,7 +14478,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
               
               	$ret['data_sebelum'] = $get_data_sebelum;
 
-              	// Jika get_data null (id kosong), buat array dengan data yang diperlukan
               	if (is_null($get_data)) {
                   	$get_data = array(
                       	'id_tujuan_sasaran' => $id_tujuan_sasaran,
@@ -14342,7 +14581,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    wp_send_json($ret);
   	}
 
-	function hapus_tujuan_sasaran_manrisk()
+	public function hapus_tujuan_sasaran_manrisk()
 	{
 	    global $wpdb;
 	    $ret = array(
@@ -14432,6 +14671,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    WHERE tahun_anggaran = %d
 	                        AND id_skpd = %d
 	                        AND active = 1
+
 	                ", $tahun_anggaran, $id_skpd),
 	            ARRAY_A);
 
@@ -14446,8 +14686,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    $kode_bidang = '';
 	                    $nama_bidang = '';
 	                    $nama_program_kegiatan = '';
+	                    $data = $row;
 
 	                    if (isset($row['tipe']) && $row['tipe'] == 0) {
+	                        $program_kegiatan_key = $data['id_program_kegiatan'] . '_' . $data['tipe'];
+
 	                        $get_data_program = $wpdb->get_row($wpdb->prepare("
 	                            SELECT 
 	                                kode_program,
@@ -14457,96 +14700,101 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                nama_bidang_urusan
 	                            FROM data_sub_keg_bl 
 	                            WHERE kode_program = %s
-	                              AND id_sub_skpd = %d
-	                              AND tahun_anggaran = %d
-	                              AND active = 1
+	                                AND id_sub_skpd = %d
+	                                AND tahun_anggaran = %d
+	                                AND active = 1
 	                            LIMIT 1
 	                        ", $row['id_program_kegiatan'], $id_skpd, $tahun_anggaran),
 	                        ARRAY_A);
 
 	                        if (!empty($get_data_program)) {
 	                            $nama_program_kegiatan = $get_data_program['nama_program'];
-	                            
 	                            $kode_bidang = $get_data_program['kode_bidang_urusan'];
 	                            $nama_bidang = $get_data_program['nama_bidang_urusan'];
 
-	                            $get_data_indikator = $wpdb->get_row($wpdb->prepare("
-	                                SELECT 
-	                                    capaianteks
-	                                FROM data_capaian_prog_sub_keg
-	                                WHERE kode_sbl = %s
-	                                  AND active = 1
-	                                  AND tahun_anggaran = %d
-	                            ", $row['id_indikator'], $tahun_anggaran), ARRAY_A);
-	                            $row['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['capaianteks'] : '';
-	                            $row['label_tipe'] = 'Program OPD:';
-	                        }
+	                            $data['indikator'] = $row['capaian_teks'];
+	                            $data['label_tipe'] = 'Program OPD : ';
+	                            $data['nama_program_kegiatan'] = $nama_program_kegiatan;
 
-	                    } elseif (isset($row['tipe']) && $row['tipe'] == 1) {
-	                        $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
+	                            if (!empty($kode_bidang)) {
+	                                $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
+	                                
+	                                if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
+	                                    $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
+	                                        'nama_program_kegiatan' => $nama_program_kegiatan,
+	                                        'label_tipe' => $data['label_tipe'],
+	                                        'tipe' => $data['tipe'],
+	                                        'id_program_kegiatan' => $data['id_program_kegiatan'],
+	                                        'indikator' => array()
+	                                    );
+	                                }
+
+	                                $indikator_key = $data['id_indikator'] . '_' . $row['capaian_teks'];
+	                                if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key])) {
+	                                    $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key] = array(
+	                                        'indikator_text' => $row['capaian_teks'],
+	                                        'data' => array()
+	                                    );
+	                                }
+	                                
+	                                $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key]['data'][] = $data;
+	                                
+	                                $grouped_data[$kode_bidang]['program_kegiatan_groups'] = $program_kegiatan_groups[$kode_bidang];
+	                            }
+	                        }
+	                    } elseif (isset($row['tipe']) && $row['tipe'] == 2) {
+	                        $get_data_sub_kegiatan = $wpdb->get_row($wpdb->prepare("
 	                            SELECT 
-	                                kode_giat,
-	                                nama_giat,
 	                                kode_sbl,
+	                                nama_sub_giat,
 	                                kode_bidang_urusan,
 	                                nama_bidang_urusan
 	                            FROM data_sub_keg_bl 
-	                            WHERE kode_giat = %s
-	                              AND id_sub_skpd = %d
-	                              AND tahun_anggaran = %d
-	                              AND active = 1
+	                            WHERE kode_sub_giat = %s
+	                                AND id_sub_skpd = %d
+	                                AND tahun_anggaran = %d
+	                                AND active = 1
 	                            LIMIT 1
 	                        ", $row['id_program_kegiatan'], $id_skpd, $tahun_anggaran),
 	                        ARRAY_A);
 	                        
-	                        if (!empty($get_data_kegiatan)) {
-	                            $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
-	                            
-	                            $kode_bidang = $get_data_kegiatan['kode_bidang_urusan'];
-	                            $nama_bidang = $get_data_kegiatan['nama_bidang_urusan'];
+	                        if (!empty($get_data_sub_kegiatan)) {
+	                            $nama_program_kegiatan = $get_data_sub_kegiatan['nama_sub_giat'];
+	                            $kode_bidang = $get_data_sub_kegiatan['kode_bidang_urusan'];
+	                            $nama_bidang = $get_data_sub_kegiatan['nama_bidang_urusan'];
 
-	                            $get_data_indikator = $wpdb->get_row($wpdb->prepare("
-	                                SELECT 
-	                                    outputteks
-	                                FROM data_output_giat_sub_keg
-	                                WHERE kode_sbl = %s
-	                                  AND active = 1
-	                                  AND tahun_anggaran = %d
-	                            ", $row['id_indikator'], $tahun_anggaran), ARRAY_A);
+	                            $data['indikator'] = $row['capaian_teks'];
+	                            $data['label_tipe'] = 'Sub Kegiatan OPD : ';
+	                            $data['nama_program_kegiatan'] = $nama_program_kegiatan;
 
-	                            $row['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['outputteks'] : '';
-	                            $row['label_tipe'] = 'Kegiatan OPD:';
+	                            if (!empty($kode_bidang)) {
+	                                $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
+	                                
+	                                $program_kegiatan_key = $data['id_program_kegiatan'] . '_' . $data['tipe'];
+	                                
+	                                if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
+	                                    $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
+	                                        'nama_program_kegiatan' => $nama_program_kegiatan,
+	                                        'label_tipe' => $data['label_tipe'],
+	                                        'tipe' => $data['tipe'],
+	                                        'id_program_kegiatan' => $data['id_program_kegiatan'],
+	                                        'indikator' => array()
+	                                    );
+	                                }
+	                                
+	                                $indikator_key = $data['id_indikator'] . '_' . $row['capaian_teks'];
+	                                if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key])) {
+	                                    $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key] = array(
+	                                        'indikator_text' => $row['capaian_teks'],
+	                                        'data' => array()
+	                                    );
+	                                }
+	                                
+	                                $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key]['data'][] = $data;
+	                                
+	                                $grouped_data[$kode_bidang]['program_kegiatan_groups'] = $program_kegiatan_groups[$kode_bidang];
+	                            }
 	                        }
-	                    }
-
-	                    $row['nama_program_kegiatan'] = $nama_program_kegiatan;
-
-	                    if (!empty($kode_bidang)) {
-	                        $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
-	                        
-	                        $program_kegiatan_key = $row['id_program_kegiatan'] . '_' . $row['tipe'];
-	                        
-	                        if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
-	                            $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
-	                                'nama_program_kegiatan' => $nama_program_kegiatan,
-	                                'label_tipe' => $row['label_tipe'],
-	                                'tipe' => $row['tipe'],
-	                                'id_program_kegiatan' => $row['id_program_kegiatan'],
-	                                'indikator' => array()
-	                            );
-	                        }
-	                        
-	                        $indikator_key = $row['id_indikator'];
-	                        if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key])) {
-	                            $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key] = array(
-	                                'indikator_text' => $row['indikator'],
-	                                'data' => array()
-	                            );
-	                        }
-	                        
-	                        $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key]['indikator'][$indikator_key]['data'][] = $row;
-	                        
-	                        $grouped_data[$kode_bidang]['program_kegiatan_groups'] = $program_kegiatan_groups[$kode_bidang];
 	                    }
 	                }
 	                
@@ -14592,238 +14840,261 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    });
 	                    
 	                    foreach ($group['program_kegiatan_groups'] as $program_kegiatan_group) {
-	                        $tampil_data_program_kegiatan = true;
-	                        $tampil_data_program_kegiatan_sesudah = true;
-	                        
-	                        $total_rows = 0;
-	                        foreach ($program_kegiatan_group['indikator'] as $indikator_data) {
-	                            $total_rows += count($indikator_data['data']);
-	                        }
-	                        
-	                        foreach ($program_kegiatan_group['indikator'] as $indikator_id => $indikator_data) {
-	                            $tampil_indikator = true;
-	                            $tampil_indikator_sesudah = true;
-	                            $indikator_count = count($indikator_data['data']);
-	                            
-	                            foreach ($indikator_data['data'] as $index => $data_sebelum) {
-	                                $controllable = '';
-	                                $pemilik_resiko = '';
-	                                $sumber_sebab = '';
-	                                $pihak_terkena = '';
-	                                $nilai_resiko = '';
+						    $tampil_data_program_kegiatan = true;
+						    $tampil_data_program_kegiatan_sesudah = true;
+						    
+						    $total_rows = 0;
+						    foreach ($program_kegiatan_group['indikator'] as $indikator_data) {
+						        $total_rows += count($indikator_data['data']);
+						    }
+						    
+						    foreach ($program_kegiatan_group['indikator'] as $indikator_id => $indikator_data) {
+						        $indikator_count = count($indikator_data['data']);
+						        
+						        foreach ($indikator_data['data'] as $index => $data_sebelum) {
+						            $controllable = '';
+						            $pemilik_resiko = '';
+						            $sumber_sebab = '';
+						            $pihak_terkena = '';
+						            $nilai_resiko = '';
 
-	                                if ($data_sebelum['controllable'] == 0) {
-	                                    $controllable = 'Controllable';
-	                                } elseif ($data_sebelum['controllable'] == 1) {
-	                                    $controllable = 'Uncontrollable';
-	                                }
+						            if ($data_sebelum['controllable'] == 0) {
+						                $controllable = 'Controllable';
+						            } elseif ($data_sebelum['controllable'] == 1) {
+						                $controllable = 'Uncontrollable';
+						            }
 
-	                                $pemilik_resiko = $data_sebelum['pemilik_resiko'];
+						            $pemilik_resiko = $data_sebelum['pemilik_resiko'];
+						            $sumber_sebab = $data_sebelum['sumber_sebab'];
+						            $pihak_terkena = $data_sebelum['pihak_terkena'];
+						            $nilai_resiko = $data_sebelum['skala_dampak']*$data_sebelum['skala_kemungkinan'];
+						            $id_program = $data_sebelum['id_program_kegiatan'];
+						            $tipe_target = intval($data_sebelum['tipe']);
+						            $id_indikator = $data_sebelum['id_indikator'];
+						            
+						            $style_bg = '';
+						            if (isset($data_sebelum['status']) && $data_sebelum['status'] == 1) {
+						                $style_bg = ' style="background-color: #ffcccc;"';
+						            }
 
-	                                $sumber_sebab = $data_sebelum['sumber_sebab'];
+						            $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
+						                SELECT 
+						                    * 
+						                FROM data_program_kegiatan_manrisk_sesudah
+						                WHERE id_sebelum = %d
+						                    AND active = 1
+						            ", $data_sebelum['id']), ARRAY_A);
 
-	                                $pihak_terkena = $data_sebelum['pihak_terkena'];
+						            $id_sesudah = 0;
+						            $tipe_sesudah = 0;
+						            $id_program_sesudah = 0;
+						            $id_indikator_sesudah = 0;
 
-	                                $nilai_resiko = $data_sebelum['skala_dampak']*$data_sebelum['skala_kemungkinan'];
-	                                $id_program = $data_sebelum['id_program_kegiatan'];
-	                                $tipe_target = intval($data_sebelum['tipe']);
-	                                $id_indikator = $data_sebelum['id_indikator'];
+						            $html .= '<tr>';
 
-	                                $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
-	                                    SELECT 
-	                                        * 
-	                                    FROM data_program_kegiatan_manrisk_sesudah
-	                                    WHERE id_sebelum = %d
-	                                      AND active = 1
-	                                ", $data_sebelum['id']), ARRAY_A);
+						            if ($tampil_data_program_kegiatan) {
+						                $html .= '<td class="text-left" rowspan="' . $total_rows . '">' . $no++ . '</td>';
+						                $html .= '<td class="text-left" rowspan="' . $total_rows . '"><b>' . $program_kegiatan_group['label_tipe'] . '</b>' . $program_kegiatan_group['nama_program_kegiatan'] . '</td>';
+						                $tampil_data_program_kegiatan = false;
+						            }
 
-	                                $id_sesudah = 0;
-	                                $tipe_sesudah = 0;
-	                                $id_program_sesudah = 0;
-	                                $id_indikator_sesudah = 0;
+						            $html .= '<td class="text-left"' . $style_bg . '>' . $indikator_data['indikator_text'] . '</td>';
 
-	                                $html .= '<tr>';
-	                                
-	                                if ($tampil_data_program_kegiatan) {
-	                                    $html .= '<td class="text-left" rowspan="' . $total_rows . '">' . $no++ . '</td>';
-	                                    $html .= '<td class="text-left" rowspan="' . $total_rows . '"><b>' . $program_kegiatan_group['label_tipe'] . '</b><br> ' . $program_kegiatan_group['nama_program_kegiatan'] . '</td>';
-	                                    $tampil_data_program_kegiatan = false;
-	                                }
-	                                
-	                                if ($tampil_indikator) {
-	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '">' . $indikator_data['indikator_text'] . '</td>';
-	                                    $tampil_indikator = false;
-	                                }
-	                                
-	                                $html .= '
-	                                    <td class="text-left">' . $data_sebelum['uraian_resiko'] . '</td>
-	                                    <td class="text-left">' . $data_sebelum['kode_resiko'] . '</td>
-	                                    <td class="text-left">' . $pemilik_resiko . '</td>
-	                                    <td class="text-left">' . $data_sebelum['uraian_sebab'] . '</td>
-	                                    <td class="text-left">' . $sumber_sebab . '</td>
-	                                    <td class="text-left">' . $controllable . '</td>
-	                                    <td class="text-left">' . $data_sebelum['uraian_dampak'] . '</td>
-	                                    <td class="text-left">' . $pihak_terkena . '</td>
-	                                    <td class="text-left">' . $data_sebelum['skala_dampak'] . '</td>
-	                                    <td class="text-left">' . $data_sebelum['skala_kemungkinan'] . '</td>
-	                                    <td class="text-left">' . $nilai_resiko . '</td>
-	                                    <td class="text-left">' . $data_sebelum['rencana_tindak_pengendalian'] . '</td>
-	                                ';
-	                                
-	                                if ($tampil_data_program_kegiatan_sesudah) {
-	                                    $html .= '<td class="text-left" rowspan="' . $total_rows . '"><b>' . $program_kegiatan_group['label_tipe'] . '</b><br>' . $program_kegiatan_group['nama_program_kegiatan'] . '</td>';
-	                                    $tampil_data_program_kegiatan_sesudah = false;
-	                                }
-	                                
-	                                if ($tampil_indikator_sesudah) {
-	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '">' . $indikator_data['indikator_text'] . '</td>';
-	                                    $tampil_indikator_sesudah = false;
-	                                }
-	                                
-	                                if (!empty($get_data_sesudah)) {
-	                                    foreach ($get_data_sesudah as $data_sesudah) {
-	                                        $id_sesudah = $data_sesudah['id'];
-	                                        $tipe_sesudah = intval($data_sesudah['tipe']);
-	                                        $id_program_sesudah = $data_sesudah['id_program_kegiatan'];
-	                                        $id_indikator_sesudah = $data_sesudah['id_indikator'];
-	                                        
-	                                        $controllable_sesudah = '';
-	                                        $pemilik_resiko_sesudah = '';
-	                                        $sumber_sebab_sesudah = '';
-	                                        $pihak_terkena_sesudah = '';
-	                                        $nilai_resiko_sesudah = '';
+						            $html .= '
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_resiko'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['kode_resiko'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $pemilik_resiko . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_sebab'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $sumber_sebab . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $controllable . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_dampak'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $pihak_terkena . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['skala_dampak'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['skala_kemungkinan'] . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $nilai_resiko . '</td>
+						                <td class="text-left"' . $style_bg . '>' . $data_sebelum['rencana_tindak_pengendalian'] . '</td>
+						            ';
 
-	                                        if ($data_sesudah['controllable'] == 0) {
-	                                            $controllable_sesudah = 'Controllable';
-	                                        } elseif ($data_sesudah['controllable'] == 1) {
-	                                            $controllable_sesudah = 'Uncontrollable';
-	                                        }
+						            if ($tampil_data_program_kegiatan_sesudah) {
+						                $html .= '<td class="text-left" rowspan="' . $total_rows . '"><b>' . $program_kegiatan_group['label_tipe'] . '</b>' . $program_kegiatan_group['nama_program_kegiatan'] . '</td>';
+						                $tampil_data_program_kegiatan_sesudah = false;
+						            }
 
-	                                        $pemilik_resiko_sesudah = $data_sesudah['pemilik_resiko'];
+						            $html .= '<td class="text-left"' . $style_bg . '>' . $indikator_data['indikator_text'] . '</td>';
 
-	                                        $sumber_sebab_sesudah = $data_sesudah['sumber_sebab'];
+						            if (!empty($get_data_sesudah)) {
+						                foreach ($get_data_sesudah as $data_sesudah) {
+						                    $id_sesudah = $data_sesudah['id'];
+						                    $tipe_sesudah = intval($data_sesudah['tipe']);
+						                    $id_program_sesudah = $data_sesudah['id_program_kegiatan'];
+						                    $id_indikator_sesudah = $data_sesudah['id_indikator'];
+						                    
+						                    $controllable_sesudah = '';
+						                    $pemilik_resiko_sesudah = '';
+						                    $sumber_sebab_sesudah = '';
+						                    $pihak_terkena_sesudah = '';
+						                    $nilai_resiko_sesudah = '';
 
-	                                        $pihak_terkena_sesudah = $data_sesudah['pihak_terkena'];
-	        
-	                                        $nilai_resiko_sesudah = $data_sesudah['skala_dampak']*$data_sesudah['skala_kemungkinan'];
-	                                        
-	                                        $html .= '
-	                                            <td class="text-left">' . $data_sesudah['uraian_resiko'] . '</td>
-	                                            <td class="text-left">' . $data_sesudah['kode_resiko'] . '</td>
-	                                            <td class="text-left">' . $pemilik_resiko_sesudah . '</td>
-	                                            <td class="text-left">' . $data_sesudah['uraian_sebab'] . '</td>
-	                                            <td class="text-left">' . $sumber_sebab_sesudah . '</td>
-	                                            <td class="text-left">' . $controllable_sesudah . '</td>
-	                                            <td class="text-left">' . $data_sesudah['uraian_dampak'] . '</td>
-	                                            <td class="text-left">' . $pihak_terkena_sesudah . '</td>
-	                                            <td class="text-left">' . $data_sesudah['skala_dampak'] . '</td>
-	                                            <td class="text-left">' . $data_sesudah['skala_kemungkinan'] . '</td>
-	                                            <td class="text-left">' . $nilai_resiko_sesudah . '</td>
-	                                            <td class="text-left">' . $data_sesudah['rencana_tindak_pengendalian'] . '</td>
-	                                        ';
-	                                        
-	                                        $data_sesudah = true;
-	                                    }
-	                                } else {
-	                                    $html .= '
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left"></td>
-	                                        <td class="text-left">0</td>
-	                                        <td class="text-left">0</td>
-	                                        <td class="text-left">0</td>
-	                                        <td class="text-left"></td>
-	                                    ';
-	                                }
+						                    if ($data_sesudah['controllable'] == 0) {
+						                        $controllable_sesudah = 'Controllable';
+						                    } elseif ($data_sesudah['controllable'] == 1) {
+						                        $controllable_sesudah = 'Uncontrollable';
+						                    }
 
-	                                $namaJadwal = '-';
-	                                $mulaiJadwal = '';
-	                                $selesaiJadwal = '-';
+						                    $pemilik_resiko_sesudah = $data_sesudah['pemilik_resiko'];
+						                    $sumber_sebab_sesudah = $data_sesudah['sumber_sebab'];
+						                    $pihak_terkena_sesudah = $data_sesudah['pihak_terkena'];
 
-	                                $jadwal_lokal = $wpdb->get_row(
-	                                  $wpdb->prepare('
-	                                    SELECT 
-	                                      *
-	                                    FROM data_jadwal_lokal
-	                                    WHERE tahun_anggaran = %d
-	                                      AND id_tipe = %d
-	                                  ', $tahun_anggaran, 20),
-	                                  ARRAY_A
-	                                );
-	                                if (empty($jadwal_lokal['id_jadwal_sakip'])) {
-	                                    $id_jadwal_wp_sakip = 0;
-	                                } else {
-	                                    $id_jadwal_wp_sakip = $jadwal_lokal['id_jadwal_sakip'];
-	                                }
-	                                $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
+						                    $nilai_resiko_sesudah = $data_sesudah['skala_dampak']*$data_sesudah['skala_kemungkinan'];
+						                    
+						                    $html .= '
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_resiko'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['kode_resiko'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $pemilik_resiko_sesudah . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_sebab'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $sumber_sebab_sesudah . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $controllable_sesudah . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_dampak'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $pihak_terkena_sesudah . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['skala_dampak'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['skala_kemungkinan'] . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $nilai_resiko_sesudah . '</td>
+						                        <td class="text-left"' . $style_bg . '>' . $data_sesudah['rencana_tindak_pengendalian'] . '</td>
+						                    ';
+						                    
+						                    $data_sesudah = true;
+						                }
+						            } else {
+						                $html .= '
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                    <td class="text-left"' . $style_bg . '>0</td>
+						                    <td class="text-left"' . $style_bg . '>0</td>
+						                    <td class="text-left"' . $style_bg . '>0</td>
+						                    <td class="text-left"' . $style_bg . '></td>
+						                ';
+						            }
 
-	                                $add_renstra = '';
-	                                if (!empty($jadwal_lokal)) {
-	                                  $namaJadwal = $jadwal_lokal['nama'];
-	                                  $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
+						            $namaJadwal = '-';
+						            $mulaiJadwal = '';
+						            $selesaiJadwal = '-';
 
-	                                    if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
-	                                        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-	                                        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-	                                        $awal = new DateTime($mulaiJadwal);
-	                                        $akhir = new DateTime($selesaiJadwal);
-	                                        $now = new DateTime(date('Y-m-d H:i:s'));
+						            $jadwal_lokal = $wpdb->get_row(
+						              $wpdb->prepare('
+						                SELECT 
+						                  *
+						                FROM data_jadwal_lokal
+						                WHERE tahun_anggaran = %d
+						                    AND id_tipe = %d
+						              ', $tahun_anggaran, 20),
+						              ARRAY_A
+						            );
+						            if (empty($jadwal_lokal['id_jadwal_sakip'])) {
+						                $id_jadwal_wp_sakip = 0;
+						            } else {
+						                $id_jadwal_wp_sakip = $jadwal_lokal['id_jadwal_sakip'];
+						            }
+						            $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
-	                                        if ($now >= $awal && $now <= $akhir) {
-	                                          $html .= '
-	                                              <td class="text-center">
-	                                                  <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
-	                                                      <span class="dashicons dashicons-yes"></span>
-	                                                  </button>
-	                                              </td>
-	                                          ';
-	                                        } else {
-	                                            $html .= '<td class="text-center"></td>';
-	                                        }
-	                                    } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
-	                                        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
-	                                        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
-	                                        $awal = new DateTime($mulaiJadwal);
-	                                        $akhir = new DateTime($selesaiJadwal);
-	                                        $now = new DateTime(date('Y-m-d H:i:s'));
+						            $add_renstra = '';
+						            if (!empty($jadwal_lokal)) {
+						              $namaJadwal = $jadwal_lokal['nama'];
+						              $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 
-	                                        if ($now >= $awal && $now <= $akhir) {
-	                                          $html .= '
-	                                              <td class="text-center">
-	                                                  <button class="btn btn-success" onclick="tambah_program_kegiatan_manrisk( \'' . $id_program . '\', \'' . $id_indikator . '\', \'' . $program_kegiatan_group['nama_program_kegiatan'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
-	                                                      <span class="dashicons dashicons-plus"></span>
-	                                                  </button>
-	                                                <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
-	                                                      <span class="dashicons dashicons-edit"></span>
-	                                                </button>';
-	                                                  
-	                                            if ($indikator_count > 1) {
-	                                                $html .= '
-	                                                  <button class="btn btn-danger" onclick="hapus_program_kegiatan_manrisk(' . $data_sebelum['id'] . '); return false;" title="Hapus Data Sebelum">
-	                                                      <span class="dashicons dashicons-trash"></span>
-	                                                  </button>';
-	                                            }
-	                                          
-	                                          $html .= '</td>';
-	                                        } else {
-	                                            $html .= '<td class="text-center"></td>';
-	                                        }
-	                                    } else {
-	                                        $html .= '<td class="text-center"></td>';
-	                                    }
-	                                } else {
-	                                    $html .= '<td class="text-center"></td>';
-	                                }
+						                if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
+						                    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+						                    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+						                    $awal = new DateTime($mulaiJadwal);
+						                    $akhir = new DateTime($selesaiJadwal);
+						                    $now = new DateTime(date('Y-m-d H:i:s'));
 
-	                                $html .= '</tr>';
-	                            }
-	                        }
-	                    }
+						                    if ($now >= $awal && $now <= $akhir) {
+											    $html .= '<td class="text-center">';
+
+											    if ($data_sebelum['status'] == 1) {
+											        $html .= '
+											            <button class="btn btn-secondary" onclick="mapping_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Mapping Data">
+											                <span class="dashicons dashicons-update-alt"></span>
+											            </button>
+												        <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+												            <span class="dashicons dashicons-yes"></span>
+												        </button>
+												    ';
+											    } else {											    	
+												    $html .= '
+												        <button class="btn btn-success" onclick="verif_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Verifikasi Data">
+												            <span class="dashicons dashicons-yes"></span>
+												        </button>
+												    ';
+											    }
+											    $html .= '</td>';
+											} else {
+											    $html .= '<td class="text-center"></td>';
+											}
+						                } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
+						                    $mulaiJadwal = $jadwal_lokal['waktu_awal'];
+						                    $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+						                    $awal = new DateTime($mulaiJadwal);
+						                    $akhir = new DateTime($selesaiJadwal);
+						                    $now = new DateTime(date('Y-m-d H:i:s'));
+
+						                    if ($now >= $awal && $now <= $akhir) {
+											    $html .= '<td class="text-center">';
+
+											    if ($data_sebelum['status'] == 1) {
+											        $html .= '
+											            <button class="btn btn-secondary" onclick="mapping_program_kegiatan_manrisk(' . $id_sesudah . ', ' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_sesudah . '); return false;" title="Mapping Data">
+											                <span class="dashicons dashicons-update-alt"></span>
+											            </button>
+											            <button class="btn btn-success" onclick="tambah_program_kegiatan_manrisk(\'' . $id_program . '\', \'' . $id_indikator . '\', \'' . $program_kegiatan_group['nama_program_kegiatan'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
+												            <span class="dashicons dashicons-plus"></span>
+												        </button>
+												        <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
+												            <span class="dashicons dashicons-edit"></span>
+												        </button>';
+												        if ($indikator_count > 1) {
+													        $html .= '
+													            <button class="btn btn-danger" onclick="hapus_program_kegiatan_manrisk(' . $data_sebelum['id'] . '); return false;" title="Hapus Data Sebelum">
+													                <span class="dashicons dashicons-trash"></span>
+													            </button>';
+													    }
+											    } else {
+												    $html .= '
+												        <button class="btn btn-success" onclick="tambah_program_kegiatan_manrisk(\'' . $id_program . '\', \'' . $id_indikator . '\', \'' . $program_kegiatan_group['nama_program_kegiatan'] . '\', \'' . $indikator_data['indikator_text'] . '\', ' . $tipe_target . '); return false;" title="Tambah Data Manrisk">
+												            <span class="dashicons dashicons-plus"></span>
+												        </button>
+												        <button class="btn btn-primary" onclick="edit_program_kegiatan_manrisk(' . $data_sebelum['id'] . ', \'' . $id_program . '\', \'' . $id_indikator . '\', ' . $tipe_target . '); return false;" title="Edit Data Sebelum">
+												            <span class="dashicons dashicons-edit"></span>
+												        </button>';
+
+												    if ($indikator_count > 1) {
+												        $html .= '
+												            <button class="btn btn-danger" onclick="hapus_program_kegiatan_manrisk(' . $data_sebelum['id'] . '); return false;" title="Hapus Data Sebelum">
+												                <span class="dashicons dashicons-trash"></span>
+												            </button>';
+												    }											    	
+											    }
+											    $html .= '</td>';
+											} else {
+											    $html .= '<td class="text-center"></td>';
+											}
+						                } else {
+						                    $html .= '<td class="text-center"></td>';
+						                }
+						            } else {
+						                $html .= '<td class="text-center"></td>';
+						            }
+
+						            $html .= '</tr>';
+						        }
+						    }
+						}
 	                }
 	                $ret['data_sesudah'] = $data_sesudah;
 	            } else {
@@ -14846,307 +15117,871 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    die(json_encode($ret));
 	}
 
-    public function edit_program_kegiatan_manrisk()
-    {
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil ambil data!',
-            'data' => array()
-        );
+    public function submit_program_kegiatan()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil simpan data!'
+	    );
 
-        if (!empty($_POST)) {
-            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-                if (!empty($_POST['tahun_anggaran'])) {
-                    $tahun_anggaran = intval($_POST['tahun_anggaran']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Tahun Anggaran kosong!';
-                    wp_send_json($ret);
-                }
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = $_POST['tahun_anggaran'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	            }
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = $_POST['id_skpd'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	            }
+	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	            $skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+	            $skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+	            $controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
 
-                if (!empty($_POST['id_skpd'])) {
-                    $id_skpd = intval($_POST['id_skpd']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'ID SKPD kosong!';
-                    wp_send_json($ret);
-                }
+	            $data = array(
+	                'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
+	                'id_indikator'                  => $_POST['id_indikator'],
+	                'tipe'                          => $_POST['tipe'],
+	                'uraian_resiko'                 => $_POST['uraian_resiko'],
+	                'kode_resiko'                   => $_POST['kode_resiko'],
+	                'pemilik_resiko'                => $_POST['pemilik_resiko'],
+	                'uraian_sebab'                  => $_POST['uraian_sebab'],
+	                'sumber_sebab'                  => $_POST['sumber_sebab'],
+	                'controllable'                  => $controllable_status, 
+	                'uraian_dampak'                 => $_POST['uraian_dampak'],
+	                'pihak_terkena'                 => $_POST['pihak_terkena'],
+	                'skala_dampak'                  => $skala_dampak,
+	                'skala_kemungkinan'             => $skala_kemungkinan,
+	                'rencana_tindak_pengendalian'   => $_POST['rencana_tindak_pengendalian'],
+	                'id_skpd'                       => $id_skpd,
+	                'tahun_anggaran'                => $tahun_anggaran,
+	                'active'                        => 1
+	            );
 
-                if (!empty($_POST['id'])) {
-                    $id = intval($_POST['id']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'ID kosong!';
-                    wp_send_json($ret);
-                }
+	            if ($id <= 0) {
+	                $wpdb->insert('data_program_kegiatan_manrisk_sebelum',
+	                    $data
+	                );
+	            } else {
+	                $wpdb->update('data_program_kegiatan_manrisk_sebelum',
+	                    $data, 
+	                    array('id' => $id)
+	                );
+	            }
 
-                if (isset($_POST['tipe']) && is_numeric($_POST['tipe'])) {
-                    $tipe = intval($_POST['tipe']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Tipe kosong atau bukan angka!';
-                    wp_send_json($ret);
-                }
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
 
-                $get_data = $wpdb->get_row(
-                    $wpdb->prepare("
-                        SELECT 
-                          * 
-                        FROM data_program_kegiatan_manrisk_sebelum
-                        WHERE id = %d
-                          AND id_program_kegiatan = %s
-                          AND id_indikator = %s
-                          AND id_skpd = %d
-                          AND tahun_anggaran = %d
-                          AND tipe = %d
-                          AND active = 1
-                        LIMIT 1
-                    ", $id, $_POST['id_program_kegiatan'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),
-                    ARRAY_A
-                );
+	    wp_send_json($ret);
+	}
 
-                $nama_program_kegiatan = '';
-                $indikator_teks = '';
+	public function edit_program_kegiatan_manrisk()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil ambil data!',
+	        'data' => array()
+	    );
 
-                if ($tipe == 0) {
-                    $get_program = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          nama_program 
-                        FROM data_sub_keg_bl
-                        WHERE kode_program = %s
-                          AND id_sub_skpd = %d
-                          AND tahun_anggaran = %d
-                          AND active = 1
-                        LIMIT 1
-                    ", $get_data['id_program_kegiatan'], $id_skpd, $tahun_anggaran), ARRAY_A);
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-                    if ($get_program) {
-                        $nama_program_kegiatan = $get_program['nama_program'];
-                    }
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = intval($_POST['tahun_anggaran']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                wp_send_json($ret);
+	            }
 
-                    $get_indikator = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          outputteks 
-                        FROM data_sub_keg_indikator
-                        WHERE kode_sbl = %s
-                          AND active = 1
-                    ", $get_data['id_indikator']), ARRAY_A);
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = intval($_POST['id_skpd']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	                wp_send_json($ret);
+	            }
 
-                    if ($get_indikator) {
-                        $indikator_teks = $get_indikator['outputteks'];
-                    }
-                }
+	            if (!empty($_POST['id'])) {
+	                $id = intval($_POST['id']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID kosong!';
+	                wp_send_json($ret);
+	            }
 
-                $get_data['nama_program_kegiatan'] = $nama_program_kegiatan;
-                $get_data['indikator'] = $indikator_teks;
+	            if (isset($_POST['tipe']) && is_numeric($_POST['tipe'])) {
+	                $tipe = intval($_POST['tipe']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tipe kosong atau bukan angka!';
+	                wp_send_json($ret);
+	            }
 
-                $ret['data'] = $get_data;
+	            $get_data = $wpdb->get_row(
+	                $wpdb->prepare("
+	                    SELECT 
+	                      * 
+	                    FROM data_program_kegiatan_manrisk_sebelum
+	                    WHERE id = %d
+	                      AND id_program_kegiatan = %s
+	                      AND id_indikator = %s
+	                      AND id_skpd = %d
+	                      AND tahun_anggaran = %d
+	                      AND tipe = %d
+	                      AND active = 1
+	                    LIMIT 1
+	                ", $id, $_POST['id_program_kegiatan'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),
+	                ARRAY_A
+	            );
 
-                if (empty($get_data)) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data tidak ditemukan!';
-                }
+	            $nama_program_kegiatan = '';
+	            $indikator_teks = '';
 
-            } else {
-                $ret['status']  = 'error';
-                $ret['message'] = 'API key tidak ditemukan!';
-            }
-        } else {
-            $ret['status']  = 'error';
-            $ret['message'] = 'Format salah!';
-        }
+	            if ($tipe == 0) {
+	                $get_data_program = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_program
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_program = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $get_data['id_program_kegiatan'], $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
 
-        wp_send_json($ret);
-    }
+	                if (!empty($get_data_program)) {
+	                    $nama_program_kegiatan = $get_data_program['nama_program'];
+	                }
 
-    public function verif_program_kegiatan_manrisk()
-    {
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil ambil data!',
-            'data' => array()
-        );
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        capaianteks
+	                    FROM data_capaian_prog_sub_keg
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND capaianteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $get_data['id_indikator'] . '%', $tahun_anggaran), ARRAY_A);
 
-        if (!empty($_POST)) {
-            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['capaianteks'];
+	                }
 
-                if (!empty($_POST['tahun_anggaran'])) {
-                    $tahun_anggaran = intval($_POST['tahun_anggaran']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Tahun Anggaran kosong!';
-                    wp_send_json($ret);
-                }
+	            } elseif ($tipe == 1) {
+	                $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_giat
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_giat = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $get_data['id_program_kegiatan'], $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
 
-                if (!empty($_POST['id_skpd'])) {
-                    $id_skpd = intval($_POST['id_skpd']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'ID SKPD kosong!';
-                    wp_send_json($ret);
-                }
+	                if (!empty($get_data_kegiatan)) {
+	                    $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
+	                }
 
-                if (isset($_POST['tipe']) && is_numeric($_POST['tipe'])) {
-                    $tipe = intval($_POST['tipe']);
-                } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Tipe kosong atau bukan angka!';
-                    wp_send_json($ret);
-                }
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        outputteks
+	                    FROM data_output_giat_sub_keg
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND outputteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $get_data['id_indikator'] . '%', $tahun_anggaran), ARRAY_A);
 
-                $get_data = null;
-                $id_program_kegiatan = '';
-                $id_indikator = '';
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['outputteks'];
+	                }
 
-                if (!empty($_POST['id'])) {
-                    $get_data = $wpdb->get_row($wpdb->prepare("
-                            SELECT 
-                              * 
-                            FROM data_program_kegiatan_manrisk_sesudah
-                            WHERE id = %d
-                              AND id_sebelum = %d
-                              AND id_program_kegiatan = %s
-                              AND id_indikator = %s
-                              AND id_skpd = %d
-                              AND tahun_anggaran = %d
-                              AND tipe = %d
-                              AND active = 1
-                            LIMIT 1
-                        ", $_POST['id'], $_POST['id_sebelum'], $_POST['id_program_kegiatan'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),
-                    ARRAY_A);
+	            } elseif ($tipe == 2) {
+	                $get_data_sub_kegiatan = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_sub_giat
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_sub_giat = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $get_data['id_program_kegiatan'], $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
 
-                    if ($get_data) {
-                        $id_program_kegiatan = $get_data['id_program_kegiatan'];
-                        $id_indikator = $get_data['id_indikator'];
-                    }
-                } else {
-                    if (!empty($_POST['id_program_kegiatan'])) {
-                        $id_program_kegiatan = $_POST['id_program_kegiatan'];
-                    } else {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'ID Program Kegiatan kosong!';
-                        wp_send_json($ret);
-                    }
+	                if (!empty($get_data_sub_kegiatan)) {
+	                    $nama_program_kegiatan = $get_data_sub_kegiatan['nama_sub_giat'];
+	                }
 
-                    if (!empty($_POST['id_indikator'])) {
-                        $id_indikator = $_POST['id_indikator'];
-                    } else {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'ID Indikator kosong!';
-                        wp_send_json($ret);
-                    }
-                }
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        outputteks
+	                    FROM data_sub_keg_indikator
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND outputteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $get_data['id_indikator'] . '%', $tahun_anggaran), ARRAY_A);
 
-                $nama_program_kegiatan = '';
-                $indikator_teks = '';
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['outputteks'];
+	                }
+	            }
 
-                if ($tipe == 0) {
-                    $get_program = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          nama_program 
-                        FROM data_sub_keg_bl
-                        WHERE kode_program = %s
-                          AND id_sub_skpd = %d
-                          AND tahun_anggaran = %d
-                          AND active = 1
-                        LIMIT 1
-                    ", $id_program_kegiatan, $id_skpd, $tahun_anggaran), ARRAY_A);
+	            $get_data['nama_program_kegiatan'] = $nama_program_kegiatan;
+	            $get_data['indikator'] = $indikator_teks;
 
-                    if ($get_program) {
-                        $nama_program_kegiatan = $get_program['nama_program'];
-                    }
+	            $ret['data'] = $get_data;
 
-                    $get_indikator = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          outputteks 
-                        FROM data_sub_keg_indikator
-                        WHERE kode_sbl = %s
-                          AND active = 1
-                    ", $id_indikator), ARRAY_A);
+	            if (empty($get_data)) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Data tidak ditemukan!';
+	            }
 
-                    if ($get_indikator) {
-                        $indikator_teks = $get_indikator['outputteks'];
-                    }
-                } elseif ($tipe == 1) {
-                    $get_kegiatan = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          nama_giat 
-                        FROM data_sub_keg_bl
-                        WHERE kode_giat = %s
-                          AND id_sub_skpd = %d
-                          AND tahun_anggaran = %d
-                          AND active = 1
-                        LIMIT 1
-                    ", $id_program_kegiatan, $id_skpd, $tahun_anggaran), ARRAY_A);
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
 
-                    if ($get_kegiatan) {
-                        $nama_program_kegiatan = $get_kegiatan['nama_giat'];
-                    }
+	    wp_send_json($ret);
+	}
 
-                    $get_indikator = $wpdb->get_row($wpdb->prepare("
-                        SELECT 
-                          outputteks 
-                        FROM data_sub_keg_indikator
-                        WHERE kode_sbl = %s
-                          AND active = 1
-                    ", $id_indikator), ARRAY_A);
+	public function verif_program_kegiatan_manrisk()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil ambil data!',
+	        'data' => array()
+	    );
 
-                    if ($get_indikator) {
-                        $indikator_teks = $get_indikator['outputteks'];
-                    }
-                }
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-                $get_data_sebelum = null;
-                if (!empty($_POST['id_sebelum'])) {
-                    $get_data_sebelum = $wpdb->get_row(
-                        $wpdb->prepare("
-                            SELECT 
-                              * 
-                            FROM data_program_kegiatan_manrisk_sebelum
-                            WHERE id = %d
-                              AND id_skpd = %d
-                              AND tahun_anggaran = %d
-                              AND active = 1
-                            LIMIT 1
-                        ", $_POST['id_sebelum'], $id_skpd, $tahun_anggaran),
-                        ARRAY_A
-                    );
-                }
-                
-                $ret['data_sebelum'] = $get_data_sebelum;
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = intval($_POST['tahun_anggaran']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                wp_send_json($ret);
+	            }
 
-                if (is_null($get_data)) {
-                    $get_data = array(
-                        'id_program_kegiatan' => $id_program_kegiatan,
-                        'id_indikator' => $id_indikator
-                    );
-                }
-                
-                $get_data['nama_program_kegiatan'] = $nama_program_kegiatan;
-                $get_data['indikator'] = $indikator_teks;
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = intval($_POST['id_skpd']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	                wp_send_json($ret);
+	            }
 
-                $ret['data'] = $get_data;
+	            if (isset($_POST['tipe']) && is_numeric($_POST['tipe'])) {
+	                $tipe = intval($_POST['tipe']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tipe kosong atau bukan angka!';
+	                wp_send_json($ret);
+	            }
 
-                if (!empty($_POST['id']) && empty($get_data)) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Data tidak ditemukan!';
-                }
+	            $get_data = null;
+	            $id_program_kegiatan = '';
+	            $id_indikator = '';
 
-            } else {
-                $ret['status']  = 'error';
-                $ret['message'] = 'API key tidak ditemukan!';
-            }
-        } else {
-            $ret['status']  = 'error';
-            $ret['message'] = 'Format salah!';
-        }
+	            if (!empty($_POST['id'])) {
+	                $get_data = $wpdb->get_row($wpdb->prepare("
+	                        SELECT 
+	                          * 
+	                        FROM data_program_kegiatan_manrisk_sesudah
+	                        WHERE id = %d
+	                          AND id_sebelum = %d
+	                          AND id_program_kegiatan = %s
+	                          AND id_indikator = %s
+	                          AND id_skpd = %d
+	                          AND tahun_anggaran = %d
+	                          AND tipe = %d
+	                          AND active = 1
+	                        LIMIT 1
+	                    ", $_POST['id'], $_POST['id_sebelum'], $_POST['id_program_kegiatan'], $_POST['id_indikator'], $id_skpd, $tahun_anggaran, $tipe),
+	                ARRAY_A);
 
-        wp_send_json($ret);
-    }
+	                if ($get_data) {
+	                    $id_program_kegiatan = $get_data['id_program_kegiatan'];
+	                    $id_indikator = $get_data['id_indikator'];
+	                }
+	            } else {
+	                if (!empty($_POST['id_program_kegiatan'])) {
+	                    $id_program_kegiatan = $_POST['id_program_kegiatan'];
+	                } else {
+	                    $ret['status'] = 'error';
+	                    $ret['message'] = 'ID Program Kegiatan kosong!';
+	                    wp_send_json($ret);
+	                }
 
+	                if (!empty($_POST['id_indikator'])) {
+	                    $id_indikator = $_POST['id_indikator'];
+	                } else {
+	                    $ret['status'] = 'error';
+	                    $ret['message'] = 'ID Indikator kosong!';
+	                    wp_send_json($ret);
+	                }
+	            }
+
+	            $nama_program_kegiatan = '';
+	            $indikator_teks = '';
+
+	            if ($tipe == 0) {
+	                $get_data_program = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_program
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_program = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $id_program_kegiatan, $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
+
+	                if (!empty($get_data_program)) {
+	                    $nama_program_kegiatan = $get_data_program['nama_program'];
+	                }
+
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        capaianteks
+	                    FROM data_capaian_prog_sub_keg
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND capaianteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $id_indikator . '%', $tahun_anggaran), ARRAY_A);
+
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['capaianteks'];
+	                }
+
+	            } elseif ($tipe == 1) {
+	                $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_giat
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_giat = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $id_program_kegiatan, $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
+
+	                if (!empty($get_data_kegiatan)) {
+	                    $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
+	                }
+
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        outputteks
+	                    FROM data_output_giat_sub_keg
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND outputteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $id_indikator . '%', $tahun_anggaran), ARRAY_A);
+
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['outputteks'];
+	                }
+
+	            } elseif ($tipe == 2) {
+	                $get_data_sub_kegiatan = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        nama_sub_giat
+	                    FROM data_sub_keg_bl 
+	                    WHERE kode_sub_giat = %s
+	                        AND id_sub_skpd = %d
+	                        AND tahun_anggaran = %d
+	                        AND active = 1
+	                    LIMIT 1
+	                ", $id_program_kegiatan, $id_skpd, $tahun_anggaran),
+	                ARRAY_A);
+
+	                if (!empty($get_data_sub_kegiatan)) {
+	                    $nama_program_kegiatan = $get_data_sub_kegiatan['nama_sub_giat'];
+	                }
+
+	                $get_data_indikator = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        outputteks
+	                    FROM data_sub_keg_indikator
+	                    WHERE kode_sbl LIKE %s
+	                        AND active = 1
+	                        AND tahun_anggaran = %d
+	                        AND outputteks != ''
+	                    ORDER BY id ASC
+	                    LIMIT 1
+	                ", $id_indikator . '%', $tahun_anggaran), ARRAY_A);
+
+	                if (!empty($get_data_indikator)) {
+	                    $indikator_teks = $get_data_indikator['outputteks'];
+	                }
+	            }
+
+	            $get_data_sebelum = null;
+	            if (!empty($_POST['id_sebelum'])) {
+	                $get_data_sebelum = $wpdb->get_row(
+	                    $wpdb->prepare("
+	                        SELECT 
+	                          * 
+	                        FROM data_program_kegiatan_manrisk_sebelum
+	                        WHERE id = %d
+	                          AND id_skpd = %d
+	                          AND tahun_anggaran = %d
+	                          AND active = 1
+	                        LIMIT 1
+	                    ", $_POST['id_sebelum'], $id_skpd, $tahun_anggaran),
+	                    ARRAY_A
+	                );
+	            }
+	            
+	            $ret['data_sebelum'] = $get_data_sebelum;
+
+	            if (is_null($get_data)) {
+	                $get_data = array(
+	                    'id_program_kegiatan' => $id_program_kegiatan,
+	                    'id_indikator' => $id_indikator
+	                );
+	            }
+	            
+	            $get_data['nama_program_kegiatan'] = $nama_program_kegiatan;
+	            $get_data['indikator'] = $indikator_teks;
+
+	            $ret['data'] = $get_data;
+
+	            if (!empty($_POST['id']) && empty($get_data)) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Data tidak ditemukan!';
+	            }
+
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
+
+	    wp_send_json($ret);
+	}
+
+	public function submit_verif_program_kegiatan()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil simpan data!'
+	    );
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = $_POST['tahun_anggaran'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	            }
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = $_POST['id_skpd'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	            }
+	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	            $tipe = isset($_POST['tipe']) ? intval($_POST['tipe']) : 0;
+	            $skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+	            $skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+	            $controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
+
+	            $data = array(
+	                'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
+	                'id_indikator'                  => $_POST['id_indikator'],
+	                'tipe'                          => $_POST['tipe'],
+	                'id_sebelum'                    => $_POST['id_sebelum'], 
+	                'tipe'                          => $tipe,
+	                'uraian_resiko'                 => $_POST['uraian_resiko'],
+	                'kode_resiko'                   => $_POST['kode_resiko'],
+	                'pemilik_resiko'                => $_POST['pemilik_resiko'],
+	                'uraian_sebab'                  => $_POST['uraian_sebab'],
+	                'sumber_sebab'                  => $_POST['sumber_sebab'],
+	                'controllable'                  => $controllable_status, 
+	                'uraian_dampak'                 => $_POST['uraian_dampak'],
+	                'pihak_terkena'                 => $_POST['pihak_terkena'],
+	                'skala_dampak'                  => $skala_dampak,
+	                'skala_kemungkinan'             => $skala_kemungkinan,
+	                'rencana_tindak_pengendalian'   => $_POST['rencana_tindak_pengendalian'],
+	                'id_skpd'                       => $id_skpd,
+	                'tahun_anggaran'                => $tahun_anggaran,
+	                'active'                        => 1
+	            );
+
+	            if ($id <= 0) {
+	                $wpdb->insert('data_program_kegiatan_manrisk_sesudah',
+	                    $data
+	                );
+	            } else {
+	                $wpdb->update('data_program_kegiatan_manrisk_sesudah',
+	                    $data, 
+	                    array('id' => $id)
+	                );
+	            }
+
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
+
+	    wp_send_json($ret);
+	}
+
+	public function hapus_program_kegiatan_manrisk()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil hapus data!'
+	    );
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	            if (empty($_POST['id'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID kosong!';
+	            }
+	            $wpdb->update(
+	                'data_program_kegiatan_manrisk_sebelum',
+	                array('active' => 0),
+	                array('id' => $_POST['id']),
+	                array('%d')
+	            );
+	            $wpdb->update(
+	                'data_program_kegiatan_manrisk_sesudah',
+	                array('active' => 0),
+	                array('id_sebelum' => $_POST['id']),
+	                array('%d')
+	            );
+	        } else {
+	            $ret['status'] = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status'] = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
+
+	    die(json_encode($ret));
+	}
+
+	public function get_table_rpjmd_renstra()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil get data!',
+	        'data' => array()
+	    );
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+	            if (empty($_POST['tahun_anggaran'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+	            if (empty($_POST['id_skpd'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	                die(json_encode($ret));
+	            }
+	            $id_skpd = intval($_POST['id_skpd']);
+
+	            if (empty($_POST['id_jadwal'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID Jadwal kosong!';
+	                die(json_encode($ret));
+	            }
+	            $id_jadwal = intval($_POST['id_jadwal']);
+
+	            $get_data_tujuan = $wpdb->get_results($wpdb->prepare("
+	                SELECT 
+	                    id_unik, 
+	                    tujuan_teks, 
+	                    kode_bidang_urusan, 
+	                    nama_bidang_urusan
+	                FROM data_renstra_tujuan
+	                WHERE id_jadwal = %d
+	                    AND id_unit = %d
+	                    AND id_unik_indikator IS NULL
+	                    AND active = 1
+	            ", $id_jadwal, $id_skpd), ARRAY_A);
+
+	            $html = '';
+	            
+	            $grouped_data = array();
+
+	            if (!empty($get_data_tujuan)) {
+	                foreach ($get_data_tujuan as $tujuan) {
+	                    $get_indikator_tujuan = $wpdb->get_results($wpdb->prepare("
+	                        SELECT 
+	                            id,
+	                            indikator_teks
+	                        FROM data_renstra_tujuan
+	                        WHERE id_unik = %s
+	                            AND id_unik_indikator IS NOT NULL
+	                            AND active = 1
+	                    ", $tujuan['id_unik']), ARRAY_A);
+
+	                    $indikator_tujuan_array = array();
+	                    if (!empty($get_indikator_tujuan)) {
+	                        foreach ($get_indikator_tujuan as $ind) {
+	                            if (!in_array($ind['indikator_teks'], $indikator_tujuan_array)) {
+	                                $indikator_tujuan_array[] = $ind['indikator_teks'];
+	                            }
+	                        }
+	                    }
+
+	                    $get_data_sasaran = $wpdb->get_results($wpdb->prepare("
+	                        SELECT 
+	                            id_unik, 
+	                            sasaran_teks, 
+	                            kode_bidang_urusan, 
+	                            nama_bidang_urusan
+	                        FROM data_renstra_sasaran
+	                        WHERE id_jadwal = %d
+	                            AND id_unit = %d
+	                            AND kode_tujuan = %s
+	                            AND id_unik_indikator IS NULL
+	                            AND active = 1
+	                    ", $id_jadwal, $id_skpd, $tujuan['id_unik']), ARRAY_A);
+
+	                    if (!empty($get_data_sasaran)) {
+	                        foreach ($get_data_sasaran as $sasaran) {
+	                            $get_indikator_sasaran = $wpdb->get_results($wpdb->prepare("
+	                                SELECT 
+	                                    id,
+	                                    indikator_teks
+	                                FROM data_renstra_sasaran
+	                                WHERE id_unik = %s
+	                                    AND id_unik_indikator IS NOT NULL
+	                                    AND active = 1
+	                            ", $sasaran['id_unik']), ARRAY_A);
+
+	                            $indikator_sasaran_array = array();
+	                            if (!empty($get_indikator_sasaran)) {
+	                                foreach ($get_indikator_sasaran as $ind) {
+	                                    if (!in_array($ind['indikator_teks'], $indikator_sasaran_array)) {
+	                                        $indikator_sasaran_array[] = $ind['indikator_teks'];
+	                                    }
+	                                }
+	                            }
+
+	                            $get_data_program = $wpdb->get_results($wpdb->prepare("
+	                                SELECT 
+	                                    id_unik, 
+	                                    nama_program, 
+	                                    kode_bidang_urusan, 
+	                                    nama_bidang_urusan
+	                                FROM data_renstra_program
+	                                WHERE id_jadwal = %d
+	                                    AND id_unit = %d
+	                                    AND kode_sasaran = %s
+	                                    AND id_unik_indikator IS NULL
+	                                    AND active = 1
+	                                ORDER BY kode_bidang_urusan ASC
+	                            ", $id_jadwal, $id_skpd, $sasaran['id_unik']), ARRAY_A);
+
+	                            if (!empty($get_data_program)) {
+	                                foreach ($get_data_program as $program) {
+	                                    $get_indikator_program = $wpdb->get_results($wpdb->prepare("
+	                                        SELECT 
+	                                            id,
+	                                            indikator
+	                                        FROM data_renstra_program
+	                                        WHERE id_unik = %s
+	                                            AND id_unik_indikator IS NOT NULL
+	                                            AND active = 1
+	                                    ", $program['id_unik']), ARRAY_A);
+
+	                                    $tujuan_key = $tujuan['tujuan_teks'];
+	                                    $sasaran_key = $sasaran['sasaran_teks'];
+	                                    $program_key = $program['nama_program'];
+	                                    $kode_bidang = $program['kode_bidang_urusan'];
+	                                    
+	                                    if (!isset($grouped_data[$tujuan_key])) {
+	                                        $grouped_data[$tujuan_key] = array(
+	                                            'indikator_tujuan' => $indikator_tujuan_array,
+	                                            'sasaran' => array()
+	                                        );
+	                                    }
+	                                    
+	                                    if (!isset($grouped_data[$tujuan_key]['sasaran'][$sasaran_key])) {
+	                                        $grouped_data[$tujuan_key]['sasaran'][$sasaran_key] = array(
+	                                            'indikator_sasaran' => $indikator_sasaran_array,
+	                                            'program' => array()
+	                                        );
+	                                    }
+	                                    
+	                                    if (!isset($grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key])) {
+	                                        $grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key] = array(
+	                                            'kode_bidang' => $kode_bidang,
+	                                            'indikator' => array()
+	                                        );
+	                                    }
+
+	                                    if (!empty($get_indikator_program)) {
+	                                        foreach ($get_indikator_program as $ind) {
+	                                            if (!in_array($ind['indikator'], $grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key]['indikator'])) {
+	                                                $grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key]['indikator'][] = $ind['indikator'];
+	                                            }
+	                                        }
+	                                    }
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+
+	                foreach ($grouped_data as $tujuan_text => $tujuan_data) {
+	                    $indikator_tujuan_text = implode('; ', $tujuan_data['indikator_tujuan']);
+	                    
+	                    $html .= '<tr>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left">Tujuan: ' . $tujuan_text . '</td>';
+	                    $html .= '<td class="text-left">' . $indikator_tujuan_text . '</td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '<td class="text-left"></td>';
+	                    $html .= '</tr>';
+	                    
+	                    foreach ($tujuan_data['sasaran'] as $sasaran_text => $sasaran_data) {
+	                        $indikator_sasaran_text = implode('; ', $sasaran_data['indikator_sasaran']);
+	                        
+	                        uasort($sasaran_data['program'], function($a, $b) {
+	                            $kode_a = $a['kode_bidang'];
+	                            $kode_b = $b['kode_bidang'];
+	                            
+	                            $is_a_x = preg_match('/^X\./', $kode_a);
+	                            $is_b_x = preg_match('/^X\./', $kode_b);
+	                            
+	                            if ($is_a_x && !$is_b_x) {
+	                                return 1;
+	                            }
+	                            if (!$is_a_x && $is_b_x) {
+	                                return -1;
+	                            }
+	                            
+	                            return strcmp($kode_a, $kode_b);
+	                        });
+	                        
+	                        $program_count = 0;
+	                        foreach ($sasaran_data['program'] as $program_text => $program_data) {
+	                            $indikator_program_text = implode(', ', $program_data['indikator']);
+	                            
+	                            $html .= '<tr>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            
+	                            if ($program_count == 0) {
+	                                $html .= '<td class="text-left">Sasaran: ' . $sasaran_text . '</td>';
+	                                $html .= '<td class="text-left">' . $indikator_sasaran_text . '</td>';
+	                            } else {
+	                                $html .= '<td class="text-left"></td>';
+	                                $html .= '<td class="text-left"></td>';
+	                            }
+	                            
+	                            $html .= '<td class="text-left">Program: ' . $program_text . '</td>';
+	                            $html .= '<td class="text-left">' . $indikator_program_text . '</td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '</tr>';
+	                            
+	                            $program_count++;
+	                        }
+	                    }
+	                }
+	            } else {
+	                $html = '<tr><td colspan="15" style="text-align: center;">Tidak ada data</td></tr>';
+	            }
+
+	            $ret['data'] = $html;
+
+	        } else {
+	            $ret = array(
+	                'status' => 'error',
+	                'message'   => 'Api Key tidak sesuai!'
+	            );
+	        }
+	    } else {
+	        $ret = array(
+	            'status' => 'error',
+	            'message'   => 'Format tidak sesuai!'
+	        );
+	    }
+	    die(json_encode($ret));
+	}
 	public function get_data_iku($return_text)
 	{
 		global $wpdb;
