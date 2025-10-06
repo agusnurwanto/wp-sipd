@@ -1172,6 +1172,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_renstra_manrisk',  $plugin_public, 'get_data_renstra_manrisk');
 		$this->loader->add_action('wp_ajax_get_data_manrisk',  $plugin_public, 'get_data_manrisk');
 		$this->loader->add_action('wp_ajax_get_data_sesudah',  $plugin_public, 'get_data_sesudah');
+		$this->loader->add_action('wp_ajax_load_opd_manrisk',  $plugin_public, 'load_opd_manrisk');
+		$this->loader->add_action('wp_ajax_simpan_opd_manrisk',  $plugin_public, 'simpan_opd_manrisk');
+		$this->loader->add_action('wp_ajax_hapus_daftar_opd_manrisk',  $plugin_public, 'hapus_daftar_opd_manrisk');
 		
 		$this->loader->add_action('wp_ajax_get_table_program_kegiatan',  $plugin_public, 'get_table_program_kegiatan');
 		$this->loader->add_action('wp_ajax_get_indikator_program_kegiatan',  $plugin_public, 'get_indikator_program_kegiatan');

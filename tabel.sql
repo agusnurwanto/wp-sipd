@@ -8289,3 +8289,15 @@ CREATE TABLE `data_pelaksana_renstra` (
   KEY `id_unik` (`id_unik`),
   KEY `active` (`active`)
 );
+
+CREATE TABLE `data_opd_kecurangan_mcp` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_skpd` INT(11) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
+);

@@ -15660,6 +15660,186 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    die(json_encode($ret));
 	}
 
+	public function load_opd_manrisk()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+	        'message' => 'Berhasil ambil data!'
+		);
+
+		if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = intval($_POST['tahun_anggaran']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+				 $opd = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+						 nama_skpd, kode_skpd, id_skpd
+						FROM data_unit
+						WHERE tahun_anggaran = %d
+						AND active = 1
+						ORDER BY nama_skpd ASC
+					", $tahun_anggaran)
+				);
+				if (!empty($opd)) {
+					$options = '';
+                    foreach ($opd as $row) {
+						$options .= '<option value="'.$row->id_skpd.'">'.$row->nama_skpd.'</option>';
+					}
+					$ret['status']  = 'success';
+                    $ret['message'] = 'Berhasil ambil data!';
+                    $ret['data']    = $options;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data OPD kosong!';
+				}
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		} 
+		die(json_encode($ret));
+	}
+
+	public function simpan_opd_manrisk()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menyimpan data!'
+		);
+
+		if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = intval($_POST['tahun_anggaran']);
+					$opd_list = $_POST['opd'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+				foreach ($opd_list as $id_skpd) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT id
+						FROM data_opd_kecurangan_mcp
+						WHERE id_skpd=%d
+						 AND tahun_anggaran=%d			 
+					", $id_skpd, $tahun_anggaran
+					));
+					if ($cek) {
+						$wpdb->update(
+							'data_opd_kecurangan_mcp',
+							array(
+								'active'	=> 1,
+								'created_at' => current_time('mysql')
+							),
+							array('id' => $cek)
+						);
+					} else {
+						$wpdb->insert(
+                            'data_opd_kecurangan_mcp',
+                            array(
+                                'id_skpd'        => intval($id_skpd),
+                                'tahun_anggaran' => $tahun_anggaran,
+                                'active'         => 1,
+                                'created_at'     => current_time('mysql')
+                            )
+						);
+					}
+				}
+				$data = $wpdb->get_results(
+					$wpdb->prepare("
+					 	SELECT id, id_skpd
+						FROM data_opd_kecurangan_mcp
+						WHERE tahun_anggaran=%d
+							AND active=1
+					 ", $tahun_anggaran), ARRAY_A);
+
+				$opd_master = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT id_skpd, nama_skpd
+						FROM data_unit
+						WHERE tahun_anggaran=%d
+						AND active=1
+					", $tahun_anggaran), ARRAY_A);
+
+					$ret['data'] = $data;
+					$ret['master'] = $opd_master;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'Tahun Anggaran kosong!';
+				die(json_encode($ret));
+            }
+		} else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'API Key salah!';
+            die(json_encode($ret));
+        }
+		die(json_encode($ret));
+	}
+
+	public function hapus_daftar_opd_manrisk() 
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil hapus data!'
+	    );
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	            if (empty($_POST['id_skpd'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID Skpd kosong!';
+	                die(json_encode($ret));
+				}
+				if (empty($_POST['tahun_anggaran'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+				$id_skpd = $_POST['id_skpd'];	
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+
+				$sql_cek = $wpdb->prepare("
+                    SELECT 
+						*
+                    FROM data_opd_kecurangan_mcp
+                    WHERE id_skpd=%d 
+						AND tahun_anggaran=%d 
+						AND active=1
+                ", $id_skpd, $tahun_anggaran);
+				$data_cek = $wpdb->get_row($sql_cek);				
+				if (!empty($data_cek)) {
+					$wpdb->update(
+                    'data_opd_kecurangan_mcp',
+                    array('active' => 0),
+                    array('id_skpd' => $id_skpd, 'tahun_anggaran' => $tahun_anggaran),
+                    array('%d'),
+                    array('%d', '%d')
+                	);
+				} else {
+					$ret['status'] = 'error';
+                	$ret['message'] = 'Data tidak ditemukan!';
+				}
+	        } else {
+				$ret['status'] = 'error';
+            	$ret['message'] = 'API key tidak ditemukan!';
+			} 
+	    } else {
+			$ret['status'] = 'error';
+        	$ret['message'] = 'Format salah!';
+		}
+	    die(json_encode($ret));
+	}
+
 	public function get_data_iku($return_text)
 	{
 		global $wpdb;
