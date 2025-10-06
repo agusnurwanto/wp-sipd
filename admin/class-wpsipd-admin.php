@@ -1690,8 +1690,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'kecurangan_mcp') {
-						$url_program_kegiatan = $this->generatePage('Kecurangan MCP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Resiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_kecurangan_mcp = $this->generatePage('Kecurangan MCP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_mcp_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Resiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					}
 
