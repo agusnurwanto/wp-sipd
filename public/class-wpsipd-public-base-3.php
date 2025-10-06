@@ -12941,6 +12941,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-program-kegiatan-manrisk.php';
 	}
 
+	public function kecurangan_resiko_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-kecurangan-resiko-manrisk.php';
+	}
+
 	public function detail_konteks_resiko_manrisk($atts)
 	{
 
@@ -12979,6 +12989,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-program-kegiatan-manrisk.php';
+	}
+
+	public function detail_resiko_kecurangan_manrisk($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-kecurangan-resiko-manrisk.php';
 	}
 
 	public function manrisk_list($atts)

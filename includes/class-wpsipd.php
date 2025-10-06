@@ -1366,10 +1366,12 @@ class Wpsipd
 		add_shortcode('rpjmd_renstra_manrisk',array($plugin_public,'rpjmd_renstra_manrisk'));
 		add_shortcode('tujuan_sasaran_manrisk',array($plugin_public,'tujuan_sasaran_manrisk'));
 		add_shortcode('program_kegiatan_manrisk',array($plugin_public,'program_kegiatan_manrisk'));
+		add_shortcode('kecurangan_resiko_manrisk',array($plugin_public,'kecurangan_resiko_manrisk'));
 		add_shortcode('detail_konteks_resiko_manrisk',array($plugin_public,'detail_konteks_resiko_manrisk'));
 		add_shortcode('detail_rpjmd_renstra_manrisk',array($plugin_public,'detail_rpjmd_renstra_manrisk'));
 		add_shortcode('detail_tujuan_sasaran_manrisk',array($plugin_public,'detail_tujuan_sasaran_manrisk'));
 		add_shortcode('detail_program_kegiatan_manrisk',array($plugin_public,'detail_program_kegiatan_manrisk'));
+		add_shortcode('detail_resiko_kecurangan_manrisk',array($plugin_public,'detail_resiko_kecurangan_manrisk'));
 
 		add_shortcode('manrisk_list',array($plugin_public,'manrisk_list'));
 		add_shortcode('jadwal_manrisk',array($plugin_public,'jadwal_manrisk'));
