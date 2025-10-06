@@ -149,7 +149,18 @@ $body .='
 		    	$where = '';
 			}
 
-		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY kode_skpd ASC', ARRAY_A);
+		    $units = $wpdb->get_results($wpdb->prepare("
+		    	SELECT 
+		    		nama_skpd, 
+		    		id_skpd, 
+		    		kode_skpd, 
+		    		is_skpd 
+		    	FROM data_unit 
+		    	WHERE active=1 
+		    		AND tahun_anggaran=%d 
+		    		AND is_skpd=1 
+		    	ORDER BY kode_skpd ASC
+		    ", $input['tahun_anggaran']), ARRAY_A);
 			$current_user = wp_get_current_user();
 			$data_all = array(
 				'data' => array(),
@@ -165,49 +176,57 @@ $body .='
 			);
 		    foreach($units as $unit){
 
-		    	$sub_units = $wpdb->get_results("SELECT id_skpd, idinduk, kode_skpd, nama_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and idinduk=".$unit['id_skpd']." order by kode_skpd ASC", ARRAY_A);
+		    	$sub_units = $wpdb->get_results($wpdb->prepare("
+		    		SELECT 
+		    			id_skpd, 
+		    			idinduk, 
+		    			kode_skpd, 
+		    			nama_skpd 
+		    		from data_unit 
+		    		where active=1 
+		    			and tahun_anggaran=%d 
+		    			and idinduk=%d 
+		    		order by kode_skpd ASC
+		    	", $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 
 		    	if(count($sub_units) == 1){
 
 					$data_rfk = $wpdb->get_results($wpdb->prepare("
-							SELECT 
-								IFNULL(SUM(k.pagu),0) pagu, 
-								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
-								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
-								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian,
-								SUM(IFNULL(d.rak,0)) rak,
-								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik,
-								f.cat_ka_adbang
-							FROM data_sub_keg_bl k 
-							LEFT JOIN data_rfk d 
-								ON d.id_skpd=k.id_sub_skpd AND 
-								d.kode_sbl=k.kode_sbl AND 
-								d.tahun_anggaran=k.tahun_anggaran
-							LEFT JOIN (
-								SELECT
-									id_skpd,
-									bulan,
-									tahun_anggaran,
-									IFNULL(catatan_ka_adbang, '') cat_ka_adbang 
-								FROM data_catatan_rfk_unit
-								WHERE 
-									id_skpd=".$unit['id_skpd']." AND 
-									bulan=".$bulan." AND 
-									tahun_anggaran=".$input['tahun_anggaran']."
-							) f ON
-								f.id_skpd=k.id_sub_skpd AND 
-								f.bulan=d.bulan AND 
-								f.tahun_anggaran=k.tahun_anggaran
-							WHERE
-								".$where."
-								k.tahun_anggaran=%d AND 
-								k.id_sub_skpd=%d AND 
-								k.active=1 AND 
-								d.bulan=%d",
-								$input['tahun_anggaran'],
-								$unit['id_skpd'],
-								$bulan
-							), ARRAY_A);
+						SELECT 
+							IFNULL(SUM(k.pagu),0) pagu, 
+							IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
+							IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
+							IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian,
+							SUM(IFNULL(d.rak,0)) rak,
+							AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik,
+							f.cat_ka_adbang
+						FROM data_sub_keg_bl k 
+						LEFT JOIN data_rfk d 
+							ON d.id_skpd=k.id_sub_skpd AND 
+							d.kode_sbl=k.kode_sbl AND 
+							d.tahun_anggaran=k.tahun_anggaran
+						LEFT JOIN (
+							SELECT
+								id_skpd,
+								bulan,
+								tahun_anggaran,
+								IFNULL(catatan_ka_adbang, '') cat_ka_adbang 
+							FROM data_catatan_rfk_unit
+							WHERE 
+								id_skpd=%d AND 
+								bulan=%d AND 
+								tahun_anggaran=%d
+						) f ON
+							f.id_skpd=k.id_sub_skpd AND 
+							f.bulan=d.bulan AND 
+							f.tahun_anggaran=k.tahun_anggaran
+						WHERE
+							".$where."
+							k.tahun_anggaran=%d AND 
+							k.id_sub_skpd=%d AND 
+							k.active=1 AND 
+							d.bulan=%d
+					", $unit['id_skpd'], $bulan, $input['tahun_anggaran'], $input['tahun_anggaran'], $unit['id_skpd'], $bulan), ARRAY_A);
 
 					foreach ($data_rfk as $key => $rfk) {
 
@@ -226,11 +245,8 @@ $body .='
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
-								d.bulan=%d",
-								$input['tahun_anggaran'],
-								$unit['id_skpd'],
-								$bulan
-							), ARRAY_A);						
+								d.bulan=%d
+						", $input['tahun_anggaran'], $unit['id_skpd'], $bulan), ARRAY_A);						
 
 						foreach ($items as $item) {
 							$nilai_realisasi_fisik += ($item['nilai_realisasi_fisik']/100)*$item['pagu_simda'];
