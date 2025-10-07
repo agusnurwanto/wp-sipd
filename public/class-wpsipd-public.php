@@ -27020,13 +27020,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$sql = $wpdb->prepare("
-						SELECT *
-						FROM data_unit
-						WHERE tahun_anggaran=%d
+					SELECT *
+					FROM data_unit
+					WHERE tahun_anggaran=%d
 						AND id_skpd = %d
 						AND active= 1
-						ORDER BY id_skpd ASC
-					", $_POST['tahun_anggaran'], $_POST['id_skpd']);
+					ORDER BY id_skpd ASC
+				", $_POST['tahun_anggaran'], $_POST['id_skpd']);
 				$unit = $wpdb->get_results($sql, ARRAY_A);
 
 				$bulan = date('m');
@@ -27657,9 +27657,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'anggaran' => array(
 						'total' => $data_all['total'],
 						'tw1' => $data_all['rak_triwulan_1'],
-						'tw2' => $data_all['rak_triwulan_1'],
-						'tw3' => $data_all['rak_triwulan_1'],
-						'tw4' => $data_all['rak_triwulan_1']
+						'tw2' => $data_all['rak_triwulan_2'],
+						'tw3' => $data_all['rak_triwulan_3'],
+						'tw4' => $data_all['rak_triwulan_4']
 					),
 					'realisasi_anggaran' => array(
 						'total' => $data_all['realisasi'],
