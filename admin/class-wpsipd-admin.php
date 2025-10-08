@@ -1689,6 +1689,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'kecurangan_mcp') {
+						$url_kecurangan_mcp = $this->generatePage('Kecurangan MCP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Resiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					}
 
 					if ($_POST['type'] == 'spt_sppd') {
@@ -1915,6 +1919,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'rpjmd_renstra'
 					|| $_POST['type'] == 'tujuan_sasaran'
 					|| $_POST['type'] == 'program_kegiatan'
+					|| $_POST['type'] == 'kecurangan_mcp'
 				) {
 					$ret['message'] = $body_all;
 				}

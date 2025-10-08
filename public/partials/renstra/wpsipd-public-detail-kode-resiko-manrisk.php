@@ -124,51 +124,52 @@ $unit = (!empty($unit)) ? $unit : array();
     </div>
 </div>
 
-
-<div class="container-md">
-    <div class="row">
-        <div class="col-md-6">
-            <table cellspacing="0" cellpadding="6">
-                <thead>
-                    <tr>
-                        <th class="text-center" colspan="2">JENIS RISIKO</th>
-                    </tr>                
-                    <tr>
-                        <th class="text-center">Kode Risiko</th>
-                        <th class="text-center">Penjelasan</th>
-                    </tr>
-                </thead>                
-                <tbody>
-                    <?php foreach ($data_risiko as $risiko) { ?>
+<div style="padding: 10px;margin:0 0 3rem 0;">
+    <div class="container-md">
+        <div class="row">
+            <div class="col-md-6">
+                <table cellspacing="0" cellpadding="6">
+                    <thead>
                         <tr>
-                            <td class="text-center"><?php echo $risiko['kode_bidang_urusan']; ?></td> 
-                            <td><?php echo $risiko['nama_bidang_urusan']; ?></td>
+                            <th class="text-center" colspan="2">JENIS RISIKO</th>
                         </tr>                
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-6">
-            <table cellspacing="0" cellpadding="6">
-                <thead>
-                    <tr>
-                        <th class="text-center" colspan="2">ENTITAS YANG MENILAI</th>
-                    </tr>
-                    <tr>
-                        <th class="text-center">Kode SKPD</th>
-                        <th class="text-center">Nama SKPD</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php   
-                    foreach ($unit as $row) { ?>
                         <tr>
-                            <td><?php echo $row['kode_skpd']; ?></td>
-                            <td><?php echo $row['nama_skpd']; ?></td>
+                            <th class="text-center">Kode Risiko</th>
+                            <th class="text-center">Penjelasan</th>
                         </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
+                    </thead>                
+                    <tbody>
+                        <?php foreach ($data_risiko as $risiko) { ?>
+                            <tr>
+                                <td class="text-center"><?php echo $risiko['kode_bidang_urusan']; ?></td> 
+                                <td><?php echo $risiko['nama_bidang_urusan']; ?></td>
+                            </tr>                
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table cellspacing="0" cellpadding="6">
+                    <thead>
+                        <tr>
+                            <th class="text-center" colspan="2">ENTITAS YANG MENILAI</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Kode SKPD</th>
+                            <th class="text-center">Nama SKPD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php   
+                        foreach ($unit as $row) { ?>
+                            <tr>
+                                <td><?php echo $row['kode_skpd']; ?></td>
+                                <td><?php echo $row['nama_skpd']; ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

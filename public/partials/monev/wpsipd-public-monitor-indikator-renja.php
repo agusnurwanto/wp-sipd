@@ -233,6 +233,7 @@ foreach ($subkeg as $kk => $sub) {
 	$rak_triwulan_3 = 0;
 	$rak_triwulan_4 = 0;
 	$realisasi_bulan_all = array();
+	$rak_bulan_all = array();
 	foreach ($rfk_all as $k => $v) {
 		// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
 		if ($input['tahun_anggaran'] == $v)
@@ -252,6 +253,9 @@ foreach ($subkeg as $kk => $sub) {
 		$rak_bulan_all[$v['bulan']] = $v['rak'];
 		if (empty($v['realisasi_anggaran'])) {
 			$v['realisasi_anggaran'] = 0;
+		}
+		if (empty($v['rak'])) {
+			$v['rak'] = 0;
 		}
 		if ($v['bulan'] <= 3) {
 			$triwulan_1 = $v['realisasi_anggaran'];

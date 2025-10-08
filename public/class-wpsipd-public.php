@@ -27020,28 +27020,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$sql = $wpdb->prepare("
-						SELECT *
-						FROM data_unit
-						WHERE tahun_anggaran=%d
+					SELECT *
+					FROM data_unit
+					WHERE tahun_anggaran=%d
 						AND id_skpd = %d
 						AND active= 1
-						ORDER BY id_skpd ASC
-					", $_POST['tahun_anggaran'], $_POST['id_skpd']);
+					ORDER BY id_skpd ASC
+				", $_POST['tahun_anggaran'], $_POST['id_skpd']);
 				$unit = $wpdb->get_results($sql, ARRAY_A);
 
 				$bulan = date('m');
+				$tahun_asli = date('Y');
+				if($_POST['tahun_anggaran'] < $tahun_asli){
+					$bulan = 12;
+				}
+				$nama_bulan = $this->get_bulan($bulan);
+
 				$subkeg = $wpdb->get_results(
 					$wpdb->prepare("
-							SELECT
-								k.*,
-								k.id as id_sub_keg
-							FROM data_sub_keg_bl k
-							WHERE k.tahun_anggaran=%d
+						SELECT
+							k.*,
+							k.id as id_sub_keg
+						FROM data_sub_keg_bl k
+						WHERE k.tahun_anggaran=%d
 							AND k.active=1
 							AND k.id_sub_skpd=%d
 							AND k.pagu > 0
-							ORDER BY k.kode_sub_giat ASC
-						", $_POST['tahun_anggaran'], $unit[0]['id_skpd']),
+						ORDER BY k.kode_sub_giat ASC
+					", $_POST['tahun_anggaran'], $unit[0]['id_skpd']),
 					ARRAY_A
 				);
 				$data_all = array(
@@ -27055,6 +27061,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'rak_triwulan_2' => 0,
 					'rak_triwulan_3' => 0,
 					'rak_triwulan_4' => 0,
+					'total_fisik'      => 0,
+					'fisik_triwulan_1' => 0,
+					'fisik_triwulan_2' => 0,
+					'fisik_triwulan_3' => 0,
+					'fisik_triwulan_4' => 0,
+					'total_sub_keg' => 0,
 					'realisasi'      => 0,
 					'data'           => array()
 				);
@@ -27075,16 +27087,71 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT
 							id,
 							realisasi_anggaran,
+							realisasi_fisik,
 							rak,
 							bulan
 						FROM data_rfk
 						WHERE tahun_anggaran=%d
-						AND id_skpd=%d
-						AND kode_sbl=%s
-						AND bulan<=%d 
+							AND id_skpd=%d
+							AND kode_sbl=%s
+							AND bulan<=%d 
 						ORDER BY bulan ASC, id ASC
 					", $_POST['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 
+					$rak = array();
+					foreach ($rfk_all as $k => $v) {
+						if (empty($rak[$v['bulan']])) {
+							$v['key'] = $k;
+							$rak[$v['bulan']] = $v;
+						} else {
+							// hapus jika ada bulan yang double
+							$wpdb->delete('data_rfk', array('id' => $v['id']));
+						}
+					}
+
+					$cek_input = false;
+					for ($i = 1; $i <= $bulan; $i++) {
+						$opsi = array(
+							'user' 			 => 'api get serapan',
+							'id_skpd' 		 => $unit[0]['id_skpd'],
+							'kode_sbl' 		 => $sub['kode_sbl'],
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'bulan' 		 => $i,
+							'cek_insert' 	 => false,
+							'rak' 		 	 => 0
+						);
+						if (!isset($rak[$i])) {
+							$cek_input = true;
+							$opsi['cek_insert'] = true;
+						} else {
+							$opsi['rak'] = $rak[$i]['rak'];
+						}
+
+						// fungsi untuk mengupdate RAK sesuai RAK SIPD atau menginsert data baru jika data_rfk bulan ini belum ada
+						$cek_rak_sipd = $this->get_rak_sipd_rfk($opsi);
+
+						// setting nilai RAK terbaru SIPD ke variable rfk all
+						if (isset($rak[$i])) {
+							$rfk_all[$rak[$i]['key']]['rak'] = $cek_rak_sipd;
+						}
+					}
+
+					// jika ada data rak yang baru diinput maka diselect ulang
+					if ($cek_input == true) {
+						$rfk_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id, 
+								realisasi_anggaran, 
+								realisasi_fisik,
+								rak, 
+								bulan 
+							FROM data_rfk 
+							WHERE tahun_anggaran=%d 
+							  AND id_skpd=%d 
+							  AND kode_sbl=%s 
+							  AND bulan<=%d ORDER BY bulan ASC
+						", $_POST['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+					}
 
 					$triwulan_1 = 0;
 					$triwulan_2 = 0;
@@ -27094,7 +27161,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$rak_triwulan_2 = 0;
 					$rak_triwulan_3 = 0;
 					$rak_triwulan_4 = 0;
+					$fisik_triwulan_1 = 0;
+					$fisik_triwulan_2 = 0;
+					$fisik_triwulan_3 = 0;
+					$fisik_triwulan_4 = 0;
 					$realisasi_bulan_all = array();
+					$rak_bulan_all = array();
 					foreach ($rfk_all as $k => $v) {
 						// jika bulan lebih kecil dari bulan sekarang dan realisasinya masih kosong maka realisasi dibuat sama dengan bulan sebelumnya agar realisasi tidak minus
 						if (
@@ -27104,28 +27176,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						) {
 							$v['realisasi_anggaran'] = $realisasi_bulan_all[$v['bulan'] - 1];
 							$wpdb->update('data_rfk', array(
-								'realisasi_anggaran' => $v['realisasi_anggaran']
+								'realisasi_anggaran' => $v['realisasi_anggaran'],
+								'realisasi_fisik' => $v['realisasi_fisik']
 							), array('id' => $v['id']));
 						}
 						$realisasi_bulan_all[$v['bulan']] = $v['realisasi_anggaran'];
 						$rak_bulan_all[$v['bulan']] = $v['rak'];
-						if (!empty($v['realisasi_anggaran'])) {
-							if ($v['bulan'] <= 3) {
-								$triwulan_1 = $v['realisasi_anggaran'];
-								$rak_triwulan_1 = $v['rak'];
-							} else if ($v['bulan'] <= 6) {
-								$triwulan_2 = $v['realisasi_anggaran'] - $realisasi_bulan_all[3];
-								$rak_triwulan_2 = $v['rak'] - $rak_bulan_all[3];
-							} else if ($v['bulan'] <= 9) {
-								$triwulan_3 = $v['realisasi_anggaran'] - $realisasi_bulan_all[6];
-								$rak_triwulan_3 = $v['rak'] - $rak_bulan_all[6];
-							} else if ($v['bulan'] <= 12) {
-								$triwulan_4 = $v['realisasi_anggaran'] - $realisasi_bulan_all[9];
-								$rak_triwulan_4 = $v['rak'] - $rak_bulan_all[9];
-							}
+						if (empty($v['realisasi_anggaran'])) {
+							$v['realisasi_anggaran'] = 0;
+						}
+						if (empty($v['realisasi_fisik'])) {
+							$v['realisasi_fisik'] = 0;
+						}
+						if (empty($v['rak'])) {
+							$v['rak'] = 0;
+						}
+						if ($v['bulan'] <= 3) {
+							$triwulan_1 = $v['realisasi_anggaran'];
+							$rak_triwulan_1 = $v['rak'];
+							$fisik_triwulan_1 = $v['realisasi_fisik'];
+						} else if ($v['bulan'] <= 6) {
+							$triwulan_2 = $v['realisasi_anggaran'] - $realisasi_bulan_all[3];
+							$rak_triwulan_2 = $v['rak'] - $rak_bulan_all[3];
+							$fisik_triwulan_2 = $v['realisasi_fisik'] - $fisik_bulan_all[3];
+						} else if ($v['bulan'] <= 9) {
+							$triwulan_3 = $v['realisasi_anggaran'] - $realisasi_bulan_all[6];
+							$rak_triwulan_3 = $v['rak'] - $rak_bulan_all[6];
+							$fisik_triwulan_3 = $v['realisasi_fisik'] - $fisik_bulan_all[6];
+						} else if ($v['bulan'] <= 12) {
+							$triwulan_4 = $v['realisasi_anggaran'] - $realisasi_bulan_all[9];
+							$rak_triwulan_4 = $v['rak'] - $rak_bulan_all[9];
+							$fisik_triwulan_4 = $v['realisasi_fisik'] - $fisik_bulan_all[9];
 						}
 					}
 					$realisasi = $triwulan_1 + $triwulan_2 + $triwulan_3 + $triwulan_4;
+					$realisasi_fisik = $fisik_triwulan_1 + $fisik_triwulan_2 + $fisik_triwulan_3 + $fisik_triwulan_4;
+					$data_all['total_fisik'] += $realisasi_fisik;
+					$data_all['total_sub_keg']++;
 
 					$kode_sbl_s = explode('.', $sub['kode_sbl']);
 					if (empty($data_all['data'][$sub['kode_urusan']])) {
@@ -27136,6 +27223,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'triwulan_2' => 0,
 							'triwulan_3' => 0,
 							'triwulan_4' => 0,
+							'fisik_triwulan_1' => 0,
+							'fisik_triwulan_2' => 0,
+							'fisik_triwulan_3' => 0,
+							'fisik_triwulan_4' => 0,
 							'total_simda' => 0,
 							'realisasi'  => 0,
 							'data'         => array()
@@ -27149,6 +27240,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'triwulan_2' => 0,
 							'triwulan_3' => 0,
 							'triwulan_4' => 0,
+							'fisik_triwulan_1' => 0,
+							'fisik_triwulan_2' => 0,
+							'fisik_triwulan_3' => 0,
+							'fisik_triwulan_4' => 0,
 							'total_simda' => 0,
 							'realisasi'  => 0,
 							'data'         => array()
@@ -27164,10 +27259,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					//program
 					if (empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])) {
-						$capaian_prog = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_capaian_prog_sub_keg WHERE tahun_anggaran=%d AND active=1 AND kode_sbl=%s AND capaianteks !='' ORDER BY id ASC ", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+						$capaian_prog = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_capaian_prog_sub_keg 
+							WHERE tahun_anggaran=%d 
+								AND active=1 
+								AND kode_sbl=%s 
+								AND capaianteks !='' 
+							ORDER BY id ASC
+						", $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
 						$kode_sbl = $kode_sbl_s[0] . '.' . $kode_sbl_s[1] . '.' . $kode_sbl_s[2];
-						$realisasi_renja = $wpdb->get_results($wpdb->prepare(" SELECT * FROM data_realisasi_renja WHERE tahun_anggaran=%d AND tipe_indikator=%d AND kode_sbl=%s ", $_POST['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
+						$realisasi_renja = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_realisasi_renja 
+							WHERE tahun_anggaran=%d 
+								AND tipe_indikator=%d 
+								AND kode_sbl=%s
+						", $_POST['tahun_anggaran'], 3, $kode_sbl), ARRAY_A);
 						$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 							'nama'                 => $sub['nama_program'],
 							'indikator'            => $capaian_prog,
@@ -27185,6 +27296,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'rak_triwulan_2'       => 0,
 							'rak_triwulan_3'       => 0,
 							'rak_triwulan_4'       => 0,
+							'fisik_triwulan_1'       => 0,
+							'fisik_triwulan_2'       => 0,
+							'fisik_triwulan_3'       => 0,
+							'fisik_triwulan_4'       => 0,
 							'total_simda'          => 0,
 							'realisasi'            => 0,
 							'data'                 => array()
@@ -27225,6 +27340,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$data_all['data'][$sub['kode_urusan']]['triwulan_4'] += $triwulan_4;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['triwulan_4'] += $triwulan_4;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['triwulan_4'] += $triwulan_4;
+
+					$data_all['fisik_triwulan_1'] += $fisik_triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['fisik_triwulan_1'] += $fisik_triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['fisik_triwulan_1'] += $fisik_triwulan_1;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['fisik_triwulan_1'] += $fisik_triwulan_1;
+
+					$data_all['fisik_triwulan_2'] += $fisik_triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['fisik_triwulan_2'] += $fisik_triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['fisik_triwulan_2'] += $fisik_triwulan_2;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['fisik_triwulan_2'] += $fisik_triwulan_2;
+
+					$data_all['fisik_triwulan_3'] += $fisik_triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['fisik_triwulan_3'] += $fisik_triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['fisik_triwulan_3'] += $fisik_triwulan_3;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['fisik_triwulan_3'] += $fisik_triwulan_3;
+
+					$data_all['fisik_triwulan_4'] += $fisik_triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['fisik_triwulan_4'] += $fisik_triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['fisik_triwulan_4'] += $fisik_triwulan_4;
+					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['fisik_triwulan_4'] += $fisik_triwulan_4;
 
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_1'] += $rak_triwulan_1;
 					$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['rak_triwulan_2'] += $rak_triwulan_2;
@@ -27418,7 +27553,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 				}
 
-
 				$capaian_kinerja = [
 					'total' => 0,
 					'tw_1'  => 0,
@@ -27496,6 +27630,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$serapan_tw3 = $this->pembulatan($persen_triwulan_3);
 				$serapan_tw4 = $this->pembulatan($persen_triwulan_4);
 
+				$new_data_all = $data_all;
+				unset($new_data_all['data']);
 				$ret['data'] = array(
 					'capaian_kinerja' => array(
 						'total' => round($capaian_kinerja['total'], 2) . '%',
@@ -27511,12 +27647,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tw3' => $serapan_tw3 . '%',
 						'tw4' => $serapan_tw4 . '%'
 					),
+					'capaian_fisik' => array(
+						'total' => round($data_all['total_fisik']/$data_all['total_sub_keg'], 2) . '%',
+						'tw1' => round($data_all['fisik_triwulan_1']/$data_all['total_sub_keg'], 2) . '%',
+						'tw2' => round($data_all['fisik_triwulan_2']/$data_all['total_sub_keg'], 2) . '%',
+						'tw3' => round($data_all['fisik_triwulan_3']/$data_all['total_sub_keg'], 2) . '%',
+						'tw4' => round($data_all['fisik_triwulan_4']/$data_all['total_sub_keg'], 2) . '%'
+					),
 					'anggaran' => array(
 						'total' => $data_all['total'],
 						'tw1' => $data_all['rak_triwulan_1'],
-						'tw2' => $data_all['rak_triwulan_1'],
-						'tw3' => $data_all['rak_triwulan_1'],
-						'tw4' => $data_all['rak_triwulan_1']
+						'tw2' => $data_all['rak_triwulan_2'],
+						'tw3' => $data_all['rak_triwulan_3'],
+						'tw4' => $data_all['rak_triwulan_4']
 					),
 					'realisasi_anggaran' => array(
 						'total' => $data_all['realisasi'],
@@ -27525,7 +27668,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tw3' => $data_all['triwulan_3'],
 						'tw4' => $data_all['triwulan_4']
 					),
-					'opd' => $unit
+					'opd' => $unit,
+					'detail' => $new_data_all
 				);
 			} else {
 				$ret = array(
