@@ -52,6 +52,7 @@ if ($unit[0]['id_unit'] != $unit[0]['id_skpd']) {
 
 $unit = (!empty($unit)) ? $unit : array();
 $nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
+$kode_skpd = (!empty($unit[0]['kode_skpd'])) ? $unit[0]['kode_skpd'] : '-';
 $nama_pemda = get_option('_crb_daerah');
 if (empty($nama_pemda) || $nama_pemda == 'false') {
     $nama_pemda = '';
@@ -245,23 +246,27 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <div class="form-group">
                         <label for="uraian_resiko">Uraian Resiko</label>
                         <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
-                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
+                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                     </div>
                     <div class="form-group">
                         <label for="kode_resiko">Kode Resiko</label>
-                        <input type="text" class="form-control" id="kode_resiko" name="kode_resiko" required>
+                        <input type="text" class="form-control" id="kode_resiko" name="kode_resiko" disabled required>
                     </div>
                     <div class="form-group">
-                        <label for="pemilik_resiko">Pemilik Resiko</label>
-                        <input type="text" class="form-control" id="pemilik_resiko" name="pemilik_resiko" required>
+                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
+                        <select id="pemilik_resiko" class="form-control">
+                            <option value="" selected>Pilih Pemilik Resiko</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="uraian_sebab">Uraian Sebab</label>
                         <input type="text" class="form-control" id="uraian_sebab" name="uraian_sebab" required>
                     </div>
                     <div class="form-group">
-                        <label for="sumber_sebab">Sumber Sebab</label>
-                        <input type="text" class="form-control" id="sumber_sebab" name="sumber_sebab" required>
+                        <label for="sumber_sebab">Pilih Sumber Sebab</label>
+                        <select id="sumber_sebab" class="form-control">
+                            <option value="" selected>Pilih Sumber Sebab</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="d-block">Controllable / Uncontrollable</label>
@@ -285,8 +290,10 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <input type="text" class="form-control" id="uraian_dampak" name="uraian_dampak" required>
                     </div>
                     <div class="form-group">
-                        <label for="pihak_terkena">Pihak Dampak yang Terkena</label>
-                        <input type="text" class="form-control" id="pihak_terkena" name="pihak_terkena" required>
+                        <label for="pihak_terkena">Pilih Pihak Dampak yang Terkena</label>
+                        <select id="pihak_terkena" class="form-control">
+                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="skala_dampak">Skala Dampak</label>
@@ -363,7 +370,6 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         <label for="sumber_sebab_usulan">Sumber Sebab</label>
                                         <input type="text" class="form-control" id="sumber_sebab_usulan" disabled>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="pihak_terkena_usulan">Pihak Dampak yang Terkena</label>
                                         <input type="text" class="form-control" id="pihak_terkena_usulan" disabled>
@@ -371,7 +377,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     <div class="form-group">
                                         <label for="uraian_resiko_usulan">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_usulan">Kode Resiko</label>
@@ -411,25 +417,31 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_sesudah">Pemilik Resiko</label>
-                                        <input type="text" class="form-control" id="pemilik_resiko_sesudah" name="pemilik_resiko_sesudah" required>
+                                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Resiko</label>
+                                        <select id="pemilik_resiko_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Pemilik Resiko</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="sumber_sebab_sesudah">Sumber Sebab</label>
-                                        <input type="text" class="form-control" id="sumber_sebab_sesudah" name="sumber_sebab_sesudah" required>
+                                        <label for="sumber_sebab_sesudah">Pilih Sumber Sebab</label>
+                                        <select id="sumber_sebab_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Sumber Sebab</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pihak_terkena_sesudah">Pihak Dampak yang Terkena</label>
-                                        <input type="text" class="form-control" id="pihak_terkena_sesudah" name="pihak_terkena_sesudah" required>
+                                        <label for="pihak_terkena_sesudah">Pilih Pihak Dampak yang Terkena</label>
+                                        <select id="pihak_terkena_sesudah" class="form-control">
+                                            <option value="" selected>Pilih Pihak Dampak yang Terkena</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="uraian_resiko_sesudah">Uraian Resiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah" name="uraian_resiko_sesudah" required>
-                                        <small class="text-muted">Risiko yang menghambat pencapaian IKU</small>
+                                        <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="kode_resiko_sesudah">Kode Resiko</label>
-                                        <input type="text" class="form-control" id="kode_resiko_sesudah" name="kode_resiko_sesudah" required>
+                                        <input type="text" class="form-control" id="kode_resiko_sesudah" name="kode_resiko_sesudah" disabled required>
                                     </div>
                                     <div class="form-group">
                                         <label for="uraian_sebab_sesudah">Uraian Sebab</label>
@@ -471,6 +483,38 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         </div>
     </div>
 </div>
+<!-- Modal mapping -->
+<div class="modal fade" id="MappingModal" tabindex="-1" role="dialog" aria-labelledby="MappingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 40%; margin-top: 50px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="MappingModalLabel">Mapping Data Manajemen Risiko</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formMapping">
+                    <input type="hidden" id="mapping_id" name="id">
+                    <input type="hidden" id="mapping_id_program_kegiatan" name="id_program_kegiatan">
+                    <input type="hidden" id="mapping_id_indikator" name="id_indikator">
+                    <input type="hidden" id="mapping_tipe" name="tipe">
+                    
+                    <div class="form-group">
+                        <label for="mapping_data">Pilih Data Tujuan</label>
+                        <select id="mapping_data" class="form-control" required>
+                            <option value="">Pilih Data</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="submit_mapping_program_kegiatan(); return false">Simpan Mapping</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -491,6 +535,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#VerifikasiModal').on('hidden.bs.modal', function () {
             reset_form_verifikasi();
         });
+
+        options_manrisk();
+        options_verif_manrisk();
     });
     var dataHitungMundur = {
         'namaJadwal' : '<?php echo ucwords($data_jadwal->nama); ?>',
@@ -539,16 +586,18 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function tambah_program_kegiatan_manrisk(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
+    function tambah_program_kegiatan_manrisk(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe, kode_bidang) {
         jQuery('#TambahProgramKegiatanModalLabel').show();
         jQuery('#editProgramKegiatanModalLabel').hide();
-        
-        reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe);
+        let tahun = <?php echo $input['tahun_anggaran']; ?>;
+        let kode_skpd = '<?php echo $kode_skpd; ?>';
+        let kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+        reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe, kode_resiko);
         
         jQuery('#editProgramKegiatanModal').modal('show');
     }
 
-    function edit_program_kegiatan_manrisk(id, id_program_kegiatan, id_indikator, tipe) {
+    function edit_program_kegiatan_manrisk(id, id_program_kegiatan, id_indikator, tipe, kode_bidang) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -569,15 +618,23 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
                     let data = response.data;
-                    jQuery("#id_data").val(data.id);        
+                    let tahun = <?php echo $input['tahun_anggaran']; ?>;
+                    let kode_skpd = '<?php echo $kode_skpd; ?>';
 
+                    if (data.kode_resiko === '' || data.kode_resiko === null || data.kode_resiko === 'NULL') {
+                        kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+                    } else {
+                        kode_resiko = data.kode_resiko;
+                    }
+
+                    jQuery("#id_data").val(data.id);        
                     jQuery('#id_program_kegiatan').val(id_program_kegiatan);
                     jQuery('#id_indikator').val(id_indikator);
                     jQuery('#tipe_sebelum').val(tipe);
                     jQuery("#nama_program_kegiatan").val(data.nama_program_kegiatan);
                     jQuery("#indikator_kinerja").val(data.capaian_teks);
                     jQuery("#uraian_resiko").val(data.uraian_resiko);
-                    jQuery("#kode_resiko").val(data.kode_resiko);
+                    jQuery("#kode_resiko").val(kode_resiko);
                     jQuery("#pemilik_resiko").val(data.pemilik_resiko);
                     jQuery("#uraian_sebab").val(data.uraian_sebab);
                     jQuery("#sumber_sebab").val(data.sumber_sebab);
@@ -663,10 +720,22 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function hapus_program_kegiatan_manrisk(id) {
-        if (!confirm('Apakah Anda yakin ingin menghapus data ini? Data sebelum dan sesudah evaluasi akan terhapus')) {
-            return;
+    function hapus_program_kegiatan_manrisk(id, tipe) {
+        if (tipe == 1){            
+            if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                return;
+            }
+        } else{
+            if (!confirm('Apakah Anda yakin ingin menghapus data ini? Data sebelum dan sesudah evaluasi akan terhapus')) {
+                return;
+            }            
         }
+        
+        var id_data = id;
+        if (tipe == 1 && typeof id === 'string' && id.includes(',')) {
+            id_data = id.split(',');
+        }
+        
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -674,7 +743,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 action: 'hapus_program_kegiatan_manrisk',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
-                id: id
+                id: id_data
             },
             dataType: 'json',
             success: function(response) {
@@ -695,7 +764,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function verif_program_kegiatan_manrisk(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah) {
+    function verif_program_kegiatan_manrisk(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah, kode_bidang) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -718,40 +787,55 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     let data = response.data;
                     let data_sebelum = response.data_sebelum;
-                    
+
+                    let tahun = <?php echo $input['tahun_anggaran']; ?>;
+                    let kode_skpd = '<?php echo $kode_skpd; ?>';
+                    let kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+
+                    window.value = {
+                        pemilik_resiko_id: data_sebelum.pemilik_resiko || '',
+                        sumber_sebab_id: data_sebelum.sumber_sebab || '',
+                        pihak_terkena_id: data_sebelum.pihak_terkena || ''
+                    };
+
+                    let pemilik_resiko_text = get_nama_by_id(response.data_master.pemilik_resiko, data_sebelum.pemilik_resiko);
+                    let sumber_sebab_text   = get_nama_by_id(response.data_master.sumber_sebab, data_sebelum.sumber_sebab);
+                    let pihak_terkena_text  = get_nama_by_id(response.data_master.pihak_terdampak, data_sebelum.pihak_terkena);
+
                     if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
                         jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
                     } else {
                         jQuery("input[name='controllable_status_usulan']").prop('checked', false);
                     }
-                    
-                    jQuery("#uraian_resiko_usulan").val(data_sebelum.uraian_resiko);
-                    jQuery("#kode_resiko_usulan").val(data_sebelum.kode_resiko);
-                    jQuery("#pemilik_resiko_usulan").val(data_sebelum.pemilik_resiko);
-                    jQuery("#uraian_sebab_usulan").val(data_sebelum.uraian_sebab);
-                    jQuery("#sumber_sebab_usulan").val(data_sebelum.sumber_sebab);
-                    jQuery("#uraian_dampak_usulan").val(data_sebelum.uraian_dampak);
-                    jQuery("#pihak_terkena_usulan").val(data_sebelum.pihak_terkena);
-                    jQuery("#skala_dampak_usulan").val(data_sebelum.skala_dampak);
-                    jQuery("#skala_kemungkinan_usulan").val(data_sebelum.skala_kemungkinan);
-                    jQuery("#rencana_tindak_pengendalian_usulan").val(data_sebelum.rencana_tindak_pengendalian);
-                     
+
+                    jQuery("#uraian_resiko_usulan").val(data_sebelum.uraian_resiko || '');
+                    jQuery("#kode_resiko_usulan").val(kode_resiko || '');
+                    jQuery("#pemilik_resiko_usulan").val(pemilik_resiko_text || '');
+                    jQuery("#uraian_sebab_usulan").val(data_sebelum.uraian_sebab || '');
+                    jQuery("#sumber_sebab_usulan").val(sumber_sebab_text || '');
+                    jQuery("#uraian_dampak_usulan").val(data_sebelum.uraian_dampak || '');
+                    jQuery("#pihak_terkena_usulan").val(pihak_terkena_text || '');
+                    jQuery("#skala_dampak_usulan").val(data_sebelum.skala_dampak || '');
+                    jQuery("#skala_kemungkinan_usulan").val(data_sebelum.skala_kemungkinan || '');
+                    jQuery("#rencana_tindak_pengendalian_usulan").val(data_sebelum.rencana_tindak_pengendalian || '');
 
                     jQuery('#id_program_kegiatan_sesudah').val(id_program_kegiatan);
                     jQuery('#id_indikator_sesudah').val(id_indikator);
                     jQuery('#tipe_sesudah').val(tipe_sesudah);
+                    
                     if (data && Object.keys(data).length > 0) {
                         jQuery("#id_data_sesudah").val(data.id);
                         jQuery('#nama_program_kegiatan_sesudah').val(data.nama_program_kegiatan);
-                        jQuery('#indikator_kinerja_sesudah').val(data.capaian_teks);
-                        if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
+                        jQuery('#indikator_kinerja_sesudah').val(data_sebelum.capaian_teks);
+                        
+                        if (data.controllable == 0 || data.controllable == 1) {
                             jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
                         } else {
                             jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
                         }
-                        jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
+                        
                         jQuery("#uraian_resiko_sesudah").val(data.uraian_resiko);
-                        jQuery("#kode_resiko_sesudah").val(data.kode_resiko);
+                        jQuery("#kode_resiko_sesudah").val(kode_resiko);
                         jQuery("#pemilik_resiko_sesudah").val(data.pemilik_resiko);
                         jQuery("#uraian_sebab_sesudah").val(data.uraian_sebab);
                         jQuery("#sumber_sebab_sesudah").val(data.sumber_sebab);
@@ -761,7 +845,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         jQuery("#skala_kemungkinan_sesudah").val(data.skala_kemungkinan);
                         jQuery("#rencana_tindak_pengendalian_sesudah").val(data.rencana_tindak_pengendalian);
                     } else {
-                        reset_form_verifikasi();
+
+                        reset_form_verifikasi(kode_resiko);
                     }
 
                     jQuery('#id_sebelum').val(id_sebelum);
@@ -780,6 +865,14 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
+    function get_nama_by_id(list, id) {
+        if (!list || !id) return '';
+        let item = list.find(function(el) {
+            return el.id == id;
+        });
+        return item ? item.nama : '';
+    }
+
     function copy_usulan(button) {
         try {
             jQuery(button).prop('disabled', true);
@@ -787,22 +880,23 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             let uraian_resiko = jQuery("#uraian_resiko_usulan").val();
             let kode_resiko = jQuery("#kode_resiko_usulan").val();
             let uraian_sebab = jQuery("#uraian_sebab_usulan").val();
-            let pemilik_resiko = jQuery("#pemilik_resiko_usulan").val();
-            let sumber_sebab = jQuery("#sumber_sebab_usulan").val();
-            let pihak_terkena = jQuery("#pihak_terkena_usulan").val();
             let uraian_dampak = jQuery("#uraian_dampak_usulan").val();
             let skala_dampak = jQuery("#skala_dampak_usulan").val();
             let skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
             let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
             let controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
             
+            let pemilik_resiko_id = window.value ? window.value.pemilik_resiko_id : '';
+            let sumber_sebab_id = window.value ? window.value.sumber_sebab_id : '';
+            let pihak_terkena_id = window.value ? window.value.pihak_terkena_id : '';
+            
             jQuery("#uraian_resiko_sesudah").val(uraian_resiko);
             jQuery("#kode_resiko_sesudah").val(kode_resiko);
-            jQuery("#pemilik_resiko_sesudah").val(pemilik_resiko);
+            jQuery("#pemilik_resiko_sesudah").val(pemilik_resiko_id);
             jQuery("#uraian_sebab_sesudah").val(uraian_sebab);
-            jQuery("#sumber_sebab_sesudah").val(sumber_sebab);
+            jQuery("#sumber_sebab_sesudah").val(sumber_sebab_id);
             jQuery("#uraian_dampak_sesudah").val(uraian_dampak);
-            jQuery("#pihak_terkena_sesudah").val(pihak_terkena);
+            jQuery("#pihak_terkena_sesudah").val(pihak_terkena_id);
             jQuery("#skala_dampak_sesudah").val(skala_dampak);
             jQuery("#skala_kemungkinan_sesudah").val(skala_kemungkinan);
             jQuery("#rencana_tindak_pengendalian_sesudah").val(rencana_tindak_pengendalian);
@@ -811,9 +905,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             jQuery("#sumber_sebab_sesudah").trigger('change');
             jQuery("#pihak_terkena_sesudah").trigger('change');
             
-            jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan');
-            jQuery(button).removeClass('btn-success').addClass('btn-danger');
-            jQuery(button).prop('disabled', false);
+            jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Data Berhasil Disalin!');
+            jQuery(button).removeClass('btn-danger').addClass('btn-success');
 
             if (controllable_status) {
                 jQuery(`input[name='controllable_status_sesudah'][value='${controllable_status}']`).prop('checked', true);
@@ -835,6 +928,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 penetapan.forEach(function(selector) {
                     jQuery(selector).removeClass('field-updated');
                 });
+                jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan');
+                jQuery(button).removeClass('btn-success').addClass('btn-danger');
+                jQuery(button).prop('disabled', false);
             }, 3000);
             
         } catch (error) {
@@ -845,7 +941,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         }
     }
 
-    function reset_form_verifikasi() {
+    function reset_form_verifikasi(kode_resiko) {
         jQuery("#id_data_sesudah").val('');
         
         jQuery('#nama_program_kegiatan_sesudah').val('');
@@ -854,7 +950,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
         
         jQuery("#uraian_resiko_sesudah").val('');
-        jQuery("#kode_resiko_sesudah").val('');
+        jQuery("#kode_resiko_sesudah").val(kode_resiko);
         jQuery("#pemilik_resiko_sesudah").val('');
         jQuery("#uraian_sebab_sesudah").val('');
         jQuery("#sumber_sebab_sesudah").val('');
@@ -865,7 +961,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("#rencana_tindak_pengendalian_sesudah").val('');
     }
 
-    function reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe) {
+    function reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe, kode_resiko) {
         jQuery('#id_program_kegiatan').val(id_program_kegiatan);
         jQuery('#id_indikator').val(id_indikator);
         jQuery('#tipe_sebelum').val(tipe);
@@ -875,7 +971,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("input[name='controllable_status']").prop('checked', false);
         jQuery("#id_data").val('');
         jQuery("#uraian_resiko").val('');
-        jQuery("#kode_resiko").val('');
+        jQuery("#kode_resiko").val(kode_resiko);
         jQuery("#pemilik_resiko").val('');
         jQuery("#uraian_sebab").val('');
         jQuery("#sumber_sebab").val('');
@@ -950,4 +1046,176 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
+    function mapping_program_kegiatan_manrisk(all_id, id_program_kegiatan, id_indikator, tipe) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'mapping_program_kegiatan_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                all_id: JSON.stringify(all_id),
+                id_program_kegiatan: id_program_kegiatan,
+                id_indikator: id_indikator,
+                tipe: tipe 
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    jQuery("#mapping_id").val(JSON.stringify(all_id));
+                    jQuery("#mapping_id_program_kegiatan").val(id_program_kegiatan);
+                    jQuery("#mapping_id_indikator").val(id_indikator);
+                    jQuery("#mapping_tipe").val(tipe);
+
+                    var select = jQuery('#mapping_data');
+                    select.empty();
+
+                    if (response.data && response.data.length > 0) {
+                        jQuery.each(response.data, function(i, item) {
+                            var option = jQuery('<option></option>')
+                                .val(item.id)
+                                .text(item.capaian_teks + ' (' + item.target_capaian_teks + ')');
+                            select.append(option);
+                        });
+                        jQuery('#MappingModal').modal('show');
+                    } else {
+                        if (confirm("Data tujuan tidak tersedia. Apakah Anda ingin menghapus data ini?")) {
+                            hapus_program_kegiatan_manrisk(all_id[0], 1);
+                        }
+                    }
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data!');
+            }
+        });
+    }
+
+    function submit_mapping_program_kegiatan() {
+        var all_id = jQuery('#mapping_id').val();
+        var id_program_kegiatan = jQuery('#mapping_id_program_kegiatan').val();
+        var id_indikator = jQuery('#mapping_id_indikator').val();
+        var tipe = jQuery('#mapping_tipe').val();
+        var id_tujuan = jQuery('#mapping_data').val();
+        
+        if (!id_tujuan) {
+            alert('Silakan pilih data terlebih dahulu!');
+            return false;
+        }
+        
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'submit_mapping_program_kegiatan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                all_id: all_id,
+                id_program_kegiatan: id_program_kegiatan,
+                id_indikator: id_indikator,
+                tipe: tipe,
+                id_tujuan: id_tujuan
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status === 'success') {
+                    jQuery('#MappingModal').modal('hide');
+                    get_table_program_kegiatan();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat mengirim data!');
+            }
+        });
+    }
+
+    function options_manrisk() {
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'options_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    response.data.pemilik_resiko.forEach(function(item) {
+                        pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
+                    });
+                    jQuery('#pemilik_resiko').html(pemilik_resiko);
+
+                    let sumber_sebab = '<option value="">Pilih Sumber Sebab</option>';
+                    response.data.sumber_sebab.forEach(function(item) {
+                        sumber_sebab += `<option value="${item.id}">${item.nama}</option>`;
+                    });
+                    jQuery('#sumber_sebab').html(sumber_sebab);
+
+                    let pihak_terdampak = '<option value="">Pilih Pihak Dampak yang Terkena</option>';
+                    response.data.pihak_terdampak.forEach(function(item) {
+                        let value = item.id;
+                        pihak_terdampak += `<option value="${value}">${item.nama}</option>`;
+                    });
+                    jQuery('#pihak_terkena').html(pihak_terdampak);
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan!');
+            }
+        });
+    }
+    function options_verif_manrisk() {
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'options_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    response.data.pemilik_resiko.forEach(function(item) {
+                        pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
+                    });
+                    jQuery('#pemilik_resiko_sesudah').html(pemilik_resiko);
+
+                    let sumber_sebab = '<option value="">Pilih Sumber Sebab</option>';
+                    response.data.sumber_sebab.forEach(function(item) {
+                        sumber_sebab += `<option value="${item.id}">${item.nama}</option>`;
+                    });
+                    jQuery('#sumber_sebab_sesudah').html(sumber_sebab);
+
+                    let pihak_terdampak = '<option value="">Pilih Pihak Dampak yang Terkena</option>';
+                    response.data.pihak_terdampak.forEach(function(item) {
+                        pihak_terdampak += `<option value="${item.id}">${item.nama}</option>`;
+                    });
+                    jQuery('#pihak_terkena_sesudah').html(pihak_terdampak);
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan!');
+            }
+        });
+    }
 </script>
