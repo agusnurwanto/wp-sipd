@@ -27377,17 +27377,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$persen_triwulan_2 = 0;
 				$persen_triwulan_3 = 0;
 				$persen_triwulan_4 = 0;
-				if (!empty($data_all['rak_triwulan_1']) && !empty($data_all['triwulan_1'])) {
-					$persen_triwulan_1 = ($data_all['triwulan_1'] / $data_all['rak_triwulan_1']) * 100;
+				
+				$total_triwulan_rak = $data_all['rak_triwulan_1'];
+				$total_triwulan_realisasi = $data_all['triwulan_1'];
+				if (!empty($total_triwulan_rak)) {
+					$persen_triwulan_1 = ($total_triwulan_realisasi / $total_triwulan_rak) * 100;
 				}
-				if (!empty($data_all['rak_triwulan_2']) && !empty($data_all['triwulan_2'])) {
-					$persen_triwulan_2 = ($data_all['triwulan_2'] / $data_all['rak_triwulan_2']) * 100;
+
+				$total_triwulan_rak += $data_all['rak_triwulan_2'];
+				$total_triwulan_realisasi += $data_all['triwulan_2'];
+				if (!empty($total_triwulan_rak)) {
+					$persen_triwulan_2 = ($total_triwulan_realisasi / $total_triwulan_rak) * 100;
 				}
-				if (!empty($data_all['rak_triwulan_3']) && !empty($data_all['triwulan_3'])) {
-					$persen_triwulan_3 = ($data_all['triwulan_3'] / $data_all['rak_triwulan_3']) * 100;
+
+				$total_triwulan_rak += $data_all['rak_triwulan_3'];
+				$total_triwulan_realisasi += $data_all['triwulan_3'];
+				if (!empty($total_triwulan_rak)) {
+					$persen_triwulan_3 = ($total_triwulan_realisasi / $total_triwulan_rak) * 100;
 				}
-				if (!empty($data_all['rak_triwulan_4']) && !empty($data_all['triwulan_4'])) {
-					$persen_triwulan_4 = ($data_all['triwulan_4'] / $data_all['rak_triwulan_4']) * 100;
+
+				$total_triwulan_rak += $data_all['rak_triwulan_4'];
+				$total_triwulan_realisasi += $data_all['triwulan_4'];
+				if (!empty($total_triwulan_rak)) {
+					$persen_triwulan_4 = ($total_triwulan_realisasi / $total_triwulan_rak) * 100;
 				}
 
 				$data_all_js      = array();
