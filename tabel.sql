@@ -8303,3 +8303,15 @@ CREATE TABLE `data_opd_kecurangan_mcp` (
   KEY `id_skpd` (`id_skpd`),
   KEY `active` (`active`)
 );
+
+CREATE TABLE `data_sasaran_tahapan_mcp` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `sasaran` TEXT DEFAULT NULL,
+  `tahapan` TEXT DEFAULT NULL,
+  `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `active` (`active`)
+);
