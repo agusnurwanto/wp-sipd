@@ -57,6 +57,52 @@ if (empty($nama_pemda) || $nama_pemda == 'false') {
     $nama_pemda = '';
 }
 
+$unit = $wpdb->get_row($wpdb->prepare("
+    SELECT 
+        id_skpd,
+        nama_skpd,
+        bidur_1,
+        bidur_2,
+        bidur_3
+    FROM 
+        data_unit
+    WHERE 
+        id_skpd = %d
+        AND tahun_anggaran = %d
+        AND active = 1
+    LIMIT 1
+", $id_skpd, $input['tahun_anggaran']));
+
+$nama_bidang_urusan = '';
+if (!empty($unit)) {
+    $arr_bidur = array_filter(array($unit->bidur_1, $unit->bidur_2, $unit->bidur_3),
+        function($v) {
+            return $v !== null && $v !== ''; 
+        }
+    );  
+    if (!empty($arr_bidur)) {
+        $placeholders = implode(',', array_fill(0, count($arr_bidur), '%d'));
+        $sql = $wpdb->prepare("
+            SELECT nama_bidang_urusan 
+            FROM data_prog_keg 
+            WHERE id_bidang_urusan IN ($placeholders)
+            AND tahun_anggaran = %d
+            AND active = 1
+            GROUP BY nama_bidang_urusan
+        ", array_merge($arr_bidur, array($input['tahun_anggaran'])));
+
+        $nama_bidur = $wpdb->get_col($sql);
+
+        // hilangkan angka dan titik di awal, misal "1.01 " atau "2.19 "
+        $nama_bersih = array();
+        foreach ($nama_bidur as $n) {
+            $nama_bersih[] = preg_replace('/^[0-9.]+\s*/', '', trim($n));
+        }
+
+        $nama_bidang_urusan = implode('<br>', $nama_bersih);
+    }
+}
+
 $cek_jadwal_renja = $wpdb->get_results(
     $wpdb->prepare('
         SELECT 
@@ -73,6 +119,22 @@ $id_jadwal = 0;
 if (!empty($cek_jadwal_renja)) {
     foreach ($cek_jadwal_renja as $jadwal_renja) {
         $id_jadwal = $jadwal_renja['relasi_perencanaan'];
+    }
+}
+
+$nama_periode_dinilai = '-';
+
+if ($id_jadwal != 0) {
+    $get_nama_jadwal = $wpdb->get_row(
+        $wpdb->prepare('
+            SELECT nama
+            FROM data_jadwal_lokal
+            WHERE id_jadwal_lokal = %d
+        ', $id_jadwal)
+    );
+
+    if (!empty($get_nama_jadwal)) {
+        $nama_periode_dinilai = $get_nama_jadwal->nama;
     }
 }
 
@@ -125,6 +187,28 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 20%;">Nama Pemda</th>
+                        <td><strong><?php echo $nama_pemda; ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th>Nama OPD</th>
+                        <td><strong><?php echo $nama_skpd; ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th>Tahun Penilaian</th>
+                        <td><strong><?php echo $input['tahun_anggaran']; ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th>Periode yang Dinilai</th>
+                        <td><strong><?php echo ($nama_periode_dinilai); ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th>Urusan Pemerintahan</th>
+                        <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
+                    </tr>
+                </table>
                 <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table_manrisk_tujuan_sasaran table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
