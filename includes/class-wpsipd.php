@@ -1184,6 +1184,13 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_verif_program_kegiatan_manrisk',  $plugin_public, 'verif_program_kegiatan_manrisk');
 		$this->loader->add_action('wp_ajax_submit_verif_program_kegiatan',  $plugin_public, 'submit_verif_program_kegiatan');
 		$this->loader->add_action('wp_ajax_submit_verif_program_kegiatan_manrisk',  $plugin_public, 'submit_verif_program_kegiatan_manrisk');
+		$this->loader->add_action('wp_ajax_mapping_program_kegiatan_manrisk',  $plugin_public, 'mapping_program_kegiatan_manrisk');
+		$this->loader->add_action('wp_ajax_submit_mapping_program_kegiatan',  $plugin_public, 'submit_mapping_program_kegiatan');
+		
+		$this->loader->add_action('wp_ajax_pemilik_resiko_manrisk',  $plugin_public, 'pemilik_resiko_manrisk');
+		$this->loader->add_action('wp_ajax_sumber_sebab_manrisk',  $plugin_public, 'sumber_sebab_manrisk');
+		$this->loader->add_action('wp_ajax_pihak_terdampak_manrisk',  $plugin_public, 'pihak_terdampak_manrisk');
+		$this->loader->add_action('wp_ajax_options_manrisk',  $plugin_public, 'options_manrisk');
 
 		$this->loader->add_action('wp_ajax_get_table_rpjmd_renstra',  $plugin_public, 'get_table_rpjmd_renstra');
 		
