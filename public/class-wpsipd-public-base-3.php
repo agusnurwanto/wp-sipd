@@ -15100,6 +15100,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									        $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 									        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
 									        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+											$timezone_string = wp_timezone_string();
+											date_default_timezone_set($timezone_string);
 									        $awal = new DateTime($mulaiJadwal);
 									        $akhir = new DateTime($selesaiJadwal);
 									        $now = new DateTime(date('Y-m-d H:i:s'));
