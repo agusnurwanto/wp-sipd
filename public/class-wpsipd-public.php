@@ -27020,14 +27020,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$sql = $wpdb->prepare("
-					SELECT *
+					SELECT 
+						*
 					FROM data_unit
 					WHERE tahun_anggaran=%d
-						AND id_skpd = %d
+						AND id_unit = %d
 						AND active= 1
 					ORDER BY id_skpd ASC
 				", $_POST['tahun_anggaran'], $_POST['id_skpd']);
 				$unit = $wpdb->get_results($sql, ARRAY_A);
+
+				if(empty($unit)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id SKPD tidak ditemukan!';
+					die(json_encode($ret));
+				}
+
+				$unit_all = array();
+				foreach($unit as $val){
+					$unit_all[] = $val['id_skpd'];
+				}
 
 				$bulan = date('m');
 				$tahun_asli = date('Y');
@@ -27044,10 +27056,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						FROM data_sub_keg_bl k
 						WHERE k.tahun_anggaran=%d
 							AND k.active=1
-							AND k.id_sub_skpd=%d
+							AND k.id_sub_skpd IN (".implode(',', $unit_all).")
 							AND k.pagu > 0
 						ORDER BY k.kode_sub_giat ASC
-					", $_POST['tahun_anggaran'], $unit[0]['id_skpd']),
+					", $_POST['tahun_anggaran']),
 					ARRAY_A
 				);
 				$data_all = array(
@@ -27096,7 +27108,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND kode_sbl=%s
 							AND bulan<=%d 
 						ORDER BY bulan ASC, id ASC
-					", $_POST['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+					", $_POST['tahun_anggaran'], $sub['id_sub_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 
 					$rak = array();
 					foreach ($rfk_all as $k => $v) {
@@ -27113,7 +27125,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					for ($i = 1; $i <= $bulan; $i++) {
 						$opsi = array(
 							'user' 			 => 'api get serapan',
-							'id_skpd' 		 => $unit[0]['id_skpd'],
+							'id_skpd' 		 => $sub['id_sub_skpd'],
 							'kode_sbl' 		 => $sub['kode_sbl'],
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'bulan' 		 => $i,
@@ -27150,7 +27162,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							  AND id_skpd=%d 
 							  AND kode_sbl=%s 
 							  AND bulan<=%d ORDER BY bulan ASC
-						", $_POST['tahun_anggaran'], $unit[0]['id_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
+						", $_POST['tahun_anggaran'], $sub['id_sub_skpd'], $sub['kode_sbl'], $bulan), ARRAY_A);
 					}
 
 					$triwulan_1 = 0;
@@ -27377,7 +27389,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$persen_triwulan_2 = 0;
 				$persen_triwulan_3 = 0;
 				$persen_triwulan_4 = 0;
-				
+
 				$total_triwulan_rak = $data_all['rak_triwulan_1'];
 				$total_triwulan_realisasi = $data_all['triwulan_1'];
 				if (!empty($total_triwulan_rak)) {
