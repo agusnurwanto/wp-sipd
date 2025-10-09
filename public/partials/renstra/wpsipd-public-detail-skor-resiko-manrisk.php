@@ -475,7 +475,7 @@ $opd_master = $wpdb->get_results(
             </div>
 
             <div class="col-md-5">
-                <div style="text-align:right; margin-bottom:5px; padding-right:404px;">
+                <div style="text-align:left; margin-bottom:5px;">
                     <button type="button" class="btn btn-primary" onclick="tambah_opd()">
                         + Tambah OPD
                     </button>
@@ -494,6 +494,32 @@ $opd_master = $wpdb->get_results(
     </div>
 </div>
 
+<div class="container-md">
+    <div style="padding: 10px;margin:0 15px 3rem 15px;">
+        <div class="row">
+            <button type="button" class="btn btn-primary" onclick="tambah_opd()">
+                        + Tambah Sasaran MCP 
+            </button>
+            <table class="table-keterangan" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
+                <thead>    
+                    <tr>    
+                        <th class="text-center" colspan="4">Tabel Data Master sasaran Area MCP</th>     
+                    </tr>              
+                    <tr>    
+                        <th class="text-center">No</th>
+                        <th class="text-center">Sasaran</th>
+                        <th class="text-center">Tahapan</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>                
+                <tbody>
+                    <tr>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <!-- Modal tambah OPD Penyusun -->
 <div class="modal fade" id="modalTambahOPD" tabindex="-1">
   <div class="modal-dialog modal-lg" role="document">
@@ -566,9 +592,9 @@ $opd_master = $wpdb->get_results(
             type: 'post',
             dataType: 'json',
             data: {
-                'action': 'load_opd_manrisk',
-                'api_key': jQuery("#api_key").val(),
-                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>
+                action: 'load_opd_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>
             },
             success: function(response) {
                 jQuery("#wrap-loading").hide();
@@ -596,10 +622,10 @@ $opd_master = $wpdb->get_results(
             type: 'post',
             dataType: 'json',
             data: {
-                'action': 'simpan_opd_manrisk',
-                'api_key': jQuery("#api_key").val(),
-                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
-                'opd': opd
+                action: 'simpan_opd_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                opd: opd
             },
             success: function(response) {
                 jQuery("#wrap-loading").hide();
@@ -645,7 +671,7 @@ $opd_master = $wpdb->get_results(
                 dataType: 'json',
                 data: {
                     action: 'hapus_daftar_opd_manrisk',
-                    api_key: jQuery("#api_key").val(),
+                    api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                     id_skpd: id_skpd,
                     tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 },
