@@ -75,11 +75,12 @@ $unit = $wpdb->get_row($wpdb->prepare("
 
 $nama_bidang_urusan = '';
 if (!empty($unit)) {
-    $arr_bidur = array_filter(array($unit->bidur_1, $unit->bidur_2, $unit->bidur_3),
-        function($v) {
-            return $v !== null && $v !== ''; 
+    $arr_bidur = array_filter(
+        array($unit->bidur_1, $unit->bidur_2, $unit->bidur_3),
+        function ($v) {
+            return $v !== null && $v !== '';
         }
-    );  
+    );
     if (!empty($arr_bidur)) {
         $placeholders = implode(',', array_fill(0, count($arr_bidur), '%d'));
         $sql = $wpdb->prepare("
@@ -186,29 +187,34 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 Manajemen Resiko Program / Kegiatan <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
-            <div class="wrap-table">
-            <table class="table table-bordered">
+            <table class="borderless-table">
                 <tr>
                     <th style="width: 20%;">Nama Pemda</th>
-                    <td><strong><?php echo $nama_pemda; ?></strong></td>
+                    <th style="width: 5px;">:</th>
+                    <td><strong><?php echo strtoupper($nama_pemda); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Nama OPD</th>
-                    <td><strong><?php echo $nama_skpd; ?></strong></td>
+                    <th>:</th>
+                    <td><strong><?php echo strtoupper($nama_skpd); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Tahun Penilaian</th>
+                    <th>:</th>
                     <td><strong><?php echo $input['tahun_anggaran']; ?></strong></td>
                 </tr>
                 <tr>
                     <th>Periode yang Dinilai</th>
+                    <th>:</th>
                     <td><strong><?php echo ($nama_periode_dinilai); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Urusan Pemerintahan</th>
+                    <th>:</th>
                     <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
                 </tr>
             </table>
+            <div class="wrap-table">
                 <table id="cetak" title="Manajemen Resiko Program / Kegiatan SKPD" class="table_manrisk_program_kegiatan table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
@@ -312,7 +318,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-             <div class="modal-body">
+            <div class="modal-body">
                 <form id="formTambahProgramKegiatan">
                     <input type="hidden" value="" id="id_data">
                     <input type="hidden" value="" id="id_program_kegiatan">
@@ -409,7 +415,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-             <div class="modal-body">
+            <div class="modal-body">
                 <form id="formTambahProgramKegiatanSesudah">
                     <input type="hidden" value="" id="id_data_sesudah">
                     <input type="hidden" value="" id="id_sebelum">
@@ -582,7 +588,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <input type="hidden" id="mapping_id_program_kegiatan" name="id_program_kegiatan">
                     <input type="hidden" id="mapping_id_indikator" name="id_indikator">
                     <input type="hidden" id="mapping_tipe" name="tipe">
-                    
+
                     <div class="form-group">
                         <label for="mapping_data">Pilih Data Tujuan</label>
                         <select id="mapping_data" class="form-control" required>
@@ -606,16 +612,16 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery(document).on('change', '#nama_program_kegiatan', function() {
             get_indikator_edit();
         });
-        
+
         jQuery(document).on('change', '#get_program_kegiatan', function() {
             get_indikator_verifikasi();
         });
-        
-        jQuery('#editProgramKegiatanModal').on('hidden.bs.modal', function () {
+
+        jQuery('#editProgramKegiatanModal').on('hidden.bs.modal', function() {
             reset_form_tambah();
         });
-        
-        jQuery('#VerifikasiModal').on('hidden.bs.modal', function () {
+
+        jQuery('#VerifikasiModal').on('hidden.bs.modal', function() {
             reset_form_verifikasi();
         });
 
@@ -623,10 +629,10 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         options_verif_manrisk();
     });
     var dataHitungMundur = {
-        'namaJadwal' : '<?php echo ucwords($data_jadwal->nama); ?>',
-        'mulaiJadwal' : '<?php echo $data_jadwal->waktu_awal; ?>',
-        'selesaiJadwal' : '<?php echo $data_jadwal->waktu_akhir; ?>',
-        'thisTimeZone' : '<?php echo $timezone ?>'
+        'namaJadwal': '<?php echo ucwords($data_jadwal->nama); ?>',
+        'mulaiJadwal': '<?php echo $data_jadwal->waktu_awal; ?>',
+        'selesaiJadwal': '<?php echo $data_jadwal->waktu_akhir; ?>',
+        'thisTimeZone': '<?php echo $timezone ?>'
     }
 
     penjadwalanHitungMundur(dataHitungMundur);
@@ -656,7 +662,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     } else {
                         jQuery('.kolom-sesudah').hide();
                     }
-                    
+
                 } else {
                     alert(response.message);
                 }
@@ -674,9 +680,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#editProgramKegiatanModalLabel').hide();
         let tahun = <?php echo $input['tahun_anggaran']; ?>;
         let kode_skpd = '<?php echo $kode_skpd; ?>';
-        let kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+        let kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
         reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe, kode_resiko);
-        
+
         jQuery('#editProgramKegiatanModal').modal('show');
     }
 
@@ -690,11 +696,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
-                id: id ,
+                id: id,
                 id_jadwal: <?php echo $id_jadwal; ?>,
                 id_program_kegiatan: id_program_kegiatan,
-                id_indikator: id_indikator, 
-                tipe: tipe 
+                id_indikator: id_indikator,
+                tipe: tipe
             },
             dataType: 'json',
             success: function(response) {
@@ -705,12 +711,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     let kode_skpd = '<?php echo $kode_skpd; ?>';
 
                     if (data.kode_resiko === '' || data.kode_resiko === null || data.kode_resiko === 'NULL') {
-                        kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+                        kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
                     } else {
                         kode_resiko = data.kode_resiko;
                     }
 
-                    jQuery("#id_data").val(data.id);        
+                    jQuery("#id_data").val(data.id);
                     jQuery('#id_program_kegiatan').val(id_program_kegiatan);
                     jQuery('#id_indikator').val(id_indikator);
                     jQuery('#tipe_sebelum').val(tipe);
@@ -771,7 +777,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
-                id: id, 
+                id: id,
                 id_program_kegiatan: id_program_kegiatan,
                 id_indikator: id_indikator,
                 tipe: tipe_sebelum,
@@ -780,7 +786,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 pemilik_resiko: pemilik_resiko,
                 uraian_sebab: uraian_sebab,
                 sumber_sebab: sumber_sebab,
-                controllable_status: controllable_status, 
+                controllable_status: controllable_status,
                 uraian_dampak: uraian_dampak,
                 pihak_terkena: pihak_terkena,
                 skala_dampak: skala_dampak,
@@ -804,21 +810,21 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     }
 
     function hapus_program_kegiatan_manrisk(id, tipe) {
-        if (tipe == 1){            
+        if (tipe == 1) {
             if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                 return;
             }
-        } else{
+        } else {
             if (!confirm('Apakah Anda yakin ingin menghapus data ini? Data sebelum dan sesudah evaluasi akan terhapus')) {
                 return;
-            }            
+            }
         }
-        
+
         var id_data = id;
         if (tipe == 1 && typeof id === 'string' && id.includes(',')) {
             id_data = id.split(',');
         }
-        
+
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -873,7 +879,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
 
                     let tahun = <?php echo $input['tahun_anggaran']; ?>;
                     let kode_skpd = '<?php echo $kode_skpd; ?>';
-                    let kode_resiko = 'RSO-'+ tahun.toString().slice(-2)+'-'+kode_bidang+'-'+kode_skpd;
+                    let kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
 
                     window.value = {
                         pemilik_resiko_id: data_sebelum.pemilik_resiko || '',
@@ -882,8 +888,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     };
 
                     let pemilik_resiko_text = get_nama_by_id(response.data_master.pemilik_resiko, data_sebelum.pemilik_resiko);
-                    let sumber_sebab_text   = get_nama_by_id(response.data_master.sumber_sebab, data_sebelum.sumber_sebab);
-                    let pihak_terkena_text  = get_nama_by_id(response.data_master.pihak_terdampak, data_sebelum.pihak_terkena);
+                    let sumber_sebab_text = get_nama_by_id(response.data_master.sumber_sebab, data_sebelum.sumber_sebab);
+                    let pihak_terkena_text = get_nama_by_id(response.data_master.pihak_terdampak, data_sebelum.pihak_terkena);
 
                     if (data_sebelum.controllable == 0 || data_sebelum.controllable == 1) {
                         jQuery(`input[name='controllable_status_usulan'][value='${data_sebelum.controllable}']`).prop('checked', true);
@@ -905,18 +911,18 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     jQuery('#id_program_kegiatan_sesudah').val(id_program_kegiatan);
                     jQuery('#id_indikator_sesudah').val(id_indikator);
                     jQuery('#tipe_sesudah').val(tipe_sesudah);
-                    
+
                     if (data && Object.keys(data).length > 0) {
                         jQuery("#id_data_sesudah").val(data.id);
                         jQuery('#nama_program_kegiatan_sesudah').val(data.nama_program_kegiatan);
                         jQuery('#indikator_kinerja_sesudah').val(data_sebelum.capaian_teks);
-                        
+
                         if (data.controllable == 0 || data.controllable == 1) {
                             jQuery(`input[name='controllable_status_sesudah'][value='${data.controllable}']`).prop('checked', true);
                         } else {
                             jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
                         }
-                        
+
                         jQuery("#uraian_resiko_sesudah").val(data.uraian_resiko);
                         jQuery("#kode_resiko_sesudah").val(kode_resiko);
                         jQuery("#pemilik_resiko_sesudah").val(data.pemilik_resiko);
@@ -959,7 +965,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     function copy_usulan(button) {
         try {
             jQuery(button).prop('disabled', true);
-            
+
             let uraian_resiko = jQuery("#uraian_resiko_usulan").val();
             let kode_resiko = jQuery("#kode_resiko_usulan").val();
             let uraian_sebab = jQuery("#uraian_sebab_usulan").val();
@@ -968,11 +974,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             let skala_kemungkinan = jQuery("#skala_kemungkinan_usulan").val();
             let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_usulan").val();
             let controllable_status = jQuery("input[name='controllable_status_usulan']:checked").val();
-            
+
             let pemilik_resiko_id = window.value ? window.value.pemilik_resiko_id : '';
             let sumber_sebab_id = window.value ? window.value.sumber_sebab_id : '';
             let pihak_terkena_id = window.value ? window.value.pihak_terkena_id : '';
-            
+
             jQuery("#uraian_resiko_sesudah").val(uraian_resiko);
             jQuery("#kode_resiko_sesudah").val(kode_resiko);
             jQuery("#pemilik_resiko_sesudah").val(pemilik_resiko_id);
@@ -983,30 +989,30 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             jQuery("#skala_dampak_sesudah").val(skala_dampak);
             jQuery("#skala_kemungkinan_sesudah").val(skala_kemungkinan);
             jQuery("#rencana_tindak_pengendalian_sesudah").val(rencana_tindak_pengendalian);
-            
+
             jQuery("#pemilik_resiko_sesudah").trigger('change');
             jQuery("#sumber_sebab_sesudah").trigger('change');
             jQuery("#pihak_terkena_sesudah").trigger('change');
-            
+
             jQuery(button).html('<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Data Berhasil Disalin!');
             jQuery(button).removeClass('btn-danger').addClass('btn-success');
 
             if (controllable_status) {
                 jQuery(`input[name='controllable_status_sesudah'][value='${controllable_status}']`).prop('checked', true);
             }
-            
+
             let penetapan = [
-                "#pemilik_resiko_sesudah","#sumber_sebab_sesudah","#pihak_terkena_sesudah",
-                "#controllable_status_sesudah","#uraian_resiko_sesudah", "#kode_resiko_sesudah",
+                "#pemilik_resiko_sesudah", "#sumber_sebab_sesudah", "#pihak_terkena_sesudah",
+                "#controllable_status_sesudah", "#uraian_resiko_sesudah", "#kode_resiko_sesudah",
                 "#uraian_sebab_sesudah", "#uraian_dampak_sesudah",
                 "#skala_dampak_sesudah", "#skala_kemungkinan_sesudah",
                 "#rencana_tindak_pengendalian_sesudah"
             ];
-            
+
             penetapan.forEach(function(selector) {
                 jQuery(selector).addClass('field-updated');
             });
-            
+
             setTimeout(function() {
                 penetapan.forEach(function(selector) {
                     jQuery(selector).removeClass('field-updated');
@@ -1015,23 +1021,23 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery(button).removeClass('btn-success').addClass('btn-danger');
                 jQuery(button).prop('disabled', false);
             }, 3000);
-            
+
         } catch (error) {
             console.error('Error saat menyalin data:', error);
             alert('Terjadi kesalahan saat menyalin data. Silakan coba lagi.');
-            
+
             jQuery(button).prop('disabled', false);
         }
     }
 
     function reset_form_verifikasi(kode_resiko) {
         jQuery("#id_data_sesudah").val('');
-        
+
         jQuery('#nama_program_kegiatan_sesudah').val('');
         jQuery('#indikator_kinerja_sesudah').val('');
-        
+
         jQuery("input[name='controllable_status_sesudah']").prop('checked', false);
-        
+
         jQuery("#uraian_resiko_sesudah").val('');
         jQuery("#kode_resiko_sesudah").val(kode_resiko);
         jQuery("#pemilik_resiko_sesudah").val('');
@@ -1050,7 +1056,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#tipe_sebelum').val(tipe);
         jQuery('#nama_program_kegiatan').val(nama_program_kegiatan);
         jQuery('#indikator_kinerja').val(indikator_teks);
-        
+
         jQuery("input[name='controllable_status']").prop('checked', false);
         jQuery("#id_data").val('');
         jQuery("#uraian_resiko").val('');
@@ -1096,8 +1102,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
-                id: id,  
-                id_sebelum: id_sebelum, 
+                id: id,
+                id_sebelum: id_sebelum,
                 id_program_kegiatan: id_program_kegiatan,
                 id_indikator: id_indikator,
                 tipe: tipe_sesudah,
@@ -1106,7 +1112,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 pemilik_resiko: pemilik_resiko,
                 uraian_sebab: uraian_sebab,
                 sumber_sebab: sumber_sebab,
-                controllable_status: controllable_status, 
+                controllable_status: controllable_status,
                 uraian_dampak: uraian_dampak,
                 pihak_terkena: pihak_terkena,
                 skala_dampak: skala_dampak,
@@ -1142,7 +1148,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 all_id: JSON.stringify(all_id),
                 id_program_kegiatan: id_program_kegiatan,
                 id_indikator: id_indikator,
-                tipe: tipe 
+                tipe: tipe
             },
             dataType: 'json',
             success: function(response) {
@@ -1187,12 +1193,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         var id_indikator = jQuery('#mapping_id_indikator').val();
         var tipe = jQuery('#mapping_tipe').val();
         var id_tujuan = jQuery('#mapping_data').val();
-        
+
         if (!id_tujuan) {
             alert('Silakan pilih data terlebih dahulu!');
             return false;
         }
-        
+
         jQuery('#wrap-loading').show();
 
         jQuery.ajax({
@@ -1264,6 +1270,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             }
         });
     }
+
     function options_verif_manrisk() {
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',

@@ -11,27 +11,71 @@ $input = shortcode_atts(array(
 
 $data_unit = $wpdb->get_results(
     $wpdb->prepare("
-    SELECT 
-        *   
-    FROM data_unit 
-    WHERE active=1 
-      AND tahun_anggaran=%d
-      AND is_skpd=1
-    ORDER BY kode_skpd ASC
+        SELECT 
+            *   
+        FROM data_unit 
+        WHERE active=1 
+          AND tahun_anggaran=%d
+        ORDER BY kode_skpd ASC
     ", $input['tahun_anggaran']),
     ARRAY_A
 );
 $tbody = '';
 $no = 1;
 foreach ($data_unit as $id_sub_skpd => $unit) {
+    $margin_left = 0;
+    if ($unit['is_skpd'] != 1) {
+        $margin_left = 40;
+    }
+
     $title = 'Detail Manrisk Program Kegiatan | ' . $input['tahun_anggaran'];
     $shortcode = '[detail_program_kegiatan_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
     $update = false;
     $url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
-    $tbody .= "<tr>";
-    $tbody .= "<td style='text-transform: uppercase;' class='text-center'>". $no++ ."</td>";
-    $tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a></td>";
-    $tbody .= "</tr>";
+
+    $count_usulan = $wpdb->get_var(
+        $wpdb->prepare("
+            SELECT 
+               COUNT(id) AS jumlah_resiko_usulan
+            FROM data_program_kegiatan_manrisk_sebelum 
+            WHERE id_skpd=%d
+              AND tahun_anggaran=%d
+              AND active=1
+              AND (tipe = 0 OR tipe = 1)
+        ", $unit['id_skpd'], $input['tahun_anggaran'])
+    );
+    $count_penetapan = $wpdb->get_var(
+        $wpdb->prepare("
+            SELECT 
+               COUNT(id) AS jumlah_resiko_penetapan
+            FROM data_program_kegiatan_manrisk_sesudah
+            WHERE id_skpd=%d
+              AND tahun_anggaran=%d
+              AND active=1
+              AND (tipe = 0 OR tipe = 1)
+        ", $unit['id_skpd'], $input['tahun_anggaran'])
+    );
+
+    if ($count_usulan == 0) {
+        $count_usulan = "<td class='font-weight-bold text-light text-center bg-secondary'>" . $count_usulan . "</td>";
+        $count_penetapan = "<td class='font-weight-bold text-light text-center bg-secondary'>" . $count_penetapan . "</td>";
+    } else {
+        if ($count_usulan != $count_penetapan) {
+            $count_usulan = "<td class='font-weight-bold text-light text-center bg-danger'>" . $count_usulan . "</td>";
+            $count_penetapan = "<td class='font-weight-bold text-light text-center bg-danger'>" . $count_penetapan . "</td>";
+        } else {
+            $count_usulan = "<td class='font-weight-bold text-light text-center bg-success'>" . $count_usulan . "</td>";
+            $count_penetapan = "<td class='font-weight-bold text-light text-center bg-success'>" . $count_penetapan . "</td>";
+        }
+    }
+
+    $tbody .= "
+    <tr>
+        <td style='text-transform: uppercase;' class='text-center'>" . $no++ . "</td>
+        <td style='text-transform: uppercase;'><a style='margin-left: " . $margin_left . "px;' target='_blank' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a><small class='text-muted font-weight-bold'> ( " . $unit['nipkepala'] . " " . $unit['namakepala'] .  ")</small></td>
+        " . $count_usulan . "
+        " . $count_penetapan . "
+    </tr>";
 }
 
 ?>
@@ -77,6 +121,8 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
                         <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Nama Perangkat Daerah</th>
+                            <th class="text-center">Jumlah Resiko Usulan</th>
+                            <th class="text-center">Jumlah Resiko Penetapan</th>
                         </tr>
                     </thead>
                     <tbody>
