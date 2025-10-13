@@ -37,6 +37,14 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
             WHERE id_skpd=%d
               AND tahun_anggaran=%d
               AND active=1
+               AND (
+                    skala_dampak != 0 
+                    OR skala_kemungkinan != 0
+                )
+              AND (
+                    skala_dampak IS NOT NULL 
+                    OR skala_kemungkinan IS NOT NULL
+                )
               AND (tipe = 0 OR tipe = 1)
         ", $unit['id_skpd'], $input['tahun_anggaran'])
     );
@@ -48,6 +56,14 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
             WHERE id_skpd=%d
               AND tahun_anggaran=%d
               AND active=1
+              AND (
+                skala_dampak != 0 
+                OR skala_kemungkinan != 0
+              )
+              AND (
+                skala_dampak IS NOT NULL 
+                OR skala_kemungkinan IS NOT NULL
+              )
               AND (tipe = 0 OR tipe = 1)
         ", $unit['id_skpd'], $input['tahun_anggaran'])
     );
