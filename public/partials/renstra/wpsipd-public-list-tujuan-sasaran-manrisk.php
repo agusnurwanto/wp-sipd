@@ -68,7 +68,7 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     $tbody .= "
     <tr>
         <td style='text-transform: uppercase;' class='text-center'>". $no++ ."</td>
-        <td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a></td>
+        <td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a><small class='text-muted font-weight-bold'> ( " . $unit['nipkepala'] . " " . $unit['namakepala'] .  ")</small></td>
         " . $count_usulan . "
         " . $count_penetapan . "
     </tr>";

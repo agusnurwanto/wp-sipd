@@ -13217,7 +13217,36 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            
 	                            $grouped_data[$kode_bidang]['tujuan_sasaran_groups'] = $tujuan_sasaran_groups[$kode_bidang];
 	                        }
-	                    }
+	                    } else {
+							// Jika tidak ada kode_bidang, masukkan ke grup khusus
+	                        $kode_bidang = 'BIDANG URUSAN BELUM DISET';
+	                        $grouped_data[$kode_bidang]['nama_bidang'] = 'BIDANG URUSAN BELUM DISET';
+	                        
+	                        $tujuan_sasaran_key = $row['id_tujuan_sasaran'] . '_' . $row['tipe'];
+	                        
+	                        if (!isset($tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key])) {
+	                            $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key] = array(
+	                                'nama_tujuan_sasaran' => $nama_tujuan_sasaran,
+	                                'label_tipe' => $row['label_tipe'],
+	                                'tipe' => $row['tipe'],
+	                                'id_tujuan_sasaran' => $row['id_tujuan_sasaran'],
+	                                'kode_bidang' => $kode_bidang,
+	                                'indikator' => array()
+	                            );
+	                        }
+	                        
+	                        $indikator_key = $row['id_indikator'];
+	                        if (!isset($tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key])) {
+	                            $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key] = array(
+	                                'indikator_text' => $row['indikator'],
+	                                'data' => array()
+	                            );
+	                        }
+	                        
+	                        $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key]['data'][] = $row;
+
+	                        $grouped_data[$kode_bidang]['tujuan_sasaran_groups'] = $tujuan_sasaran_groups[$kode_bidang];
+						}
 	                }
 	                
 	                // Sorting numeric
@@ -13251,6 +13280,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                    return strcasecmp($a_clean, $b_clean);
 	                });
+
+					// echo '<pre>';
+					// print_r($grouped_data);
+					// echo '</pre>';
+					// die();
 
 	                foreach ($grouped_data as $kode_group => $group) {
 	                    $html .= '
@@ -13453,6 +13487,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                if (!empty($jadwal_lokal)) {
 	                                    $namaJadwal = $jadwal_lokal['nama'];
 	                                    $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
+										$timezone_string = wp_timezone_string();
+										date_default_timezone_set($timezone_string);
 
 	                                    $get_kode_bidang = $tujuan_sasaran_group['kode_bidang'];
 
@@ -13477,6 +13513,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
 	                                        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
 	                                        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+											
 	                                        $awal = new DateTime($mulaiJadwal);
 	                                        $akhir = new DateTime($selesaiJadwal);
 	                                        $now = new DateTime(date('Y-m-d H:i:s'));
@@ -14839,6 +14876,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 	                    }
 	                }
+
+					// echo '<pre>';
+					// print_r($grouped_data);
+					// echo '</pre>';
+					// die();
 	                
 	                uksort($grouped_data, function($a, $b) {
 	                    $a_clean = str_replace(',', '.', (string)$a);
