@@ -187,29 +187,29 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 Manajemen Resiko Tujuan / Sasaran <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
+            <table class="borderless-table">
+                <tr>
+                    <th style="width: 20%;">Nama Pemda</th>
+                    <td><strong><?php echo strtoupper($nama_pemda); ?></strong></td>
+                </tr>
+                <tr>
+                    <th>Nama OPD</th>
+                    <td><strong><?php echo strtoupper($nama_skpd); ?></strong></td>
+                </tr>
+                <tr>
+                    <th>Tahun Penilaian</th>
+                    <td><strong><?php echo $input['tahun_anggaran']; ?></strong></td>
+                </tr>
+                <tr>
+                    <th>Periode yang Dinilai</th>
+                    <td><strong><?php echo ($nama_periode_dinilai); ?></strong></td>
+                </tr>
+                <tr>
+                    <th>Urusan Pemerintahan</th>
+                    <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
+                </tr>
+            </table>
             <div class="wrap-table">
-                <table class="table table-bordered">
-                    <tr>
-                        <th style="width: 20%;">Nama Pemda</th>
-                        <td><strong><?php echo $nama_pemda; ?></strong></td>
-                    </tr>
-                    <tr>
-                        <th>Nama OPD</th>
-                        <td><strong><?php echo $nama_skpd; ?></strong></td>
-                    </tr>
-                    <tr>
-                        <th>Tahun Penilaian</th>
-                        <td><strong><?php echo $input['tahun_anggaran']; ?></strong></td>
-                    </tr>
-                    <tr>
-                        <th>Periode yang Dinilai</th>
-                        <td><strong><?php echo ($nama_periode_dinilai); ?></strong></td>
-                    </tr>
-                    <tr>
-                        <th>Urusan Pemerintahan</th>
-                        <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
-                    </tr>
-                </table>
                 <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table_manrisk_tujuan_sasaran table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
