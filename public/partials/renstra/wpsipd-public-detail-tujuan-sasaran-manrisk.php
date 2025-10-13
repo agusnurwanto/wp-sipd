@@ -181,7 +181,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
 </style>
 <div class="container-md">
     <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
-        <div style="padding: 10px;margin:0 0 3rem 0;">
+        <div style="padding: 10px;margin:0 0 3rem 0;"> 
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
                 Manajemen Resiko Tujuan / Sasaran <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
@@ -190,22 +190,27 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             <table class="borderless-table">
                 <tr>
                     <th style="width: 20%;">Nama Pemda</th>
+                    <th style="width: 5px;">:</th>
                     <td><strong><?php echo strtoupper($nama_pemda); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Nama OPD</th>
+                    <th>:</th>
                     <td><strong><?php echo strtoupper($nama_skpd); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Tahun Penilaian</th>
+                    <th>:</th>
                     <td><strong><?php echo $input['tahun_anggaran']; ?></strong></td>
                 </tr>
                 <tr>
                     <th>Periode yang Dinilai</th>
+                    <th>:</th>
                     <td><strong><?php echo ($nama_periode_dinilai); ?></strong></td>
                 </tr>
                 <tr>
                     <th>Urusan Pemerintahan</th>
+                    <th>:</th>
                     <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
                 </tr>
             </table>
