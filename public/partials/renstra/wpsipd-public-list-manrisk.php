@@ -31,6 +31,11 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     
     $pages = [
         [
+            'title' => 'Halaman Petunjuk Skor Risiko Manrisk | ' . $input['tahun_anggaran'],
+            'shortcode' => '[skor_resiko_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
+            'label' => 'Petunjuk Skor Resiko'
+        ],
+        [
             'title' => 'Halaman Detail Manrisk Konteks Resiko | ' . $input['tahun_anggaran'],
             'shortcode' => '[detail_konteks_resiko_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
             'label' => 'Konteks Resiko'
