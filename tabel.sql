@@ -8256,6 +8256,63 @@ CREATE TABLE `data_program_kegiatan_manrisk_sesudah` (
   KEY `active` (`active`)
 );
 
+CREATE TABLE `data_tujuan_sasaran_manrisk_sebelum_pemda` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_tujuan_sasaran` VARCHAR(512) DEFAULT NULL,
+  `id_indikator` VARCHAR(512) DEFAULT NULL,
+  `uraian_resiko` TEXT DEFAULT NULL,
+  `kode_resiko` TEXT DEFAULT NULL,
+  `pemilik_resiko` TEXT DEFAULT NULL,
+  `uraian_sebab` TEXT DEFAULT NULL,
+  `sumber_sebab` TEXT DEFAULT NULL,
+  `controllable` TINYINT(4) DEFAULT 1 COMMENT '0=Controllable, 1=Uncontrollable',
+  `tipe` TINYINT(4) DEFAULT 1 COMMENT '0=Tujuan, 1=Sasaran',
+  `uraian_dampak` TEXT DEFAULT NULL,
+  `pihak_terkena` TEXT DEFAULT NULL,
+  `skala_dampak` VARCHAR(255) DEFAULT 0,
+  `skala_kemungkinan` VARCHAR(255) DEFAULT 0,
+  `nilai_resiko` VARCHAR(255) DEFAULT NULL,
+  `rencana_tindak_pengendalian` TEXT DEFAULT NULL,
+  `id_jadwal` VARCHAR(512) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_jadwal` (`id_jadwal`),
+  KEY `active` (`active`)
+);
+
+CREATE TABLE `data_tujuan_sasaran_manrisk_sesudah_pemda` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_sebelum` INT(11) DEFAULT NULL,
+  `id_tujuan_sasaran` VARCHAR(512) DEFAULT NULL,
+  `id_indikator` VARCHAR(512) DEFAULT NULL,
+  `tujuan_sasaran_teks` TEXT DEFAULT NULL,
+  `indikator_teks` TEXT DEFAULT NULL,
+  `uraian_resiko` TEXT DEFAULT NULL,
+  `kode_resiko` TEXT DEFAULT NULL,
+  `pemilik_resiko` TEXT DEFAULT NULL,
+  `uraian_sebab` TEXT DEFAULT NULL,
+  `sumber_sebab` TEXT DEFAULT NULL,
+  `controllable` TINYINT(4) DEFAULT 1 COMMENT '0=Controllable, 1=Uncontrollable',
+  `tipe` TINYINT(4) DEFAULT 1 COMMENT '0=Tujuan, 1=Sasaran',
+  `uraian_dampak` TEXT DEFAULT NULL,
+  `pihak_terkena` TEXT DEFAULT NULL,
+  `skala_dampak` VARCHAR(255) DEFAULT 0,
+  `skala_kemungkinan` VARCHAR(255) DEFAULT 0,
+  `nilai_resiko` VARCHAR(255) DEFAULT NULL,
+  `rencana_tindak_pengendalian` TEXT DEFAULT NULL,
+  `id_jadwal` VARCHAR(512) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_jadwal` (`id_jadwal`),
+  KEY `active` (`active`)
+);
+
 CREATE TABLE `data_pokin_renstra` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_pokin` VARCHAR(255) DEFAULT NULL,
