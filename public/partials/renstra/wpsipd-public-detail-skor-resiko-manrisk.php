@@ -529,7 +529,7 @@ $data_sasaran = $wpdb->get_results(
             <table class="table_sasaran" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                 <thead>    
                     <tr>    
-                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan MCP</th>     
+                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan Risiko Kecurangan MCP</th>     
                     </tr>              
                     <tr>    
                         <th style="width:70px;" class="text-center">No</th>

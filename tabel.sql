@@ -8315,3 +8315,32 @@ CREATE TABLE `data_sasaran_tahapan_mcp` (
   KEY `tahun_anggaran` (`tahun_anggaran`),
   KEY `active` (`active`)
 );
+
+CREATE TABLE `data_resiko_kecurangan_mcp` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_skpd` INT(11) NOT NULL,
+  `id_tahapan` INT(11) NOT NULL,
+  `deskripsi_resiko` TEXT DEFAULT NULL,
+  `pihak_terkait` TEXT DEFAULT NULL,
+  `jenis_resiko` TEXT DEFAULT NULL,
+  `pemilik_resiko` VARCHAR(255) DEFAULT NULL,
+  `penyebab` TEXT DEFAULT NULL,
+  `dampak` TEXT DEFAULT NULL,
+  `skala_kemungkinan` VARCHAR(255) DEFAULT 0,
+  `skala_dampak` VARCHAR(255) DEFAULT 0,
+  `tindak_pengendalian` TEXT DEFAULT NULL,
+  `target_waktu` TEXT DEFAULT NULL,
+  `pelaksanaan_pengendalian` TEXT DEFAULT NULL,
+  `bukti_pelaksanaan` TEXT DEFAULT NULL,
+  `kendala` TEXT DEFAULT NULL,
+  `opd_pemilik_resiko` TEXT DEFAULT NULL,
+  `keterangan_pengisian` TEXT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `id_tahapan` (`id_tahapan`),
+  KEY `active` (`active`)
+);

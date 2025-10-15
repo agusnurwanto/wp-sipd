@@ -139,7 +139,16 @@ if ($id_jadwal != 0) {
     }
 }
 ?>
-<style>
+<style type="text/css">
+    .btn-action-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action-group .btn {
+        margin: 0 5px;
+    }
 </style>
 <div class="container-md">
     <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -148,7 +157,12 @@ if ($id_jadwal != 0) {
             <h1 class="text-center table-title" style="padding-top: 80px">
                 Manajemen Resiko Kecurangan MCP <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
-            <div id='aksi-wpsipd'></div>
+            <div class="text-center" style="text-align:center; margin: 20px;">
+                <button type="button" class="btn btn-primary" onclick="tambah_data()" style=" align-items:center;">
+                    <span class="dashicons dashicons-plus-alt2" style="position:relative; top:-2px; vertical-align:middle;"></span>
+                    Tambah Data
+                </button>
+            </div>
             <table class="table table-bordered">
                 <tr>
                     <th style="width: 20%;">Nama Pemda</th>
@@ -231,3 +245,103 @@ if ($id_jadwal != 0) {
         </div>
     </div>
 </div>
+
+<!-- Modal crud -->
+<div class="modal fade" id="TambahResikoKecuranganModal" tabindex="-1" role="dialog" aria-labelledby="TambahResikoKecuranganModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TambahResikoKecuranganModalLabel">Tambah Risiko Kecurangan MCP</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+             <div class="modal-body">
+                <form id="form_resiko_kecurangan">
+                    <div class="form-group">
+                        <label for="nama_sasaran_area">Nama Sasaran Area MCP</label>
+                        <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area"  required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tahapan">Tahapan Proses Bisnis</label>
+                        <input type="text" class="form-control" id="tahapan" name="tahapan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deskripsi_resiko">Deskripsi Risiko Kecurangan</label>
+                        <input type="text" class="form-control" id="deskripsi_resiko" name="deskripsi_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pihak_terkait">Pihak Terkait</label>
+                        <input type="text" class="form-control" id="pihak_terkait" name="pihak_terkait" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jenis_resiko">Pilih Jenis Risiko Kecurangan</label>
+                        <select id="jenis_resiko" class="form-control">
+                            <option value="" selected>Pilih Jenis Risiko Kecurangan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
+                        <select id="pemilik_resiko" class="form-control">
+                            <option value="" selected>Pilih Pemilik Resiko</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="penyebab">Penyebab</label>
+                        <input type="text" class="form-control" id="penyebab" name="penyebab" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dampak">Dampak</label>
+                        <input type="text" class="form-control" id="dampak" name="dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_kemungkinan">Skala Kemungkinan</label>
+                        <input type="number" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_dampak">Skala Dampak</label>
+                        <input type="number" class="form-control" id="skala_dampak" name="skala_dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tindak_pengendalian">Rencana Tindak Pengendalian (Fraud Risk Response)</label>
+                        <input type="text" class="form-control" id="tindak_pengendalian" name="tindak_pengendalian" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="target_waktu">Target target_Waktu Pelaksanaan Pengendalian</label>
+                        <input type="text" class="form-control" id="target_waktu" name="waktu" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pelaksanaan_pengendalian">Pelaksanaan Pengendalian</label>
+                        <input type="text" class="form-control" id="pelaksanaan_pengendalian" name="pelaksanaan_pengendalian" required>
+                    </div>                        
+                    <div class="form-group">
+                        <label for="bukti_pelaksanaan">Bukti Pelaksanaan</label>
+                        <input type="text" class="form-control" id="bukti_pelaksanaan" name="bukti_pelaksanaan" required>
+                    </div>                      
+                    <div class="form-group">
+                        <label for="kendala">Kendala</label>
+                        <input type="text" class="form-control" id="kendala" name="kendala" required>
+                    </div>                   
+                    <div class="form-group">
+                        <label for="opd_pemilik_resiko">OPD Pemilik Risiko</label>
+                        <input type="text" class="form-control" id="opd_pemilik_resiko" name="opd_pemilik_resiko" required>
+                    </div>      
+                    <div class="form-group">
+                        <label for="keterangan_pengisian">Keterangan Pengisian</label>
+                        <input type="text" class="form-control" id="keterangan_pengisian" name="keterangan_pengisian" required>
+                    </div>            
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="submit_tujuan_sasaran(); return false">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function tambah_data() {
+    jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
+    jQuery('#TambahResikoKecuranganModal').modal('show');
+    }
+</script>
