@@ -5753,6 +5753,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option(WPSIPD_API_KEY)) {
 				$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+				}
 
 				$join = "";
 				$where = "";
@@ -15158,6 +15161,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 	                    }
 	                }
+
+					// echo '<pre>';
+					// print_r($grouped_data);
+					// echo '</pre>';
+					// die();
 	                
 	                uksort($grouped_data, function($a, $b) {
 	                    $a_clean = str_replace(',', '.', (string)$a);
@@ -16608,6 +16616,206 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	    wp_send_json($ret);
 	}
+
+	public function simpan_sasaran_mcp()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menyimpan data!'
+		);
+
+		if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+				}
+					$tahun_anggaran = intval($_POST['tahun_anggaran']);
+					$sasaran = $_POST['sasaran'];
+					$tahapan = $_POST['tahapan'];
+					$id = intval($_POST['id']);
+
+					if ($id > 0) {
+						// Update
+						$wpdb->update(
+							'data_sasaran_tahapan_mcp',
+							array(
+								'sasaran'       => $sasaran,
+								'tahapan'       => $tahapan,
+								'tahun_anggaran'=> $tahun_anggaran,
+								'active'        => 1,
+								'update_at'     => current_time('mysql')
+							),
+							array('id' => $id), // <-- ini wajib
+							array('%s','%s','%d','%d','%s'), // format data
+							array('%d') // format where
+						);
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil diubah!';
+					} else {
+						$wpdb->insert(
+							'data_sasaran_tahapan_mcp',
+							array(
+								'sasaran'       => $sasaran,
+								'tahapan'       => $tahapan,
+								'tahun_anggaran'=> $tahun_anggaran,
+								'active'        => 1,
+								'update_at'     => current_time('mysql')
+							),
+							array('%s','%s','%d','%d','%s')
+						);
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil disimpan!';
+						$ret['id'] = $wpdb->insert_id;
+					}
+			} else {
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function hapus_sasaran_mcp() 
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menghapus data!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id sasaran tidak ditemukan!';
+					die(json_encode($ret));
+				}
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun anggaran kosong!';
+					die(json_encode($ret));
+				}
+				$id = intval($_POST['id']);
+				$tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+				$cek = $wpdb->get_row($wpdb->prepare("
+					SELECT
+						*
+					FROM data_sasaran_tahapan_mcp
+					WHERE id=%d
+						AND tahun_anggaran=%d
+						AND active=1
+				", $id, $tahun_anggaran));
+
+				if (empty($cek)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data sasaran tidak ditemukan atau sudah dihapus!';
+					die(json_encode($ret));
+				}
+
+				$hapus = $wpdb->update(
+					'data_sasaran_tahapan_mcp',
+					array('active' => 0),
+					array('id' => $id),
+					array('%d'),
+					array('%d')
+				);
+
+				if($hapus == false)  {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Gagal menghapus data!';
+					die(json_encode($ret));
+				}
+			} else {
+				$ret['status'] = 'error';
+            	$ret['message'] = 'API key tidak ditemukan!';
+			} 
+		}
+	    die(json_encode($ret));
+	}
+
+	public function get_table_resiko_kecurangan_manrisk() 
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+			'data' => array()
+		);
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+	            if (empty($_POST['id_skpd'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	                die(json_encode($ret));
+	            }
+	            $id_skpd = intval($_POST['id_skpd']);
+
+				$get_data = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					FROM data_resiko_kecurangan_mcp
+					WHERE tahun_anggaran = %d
+					AND id_skpd = %d
+					AND active = 1
+				", $tahun_anggaran, $id_skpd), ARRAY_A);
+
+				$html = '';
+                $counter = 1;
+				if (!empty($get_data)) {
+					foreach ($get_data as $row) {
+						// Ambil id_tahapan dari row
+						$id_tahapan = $row['id_tahapan'];
+
+						// Ambil sasaran dan tahapan dari tabel data_sasaran_tahapan_mcp
+						$sasaran_tahapan = $wpdb->get_row($wpdb->prepare("
+							SELECT sasaran, tahapan
+							FROM data_sasaran_tahapan_mcp
+							WHERE id = %d
+							AND tahun_anggaran = %d
+							AND active = 1
+						", $id_tahapan, $tahun_anggaran), ARRAY_A);
+
+						$html .= '
+							<tr>
+								<td>' . $counter++ . '</td>
+								<td>' . ($sasaran_tahapan['sasaran']) . '</td>
+								<td>' . ($sasaran_tahapan['tahapan'])  . '</td>
+								<td>' . $row['deskripsi_resiko'] . '</td>
+								<td>' . $row['pihak_terkait'] . '</td>
+								<td>' . $row['jenis_resiko'] . '</td>
+								<td>' . $row['pemilik_resiko'] . '</td>
+							</tr>';
+					}
+				} else {
+					$html = '<tr><td colspan="7" class="text-center">Data masih kosong!</td></tr>';
+				}
+
+				$ret['data'] = $html;
+			} else  {
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}	
+		} else {
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Request kosong!'
+			);
+		}
+		die(json_encode($ret));
+	} 
 
 	public function get_table_rpjmd_renstra()
 	{

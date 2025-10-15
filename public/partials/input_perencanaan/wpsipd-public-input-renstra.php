@@ -7886,7 +7886,8 @@ $table .= '
 							"id_unit": "<?php echo $_GET['id_skpd']; ?>",
 							'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 							'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
-							"type": 1
+							"type": 1,
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
 						},
 						dataType: "json",
 						success: function(res) {
@@ -7919,7 +7920,8 @@ $table .= '
 							"id_unit": "<?php echo $_GET['id_skpd']; ?>",
 							'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 							'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
-							"type": 0
+							"type": 0,
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
 						},
 						dataType: "json",
 						success: function(res) {
