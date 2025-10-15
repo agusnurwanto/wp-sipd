@@ -36,6 +36,17 @@ $opd_master = $wpdb->get_results(
         WHERE tahun_anggaran=%d
           AND active=1
     ", $input['tahun_anggaran']), ARRAY_A);
+$data_sasaran = $wpdb->get_results(
+    $wpdb->prepare("
+        SELECT 
+            * 
+        FROM data_sasaran_tahapan_mcp 
+        WHERE tahun_anggaran=%d 
+            AND active=1
+        ORDER BY id ASC
+    ", $input['tahun_anggaran']),
+    ARRAY_A
+);
 ?>
 <style type="text/css">
     .table-contoh th {
@@ -43,6 +54,14 @@ $opd_master = $wpdb->get_results(
         text-align: center;
         padding: 8px;
         border: 1px solid #9c9c9cff;
+        font-weight: bold;
+    }
+
+    .table_sasaran th {
+        background-color: #a8f5b4ff; 
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #989898ff;
         font-weight: bold;
     }
     
@@ -476,9 +495,11 @@ $opd_master = $wpdb->get_results(
 
             <div class="col-md-5">
                 <div style="text-align:left; margin-bottom:5px;">
-                    <button type="button" class="btn btn-primary" onclick="tambah_opd()">
-                        + Tambah OPD
-                    </button>
+                    <?php if ( current_user_can('administrator') ) : ?>
+                        <button type="button" class="btn btn-primary" onclick="tambah_opd()">
+                            + Tambah OPD
+                        </button>
+                    <?php endif; ?>
                 </div>
                 <table class="daftar_opd" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                     <thead>
@@ -494,32 +515,67 @@ $opd_master = $wpdb->get_results(
     </div>
 </div>
 
-<div class="container-md">
+<div>
     <div style="padding: 10px;margin:0 15px 3rem 15px;">
         <div class="row">
-            <button type="button" class="btn btn-primary" onclick="tambah_opd()">
-                        + Tambah Sasaran MCP 
-            </button>
-            <table class="table-keterangan" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
+            <div style="text-align:left; margin-bottom:5px;">
+                <?php if ( current_user_can('administrator') ) : ?>
+                    <button type="button" class="btn btn-success" onclick="tambah_sasaran()">
+                        <span class="dashicons dashicons-insert"></span>
+                            Tambah Sasaran MCP     
+                    </button>
+                <?php endif; ?>
+            </div>
+            <table class="table_sasaran" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                 <thead>    
                     <tr>    
-                        <th class="text-center" colspan="4">Tabel Data Master sasaran Area MCP</th>     
+                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan MCP</th>     
                     </tr>              
                     <tr>    
-                        <th class="text-center">No</th>
+                        <th style="width:70px;" class="text-center">No</th>
                         <th class="text-center">Sasaran</th>
                         <th class="text-center">Tahapan</th>
-                        <th class="text-center">Aksi</th>
+                        <th style="width:15%;" class="text-center">Aksi</th>
                     </tr>
                 </thead>                
                 <tbody>
-                    <tr>
-                    </tr>
+                    <?php
+                    if (!empty($data_sasaran)) {
+                        $no = 1;
+                        foreach ($data_sasaran as $row) {
+                            if ( current_user_can('administrator') ) {
+                                $aksi = '
+                                    <button class="btn btn-warning" onclick="edit_sasaran(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger" onclick="hapus_sasaran(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button>
+                                ';
+                            } else {
+                                $aksi = '<em>-</em>';
+                            }
+                            echo '
+                            <tr>
+                                <td class="text-center">' . $no++ . '</td>
+                                <td id="sasaran_'.$row['id'].'">' . esc_html($row['sasaran']) . '</td>
+                                <td id="tahapan_'.$row['id'].'">' . esc_html($row['tahapan']) . '</td>
+                                <td class="text-center">' . $aksi . '</td>
+                            </tr>';
+                        }
+                    } else {
+                        echo '
+                        <tr>
+                            <td colspan="4" class="text-center">Belum ada data sasaran tahapan</td>
+                        </tr>';
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
 <!-- Modal tambah OPD Penyusun -->
 <div class="modal fade" id="modalTambahOPD" tabindex="-1">
   <div class="modal-dialog modal-lg" role="document">
@@ -546,6 +602,37 @@ $opd_master = $wpdb->get_results(
   </div>
 </div>
 
+<!-- Modal tambah Sasaran tahapan -->
+<div class="modal fade" id="modalTambahSasaran" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modalSasaranTitle">Tambah Sasaran dan Tahapan Kecurangan MCP</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+            <div class="modal-body">
+                <input type="hidden" id="id" value="">
+
+            <div class="mb-3">
+            <label class="form-label">Sasaran</label>
+            <input type="text" id="sasaran" class="form-control"/>
+            </div>
+
+            <div class="mb-3">
+            <label class="form-label">Tahapan</label>
+            <input type="text" id="tahapan" class="form-control"/>
+            </div>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="simpan_sasaran()">Simpan</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     jQuery(document).ready(function($) {
         $('#opd_select').select2({
@@ -566,9 +653,11 @@ $opd_master = $wpdb->get_results(
                 <td class="text-center">${index + 1}</td>
                 <td>${nama_opd}</td>
                 <td>
-                    <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
-                        <span class="dashicons dashicons-trash"></span>
-                    </button>
+                    <?php if ( current_user_can('administrator') ) : ?>
+                        <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
+                            <span class="dashicons dashicons-trash"></span>
+                        </button>
+                    <?php endif; ?>
                 </td>
             </tr>`);
         });
@@ -588,8 +677,8 @@ $opd_master = $wpdb->get_results(
     function load_opd() {
         jQuery("#wrap-loading").show();
         jQuery.ajax({
-            url: ajax.url,
-            type: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
             dataType: 'json',
             data: {
                 action: 'load_opd_manrisk',
@@ -618,8 +707,8 @@ $opd_master = $wpdb->get_results(
         var opdMasterAwal = <?php echo json_encode($opd_master); ?>;
 
         jQuery.ajax({
-            url: ajax.url,
-            type: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
             dataType: 'json',
             data: {
                 action: 'simpan_opd_manrisk',
@@ -643,9 +732,11 @@ $opd_master = $wpdb->get_results(
                             <td class="text-center">${index + 1}</td>
                             <td>${nama_opd}</td>
                             <td>
-                                <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
-                                    <span class="dashicons dashicons-trash"></span>
-                                </button>
+                                <?php if ( current_user_can('administrator') ) : ?>
+                                    <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button>
+                                <?php endif; ?>
                             </td>
                         </tr>`);
                     });
@@ -666,8 +757,8 @@ $opd_master = $wpdb->get_results(
         if(confirm('Apakah anda yakin untuk menghapus data ini?')){
             jQuery('#wrap-loading').show();
             jQuery.ajax({
-                url: ajax.url,
-                type: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
                 dataType: 'json',
                 data: {
                     action: 'hapus_daftar_opd_manrisk',
@@ -692,5 +783,105 @@ $opd_master = $wpdb->get_results(
                 }
             });
         }
+    }
+
+    function tambah_sasaran() {
+        jQuery('#nama_sasaran').val('');
+        jQuery('#keterangan_sasaran').val('');
+         jQuery('.modalSasaranTitle').text('Tambah Sasaran dan Tahapan Kecurangan MCP');
+        jQuery('#modalTambahSasaran').modal('show');
+    }
+
+    function simpan_sasaran() {
+        let id =  jQuery('#id').val();
+        let sasaran = jQuery('#sasaran').val();
+        let tahapan = jQuery('#tahapan').val();
+
+        if (sasaran === '') {
+            alert('Sasaran belum diisi!');
+            jQuery('#sasaran').focus();
+            return false;
+        }
+
+        if (tahapan === '') {
+            alert('Tahapan belum diisi!');
+            jQuery('#tahapan').focus();
+            return false;
+        }
+        jQuery("#wrap-loading").show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action:'simpan_sasaran_mcp',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id: id,
+                sasaran: sasaran,
+                tahapan: tahapan,
+            },
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    alert(response.message);
+                    location.reload();
+                    
+                    jQuery('#sasaran').val('sasaran');
+                    jQuery('#tahapan').val('tahapan');
+                    jQuery('#modalTambahSasaran').modal('hide');
+                } else {
+                    alert(response.message || 'Terjadi kesalahan saat menyimpan data.');
+                }
+            },
+            error: function() {
+                jQuery("#wrap-loading").hide();
+                alert('Gagal menghubungi server. Coba lagi.');
+            }
+        });
+    }
+
+    function hapus_sasaran(id) {
+        if(confirm('Apakah anda yakin menghapus data ini?')) {
+            jQuery("#wrap-loading").show();
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'hapus_sasaran_mcp',
+                    api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    id: id,
+                    tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>
+                },
+                success: function(response) {
+                    console.log(response);
+                    jQuery('#wrap-loading').hide();
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        jQuery(`#row_${id}`).remove();
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    jQuery('#wrap-loading').hide();
+                    alert('Terjadi kesalahan saat mengirim data!');
+                }
+            });
+        }
+    }
+
+    function edit_sasaran(id){
+        let sasaran = jQuery('#sasaran_' + id).text().trim();
+        let tahapan = jQuery('#tahapan_' + id).text().trim();
+        jQuery('#id').val(id);
+        jQuery('#sasaran').val(sasaran);
+        jQuery('#tahapan').val(tahapan);
+        jQuery('.modalSasaranTitle').text('Edit Sasaran dan Tahapan Kecurangan MCP');
+        jQuery('#modalTambahSasaran').modal('show');
     }
 </script>

@@ -13220,7 +13220,36 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            
 	                            $grouped_data[$kode_bidang]['tujuan_sasaran_groups'] = $tujuan_sasaran_groups[$kode_bidang];
 	                        }
-	                    }
+	                    } else {
+							// Jika tidak ada kode_bidang, masukkan ke grup khusus
+	                        $kode_bidang = 'BIDANG URUSAN BELUM DISET';
+	                        $grouped_data[$kode_bidang]['nama_bidang'] = 'BIDANG URUSAN BELUM DISET';
+	                        
+	                        $tujuan_sasaran_key = $row['id_tujuan_sasaran'] . '_' . $row['tipe'];
+	                        
+	                        if (!isset($tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key])) {
+	                            $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key] = array(
+	                                'nama_tujuan_sasaran' => $nama_tujuan_sasaran,
+	                                'label_tipe' => $row['label_tipe'],
+	                                'tipe' => $row['tipe'],
+	                                'id_tujuan_sasaran' => $row['id_tujuan_sasaran'],
+	                                'kode_bidang' => $kode_bidang,
+	                                'indikator' => array()
+	                            );
+	                        }
+	                        
+	                        $indikator_key = $row['id_indikator'];
+	                        if (!isset($tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key])) {
+	                            $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key] = array(
+	                                'indikator_text' => $row['indikator'],
+	                                'data' => array()
+	                            );
+	                        }
+	                        
+	                        $tujuan_sasaran_groups[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key]['data'][] = $row;
+
+	                        $grouped_data[$kode_bidang]['tujuan_sasaran_groups'] = $tujuan_sasaran_groups[$kode_bidang];
+						}
 	                }
 	                
 	                // Sorting numeric
@@ -13254,6 +13283,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                    return strcasecmp($a_clean, $b_clean);
 	                });
+
+					// echo '<pre>';
+					// print_r($grouped_data);
+					// echo '</pre>';
+					// die();
 
 	                foreach ($grouped_data as $kode_group => $group) {
 	                    $html .= '
@@ -13456,6 +13490,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                if (!empty($jadwal_lokal)) {
 	                                    $namaJadwal = $jadwal_lokal['nama'];
 	                                    $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
+										$timezone_string = wp_timezone_string();
+										date_default_timezone_set($timezone_string);
 
 	                                    $get_kode_bidang = $tujuan_sasaran_group['kode_bidang'];
 
@@ -13480,6 +13516,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    } else if ($jenisJadwal == 'usulan' && !in_array("administrator", $user_meta->roles)) {
 	                                        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
 	                                        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+											
 	                                        $awal = new DateTime($mulaiJadwal);
 	                                        $akhir = new DateTime($selesaiJadwal);
 	                                        $now = new DateTime(date('Y-m-d H:i:s'));
@@ -14842,6 +14879,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 	                    }
 	                }
+
+					// echo '<pre>';
+					// print_r($grouped_data);
+					// echo '</pre>';
+					// die();
 	                
 	                uksort($grouped_data, function($a, $b) {
 	                    $a_clean = str_replace(',', '.', (string)$a);
@@ -15103,6 +15145,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									        $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 									        $mulaiJadwal = $jadwal_lokal['waktu_awal'];
 									        $selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+											$timezone_string = wp_timezone_string();
+											date_default_timezone_set($timezone_string);
 									        $awal = new DateTime($mulaiJadwal);
 									        $akhir = new DateTime($selesaiJadwal);
 									        $now = new DateTime(date('Y-m-d H:i:s'));
@@ -16289,6 +16333,125 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    }
 
 	    wp_send_json($ret);
+	}
+
+	public function simpan_sasaran_mcp()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menyimpan data!'
+		);
+
+		if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+				}
+					$tahun_anggaran = intval($_POST['tahun_anggaran']);
+					$sasaran = $_POST['sasaran'];
+					$tahapan = $_POST['tahapan'];
+					$id = intval($_POST['id']);
+
+					if ($id > 0) {
+						// Update
+						$wpdb->update(
+							'data_sasaran_tahapan_mcp',
+							array(
+								'sasaran'       => $sasaran,
+								'tahapan'       => $tahapan,
+								'tahun_anggaran'=> $tahun_anggaran,
+								'active'        => 1,
+								'update_at'     => current_time('mysql')
+							),
+							array('id' => $id), // <-- ini wajib
+							array('%s','%s','%d','%d','%s'), // format data
+							array('%d') // format where
+						);
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil diubah!';
+					} else {
+						$wpdb->insert(
+							'data_sasaran_tahapan_mcp',
+							array(
+								'sasaran'       => $sasaran,
+								'tahapan'       => $tahapan,
+								'tahun_anggaran'=> $tahun_anggaran,
+								'active'        => 1,
+								'update_at'     => current_time('mysql')
+							),
+							array('%s','%s','%d','%d','%s')
+						);
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil disimpan!';
+						$ret['id'] = $wpdb->insert_id;
+					}
+			} else {
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function hapus_sasaran_mcp() 
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menghapus data!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id sasaran tidak ditemukan!';
+					die(json_encode($ret));
+				}
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun anggaran kosong!';
+					die(json_encode($ret));
+				}
+				$id = intval($_POST['id']);
+				$tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+				$cek = $wpdb->get_row($wpdb->prepare("
+					SELECT
+						*
+					FROM data_sasaran_tahapan_mcp
+					WHERE id=%d
+						AND tahun_anggaran=%d
+						AND active=1
+				", $id, $tahun_anggaran));
+
+				if (empty($cek)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data sasaran tidak ditemukan atau sudah dihapus!';
+					die(json_encode($ret));
+				}
+
+				$hapus = $wpdb->update(
+					'data_sasaran_tahapan_mcp',
+					array('active' => 0),
+					array('id' => $id),
+					array('%d'),
+					array('%d')
+				);
+
+				if($hapus == false)  {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Gagal menghapus data!';
+					die(json_encode($ret));
+				}
+			} else {
+				$ret['status'] = 'error';
+            	$ret['message'] = 'API key tidak ditemukan!';
+			} 
+		}
+	    die(json_encode($ret));
 	}
 
 	public function get_table_rpjmd_renstra()
