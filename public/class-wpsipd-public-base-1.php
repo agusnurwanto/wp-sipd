@@ -1200,6 +1200,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 $tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+                if(!empty($_POST['tahun_anggaran'])){
+                    $tahun_anggaran = $_POST['tahun_anggaran'];
+                }
                 if(!empty($_POST['type']) && $_POST['type'] == 1){
                     $data = $wpdb->get_results("
                         SELECT
