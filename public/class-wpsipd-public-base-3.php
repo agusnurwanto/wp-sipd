@@ -16513,10 +16513,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<td>' . $row['pihak_terkait'] . '</td>
 								<td>' . $row['jenis_resiko'] . '</td>
 								<td>' . $row['pemilik_resiko'] . '</td>
+								<td>' . $row['penyebab'] . '</td>
+								<td>' . $row['dampak'] . '</td>
+								<td>' . $row['skala_kemungkinan'] . '</td>
+								<td>' . $row['skala_dampak'] . '</td>
+								<td></td>
+								<td>' . $row['tindak_pengendalian'] . '</td>
+								<td>' . $row['target_waktu'] . '</td>
+								<td>' . $row['pelaksanaan_pengendalian'] . '</td>
+								<td>' . $row['bukti_pelaksanaan'] . '</td>
+								<td>' . $row['kendala'] . '</td>
+								<td>' . $row['opd_pemilik_resiko'] . '</td>
+								<td>' . $row['keterangan_pengisian'] . '</td>
+								<td></td>
 							</tr>';
 					}
 				} else {
-					$html = '<tr><td colspan="7" class="text-center">Data masih kosong!</td></tr>';
+					$html = '<tr><td colspan="20" class="text-center">Data masih kosong!</td></tr>';
 				}
 
 				$ret['data'] = $html;
@@ -16529,11 +16542,90 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		} else {
 			$ret = array(
 				'status' => 'error',
-				'message' => 'Request kosong!'
+				'message' => 'Format tidak sesuai!'
 			);
 		}
 		die(json_encode($ret));
 	} 
+
+	public function simpan_resiko_kecurangan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menyimpan data!'
+		);
+
+		if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun anggaran kosong!';
+					die(json_encode($ret));
+				}
+				if (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD Kosong!';
+					die(json_encode($ret));
+				}
+
+				$tahun_anggaran = intval($_POST['tahun_anggaran']);
+				$id_skpd = intval($_POST['id_skpd']);
+				$id_tahapan = intval($_POST['id_tahapan']);
+				$id = intval($_POST['id']);
+
+				// cek data existing
+				$cek = $wpdb->get_row($wpdb->prepare("
+					SELECT id 
+					FROM data_resiko_kecurangan_mcp
+					WHERE id_skpd = %d 
+						AND id_tahapan = %d
+						AND tahun_anggaran = %d 
+						AND active=1
+				", $id_skpd,$id_tahapan, $tahun_anggaran), ARRAY_A);
+
+				$data = array(
+					'id_skpd' => $id_skpd,
+					'id_tahapan' => intval($_POST['id_tahapan']), // tetap disimpan, tapi bukan buat kunci pencarian
+					'deskripsi_resiko' => $_POST['deskripsi_resiko'],
+					'pihak_terkait' => $_POST['pihak_terkait'],
+					'jenis_resiko' => $_POST['jenis_resiko'],
+					'pemilik_resiko' => $_POST['pemilik_resiko'],
+					'penyebab' => $_POST['penyebab'],
+					'dampak' => $_POST['dampak'],
+					'skala_kemungkinan' => $_POST['skala_kemungkinan'],
+					'skala_dampak' => $_POST['skala_dampak'],
+					'tindak_pengendalian' => $_POST['tindak_pengendalian'],
+					'target_waktu' => $_POST['target_waktu'],
+					'pelaksanaan_pengendalian' => $_POST['pelaksanaan_pengendalian'],
+					'bukti_pelaksanaan' => $_POST['bukti_pelaksanaan'],
+					'kendala' => $_POST['kendala'],
+					'opd_pemilik_resiko' => $_POST['opd_pemilik_resiko'],
+					'keterangan_pengisian' => $_POST['keterangan_pengisian'],
+					'tahun_anggaran' => $tahun_anggaran,
+					'active' => 1,
+				);
+
+				if (!empty($cek)) {
+					$wpdb->update(
+						'data_resiko_kecurangan_mcp',
+						$data,
+						array('id' => $cek->id)
+					);
+					$ret['status'] = 'success';
+                	$ret['message'] = 'Data berhasil diperbarui!';
+				} else {
+					// insert data baru
+					$wpdb->insert('data_resiko_kecurangan_mcp', $data);
+					$ret['status'] = 'success';
+					$ret['message'] = 'Data berhasil disimpan!';
+				}
+			} else {
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		}
+		die(json_encode($ret));
+	}
 
 	public function get_table_rpjmd_renstra()
 	{

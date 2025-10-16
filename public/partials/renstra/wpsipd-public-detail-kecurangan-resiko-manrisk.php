@@ -260,11 +260,13 @@ if ($id_jadwal != 0) {
                 <form id="form_resiko_kecurangan">
                     <div class="form-group">
                         <label for="nama_sasaran_area">Nama Sasaran Area MCP</label>
-                        <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area"  required>
+                        <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area" disabled required>
                     </div>
                     <div class="form-group">
                         <label for="tahapan">Tahapan Proses Bisnis</label>
-                        <input type="text" class="form-control" id="tahapan" name="tahapan" required>
+                        <select id="tahapan" class="form-control">
+                            <option value="" selected>Pilih Tahapan Proses Bisnis</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="deskripsi_resiko">Deskripsi Risiko Kecurangan</label>
@@ -278,12 +280,23 @@ if ($id_jadwal != 0) {
                         <label for="jenis_resiko">Pilih Jenis Risiko Kecurangan</label>
                         <select id="jenis_resiko" class="form-control">
                             <option value="" selected>Pilih Jenis Risiko Kecurangan</option>
+                            <option value="Konflik kepentingan">Konflik kepentingan</option>
+                            <option value="Pemberian suap">Pemberian suap</option>
+                            <option value="Penggelapan">Penggelapan</option>
+                            <option value="Pemalsuan Data">Pemalsuan Data</option>
+                            <option value="Pemerasan/ Pungutan Liar">Pemerasan/ Pungutan Liar</option>
+                            <option value="Penyalahgunaan wewenang">Penyalahgunaan wewenang</option>
+                            <option value="Fraud/ Korupsi">Fraud/ Korupsi</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
                         <select id="pemilik_resiko" class="form-control">
                             <option value="" selected>Pilih Pemilik Resiko</option>
+                            <option value="Kepala Daerah">Kepala Daerah</option>
+                            <option value="Kepala OPD">Kepala OPD</option>
+                            <option value="Kepala Bidang">Kepala Bidang</option>
+                            <option value="PA/PK">PA/PK</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -334,14 +347,111 @@ if ($id_jadwal != 0) {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_tujuan_sasaran(); return false">Simpan</button>
+                <button type="button" class="btn btn-primary" onclick="simpan_resiko(); return false">Simpan</button>
             </div>
         </div>
     </div>
 </div>
 <script>
+    jQuery(document).ready(function() {
+        get_table_resiko_kecurangan_manrisk();
+    });
+
+    function get_table_resiko_kecurangan_manrisk() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_table_resiko_kecurangan_manrisk',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_skpd': <?php echo $id_skpd; ?>
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                if (response.status == 'success') {
+                    jQuery('.table_manrisk_kecurangan_mcp tbody').html(response.data);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat tabel!');
+            }
+        });
+    }
+
     function tambah_data() {
     jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
     jQuery('#TambahResikoKecuranganModal').modal('show');
+    }
+
+    function simpan_resiko() {
+        let id  = jQuery('#id').val();
+        let id_tahapan  = jQuery('#id_tahapan').val();
+        let deskripsi_resiko  = jQuery('#deskripsi_resiko').val();
+        let pihak_terkait  = jQuery('#pihak_terkait').val();
+        let jenis_resiko  = jQuery('#jenis_resiko').val();
+        let pemilik_resiko  = jQuery('#pemilik_resiko').val();
+        let penyebab  = jQuery('#penyebab').val();
+        let dampak  = jQuery('#dampak').val();
+        let skala_kemungkinan  = jQuery('#skala_kemungkinan').val();
+        let skala_dampak  = jQuery('#skala_dampak').val();
+        let tindak_pengendalian  = jQuery('#tindak_pengendalian').val();
+        let target_waktu  = jQuery('#target_waktu').val();
+        let pelaksanaan_pengendalian  = jQuery('#pelaksanaan_pengendalian').val();
+        let bukti_pelaksanaan  = jQuery('#bukti_pelaksanaan').val();
+        let kendala  = jQuery('#kendala').val();
+        let opd_pemilik_resiko  = jQuery('#opd_pemilik_resiko').val();
+        let keterangan_pengisian  = jQuery('#keterangan_pengisian').val();
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'simpan_resiko_kecurangan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id: id,
+                id_tahapan: id_tahapan,
+                deskripsi_resiko: deskripsi_resiko,
+                pihak_terkait: pihak_terkait,
+                jenis_resiko: jenis_resiko,
+                pemilik_resiko: pemilik_resiko,
+                penyebab: penyebab,
+                dampak: dampak,
+                skala_kemungkinan: skala_kemungkinan,
+                skala_dampak: skala_dampak,
+                tindak_pengendalian: tindak_pengendalian,
+                target_waktu: target_waktu,
+                pelaksanaan_pengendalian: pelaksanaan_pengendalian,
+                bukti_pelaksanaan: bukti_pelaksanaan,
+                kendala: kendala,
+                opd_pemilik_resiko: opd_pemilik_resiko,
+                keterangan_pengisian: keterangan_pengisian
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status == 'success') {
+                    jQuery('#TambahResikoKecuranganModal').modal('hide');
+                    get_table_resiko_kecurangan_manrisk();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat menggirim data!');
+            }
+        });
     }
 </script>
