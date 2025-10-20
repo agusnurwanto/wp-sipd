@@ -13068,7 +13068,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	            // CEK RELASI JADWAL RENSTRA KE RPJMD/RPD
 	            $jadwal_renstra = $wpdb->get_row($wpdb->prepare("
-	                SELECT relasi_perencanaan
+	                SELECT 
+	                	relasi_perencanaan
 	                FROM data_jadwal_lokal
 	                WHERE id_jadwal_lokal = %d
 	            ", $id_jadwal), ARRAY_A);
@@ -13961,6 +13962,78 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	        foreach ($data_sasaran as $sasaran) {
 	            $this->get_data_manrisk($sasaran, 1, $tahun_anggaran, $id_skpd, $id_jadwal, 'data_renstra_sasaran', $tipe_renstra);
 	        }
+	    } else if ($tipe_renstra == 'tujuan_sasaran_pemda') {
+	        $data_jadwal_list = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	                *
+	            FROM data_jadwal_lokal 
+	            WHERE id_jadwal_lokal = %d  
+	        ", $id_jadwal), ARRAY_A);
+	        foreach ($data_jadwal_list as $data_jadwal) {	            
+	            $prefix_history = ($data_jadwal && $data_jadwal['status'] == 1) ? '_history' : '';
+	            
+	            if ($data_jadwal['jenis_jadwal'] == 'rpjmd') {
+	                $data_tujuan = $wpdb->get_results($wpdb->prepare("
+	                    SELECT 
+	                        id, 
+	                        id_unik, 
+	                        tujuan_teks,
+	                        active
+	                    FROM data_rpjmd_tujuan{$prefix_history} 
+	                    WHERE id_unik_indikator IS NULL 
+	                        AND id_jadwal = %d 
+	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
+	                $data_sasaran = $wpdb->get_results($wpdb->prepare("
+	                    SELECT 
+	                        id, 
+	                        id_unik, 
+	                        sasaran_teks,
+	                        active
+	                    FROM data_rpjmd_sasaran{$prefix_history} 
+	                    WHERE id_unik_indikator IS NULL 
+	                        AND id_jadwal = %d
+	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
+	                
+	                foreach ($data_tujuan as $tujuan) {
+	                    $this->get_data_manrisk($tujuan, 0, $tahun_anggaran, 0, $data_jadwal['id_jadwal_lokal'], 'data_rpjmd_tujuan', $tipe_renstra);
+	                }
+	                
+	                foreach ($data_sasaran as $sasaran) {
+	                    $this->get_data_manrisk($sasaran, 1, $tahun_anggaran, 0, $data_jadwal['id_jadwal_lokal'], 'data_rpjmd_sasaran', $tipe_renstra);
+	                }
+	                
+	            } else if ($data_jadwal['jenis_jadwal'] == 'rpd') {
+	                $data_tujuan = $wpdb->get_results($wpdb->prepare("
+	                    SELECT 
+	                        id, 
+	                        id_unik, 
+	                        tujuan_teks,
+	                        active
+	                    FROM data_rpd_tujuan{$prefix_history} 
+	                    WHERE id_unik_indikator IS NULL 
+	                        AND id_jadwal = %d
+	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
+	                
+	                $data_sasaran = $wpdb->get_results($wpdb->prepare("
+	                    SELECT 
+	                        id, 
+	                        id_unik, 
+	                        sasaran_teks,
+	                        active
+	                    FROM data_rpd_sasaran{$prefix_history} 
+	                    WHERE id_unik_indikator IS NULL 
+	                        AND id_jadwal = %d
+	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
+	                
+	                foreach ($data_tujuan as $tujuan) {
+	                    $this->get_data_manrisk($tujuan, 0, $tahun_anggaran, 0, $data_jadwal['id_jadwal_lokal'], 'data_rpd_tujuan', $tipe_renstra);
+	                }
+	                
+	                foreach ($data_sasaran as $sasaran) {
+	                    $this->get_data_manrisk($sasaran, 1, $tahun_anggaran, 0, $data_jadwal['id_jadwal_lokal'], 'data_rpd_sasaran', $tipe_renstra);
+	                }
+	            }
+	        }
 	    } else if ($tipe_renstra == 'program_kegiatan') {
 	        $data_program = $wpdb->get_results($wpdb->prepare("
 	            SELECT 
@@ -14065,7 +14138,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    $id_sebelum = $existing_data_sebelum['id'];
 	                }
 
-	                $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra);
+	                $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra);
 
 	            } else {
 	                if (!empty($existing_data_sebelum) && $existing_data_sebelum['active'] == 1) {
@@ -14089,6 +14162,77 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        array('%d')
 	                    );
 	                }
+	            }
+	        }
+	    } else if ($tipe_renstra == 'tujuan_sasaran_pemda') {
+	        $indikator_data = $wpdb->get_results($wpdb->prepare("
+	            SELECT 
+	            	id_unik_indikator 
+	            FROM {$table_name}
+	            WHERE id_unik = %s 
+	             	AND id_unik_indikator IS NOT NULL 
+	             	AND active = 1
+	        ", $data['id_unik']), ARRAY_A);
+
+	        $indikator_list = !empty($indikator_data) ? array_column($indikator_data, 'id_unik_indikator') : array(0);
+	        
+	        foreach ($indikator_list as $id_indikator) {
+	            $existing_data_sebelum = $wpdb->get_row($wpdb->prepare("
+	                SELECT 
+	                	id, 
+	                	active
+	                FROM data_tujuan_sasaran_manrisk_sebelum_pemda 
+	                WHERE id_tujuan_sasaran = %s 
+	                 	AND id_indikator = %s 
+	                 	AND tipe = %d 
+	                 	AND tahun_anggaran = %d 
+	                 	AND id_jadwal = %d
+	            ", $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_jadwal), ARRAY_A);
+
+	            if ($data['active'] == 1) {
+	                if (empty($existing_data_sebelum)) {
+	                    $wpdb->insert(
+	                        'data_tujuan_sasaran_manrisk_sebelum_pemda',
+	                        array(
+	                            'id_tujuan_sasaran' => $data['id_unik'],
+	                            'id_indikator'      => $id_indikator,
+	                            'tipe'              => $tipe,
+	                            'controllable'      => 2,
+	                            'tahun_anggaran'    => $tahun_anggaran,
+	                            'id_jadwal'         => $id_jadwal,
+	                            'active'            => 1,
+	                            'created_at'        => current_time('mysql')
+	                        )
+	                    );
+	                    $id_sebelum = $wpdb->insert_id;
+	                } else {
+	                    $id_sebelum = $existing_data_sebelum['id'];
+	                }
+
+	                $this->get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, 0, $id_jadwal, $table_name, $tipe_renstra);
+
+	            // } else {
+	            //     if (!empty($existing_data_sebelum) && $existing_data_sebelum['active'] == 1) {
+	            //         $wpdb->update(
+	            //             'data_tujuan_sasaran_manrisk_sebelum_pemda',
+	            //             array(
+	            //                 'active' => 0
+	            //             ),
+	            //             array('id' => $existing_data_sebelum['id']),
+	            //             array('%d', '%d'),
+	            //             array('%d')
+	            //         );
+
+	            //         $wpdb->update(
+	            //             'data_tujuan_sasaran_manrisk_sesudah_pemda',
+	            //             array(
+	            //                 'active' => 0
+	            //             ),
+	            //             array('id_sebelum' => $existing_data_sebelum['id']),
+	            //             array('%d', '%d'),
+	            //             array('%d')
+	            //         );
+	            //     }
 	            }
 	        }
 	    } else if ($tipe_renstra == 'program_kegiatan') {
@@ -14292,7 +14436,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                );
 	                                $id_sebelum = $wpdb->insert_id;
 	                                
-	                                $this->get_data_sesudah($id_sebelum, $data, $id_indikator_baru, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
+	                                $this->get_data_sesudah($id_sebelum, $data, $id_indikator_baru, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
 	                            }
 	                        }
 	                        $cek_data = true;
@@ -14399,7 +14543,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    }
 	}
 
-	public function get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $table_name, $tipe_renstra, $satuan_capaian = '', $target_capaian_teks = '', $capaian_teks = '', $target_capaian = '')
+	public function get_data_sesudah($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra, $satuan_capaian = '', $target_capaian_teks = '', $capaian_teks = '', $target_capaian = '')
 	{
 	    global $wpdb;
 	    
@@ -14460,6 +14604,69 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            
 	            $wpdb->update(
 	                'data_tujuan_sasaran_manrisk_sesudah',
+	                $update_data,
+	                array('id' => $existing_data_sesudah['id']),
+	                array('%s', '%s', '%d'), 
+	                array('%d') 
+	            );
+	        }
+	    } else if ($tipe_renstra == 'tujuan_sasaran_pemda') {
+	        if ($tipe == 0) { 
+	            $text_field = 'tujuan_teks';
+	            $data_text = $data['tujuan_teks'];
+	        } else { 
+	            $text_field = 'sasaran_teks';
+	            $data_text = $data['sasaran_teks'];
+	        }
+	        
+	        $indikator_text = '';
+	        if ($id_indikator > 0) {
+	            $indikator_text = $wpdb->get_var($wpdb->prepare("
+	                SELECT 
+	                    indikator_teks 
+	                FROM {$table_name}
+	                WHERE id = %d 
+	                   	AND active = 1
+	            ", $id_indikator));
+	        }
+
+	        $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
+	            SELECT 
+	                id, 
+	                active 
+	            FROM data_tujuan_sasaran_manrisk_sesudah_pemda 
+	            WHERE id_sebelum = %d 
+	               	AND id_tujuan_sasaran = %s 
+	               	AND id_indikator = %s 
+	               	AND tipe = %d 
+	               	AND tahun_anggaran = %d 
+	               	AND id_jadwal = %d
+	        ", $id_sebelum, $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_jadwal), ARRAY_A);
+
+	        if (empty($existing_data_sesudah)) {
+	            $wpdb->insert(
+	                'data_tujuan_sasaran_manrisk_sesudah_pemda',
+	                array(
+	                    'id_sebelum' => $id_sebelum,
+	                    'id_tujuan_sasaran' => $data['id_unik'],
+	                    'id_indikator' => $id_indikator,
+	                    'tipe' => $tipe,
+	                    'controllable' => 2,
+	                    'tahun_anggaran' => $tahun_anggaran,
+	                    'id_jadwal' => $id_jadwal,
+	                    'active' => 1,
+	                    'created_at' => current_time('mysql')
+	                )
+	            );
+	        } else {
+	            $update_data = array(
+	                'id_tujuan_sasaran' => $data['id_unik'],
+	                'id_indikator' => $id_indikator,
+	                'active' => 1
+	            );
+	            
+	            $wpdb->update(
+	                'data_tujuan_sasaran_manrisk_sesudah_pemda',
 	                $update_data,
 	                array('id' => $existing_data_sesudah['id']),
 	                array('%s', '%s', '%d'), 
@@ -17605,7 +17812,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
 
-	            $this->get_data_rpjmd_manrisk($tahun_anggaran, 17, $_POST['tipe_rpjmd']);
+	            $this->get_data_renstra_manrisk($tahun_anggaran, 0, $_POST['id_jadwal'], $_POST['tipe_rpjmd']);
 
 	            $user_id = um_user('ID');
 	            $user_meta = get_userdata($user_id);
@@ -17618,10 +17825,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                SELECT 
 	                	*
 	                FROM data_jadwal_lokal 
-	                WHERE id_tipe = %d 
-	                    AND tahun_anggaran = %d 
+	                WHERE id_jadwal_lokal = %d 
 	                ORDER BY id_jadwal_lokal
-	            ", 17, $tahun_anggaran), ARRAY_A);
+	            ", $_POST['id_jadwal']), ARRAY_A);
 
 	            $html = '';
 	            $data_sesudah = false;
@@ -17649,14 +17855,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                foreach ($data_jadwal_list as $jadwal) {
 	                    $id_jadwal = $jadwal['id_jadwal_lokal'];
 	                    
-	                    $data_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
-	                        SELECT 
-	                        	status
-	                        FROM data_jadwal_lokal
-	                        WHERE id_jadwal_lokal = %d
-	                    ", $jadwal['relasi_perencanaan']), ARRAY_A);
-	                    
-	                    $prefix_history = ($data_jadwal_relasi && $data_jadwal_relasi['status'] == 1) ? '_history' : '';
+	                    $prefix_history = ($jadwal && $jadwal['status'] == 1) ? '_history' : '';
 	                    
 	                    $get_data = $wpdb->get_results($wpdb->prepare("
 	                        SELECT 
@@ -17668,11 +17867,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    ", $tahun_anggaran, $id_jadwal), ARRAY_A);
 
 	                    if (!empty($get_data)) {
-	                        $html .= '
-	                            <tr style="background:#d0d0d0; font-weight:bold;">
-	                                <td colspan="30">' . strtoupper($jadwal['jenis_jadwal']) . ' ( ' . $jadwal['nama'] . ' ' . $jadwal['tahun_anggaran'] . ' - ' . $jadwal['tahun_akhir_anggaran'] . ' )</td>
-	                            </tr>
-	                        ';
 
 	                        $tujuan_sasaran_groups = array();
 	                        
@@ -17979,242 +18173,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    die(json_encode($ret));
 	}
 
-	public function get_data_rpjmd_manrisk($tahun_anggaran, $id_tipe, $tipe_rpjmd)
-	{
-	    global $wpdb;
-	    
-	    if ($tipe_rpjmd == 'tujuan_sasaran_pemda') {
-	        $data_jadwal_list = $wpdb->get_results($wpdb->prepare("
-	            SELECT 
-	                *
-	            FROM data_jadwal_lokal 
-	            WHERE id_tipe = %d 
-	                AND tahun_anggaran = %d 
-	        ", $id_tipe, $tahun_anggaran), ARRAY_A);
-	        
-	        foreach ($data_jadwal_list as $data_jadwal) {
-	            $data_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
-                    SELECT 
-                    	*
-                    FROM data_jadwal_lokal
-                    WHERE id_jadwal_lokal = %d
-                ", $data_jadwal['relasi_perencanaan']),ARRAY_A);
-	            
-	            $prefix_history = ($data_jadwal_relasi && $data_jadwal_relasi['status'] == 1) ? '_history' : '';
-	            
-	            if ($data_jadwal['jenis_jadwal'] == 'rpjmd') {
-	                $data_tujuan = $wpdb->get_results($wpdb->prepare("
-	                    SELECT 
-	                        id, 
-	                        id_unik, 
-	                        tujuan_teks,
-	                        active
-	                    FROM data_rpjmd_tujuan{$prefix_history} 
-	                    WHERE id_unik_indikator IS NULL 
-	                        AND id_jadwal = %d 
-	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
-
-	                $data_sasaran = $wpdb->get_results($wpdb->prepare("
-	                    SELECT 
-	                        id, 
-	                        id_unik, 
-	                        sasaran_teks,
-	                        active
-	                    FROM data_rpjmd_sasaran{$prefix_history} 
-	                    WHERE id_unik_indikator IS NULL 
-	                        AND id_jadwal = %d
-	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
-	                
-	                foreach ($data_tujuan as $tujuan) {
-	                    $this->get_data_manrisk_pemda($tujuan, 0, $tahun_anggaran, $data_jadwal['id_jadwal_lokal'], 'data_rpjmd_tujuan', $tipe_rpjmd);
-	                }
-	                
-	                foreach ($data_sasaran as $sasaran) {
-	                    $this->get_data_manrisk_pemda($sasaran, 1, $tahun_anggaran, $data_jadwal['id_jadwal_lokal'], 'data_rpjmd_sasaran', $tipe_rpjmd);
-	                }
-	                
-	            } else if ($data_jadwal['jenis_jadwal'] == 'rpd') {
-	                $data_tujuan = $wpdb->get_results($wpdb->prepare("
-	                    SELECT 
-	                        id, 
-	                        id_unik, 
-	                        tujuan_teks,
-	                        active
-	                    FROM data_rpd_tujuan{$prefix_history} 
-	                    WHERE id_unik_indikator IS NULL 
-	                        AND id_jadwal = %d
-	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
-	                
-	                $data_sasaran = $wpdb->get_results($wpdb->prepare("
-	                    SELECT 
-	                        id, 
-	                        id_unik, 
-	                        sasaran_teks,
-	                        active
-	                    FROM data_rpd_sasaran{$prefix_history} 
-	                    WHERE id_unik_indikator IS NULL 
-	                        AND id_jadwal = %d
-	                ", $data_jadwal['id_jadwal_lokal']), ARRAY_A);
-	                
-	                foreach ($data_tujuan as $tujuan) {
-	                    $this->get_data_manrisk_pemda($tujuan, 0, $tahun_anggaran, $data_jadwal['id_jadwal_lokal'], 'data_rpd_tujuan', $tipe_rpjmd);
-	                }
-	                
-	                foreach ($data_sasaran as $sasaran) {
-	                    $this->get_data_manrisk_pemda($sasaran, 1, $tahun_anggaran, $data_jadwal['id_jadwal_lokal'], 'data_rpd_sasaran', $tipe_rpjmd);
-	                }
-	            }
-	        }
-	    }
-	}
-
-  	public function get_data_manrisk_pemda($data, $tipe, $tahun_anggaran, $id_jadwal, $table_name, $tipe_rpjmd)
-	{
-	    global $wpdb;
-	    
-	    if ($tipe_rpjmd == 'tujuan_sasaran_pemda') {
-	        $indikator_data = $wpdb->get_results($wpdb->prepare("
-	            SELECT 
-	            	id_unik_indikator 
-	            FROM {$table_name}
-	            WHERE id_unik = %s 
-	             	AND id_unik_indikator IS NOT NULL 
-	             	AND active = 1
-	        ", $data['id_unik']), ARRAY_A);
-
-	        $indikator_list = !empty($indikator_data) ? array_column($indikator_data, 'id_unik_indikator') : array(0);
-	        
-	        foreach ($indikator_list as $id_indikator) {
-	            $existing_data_sebelum = $wpdb->get_row($wpdb->prepare("
-	                SELECT 
-	                	id, 
-	                	active
-	                FROM data_tujuan_sasaran_manrisk_sebelum_pemda 
-	                WHERE id_tujuan_sasaran = %s 
-	                 	AND id_indikator = %s 
-	                 	AND tipe = %d 
-	                 	AND tahun_anggaran = %d 
-	                 	AND id_jadwal = %d
-	            ", $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_jadwal), ARRAY_A);
-	            if ($data['active'] == 1) {
-	                if (empty($existing_data_sebelum)) {
-	                    $wpdb->insert(
-	                        'data_tujuan_sasaran_manrisk_sebelum_pemda',
-	                        array(
-	                            'id_tujuan_sasaran' => $data['id_unik'],
-	                            'id_indikator'      => $id_indikator,
-	                            'tipe'              => $tipe,
-	                            'controllable'      => 2,
-	                            'tahun_anggaran'    => $tahun_anggaran,
-	                            'id_jadwal'           => $id_jadwal,
-	                            'active'            => 1,
-	                            'created_at'        => current_time('mysql')
-	                        )
-	                    );
-	                    $id_sebelum = $wpdb->insert_id;
-	                } else {
-	                    $id_sebelum = $existing_data_sebelum['id'];
-	                }
-
-	                $this->get_data_sesudah_pemda($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_jadwal, $table_name, $tipe_rpjmd);
-
-	            // } else {
-	            //     if (!empty($existing_data_sebelum) && $existing_data_sebelum['active'] == 1) {
-	            //         // $wpdb->update(
-	            //         //     'data_tujuan_sasaran_manrisk_sebelum_pemda',
-	            //         //     array(
-	            //         //         'active' => 0
-	            //         //     ),
-	            //         //     array('id' => $existing_data_sebelum['id']),
-	            //         //     array('%d', '%d'),
-	            //         //     array('%d')
-	            //         // );
-
-	            //         $wpdb->update(
-	            //             'data_tujuan_sasaran_manrisk_sesudah_pemda',
-	            //             array(
-	            //                 'active' => 0
-	            //             ),
-	            //             array('id_sebelum' => $existing_data_sebelum['id']),
-	            //             array('%d', '%d'),
-	            //             array('%d')
-	            //         );
-	            //     }
-	            }
-	        }
-	    } 
-	}
-
-	public function get_data_sesudah_pemda($id_sebelum, $data, $id_indikator, $tipe, $tahun_anggaran, $id_jadwal, $table_name, $tipe_rpjmd)
-	{
-	    global $wpdb;
-	    
-	    if ($tipe_rpjmd == 'tujuan_sasaran_pemda') {
-	        if ($tipe == 0) { 
-	            $text_field = 'tujuan_teks';
-	            $data_text = $data['tujuan_teks'];
-	        } else { 
-	            $text_field = 'sasaran_teks';
-	            $data_text = $data['sasaran_teks'];
-	        }
-	        
-	        $indikator_text = '';
-	        if ($id_indikator > 0) {
-	            $indikator_text = $wpdb->get_var($wpdb->prepare("
-	                SELECT 
-	                    indikator_teks 
-	                FROM {$table_name}
-	                WHERE id = %d 
-	                   	AND active = 1
-	            ", $id_indikator));
-	        }
-
-	        $existing_data_sesudah = $wpdb->get_row($wpdb->prepare("
-	            SELECT 
-	                id, 
-	                active 
-	            FROM data_tujuan_sasaran_manrisk_sesudah_pemda 
-	            WHERE id_sebelum = %d 
-	               	AND id_tujuan_sasaran = %s 
-	               	AND id_indikator = %s 
-	               	AND tipe = %d 
-	               	AND tahun_anggaran = %d 
-	               	AND id_jadwal = %d
-	        ", $id_sebelum, $data['id_unik'], $id_indikator, $tipe, $tahun_anggaran, $id_jadwal), ARRAY_A);
-
-	        if (empty($existing_data_sesudah)) {
-	            $wpdb->insert(
-	                'data_tujuan_sasaran_manrisk_sesudah_pemda',
-	                array(
-	                    'id_sebelum' => $id_sebelum,
-	                    'id_tujuan_sasaran' => $data['id_unik'],
-	                    'id_indikator' => $id_indikator,
-	                    'tipe' => $tipe,
-	                    'controllable' => 2,
-	                    'tahun_anggaran' => $tahun_anggaran,
-	                    'id_jadwal' => $id_jadwal,
-	                    'active' => 1,
-	                    'created_at' => current_time('mysql')
-	                )
-	            );
-	        } else {
-	            $update_data = array(
-	                'id_tujuan_sasaran' => $data['id_unik'],
-	                'id_indikator' => $id_indikator,
-	                'active' => 1
-	            );
-	            
-	            $wpdb->update(
-	                'data_tujuan_sasaran_manrisk_sesudah_pemda',
-	                $update_data,
-	                array('id' => $existing_data_sesudah['id']),
-	                array('%s', '%s', '%d'), 
-	                array('%d') 
-	            );
-	        }
-	    } 
-	}
-
 	public function submit_tujuan_sasaran_pemda()
 	{
 	    global $wpdb;
@@ -18355,14 +18313,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                $prefix_history = '';
 	                if ($data_jadwal) {
-	                    $data_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
-	                        SELECT 
-	                        	status
-	                        FROM data_jadwal_lokal
-	                        WHERE id_jadwal_lokal = %d
-	                    ", $data_jadwal['relasi_perencanaan']), ARRAY_A);
 	                    
-	                    $prefix_history = ($data_jadwal_relasi && $data_jadwal_relasi['status'] == 1) ? '_history' : '';
+	                    $prefix_history = ($data_jadwal && $data_jadwal['status'] == 1) ? '_history' : '';
 	                }
 
 	                $table_name = '';
@@ -18538,14 +18490,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	            $prefix_history = '';
 	            if ($data_jadwal) {
-	                $data_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
-	                    SELECT 
-	                    	status
-	                    FROM data_jadwal_lokal
-	                    WHERE id_jadwal_lokal = %d
-	                ", $data_jadwal['relasi_perencanaan']), ARRAY_A);
 	                
-	                $prefix_history = ($data_jadwal_relasi && $data_jadwal_relasi['status'] == 1) ? '_history' : '';
+	                $prefix_history = ($data_jadwal && $data_jadwal['status'] == 1) ? '_history' : '';
 	            }
 
 	            $table_name = '';

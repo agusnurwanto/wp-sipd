@@ -1688,9 +1688,32 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a return false;" target="_blank" href="' . $url_rpjmd_renstra . '">Halaman RPJMD RENSTRA Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'tujuan_sasaran_pemda') {
-						$url_tujuan_sasaran_pemda = $this->generatePage('Tujuan / Sasaran Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[detail_tujuan_sasaran_manrisk_pemda tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran_pemda . '">Halaman Resiko Tujuan / Sasaran Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
-						$body_all .= $body_pemda;
+					    $data_jadwal_list = $wpdb->get_results($wpdb->prepare("
+					        SELECT 
+					            *
+					        FROM data_jadwal_lokal 
+					        WHERE id_tipe = %d 
+					            AND tahun_anggaran <= %d
+					            AND (tahun_anggaran + lama_pelaksanaan - 1) >= %d
+					        ORDER BY id_jadwal_lokal
+					    ", 17, $v['tahun_anggaran'], $v['tahun_anggaran']), ARRAY_A);
+					    
+					    if ($data_jadwal_list) {
+					        foreach ($data_jadwal_list as $index => $jadwal) {
+					            $tahun_akhir_anggaran = $jadwal['tahun_anggaran'] + $jadwal['lama_pelaksanaan'] - 1;
+					            
+					            $url_tujuan_sasaran_pemda = $this->generatePage(
+					                'Tujuan / Sasaran Pemerintah Daerah | ' . $v['tahun_anggaran'],
+					                $v['tahun_anggaran'], 
+					                '[detail_tujuan_sasaran_manrisk_pemda]'
+					            );
+					            
+					            $url_pemda = $url_tujuan_sasaran_pemda . '&tahun_anggaran=' . $v['tahun_anggaran'] .' &id_jadwal=' . $jadwal['id_jadwal_lokal'];
+					            $body_all .= '<a target="_blank" href="' . $url_pemda . '">Halaman Resiko Tujuan / Sasaran Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . ' (' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ')</a><br>';
+					        }
+					        
+					        $body_all .= $body_pemda;
+					    }
 					} else if ($_POST['type'] == 'tujuan_sasaran') {
 						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Resiko Tujuan / Sasaran Perangkat Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
