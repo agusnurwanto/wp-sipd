@@ -16766,8 +16766,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						* 
 					FROM data_resiko_kecurangan_mcp
 					WHERE tahun_anggaran = %d
-					AND id_skpd = %d
-					AND active = 1
+						AND id_skpd = %d
+						AND active = 1
+					ORDER BY id ASC
 				", $tahun_anggaran, $id_skpd), ARRAY_A);
 
 				$html = '';
@@ -16789,8 +16790,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$html .= '
 							<tr>
 								<td>' . $counter++ . '</td>
-								<td>' . ($sasaran_tahapan['sasaran']) . '</td>
-								<td>' . ($sasaran_tahapan['tahapan'])  . '</td>
+								<td>' . $sasaran_tahapan['sasaran'] . '</td>
+								<td>' . $sasaran_tahapan['tahapan']. '</td>
 								<td>' . $row['deskripsi_resiko'] . '</td>
 								<td>' . $row['pihak_terkait'] . '</td>
 								<td>' . $row['jenis_resiko'] . '</td>
@@ -16807,7 +16808,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<td>' . $row['kendala'] . '</td>
 								<td>' . $row['opd_pemilik_resiko'] . '</td>
 								<td>' . $row['keterangan_pengisian'] . '</td>
-								<td></td>
+								<td><button class="btn btn-warning" onclick="edit_resiko(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger" onclick="hapus_resiko(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button></td>
 							</tr>';
 					}
 				} else {
@@ -16853,22 +16859,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$tahun_anggaran = intval($_POST['tahun_anggaran']);
 				$id_skpd = intval($_POST['id_skpd']);
-				$id_tahapan = intval($_POST['id_tahapan']);
-				$id = intval($_POST['id']);
-
-				// cek data existing
-				$cek = $wpdb->get_row($wpdb->prepare("
-					SELECT id 
-					FROM data_resiko_kecurangan_mcp
-					WHERE id_skpd = %d 
-						AND id_tahapan = %d
-						AND tahun_anggaran = %d 
-						AND active=1
-				", $id_skpd,$id_tahapan, $tahun_anggaran), ARRAY_A);
 
 				$data = array(
 					'id_skpd' => $id_skpd,
-					'id_tahapan' => intval($_POST['id_tahapan']), // tetap disimpan, tapi bukan buat kunci pencarian
+					'id_tahapan' => intval($_POST['id_tahapan']), 
 					'deskripsi_resiko' => $_POST['deskripsi_resiko'],
 					'pihak_terkait' => $_POST['pihak_terkait'],
 					'jenis_resiko' => $_POST['jenis_resiko'],
@@ -16887,20 +16881,178 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					'tahun_anggaran' => $tahun_anggaran,
 					'active' => 1,
 				);
-
-				if (!empty($cek)) {
-					$wpdb->update(
+					// --- Jika ID dikirim, berarti edit ---
+				if (!empty($_POST['id'])) {
+					$id = intval($_POST['id']);
+					$update = $wpdb->update(
 						'data_resiko_kecurangan_mcp',
 						$data,
-						array('id' => $cek->id)
+						array('id' => $id)
 					);
-					$ret['status'] = 'success';
-                	$ret['message'] = 'Data berhasil diperbarui!';
+					if ($update !== false) {
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil diperbarui!';
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Gagal memperbarui data!';
+					}
 				} else {
-					// insert data baru
-					$wpdb->insert('data_resiko_kecurangan_mcp', $data);
+					// --- Jika belum ada ID, berarti insert baru ---
+					$insert = $wpdb->insert('data_resiko_kecurangan_mcp', $data);
+					if ($insert !== false) {
+						$ret['status'] = 'success';
+						$ret['message'] = 'Data berhasil disimpan!';
+					} else {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Gagal menyimpan data!';
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'API Key tidak valid!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function options_tahapan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+			'data' => array()
+		);
+
+		if (empty($_POST['api_key']) || $_POST['api_key'] != get_option('_crb_api_key_extension')) {
+			$ret['status'] = 'error';
+			$ret['message'] = 'API key tidak valid!';
+			die(json_encode($ret));
+		}
+
+		$tahun_anggaran = intval($_POST['tahun_anggaran']);
+    	$id_skpd = intval($_POST['id_skpd']);
+
+		$data = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				id AS id_tahapan,
+				tahapan AS nama_tahapan,
+				sasaran AS nama_sasaran_area
+			FROM data_sasaran_tahapan_mcp
+			WHERE tahun_anggaran = %d
+				AND active = 1
+				ORDER BY id_tahapan ASC
+		", $tahun_anggaran), ARRAY_A);
+
+		if (!empty($data)) {
+			$ret['status'] = 'success';
+			$ret['message'] = 'Berhasil mengambil data.';
+			$ret['data'] = $data;
+		} else {
+			$ret['message'] = 'Data tahapan tidak ditemukan.';
+		}
+
+		die(json_encode($ret));;
+	}
+
+	public function hapus_resiko() 
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menghapus data!',
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Kecurangan Resiko tidak ditemukan!';
+					die(json_encode($ret));
+				}
+				$id = intval($_POST['id']);
+
+				$cek = $wpdb->get_row($wpdb->prepare("
+					SELECT
+						*
+					FROM data_resiko_kecurangan_mcp
+					WHERE id=%d
+						AND active=1
+				", $id));
+				
+				if (empty($cek)) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data Kecurangan Resiko Tidak Ditemukan!';
+					die(json_encode($ret));
+				}
+
+				$hapus = $wpdb->update(
+					'data_resiko_kecurangan_mcp',
+					array('active' => 0),
+					array('id' => $id),
+					array('%d'),
+					array('%d')
+				);
+
+				if($hapus == false) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Gagal menghapus data!';
+					die(json_encode($ret));
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'Api key tidak ditemukan!';
+			}
+		}
+		die(json_encode($ret));
+	}
+	 
+	public function edit_resiko() 
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data!',
+		);
+
+		if(!empty($_POST)) {
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+				if (empty($_POST['id'])) {
+					$ret['status']  = 'error';
+					$ret['message']  = 'ID Kecurangan Resiko Tidak Ditemukan!';
+					die(json_encode($ret));
+				}
+				$id = intval($_POST['id']);
+
+				$cek = $wpdb->get_row($wpdb->prepare("
+					SELECT
+						*
+					FROM data_resiko_kecurangan_mcp
+					WHERE id=%d
+						AND active=1
+				", $id));
+
+				if (!empty($cek)) {
 					$ret['status'] = 'success';
-					$ret['message'] = 'Data berhasil disimpan!';
+					$ret['message'] = 'Berhasil mengambil data!';
+					$ret['data'] = $cek;
+				} 
+				// Ambil nama tahapan dan sasaran
+				if (!empty($cek->id_tahapan)) {
+					$tahapan = $wpdb->get_row($wpdb->prepare("
+						SELECT sasaran, tahapan
+						FROM data_sasaran_tahapan_mcp
+						WHERE id = %d
+							AND active = 1
+					", $cek->id_tahapan));
+
+					if (!empty($tahapan)) {
+						$ret['data']->tahapan = $tahapan->tahapan;
+						$ret['data']->sasaran = $tahapan->sasaran;
+					}
+				} else {
+					$ret['message'] = 'Data tidak ditemukan!';
 				}
 			} else {
 				$ret['message'] = 'API Key tidak valid!';

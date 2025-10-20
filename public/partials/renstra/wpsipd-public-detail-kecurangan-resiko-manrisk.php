@@ -258,6 +258,8 @@ if ($id_jadwal != 0) {
             </div>
              <div class="modal-body">
                 <form id="form_resiko_kecurangan">
+                    <input type="hidden" id="id_tahapan" name="id_tahapan">
+                    <input type="hidden" id="id" name="id">
                     <div class="form-group">
                         <label for="nama_sasaran_area">Nama Sasaran Area MCP</label>
                         <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area" disabled required>
@@ -320,7 +322,7 @@ if ($id_jadwal != 0) {
                         <input type="text" class="form-control" id="tindak_pengendalian" name="tindak_pengendalian" required>
                     </div>
                     <div class="form-group">
-                        <label for="target_waktu">Target target_Waktu Pelaksanaan Pengendalian</label>
+                        <label for="target_waktu">Target Waktu Pelaksanaan Pengendalian</label>
                         <input type="text" class="form-control" id="target_waktu" name="waktu" required>
                     </div>
                     <div class="form-group">
@@ -355,6 +357,15 @@ if ($id_jadwal != 0) {
 <script>
     jQuery(document).ready(function() {
         get_table_resiko_kecurangan_manrisk();
+
+        jQuery(document).on('change', '#tahapan', function() {
+            let selected = jQuery(this).find(':selected');
+            let id_tahapan = selected.val();
+            let sasaran = selected.data('sasaran') || '';
+
+            jQuery('#id_tahapan').val(id_tahapan);
+            jQuery('#nama_sasaran_area').val(sasaran);
+        });
     });
 
     function get_table_resiko_kecurangan_manrisk() {
@@ -387,8 +398,12 @@ if ($id_jadwal != 0) {
     }
 
     function tambah_data() {
-    jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
-    jQuery('#TambahResikoKecuranganModal').modal('show');
+        jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
+        jQuery('#form_resiko_kecurangan').trigger('reset');
+        jQuery('#id').val('');
+        jQuery('#id_tahapan').val();
+        options_tahapan()
+        jQuery('#TambahResikoKecuranganModal').modal('show');
     }
 
     function simpan_resiko() {
@@ -451,6 +466,129 @@ if ($id_jadwal != 0) {
                 jQuery('#wrap-loading').hide();
                 console.error(xhr.responseText);
                 alert('Terjadi kesalahan saat menggirim data!');
+            }
+        });
+    }
+
+    function options_tahapan() {
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'options_tahapan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+            },
+            success: function(response) {
+                if(response.status == 'success') {
+                    let tahapan = '<option value= "">Pilih Tahapan Proses Bisnis</option>';
+                    response.data.forEach(function(item) {
+                        tahapan += `<option value="${item.id_tahapan}" data-sasaran="${item.nama_sasaran_area}">
+                            ${item.nama_tahapan}
+                        </option>`;
+                    });
+                    jQuery('#tahapan').html(tahapan);
+                    jQuery('#tahapan').val();
+                } 
+            }, 
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan!'); 
+            }
+        });
+    }
+
+    function hapus_resiko(id) {
+        if(confirm('Apakah anda yakin untuk menghapus data ini?')) {
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'hapus_resiko',
+                    api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    id: id
+                },
+                success: function(response) {
+                    console.log(response);
+                    jQuery('#wrap-loading').hide();
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        get_table_resiko_kecurangan_manrisk();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    jQuery('#wrap-loading').hide();
+                    alert('Terjadi kesalahan saat mengirim data!');
+                }
+            });
+        }
+    }
+
+    function edit_resiko(id) {
+        jQuery('#wrap-loading').show();
+        jQuery('#TambahResikoKecuranganModalLabel').text('Edit Risiko Kecurangan MCP');
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'edit_resiko',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: id
+            },
+            success: function(response) {
+                console.log(response);
+                jQuery('#wrap-loading').hide();
+                if (response.status === 'success') {
+                    console.log(response.message);
+                    jQuery('#id').val(response.data.id);
+                    jQuery('#id_tahapan').val(response.data.id_tahapan);
+                     // isi nama sasaran dan nama tahapan
+                    jQuery('#nama_sasaran_area').val(response.data.sasaran || '');
+                    
+                    // untuk select tahapan, buat opsi dan pilih sesuai data
+                    let tahapanSelect = jQuery('#tahapan');
+                    tahapanSelect.empty();
+                    if(response.data.tahapan) {
+                        tahapanSelect.append('<option value="' + response.data.id_tahapan + '" selected>' + response.data.tahapan + '</option>');
+                    }
+                    tahapanSelect.append('<option value="">Pilih Tahapan Proses Bisnis</option>'); // default
+                    // jika mau, bisa append opsi lain dari server untuk semua tahapan
+
+                    jQuery('#deskripsi_resiko').val(response.data.deskripsi_resiko);
+                    jQuery('#pihak_terkait').val(response.data.pihak_terkait);
+                    jQuery('#jenis_resiko').val(response.data.jenis_resiko);
+                    jQuery('#pemilik_resiko').val(response.data.pemilik_resiko);
+                    jQuery('#penyebab').val(response.data.penyebab);
+                    jQuery('#dampak').val(response.data.dampak);
+                    jQuery('#skala_kemungkinan').val(response.data.skala_kemungkinan);
+                    jQuery('#skala_dampak').val(response.data.skala_dampak);
+                    jQuery('#tindak_pengendalian').val(response.data.tindak_pengendalian);
+                    jQuery('#target_waktu').val(response.data.target_waktu);
+                    jQuery('#pelaksanaan_pengendalian').val(response.data.pelaksanaan_pengendalian);
+                    jQuery('#bukti_pelaksanaan').val(response.data.bukti_pelaksanaan);
+                    jQuery('#kendala').val(response.data.kendala);
+                    jQuery('#opd_pemilik_resiko').val(response.data.opd_pemilik_resiko);
+                    jQuery('#keterangan_pengisian').val(response.data.keterangan_pengisian);
+
+                    // buka modal form edit
+                    jQuery('#TambahResikoKecuranganModal').modal('show');
+
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat mengirim data!');
             }
         });
     }
