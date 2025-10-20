@@ -13244,8 +13244,43 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 
 	            $data_pemda_per_bidang = array();
+	            $id_tujuan_pemda_aktif = array();
+	            $id_sasaran_pemda_aktif = array();
 
 	            if (!empty($id_jadwal_pemda) && !empty($jenis_jadwal_pemda)) {
+	                $table_sasaran = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
+	                
+	                foreach ($id_sasaran_pemda_terhubung as $id_sasaran_terhubung) {
+	                    $cek_sasaran_manrisk = $wpdb->get_row($wpdb->prepare("
+	                        SELECT id_tujuan_sasaran
+	                        FROM data_tujuan_sasaran_manrisk_sebelum_pemda
+	                        WHERE tahun_anggaran = %d
+	                            AND id_jadwal = %d
+	                            AND id_tujuan_sasaran = %s
+	                            AND tipe = 1
+	                            AND active = 1
+	                    ", $tahun_anggaran, $id_jadwal_pemda, $id_sasaran_terhubung), ARRAY_A);
+	                    
+	                    if (!empty($cek_sasaran_manrisk)) {
+	                        $id_sasaran_pemda_aktif[] = $id_sasaran_terhubung;
+	                        
+	                        $sasaran_pemda = $wpdb->get_row($wpdb->prepare("
+	                            SELECT kode_tujuan
+	                            FROM {$table_sasaran}
+	                            WHERE id_unik = %s
+	                                AND id_jadwal = %d
+	                                AND active = 1
+	                        ", $id_sasaran_terhubung, $id_jadwal_pemda), ARRAY_A);
+	                        
+	                        if (!empty($sasaran_pemda['kode_tujuan'])) {
+	                            $id_tujuan_pemda_aktif[] = $sasaran_pemda['kode_tujuan'];
+	                        }
+	                    }
+	                }
+	                
+	                $id_tujuan_pemda_aktif = array_unique($id_tujuan_pemda_aktif);
+	                $id_sasaran_pemda_aktif = array_unique($id_sasaran_pemda_aktif);
+	                
 	                $get_data_pemda = $wpdb->get_results($wpdb->prepare("
 	                    SELECT 
 	                        * 
@@ -13261,8 +13296,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        $skip_data = true;
 
 	                        if (isset($row_pemda['tipe']) && $row_pemda['tipe'] == 0) {
-	                            // Tujuan Pemda - cek apakah terhubung
 	                            if (in_array($row_pemda['id_tujuan_sasaran'], $id_tujuan_pemda_terhubung)) {
+	                                if (!in_array($row_pemda['id_tujuan_sasaran'], $id_tujuan_pemda_aktif)) {
+	                                    continue;
+	                                }
+	                                
 	                                $skip_data = false;
 	                                $nama_table = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_tujuan{$prefix_history}" : "data_rpd_tujuan{$prefix_history}";
 
@@ -13296,7 +13334,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            }
 
 	                        } elseif (isset($row_pemda['tipe']) && $row_pemda['tipe'] == 1) {
-	                            // Sasaran Pemda - cek apakah terhubung
 	                            if (in_array($row_pemda['id_tujuan_sasaran'], $id_sasaran_pemda_terhubung)) {
 	                                $skip_data = false;
 	                                $nama_table = ($jenis_jadwal_pemda == 'rpjmd') 
@@ -13417,6 +13454,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            ", $get_data_tujuan['id_unik'], $row['id_indikator']), ARRAY_A);
 	                            $row['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['indikator_teks'] : '';
 	                            $row['label_tipe'] = 'Tujuan OPD:';
+	                        } else {
+	                            continue;
 	                        }
 
 	                    } elseif (isset($row['tipe']) && $row['tipe'] == 1) {
@@ -13464,6 +13503,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                            $row['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['indikator_teks'] : '';
 	                            $row['label_tipe'] = 'Sasaran OPD:';
+	                        } else {
+	                            continue;
 	                        }
 	                    }
 
@@ -13520,6 +13561,33 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            
 	                            $tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key]['data'][] = $row;
 	                        }
+	                    } else {
+	                        $kode_bidang = 'no_bidang';
+	                        $grouped_data[$kode_bidang]['nama_bidang'] = 'Bidang urusan belum diset';
+	                        $grouped_data[$kode_bidang]['kode_bidang_array'] = array();
+	                        
+	                        $tujuan_sasaran_key = $row['id_tujuan_sasaran'] . '_' . $row['tipe'];
+	                        
+	                        if (!isset($tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key])) {
+	                            $tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key] = array(
+	                                'nama_tujuan_sasaran' => $nama_tujuan_sasaran,
+	                                'label_tipe' => $row['label_tipe'],
+	                                'tipe' => $row['tipe'],
+	                                'id_tujuan_sasaran' => $row['id_tujuan_sasaran'],
+	                                'kode_bidang' => $kode_bidang,
+	                                'indikator' => array()
+	                            );
+	                        }
+	                        
+	                        $indikator_key = $row['id_indikator'];
+	                        if (!isset($tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key])) {
+	                            $tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key] = array(
+	                                'indikator_text' => $row['indikator'],
+	                                'data' => array()
+	                            );
+	                        }
+	                        
+	                        $tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key]['data'][] = $row;
 	                    }
 	                }
 	                
