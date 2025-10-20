@@ -1179,6 +1179,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_sasaran_mcp',  $plugin_public, 'hapus_sasaran_mcp');
 		$this->loader->add_action('wp_ajax_get_table_resiko_kecurangan_manrisk',  $plugin_public, 'get_table_resiko_kecurangan_manrisk');
 		$this->loader->add_action('wp_ajax_simpan_resiko_kecurangan',  $plugin_public, 'simpan_resiko_kecurangan');
+		$this->loader->add_action('wp_ajax_options_tahapan',  $plugin_public, 'options_tahapan');
+		$this->loader->add_action('wp_ajax_hapus_resiko',  $plugin_public, 'hapus_resiko');
+		$this->loader->add_action('wp_ajax_edit_resiko',  $plugin_public, 'edit_resiko');
 		
 		$this->loader->add_action('wp_ajax_get_data_jadwal_manrisk',  $plugin_public, 'get_data_jadwal_manrisk');
 		$this->loader->add_action('wp_ajax_get_table_program_kegiatan',  $plugin_public, 'get_table_program_kegiatan');
