@@ -1082,8 +1082,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						->add_fields($this->get_ajax_field(array('type' => 'rpjmd_renstra')));
 				}
 
+				if (get_option('_crb_show_menu_tujuan_sasaran_pemda_settings') != true) {
+					Container::make('theme_options', __('Tujuan / Sasaran Pemerintah Daerah'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'tujuan_sasaran_pemda')));
+				}
+
 				if (get_option('_crb_show_menu_tujuan_sasaran_settings') != true) {
-					Container::make('theme_options', __('Tujuan / Sasaran'))
+					Container::make('theme_options', __('Tujuan / Sasaran Perangkat Daerah'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'tujuan_sasaran')));
 				}
@@ -1681,9 +1687,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_rpjmd_renstra = $this->generatePage('RPJMD RENSTRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[rpjmd_renstra_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_rpjmd_renstra . '">Halaman RPJMD RENSTRA Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'tujuan_sasaran_pemda') {
+						$url_tujuan_sasaran_pemda = $this->generatePage('Tujuan / Sasaran Pemerintah Daerah | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[detail_tujuan_sasaran_manrisk_pemda tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran_pemda . '">Halaman Resiko Tujuan / Sasaran Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'tujuan_sasaran') {
 						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Resiko Tujuan / Sasaran Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Resiko Tujuan / Sasaran Perangkat Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'program_kegiatan') {
 						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
@@ -1917,6 +1927,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'kode_resiko'
 					|| $_POST['type'] == 'konteks_resiko'
 					|| $_POST['type'] == 'rpjmd_renstra'
+					|| $_POST['type'] == 'tujuan_sasaran_pemda'
 					|| $_POST['type'] == 'tujuan_sasaran'
 					|| $_POST['type'] == 'program_kegiatan'
 					|| $_POST['type'] == 'kecurangan_mcp'
@@ -2697,7 +2708,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_rpjmd_renstra_settings', 'RPJMD RENSTRA')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_tujuan_sasaran_settings', 'Tujuan / Sasaran')
+			Field::make('checkbox', 'crb_show_menu_tujuan_sasaran_pemda_settings', 'Tujuan / Sasaran Pemerintah Daerah')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_tujuan_sasaran_settings', 'Tujuan / Sasaran Perangkat Daerah')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_program_kegiatan_settings', 'Program / Kegiatan')
 				->set_option_value('true'),

@@ -495,9 +495,11 @@ $data_sasaran = $wpdb->get_results(
 
             <div class="col-md-5">
                 <div style="text-align:left; margin-bottom:5px;">
-                    <button type="button" class="btn btn-primary" onclick="tambah_opd()">
-                        + Tambah OPD
-                    </button>
+                    <?php if ( current_user_can('administrator') ) : ?>
+                        <button type="button" class="btn btn-primary" onclick="tambah_opd()">
+                            + Tambah OPD
+                        </button>
+                    <?php endif; ?>
                 </div>
                 <table class="daftar_opd" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                     <thead>
@@ -517,15 +519,17 @@ $data_sasaran = $wpdb->get_results(
     <div style="padding: 10px;margin:0 15px 3rem 15px;">
         <div class="row">
             <div style="text-align:left; margin-bottom:5px;">
-                <button type="button" class="btn btn-success" onclick="tambah_sasaran()">
-                    <span class="dashicons dashicons-insert"></span>
-                        Tambah Sasaran MCP     
-                </button>
+                <?php if ( current_user_can('administrator') ) : ?>
+                    <button type="button" class="btn btn-success" onclick="tambah_sasaran()">
+                        <span class="dashicons dashicons-insert"></span>
+                            Tambah Sasaran MCP     
+                    </button>
+                <?php endif; ?>
             </div>
             <table class="table_sasaran" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                 <thead>    
                     <tr>    
-                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan MCP</th>     
+                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan Risiko Kecurangan MCP</th>     
                     </tr>              
                     <tr>    
                         <th style="width:70px;" class="text-center">No</th>
@@ -539,25 +543,30 @@ $data_sasaran = $wpdb->get_results(
                     if (!empty($data_sasaran)) {
                         $no = 1;
                         foreach ($data_sasaran as $row) {
+                            if ( current_user_can('administrator') ) {
+                                $aksi = '
+                                    <button class="btn btn-warning" onclick="edit_sasaran(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger" onclick="hapus_sasaran(' . $row['id'] . ')">
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button>
+                                ';
+                            } else {
+                                $aksi = '<em>-</em>';
+                            }
                             echo '
                             <tr>
                                 <td class="text-center">' . $no++ . '</td>
                                 <td id="sasaran_'.$row['id'].'">' . esc_html($row['sasaran']) . '</td>
                                 <td id="tahapan_'.$row['id'].'">' . esc_html($row['tahapan']) . '</td>
-                                <td class="text-center">
-                                    <button class="btn btn-warning" onclick="edit_sasaran(' . $row['id'] . ')";>
-                                        <span class="dashicons dashicons-edit"></span>
-                                    </button>
-                                    <button class="btn btn-danger" onclick="hapus_sasaran('. $row['id'] . ')";>
-                                        <span class="dashicons dashicons-trash"></span>
-                                    </button>
-                                </td>
+                                <td class="text-center">' . $aksi . '</td>
                             </tr>';
                         }
                     } else {
                         echo '
                         <tr>
-                            <td colspan="4" class="text-center">Belum ada data sasaran</td>
+                            <td colspan="4" class="text-center">Belum ada data sasaran tahapan</td>
                         </tr>';
                     }
                     ?>
@@ -644,9 +653,11 @@ $data_sasaran = $wpdb->get_results(
                 <td class="text-center">${index + 1}</td>
                 <td>${nama_opd}</td>
                 <td>
-                    <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
-                        <span class="dashicons dashicons-trash"></span>
-                    </button>
+                    <?php if ( current_user_can('administrator') ) : ?>
+                        <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
+                            <span class="dashicons dashicons-trash"></span>
+                        </button>
+                    <?php endif; ?>
                 </td>
             </tr>`);
         });
@@ -721,9 +732,11 @@ $data_sasaran = $wpdb->get_results(
                             <td class="text-center">${index + 1}</td>
                             <td>${nama_opd}</td>
                             <td>
-                                <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
-                                    <span class="dashicons dashicons-trash"></span>
-                                </button>
+                                <?php if ( current_user_can('administrator') ) : ?>
+                                    <button class="btn btn-danger" onclick="hapus_daftar_opd(${item.id_skpd})";>
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button>
+                                <?php endif; ?>
                             </td>
                         </tr>`);
                     });

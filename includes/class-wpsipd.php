@@ -1177,6 +1177,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_daftar_opd_manrisk',  $plugin_public, 'hapus_daftar_opd_manrisk');
 		$this->loader->add_action('wp_ajax_simpan_sasaran_mcp',  $plugin_public, 'simpan_sasaran_mcp');
 		$this->loader->add_action('wp_ajax_hapus_sasaran_mcp',  $plugin_public, 'hapus_sasaran_mcp');
+		$this->loader->add_action('wp_ajax_get_table_resiko_kecurangan_manrisk',  $plugin_public, 'get_table_resiko_kecurangan_manrisk');
+		$this->loader->add_action('wp_ajax_simpan_resiko_kecurangan',  $plugin_public, 'simpan_resiko_kecurangan');
 		
 		$this->loader->add_action('wp_ajax_get_table_program_kegiatan',  $plugin_public, 'get_table_program_kegiatan');
 		$this->loader->add_action('wp_ajax_get_indikator_program_kegiatan',  $plugin_public, 'get_indikator_program_kegiatan');
@@ -1194,7 +1196,15 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_pihak_terdampak_manrisk',  $plugin_public, 'pihak_terdampak_manrisk');
 		$this->loader->add_action('wp_ajax_options_manrisk',  $plugin_public, 'options_manrisk');
 
+		$this->loader->add_action('wp_ajax_get_table_tujuan_sasaran_pemda',  $plugin_public, 'get_table_tujuan_sasaran_pemda');
+		$this->loader->add_action('wp_ajax_get_data_rpjmd_manrisk',  $plugin_public, 'get_data_rpjmd_manrisk');
+		$this->loader->add_action('wp_ajax_get_data_sesudah_pemda',  $plugin_public, 'get_data_sesudah_pemda');
 		$this->loader->add_action('wp_ajax_get_table_rpjmd_renstra',  $plugin_public, 'get_table_rpjmd_renstra');
+		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran_pemda',  $plugin_public, 'submit_tujuan_sasaran_pemda');
+		$this->loader->add_action('wp_ajax_edit_tujuan_sasaran_manrisk_pemda',  $plugin_public, 'edit_tujuan_sasaran_manrisk_pemda');
+		$this->loader->add_action('wp_ajax_verif_tujuan_sasaran_manrisk_pemda',  $plugin_public, 'verif_tujuan_sasaran_manrisk_pemda');
+		$this->loader->add_action('wp_ajax_submit_verif_tujuan_sasaran_pemda',  $plugin_public, 'submit_verif_tujuan_sasaran_pemda');
+		$this->loader->add_action('wp_ajax_hapus_tujuan_sasaran_manrisk_pemda',  $plugin_public, 'hapus_tujuan_sasaran_manrisk_pemda');
 		
 		$this->loader->add_action('wp_ajax_get_data_iku',  $plugin_public, 'get_data_iku');
 
@@ -1379,6 +1389,7 @@ class Wpsipd
 		add_shortcode('detail_konteks_resiko_manrisk',array($plugin_public,'detail_konteks_resiko_manrisk'));
 		add_shortcode('detail_rpjmd_renstra_manrisk',array($plugin_public,'detail_rpjmd_renstra_manrisk'));
 		add_shortcode('detail_tujuan_sasaran_manrisk',array($plugin_public,'detail_tujuan_sasaran_manrisk'));
+		add_shortcode('detail_tujuan_sasaran_manrisk_pemda',array($plugin_public,'detail_tujuan_sasaran_manrisk_pemda'));
 		add_shortcode('detail_program_kegiatan_manrisk',array($plugin_public,'detail_program_kegiatan_manrisk'));
 		add_shortcode('detail_resiko_kecurangan_manrisk',array($plugin_public,'detail_resiko_kecurangan_manrisk'));
 

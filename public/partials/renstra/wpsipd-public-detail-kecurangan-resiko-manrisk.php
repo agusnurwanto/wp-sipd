@@ -139,7 +139,16 @@ if ($id_jadwal != 0) {
     }
 }
 ?>
-<style>
+<style type="text/css">
+    .btn-action-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action-group .btn {
+        margin: 0 5px;
+    }
 </style>
 <div class="container-md">
     <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -148,7 +157,12 @@ if ($id_jadwal != 0) {
             <h1 class="text-center table-title" style="padding-top: 80px">
                 Manajemen Resiko Kecurangan MCP <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
-            <div id='aksi-wpsipd'></div>
+            <div class="text-center" style="text-align:center; margin: 20px;">
+                <button type="button" class="btn btn-primary" onclick="tambah_data()" style=" align-items:center;">
+                    <span class="dashicons dashicons-plus-alt2" style="position:relative; top:-2px; vertical-align:middle;"></span>
+                    Tambah Data
+                </button>
+            </div>
             <table class="table table-bordered">
                 <tr>
                     <th style="width: 20%;">Nama Pemda</th>
@@ -231,3 +245,213 @@ if ($id_jadwal != 0) {
         </div>
     </div>
 </div>
+
+<!-- Modal crud -->
+<div class="modal fade" id="TambahResikoKecuranganModal" tabindex="-1" role="dialog" aria-labelledby="TambahResikoKecuranganModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TambahResikoKecuranganModalLabel">Tambah Risiko Kecurangan MCP</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+             <div class="modal-body">
+                <form id="form_resiko_kecurangan">
+                    <div class="form-group">
+                        <label for="nama_sasaran_area">Nama Sasaran Area MCP</label>
+                        <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area" disabled required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tahapan">Tahapan Proses Bisnis</label>
+                        <select id="tahapan" class="form-control">
+                            <option value="" selected>Pilih Tahapan Proses Bisnis</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deskripsi_resiko">Deskripsi Risiko Kecurangan</label>
+                        <input type="text" class="form-control" id="deskripsi_resiko" name="deskripsi_resiko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pihak_terkait">Pihak Terkait</label>
+                        <input type="text" class="form-control" id="pihak_terkait" name="pihak_terkait" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jenis_resiko">Pilih Jenis Risiko Kecurangan</label>
+                        <select id="jenis_resiko" class="form-control">
+                            <option value="" selected>Pilih Jenis Risiko Kecurangan</option>
+                            <option value="Konflik kepentingan">Konflik kepentingan</option>
+                            <option value="Pemberian suap">Pemberian suap</option>
+                            <option value="Penggelapan">Penggelapan</option>
+                            <option value="Pemalsuan Data">Pemalsuan Data</option>
+                            <option value="Pemerasan/ Pungutan Liar">Pemerasan/ Pungutan Liar</option>
+                            <option value="Penyalahgunaan wewenang">Penyalahgunaan wewenang</option>
+                            <option value="Fraud/ Korupsi">Fraud/ Korupsi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
+                        <select id="pemilik_resiko" class="form-control">
+                            <option value="" selected>Pilih Pemilik Resiko</option>
+                            <option value="Kepala Daerah">Kepala Daerah</option>
+                            <option value="Kepala OPD">Kepala OPD</option>
+                            <option value="Kepala Bidang">Kepala Bidang</option>
+                            <option value="PA/PK">PA/PK</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="penyebab">Penyebab</label>
+                        <input type="text" class="form-control" id="penyebab" name="penyebab" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dampak">Dampak</label>
+                        <input type="text" class="form-control" id="dampak" name="dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_kemungkinan">Skala Kemungkinan</label>
+                        <input type="number" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skala_dampak">Skala Dampak</label>
+                        <input type="number" class="form-control" id="skala_dampak" name="skala_dampak" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tindak_pengendalian">Rencana Tindak Pengendalian (Fraud Risk Response)</label>
+                        <input type="text" class="form-control" id="tindak_pengendalian" name="tindak_pengendalian" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="target_waktu">Target target_Waktu Pelaksanaan Pengendalian</label>
+                        <input type="text" class="form-control" id="target_waktu" name="waktu" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pelaksanaan_pengendalian">Pelaksanaan Pengendalian</label>
+                        <input type="text" class="form-control" id="pelaksanaan_pengendalian" name="pelaksanaan_pengendalian" required>
+                    </div>                        
+                    <div class="form-group">
+                        <label for="bukti_pelaksanaan">Bukti Pelaksanaan</label>
+                        <input type="text" class="form-control" id="bukti_pelaksanaan" name="bukti_pelaksanaan" required>
+                    </div>                      
+                    <div class="form-group">
+                        <label for="kendala">Kendala</label>
+                        <input type="text" class="form-control" id="kendala" name="kendala" required>
+                    </div>                   
+                    <div class="form-group">
+                        <label for="opd_pemilik_resiko">OPD Pemilik Risiko</label>
+                        <input type="text" class="form-control" id="opd_pemilik_resiko" name="opd_pemilik_resiko" required>
+                    </div>      
+                    <div class="form-group">
+                        <label for="keterangan_pengisian">Keterangan Pengisian</label>
+                        <input type="text" class="form-control" id="keterangan_pengisian" name="keterangan_pengisian" required>
+                    </div>            
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="simpan_resiko(); return false">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    jQuery(document).ready(function() {
+        get_table_resiko_kecurangan_manrisk();
+    });
+
+    function get_table_resiko_kecurangan_manrisk() {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_table_resiko_kecurangan_manrisk',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'id_skpd': <?php echo $id_skpd; ?>
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                if (response.status == 'success') {
+                    jQuery('.table_manrisk_kecurangan_mcp tbody').html(response.data);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat tabel!');
+            }
+        });
+    }
+
+    function tambah_data() {
+    jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
+    jQuery('#TambahResikoKecuranganModal').modal('show');
+    }
+
+    function simpan_resiko() {
+        let id  = jQuery('#id').val();
+        let id_tahapan  = jQuery('#id_tahapan').val();
+        let deskripsi_resiko  = jQuery('#deskripsi_resiko').val();
+        let pihak_terkait  = jQuery('#pihak_terkait').val();
+        let jenis_resiko  = jQuery('#jenis_resiko').val();
+        let pemilik_resiko  = jQuery('#pemilik_resiko').val();
+        let penyebab  = jQuery('#penyebab').val();
+        let dampak  = jQuery('#dampak').val();
+        let skala_kemungkinan  = jQuery('#skala_kemungkinan').val();
+        let skala_dampak  = jQuery('#skala_dampak').val();
+        let tindak_pengendalian  = jQuery('#tindak_pengendalian').val();
+        let target_waktu  = jQuery('#target_waktu').val();
+        let pelaksanaan_pengendalian  = jQuery('#pelaksanaan_pengendalian').val();
+        let bukti_pelaksanaan  = jQuery('#bukti_pelaksanaan').val();
+        let kendala  = jQuery('#kendala').val();
+        let opd_pemilik_resiko  = jQuery('#opd_pemilik_resiko').val();
+        let keterangan_pengisian  = jQuery('#keterangan_pengisian').val();
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'simpan_resiko_kecurangan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id: id,
+                id_tahapan: id_tahapan,
+                deskripsi_resiko: deskripsi_resiko,
+                pihak_terkait: pihak_terkait,
+                jenis_resiko: jenis_resiko,
+                pemilik_resiko: pemilik_resiko,
+                penyebab: penyebab,
+                dampak: dampak,
+                skala_kemungkinan: skala_kemungkinan,
+                skala_dampak: skala_dampak,
+                tindak_pengendalian: tindak_pengendalian,
+                target_waktu: target_waktu,
+                pelaksanaan_pengendalian: pelaksanaan_pengendalian,
+                bukti_pelaksanaan: bukti_pelaksanaan,
+                kendala: kendala,
+                opd_pemilik_resiko: opd_pemilik_resiko,
+                keterangan_pengisian: keterangan_pengisian
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status == 'success') {
+                    jQuery('#TambahResikoKecuranganModal').modal('hide');
+                    get_table_resiko_kecurangan_manrisk();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat menggirim data!');
+            }
+        });
+    }
+</script>
