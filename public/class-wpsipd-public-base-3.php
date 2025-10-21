@@ -16813,53 +16813,69 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			'data' => array()
 		);
 
-	    if (!empty($_POST)) {
-	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				if (empty($_POST['tahun_anggaran'])) {
-	                $ret['status'] = 'error';
-	                $ret['message'] = 'Tahun Anggaran kosong!';
-	                die(json_encode($ret));
-	            }
-	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-	            if (empty($_POST['id_skpd'])) {
-	                $ret['status'] = 'error';
-	                $ret['message'] = 'ID SKPD kosong!';
-	                die(json_encode($ret));
-	            }
-	            $id_skpd = intval($_POST['id_skpd']);
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran kosong!';
+					die(json_encode($ret));
+				}
+				$tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+				if (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD kosong!';
+					die(json_encode($ret));
+				}
+				$id_skpd = intval($_POST['id_skpd']);
 
 				$get_data = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-						* 
-					FROM data_resiko_kecurangan_mcp
-					WHERE tahun_anggaran = %d
-						AND id_skpd = %d
-						AND active = 1
-					ORDER BY id ASC
+						r.*, 
+						s.sasaran, 
+						s.tahapan
+					FROM data_resiko_kecurangan_mcp AS r
+					LEFT JOIN data_sasaran_tahapan_mcp AS s ON r.id_tahapan = s.id
+					WHERE r.tahun_anggaran = %d
+						AND r.id_skpd = %d
+						AND r.active = 1
+						AND s.active = 1
+					ORDER BY s.sasaran ASC, r.id ASC
 				", $tahun_anggaran, $id_skpd), ARRAY_A);
 
 				$html = '';
-                $counter = 1;
+				$counter = 1;
+
 				if (!empty($get_data)) {
+					$kelompok = array();
+
+					// Kelompokkan data berdasarkan sasaran+tahapan
 					foreach ($get_data as $row) {
-						// Ambil id_tahapan dari row
-						$id_tahapan = $row['id_tahapan'];
+						$key = $row['sasaran'] . '|' . $row['tahapan'];
+						if (!isset($kelompok[$key])) {
+							$kelompok[$key] = array();
+						}
+						$kelompok[$key][] = $row;
+					}
 
-						// Ambil sasaran dan tahapan dari tabel data_sasaran_tahapan_mcp
-						$sasaran_tahapan = $wpdb->get_row($wpdb->prepare("
-							SELECT sasaran, tahapan
-							FROM data_sasaran_tahapan_mcp
-							WHERE id = %d
-							AND tahun_anggaran = %d
-							AND active = 1
-						", $id_tahapan, $tahun_anggaran), ARRAY_A);
+					// Render tabel per kelompok
+					foreach ($kelompok as $key => $rows) {
+						$rowspan = count($rows);
+						$first = true;
 
-						$html .= '
-							<tr>
-								<td>' . $counter++ . '</td>
-								<td>' . $sasaran_tahapan['sasaran'] . '</td>
-								<td>' . $sasaran_tahapan['tahapan']. '</td>
+						foreach ($rows as $row) {
+							$html .= '<tr>';
+
+							if ($first) {
+								$html .= '
+									<td rowspan="' . $rowspan . '" class="text-center">' . $counter . '</td>
+									<td rowspan="' . $rowspan . '">' . $row['sasaran'] . '</td>
+									<td rowspan="' . $rowspan . '">' . $row['tahapan'] . '</td>';
+								$first = false;
+							}
+
+							$html .= '
 								<td>' . $row['deskripsi_resiko'] . '</td>
 								<td>' . $row['pihak_terkait'] . '</td>
 								<td>' . $row['jenis_resiko'] . '</td>
@@ -16876,25 +16892,31 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<td>' . $row['kendala'] . '</td>
 								<td>' . $row['opd_pemilik_resiko'] . '</td>
 								<td>' . $row['keterangan_pengisian'] . '</td>
-								<td><button class="btn btn-warning" onclick="edit_resiko(' . $row['id'] . ')">
-                                        <span class="dashicons dashicons-edit"></span>
-                                    </button>
-                                    <button class="btn btn-danger" onclick="hapus_resiko(' . $row['id'] . ')">
-                                        <span class="dashicons dashicons-trash"></span>
-                                    </button></td>
+								<td class="text-center">
+									<button class="btn btn-warning btn-sm" onclick="edit_resiko(' . intval($row['id']) . ')">
+										<span class="dashicons dashicons-edit"></span>
+									</button>
+									<button class="btn btn-danger btn-sm" onclick="hapus_resiko(' . intval($row['id']) . ')">
+										<span class="dashicons dashicons-trash"></span>
+									</button>
+								</td>
 							</tr>';
+						}
+
+						// counter naik per kelompok (sasaran-tahapan)
+						$counter++;
 					}
 				} else {
 					$html = '<tr><td colspan="20" class="text-center">Data masih kosong!</td></tr>';
 				}
 
 				$ret['data'] = $html;
-			} else  {
+			} else {
 				$ret = array(
 					'status' => 'error',
 					'message' => 'Api Key tidak sesuai!'
 				);
-			}	
+			}
 		} else {
 			$ret = array(
 				'status' => 'error',
@@ -16902,7 +16924,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			);
 		}
 		die(json_encode($ret));
-	} 
+	}
 
 	public function simpan_resiko_kecurangan()
 	{
