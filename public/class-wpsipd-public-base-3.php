@@ -13563,7 +13563,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            $tujuan_sasaran_groups_opd[$kode_bidang][$tujuan_sasaran_key]['indikator'][$indikator_key]['data'][] = $row;
 	                        }
 	                    } else {
-	                        $kode_bidang = 'no_bidang';
+	                        $kode_bidang = '';
 	                        $grouped_data[$kode_bidang]['nama_bidang'] = 'Bidang urusan belum diset';
 	                        $grouped_data[$kode_bidang]['kode_bidang_array'] = array();
 	                        
@@ -13842,7 +13842,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        $namaJadwal = $jadwal_lokal['nama'];
 	                                        $jenisJadwal = $jadwal_lokal['jenis_jadwal'];
 
-	                                        $get_kode_bidang = $tujuan_sasaran_group['kode_bidang'];
+	                                        $get_kode_bidang = !empty($tujuan_sasaran_group['kode_bidang']) ? $tujuan_sasaran_group['kode_bidang'] : 0;
 
 	                                        if ($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)) {
 	                                            $mulaiJadwal = $jadwal_lokal['waktu_awal'];
