@@ -5,10 +5,6 @@ if (!defined('WPINC')) {
     die;
 }
 
-$input = shortcode_atts(array(
-    'tahun_anggaran' => '2023'
-), $atts);
-
 $get_jadwal = $wpdb->get_row(
     $wpdb->prepare('
         SELECT 
@@ -16,7 +12,7 @@ $get_jadwal = $wpdb->get_row(
         FROM data_jadwal_lokal
         WHERE id_tipe = %d
           AND tahun_anggaran = %d
-    ', 20, $input['tahun_anggaran']),
+    ', 20, $_GET['tahun_anggaran']),
     ARRAY_A
 );
 $data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($get_jadwal);
@@ -33,7 +29,23 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     FROM data_tujuan_sasaran_manrisk_sesudah
     WHERE tahun_anggaran = %d
       AND active = 1
-", $input['tahun_anggaran']), ARRAY_A);
+", $_GET['tahun_anggaran']), ARRAY_A);
+
+$get_jadwal_rpjmd = $wpdb->get_row(
+    $wpdb->prepare('
+        SELECT 
+            *
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal = %d
+    ', $_GET['id_jadwal']),
+    ARRAY_A
+);
+
+if ($get_jadwal_rpjmd) {
+    $tahun_akhir_anggaran = $get_jadwal_rpjmd['tahun_anggaran'] + $get_jadwal_rpjmd['lama_pelaksanaan'] - 1;
+    $nama_jadwal = $get_jadwal_rpjmd['nama'] . ' ' . $get_jadwal_rpjmd['tahun_anggaran'] . '-' . $tahun_akhir_anggaran;
+}
+
 ?>
 <style type="text/css">
     .wrap-table {
@@ -71,7 +83,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Resiko Tujuan / Sasaran <br>Pemerintah Daerah<br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Resiko Tujuan / Sasaran <br>Pemerintah Daerah<br>Tahun <?php echo $_GET['tahun_anggaran']; ?> ( <?php echo $nama_jadwal; ?> )
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
@@ -478,7 +490,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 'action': 'get_table_tujuan_sasaran_pemda',
                 'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
-                'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
+                'tahun_anggaran': <?php echo $_GET['tahun_anggaran']; ?>,
+                'id_jadwal': <?php echo $_GET['id_jadwal']; ?>,
                 'tipe_rpjmd': 'tujuan_sasaran_pemda'
             },
             success: function(response) {
@@ -509,7 +522,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#TambahTujuanSasaranPemdaModalLabel').show();
         jQuery('#editTujuanSasaranPemdaModalLabel').hide();
         
-        let tahun = <?php echo $input['tahun_anggaran']; ?>;
+        let tahun = <?php echo $_GET['tahun_anggaran']; ?>;
         let kode_resiko = 'RSP-'+ tahun.toString().slice(-2);
 
         reset_form_tambah_pemda(id_tujuan_sasaran, id_indikator, nama_tujuan_sasaran, indikator_teks, tipe, kode_resiko, id_jadwal);
@@ -525,7 +538,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 action: 'edit_tujuan_sasaran_manrisk_pemda',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
-                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                tahun_anggaran: <?php echo $_GET['tahun_anggaran']; ?>,
                 id: id,
                 id_tujuan_sasaran: id_tujuan_sasaran,
                 id_indikator: id_indikator,
@@ -537,7 +550,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 if (response.status === 'success') {
                     let data = response.data;
-                    let tahun = <?php echo $input['tahun_anggaran']; ?>;
+                    let tahun = <?php echo $_GET['tahun_anggaran']; ?>;
 
                     if (data.kode_resiko === '' || data.kode_resiko === null || data.kode_resiko === 'NULL') {
                         kode_resiko = 'RSP-'+ tahun.toString().slice(-2);
@@ -606,7 +619,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 action: 'submit_tujuan_sasaran_pemda',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
-                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                tahun_anggaran: <?php echo $_GET['tahun_anggaran']; ?>,
                 id: id,
                 id_tujuan_sasaran: id_tujuan_sasaran,
                 id_indikator: id_indikator,
@@ -680,7 +693,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 action: 'verif_tujuan_sasaran_manrisk_pemda',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
-                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                tahun_anggaran: <?php echo $_GET['tahun_anggaran']; ?>,
                 id: id,
                 id_sebelum: id_sebelum,
                 id_tujuan_sasaran: id_tujuan_sasaran || 0,
@@ -695,7 +708,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     let data = response.data;
                     let data_sebelum = response.data_sebelum;
 
-                    let tahun = <?php echo $input['tahun_anggaran']; ?>;
+                    let tahun = <?php echo $_GET['tahun_anggaran']; ?>;
                     let kode_resiko = 'RSP-'+ tahun.toString().slice(-2);
 
                     window.value_pemda = {
@@ -917,7 +930,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             data: {
                 action: 'submit_verif_tujuan_sasaran_pemda',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
-                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                tahun_anggaran: <?php echo $_GET['tahun_anggaran']; ?>,
                 id: id,
                 id_sebelum: id_sebelum,
                 id_tujuan_sasaran: id_tujuan_sasaran,

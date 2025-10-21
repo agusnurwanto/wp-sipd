@@ -58,52 +58,6 @@ if (empty($nama_pemda) || $nama_pemda == 'false') {
     $nama_pemda = '';
 }
 
-$unit = $wpdb->get_row($wpdb->prepare("
-    SELECT 
-        id_skpd,
-        nama_skpd,
-        bidur_1,
-        bidur_2,
-        bidur_3
-    FROM 
-        data_unit
-    WHERE 
-        id_skpd = %d
-        AND tahun_anggaran = %d
-        AND active = 1
-    LIMIT 1
-", $id_skpd, $input['tahun_anggaran']));
-
-$nama_bidang_urusan = '';
-if (!empty($unit)) {
-    $arr_bidur = array_filter(array($unit->bidur_1, $unit->bidur_2, $unit->bidur_3),
-        function($v) {
-            return $v !== null && $v !== ''; 
-        }
-    );  
-    if (!empty($arr_bidur)) {
-        $placeholders = implode(',', array_fill(0, count($arr_bidur), '%d'));
-        $sql = $wpdb->prepare("
-            SELECT nama_bidang_urusan 
-            FROM data_prog_keg 
-            WHERE id_bidang_urusan IN ($placeholders)
-            AND tahun_anggaran = %d
-            AND active = 1
-            GROUP BY nama_bidang_urusan
-        ", array_merge($arr_bidur, array($input['tahun_anggaran'])));
-
-        $nama_bidur = $wpdb->get_col($sql);
-
-        // hilangkan angka dan titik di awal, misal "1.01 " atau "2.19 "
-        $nama_bersih = array();
-        foreach ($nama_bidur as $n) {
-            $nama_bersih[] = preg_replace('/^[0-9.]+\s*/', '', trim($n));
-        }
-
-        $nama_bidang_urusan = implode('<br>', $nama_bersih);
-    }
-}
-
 $cek_jadwal_renja = $wpdb->get_results(
     $wpdb->prepare('
         SELECT 
@@ -128,7 +82,9 @@ $nama_periode_dinilai = '-';
 if ($id_jadwal != 0) {
     $get_nama_jadwal = $wpdb->get_row(
         $wpdb->prepare('
-            SELECT nama
+            SELECT 
+                nama,
+                tahun_anggaran
             FROM data_jadwal_lokal
             WHERE id_jadwal_lokal = %d
         ', $id_jadwal)
@@ -136,6 +92,55 @@ if ($id_jadwal != 0) {
 
     if (!empty($get_nama_jadwal)) {
         $nama_periode_dinilai = $get_nama_jadwal->nama;
+        $nama_bidang_urusan = '';
+        $get_bidang_urusan = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                kode_bidang_urusan_multiple
+            FROM data_renstra_tujuan
+            WHERE tahun_anggaran = %d
+                AND id_unit = %d
+                AND active = 1
+        ", $get_nama_jadwal->tahun_anggaran, $id_skpd), ARRAY_A);
+
+        if (!empty($get_bidang_urusan)) {
+            $all_kode_bidang = array();
+            
+            foreach ($get_bidang_urusan as $row_bidang) {
+                if (!empty($row_bidang['kode_bidang_urusan_multiple'])) {
+                    $kode_bidang_multiple = json_decode($row_bidang['kode_bidang_urusan_multiple'], true);
+                    if (!empty($kode_bidang_multiple) && is_array($kode_bidang_multiple)) {
+                        $all_kode_bidang = array_merge($all_kode_bidang, $kode_bidang_multiple);
+                    }
+                }
+            }
+            
+            $all_kode_bidang = array_unique($all_kode_bidang);
+            
+            $nama_bidang_array = array();
+            foreach ($all_kode_bidang as $kode) {
+                $get_data_nama_bidang = $wpdb->get_row($wpdb->prepare("
+                    SELECT 
+                        nama_bidang_urusan 
+                    FROM data_prog_keg 
+                    WHERE kode_bidang_urusan = %s 
+                      AND tahun_anggaran = %d 
+                      AND active = 1 
+                    LIMIT 1
+                ", $kode, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                
+                if (!empty($get_data_nama_bidang)) {
+                    $get_nama_bidang = preg_replace('/^\d+\.\d+\s*/', '', $get_data_nama_bidang['nama_bidang_urusan']);
+                    
+                    if (!in_array($get_nama_bidang, $nama_bidang_array)) {
+                        $nama_bidang_array[] = $get_nama_bidang;
+                    }
+                }
+            }
+            
+            $nama_bidang_urusan = !empty($nama_bidang_array) ? implode('<br>', $nama_bidang_array) : '-';
+        } else {
+            $nama_bidang_urusan = '-';
+        }
     }
 }
 
@@ -147,6 +152,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
       AND tahun_anggaran = %d
       AND active = 1
 ", $id_skpd, $input['tahun_anggaran']), ARRAY_A);
+
 ?>
 <style type="text/css">
     .wrap-table {
