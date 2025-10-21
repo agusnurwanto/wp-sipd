@@ -1105,6 +1105,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'kecurangan_mcp')));
 				}
+
+				if (get_option('_crb_show_menu_anggaran_manrisk_settings') != true) {
+					Container::make('theme_options', __('Pertimbangan Manajemen Anggaran'))
+						->set_page_parent($manrisk)
+						->add_fields($this->generate_menu_anggaran_manrisk());
+				}
 			}
 		}
 	}
@@ -3526,6 +3532,55 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_value_type('url')
 				->set_help_text('Upload Latar Belakang untuk menu user.'),
 		);
+	}
+
+	public function generate_menu_anggaran_manrisk()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_pertimbangan_manajemen_anggaran.php') {
+			return array();
+		}
+
+		$tahun_list = $this->get_tahun();
+
+		if (!empty($tahun_list)) {
+			$pages = [];
+
+			foreach ($tahun_list as $v) {
+				$page_title = 'Pertimbangan Manajemen Anggaran | ' . $v['tahun_anggaran'];
+
+				$page_url = $this->generatePage(
+					$page_title,
+					$v['tahun_anggaran'],
+					'[list_skpd_manrisk_anggaran tahun_anggaran="' . $v['tahun_anggaran'] . '"]',
+					false
+				);
+
+				$pages[] = [
+					'key' 	=> $v['tahun_anggaran'],
+					'title' => $page_title,
+					'url' 	=> $page_url
+				];
+			}
+
+			$html = $this->render_accordion($pages);
+		} else {
+			$html = '
+				<span class="badge" style="display:inline-block; padding:5px 10px; background:#ccc; border-radius:5px;">
+					Tahun Anggaran tidak tersedia
+				</span>';
+		}
+		
+		return [
+			Field::make('html', 'crb_input_batasan_pagu_hide_sidebar')
+				->set_html('
+					<style>
+						.postbox-container { display: none; }
+						#poststuff #post-body.columns-2 { margin: 0 !important; }
+					</style>
+				'),
+			Field::make('html', 'crb_input_batasan_pagu_menu')
+				->set_html($html)
+		];
 	}
 
 	public function generate_jadwal_monev()

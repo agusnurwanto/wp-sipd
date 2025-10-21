@@ -12934,6 +12934,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-tujuan-sasaran-manrisk.php';
 	}
 
+	public function list_skpd_manrisk_anggaran($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-skpd-manrisk-anggaran.php';
+	}
+
 	public function program_kegiatan_manrisk($atts)
 	{
 
@@ -12942,6 +12952,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-program-kegiatan-manrisk.php';
+	}
+
+	public function detail_manrisk_anggaran($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-manrisk-anggaran.php';
 	}
 
 	public function kecurangan_resiko_manrisk($atts)
@@ -18778,5 +18798,61 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    }
 
 	    wp_send_json($ret);
+	}
+
+	public function get_program_manrisk_anggaran()
+	{
+		try {
+            $this->newValidate($_POST, [
+                'api_key' 	=> 'required|string',
+                'id_skpd' 	=> 'required|numeric',
+                'tahun_anggaran' => 'required|numeric'
+            ]);
+
+            if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+                throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
+            }
+
+			$data = $this->get_program($_POST['id_skpd'], $_POST['tahun_anggaran']);
+			$unit = $this->get_data_unit_by_id_skpd_and_tahun_anggran($_POST['id_skpd'], $_POST['tahun_anggaran']);
+
+            echo json_encode([
+                'status'  => true,
+                'message' => "Berhasil Get Program Renstra.",
+				'data'    => [
+					'data' => $data,
+					'unit' => $unit,
+				]
+            ]);
+        } catch (Exception $e) {
+            $code = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
+            http_response_code($code);
+            echo json_encode([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+        wp_die();
+	}
+
+	public function get_program(int $id_skpd, int $tahun_anggaran)
+	{
+		global $wpdb;
+		
+		$data = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					*,
+					SUM(pagu) AS total_pagu 
+				FROM data_sub_keg_bl 
+				WHERE active = 1
+				  AND id_sub_skpd = %d 
+				  AND tahun_anggaran = %d
+				GROUP BY kode_program
+			", $id_skpd, $tahun_anggaran),
+			ARRAY_A
+		);
+
+		return $data;
 	}
 }
