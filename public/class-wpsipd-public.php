@@ -17840,6 +17840,41 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 						die(json_encode($return));
 					}
+					
+					if ($tipe_perencanaan == 'manajemen_resiko' && !empty($_POST['tahun_anggaran'])) {
+	                    $tahun_anggaran = intval($_POST['tahun_anggaran']);
+	                    
+	                    $check_existing = $wpdb->get_var($wpdb->prepare("
+	                    	SELECT 
+	                    		COUNT(*) 
+	                    	FROM `data_jadwal_lokal` 
+	                        WHERE id_tipe = %d AND tahun_anggaran = %d",
+	                            $sqlTipe[0]['id'],
+	                            $tahun_anggaran
+	                        )
+	                    );
+	                    
+	                    if ($check_existing == 0) {
+	                        $current_datetime = current_time('mysql');
+	                        $end_datetime = date('Y-m-d H:i:s', strtotime($current_datetime . ' +1 day'));
+	                        
+	                        $wpdb->insert(
+	                            'data_jadwal_lokal',
+	                            array(
+	                                'nama' => 'Jadwal Manajemen Resiko ' . $tahun_anggaran,
+	                                'waktu_awal' => $current_datetime,
+	                                'waktu_akhir' => $end_datetime,
+	                                'status' => 0,
+	                                'tahun_anggaran' => $tahun_anggaran,
+	                                'relasi_perencanaan' => null,
+	                                'lama_pelaksanaan' => 1,
+	                                'jenis_jadwal' => 'usulan',
+	                                'id_tipe' => $sqlTipe[0]['id']
+	                            ),
+	                            array('%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%d')
+	                        );
+	                    }
+	                }
 
 					if (!empty($_POST['tahun_anggaran'])) {
 						$where .= $wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
@@ -29845,5 +29880,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		return $data_jadwal;
+	}
+
+	public function get_data_unit_by_id_skpd_and_tahun_anggran(int $id_skpd, int $tahun_anggaran)
+	{
+		global $wpdb;
+		
+		$data = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_unit 
+				WHERE active = 1
+				  AND id_skpd = %d 
+				  AND tahun_anggaran = %d
+			", $id_skpd, $tahun_anggaran),
+			ARRAY_A
+		);
+
+		return $data;
 	}
 }

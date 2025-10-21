@@ -1183,6 +1183,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_resiko',  $plugin_public, 'hapus_resiko');
 		$this->loader->add_action('wp_ajax_edit_resiko',  $plugin_public, 'edit_resiko');
 		
+		$this->loader->add_action('wp_ajax_get_data_jadwal_manrisk',  $plugin_public, 'get_data_jadwal_manrisk');
 		$this->loader->add_action('wp_ajax_get_table_program_kegiatan',  $plugin_public, 'get_table_program_kegiatan');
 		$this->loader->add_action('wp_ajax_get_indikator_program_kegiatan',  $plugin_public, 'get_indikator_program_kegiatan');
 		$this->loader->add_action('wp_ajax_submit_program_kegiatan',  $plugin_public, 'submit_program_kegiatan');
@@ -1214,6 +1215,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_pohon_kinerja',  $plugin_public, 'get_data_pohon_kinerja');
 		$this->loader->add_action('wp_ajax_get_data_satker',  $plugin_public, 'get_data_satker');
 		$this->loader->add_action('wp_ajax_get_tabel_pokin_cascading',  $plugin_public, 'get_tabel_pokin_cascading');
+
+		$this->loader->add_action('wp_ajax_get_program_manrisk_anggaran',  $plugin_public, 'get_program_manrisk_anggaran');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -1398,6 +1401,8 @@ class Wpsipd
 
 		add_shortcode('manrisk_list',array($plugin_public,'manrisk_list'));
 		add_shortcode('jadwal_manrisk',array($plugin_public,'jadwal_manrisk'));
+		add_shortcode('list_skpd_manrisk_anggaran',array($plugin_public,'list_skpd_manrisk_anggaran'));
+		add_shortcode('detail_manrisk_anggaran',array($plugin_public,'detail_manrisk_anggaran'));
 		
 		add_shortcode('background_menu_wpsipd',array($plugin_public,'background_menu_wpsipd'));
 		add_shortcode('konsistensi_rpjm_rkpd_kua',array($plugin_public,'konsistensi_rpjm_rkpd_kua'));
