@@ -93,7 +93,7 @@ if (!empty($unit)) {
 
         $nama_bidur = $wpdb->get_col($sql);
 
-        // hilangkan angka dan titik di awal, misal "1.01 " atau "2.19 "
+        // hilangkan angka dan titik di awal
         $nama_bersih = array();
         foreach ($nama_bidur as $n) {
             $nama_bersih[] = preg_replace('/^[0-9.]+\s*/', '', trim($n));
@@ -303,7 +303,7 @@ if ($id_jadwal != 0) {
                     </div>
                     <div class="form-group">
                         <label for="penyebab">Penyebab</label>
-                        <input type="text" class="form-control" id="penyebab" name="penyebab" required>
+                        <textarea type="text" class="form-control" id="penyebab" name="penyebab" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="dampak">Dampak</label>

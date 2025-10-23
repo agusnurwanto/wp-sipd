@@ -17097,18 +17097,21 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							if ($first) {
 								$html .= '
 									<td rowspan="' . $rowspan . '" class="text-center">' . $counter . '</td>
-									<td rowspan="' . $rowspan . '">' . $row['sasaran'] . '</td>
-									<td rowspan="' . $rowspan . '">' . $row['tahapan'] . '</td>';
+									<td rowspan="' . $rowspan . '" style="width:300px !important; min-width:170px !important;"> 
+												<b>Sasaran MCP : </b>
+												<br><b>' . $row['sasaran'] . '</b>
+									</td>
+									<td rowspan="' . $rowspan . '"  style="min-width:140px !important;"><b>' . $row['tahapan'] . '</b></td>';
 								$first = false;
 							}
 
 							$html .= '
-								<td>' . $row['deskripsi_resiko'] . '</td>
-								<td>' . $row['pihak_terkait'] . '</td>
-								<td>' . $row['jenis_resiko'] . '</td>
-								<td>' . $row['pemilik_resiko'] . '</td>
+								<td style="min-width:190px !important;">' . $row['deskripsi_resiko'] . '</td>
+								<td><b>' . $row['pihak_terkait'] . '</b></td>
+								<td><b>' . $row['jenis_resiko'] . '</b></td>
+								<td><b>' . $row['pemilik_resiko'] . '</b></td>
 								<td>' . $row['penyebab'] . '</td>
-								<td>' . $row['dampak'] . '</td>
+								<td style="min-width:170px !important;">' . $row['dampak'] . '</td>
 								<td>' . $row['skala_kemungkinan'] . '</td>
 								<td>' . $row['skala_dampak'] . '</td>
 								<td></td>
@@ -17117,7 +17120,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<td>' . $row['pelaksanaan_pengendalian'] . '</td>
 								<td>' . $row['bukti_pelaksanaan'] . '</td>
 								<td>' . $row['kendala'] . '</td>
-								<td>' . $row['opd_pemilik_resiko'] . '</td>
+								<td><b>' . $row['opd_pemilik_resiko'] . '</b></td>
 								<td>' . $row['keterangan_pengisian'] . '</td>
 								<td class="text-center">
 									<button class="btn btn-warning btn-sm" onclick="edit_resiko(' . intval($row['id']) . ')">
