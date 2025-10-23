@@ -17105,6 +17105,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								$first = false;
 							}
 
+							$skala_kemungkinan = is_numeric($row['skala_kemungkinan']) ? $row['skala_kemungkinan'] : 0;
+							$skala_dampak      = is_numeric($row['skala_dampak']) ? $row['skala_dampak'] : 0;
+							$nilai_risiko      = $skala_kemungkinan * $skala_dampak;
+
 							$html .= '
 								<td style="min-width:190px !important;">' . $row['deskripsi_resiko'] . '</td>
 								<td><b>' . $row['pihak_terkait'] . '</b></td>
@@ -17112,9 +17116,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<td><b>' . $row['pemilik_resiko'] . '</b></td>
 								<td>' . $row['penyebab'] . '</td>
 								<td style="min-width:170px !important;">' . $row['dampak'] . '</td>
-								<td>' . $row['skala_kemungkinan'] . '</td>
-								<td>' . $row['skala_dampak'] . '</td>
-								<td></td>
+								<td>' . $skala_kemungkinan . '</td>
+								<td>' . $skala_dampak . '</td>
+								<td>' . $nilai_risiko . '</td> 
 								<td>' . $row['tindak_pengendalian'] . '</td>
 								<td>' . $row['target_waktu'] . '</td>
 								<td>' . $row['pelaksanaan_pengendalian'] . '</td>
