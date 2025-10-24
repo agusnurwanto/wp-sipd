@@ -75,6 +75,29 @@ if (!empty($cek_jadwal_renja)) {
         $id_jadwal = $jadwal_renja['relasi_perencanaan'];
     }
 }
+
+$jenis_jadwal = '';
+if (!empty($id_jadwal)) {
+    $jadwal_renstra = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            relasi_perencanaan
+        FROM data_jadwal_lokal
+        WHERE id_jadwal_lokal = %d
+    ", $id_jadwal), ARRAY_A);
+    
+    if (!empty($jadwal_renstra['relasi_perencanaan'])) {
+        $jadwal_pemda = $wpdb->get_row($wpdb->prepare("
+            SELECT 
+                jenis_jadwal
+            FROM data_jadwal_lokal
+            WHERE id_jadwal_lokal = %d
+        ", $jadwal_renstra['relasi_perencanaan']), ARRAY_A);
+        
+        if (!empty($jadwal_pemda['jenis_jadwal'])) {
+            $jenis_jadwal = strtoupper($jadwal_pemda['jenis_jadwal']);
+        }
+    }
+}
 ?>
 <style type="text/css">
     .wrap-table {
@@ -111,33 +134,36 @@ if (!empty($cek_jadwal_renja)) {
     <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Resiko RPJMD / RENSTRA <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+            <h1 class="text-center table-title">
+                Manajemen Resiko <?php echo $jenis_jadwal; ?> / RENSTRA <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
-                <table id="cetak" title="RPJMD / RENSTRA SKPD" class="table_manrisk_rpjmd_renstra table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
+                <table id="cetak" title="<?php echo $jenis_jadwal; ?> RENSTRA SKPD" class="table_manrisk_rpjmd_renstra table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
-                            <th colspan="7">RPD</th>
-                            <th colspan="5">RENSTRA</th>
+                            <th colspan="7"><?php echo $jenis_jadwal; ?></th>
+                            <th colspan="7">RENSTRA</th>
                             <th rowspan="2">Program Prioritas terkait di RPJMN/ Indikator Program</th>
                             <th rowspan="2">Sektor Unggulan</th>
                             <th rowspan="2">Isu Terkini</th>
+                            <th rowspan="2">Aksi</th>
                         </tr>
                         <tr>
-                            <th>Tujuan RPD</th>
+                            <th>Tujuan <?php echo $jenis_jadwal; ?></th>
                             <th>Indikator Tujuan</th>
-                            <th>Sasaran RPD</th>
+                            <th>Sasaran <?php echo $jenis_jadwal; ?></th>
                             <th>Indikator Sasaran</th>
-                            <th>Program RPD</th>
+                            <th>Program <?php echo $jenis_jadwal; ?></th>
                             <th>Indikator Program</th>
                             <th>OPD/ Unit Pengampu</th>
-                            <th>Tujuan/ Sasaran dalam Renstra</th>
-                            <th>Indikator Tujuan/ Sasaran</th>
-                            <th>Program</th>
+                            <th>Tujuan Renstra</th>
+                            <th>Indikator Tujuan</th>
+                            <th>Sasaran Renstra</th>
+                            <th>Indikator Sasaran</th>
+                            <th>Program Renstra</th>
                             <th>Indikator Program</th>
-                            <th>Anggaran Program TA 2024</th>
+                            <th>Anggaran Program TA <?php echo $input['tahun_anggaran']; ?></th>
                         </tr>
                         <tr>
                             <th>(1)</th>
@@ -155,10 +181,52 @@ if (!empty($cek_jadwal_renja)) {
                             <th>(13)</th>
                             <th>(14)</th>
                             <th>(15)</th>
+                            <th>(16)</th>
+                            <th>(17)</th>
+                            <th>(18)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal crud edit-->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Tujuan / Sasaran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+             <div class="modal-body">
+                <form id="formEdit">
+                    <input type="hidden" value="" id="id_data">
+                    <input type="hidden" value="" id="id_program">
+                    <div class="form-group">
+                        <div class="alert alert-info text-sm-left" role="alert" id="alertprogram"></div>
+                        <div class="alert alert-info text-sm-left" role="alert" id="alertindikatorprogram"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="program_prioritas">Program Prioritas terkait di RPJMN/ Indikator Program</label>
+                        <input type="text" class="form-control" id="program_prioritas" name="program_prioritas" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sektor_unggulan">Sektor Unggulan</label>
+                        <input type="text" class="form-control" id="sektor_unggulan" name="sektor_unggulan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="isu_terkini">Isu Terkini</label>
+                        <input type="text" class="form-control" id="isu_terkini" name="isu_terkini" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="submit_rpjmd_renstra(); return false">Simpan</button>
             </div>
         </div>
     </div>
@@ -181,6 +249,7 @@ if (!empty($cek_jadwal_renja)) {
                 'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
                 'tahun_anggaran': <?php echo $input['tahun_anggaran']; ?>,
                 'id_jadwal': <?php echo $id_jadwal; ?>,
+                'nama_skpd': '<?php echo $nama_skpd; ?>',
                 'id_skpd': <?php echo $id_skpd; ?>
             },
             success: function(response) {
@@ -196,6 +265,91 @@ if (!empty($cek_jadwal_renja)) {
                 jQuery('#wrap-loading').hide();
                 console.error(xhr.responseText);
                 alert('Terjadi kesalahan saat memuat tabel!');
+            }
+        });
+    }
+
+    function edit_rpjmd_renstra(id, id_program) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'edit_rpjmd_renstra',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id_jadwal: <?php echo $id_jadwal; ?>,
+                id: id,
+                id_program: id_program
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+
+                if (response.status === 'success') {
+                    let data = response.data || {}; 
+
+                    jQuery("#id_data").val(data.id ?? id);
+                    jQuery("#id_program").val(data.id_program ?? id_program);
+                    jQuery('#alertprogram').text('Program: ' + (data.nama_program || ''));
+                    jQuery('#alertindikatorprogram').text('Indikator Program: ' + (data.indikator_program || ''));
+                    jQuery('#program_prioritas').val(data.program_prioritas ?? '');
+                    jQuery('#sektor_unggulan').val(data.sektor_unggulan ?? '');
+                    jQuery('#isu_terkini').val(data.isu_terkini ?? '');
+
+                    jQuery('#editModalLabel').show();
+                    jQuery('#editModal').modal('show');
+
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data!');
+            }
+        });
+    }
+
+    function submit_rpjmd_renstra() {
+        let id = jQuery('#id_data').val();
+        let id_program = jQuery("#id_program").val();
+        let program_prioritas = jQuery("#program_prioritas").val();
+        let sektor_unggulan = jQuery("#sektor_unggulan").val();
+        let isu_terkini = jQuery("#isu_terkini").val();
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'submit_rpjmd_renstra',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
+                id_skpd: <?php echo $id_skpd; ?>,
+                id_jadwal: <?php echo $id_jadwal; ?>,
+                id: id, 
+                id_program: id_program,
+                program_prioritas: program_prioritas,
+                sektor_unggulan: sektor_unggulan,
+                isu_terkini: isu_terkini
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status === 'success') {
+                    jQuery('#editModal').modal('hide');
+                    get_table_rpjmd_renstra();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat mengirim data!');
             }
         });
     }

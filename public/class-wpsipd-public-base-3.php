@@ -13074,11 +13074,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                WHERE id_jadwal_lokal = %d
 	            ", $id_jadwal), ARRAY_A);
 	            
-	            $id_jadwal_pemda = 0;
-	            $jenis_jadwal_pemda = '';
+	            $id_jadwal_relasi = 0;
+	            $jenis_jadwal_relasi = '';
 	            
 	            if (!empty($jadwal_renstra['relasi_perencanaan'])) {
-	                $jadwal_pemda_info = $wpdb->get_row($wpdb->prepare("
+	                $get_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
 	                    SELECT 
 	                    	id_jadwal_lokal, 
 	                    	jenis_jadwal, 
@@ -13087,10 +13087,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    WHERE id_jadwal_lokal = %d
 	                ", $jadwal_renstra['relasi_perencanaan']), ARRAY_A);
 	                
-	                if (!empty($jadwal_pemda_info)) {
-	                    $id_jadwal_pemda = $jadwal_pemda_info['id_jadwal_lokal'];
-	                    $jenis_jadwal_pemda = $jadwal_pemda_info['jenis_jadwal'];
-	                    $prefix_history = ($jadwal_pemda_info['status'] == 1) ? '_history' : '';
+	                if (!empty($get_jadwal_relasi)) {
+	                    $id_jadwal_relasi = $get_jadwal_relasi['id_jadwal_lokal'];
+	                    $jenis_jadwal_relasi = $get_jadwal_relasi['jenis_jadwal'];
+	                    $prefix_history = ($get_jadwal_relasi['status'] == 1) ? '_history' : '';
 	                }
 	            }
 
@@ -13130,14 +13130,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 	                        
 	                        // Ambil sasaran pemda yang terhubung
-	                        if (!empty($get_data_tujuan['kode_sasaran_multiple']) && !empty($id_jadwal_pemda) && !empty($jenis_jadwal_pemda)) {
+	                        if (!empty($get_data_tujuan['kode_sasaran_multiple']) && !empty($id_jadwal_relasi) && !empty($jenis_jadwal_relasi)) {
 	                            $get_kode_sasaran = json_decode($get_data_tujuan['kode_sasaran_multiple'], true);
 	                            if (!empty($get_kode_sasaran) && is_array($get_kode_sasaran)) {
 	                                foreach ($get_kode_sasaran as $id_sasaran_pemda) {
 	                                    $id_sasaran_pemda_terhubung[] = $id_sasaran_pemda;
 	                                    
 	                                    // Ambil kode_tujuan dari sasaran pemda
-	                                    $table_sasaran = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
+	                                    $table_sasaran = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
 	                                    
 	                                    $sasaran_pemda = $wpdb->get_row($wpdb->prepare("
 	                                        SELECT 
@@ -13146,7 +13146,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        WHERE id_unik = %s
 	                                            AND id_jadwal = %d
 	                                            AND active = 1
-	                                    ", $id_sasaran_pemda, $id_jadwal_pemda), ARRAY_A);
+	                                    ", $id_sasaran_pemda, $id_jadwal_relasi), ARRAY_A);
 	                                    
 	                                    if (!empty($sasaran_pemda['kode_tujuan'])) {
 	                                        $id_tujuan_pemda_terhubung[] = $sasaran_pemda['kode_tujuan'];
@@ -13188,14 +13188,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            }
 	                            
 	                            // Ambil sasaran pemda yang terhubung
-	                            if (!empty($get_tujuan_parent['kode_sasaran_multiple']) && !empty($id_jadwal_pemda) && !empty($jenis_jadwal_pemda)) {
+	                            if (!empty($get_tujuan_parent['kode_sasaran_multiple']) && !empty($id_jadwal_relasi) && !empty($jenis_jadwal_relasi)) {
 	                                $get_kode_sasaran = json_decode($get_tujuan_parent['kode_sasaran_multiple'], true);
 	                                if (!empty($get_kode_sasaran) && is_array($get_kode_sasaran)) {
 	                                    foreach ($get_kode_sasaran as $id_sasaran_pemda) {
 	                                        $id_sasaran_pemda_terhubung[] = $id_sasaran_pemda;
 	                                        
 	                                        // Ambil kode_tujuan dari sasaran pemda
-	                                        $table_sasaran = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
+	                                        $table_sasaran = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
 	                                        
 	                                        $sasaran_pemda = $wpdb->get_row($wpdb->prepare("
 	                                            SELECT 
@@ -13204,7 +13204,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                            WHERE id_unik = %s
 	                                                AND id_jadwal = %d
 	                                                AND active = 1
-	                                        ", $id_sasaran_pemda, $id_jadwal_pemda), ARRAY_A);
+	                                        ", $id_sasaran_pemda, $id_jadwal_relasi), ARRAY_A);
 	                                        
 	                                        if (!empty($sasaran_pemda['kode_tujuan'])) {
 	                                            $id_tujuan_pemda_terhubung[] = $sasaran_pemda['kode_tujuan'];
@@ -13248,8 +13248,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            $id_tujuan_pemda_aktif = array();
 	            $id_sasaran_pemda_aktif = array();
 
-	            if (!empty($id_jadwal_pemda) && !empty($jenis_jadwal_pemda)) {
-	                $table_sasaran = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
+	            if (!empty($id_jadwal_relasi) && !empty($jenis_jadwal_relasi)) {
+	                $table_sasaran = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
 	                
 	                foreach ($id_sasaran_pemda_terhubung as $id_sasaran_terhubung) {
 	                    $cek_sasaran_manrisk = $wpdb->get_row($wpdb->prepare("
@@ -13260,7 +13260,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            AND id_tujuan_sasaran = %s
 	                            AND tipe = 1
 	                            AND active = 1
-	                    ", $tahun_anggaran, $id_jadwal_pemda, $id_sasaran_terhubung), ARRAY_A);
+	                    ", $tahun_anggaran, $id_jadwal_relasi, $id_sasaran_terhubung), ARRAY_A);
 	                    
 	                    if (!empty($cek_sasaran_manrisk)) {
 	                        $id_sasaran_pemda_aktif[] = $id_sasaran_terhubung;
@@ -13271,7 +13271,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            WHERE id_unik = %s
 	                                AND id_jadwal = %d
 	                                AND active = 1
-	                        ", $id_sasaran_terhubung, $id_jadwal_pemda), ARRAY_A);
+	                        ", $id_sasaran_terhubung, $id_jadwal_relasi), ARRAY_A);
 	                        
 	                        if (!empty($sasaran_pemda['kode_tujuan'])) {
 	                            $id_tujuan_pemda_aktif[] = $sasaran_pemda['kode_tujuan'];
@@ -13289,7 +13289,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    WHERE tahun_anggaran = %d
 	                        AND id_jadwal = %d
 	                        AND active = 1
-	                ", $tahun_anggaran, $id_jadwal_pemda), ARRAY_A);
+	                ", $tahun_anggaran, $id_jadwal_relasi), ARRAY_A);
 
 	                if (!empty($get_data_pemda)) {
 	                    foreach ($get_data_pemda as $row_pemda) {
@@ -13303,7 +13303,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                }
 	                                
 	                                $skip_data = false;
-	                                $nama_table = ($jenis_jadwal_pemda == 'rpjmd') ? "data_rpjmd_tujuan{$prefix_history}" : "data_rpd_tujuan{$prefix_history}";
+	                                $nama_table = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_tujuan{$prefix_history}" : "data_rpd_tujuan{$prefix_history}";
 
 	                                $get_data_tujuan = $wpdb->get_row($wpdb->prepare("
 	                                    SELECT 
@@ -13313,7 +13313,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    WHERE id_unik = %s
 	                                        AND id_jadwal = %d
 	                                        AND active = 1
-	                                ", $row_pemda['id_tujuan_sasaran'], $id_jadwal_pemda), ARRAY_A);
+	                                ", $row_pemda['id_tujuan_sasaran'], $id_jadwal_relasi), ARRAY_A);
 	                                
 	                                if (!empty($get_data_tujuan)) {
 	                                    $nama_tujuan_sasaran = $get_data_tujuan['tujuan_teks'];
@@ -13327,7 +13327,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                            AND id_unik_indikator = %s
 	                                            AND id_jadwal = %d
 	                                            AND active = 1
-	                                    ", $get_data_tujuan['id_unik'], $row_pemda['id_indikator'], $id_jadwal_pemda), ARRAY_A);
+	                                    ", $get_data_tujuan['id_unik'], $row_pemda['id_indikator'], $id_jadwal_relasi), ARRAY_A);
 	                                    
 	                                    $row_pemda['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['indikator_teks'] : '';
 	                                    $row_pemda['label_tipe'] = 'Tujuan Pemda:';
@@ -13337,7 +13337,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        } elseif (isset($row_pemda['tipe']) && $row_pemda['tipe'] == 1) {
 	                            if (in_array($row_pemda['id_tujuan_sasaran'], $id_sasaran_pemda_terhubung)) {
 	                                $skip_data = false;
-	                                $nama_table = ($jenis_jadwal_pemda == 'rpjmd') 
+	                                $nama_table = ($jenis_jadwal_relasi == 'rpjmd') 
 	                                    ? "data_rpjmd_sasaran{$prefix_history}" 
 	                                    : "data_rpd_sasaran{$prefix_history}";
 
@@ -13349,7 +13349,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    WHERE id_unik = %s
 	                                        AND id_jadwal = %d
 	                                        AND active = 1
-	                                ", $row_pemda['id_tujuan_sasaran'], $id_jadwal_pemda), ARRAY_A);
+	                                ", $row_pemda['id_tujuan_sasaran'], $id_jadwal_relasi), ARRAY_A);
 	                                  
 	                                if (!empty($get_data_sasaran)) {
 	                                    $nama_tujuan_sasaran = $get_data_sasaran['sasaran_teks'];
@@ -13363,7 +13363,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                            AND id_unik_indikator = %s
 	                                            AND id_jadwal = %d
 	                                            AND active = 1
-	                                    ", $get_data_sasaran['id_unik'], $row_pemda['id_indikator'], $id_jadwal_pemda), ARRAY_A);
+	                                    ", $get_data_sasaran['id_unik'], $row_pemda['id_indikator'], $id_jadwal_relasi), ARRAY_A);
 
 	                                    $row_pemda['indikator'] = !empty($get_data_indikator) ? $get_data_indikator['indikator_teks'] : '';
 	                                    $row_pemda['label_tipe'] = 'Sasaran Pemda:';
@@ -13377,7 +13377,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                        }
 
 	                        $row_pemda['nama_tujuan_sasaran'] = $nama_tujuan_sasaran;
-	                        $row_pemda['id_jadwal_pemda'] = $id_jadwal_pemda;
+	                        $row_pemda['id_jadwal_relasi'] = $id_jadwal_relasi;
 
 	                        // Simpan data pemda per kode bidang
 	                        foreach ($kode_bidang_opd as $kode) {
@@ -13393,7 +13393,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    'label_tipe' => $row_pemda['label_tipe'],
 	                                    'tipe' => $row_pemda['tipe'],
 	                                    'id_tujuan_sasaran' => $row_pemda['id_tujuan_sasaran'],
-	                                    'id_jadwal_pemda' => $id_jadwal_pemda,
+	                                    'id_jadwal_relasi' => $id_jadwal_relasi,
 	                                    'indikator' => array()
 	                                );
 	                            }
@@ -17369,6 +17369,44 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 	            $id_jadwal = intval($_POST['id_jadwal']);
 
+	            $jadwal_renstra = $wpdb->get_row($wpdb->prepare("
+	                SELECT 
+	                    relasi_perencanaan,
+	                    tahun_anggaran,
+	                    lama_pelaksanaan
+	                FROM data_jadwal_lokal
+	                WHERE id_jadwal_lokal = %d
+	            ", $id_jadwal), ARRAY_A);
+	            
+	            $id_jadwal_relasi = 0;
+	            $jenis_jadwal_relasi = '';
+	            $prefix_history = '';
+	            
+	            // Cek relasi ke RPJMD/RPD
+	            if (!empty($jadwal_renstra['relasi_perencanaan'])) {
+	                $get_jadwal_relasi = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                        id_jadwal_lokal, 
+	                        jenis_jadwal, 
+	                        status
+	                    FROM data_jadwal_lokal
+	                    WHERE id_jadwal_lokal = %d
+	                ", $jadwal_renstra['relasi_perencanaan']), ARRAY_A);
+	                
+	                if (!empty($get_jadwal_relasi)) {
+	                    $id_jadwal_relasi = $get_jadwal_relasi['id_jadwal_lokal'];
+	                    $jenis_jadwal_relasi = $get_jadwal_relasi['jenis_jadwal'];
+	                    $prefix_history = ($get_jadwal_relasi['status'] == 1) ? '_history' : '';
+	                }
+	            }
+
+	            $tahun_mulai_anggaran = intval($jadwal_renstra['tahun_anggaran']);
+	            $pagu_index = ($tahun_anggaran - $tahun_mulai_anggaran) + 1;
+	            if ($pagu_index < 1) $pagu_index = 1;
+	            if ($pagu_index > 5) $pagu_index = 5;
+	            $get_pagu = 'pagu_' . $pagu_index;
+
+	            // Ambil data Renstra Tujuan
 	            $get_data_tujuan = $wpdb->get_results($wpdb->prepare("
 	                SELECT 
 	                    id_unik, 
@@ -17383,11 +17421,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            ", $id_jadwal, $id_skpd), ARRAY_A);
 
 	            $html = '';
-	            
 	            $grouped_data = array();
 
 	            if (!empty($get_data_tujuan)) {
 	                foreach ($get_data_tujuan as $tujuan) {
+	                    // Indikator Tujuan Renstra
 	                    $get_indikator_tujuan = $wpdb->get_results($wpdb->prepare("
 	                        SELECT 
 	                            id,
@@ -17423,6 +17461,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                    if (!empty($get_data_sasaran)) {
 	                        foreach ($get_data_sasaran as $sasaran) {
+	                            // Indikator Sasaran Renstra
 	                            $get_indikator_sasaran = $wpdb->get_results($wpdb->prepare("
 	                                SELECT 
 	                                    id,
@@ -17442,12 +17481,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                }
 	                            }
 
+	                            // Data Program Renstra
 	                            $get_data_program = $wpdb->get_results($wpdb->prepare("
 	                                SELECT 
 	                                    id_unik, 
 	                                    nama_program, 
 	                                    kode_bidang_urusan, 
-	                                    nama_bidang_urusan
+	                                    nama_bidang_urusan,
+	                                    {$get_pagu} as pagu
 	                                FROM data_renstra_program
 	                                WHERE id_jadwal = %d
 	                                    AND id_unit = %d
@@ -17459,6 +17500,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                            if (!empty($get_data_program)) {
 	                                foreach ($get_data_program as $program) {
+	                                    // Indikator Program Renstra
 	                                    $get_indikator_program = $wpdb->get_results($wpdb->prepare("
 	                                        SELECT 
 	                                            id,
@@ -17469,9 +17511,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                            AND active = 1
 	                                    ", $program['id_unik']), ARRAY_A);
 
+	                                    $nama_program = preg_replace('/^[0-9X]+(\.[0-9X]+)*\s+/', '', $program['nama_program']);
+
 	                                    $tujuan_key = $tujuan['tujuan_teks'];
 	                                    $sasaran_key = $sasaran['sasaran_teks'];
-	                                    $program_key = $program['nama_program'];
+	                                    $program_key = $nama_program;
 	                                    $kode_bidang = $program['kode_bidang_urusan'];
 	                                    
 	                                    if (!isset($grouped_data[$tujuan_key])) {
@@ -17491,7 +17535,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    if (!isset($grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key])) {
 	                                        $grouped_data[$tujuan_key]['sasaran'][$sasaran_key]['program'][$program_key] = array(
 	                                            'kode_bidang' => $kode_bidang,
-	                                            'indikator' => array()
+	                                            'indikator' => array(),
+	                                            'pagu' => $program['pagu'],
+	                                            'id_unik' => $program['id_unik']
 	                                        );
 	                                    }
 
@@ -17508,26 +17554,150 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    }
 	                }
 
+	                // Ambil data RPJMD/RPD jika ada koneksi
+	                $data_pemda = array();
+	                if (!empty($id_jadwal_relasi) && !empty($jenis_jadwal_relasi)) {
+	                    $table_tujuan_pemda = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_tujuan{$prefix_history}" : "data_rpd_tujuan{$prefix_history}";
+	                    $table_sasaran_pemda = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_sasaran{$prefix_history}" : "data_rpd_sasaran{$prefix_history}";
+	                    $table_program_pemda = ($jenis_jadwal_relasi == 'rpjmd') ? "data_rpjmd_program{$prefix_history}" : "data_rpd_program{$prefix_history}";
+	                    
+	                    // Ambil Tujuan RPJMD/RPD
+	                    $get_tujuan_pemda = $wpdb->get_results($wpdb->prepare("
+	                        SELECT 
+	                            id_unik,
+	                            tujuan_teks
+	                        FROM {$table_tujuan_pemda}
+	                        WHERE id_jadwal = %d
+	                            AND id_unik_indikator IS NULL
+	                            AND active = 1
+	                    ", $id_jadwal_relasi), ARRAY_A);
+	                    foreach ($get_tujuan_pemda as $tujuan_pemda) {
+	                        // Indikator Tujuan RPJMD/RPD
+	                        $get_indikator_tujuan_pemda = $wpdb->get_results($wpdb->prepare("
+	                            SELECT 
+	                                id,
+	                                indikator_teks
+	                            FROM {$table_tujuan_pemda}
+	                            WHERE id_unik = %s
+	                                AND id_unik_indikator IS NOT NULL
+	                                AND active = 1
+	                        ", $tujuan_pemda['id_unik']), ARRAY_A);
+	                        
+	                        $indikator_tujuan_pemda_array = array();
+	                        if (!empty($get_indikator_tujuan_pemda)) {
+	                            foreach ($get_indikator_tujuan_pemda as $ind) {
+	                                if (!in_array($ind['indikator_teks'], $indikator_tujuan_pemda_array)) {
+	                                    $indikator_tujuan_pemda_array[] = $ind['indikator_teks'];
+	                                }
+	                            }
+	                        }
+	                        
+	                        // Ambil Sasaran RPJMD/RPD
+	                        $get_sasaran_pemda = $wpdb->get_results($wpdb->prepare("
+	                            SELECT 
+	                                id_unik,
+	                                sasaran_teks
+	                            FROM {$table_sasaran_pemda}
+	                            WHERE id_jadwal = %d
+	                                AND kode_tujuan = %s
+	                                AND id_unik_indikator IS NULL
+	                                AND active = 1
+	                        ", $id_jadwal_relasi, $tujuan_pemda['id_unik']), ARRAY_A);
+	                        
+	                        foreach ($get_sasaran_pemda as $sasaran_pemda) {
+	                            // Indikator Sasaran RPJMD/RPD
+	                            $get_indikator_sasaran_pemda = $wpdb->get_results($wpdb->prepare("
+	                                SELECT 
+	                                    id,
+	                                    indikator_teks
+	                                FROM {$table_sasaran_pemda}
+	                                WHERE id_unik = %s
+	                                    AND id_unik_indikator IS NOT NULL
+	                                    AND active = 1
+	                            ", $sasaran_pemda['id_unik']), ARRAY_A);
+	                            
+	                            $indikator_sasaran_pemda_array = array();
+	                            if (!empty($get_indikator_sasaran_pemda)) {
+	                                foreach ($get_indikator_sasaran_pemda as $ind) {
+	                                    if (!in_array($ind['indikator_teks'], $indikator_sasaran_pemda_array)) {
+	                                        $indikator_sasaran_pemda_array[] = $ind['indikator_teks'];
+	                                    }
+	                                }
+	                            }
+	                            
+	                            // Ambil Program RPJMD/RPD
+	                            $get_program_pemda = $wpdb->get_results($wpdb->prepare("
+	                                SELECT 
+	                                    id_unik,
+	                                    nama_program,
+	                                    kode_sasaran
+	                                FROM {$table_program_pemda}
+	                                WHERE id_jadwal = %d
+	                                    AND kode_sasaran = %s
+	                                    AND id_unik_indikator IS NULL
+	                                    AND active = 1
+	                            ", $id_jadwal_relasi, $sasaran_pemda['id_unik']), ARRAY_A);
+	                            
+	                            foreach ($get_program_pemda as $program_pemda) {
+	                                // Indikator Program RPJMD/RPD
+	                                $get_indikator_program_pemda = $wpdb->get_results($wpdb->prepare("
+	                                    SELECT 
+	                                        id,
+	                                        indikator
+	                                    FROM {$table_program_pemda}
+	                                    WHERE id_unik = %s
+	                                        AND id_unit = %d
+	                                        AND id_unik_indikator IS NOT NULL
+	                                        AND active = 1
+	                                ", $program_pemda['id_unik'], $id_skpd), ARRAY_A);
+	                                
+	                                $indikator_program_pemda_array = array();
+	                                if (!empty($get_indikator_program_pemda)) {
+	                                    foreach ($get_indikator_program_pemda as $ind) {
+	                                        if (!in_array($ind['indikator'], $indikator_program_pemda_array)) {
+	                                            $indikator_program_pemda_array[] = $ind['indikator'];
+	                                        }
+	                                    }
+	                                }
+
+	                                $nama_program = preg_replace('/^[0-9X]+(\.[0-9X]+)*\s+/', '', $program_pemda['nama_program']);
+	                                
+	                                $tujuan_pemda_key = $tujuan_pemda['tujuan_teks'];
+	                                $sasaran_pemda_key = $sasaran_pemda['sasaran_teks'];
+	                                $program_pemda_key = $nama_program;
+	                                
+	                                if (!isset($data_pemda[$tujuan_pemda_key])) {
+	                                    $data_pemda[$tujuan_pemda_key] = array(
+	                                        'indikator_tujuan' => $indikator_tujuan_pemda_array,
+	                                        'sasaran' => array()
+	                                    );
+	                                }
+	                                
+	                                if (!isset($data_pemda[$tujuan_pemda_key]['sasaran'][$sasaran_pemda_key])) {
+	                                    $data_pemda[$tujuan_pemda_key]['sasaran'][$sasaran_pemda_key] = array(
+	                                        'indikator_sasaran' => $indikator_sasaran_pemda_array,
+	                                        'program' => array()
+	                                    );
+	                                }
+	                                
+	                                $data_pemda[$tujuan_pemda_key]['sasaran'][$sasaran_pemda_key]['program'][$program_pemda_key] = array(
+	                                    'indikator' => $indikator_program_pemda_array,
+	                                    'id_unik' => $program_pemda['id_unik']
+	                                );
+	                            }
+	                        }
+	                    }
+	                }
+
 	                foreach ($grouped_data as $tujuan_text => $tujuan_data) {
 	                    $indikator_tujuan_text = implode('; ', $tujuan_data['indikator_tujuan']);
 	                    
-	                    $html .= '<tr>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left">Tujuan: ' . $tujuan_text . '</td>';
-	                    $html .= '<td class="text-left">' . $indikator_tujuan_text . '</td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '<td class="text-left"></td>';
-	                    $html .= '</tr>';
+	                    $tujuan_rowspan = 0;
+	                    foreach ($tujuan_data['sasaran'] as $sasaran_data) {
+	                        $tujuan_rowspan += count($sasaran_data['program']);
+	                    }
+	                    
+	                    $is_tujuan = true;
 	                    
 	                    foreach ($tujuan_data['sasaran'] as $sasaran_text => $sasaran_data) {
 	                        $indikator_sasaran_text = implode('; ', $sasaran_data['indikator_sasaran']);
@@ -17549,41 +17719,108 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                            return strcmp($kode_a, $kode_b);
 	                        });
 	                        
-	                        $program_count = 0;
+	                        $sasaran_rowspan = count($sasaran_data['program']);
+	                        $is_sasaran = true;
+	                        
 	                        foreach ($sasaran_data['program'] as $program_text => $program_data) {
+	                            $is_pemda = false;
+	                            $tujuan_pemda_text = '';
+	                            $sasaran_pemda_text = '';
+	                            $indikator_tujuan_pemda_text = '';
+	                            $indikator_sasaran_pemda_text = '';
+	                            $indikator_program_pemda_text = '';
+	                            
+	                            // Cari program yang sama di RPJMD/RPD
+	                            if (!empty($data_pemda)) {
+	                                foreach ($data_pemda as $tpemda => $tpemda_data) {
+	                                    foreach ($tpemda_data['sasaran'] as $spemda => $spemda_data) {
+	                                        if (isset($spemda_data['program'][$program_text])) {
+	                                            $is_pemda = true;
+	                                            $tujuan_pemda_text = $tpemda;
+	                                            $sasaran_pemda_text = $spemda;
+	                                            $indikator_tujuan_pemda_text = implode('; ', $tpemda_data['indikator_tujuan']);
+	                                            $indikator_sasaran_pemda_text = implode('; ', $spemda_data['indikator_sasaran']);
+	                                            $indikator_program_pemda_text = implode(', ', $spemda_data['program'][$program_text]['indikator']);
+	                                            break 2;
+	                                        }
+	                                    }
+	                                }
+	                            }
+	                            
+	                            $get_rpjmd_renstra = $wpdb->get_results($wpdb->prepare("
+	                                SELECT 
+	                                    *
+	                                FROM data_rpjmd_renstra
+	                                WHERE id_program = %s
+	                                    AND id_skpd = %d
+	                                    AND tahun_anggaran = %d
+	                                    AND id_jadwal = %d
+	                                    AND active = 1
+	                            ", $program_data['id_unik'], $id_skpd, $tahun_anggaran, $id_jadwal), ARRAY_A);
+
+	                            $id_rpjmd_renstra = 0;
+	                            $program_prioritas = '';
+	                            $sektor_unggulan = '';
+	                            $isu_terkini = '';
+	                            foreach ($get_rpjmd_renstra as $rpjmd_renstra) {
+	                                $id_rpjmd_renstra = $rpjmd_renstra['id'];
+	                                $program_prioritas = $rpjmd_renstra['program_prioritas'];
+	                                $sektor_unggulan = $rpjmd_renstra['sektor_unggulan'];
+	                                $isu_terkini = $rpjmd_renstra['isu_terkini'];
+	                            }
+	                            
 	                            $indikator_program_text = implode(', ', $program_data['indikator']);
+	                            $pagu = !empty($program_data['pagu']) ? number_format($program_data['pagu'], 0, ',', '.') : '0';
 	                            
 	                            $html .= '<tr>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
 	                            
-	                            if ($program_count == 0) {
-	                                $html .= '<td class="text-left">Sasaran: ' . $sasaran_text . '</td>';
-	                                $html .= '<td class="text-left">' . $indikator_sasaran_text . '</td>';
+	                            // Kolom RPJMD/RPD
+	                            if ($is_pemda) {
+	                                $html .= '<td class="text-left">Tujuan: ' . $tujuan_pemda_text . '</td>';
+	                                $html .= '<td class="text-left">' . $indikator_tujuan_pemda_text . '</td>';
+	                                $html .= '<td class="text-left">Sasaran: ' . $sasaran_pemda_text . '</td>';
+	                                $html .= '<td class="text-left">' . $indikator_sasaran_pemda_text . '</td>';
+	                                $html .= '<td class="text-left">Program: ' . $program_text . '</td>';
+	                                $html .= '<td class="text-left">' . $indikator_program_pemda_text . '</td>';
 	                            } else {
 	                                $html .= '<td class="text-left"></td>';
 	                                $html .= '<td class="text-left"></td>';
+	                                $html .= '<td class="text-left"></td>';
+	                                $html .= '<td class="text-left"></td>';
+	                                $html .= '<td class="text-left"></td>';
+	                                $html .= '<td class="text-left"></td>';
+	                            }
+	                            $html .= '<td class="text-left">' . $_POST['nama_skpd'] . '</td>'; 
+	                            
+	                            // Kolom Renstra
+	                            if ($is_tujuan) {
+	                                $html .= '<td class="text-left" rowspan="' . $tujuan_rowspan . '">Tujuan: ' . $tujuan_text . '</td>';
+	                                $html .= '<td class="text-left" rowspan="' . $tujuan_rowspan . '">' . $indikator_tujuan_text . '</td>';
+	                            }
+	                            
+	                            if ($is_sasaran) {
+	                                $html .= '<td class="text-left" rowspan="' . $sasaran_rowspan . '">Sasaran: ' . $sasaran_text . '</td>';
+	                                $html .= '<td class="text-left" rowspan="' . $sasaran_rowspan . '">' . $indikator_sasaran_text . '</td>';
 	                            }
 	                            
 	                            $html .= '<td class="text-left">Program: ' . $program_text . '</td>';
 	                            $html .= '<td class="text-left">' . $indikator_program_text . '</td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
-	                            $html .= '<td class="text-left"></td>';
+	                            $html .= '<td class="text-right">' . $pagu . '</td>';
+	                            $html .= '<td class="text-left">' . $program_prioritas . '</td>';
+	                            $html .= '<td class="text-left">' . $sektor_unggulan . '</td>';
+	                            $html .= '<td class="text-left">' . $isu_terkini . '</td>';
+	                            $html .= '<td class="text-left">';
+	                            $html .= '<button class="btn btn-warning" onclick="edit_rpjmd_renstra(\'' . $id_rpjmd_renstra . '\', \'' . $program_data['id_unik'] . '\'); return false;" title="Edit Data"><span class="dashicons dashicons-edit"></span></button>';
+	                            $html .= '</td>';
 	                            $html .= '</tr>';
 	                            
-	                            $program_count++;
+	                            $is_tujuan = false;
+	                            $is_sasaran = false;
 	                        }
 	                    }
 	                }
 	            } else {
-	                $html = '<tr><td colspan="15" style="text-align: center;">Tidak ada data</td></tr>';
+	                $html = '<tr><td colspan="18" style="text-align: center;">Tidak ada data</td></tr>';
 	            }
 
 	            $ret['data'] = $html;
@@ -17602,6 +17839,209 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    }
 	    die(json_encode($ret));
 	}
+
+	public function edit_rpjmd_renstra(){
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil ambil data!',
+	        'data' => array()
+	    );
+
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = intval($_POST['tahun_anggaran']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                wp_send_json($ret);
+	            }
+
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = intval($_POST['id_skpd']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	                wp_send_json($ret);
+	            }
+
+	            if (!empty($_POST['id_program'])) {
+	                $id_program = $_POST['id_program'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID Program kosong!';
+	                wp_send_json($ret);
+	            }
+
+	            if (isset($_POST['id'])) {
+	                $id = intval($_POST['id']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID kosong!';
+	                wp_send_json($ret);
+	            }
+
+	            if (isset($_POST['id_jadwal'])) {
+	                $id_jadwal = intval($_POST['id_jadwal']);
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID Jadwal kosong!';
+	                wp_send_json($ret);
+	            }
+
+	            $get_program = $wpdb->get_row($wpdb->prepare("
+	                SELECT 
+	                    id_unik,
+	                    nama_program
+	                FROM data_renstra_program
+	                WHERE id_unik = %s
+	                  AND id_jadwal = %d
+	                  AND id_unit = %d
+	                  AND id_unik_indikator IS NULL
+	                  AND active = 1
+	                LIMIT 1
+	            ", $id_program, $id_jadwal, $id_skpd), ARRAY_A);
+
+	            $nama_program = '';
+	            $indikator_program = array();
+
+	            if (!empty($get_program)) {
+	                $nama_program = preg_replace('/^[0-9X]+(\.[0-9X]+)*\s+/', '', $get_program['nama_program']);
+
+	                $get_indikator = $wpdb->get_results($wpdb->prepare("
+	                    SELECT 
+	                        indikator
+	                    FROM data_renstra_program
+	                    WHERE id_unik = %s
+	                      AND id_unik_indikator IS NOT NULL
+	                      AND active = 1
+	                ", $id_program), ARRAY_A);
+
+	                if (!empty($get_indikator)) {
+	                    foreach ($get_indikator as $ind) {
+	                        if (!empty($ind['indikator'])) {
+	                            $indikator_program[] = $ind['indikator'];
+	                        }
+	                    }
+	                }
+	            }
+
+	            if ($id > 0) {
+	                $get_data = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                    	* 
+	                    FROM data_rpjmd_renstra
+	                    WHERE id = %d
+	                      AND id_program = %s
+	                      AND id_skpd = %d
+	                      AND tahun_anggaran = %d
+	                      AND id_jadwal = %d
+	                      AND active = 1
+	                    LIMIT 1
+	                ", $id, $id_program, $id_skpd, $tahun_anggaran, $id_jadwal), ARRAY_A);
+	            } else {
+	                $get_data = $wpdb->get_row($wpdb->prepare("
+	                    SELECT 
+	                    	* 
+	                    FROM data_rpjmd_renstra
+	                    WHERE id_program = %s
+	                      AND id_skpd = %d
+	                      AND tahun_anggaran = %d
+	                      AND id_jadwal = %d
+	                      AND active = 1
+	                    LIMIT 1
+	                ", $id_program, $id_skpd, $tahun_anggaran, $id_jadwal), ARRAY_A);
+	            }
+
+	            if (!empty($get_data)) {
+	                $ret['data'] = $get_data;
+	            }
+
+	            $ret['data']['nama_program'] = $nama_program;
+	            $ret['data']['indikator_program'] = implode('; ', $indikator_program);
+
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
+	    }
+
+	    wp_send_json($ret);
+	}
+
+  	public function submit_rpjmd_renstra()
+  	{
+      	global $wpdb;
+      	$ret = array(
+          	'status' => 'success',
+          	'message' => 'Berhasil simpan data!'
+      	);
+
+      	if (!empty($_POST)) {
+          	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+              	if (!empty($_POST['tahun_anggaran'])) {
+          			$tahun_anggaran = $_POST['tahun_anggaran'];
+        		} else {
+          			$ret['status'] = 'error';
+          			$ret['message'] = 'Tahun Anggaran kosong!';
+        		}
+
+			    if (!empty($_POST['id_skpd'])) {
+			      $id_skpd = $_POST['id_skpd'];
+			    } else {
+			      $ret['status'] = 'error';
+			      $ret['message'] = 'ID SKPD kosong!';
+			    }
+
+			    if (!empty($_POST['id_jadwal'])) {
+			      $id_jadwal = $_POST['id_jadwal'];
+			    } else {
+			      $ret['status'] = 'error';
+			      $ret['message'] = 'ID Jadwal kosong!';
+			    }
+
+              	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+              	$data = array(
+                  	'id_program'		=> $_POST['id_program'],
+                  	'program_prioritas'	=> $_POST['program_prioritas'],
+                  	'sektor_unggulan'	=> $_POST['sektor_unggulan'],
+                  	'isu_terkini'		=> $_POST['isu_terkini'],
+                  	'id_skpd'			=> $id_skpd,
+                  	'id_jadwal'			=> $id_jadwal,
+                  	'tahun_anggaran'	=> $tahun_anggaran,
+                  	'active'			=> 1
+              );
+
+	            if ($id <= 0) {
+	          		$wpdb->insert('data_rpjmd_renstra',
+	                    $data
+	                );
+	        	} else {
+	          		$wpdb->update('data_rpjmd_renstra',
+	                    $data, 
+	                    array('id' => $id)
+	                );
+	        	}
+
+	        } else {
+	            $ret['status']  = 'error';
+	            $ret['message'] = 'API key tidak ditemukan!';
+	        }
+	    } else {
+	          $ret['status']  = 'error';
+	          $ret['message'] = 'Format salah!';
+	    }
+
+	    wp_send_json($ret);
+	}
+
 	public function get_data_iku($return_text)
 	{
 		global $wpdb;
@@ -17964,7 +18404,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	            }
 	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
 
-	            $this->get_data_renstra_manrisk($tahun_anggaran, 0, $_POST['id_jadwal'], $_POST['tipe_rpjmd']);
+	            if (empty($_POST['id_jadwal'])) {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	                die(json_encode($ret));
+	            }
+	            $id_jadwal = intval($_POST['id_jadwal']);
+
+	            $this->get_data_renstra_manrisk($tahun_anggaran, 0, $id_jadwal, $_POST['tipe_rpjmd']);
 
 	            $user_id = um_user('ID');
 	            $user_meta = get_userdata($user_id);
@@ -18005,7 +18452,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                }
 
 	                foreach ($data_jadwal_list as $jadwal) {
-	                    $id_jadwal = $jadwal['id_jadwal_lokal'];
 	                    
 	                    $prefix_history = ($jadwal && $jadwal['status'] == 1) ? '_history' : '';
 	                    

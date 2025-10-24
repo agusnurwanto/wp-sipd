@@ -1202,6 +1202,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_table_tujuan_sasaran_pemda',  $plugin_public, 'get_table_tujuan_sasaran_pemda');
 		$this->loader->add_action('wp_ajax_get_data_rpjmd_manrisk',  $plugin_public, 'get_data_rpjmd_manrisk');
+		$this->loader->add_action('wp_ajax_edit_rpjmd_renstra',  $plugin_public, 'edit_rpjmd_renstra');
+		$this->loader->add_action('wp_ajax_submit_rpjmd_renstra',  $plugin_public, 'submit_rpjmd_renstra');
 		$this->loader->add_action('wp_ajax_get_data_sesudah_pemda',  $plugin_public, 'get_data_sesudah_pemda');
 		$this->loader->add_action('wp_ajax_get_table_rpjmd_renstra',  $plugin_public, 'get_table_rpjmd_renstra');
 		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran_pemda',  $plugin_public, 'submit_tujuan_sasaran_pemda');

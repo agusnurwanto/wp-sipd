@@ -8401,3 +8401,20 @@ CREATE TABLE `data_resiko_kecurangan_mcp` (
   KEY `id_tahapan` (`id_tahapan`),
   KEY `active` (`active`)
 );
+
+CREATE TABLE `data_rpjmd_renstra` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_program` VARCHAR(512) DEFAULT NULL,
+  `program_prioritas` TEXT DEFAULT NULL,
+  `sektor_unggulan` TEXT DEFAULT NULL,
+  `isu_terkini` TEXT DEFAULT NULL,
+  `id_skpd` INT(11) DEFAULT NULL,
+  `id_jadwal` INT(11) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `active` TINYINT(4) NOT NULL,
+  PRIMARY KEY (id),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `active` (`active`)
+);
