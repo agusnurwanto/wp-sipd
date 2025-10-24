@@ -29881,4 +29881,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		return $data_jadwal;
 	}
+
+	public function get_data_unit_by_id_skpd_and_tahun_anggran(int $id_skpd, int $tahun_anggaran)
+	{
+		global $wpdb;
+		
+		$data = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_unit 
+				WHERE active = 1
+				  AND id_skpd = %d 
+				  AND tahun_anggaran = %d
+			", $id_skpd, $tahun_anggaran),
+			ARRAY_A
+		);
+
+		return $data;
+	}
 }

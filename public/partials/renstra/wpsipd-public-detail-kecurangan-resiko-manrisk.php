@@ -93,7 +93,7 @@ if (!empty($unit)) {
 
         $nama_bidur = $wpdb->get_col($sql);
 
-        // hilangkan angka dan titik di awal, misal "1.01 " atau "2.19 "
+        // hilangkan angka dan titik di awal
         $nama_bersih = array();
         foreach ($nama_bidur as $n) {
             $nama_bersih[] = preg_replace('/^[0-9.]+\s*/', '', trim($n));
@@ -272,7 +272,7 @@ if ($id_jadwal != 0) {
                     </div>
                     <div class="form-group">
                         <label for="deskripsi_resiko">Deskripsi Risiko Kecurangan</label>
-                        <input type="text" class="form-control" id="deskripsi_resiko" name="deskripsi_resiko" required>
+                        <textarea type="text" class="form-control" id="deskripsi_resiko" name="deskripsi_resiko" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="pihak_terkait">Pihak Terkait</label>
@@ -303,11 +303,11 @@ if ($id_jadwal != 0) {
                     </div>
                     <div class="form-group">
                         <label for="penyebab">Penyebab</label>
-                        <input type="text" class="form-control" id="penyebab" name="penyebab" required>
+                        <textarea type="text" class="form-control" id="penyebab" name="penyebab" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="dampak">Dampak</label>
-                        <input type="text" class="form-control" id="dampak" name="dampak" required>
+                        <textarea type="text" class="form-control" id="dampak" name="dampak" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="skala_kemungkinan">Skala Kemungkinan</label>
@@ -319,7 +319,7 @@ if ($id_jadwal != 0) {
                     </div>
                     <div class="form-group">
                         <label for="tindak_pengendalian">Rencana Tindak Pengendalian (Fraud Risk Response)</label>
-                        <input type="text" class="form-control" id="tindak_pengendalian" name="tindak_pengendalian" required>
+                        <textarea type="text" class="form-control" id="tindak_pengendalian" name="tindak_pengendalian" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="target_waktu">Target Waktu Pelaksanaan Pengendalian</label>
@@ -327,7 +327,7 @@ if ($id_jadwal != 0) {
                     </div>
                     <div class="form-group">
                         <label for="pelaksanaan_pengendalian">Pelaksanaan Pengendalian</label>
-                        <input type="text" class="form-control" id="pelaksanaan_pengendalian" name="pelaksanaan_pengendalian" required>
+                        <textarea type="text" class="form-control" id="pelaksanaan_pengendalian" name="pelaksanaan_pengendalian" required></textarea>
                     </div>                        
                     <div class="form-group">
                         <label for="bukti_pelaksanaan">Bukti Pelaksanaan</label>
@@ -339,7 +339,7 @@ if ($id_jadwal != 0) {
                     </div>                   
                     <div class="form-group">
                         <label for="opd_pemilik_resiko">OPD Pemilik Risiko</label>
-                        <input type="text" class="form-control" id="opd_pemilik_resiko" name="opd_pemilik_resiko" required>
+                        <textarea type="text" class="form-control" id="opd_pemilik_resiko" name="opd_pemilik_resiko" required></textarea>
                     </div>      
                     <div class="form-group">
                         <label for="keterangan_pengisian">Keterangan Pengisian</label>

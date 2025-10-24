@@ -12934,6 +12934,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-tujuan-sasaran-manrisk.php';
 	}
 
+	public function list_skpd_manrisk_anggaran($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-skpd-manrisk-anggaran.php';
+	}
+
 	public function program_kegiatan_manrisk($atts)
 	{
 
@@ -12942,6 +12952,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		}
 
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-list-program-kegiatan-manrisk.php';
+	}
+
+	public function detail_manrisk_anggaran($atts)
+	{
+
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renstra/wpsipd-public-detail-manrisk-anggaran.php';
 	}
 
 	public function kecurangan_resiko_manrisk($atts)
@@ -17020,88 +17040,117 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			'data' => array()
 		);
 
-	    if (!empty($_POST)) {
-	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-				if (empty($_POST['tahun_anggaran'])) {
-	                $ret['status'] = 'error';
-	                $ret['message'] = 'Tahun Anggaran kosong!';
-	                die(json_encode($ret));
-	            }
-	            $tahun_anggaran = intval($_POST['tahun_anggaran']);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-	            if (empty($_POST['id_skpd'])) {
-	                $ret['status'] = 'error';
-	                $ret['message'] = 'ID SKPD kosong!';
-	                die(json_encode($ret));
-	            }
-	            $id_skpd = intval($_POST['id_skpd']);
+				if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran kosong!';
+					die(json_encode($ret));
+				}
+				$tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+				if (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD kosong!';
+					die(json_encode($ret));
+				}
+				$id_skpd = intval($_POST['id_skpd']);
 
 				$get_data = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-						* 
-					FROM data_resiko_kecurangan_mcp
-					WHERE tahun_anggaran = %d
-						AND id_skpd = %d
-						AND active = 1
-					ORDER BY id ASC
+						r.*, 
+						s.sasaran, 
+						s.tahapan
+					FROM data_resiko_kecurangan_mcp AS r
+					LEFT JOIN data_sasaran_tahapan_mcp AS s ON r.id_tahapan = s.id
+					WHERE r.tahun_anggaran = %d
+						AND r.id_skpd = %d
+						AND r.active = 1
+						AND s.active = 1
+					ORDER BY s.sasaran ASC, r.id ASC
 				", $tahun_anggaran, $id_skpd), ARRAY_A);
 
 				$html = '';
-                $counter = 1;
+				$counter = 1;
+
 				if (!empty($get_data)) {
+					$kelompok = array();
+
+					// Kelompokkan data berdasarkan sasaran+tahapan
 					foreach ($get_data as $row) {
-						// Ambil id_tahapan dari row
-						$id_tahapan = $row['id_tahapan'];
+						$key = $row['sasaran'] . '|' . $row['tahapan'];
+						if (!isset($kelompok[$key])) {
+							$kelompok[$key] = array();
+						}
+						$kelompok[$key][] = $row;
+					}
 
-						// Ambil sasaran dan tahapan dari tabel data_sasaran_tahapan_mcp
-						$sasaran_tahapan = $wpdb->get_row($wpdb->prepare("
-							SELECT sasaran, tahapan
-							FROM data_sasaran_tahapan_mcp
-							WHERE id = %d
-							AND tahun_anggaran = %d
-							AND active = 1
-						", $id_tahapan, $tahun_anggaran), ARRAY_A);
+					// Render tabel per kelompok
+					foreach ($kelompok as $key => $rows) {
+						$rowspan = count($rows);
+						$first = true;
 
-						$html .= '
-							<tr>
-								<td>' . $counter++ . '</td>
-								<td>' . $sasaran_tahapan['sasaran'] . '</td>
-								<td>' . $sasaran_tahapan['tahapan']. '</td>
-								<td>' . $row['deskripsi_resiko'] . '</td>
-								<td>' . $row['pihak_terkait'] . '</td>
-								<td>' . $row['jenis_resiko'] . '</td>
-								<td>' . $row['pemilik_resiko'] . '</td>
+						foreach ($rows as $row) {
+							$html .= '<tr>';
+
+							if ($first) {
+								$html .= '
+									<td rowspan="' . $rowspan . '" class="text-center">' . $counter . '</td>
+									<td rowspan="' . $rowspan . '" style="width:300px !important; min-width:170px !important;"> 
+												<b>Sasaran MCP : </b>
+												<br><b>' . $row['sasaran'] . '</b>
+									</td>
+									<td rowspan="' . $rowspan . '"  style="min-width:140px !important;"><b>' . $row['tahapan'] . '</b></td>';
+								$first = false;
+							}
+
+							$skala_kemungkinan = is_numeric($row['skala_kemungkinan']) ? $row['skala_kemungkinan'] : 0;
+							$skala_dampak      = is_numeric($row['skala_dampak']) ? $row['skala_dampak'] : 0;
+							$nilai_risiko      = $skala_kemungkinan * $skala_dampak;
+
+							$html .= '
+								<td style="min-width:190px !important;">' . $row['deskripsi_resiko'] . '</td>
+								<td><b>' . $row['pihak_terkait'] . '</b></td>
+								<td><b>' . $row['jenis_resiko'] . '</b></td>
+								<td><b>' . $row['pemilik_resiko'] . '</b></td>
 								<td>' . $row['penyebab'] . '</td>
-								<td>' . $row['dampak'] . '</td>
-								<td>' . $row['skala_kemungkinan'] . '</td>
-								<td>' . $row['skala_dampak'] . '</td>
-								<td></td>
+								<td style="min-width:170px !important;">' . $row['dampak'] . '</td>
+								<td>' . $skala_kemungkinan . '</td>
+								<td>' . $skala_dampak . '</td>
+								<td>' . $nilai_risiko . '</td> 
 								<td>' . $row['tindak_pengendalian'] . '</td>
 								<td>' . $row['target_waktu'] . '</td>
 								<td>' . $row['pelaksanaan_pengendalian'] . '</td>
 								<td>' . $row['bukti_pelaksanaan'] . '</td>
 								<td>' . $row['kendala'] . '</td>
-								<td>' . $row['opd_pemilik_resiko'] . '</td>
+								<td><b>' . $row['opd_pemilik_resiko'] . '</b></td>
 								<td>' . $row['keterangan_pengisian'] . '</td>
-								<td><button class="btn btn-warning" onclick="edit_resiko(' . $row['id'] . ')">
-                                        <span class="dashicons dashicons-edit"></span>
-                                    </button>
-                                    <button class="btn btn-danger" onclick="hapus_resiko(' . $row['id'] . ')">
-                                        <span class="dashicons dashicons-trash"></span>
-                                    </button></td>
+								<td class="text-center">
+									<button class="btn btn-warning btn-sm" onclick="edit_resiko(' . intval($row['id']) . ')">
+										<span class="dashicons dashicons-edit"></span>
+									</button>
+									<button class="btn btn-danger btn-sm" onclick="hapus_resiko(' . intval($row['id']) . ')">
+										<span class="dashicons dashicons-trash"></span>
+									</button>
+								</td>
 							</tr>';
+						}
+
+						// counter naik per kelompok (sasaran-tahapan)
+						$counter++;
 					}
 				} else {
 					$html = '<tr><td colspan="20" class="text-center">Data masih kosong!</td></tr>';
 				}
 
 				$ret['data'] = $html;
-			} else  {
+			} else {
 				$ret = array(
 					'status' => 'error',
 					'message' => 'Api Key tidak sesuai!'
 				);
-			}	
+			}
 		} else {
 			$ret = array(
 				'status' => 'error',
@@ -17109,7 +17158,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			);
 		}
 		die(json_encode($ret));
-	} 
+	}
 
 	public function simpan_resiko_kecurangan()
 	{
@@ -19322,5 +19371,61 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	    }
 
 	    wp_send_json($ret);
+	}
+
+	public function get_program_manrisk_anggaran()
+	{
+		try {
+            $this->newValidate($_POST, [
+                'api_key' 	=> 'required|string',
+                'id_skpd' 	=> 'required|numeric',
+                'tahun_anggaran' => 'required|numeric'
+            ]);
+
+            if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+                throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
+            }
+
+			$data = $this->get_program($_POST['id_skpd'], $_POST['tahun_anggaran']);
+			$unit = $this->get_data_unit_by_id_skpd_and_tahun_anggran($_POST['id_skpd'], $_POST['tahun_anggaran']);
+
+            echo json_encode([
+                'status'  => true,
+                'message' => "Berhasil Get Program Renstra.",
+				'data'    => [
+					'data' => $data,
+					'unit' => $unit,
+				]
+            ]);
+        } catch (Exception $e) {
+            $code = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
+            http_response_code($code);
+            echo json_encode([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+        wp_die();
+	}
+
+	public function get_program(int $id_skpd, int $tahun_anggaran)
+	{
+		global $wpdb;
+		
+		$data = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					*,
+					SUM(pagu) AS total_pagu 
+				FROM data_sub_keg_bl 
+				WHERE active = 1
+				  AND id_sub_skpd = %d 
+				  AND tahun_anggaran = %d
+				GROUP BY kode_program
+			", $id_skpd, $tahun_anggaran),
+			ARRAY_A
+		);
+
+		return $data;
 	}
 }
