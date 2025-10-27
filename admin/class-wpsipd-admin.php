@@ -1058,6 +1058,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						->add_fields($this->get_ajax_field(array('type' => 'jadwal_manrisk')));
 				}
 
+				if (get_option('_crb_show_menu_monitor_resiko_settings') != true) {
+					Container::make('theme_options', __('Monitoring Resiko'))
+						->set_page_parent($manrisk)
+						->add_fields($this->get_ajax_field(array('type' => 'monitor_resiko')));
+				}
+
 				if (get_option('_crb_show_menu_skor_resiko_settings') != true) {
 					Container::make('theme_options', __('Skor Resiko'))
 						->set_page_parent($manrisk)
@@ -1677,6 +1683,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_jadwal_manrisk = $this->generatePage('Jadwal Manajemen Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_jadwal_manrisk . '">Jadwal Manajemen Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
+					} else if ($_POST['type'] == 'monitor_resiko') {
+						$url_monitor_resiko = $this->generatePage('Monitoring Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_resiko tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_monitor_resiko . '">Monitoring Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'skor_resiko') {
 						$url_skor_resiko = $this->generatePage('Skor Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[skor_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a return false;" target="_blank" href="' . $url_skor_resiko . '">Halaman Skor Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
@@ -1952,6 +1962,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					|| $_POST['type'] == 'aklap_lra'
 					|| $_POST['type'] == 'spt_sppd'
 					|| $_POST['type'] == 'jadwal_manrisk'
+					|| $_POST['type'] == 'monitor_resiko'
 					|| $_POST['type'] == 'skor_resiko'
 					|| $_POST['type'] == 'kode_resiko'
 					|| $_POST['type'] == 'konteks_resiko'
@@ -2728,6 +2739,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_menu_manajemen_resiko_settings', 'Manajemen Resiko')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_jadwal_manrisk_settings', 'Jadwal Manajemen Resiko')
+				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_monitor_resiko_settings', 'Monitoring Resiko')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_skor_resiko_settings', 'Skor Resiko')
 				->set_option_value('true'),

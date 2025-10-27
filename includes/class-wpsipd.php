@@ -1198,6 +1198,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_pemilik_resiko_manrisk',  $plugin_public, 'pemilik_resiko_manrisk');
 		$this->loader->add_action('wp_ajax_sumber_sebab_manrisk',  $plugin_public, 'sumber_sebab_manrisk');
 		$this->loader->add_action('wp_ajax_pihak_terdampak_manrisk',  $plugin_public, 'pihak_terdampak_manrisk');
+		$this->loader->add_action('wp_ajax_resiko_kemungkinan_manrisk',  $plugin_public, 'resiko_kemungkinan_manrisk');
+		$this->loader->add_action('wp_ajax_resiko_dampak_manrisk',  $plugin_public, 'resiko_dampak_manrisk');
+		$this->loader->add_action('wp_ajax_perkalian_kemungkinan_dampak_manrisk',  $plugin_public, 'perkalian_kemungkinan_dampak_manrisk');
+		$this->loader->add_action('wp_ajax_jenis_resiko_manrisk',  $plugin_public, 'jenis_resiko_manrisk');
 		$this->loader->add_action('wp_ajax_options_manrisk',  $plugin_public, 'options_manrisk');
 
 		$this->loader->add_action('wp_ajax_get_table_tujuan_sasaran_pemda',  $plugin_public, 'get_table_tujuan_sasaran_pemda');
@@ -1403,6 +1407,7 @@ class Wpsipd
 
 		add_shortcode('manrisk_list',array($plugin_public,'manrisk_list'));
 		add_shortcode('jadwal_manrisk',array($plugin_public,'jadwal_manrisk'));
+		add_shortcode('monitor_resiko',array($plugin_public,'monitor_resiko'));
 		add_shortcode('list_skpd_manrisk_anggaran',array($plugin_public,'list_skpd_manrisk_anggaran'));
 		add_shortcode('detail_manrisk_anggaran',array($plugin_public,'detail_manrisk_anggaran'));
 		

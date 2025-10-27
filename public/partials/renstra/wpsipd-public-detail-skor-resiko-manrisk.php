@@ -130,27 +130,7 @@ $data_sasaran = $wpdb->get_results(
                             <th class="text-center">Paparan Risiko (Wajib)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center td-sangat-tinggi">23 s.d. 25</td>
-                            <td class="text-center">Sangat Tinggi</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-tinggi">18 s.d. 22</td>
-                            <td class="text-center">Tinggi</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sedang">9 s.d. 17</td>
-                            <td class="text-center">Sedang</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-rendah">4 s.d. 8</td>
-                            <td class="text-center">Rendah</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sangat-rendah">1 s.d. 3</td>
-                            <td class="text-center">Sangat Rendah</td>                            
-                        </tr>
+                    <tbody id="tbody-kemungkinan-dampak">
                     </tbody>
                 </table>
             </div>
@@ -170,27 +150,7 @@ $data_sasaran = $wpdb->get_results(
                             <th class="text-center">Paparan Risiko (Wajib)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center td-sangat-tinggi">5</td>
-                            <td class="text-center">Hampir Pasti Terjadi</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-tinggi">4</td>
-                            <td class="text-center">Sangat Sering Terjadi</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sedang">3</td>
-                            <td class="text-center">Sering Terjadi</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-rendah">2</td>
-                            <td class="text-center">Kadang Terjadi</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sangat-rendah">1</td>
-                            <td class="text-center">Jarang Terjadi</td>                            
-                        </tr>
+                    <tbody id="tbody-kemungkinan">
                     </tbody>
                 </table>
             </div>
@@ -207,27 +167,7 @@ $data_sasaran = $wpdb->get_results(
                             <th class="text-center">Paparan Risiko (Wajib)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center td-sangat-tinggi">5</td>
-                            <td class="text-center">Katastoprik</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-tinggi">4</td>
-                            <td class="text-center">Besar</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sedang">3</td>
-                            <td class="text-center">Sedang</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center td-rendah">2</td>
-                            <td class="text-center">Kecil</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center td-sangat-rendah">1</td>
-                            <td class="text-center">Tidak Signifikan</td>                            
-                        </tr>
+                    <tbody id="tbody-dampak">
                     </tbody>
                 </table>
             </div>
@@ -313,13 +253,13 @@ $data_sasaran = $wpdb->get_results(
                         <tr>
                             <td class="text-center">C</td> 
                             <td>Controlable : Risiko yang dapat dikendalikan, dapat diidentifikasi, dinilai, dan dikelola, dapat diatasi melalui tindakan dan keputusan proaktif
-                                <br>Contohnya termasuk risiko nilai tukar mata uang, arus kas yang buruk, tuntutan hukum, dan masalah keterampilan							
+                                <br>Contohnya termasuk risiko nilai tukar mata uang, arus kas yang buruk, tuntutan hukum, dan masalah keterampilan                          
                             </td> 
                         </tr>  
                         <tr>
-                            <td>UC</td>
+                            <td class="text-center">UC</td>
                             <td>Uncontrolable: Risiko yang tidak dapat dikendalikan, Merupakan kebalikan dari risiko yang dapat dikendalikan
-                                <br>Contohnya termasuk bencana alam, kerusuhan politik, perang, dan lingkungan hidup							
+                                <br>Contohnya termasuk bencana alam, kerusuhan politik, perang, dan lingkungan hidup                            
                             </td>
                         </tr>                 
                     </tbody>
@@ -333,23 +273,7 @@ $data_sasaran = $wpdb->get_results(
                             <th colspan="2" class="text-center">Pemilik Resiko</th>                            
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center">Kepala Daerah</td>
-                            <td class="text-center">untuk risiko Pemda (Risiko StrategisPemda)</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center">Kepala OPD</td>
-                            <td class="text-center">untuk risiko yang menghambat tujuan OPD/ pada Program (Risiko Strategis OPD)</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center">Kepala Bidang</td>
-                            <td class="text-center">untuk risiko pada Program/Kegiatan (Risiko Operasional)</td>                            
-                        </tr>
-                        <tr>
-                            <td class="text-center">PA/PK</td>
-                            <td class="text-center"></td>                            
-                        </tr>
+                    <tbody id="tbody-pemilik-resiko">
                     </tbody>
                 </table>
             </div>
@@ -367,19 +291,7 @@ $data_sasaran = $wpdb->get_results(
                             <th class="text-center" colspan="2">Sumber</th>
                         </tr>
                     </thead>                
-                    <tbody>
-                        <tr>
-                            <td class="text-center">Internal</td> 
-                            <td>Sumber risiko berasal dari internal</td> 
-                        </tr> 
-                        <tr>
-                            <td class="text-center">Eksternal</td> 
-                            <td>Sumber risiko berasal dari eksternal</td> 
-                        </tr>  
-                        <tr>
-                            <td class="text-center">Internal & Eksternal</td> 
-                            <td>Sumber risiko berasal dari internal dan eksternal</td> 
-                        </tr>              
+                    <tbody id="tbody-sumber-sebab">
                     </tbody>
                 </table>
             </div>
@@ -391,22 +303,7 @@ $data_sasaran = $wpdb->get_results(
                             <th colspan="1" class="text-center">Pihak Yang Terkena</th>                            
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center">Pemerintah Kabupaten Magetan</td>                                                    
-                        </tr>
-                        <tr>
-                            <td class="text-center">Perangkat Daerah</td>                                                    
-                        </tr>
-                        <tr>
-                            <td class="text-center">Kepala OPD</td>                                                    
-                        </tr>
-                        <tr>
-                            <td class="text-center">Pagawai OPD</td>                                                    
-                        </tr>
-                        <tr>
-                            <td class="text-center">Masyarakat</td>                                                    
-                        </tr>
+                    <tbody id="tbody-pihak-terdampak">
                     </tbody>
                 </table>
             </div>
@@ -418,28 +315,7 @@ $data_sasaran = $wpdb->get_results(
                             <th class="text-center" colspan="2">Jenis Risiko Kecurangan</th>
                         </tr>
                     </thead>                
-                    <tbody>
-                        <tr>
-                            <td class="text-center">Konflik kepentingan</td> 
-                        </tr> 
-                        <tr>
-                            <td class="text-center">Pemberian suap</td> 
-                        </tr>
-                        <tr>
-                            <td class="text-center">Penggelapan</td> 
-                        </tr>
-                        <tr>
-                            <td class="text-center">Pemalsuan Data</td> 
-                        </tr>
-                        <tr>
-                            <td class="text-center"> Pemerasan/ Pungutan Liar</td> 
-                        </tr>  
-                        <tr>
-                            <td class="text-center">Penyalahgunaan wewenang</td> 
-                        </tr>   
-                        <tr>
-                            <td class="text-center">Fraud/ Korupsi</td> 
-                        </tr>           
+                    <tbody id="tbody-jenis-resiko">
                     </tbody>
                 </table>
             </div>
@@ -635,6 +511,7 @@ $data_sasaran = $wpdb->get_results(
 
 <script>
     jQuery(document).ready(function($) {
+        options_skor_manrisk();
         $('#opd_select').select2({
             minimumResultsForSearch: 0, // selalu tampil search
             dropdownParent: $('#modalTambahOPD'),
@@ -883,5 +760,175 @@ $data_sasaran = $wpdb->get_results(
         jQuery('#tahapan').val(tahapan);
         jQuery('.modalSasaranTitle').text('Edit Sasaran dan Tahapan Kecurangan MCP');
         jQuery('#modalTambahSasaran').modal('show');
+    }
+
+    function options_skor_manrisk() {
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'options_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    var data = response.data;
+                    
+                    KemungkinanDampak(data.kemungkinan_dampak);
+                    
+                    Kemungkinan(data.kemungkinan_resiko);
+                    
+                    Dampak(data.dampak_resiko);
+                    
+                    PemilikResiko(data.pemilik_resiko);
+                    
+                    SumberSebab(data.sumber_sebab);
+                    
+                    PihakTerdampak(data.pihak_terdampak);
+                    
+                    JenisResiko(data.jenis_resiko);
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan!');
+            }
+        });
+    }
+
+    function KemungkinanDampak(data) {
+        var html = '';
+        for (var i = data.length - 1; i >= 0; i--) {
+            var item = data[i];
+            if (!item) continue;
+            
+            var css = '';
+            if (item.id == '5') {
+                css = 'td-sangat-tinggi';
+            } else if (item.id == '4') {
+                css = 'td-tinggi';
+            } else if (item.id == '3') {
+                css = 'td-sedang';
+            } else if (item.id == '2') {
+                css = 'td-rendah';
+            } else if (item.id == '1') {
+                css = 'td-sangat-rendah';
+            }
+            
+            html += '<tr>';
+            html += '<td class="text-center ' + css + '">' + (item.skor || '') + '</td>';
+            html += '<td class="text-center">' + (item.keterangan || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-kemungkinan-dampak').html(html);
+    }
+
+    function Kemungkinan(data) {
+        var html = '';
+        for (var i = data.length - 1; i >= 0; i--) {
+            var item = data[i];
+            if (!item) continue;
+            
+            var css = '';
+            if (item.skor == '5') {
+                css = 'td-sangat-tinggi';
+            } else if (item.skor == '4') {
+                css = 'td-tinggi';
+            } else if (item.skor == '3') {
+                css = 'td-sedang';
+            } else if (item.skor == '2') {
+                css = 'td-rendah';
+            } else if (item.skor == '1') {
+                css = 'td-sangat-rendah';
+            }
+            
+            html += '<tr>';
+            html += '<td class="text-center ' + css + '">' + (item.skor || '') + '</td>';
+            html += '<td class="text-center">' + (item.keterangan || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-kemungkinan').html(html);
+    }
+
+    function Dampak(data) {
+        var html = '';
+        for (var i = data.length - 1; i >= 0; i--) {
+            var item = data[i];
+            if (!item) continue;
+            
+            var css = '';
+            if (item.skor == '5') {
+                css = 'td-sangat-tinggi';
+            } else if (item.skor == '4') {
+                css = 'td-tinggi';
+            } else if (item.skor == '3') {
+                css = 'td-sedang';
+            } else if (item.skor == '2') {
+                css = 'td-rendah';
+            } else if (item.skor == '1') {
+                css = 'td-sangat-rendah';
+            }
+            
+            html += '<tr>';
+            html += '<td class="text-center ' + css + '">' + (item.skor || '') + '</td>';
+            html += '<td class="text-center">' + (item.keterangan || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-dampak').html(html);
+    }
+
+    function PemilikResiko(data) {        
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (!item) continue;
+            
+            html += '<tr>';
+            html += '<td class="text-center">' + (item.nama || '') + '</td>';
+            html += '<td class="text-center">' + (item.keterangan || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-pemilik-resiko').html(html);
+    }
+
+    function SumberSebab(data) {        
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (!item) continue;
+            
+            html += '<tr>';
+            html += '<td class="text-center">' + (item.nama || '') + '</td>';
+            html += '<td>' + (item.keterangan || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-sumber-sebab').html(html);
+    }
+
+    function PihakTerdampak(data) {        
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (!item) continue;
+            
+            html += '<tr>';
+            html += '<td class="text-center">' + (item.nama || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-pihak-terdampak').html(html);
+    }
+
+    function JenisResiko(data) {        
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (!item) continue;
+            
+            html += '<tr>';
+            html += '<td class="text-center">' + (item.nama || '') + '</td>';
+            html += '</tr>';
+        }
+        jQuery('#tbody-jenis-resiko').html(html);
     }
 </script>

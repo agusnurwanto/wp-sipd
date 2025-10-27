@@ -203,6 +203,148 @@ function run_download_excel(type, tag_html = "body") {
 	});
 }
 
+function run_download_excel_2(type, tag_html = "body") {
+	var current_url = window.location.href;
+	var body =
+		'<a id="excel-2" onclick="return false;" href="#" class="btn btn-success m-2"><span class="dashicons dashicons-media-spreadsheet"></span> DOWNLOAD EXCEL</a>';
+	if (type == "apbd") {
+		body +=
+			"" +
+			'<div style="padding-top: 20px;">' +
+			'<label><input id="tampil-1" type="checkbox" checked="true" onclick="tampilData(this, 1)"> Tampil Rekening</label>' +
+			'<label style="margin-left: 10px;"><input id="tampil-2" type="checkbox" checked="true" onclick="tampilData(this, 2)"> Tampil Keterangan</label>' +
+			'<label style="margin-left: 10px;"><input id="tampil-3" type="checkbox" checked="true" onclick="tampilData(this, 3)"> Tampil Kelompok</label>' +
+			"</div>";
+	}
+	var download_excel =
+		"" + '<div id="action-sipd" class="hide-print">' + body + "</div>";
+	jQuery(tag_html).prepend(download_excel);
+
+	var style = "";
+
+	style = jQuery(".cetak-2").attr("style");
+	if (typeof style == "undefined") {
+		style = "";
+	}
+	jQuery(".cetak-2").attr(
+		"style",
+		style +
+		" font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; padding:0; margin:0; font-size:13px;"
+	);
+
+	jQuery(".bawah").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " border-bottom:1px solid #000;");
+	});
+
+	jQuery(".kiri").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " border-left:1px solid #000;");
+	});
+
+	jQuery(".kanan").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " border-right:1px solid #000;");
+	});
+
+	jQuery(".atas").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " border-top:1px solid #000;");
+	});
+
+	jQuery(".text_tengah").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " text-align: center;");
+	});
+
+	jQuery(".text_kiri").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " text-align: left;");
+	});
+
+	jQuery(".text_kanan").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " text-align: right;");
+	});
+
+	jQuery(".text_block").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " font-weight: bold;");
+	});
+
+	jQuery(".text_15").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " font-size: 15px;");
+	});
+
+	jQuery(".text_20").map(function (i, b) {
+		style = jQuery(b).attr("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		jQuery(b).attr("style", style + " font-size: 20px;");
+	});
+
+	var td = document.getElementsByTagName("td");
+	for (var i = 0, l = td.length; i < l; i++) {
+		style = td[i].getAttribute("style");
+		if (typeof style == "undefined") {
+			style = "";
+		}
+		td[i].setAttribute("style", style + "; mso-number-format:\\@;");
+	}
+
+	jQuery("#excel-2").on("click", function () {
+		var name = "Laporan";
+		var title = jQuery("#cetak-2").attr("title");
+		if (title) {
+			name = title;
+		}
+
+		jQuery("a").removeAttr("href");
+
+		var cek_hide_excel = jQuery("#cetak-2 .hide-excel");
+		if (cek_hide_excel.length >= 1) {
+			cek_hide_excel.remove();
+			setTimeout(function () {
+				alert(
+					"Ada beberapa fungsi yang tidak bekerja setelah melakukan donwload excel. Refresh halaman ini!"
+				);
+				location.reload();
+			}, 5000);
+		}
+
+		tableHtmlToExcel("cetak-2", name);
+	});
+}
+
 function tampilData(that, type) {
 	jQuery(".sub_keg").map(function (i, b) {
 		jQuery(b).find("td").eq(1).css({ "padding-left": "20px" });

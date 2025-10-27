@@ -57,52 +57,6 @@ $nama_pemda = get_option('_crb_daerah');
 if (empty($nama_pemda) || $nama_pemda == 'false') {
     $nama_pemda = '';
 }
-$unit = $wpdb->get_row($wpdb->prepare("
-    SELECT 
-        id_skpd,
-        nama_skpd,
-        bidur_1,
-        bidur_2,
-        bidur_3
-    FROM 
-        data_unit
-    WHERE 
-        id_skpd = %d
-        AND tahun_anggaran = %d
-        AND active = 1
-    LIMIT 1
-", $id_skpd, $input['tahun_anggaran']));
-
-$nama_bidang_urusan = '';
-if (!empty($unit)) {
-    $arr_bidur = array_filter(
-        array($unit->bidur_1, $unit->bidur_2, $unit->bidur_3),
-        function ($v) {
-            return $v !== null && $v !== '';
-        }
-    );
-    if (!empty($arr_bidur)) {
-        $placeholders = implode(',', array_fill(0, count($arr_bidur), '%d'));
-        $sql = $wpdb->prepare("
-            SELECT nama_bidang_urusan 
-            FROM data_prog_keg 
-            WHERE id_bidang_urusan IN ($placeholders)
-            AND tahun_anggaran = %d
-            AND active = 1
-            GROUP BY nama_bidang_urusan
-        ", array_merge($arr_bidur, array($input['tahun_anggaran'])));
-
-        $nama_bidur = $wpdb->get_col($sql);
-
-        // hilangkan angka dan titik di awal, misal "1.01 " atau "2.19 "
-        $nama_bersih = array();
-        foreach ($nama_bidur as $n) {
-            $nama_bersih[] = preg_replace('/^[0-9.]+\s*/', '', trim($n));
-        }
-
-        $nama_bidang_urusan = implode('<br>', $nama_bersih);
-    }
-}
 
 $cek_jadwal_renja = $wpdb->get_results(
     $wpdb->prepare('
@@ -124,11 +78,14 @@ if (!empty($cek_jadwal_renja)) {
 }
 
 $nama_periode_dinilai = '-';
+$nama_bidang_urusan = '';
 
 if ($id_jadwal != 0) {
     $get_nama_jadwal = $wpdb->get_row(
         $wpdb->prepare('
-            SELECT nama
+            SELECT 
+                nama,
+                tahun_anggaran
             FROM data_jadwal_lokal
             WHERE id_jadwal_lokal = %d
         ', $id_jadwal)
@@ -136,6 +93,106 @@ if ($id_jadwal != 0) {
 
     if (!empty($get_nama_jadwal)) {
         $nama_periode_dinilai = $get_nama_jadwal->nama;
+        
+        $get_program_kegiatan = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                id_program_kegiatan,
+                tipe
+            FROM data_program_kegiatan_manrisk_sebelum
+            WHERE tahun_anggaran = %d
+                AND id_skpd = %d
+                AND active = 1
+            GROUP BY id_program_kegiatan, tipe
+        ", $get_nama_jadwal->tahun_anggaran, $id_skpd), ARRAY_A);
+
+        if (!empty($get_program_kegiatan)) {
+            $all_kode_bidang = array();
+            
+            foreach ($get_program_kegiatan as $row_prog) {
+                $kode_bidang = '';
+                
+                if (isset($row_prog['tipe']) && $row_prog['tipe'] == 0) {
+                    // Program
+                    $get_data_program = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            kode_bidang_urusan
+                        FROM data_sub_keg_bl 
+                        WHERE kode_program = %s
+                            AND id_sub_skpd = %d
+                            AND tahun_anggaran = %d
+                            AND active = 1
+                        LIMIT 1
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    
+                    if (!empty($get_data_program)) {
+                        $kode_bidang = $get_data_program['kode_bidang_urusan'];
+                    }
+                } elseif (isset($row_prog['tipe']) && $row_prog['tipe'] == 1) {
+                    // Kegiatan
+                    $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            kode_bidang_urusan
+                        FROM data_sub_keg_bl 
+                        WHERE kode_giat = %s
+                            AND id_sub_skpd = %d
+                            AND tahun_anggaran = %d
+                            AND active = 1
+                        LIMIT 1
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    
+                    if (!empty($get_data_kegiatan)) {
+                        $kode_bidang = $get_data_kegiatan['kode_bidang_urusan'];
+                    }
+                } elseif (isset($row_prog['tipe']) && $row_prog['tipe'] == 2) {
+                    // Sub Kegiatan
+                    $get_data_sub_kegiatan = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            kode_bidang_urusan
+                        FROM data_sub_keg_bl 
+                        WHERE kode_sub_giat = %s
+                            AND id_sub_skpd = %d
+                            AND tahun_anggaran = %d
+                            AND active = 1
+                        LIMIT 1
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    
+                    if (!empty($get_data_sub_kegiatan)) {
+                        $kode_bidang = $get_data_sub_kegiatan['kode_bidang_urusan'];
+                    }
+                }
+                
+                if (!empty($kode_bidang)) {
+                    $all_kode_bidang[] = $kode_bidang;
+                }
+            }
+            
+            $all_kode_bidang = array_unique($all_kode_bidang);
+            
+            $nama_bidang_array = array();
+            foreach ($all_kode_bidang as $kode) {
+                $get_data_nama_bidang = $wpdb->get_row($wpdb->prepare("
+                    SELECT 
+                        nama_bidang_urusan 
+                    FROM data_prog_keg 
+                    WHERE kode_bidang_urusan = %s 
+                      AND tahun_anggaran = %d 
+                      AND active = 1 
+                    LIMIT 1
+                ", $kode, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                
+                if (!empty($get_data_nama_bidang)) {
+                    $get_nama_bidang = preg_replace('/^\d+\.\d+\s*/', '', $get_data_nama_bidang['nama_bidang_urusan']);
+                    
+                    if (!in_array($get_nama_bidang, $nama_bidang_array)) {
+                        $nama_bidang_array[] = $get_nama_bidang;
+                    }
+                }
+            }
+            
+            $nama_bidang_urusan = !empty($nama_bidang_array) ? implode('<br>', $nama_bidang_array) : '-';
+        } else {
+            $nama_bidang_urusan = '-';
+        }
     }
 }
 
@@ -147,6 +204,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
       AND tahun_anggaran = %d
       AND active = 1
 ", $id_skpd, $input['tahun_anggaran']), ARRAY_A);
+
 ?>
 <style type="text/css">
     .wrap-table {
@@ -680,7 +738,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery('#editProgramKegiatanModalLabel').hide();
         let tahun = <?php echo $input['tahun_anggaran']; ?>;
         let kode_skpd = '<?php echo $kode_skpd; ?>';
-        let kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
+        let kode_resiko = 'ROO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
         reset_form_tambah(id_program_kegiatan, id_indikator, nama_program_kegiatan, indikator_teks, tipe, kode_resiko);
 
         jQuery('#editProgramKegiatanModal').modal('show');
@@ -711,7 +769,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     let kode_skpd = '<?php echo $kode_skpd; ?>';
 
                     if (data.kode_resiko === '' || data.kode_resiko === null || data.kode_resiko === 'NULL') {
-                        kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
+                        kode_resiko = 'ROO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
                     } else {
                         kode_resiko = data.kode_resiko;
                     }
@@ -879,7 +937,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
 
                     let tahun = <?php echo $input['tahun_anggaran']; ?>;
                     let kode_skpd = '<?php echo $kode_skpd; ?>';
-                    let kode_resiko = 'RSO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
+                    let kode_resiko = 'ROO-' + tahun.toString().slice(-2) + '-' + kode_bidang + '-' + kode_skpd;
 
                     window.value = {
                         pemilik_resiko_id: data_sebelum.pemilik_resiko || '',
