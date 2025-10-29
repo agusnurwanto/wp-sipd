@@ -260,11 +260,11 @@ if ($get_jadwal_rpjmd) {
                     </div>
                     <div class="form-group">
                         <label for="skala_dampak_pemda">Skala Dampak</label>
-                        <input type="number" class="form-control" id="skala_dampak_pemda" name="skala_dampak_pemda" required>
+                        <input type="number" class="form-control" id="skala_dampak_pemda" name="skala_dampak_pemda" min="0" max="5" required>
                     </div>
                     <div class="form-group">
                         <label for="skala_kemungkinan_pemda">Skala Kemungkinan</label>
-                        <input type="number" class="form-control" id="skala_kemungkinan_pemda" name="skala_kemungkinan_pemda" required>
+                        <input type="number" class="form-control" id="skala_kemungkinan_pemda" name="skala_kemungkinan_pemda" min="0" max="5" required>
                     </div>
                     <div class="form-group">
                         <label for="rencana_tindak_pengendalian_pemda">Rencana Tindak Pengendalian</label>
@@ -418,11 +418,11 @@ if ($get_jadwal_rpjmd) {
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_dampak_sesudah_pemda">Skala Dampak</label>
-                                        <input type="number" class="form-control" id="skala_dampak_sesudah_pemda" name="skala_dampak_sesudah_pemda" required>
+                                        <input type="number" class="form-control" id="skala_dampak_sesudah_pemda" name="skala_dampak_sesudah_pemda" min="0" max="5" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_kemungkinan_sesudah_pemda">Skala Kemungkinan</label>
-                                        <input type="number" class="form-control" id="skala_kemungkinan_sesudah_pemda" name="skala_kemungkinan_sesudah_pemda" required>
+                                        <input type="number" class="form-control" id="skala_kemungkinan_sesudah_pemda" name="skala_kemungkinan_sesudah_pemda" min="0" max="5" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="rencana_tindak_pengendalian_sesudah_pemda">Rencana Tindak Pengendalian</label>
@@ -609,6 +609,24 @@ if ($get_jadwal_rpjmd) {
         let skala_dampak = jQuery("#skala_dampak_pemda").val();
         let skala_kemungkinan = jQuery("#skala_kemungkinan_pemda").val();
         let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_pemda").val();
+        if (skala_dampak < 0) {
+            alert('Skala Dampak tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_dampak > 5) {
+            alert('Skala Dampak tidak boleh lebih dari 5');
+            return false;
+        }
+        if (skala_kemungkinan < 0) {
+            alert('Skala Kemungkinan tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_kemungkinan > 5) {
+            alert('Skala Kemungkinan tidak boleh lebih dari 5');
+            return false;
+        }
 
         jQuery('#wrap-loading').show();
 
@@ -920,6 +938,24 @@ if ($get_jadwal_rpjmd) {
         let skala_dampak = jQuery("#skala_dampak_sesudah_pemda").val();
         let skala_kemungkinan = jQuery("#skala_kemungkinan_sesudah_pemda").val();
         let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_sesudah_pemda").val();
+        if (skala_dampak < 0) {
+            alert('Skala Dampak tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_dampak > 5) {
+            alert('Skala Dampak tidak boleh lebih dari 5');
+            return false;
+        }
+        if (skala_kemungkinan < 0) {
+            alert('Skala Kemungkinan tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_kemungkinan > 5) {
+            alert('Skala Kemungkinan tidak boleh lebih dari 5');
+            return false;
+        }
 
         jQuery('#wrap-loading').show();
 

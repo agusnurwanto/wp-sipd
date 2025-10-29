@@ -444,11 +444,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     </div>
                     <div class="form-group">
                         <label for="skala_dampak">Skala Dampak</label>
-                        <input type="number" class="form-control" id="skala_dampak" name="skala_dampak" required>
+                        <input type="number" class="form-control" id="skala_dampak" name="skala_dampak" min="0" max="5" required>
                     </div>
                     <div class="form-group">
                         <label for="skala_kemungkinan">Skala Kemungkinan</label>
-                        <input type="number" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" required>
+                        <input type="number" class="form-control" id="skala_kemungkinan" name="skala_kemungkinan" min="0" max="5" required>
                     </div>
                     <div class="form-group">
                         <label for="rencana_tindak_pengendalian">Rencana Tindak Pengendalian</label>
@@ -600,11 +600,11 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_dampak_sesudah">Skala Dampak</label>
-                                        <input type="number" class="form-control" id="skala_dampak_sesudah" name="skala_dampak_sesudah" required>
+                                        <input type="number" class="form-control" id="skala_dampak_sesudah" name="skala_dampak_sesudah" min="0" max="5" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="skala_kemungkinan_sesudah">Skala Kemungkinan</label>
-                                        <input type="number" class="form-control" id="skala_kemungkinan_sesudah" name="skala_kemungkinan_sesudah" required>
+                                        <input type="number" class="form-control" id="skala_kemungkinan_sesudah" name="skala_kemungkinan_sesudah" min="0" max="5" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="rencana_tindak_pengendalian_sesudah">Rencana Tindak Pengendalian</label>
@@ -823,6 +823,24 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         let skala_dampak = jQuery("#skala_dampak").val();
         let skala_kemungkinan = jQuery("#skala_kemungkinan").val();
         let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian").val();
+        if (skala_dampak < 0) {
+            alert('Skala Dampak tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_dampak > 5) {
+            alert('Skala Dampak tidak boleh lebih dari 5');
+            return false;
+        }
+        if (skala_kemungkinan < 0) {
+            alert('Skala Kemungkinan tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_kemungkinan > 5) {
+            alert('Skala Kemungkinan tidak boleh lebih dari 5');
+            return false;
+        }
 
         jQuery('#wrap-loading').show();
 
@@ -1148,6 +1166,24 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         let skala_dampak = jQuery("#skala_dampak_sesudah").val();
         let skala_kemungkinan = jQuery("#skala_kemungkinan_sesudah").val();
         let rencana_tindak_pengendalian = jQuery("#rencana_tindak_pengendalian_sesudah").val();
+        if (skala_dampak < 0) {
+            alert('Skala Dampak tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_dampak > 5) {
+            alert('Skala Dampak tidak boleh lebih dari 5');
+            return false;
+        }
+        if (skala_kemungkinan < 0) {
+            alert('Skala Kemungkinan tidak boleh kurang dari 0');
+            return false;
+        }
+        
+        if (skala_kemungkinan > 5) {
+            alert('Skala Kemungkinan tidak boleh lebih dari 5');
+            return false;
+        }
 
         jQuery('#wrap-loading').show();
 
