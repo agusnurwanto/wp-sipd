@@ -103,7 +103,7 @@ if ($id_jadwal != 0) {
                 AND id_skpd = %d
                 AND active = 1
             GROUP BY id_program_kegiatan, tipe
-        ", $get_nama_jadwal->tahun_anggaran, $id_skpd), ARRAY_A);
+        ", $input['tahun_anggaran'], $id_skpd), ARRAY_A);
 
         if (!empty($get_program_kegiatan)) {
             $all_kode_bidang = array();
@@ -122,7 +122,7 @@ if ($id_jadwal != 0) {
                             AND tahun_anggaran = %d
                             AND active = 1
                         LIMIT 1
-                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $input['tahun_anggaran']), ARRAY_A);
                     
                     if (!empty($get_data_program)) {
                         $kode_bidang = $get_data_program['kode_bidang_urusan'];
@@ -138,7 +138,7 @@ if ($id_jadwal != 0) {
                             AND tahun_anggaran = %d
                             AND active = 1
                         LIMIT 1
-                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $input['tahun_anggaran']), ARRAY_A);
                     
                     if (!empty($get_data_kegiatan)) {
                         $kode_bidang = $get_data_kegiatan['kode_bidang_urusan'];
@@ -154,7 +154,7 @@ if ($id_jadwal != 0) {
                             AND tahun_anggaran = %d
                             AND active = 1
                         LIMIT 1
-                    ", $row_prog['id_program_kegiatan'], $id_skpd, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                    ", $row_prog['id_program_kegiatan'], $id_skpd, $input['tahun_anggaran']), ARRAY_A);
                     
                     if (!empty($get_data_sub_kegiatan)) {
                         $kode_bidang = $get_data_sub_kegiatan['kode_bidang_urusan'];
@@ -178,7 +178,7 @@ if ($id_jadwal != 0) {
                       AND tahun_anggaran = %d 
                       AND active = 1 
                     LIMIT 1
-                ", $kode, $get_nama_jadwal->tahun_anggaran), ARRAY_A);
+                ", $kode, $input['tahun_anggaran']), ARRAY_A);
                 
                 if (!empty($get_data_nama_bidang)) {
                     $get_nama_bidang = preg_replace('/^\d+\.\d+\s*/', '', $get_data_nama_bidang['nama_bidang_urusan']);
