@@ -14389,90 +14389,90 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    continue;
 	                }
 	                
-	                foreach ($existing_manrisk_data as $manrisk_item) {
-	                    if ($manrisk_item['id_indikator'] == $kode_indikator) {
-	                        if ($master_item['satuancapaian'] != $manrisk_item['satuan_capaian'] ||
-	                            $master_item['targetcapaianteks'] != $manrisk_item['target_capaian_teks'] ||
-	                            $master_item['capaianteks'] != $manrisk_item['capaian_teks'] ||
-	                            $master_item['targetcapaian'] != $manrisk_item['target_capaian']) {
+	                // foreach ($existing_manrisk_data as $manrisk_item) {
+	                //     if ($manrisk_item['id_indikator'] == $kode_indikator) {
+	                //         if ($master_item['satuancapaian'] != $manrisk_item['satuan_capaian'] ||
+	                //             $master_item['targetcapaianteks'] != $manrisk_item['target_capaian_teks'] ||
+	                //             $master_item['capaianteks'] != $manrisk_item['capaian_teks'] ||
+	                //             $master_item['targetcapaian'] != $manrisk_item['target_capaian']) {
 	                            
-	                            if ($manrisk_item['active'] == 1 && $manrisk_item['status'] != 1) {
-	                                $wpdb->update(
-	                                    'data_program_kegiatan_manrisk_sebelum',
-	                                    array('status' => 1),
-	                                    array('id' => $manrisk_item['id']),
-	                                    array('%d'),
-	                                    array('%d')
-	                                );
+	                //             if ($manrisk_item['active'] == 1 && $manrisk_item['status'] != 1) {
+	                //                 $wpdb->update(
+	                //                     'data_program_kegiatan_manrisk_sebelum',
+	                //                     array('status' => 1),
+	                //                     array('id' => $manrisk_item['id']),
+	                //                     array('%d'),
+	                //                     array('%d')
+	                //                 );
 	                                
-	                                $wpdb->update(
-	                                    'data_program_kegiatan_manrisk_sesudah',
-	                                    array('status' => 1),
-	                                    array('id_sebelum' => $manrisk_item['id']),
-	                                    array('%d'),
-	                                    array('%d')
-	                                );
-	                            }
+	                //                 $wpdb->update(
+	                //                     'data_program_kegiatan_manrisk_sesudah',
+	                //                     array('status' => 1),
+	                //                     array('id_sebelum' => $manrisk_item['id']),
+	                //                     array('%d'),
+	                //                     array('%d')
+	                //                 );
+	                //             }
 	                            
-	                            $cek_data_baru = $wpdb->get_var($wpdb->prepare("
-	                                SELECT 
-	                                	COUNT(*) 
-	                                FROM data_program_kegiatan_manrisk_sebelum
-	                                WHERE id_program_kegiatan = %s
-	                                 	AND tipe = %d
-	                                 	AND tahun_anggaran = %d
-	                                 	AND id_skpd = %d
-	                                 	AND capaian_teks = %s
-	                                 	AND satuan_capaian = %s
-	                                 	AND target_capaian_teks = %s
-	                                 	AND target_capaian = %s
-	                                 	AND active = 1
-	                            ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, 
-	                               $master_item['capaianteks'], $master_item['satuancapaian'], 
-	                               $master_item['targetcapaianteks'], $master_item['targetcapaian']));
+	                //             $cek_data_baru = $wpdb->get_var($wpdb->prepare("
+	                //                 SELECT 
+	                //                 	COUNT(*) 
+	                //                 FROM data_program_kegiatan_manrisk_sebelum
+	                //                 WHERE id_program_kegiatan = %s
+	                //                  	AND tipe = %d
+	                //                  	AND tahun_anggaran = %d
+	                //                  	AND id_skpd = %d
+	                //                  	AND capaian_teks = %s
+	                //                  	AND satuan_capaian = %s
+	                //                  	AND target_capaian_teks = %s
+	                //                  	AND target_capaian = %s
+	                //                  	AND active = 1
+	                //             ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, 
+	                //                $master_item['capaianteks'], $master_item['satuancapaian'], 
+	                //                $master_item['targetcapaianteks'], $master_item['targetcapaian']));
 	                            
-	                            if ($cek_data_baru == 0) {
-	                                $cek_kode = $wpdb->get_var($wpdb->prepare("
-	                                    SELECT 
-	                                    	MAX(CAST(SUBSTRING_INDEX(id_indikator, '.', -1) AS UNSIGNED)) 
-	                                    FROM data_program_kegiatan_manrisk_sebelum
-	                                    WHERE id_program_kegiatan = %s
-	                                     	AND tipe = %d
-	                                     	AND tahun_anggaran = %d
-	                                     	AND id_skpd = %d
-	                                     	AND id_indikator LIKE %s
-	                                ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, $kode . '%'));
+	                //             if ($cek_data_baru == 0) {
+	                //                 $cek_kode = $wpdb->get_var($wpdb->prepare("
+	                //                     SELECT 
+	                //                     	MAX(CAST(SUBSTRING_INDEX(id_indikator, '.', -1) AS UNSIGNED)) 
+	                //                     FROM data_program_kegiatan_manrisk_sebelum
+	                //                     WHERE id_program_kegiatan = %s
+	                //                      	AND tipe = %d
+	                //                      	AND tahun_anggaran = %d
+	                //                      	AND id_skpd = %d
+	                //                      	AND id_indikator LIKE %s
+	                //                 ", $id_program_kegiatan, $tipe, $tahun_anggaran, $id_skpd, $kode . '%'));
 	                                
-	                                $new_kode = ($cek_kode ? intval($cek_kode) : 0) + 1;
-	                                $id_indikator_baru = $kode . '.' . $new_kode;
+	                //                 $new_kode = ($cek_kode ? intval($cek_kode) : 0) + 1;
+	                //                 $id_indikator_baru = $kode . '.' . $new_kode;
 	                                
-	                                $wpdb->insert(
-	                                    'data_program_kegiatan_manrisk_sebelum',
-	                                    array(
-	                                        'id_program_kegiatan' => $id_program_kegiatan,
-	                                        'id_indikator'        => $id_indikator_baru,
-	                                        'satuan_capaian'      => $master_item['satuancapaian'],
-	                                        'target_capaian_teks' => $master_item['targetcapaianteks'],
-	                                        'capaian_teks'        => $master_item['capaianteks'],
-	                                        'target_capaian'      => $master_item['targetcapaian'],
-	                                        'tipe'                => $tipe,
-	                                        'controllable'        => 2,
-	                                        'tahun_anggaran'      => $tahun_anggaran,
-	                                        'id_skpd'             => $id_skpd,
-	                                        'active'              => 1,
-	                                        'status'              => 0,
-	                                        'created_at'          => current_time('mysql')
-	                                    )
-	                                );
-	                                $id_sebelum = $wpdb->insert_id;
+	                //                 $wpdb->insert(
+	                //                     'data_program_kegiatan_manrisk_sebelum',
+	                //                     array(
+	                //                         'id_program_kegiatan' => $id_program_kegiatan,
+	                //                         'id_indikator'        => $id_indikator_baru,
+	                //                         'satuan_capaian'      => $master_item['satuancapaian'],
+	                //                         'target_capaian_teks' => $master_item['targetcapaianteks'],
+	                //                         'capaian_teks'        => $master_item['capaianteks'],
+	                //                         'target_capaian'      => $master_item['targetcapaian'],
+	                //                         'tipe'                => $tipe,
+	                //                         'controllable'        => 2,
+	                //                         'tahun_anggaran'      => $tahun_anggaran,
+	                //                         'id_skpd'             => $id_skpd,
+	                //                         'active'              => 1,
+	                //                         'status'              => 0,
+	                //                         'created_at'          => current_time('mysql')
+	                //                     )
+	                //                 );
+	                //                 $id_sebelum = $wpdb->insert_id;
 	                                
-	                                $this->get_data_sesudah($id_sebelum, $data, $id_indikator_baru, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
-	                            }
-	                        }
-	                        $cek_data = true;
-	                        break;
-	                    }
-	                }
+	                //                 $this->get_data_sesudah($id_sebelum, $data, $id_indikator_baru, $tipe, $tahun_anggaran, $id_skpd, $id_jadwal, $table_name, $tipe_renstra, $master_item['satuancapaian'], $master_item['targetcapaianteks'], $master_item['capaianteks'], $master_item['targetcapaian']);
+	                //             }
+	                //         }
+	                //         $cek_data = true;
+	                //         break;
+	                //     }
+	                // }
 	                
 	                if (!$cek_data) {
 	                    $cek_data_baru = $wpdb->get_var($wpdb->prepare("
@@ -14513,38 +14513,38 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                }
 	            }
 	            
-	            foreach ($existing_manrisk_data as $manrisk_item) {
-	                if ($manrisk_item['active'] == 1) {
-	                    $ada_di_master = false;
-	                    foreach ($grouped_master as $master_item) {
-	                        if ($manrisk_item['capaian_teks'] == $master_item['capaianteks'] &&
-	                            $manrisk_item['satuan_capaian'] == $master_item['satuancapaian'] &&
-	                            $manrisk_item['target_capaian_teks'] == $master_item['targetcapaianteks'] &&
-	                            $manrisk_item['target_capaian'] == $master_item['targetcapaian']) {
-	                            $ada_di_master = true;
-	                            break;
-	                        }
-	                    }
+	            // foreach ($existing_manrisk_data as $manrisk_item) {
+	            //     if ($manrisk_item['active'] == 1) {
+	            //         $ada_di_master = false;
+	            //         foreach ($grouped_master as $master_item) {
+	            //             if ($manrisk_item['capaian_teks'] == $master_item['capaianteks'] &&
+	            //                 $manrisk_item['satuan_capaian'] == $master_item['satuancapaian'] &&
+	            //                 $manrisk_item['target_capaian_teks'] == $master_item['targetcapaianteks'] &&
+	            //                 $manrisk_item['target_capaian'] == $master_item['targetcapaian']) {
+	            //                 $ada_di_master = true;
+	            //                 break;
+	            //             }
+	            //         }
 	                    
-	                    if (!$ada_di_master && $manrisk_item['status'] != 1) {
-	                        $wpdb->update(
-	                            'data_program_kegiatan_manrisk_sebelum',
-	                            array('status' => 1),
-	                            array('id' => $manrisk_item['id']),
-	                            array('%d'),
-	                            array('%d')
-	                        );
+	            //         if (!$ada_di_master && $manrisk_item['status'] != 1) {
+	            //             $wpdb->update(
+	            //                 'data_program_kegiatan_manrisk_sebelum',
+	            //                 array('status' => 1),
+	            //                 array('id' => $manrisk_item['id']),
+	            //                 array('%d'),
+	            //                 array('%d')
+	            //             );
 	                        
-	                        $wpdb->update(
-	                            'data_program_kegiatan_manrisk_sesudah',
-	                            array('status' => 1),
-	                            array('id_sebelum' => $manrisk_item['id']),
-	                            array('%d'),
-	                            array('%d')
-	                        );
-	                    }
-	                }
-	            }
+	            //             $wpdb->update(
+	            //                 'data_program_kegiatan_manrisk_sesudah',
+	            //                 array('status' => 1),
+	            //                 array('id_sebelum' => $manrisk_item['id']),
+	            //                 array('%d'),
+	            //                 array('%d')
+	            //             );
+	            //         }
+	            //     }
+	            // }
 	            
 	        } else if ($data['active'] == 0) {
 	            $wpdb->query($wpdb->prepare("
