@@ -155,10 +155,10 @@ if ($id_jadwal != 0) {
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Resiko Kecurangan MCP <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Risiko Kecurangan MCP <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
-            <div class="text-center" style="text-align:center; margin: 20px;">
-                <button type="button" class="btn btn-primary" onclick="tambah_data()" style=" align-items:center;">
+            <div id='aksi-wpsipd' style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+                <button type="button" class="btn btn-primary" onclick="tambah_data()" style="text-align:center; margin: 20px;">
                     <span class="dashicons dashicons-plus-alt2" style="position:relative; top:-2px; vertical-align:middle;"></span>
                     Tambah Data
                 </button>
@@ -186,7 +186,7 @@ if ($id_jadwal != 0) {
                 </tr>
             </table>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Kecurangan MCP SKPD" class="table_manrisk_kecurangan_mcp table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
+                <table id="cetak" title="Manajemen Risiko Kecurangan MCP SKPD" class="table_manrisk_kecurangan_mcp table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
@@ -212,7 +212,7 @@ if ($id_jadwal != 0) {
                             <th rowspan="2">Dampak</th>
                             <th rowspan="2">Kemungkinan </th>
                             <th rowspan="2">Dampak </th>
-                            <th rowspan="2">Status Risiko (Nilai) </th>
+                            <th rowspan="2">Status Risiko (Nilai) (10x11) </th>
                         </tr>
                         <tr>
                         </tr>
@@ -357,6 +357,7 @@ if ($id_jadwal != 0) {
 <script>
     jQuery(document).ready(function() {
         get_table_resiko_kecurangan_manrisk();
+        run_download_excel('', '#aksi-wpsipd');
 
         jQuery(document).on('change', '#tahapan', function() {
             let selected = jQuery(this).find(':selected');
