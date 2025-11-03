@@ -12334,7 +12334,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<td class="text_kanan nilai_realisasi" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_realisasi_bulan_' . $i . '">' . $realisasi_bulanan_format . '</td>
 							<td class="text_kanan nilai_selisih">' . $selisih_format . '</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_' . $i . '" ' . $editable . ' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">' . $realisasi_target_bulanan . '</td>
-							<td class="text_kiri" id="keterangan_bulan_' . $i . '" ' . $editable . '>' . $realisasi_renja[0]['pendorong_bulan_' . $i] . '</td>
+							<td class="text_kiri" id="pendorong_bulan_' . $i . '" ' . $editable . '>' . $realisasi_renja[0]['pendorong_bulan_' . $i] . '</td>
 							<td class="text_kiri" id="keterangan_bulan_' . $i . '" ' . $editable . '>' . $realisasi_renja[0]['keterangan_bulan_' . $i] . '</td>
 						</tr>
 					';
