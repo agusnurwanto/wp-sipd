@@ -28,7 +28,7 @@ $cek_jadwal = $wpdb->get_row($wpdb->prepare("
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Jadwal Manajemen Resiko<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+        <h1 class="text-center" style="margin:3rem;">Jadwal Manajemen Risiko<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
         <!-- <?php if(empty($cek_jadwal)): ?>
             <div style="margin-bottom: 25px;">
                 <button class="btn btn-primary" onclick="handleAddModal();"><span class="dashicons dashicons-plus"></span>Tambah Jadwal</button>

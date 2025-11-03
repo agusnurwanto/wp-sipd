@@ -83,11 +83,11 @@ if ($get_jadwal_rpjmd) {
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Resiko Tujuan / Sasaran <br>Pemerintah Daerah<br>Tahun <?php echo $_GET['tahun_anggaran']; ?> ( <?php echo $nama_jadwal; ?> )
+                Manajemen Risiko Tujuan / Sasaran <br>Pemerintah Daerah<br>Tahun <?php echo $_GET['tahun_anggaran']; ?> ( <?php echo $nama_jadwal; ?> )
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran Pemda" class="table_manrisk_tujuan_sasaran_pemda table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
+                <table id="cetak" title="Manajemen Risiko Tujuan / Sasaran Pemda" class="table_manrisk_tujuan_sasaran_pemda table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
@@ -207,18 +207,18 @@ if ($get_jadwal_rpjmd) {
                         <input type="text" class="form-control" id="indikator_kinerja_pemda" name="indikator_kinerja_pemda" disabled required>
                     </div>
                     <div class="form-group">
-                        <label for="uraian_resiko_pemda">Uraian Resiko</label>
+                        <label for="uraian_resiko_pemda">Uraian Risiko</label>
                         <input type="text" class="form-control" id="uraian_resiko_pemda" name="uraian_resiko_pemda" required>
                         <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                     </div>
                     <div class="form-group">
-                        <label for="kode_resiko_pemda">Kode Resiko</label>
+                        <label for="kode_resiko_pemda">Kode Risiko</label>
                         <input type="text" class="form-control" id="kode_resiko_pemda" name="kode_resiko_pemda" disabled required>
                     </div>
                     <div class="form-group">
-                        <label for="pemilik_resiko_pemda">Pilih Pemilik Resiko</label>
+                        <label for="pemilik_resiko_pemda">Pilih Pemilik Risiko</label>
                         <select id="pemilik_resiko_pemda" class="form-control">
-                            <option value="" selected>Pilih Pemilik Resiko</option>
+                            <option value="" selected>Pilih Pemilik Risiko</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -328,7 +328,7 @@ if ($get_jadwal_rpjmd) {
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_usulan_pemda">Pemilik Resiko</label>
+                                        <label for="pemilik_resiko_usulan_pemda">Pemilik Risiko</label>
                                         <input type="text" class="form-control" id="pemilik_resiko_usulan_pemda" disabled>
                                     </div>
                                     <div class="form-group">
@@ -340,12 +340,12 @@ if ($get_jadwal_rpjmd) {
                                         <input type="text" class="form-control" id="pihak_terkena_usulan_pemda" disabled>
                                     </div>
                                     <div class="form-group">
-                                        <label for="uraian_resiko_usulan_pemda">Uraian Resiko</label>
+                                        <label for="uraian_resiko_usulan_pemda">Uraian Risiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan_pemda" name="uraian_resiko_usulan_pemda" disabled required>
                                         <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kode_resiko_usulan_pemda">Kode Resiko</label>
+                                        <label for="kode_resiko_usulan_pemda">Kode Risiko</label>
                                         <input type="text" class="form-control" id="kode_resiko_usulan_pemda" name="kode_resiko_usulan_pemda" disabled required>
                                     </div>
                                     <div class="form-group">
@@ -382,9 +382,9 @@ if ($get_jadwal_rpjmd) {
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_sesudah_pemda">Pilih Pemilik Resiko</label>
+                                        <label for="pemilik_resiko_sesudah_pemda">Pilih Pemilik Risiko</label>
                                         <select id="pemilik_resiko_sesudah_pemda" class="form-control">
-                                            <option value="" selected>Pilih Pemilik Resiko</option>
+                                            <option value="" selected>Pilih Pemilik Risiko</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -400,12 +400,12 @@ if ($get_jadwal_rpjmd) {
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="uraian_resiko_sesudah_pemda">Uraian Resiko</label>
+                                        <label for="uraian_resiko_sesudah_pemda">Uraian Risiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah_pemda" name="uraian_resiko_sesudah_pemda" required>
                                         <small class="text-muted">Risiko yang menghambat pencapaian Sasaran/IKU</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kode_resiko_sesudah_pemda">Kode Resiko</label>
+                                        <label for="kode_resiko_sesudah_pemda">Kode Risiko</label>
                                         <input type="text" class="form-control" id="kode_resiko_sesudah_pemda" name="kode_resiko_sesudah_pemda" disabled required>
                                     </div>
                                     <div class="form-group">
@@ -1012,7 +1012,7 @@ if ($get_jadwal_rpjmd) {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Risiko</option>';
                     response.data.pemilik_resiko.forEach(function(item) {
                         pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
                     });
@@ -1051,7 +1051,7 @@ if ($get_jadwal_rpjmd) {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Risiko</option>';
                     response.data.pemilik_resiko.forEach(function(item) {
                         pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
                     });

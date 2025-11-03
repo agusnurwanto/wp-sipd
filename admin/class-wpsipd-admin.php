@@ -1048,36 +1048,36 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 
 			$show_manajemen_resiko_menu = get_option('_crb_show_menu_manajemen_resiko_settings');
 			if ($show_manajemen_resiko_menu != true) {
-				$manrisk = Container::make('theme_options', __('Manajemen Resiko'))
+				$manrisk = Container::make('theme_options', __('Manajemen Risiko'))
 					->set_page_menu_position(9)
 					->set_icon('dashicons-media-spreadsheet');
 
 				if (get_option('_crb_show_menu_jadwal_manrisk_settings') != true) {
-					Container::make('theme_options', __('Jadwal Manajemen Resiko'))
+					Container::make('theme_options', __('Jadwal Manajemen Risiko'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'jadwal_manrisk')));
 				}
 
 				if (get_option('_crb_show_menu_monitor_resiko_settings') != true) {
-					Container::make('theme_options', __('Monitoring Resiko'))
+					Container::make('theme_options', __('Monitoring Risiko'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'monitor_resiko')));
 				}
 
 				if (get_option('_crb_show_menu_skor_resiko_settings') != true) {
-					Container::make('theme_options', __('Skor Resiko'))
+					Container::make('theme_options', __('Skor Risiko'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'skor_resiko')));
 				}
 
 				if (get_option('_crb_show_menu_kode_resiko_settings') != true) {
-					Container::make('theme_options', __('Kode Resiko'))
+					Container::make('theme_options', __('Kode Risiko'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'kode_resiko')));
 				}
 
 				if (get_option('_crb_show_menu_konteks_resiko_settings') != true) {
-					Container::make('theme_options', __('Konteks Resiko'))
+					Container::make('theme_options', __('Konteks Risiko'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'konteks_resiko')));
 				}
@@ -1680,24 +1680,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$url_pemda = $this->generatePage('AKLAP LRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[aklap_lra tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="' . $url_pemda . '">Halaman LRA AKLAP Tahun ' . $v['tahun_anggaran'] . '</a>' . $body_pemda;
 					} else if ($_POST['type'] == 'jadwal_manrisk') {
-						$url_jadwal_manrisk = $this->generatePage('Jadwal Manajemen Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_jadwal_manrisk . '">Jadwal Manajemen Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_jadwal_manrisk = $this->generatePage('Jadwal Manajemen Risiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[jadwal_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_jadwal_manrisk . '">Jadwal Manajemen Risiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'monitor_resiko') {
-						$url_monitor_resiko = $this->generatePage('Monitoring Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_resiko tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_monitor_resiko . '">Monitoring Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_monitor_resiko = $this->generatePage('Monitoring Risiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_resiko tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_monitor_resiko . '">Monitoring Risiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'skor_resiko') {
-						$url_skor_resiko = $this->generatePage('Skor Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[skor_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_skor_resiko . '">Halaman Skor Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_skor_resiko = $this->generatePage('Skor Risiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[skor_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_skor_resiko . '">Halaman Skor Risiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'kode_resiko') {
-						$url_kode_resiko = $this->generatePage('Kode Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kode_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_kode_resiko . '">Halaman Kode Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_kode_resiko = $this->generatePage('Kode Risiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kode_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_kode_resiko . '">Halaman Kode Risiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'konteks_resiko') {
-						$url_konteks_resiko = $this->generatePage('Konteks Resiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[konteks_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_konteks_resiko . '">Halaman Konteks Resiko Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_konteks_resiko = $this->generatePage('Konteks Risiko | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[konteks_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_konteks_resiko . '">Halaman Konteks Risiko Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'rpjmd_renstra') {
 						$url_rpjmd_renstra = $this->generatePage('RPJMD RENSTRA | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[rpjmd_renstra_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
@@ -1725,22 +1725,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					            );
 					            
 					            $url_pemda = $url_tujuan_sasaran_pemda . '&tahun_anggaran=' . $v['tahun_anggaran'] .' &id_jadwal=' . $jadwal['id_jadwal_lokal'];
-					            $body_all .= '<a target="_blank" href="' . $url_pemda . '">Halaman Resiko Tujuan / Sasaran Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . ' (' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ')</a><br>';
+					            $body_all .= '<a target="_blank" href="' . $url_pemda . '">Halaman Risiko Tujuan / Sasaran Pemerintah Daerah Tahun ' . $v['tahun_anggaran'] . ' (' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ')</a><br>';
 					        }
 					        
 					        $body_all .= $body_pemda;
 					    }
 					} else if ($_POST['type'] == 'tujuan_sasaran') {
 						$url_tujuan_sasaran = $this->generatePage('Tujuan / Sasaran | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[tujuan_sasaran_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Resiko Tujuan / Sasaran Perangkat Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Risiko Tujuan / Sasaran Perangkat Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'program_kegiatan') {
 						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Resiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Risiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'kecurangan_mcp') {
 						$url_kecurangan_mcp = $this->generatePage('Kecurangan MCP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Resiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Risiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					}
 
@@ -2735,18 +2735,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			Field::make('checkbox', 'crb_show_submenu_spt_sppd_settings', 'SPT (Surat Perintah Tugas)')
 				->set_option_value('true'),
 
-			Field::make('separator', 'crb_show_menu_manajemen_resiko', 'Non Aktifkan Menu ( Manajemen Resiko )'),
-			Field::make('checkbox', 'crb_show_menu_manajemen_resiko_settings', 'Manajemen Resiko')
+			Field::make('separator', 'crb_show_menu_manajemen_resiko', 'Non Aktifkan Menu ( Manajemen Risiko )'),
+			Field::make('checkbox', 'crb_show_menu_manajemen_resiko_settings', 'Manajemen Risiko')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_jadwal_manrisk_settings', 'Jadwal Manajemen Resiko')
+			Field::make('checkbox', 'crb_show_menu_jadwal_manrisk_settings', 'Jadwal Manajemen Risiko')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_monitor_resiko_settings', 'Monitoring Resiko')
+			Field::make('checkbox', 'crb_show_menu_monitor_resiko_settings', 'Monitoring Risiko')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_skor_resiko_settings', 'Skor Resiko')
+			Field::make('checkbox', 'crb_show_menu_skor_resiko_settings', 'Skor Risiko')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_kode_resiko_settings', 'Kode Resiko')
+			Field::make('checkbox', 'crb_show_menu_kode_resiko_settings', 'Kode Risiko')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_konteks_resiko_settings', 'Konteks Resiko')
+			Field::make('checkbox', 'crb_show_menu_konteks_resiko_settings', 'Konteks Risiko')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_rpjmd_renstra_settings', 'RPJMD RENSTRA')
 				->set_option_value('true'),
@@ -6084,7 +6084,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							$nama_page = 'MONEV ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[monitor_monev_renja tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}else if($tahun[0] == 'manrisk'){
-							$nama_page = 'Manajemen Resiko ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
+							$nama_page = 'Manajemen Risiko ' . $all_skpd[0]['nama_skpd'] . ' ' . $all_skpd[0]['kode_skpd'] . ' | ' . $tahun[1];
 							$url_baru = $this->generatePage($nama_page, $tahun[1], '[manrisk_list tahun_anggaran="' . $tahun[1] . '" id_skpd="' . $all_skpd[0]['id_skpd'] . '"]');
 						}
 					}
