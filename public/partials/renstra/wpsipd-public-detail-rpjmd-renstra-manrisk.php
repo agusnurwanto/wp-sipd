@@ -135,7 +135,7 @@ if (!empty($id_jadwal)) {
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title">
-                Manajemen Resiko <?php echo $jenis_jadwal; ?> / RENSTRA <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Risiko <?php echo $jenis_jadwal; ?> / RENSTRA <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">

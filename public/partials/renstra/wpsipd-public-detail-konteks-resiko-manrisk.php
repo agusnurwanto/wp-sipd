@@ -407,11 +407,11 @@ if(!empty($data_program_renja)){
     <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
         <div style="margin:0 0 3rem 0;">
             <h1 class="text-center table-title">
-                Konteks Resiko <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Konteks Risiko <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>            
             <div id='aksi-wpsipd'></div>
             <div class="wrap-table">
-                <table id="cetak" title="Konteks Resiko SKPD" class="table_manrisk_konteks_resiko table-bordered" cellpadding="5" cellspacing="0" border="1" width="100%">
+                <table id="cetak" title="Konteks Risiko SKPD" class="table_manrisk_konteks_resiko table-bordered" cellpadding="5" cellspacing="0" border="1" width="100%">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th style="width: 20%;">Sumber Data</th>

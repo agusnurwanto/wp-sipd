@@ -242,7 +242,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Resiko Program / Kegiatan <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Risiko Program / Kegiatan <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
             <table class="borderless-table">
@@ -273,7 +273,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 </tr>
             </table>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Program / Kegiatan SKPD" class="table_manrisk_program_kegiatan table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
+                <table id="cetak" title="Manajemen Risiko Program / Kegiatan SKPD" class="table_manrisk_program_kegiatan table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
@@ -391,18 +391,18 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         <input type="text" class="form-control" id="indikator_kinerja" name="indikator_kinerja" disabled required>
                     </div>
                     <div class="form-group">
-                        <label for="uraian_resiko">Uraian Resiko</label>
+                        <label for="uraian_resiko">Uraian Risiko</label>
                         <input type="text" class="form-control" id="uraian_resiko" name="uraian_resiko" required>
                         <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                     </div>
                     <div class="form-group">
-                        <label for="kode_resiko">Kode Resiko</label>
+                        <label for="kode_resiko">Kode Risiko</label>
                         <input type="text" class="form-control" id="kode_resiko" name="kode_resiko" disabled required>
                     </div>
                     <div class="form-group">
-                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
+                        <label for="pemilik_resiko">Pilih Pemilik Risiko</label>
                         <select id="pemilik_resiko" class="form-control">
-                            <option value="" selected>Pilih Pemilik Resiko</option>
+                            <option value="" selected>Pilih Pemilik Risiko</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -510,7 +510,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_usulan">Pemilik Resiko</label>
+                                        <label for="pemilik_resiko_usulan">Pemilik Risiko</label>
                                         <input type="text" class="form-control" id="pemilik_resiko_usulan" disabled>
                                     </div>
                                     <div class="form-group">
@@ -522,12 +522,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         <input type="text" class="form-control" id="pihak_terkena_usulan" disabled>
                                     </div>
                                     <div class="form-group">
-                                        <label for="uraian_resiko_usulan">Uraian Resiko</label>
+                                        <label for="uraian_resiko_usulan">Uraian Risiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_usulan" name="uraian_resiko_usulan" disabled required>
                                         <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kode_resiko_usulan">Kode Resiko</label>
+                                        <label for="kode_resiko_usulan">Kode Risiko</label>
                                         <input type="text" class="form-control" id="kode_resiko_usulan" name="kode_resiko_usulan" disabled required>
                                     </div>
                                     <div class="form-group">
@@ -564,9 +564,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Resiko</label>
+                                        <label for="pemilik_resiko_sesudah">Pilih Pemilik Risiko</label>
                                         <select id="pemilik_resiko_sesudah" class="form-control">
-                                            <option value="" selected>Pilih Pemilik Resiko</option>
+                                            <option value="" selected>Pilih Pemilik Risiko</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -582,12 +582,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="uraian_resiko_sesudah">Uraian Resiko</label>
+                                        <label for="uraian_resiko_sesudah">Uraian Risiko</label>
                                         <input type="text" class="form-control" id="uraian_resiko_sesudah" name="uraian_resiko_sesudah" required>
                                         <small class="text-muted">Risiko yang menghambat pencapaian Kegiatan/IKU</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kode_resiko_sesudah">Kode Resiko</label>
+                                        <label for="kode_resiko_sesudah">Kode Risiko</label>
                                         <input type="text" class="form-control" id="kode_resiko_sesudah" name="kode_resiko_sesudah" disabled required>
                                     </div>
                                     <div class="form-group">
@@ -1337,7 +1337,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Risiko</option>';
                     response.data.pemilik_resiko.forEach(function(item) {
                         pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
                     });
@@ -1376,7 +1376,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    let pemilik_resiko = '<option value="">Pilih Pemilik Resiko</option>';
+                    let pemilik_resiko = '<option value="">Pilih Pemilik Risiko</option>';
                     response.data.pemilik_resiko.forEach(function(item) {
                         pemilik_resiko += `<option value="${item.id}">${item.nama}</option>`;
                     });

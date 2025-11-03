@@ -567,7 +567,7 @@ foreach ($all_rows_2 as $row) {
     <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Monitoring Resiko Tujuan / Sasaran<br>Perangkat Daerah<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Monitoring Risiko Tujuan / Sasaran<br>Perangkat Daerah<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div id='aksi-wpsipd'></div>
             
             <div class="filter-resiko">
@@ -580,7 +580,7 @@ foreach ($all_rows_2 as $row) {
             </div>
             
             <div class="wrap-table">
-                <table id="cetak" title="Monitoring Resiko Tujuan / Sasaran SKPD" class="table table-bordered table_monitor_skpd">
+                <table id="cetak" title="Monitoring Risiko Tujuan / Sasaran SKPD" class="table table-bordered table_monitor_skpd">
                      <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="2">Nama Perangkat Daerah</th>
@@ -636,11 +636,11 @@ foreach ($all_rows_2 as $row) {
     <div class="cetak-2">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Monitoring Resiko Program / Kegiatan / Sub Kegiatan <br>Perangkat Daerah<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Monitoring Risiko Program / Kegiatan / Sub Kegiatan <br>Perangkat Daerah<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div id='aksi-wpsipd-2'></div>
             
             <div class="wrap-table">
-                <table id="cetak-2" title="Monitoring Resiko Program / Kegiatan / Sub Kegiatan SKPD" class="table table-bordered table_monitor_skpd">
+                <table id="cetak-2" title="Monitoring Risiko Program / Kegiatan / Sub Kegiatan SKPD" class="table table-bordered table_monitor_skpd">
                      <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="2">Nama Perangkat Daerah</th>
@@ -696,7 +696,7 @@ foreach ($all_rows_2 as $row) {
     jQuery(document).ready(function() {
         jQuery('.tingkat-resiko').each(function() {
             const nilairesiko = jQuery(this).data('nilai');
-            const tingkatresiko = getTingkatResiko(nilairesiko);
+            const tingkatresiko = getTingkatRisiko(nilairesiko);
             
             jQuery(this).text(tingkatresiko.label);
             if (tingkatresiko.bg_color) {
@@ -712,7 +712,7 @@ foreach ($all_rows_2 as $row) {
         run_download_excel_2('', '#aksi-wpsipd-2');
     });
 
-    function getTingkatResiko(nilairesiko) {
+    function getTingkatRisiko(nilairesiko) {
         let data = {
             label: '',
             bg_color: '',

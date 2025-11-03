@@ -9728,7 +9728,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 					if (!empty($daftar_tombol_list[15])) {
 						$manrisk_page = $this->generatePage(
-							'Halaman List Manajemen Resiko | ' . $tahun,
+							'Halaman List Manajemen Risiko | ' . $tahun,
 							$tahun,
 							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
 						);
@@ -17861,7 +17861,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	                        $wpdb->insert(
 	                            'data_jadwal_lokal',
 	                            array(
-	                                'nama' => 'Jadwal Manajemen Resiko ' . $tahun_anggaran,
+	                                'nama' => 'Jadwal Manajemen Risiko ' . $tahun_anggaran,
 	                                'waktu_awal' => $current_datetime,
 	                                'waktu_akhir' => $end_datetime,
 	                                'status' => 0,
@@ -18319,7 +18319,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 									$return = [
 										'status'  => 'success',
-										'message' => 'Berhasil Tambah Jadwal Manajemen Resiko!',
+										'message' => 'Berhasil Tambah Jadwal Manajemen Risiko!',
 									];
 								} else {
 									$return = [

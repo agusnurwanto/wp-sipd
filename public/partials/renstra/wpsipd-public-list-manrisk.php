@@ -33,12 +33,12 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
         [
             'title' => 'Halaman Petunjuk Skor Risiko Manrisk | ' . $input['tahun_anggaran'],
             'shortcode' => '[skor_resiko_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
-            'label' => 'Petunjuk Skor Resiko'
+            'label' => 'Petunjuk Skor Risiko'
         ],
         [
-            'title' => 'Halaman Detail Manrisk Konteks Resiko | ' . $input['tahun_anggaran'],
+            'title' => 'Halaman Detail Manrisk Konteks Risiko | ' . $input['tahun_anggaran'],
             'shortcode' => '[detail_konteks_resiko_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
-            'label' => 'Konteks Resiko'
+            'label' => 'Konteks Risiko'
         ],
         [
             'title' => 'Halaman Detail Manrisk RPJMD | ' . $input['tahun_anggaran'],
@@ -131,12 +131,12 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Manajemen Resiko<br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Manajemen Risiko<br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Tujuan / Sasaran SKPD" class="table table-bordered table_manrisk">
+                <table id="cetak" title="Manajemen Risiko Tujuan / Sasaran SKPD" class="table table-bordered table_manrisk">
                     <thead style="background: #ffc491;">
                         <tr>
-                            <th class="text-center">Menu Manajemen Resiko</th>
+                            <th class="text-center">Menu Manajemen Risiko</th>
                         </tr>
                     </thead>
                     <tbody>

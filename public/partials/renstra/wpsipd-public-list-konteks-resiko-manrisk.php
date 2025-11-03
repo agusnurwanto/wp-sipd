@@ -24,7 +24,7 @@ $data_unit = $wpdb->get_results(
 $tbody = '';
 $no = 1;
 foreach ($data_unit as $id_sub_skpd => $unit) {
-    $title = 'Detail Manrisk Konteks Resiko | ' . $input['tahun_anggaran'];
+    $title = 'Detail Manrisk Konteks Risiko | ' . $input['tahun_anggaran'];
     $shortcode = '[detail_konteks_resiko_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
     $update = false;
     $url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
@@ -70,9 +70,9 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Konteks Resiko Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Konteks Risiko Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div class="wrap-table">
-                <table id="cetak" title="Konteks Resiko SKPD" class="table table-bordered table_dokumen_skpd">
+                <table id="cetak" title="Konteks Risiko SKPD" class="table table-bordered table_dokumen_skpd">
                     <thead style="background: #ffc491;">
                         <tr>
                             <th class="text-center">No</th>

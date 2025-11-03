@@ -270,7 +270,7 @@ $data_sasaran = $wpdb->get_results(
                 <table cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word; background-color: #e3f2fd">
                     <thead>
                         <tr>
-                            <th colspan="2" class="text-center">Pemilik Resiko</th>                            
+                            <th colspan="2" class="text-center">Pemilik Risiko</th>                            
                         </tr>
                     </thead>
                     <tbody id="tbody-pemilik-resiko">
@@ -781,13 +781,13 @@ $data_sasaran = $wpdb->get_results(
                     
                     Dampak(data.dampak_resiko);
                     
-                    PemilikResiko(data.pemilik_resiko);
+                    PemilikRisiko(data.pemilik_resiko);
                     
                     SumberSebab(data.sumber_sebab);
                     
                     PihakTerdampak(data.pihak_terdampak);
                     
-                    JenisResiko(data.jenis_resiko);
+                    JenisRisiko(data.jenis_resiko);
                 }
             },
             error: function(xhr) {
@@ -878,7 +878,7 @@ $data_sasaran = $wpdb->get_results(
         jQuery('#tbody-dampak').html(html);
     }
 
-    function PemilikResiko(data) {        
+    function PemilikRisiko(data) {        
         var html = '';
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
@@ -919,7 +919,7 @@ $data_sasaran = $wpdb->get_results(
         jQuery('#tbody-pihak-terdampak').html(html);
     }
 
-    function JenisResiko(data) {        
+    function JenisRisiko(data) {        
         var html = '';
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
