@@ -2021,7 +2021,7 @@ foreach ($monev_triwulan as $k => $v) {
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-	<div class="modal-dialog" style="min-width: 900px;" role="document">
+	<div class="modal-dialog" style="min-width: 1500px;" role="document">
 		<div class="modal-content">
 			<div class="modal-header bgpanel-theme">
 				<h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
@@ -2100,12 +2100,13 @@ foreach ($monev_triwulan as $k => $v) {
 										<table>
 											<thead>
 												<tr>
-													<th class="text_tengah">Bulan</th>
+													<th class="text_tengah" style="width: 150px;">Bulan</th>
 													<th class="text_tengah" style="width: 150px;">RAK (Rp.)</th>
 													<th class="text_tengah" style="width: 150px;">Realisasi (Rp.)</th>
 													<th class="text_tengah" style="width: 150px;">Selisih (Rp.)</th>
 													<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
-													<th class="text_tengah" style="width: 200px;">Keterangan / Permasalahan / Saran</th>
+													<th class="text_tengah" style="width: 300px;">Faktor Pendorong</th>
+													<th class="text_tengah" style="width: 300px;">Faktor Penghambat</th>
 												</tr>
 												<tr>
 													<th class="text_tengah">1</th>
@@ -2114,6 +2115,7 @@ foreach ($monev_triwulan as $k => $v) {
 													<th class="text_tengah">4 = 2 - 3</th>
 													<th class="text_tengah">5</th>
 													<th class="text_tengah">6</th>
+													<th class="text_tengah">7</th>
 												</tr>
 											</thead>
 											<tbody id="monev-body"></tbody>
@@ -2122,11 +2124,11 @@ foreach ($monev_triwulan as $k => $v) {
 													<th class="text_kiri text_blok" colspan="2">Target Indikator</th>
 													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
 													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator. Satuan (%)</th>
-													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
+													<th class="text_tengah text_blok" id="capaian_target_realisasi" colspan="2">0</th>
 												</tr>
 												<tr>
 													<th class="text_kiri text_blok" colspan="3">Bobot Kinerja<br><small class="text-muted">( Default 1 )</small></th>
-													<th class="text_tengah text_blok" colspan="3" id="bobotKinerja" <?php echo $edit_bobot_kinerja; ?>>0</th>
+													<th class="text_tengah text_blok" colspan="4" id="bobotKinerja" <?php echo $edit_bobot_kinerja; ?>>0</th>
 												</tr>
 											</tfoot>
 										</table>
@@ -2451,6 +2453,7 @@ foreach ($monev_triwulan as $k => $v) {
 			var nilai_realisasi = {};
 			var target_realisasi = {};
 			var keterangan = {};
+			var pendorong = {};
 			var total_tw1 = 0;
 			var total_tw2 = 0;
 			var total_tw3 = 0;
@@ -2463,15 +2466,28 @@ foreach ($monev_triwulan as $k => $v) {
 			var total_tw_realisasi = jQuery('#total_nilai_realisasi').text();
 			var capaian_realisasi_indikator = jQuery('#capaian_target_realisasi').text();
 			var tipe_indikator = jQuery('#tipe_indikator').val();
+	    var faktor_penghambat = false;
+	    var faktor_pendorong = false;
 			for (var i = 1; i <= 12; i++) {
 				var id_rak = 'nilai_rak_bulan_' + i;
 				var id_realisasi = 'nilai_realisasi_bulan_' + i;
 				var id = 'target_realisasi_bulan_' + i;
-				var id_ket = 'keterangan_bulan_' + i;
+				var id_ket = 'keterangan_bulan_' + i; //faktor penghambat
+				var id_pendorong = 'pendorong_bulan_' + i; //faktor pendorong
 				nilai_rak[id_rak] = +jQuery('#' + id_rak).text().trim();
 				nilai_realisasi[id_realisasi] = +jQuery('#' + id_realisasi).text().trim().replace(/\./g, '');
 				target_realisasi[id] = +jQuery('#' + id).text().trim();
 				keterangan[id_ket] = jQuery('#' + id_ket).text().trim();
+				pendorong[id_pendorong] = jQuery('#' + id_pendorong).text().trim();
+				
+				if (keterangan[id_ket] !== '' && keterangan[id_ket] !== null) {
+            faktor_penghambat = true;
+        }
+
+        if (pendorong[id_pendorong] !== '' && pendorong[id_pendorong] !== null) {
+            faktor_pendorong = true;
+        }
+        
 				if (i <= 3) {
 					total_tw1_realisasi += nilai_realisasi[id_realisasi];
 					if (tipe_indikator == 3 || tipe_indikator == 2 || tipe_indikator == 4) {
@@ -2509,8 +2525,13 @@ foreach ($monev_triwulan as $k => $v) {
 						total_tw4 += target_realisasi[id];
 					}
 				}
-			}
+			}	   	    
 
+	    if (!faktor_pendorong && !faktor_pendorong) {
+        alert('Faktor Penghambat atau Faktor Pendorong wajib diisi minimal 1');
+        return false;
+	    }
+	    
 			var status = false;
 			var id_unik = jQuery('#mod-monev').attr('data-id_unik');
 			var jenisIndikator = jenis_indikator(id_unik);
@@ -2543,6 +2564,7 @@ foreach ($monev_triwulan as $k => $v) {
 							"id_unik": id_unik,
 							"data": target_realisasi,
 							"keterangan": keterangan,
+							"pendorong": pendorong,
 							"rak": nilai_rak,
 							"realisasi": nilai_realisasi,
 							"bobot_kinerja": jQuery('#bobotKinerja').text(),

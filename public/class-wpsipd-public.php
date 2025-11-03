@@ -11917,7 +11917,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($tahun_anggaran < $tahun_sekarang) {
 					$batas_bulan_input = 12;
 				}
-				$keterangan_bulan = array();
+				$keterangan_bulan = array(); //faktor penghambat
+				$pendorong_bulan = array(); //faktor pendorong
 				$keterangan_bulan[1] = $_POST['keterangan']['keterangan_bulan_1'];
 				$keterangan_bulan[2] = $_POST['keterangan']['keterangan_bulan_2'];
 				$keterangan_bulan[3] = $_POST['keterangan']['keterangan_bulan_3'];
@@ -11930,6 +11931,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$keterangan_bulan[10] = $_POST['keterangan']['keterangan_bulan_10'];
 				$keterangan_bulan[11] = $_POST['keterangan']['keterangan_bulan_11'];
 				$keterangan_bulan[12] = $_POST['keterangan']['keterangan_bulan_12'];
+				$pendorong_bulan[1] = $_POST['pendorong']['pendorong_bulan_1'];
+				$pendorong_bulan[2] = $_POST['pendorong']['pendorong_bulan_2'];
+				$pendorong_bulan[3] = $_POST['pendorong']['pendorong_bulan_3'];
+				$pendorong_bulan[4] = $_POST['pendorong']['pendorong_bulan_4'];
+				$pendorong_bulan[5] = $_POST['pendorong']['pendorong_bulan_5'];
+				$pendorong_bulan[6] = $_POST['pendorong']['pendorong_bulan_6'];
+				$pendorong_bulan[7] = $_POST['pendorong']['pendorong_bulan_7'];
+				$pendorong_bulan[8] = $_POST['pendorong']['pendorong_bulan_8'];
+				$pendorong_bulan[9] = $_POST['pendorong']['pendorong_bulan_9'];
+				$pendorong_bulan[10] = $_POST['pendorong']['pendorong_bulan_10'];
+				$pendorong_bulan[11] = $_POST['pendorong']['pendorong_bulan_11'];
+				$pendorong_bulan[12] = $_POST['pendorong']['pendorong_bulan_12'];
 				$realisasi_bulan = array();
 				$realisasi_bulan[1] = $_POST['data']['target_realisasi_bulan_1'];
 				$realisasi_bulan[2] = $_POST['data']['target_realisasi_bulan_2'];
@@ -12003,6 +12016,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'keterangan_bulan_10' 		=> $keterangan_bulan[10],
 					'keterangan_bulan_11' 		=> $keterangan_bulan[11],
 					'keterangan_bulan_12' 		=> $keterangan_bulan[12],
+					'pendorong_bulan_1' 		=> $pendorong_bulan[1],
+					'pendorong_bulan_2' 		=> $pendorong_bulan[2],
+					'pendorong_bulan_3' 		=> $pendorong_bulan[3],
+					'pendorong_bulan_4' 		=> $pendorong_bulan[4],
+					'pendorong_bulan_5' 		=> $pendorong_bulan[5],
+					'pendorong_bulan_6' 		=> $pendorong_bulan[6],
+					'pendorong_bulan_7' 		=> $pendorong_bulan[7],
+					'pendorong_bulan_8' 		=> $pendorong_bulan[8],
+					'pendorong_bulan_9' 		=> $pendorong_bulan[9],
+					'pendorong_bulan_10' 		=> $pendorong_bulan[10],
+					'pendorong_bulan_11' 		=> $pendorong_bulan[11],
+					'pendorong_bulan_12' 		=> $pendorong_bulan[12],
 					'user' 						=> $current_user->display_name,
 					'active' 					=> 1,
 					'update_at' 				=> current_time('mysql'),
@@ -12170,7 +12195,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						keterangan_bulan_9,
 						keterangan_bulan_10,
 						keterangan_bulan_11,
-						keterangan_bulan_12
+						keterangan_bulan_12,
+						pendorong_bulan_1,
+						pendorong_bulan_2,
+						pendorong_bulan_3,
+						pendorong_bulan_4,
+						pendorong_bulan_5,
+						pendorong_bulan_6,
+						pendorong_bulan_7,
+						pendorong_bulan_8,
+						pendorong_bulan_9,
+						pendorong_bulan_10,
+						pendorong_bulan_11,
+						pendorong_bulan_12
 					from data_realisasi_renja
 					where tahun_anggaran=%d
 						and id_indikator=%d
@@ -12297,6 +12334,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<td class="text_kanan nilai_realisasi" ' . $editable_realisasi . ' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_realisasi_bulan_' . $i . '">' . $realisasi_bulanan_format . '</td>
 							<td class="text_kanan nilai_selisih">' . $selisih_format . '</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_' . $i . '" ' . $editable . ' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">' . $realisasi_target_bulanan . '</td>
+							<td class="text_kiri" id="keterangan_bulan_' . $i . '" ' . $editable . '>' . $realisasi_renja[0]['pendorong_bulan_' . $i] . '</td>
 							<td class="text_kiri" id="keterangan_bulan_' . $i . '" ' . $editable . '>' . $realisasi_renja[0]['keterangan_bulan_' . $i] . '</td>
 						</tr>
 					';
@@ -12311,6 +12349,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td class="text_kanan text_blok" id="total_nilai_realisasi">' . number_format($total_realisasi, 0, ",", ".") . '</td>
 						<td class="text_kanan text_blok" id="total_nilai_selisih">' . number_format($total_selisih, 0, ",", ".") . '</td>
 						<td class="text_tengah text_blok" id="total_target_realisasi">0</td>
+						<td class="text_tengah text_blok"></td>
 						<td class="text_tengah text_blok"></td>
 					</tr>
 				';
