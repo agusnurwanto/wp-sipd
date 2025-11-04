@@ -11917,6 +11917,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($tahun_anggaran < $tahun_sekarang) {
 					$batas_bulan_input = 12;
 				}
+
+				$cek_kosong = true;
+				foreach($_POST['keterangan'] as $val){
+					if(!empty($val)){
+						$cek_kosong = false;
+					}
+				}
+				$cek_kosong2 = true;
+				foreach($_POST['pendorong'] as $val2){					
+					if(!empty($val2)){
+						$cek_kosong2 = false;
+					}
+				}
+				if ($cek_kosong == true) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Faktor Penghambat tidak boleh kosong!';
+					die(json_encode($ret));
+				} 
+
+				if ($cek_kosong2 == true) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Faktor Pendorong tidak boleh kosong!';
+					die(json_encode($ret));
+				}
+
 				$keterangan_bulan = array(); //faktor penghambat
 				$pendorong_bulan = array(); //faktor pendorong
 				$keterangan_bulan[1] = $_POST['keterangan']['keterangan_bulan_1'];
