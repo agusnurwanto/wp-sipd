@@ -1107,7 +1107,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				}
 
 				if (get_option('_crb_show_menu_kecurangan_mcp_settings') != true) {
-					Container::make('theme_options', __('Kecurangan MCP'))
+					Container::make('theme_options', __('Risiko Kecurangan'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'kecurangan_mcp')));
 				}
@@ -1739,8 +1739,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Risiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'kecurangan_mcp') {
-						$url_kecurangan_mcp = $this->generatePage('Kecurangan MCP | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Risiko Kecurangan MCP Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_kecurangan_mcp = $this->generatePage('Risiko Kecurangan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_kecurangan_mcp . '">Halaman Risiko Kecurangan Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					}
 
