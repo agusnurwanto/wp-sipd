@@ -155,7 +155,7 @@ if ($id_jadwal != 0) {
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Risiko Kecurangan MCP <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Risiko Kecurangan <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd' style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
                 <button type="button" class="btn btn-primary" onclick="tambah_data()" style="text-align:center; margin: 20px;">
@@ -190,19 +190,18 @@ if ($id_jadwal != 0) {
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
-                            <th colspan="8"></th>
+                            <th colspan="7"></th>
                             <th colspan="3">Nilai Risiko</th>
                             <th rowspan="3">Rencana Tindak Pengendalian (Fraud Risk Response)</th>
                             <th rowspan="3">Target Waktu Pelaksanaan Pengendalian</th>    
                             <th rowspan="3">Pelaksanaan Pengendalian</th>    
-                            <th rowspan="3">Bukti Pelaksanaan</th>    
+                            <th rowspan="3" style="width:200px;">Bukti Pelaksanaan</th>    
                             <th rowspan="3">Kendala</th>    
                             <th rowspan="3">OPD Pemilik Risiko</th>    
                             <th rowspan="3">Keterangan Pengisian</th>   
                             <th rowspan="3">Aksi</th>
                         </tr>
                         <tr>
-                            <th rowspan="2">Sasaran Area MCP</th>
                             <th rowspan="2">Tahapan Proses Bisnis</th>
                             <th>Deskripsi Risiko Kecurangan</th>
                             <th>Pihak Terkait</th>
@@ -236,7 +235,6 @@ if ($id_jadwal != 0) {
                             <th>(17)</th>
                             <th>(18)</th>
                             <th>(19)</th>
-                            <th>(20)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -256,14 +254,10 @@ if ($id_jadwal != 0) {
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-             <div class="modal-body">
+             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <form id="form_resiko_kecurangan">
                     <input type="hidden" id="id_tahapan" name="id_tahapan">
                     <input type="hidden" id="id" name="id">
-                    <div class="form-group">
-                        <label for="nama_sasaran_area">Nama Sasaran Area MCP</label>
-                        <input type="text" class="form-control" id="nama_sasaran_area" name="nama_sasaran_area" disabled required>
-                    </div>
                     <div class="form-group">
                         <label for="tahapan">Tahapan Proses Bisnis</label>
                         <select id="tahapan" class="form-control">
@@ -331,7 +325,17 @@ if ($id_jadwal != 0) {
                     </div>                        
                     <div class="form-group">
                         <label for="bukti_pelaksanaan">Bukti Pelaksanaan</label>
-                        <input type="text" class="form-control" id="bukti_pelaksanaan" name="bukti_pelaksanaan" required>
+                        <?php
+                        $content = '';
+                        $editor_id = 'bukti_pelaksanaan';
+                        $settings = array(
+                            'textarea_name' => 'bukti_pelaksanaan',
+                            'media_buttons' => true,
+                            'teeny' => false,
+                            'quicktags' => true
+                        );
+                        wp_editor($content, $editor_id, $settings);
+                        ?>
                     </div>                      
                     <div class="form-group">
                         <label for="kendala">Kendala</label>
@@ -421,7 +425,7 @@ if ($id_jadwal != 0) {
         let tindak_pengendalian  = jQuery('#tindak_pengendalian').val();
         let target_waktu  = jQuery('#target_waktu').val();
         let pelaksanaan_pengendalian  = jQuery('#pelaksanaan_pengendalian').val();
-        let bukti_pelaksanaan  = jQuery('#bukti_pelaksanaan').val();
+        let bukti_pelaksanaan = tinymce.get('bukti_pelaksanaan') ? tinymce.get('bukti_pelaksanaan').getContent() : jQuery('#bukti_pelaksanaan').val();
         let kendala  = jQuery('#kendala').val();
         let opd_pemilik_resiko  = jQuery('#opd_pemilik_resiko').val();
         let keterangan_pengisian  = jQuery('#keterangan_pengisian').val();
@@ -574,7 +578,7 @@ if ($id_jadwal != 0) {
                     jQuery('#tindak_pengendalian').val(response.data.tindak_pengendalian);
                     jQuery('#target_waktu').val(response.data.target_waktu);
                     jQuery('#pelaksanaan_pengendalian').val(response.data.pelaksanaan_pengendalian);
-                    jQuery('#bukti_pelaksanaan').val(response.data.bukti_pelaksanaan);
+                    tinymce.get('bukti_pelaksanaan').setContent(response.data.bukti_pelaksanaan);
                     jQuery('#kendala').val(response.data.kendala);
                     jQuery('#opd_pemilik_resiko').val(response.data.opd_pemilik_resiko);
                     jQuery('#keterangan_pengisian').val(response.data.keterangan_pengisian);

@@ -17156,9 +17156,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				if (!empty($get_data)) {
 					$kelompok = array();
 
-					// Kelompokkan data berdasarkan sasaran+tahapan
+					// Kelompokkan data berdasarkan tahapan
 					foreach ($get_data as $row) {
-						$key = $row['sasaran'] . '|' . $row['tahapan'];
+						$key = $row['tahapan'] ;
 						if (!isset($kelompok[$key])) {
 							$kelompok[$key] = array();
 						}
@@ -17176,10 +17176,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							if ($first) {
 								$html .= '
 									<td rowspan="' . $rowspan . '" class="text-center">' . $counter . '</td>
-									<td rowspan="' . $rowspan . '" style="width:300px !important; min-width:170px !important;"> 
-												<b>Sasaran MCP : </b>
-												<br><b>' . $row['sasaran'] . '</b>
-									</td>
 									<td rowspan="' . $rowspan . '"  style="min-width:140px !important;"><b>' . $row['tahapan'] . '</b></td>';
 								$first = false;
 							}
@@ -17262,6 +17258,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$tahun_anggaran = intval($_POST['tahun_anggaran']);
 				$id_skpd = intval($_POST['id_skpd']);
+				$bukti_pelaksanaan = isset($_POST['bukti_pelaksanaan']) ? stripslashes($_POST['bukti_pelaksanaan']) : '';
 
 				$data = array(
 					'id_skpd' => $id_skpd,
@@ -17277,7 +17274,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					'tindak_pengendalian' => $_POST['tindak_pengendalian'],
 					'target_waktu' => $_POST['target_waktu'],
 					'pelaksanaan_pengendalian' => $_POST['pelaksanaan_pengendalian'],
-					'bukti_pelaksanaan' => $_POST['bukti_pelaksanaan'],
+					'bukti_pelaksanaan' => $bukti_pelaksanaan,
 					'kendala' => $_POST['kendala'],
 					'opd_pemilik_resiko' => $_POST['opd_pemilik_resiko'],
 					'keterangan_pengisian' => $_POST['keterangan_pengisian'],
