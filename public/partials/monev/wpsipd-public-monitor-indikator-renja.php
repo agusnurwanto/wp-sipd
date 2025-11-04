@@ -2526,16 +2526,22 @@ foreach ($monev_triwulan as $k => $v) {
 					}
 				}
 			}
-			
+
+	    if (!faktor_pendorong && !faktor_penghambat) {
+        alert('Faktor Pendorong dan Faktor Penghambat wajib diisi minimal 1');
+        return false;
+	    }
+
 	    if (!faktor_pendorong) {
-        alert('Faktor Pendorong wajib diisi');
+        alert('Faktor Pendorong wajib diisi minimal 1');
+        return false;
+	    } 
+
+	    if (!faktor_penghambat) {
+        alert('Faktor Penghambat wajib diisi minimal 1');
         return false;
 	    }
 	    
-	    if (!faktor_penghambat) {
-        alert('Faktor Penghambat wajib diisi');
-        return false;
-	    }
 	    
 
 			var status = false;
