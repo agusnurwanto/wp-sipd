@@ -2528,21 +2528,19 @@ foreach ($monev_triwulan as $k => $v) {
 			}
 
 	    if (!faktor_pendorong && !faktor_penghambat) {
-        alert('Faktor Pendorong dan Faktor Penghambat wajib diisi minimal 1');
+        alert('Faktor Pendorong dan Faktor Penghambat wajib diisi salah satu');
         return false;
 	    }
 
 	    if (!faktor_pendorong) {
-        alert('Faktor Pendorong wajib diisi minimal 1');
+        alert('Faktor Pendorong wajib diisi salah satu');
         return false;
 	    } 
 
 	    if (!faktor_penghambat) {
-        alert('Faktor Penghambat wajib diisi minimal 1');
+        alert('Faktor Penghambat wajib diisi salah satu');
         return false;
-	    }
-	    
-	    
+	    }	    	    
 
 			var status = false;
 			var id_unik = jQuery('#mod-monev').attr('data-id_unik');
