@@ -70,9 +70,9 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Manajemen Resiko Kecurangan MCP Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Manajemen Risiko Kecurangan Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Resiko Kecurangan MCP SKPD" class="table table-bordered table_dokumen_skpd">
+                <table id="cetak" title="Manajemen Risiko Kecurangan SKPD" class="table table-bordered table_dokumen_skpd">
                     <thead style="background: #ffc491;">
                         <tr>
                             <th class="text-center">No</th>

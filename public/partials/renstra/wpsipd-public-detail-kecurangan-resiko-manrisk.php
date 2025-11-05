@@ -249,7 +249,7 @@ if ($id_jadwal != 0) {
     <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="TambahResikoKecuranganModalLabel">Tambah Risiko Kecurangan MCP</h5>
+                <h5 class="modal-title" id="TambahResikoKecuranganModalLabel">Tambah Risiko Kecurangan </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -286,9 +286,9 @@ if ($id_jadwal != 0) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="pemilik_resiko">Pilih Pemilik Resiko</label>
+                        <label for="pemilik_resiko">Pilih Pemilik Risiko</label>
                         <select id="pemilik_resiko" class="form-control">
-                            <option value="" selected>Pilih Pemilik Resiko</option>
+                            <option value="" selected>Pilih Pemilik Risiko</option>
                             <option value="Kepala Daerah">Kepala Daerah</option>
                             <option value="Kepala OPD">Kepala OPD</option>
                             <option value="Kepala Bidang">Kepala Bidang</option>
@@ -403,7 +403,7 @@ if ($id_jadwal != 0) {
     }
 
     function tambah_data() {
-        jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan MCP');
+        jQuery('#TambahResikoKecuranganModalLabel').text('Tambah Risiko Kecurangan');
         jQuery('#form_resiko_kecurangan').trigger('reset');
         jQuery('#id').val('');
         jQuery('#id_tahapan').val();
