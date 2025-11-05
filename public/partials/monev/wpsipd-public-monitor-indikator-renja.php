@@ -712,14 +712,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						}
 						if ($rumus_indikator == 1) {
 							$class_rumus_target[$k_sub] = "positif";
-							if (!empty($target_indikator[$k_sub])) {
-								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+							if (!empty($target_indikator)) {
+								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 							}
 						} else if ($rumus_indikator == 2) {
 							$class_rumus_target[$k_sub] = "negatif";
 							$total_tw[$k_sub] = $max;
 							if (!empty($total_tw[$k_sub])) {
-								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator[$k_sub] / $total_tw[$k_sub]) * 100);
+								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator / $total_tw[$k_sub]) * 100);
 							}
 						} else if ($rumus_indikator == 3 || $rumus_indikator == 4) {
 							if ($rumus_indikator == 3) {
@@ -728,12 +728,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 								$class_rumus_target[$k_sub] = "nilai_akhir";
 							}
 							$total_tw[$k_sub] = $max;
-							if (!empty($target_indikator[$k_sub])) {
-								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+							if (!empty($target_indikator)) {
+								$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 							}
 						}
 					}
-
 					$capaian_prog_js[] = $v_sub['capaianteks'];
 					$realisasi_indikator_tw1_js[$k_sub] = $realisasi_indikator_tw1[$k_sub];
 					$realisasi_indikator_tw2_js[$k_sub] = $realisasi_indikator_tw2[$k_sub];
@@ -933,14 +932,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							}
 							if ($rumus_indikator == 1) {
 								$class_rumus_target[$k_sub] = "positif";
-								if (!empty($target_indikator[$k_sub])) {
-									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+								if (!empty($target_indikator)) {
+									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 								}
 							} else if ($rumus_indikator == 2) {
 								$class_rumus_target[$k_sub] = "negatif";
 								$total_tw[$k_sub] = $max;
 								if (!empty($total_tw[$k_sub])) {
-									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator[$k_sub] / $total_tw[$k_sub]) * 100);
+									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($target_indikator / $total_tw[$k_sub]) * 100);
 								}
 							} else if ($rumus_indikator == 3 || $rumus_indikator == 4) {
 								if ($rumus_indikator == 3) {
@@ -949,8 +948,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									$class_rumus_target[$k_sub] = "nilai_akhir";
 								}
 								$total_tw[$k_sub] = $max;
-								if (!empty($target_indikator[$k_sub])) {
-									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator[$k_sub]) * 100);
+								if (!empty($target_indikator)) {
+									$capaian_realisasi_indikator[$k_sub] = $this->pembulatan(($total_tw[$k_sub] / $target_indikator) * 100);
 								}
 							}
 						}
@@ -1344,8 +1343,14 @@ if (
 		background: #ff00002e;
 		max-width: 300px;
 	}
+
 	td.target_realisasi[contenteditable="true"] {
 		max-width: 150px;
+	}
+
+	th#bobotKinerja[contenteditable="true"] {
+		background: #ff00002e;
+		max-width: 600px;
 	}
 
 	.negatif {
@@ -1948,7 +1953,7 @@ foreach ($monev_triwulan as $k => $v) {
 				<th class="text_tengah" style="width: 200px;">Lampiran Excel</th>
 				<th class="text_tengah" style="width: 150px;">Tanggal Update File</th>
 				<th class="text_tengah" style="width: 250px;">Keterangan SKPD</th>
-				<th class="text_tengah">Catatan Verifikator</th>
+				<th class="text_tengah">Catatan Verifikator / Rekomendasi</th>
 				<th class="text_tengah" style="width: 150px;">Tanggal Update Catatan</th>
 				<th class="text_tengah" style="width: 100px;">Aksi</th>
 			</tr>
@@ -2132,7 +2137,7 @@ foreach ($monev_triwulan as $k => $v) {
 												</tr>
 												<tr>
 													<th class="text_kiri text_blok" colspan="3">Bobot Kinerja<br><small class="text-muted">( Default 1 )</small></th>
-													<th class="text_tengah text_blok" colspan="4" id="bobotKinerja" <?php echo $edit_bobot_kinerja; ?>>0</th>
+													<th class="text_tengah text_blok" colspan="4" id="bobotKinerja" <?php echo $edit_bobot_kinerja; ?> onkeypress="onlyNumber(event);"></th>
 												</tr>
 											</tfoot>
 										</table>
