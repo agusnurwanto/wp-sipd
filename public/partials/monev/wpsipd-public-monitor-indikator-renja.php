@@ -1342,6 +1342,10 @@ if (
 
 	td[contenteditable="true"] {
 		background: #ff00002e;
+		max-width: 300px;
+	}
+	td.target_realisasi[contenteditable="true"] {
+		max-width: 150px;
 	}
 
 	.negatif {
@@ -2021,7 +2025,7 @@ foreach ($monev_triwulan as $k => $v) {
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-	<div class="modal-dialog" style="min-width: 1500px;" role="document">
+	<div class="modal-dialog" style="min-width: 80%;" role="document">
 		<div class="modal-content">
 			<div class="modal-header bgpanel-theme">
 				<h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
