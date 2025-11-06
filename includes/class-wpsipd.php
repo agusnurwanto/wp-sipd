@@ -609,6 +609,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
 		$this->loader->add_action('wp_ajax_get_link_button_by_jadwal',  $plugin_public, 'get_link_button_by_jadwal');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
+		
+		$this->loader->add_action('wp_ajax_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
@@ -1039,6 +1042,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_monitor_monev_iku',  $plugin_public, 'monitor_monev_iku');
 		$this->loader->add_action('wp_ajax_nopriv_monitor_monev_iku',  $plugin_public, 'monitor_monev_iku');
 		
+		$this->loader->add_action('wp_ajax_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
+		
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
@@ -1262,6 +1268,7 @@ class Wpsipd
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));
 		add_shortcode('monitor_daftar_label_komponen', array($plugin_public, 'monitor_daftar_label_komponen'));
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
+		add_shortcode('pk_publik_page', array($plugin_public, 'pk_publik_page'));
 		add_shortcode('monitor_monev_renstra_pemda', array($plugin_public, 'monitor_monev_renstra_pemda'));
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 		add_shortcode('monitor_monev_rpd', array($plugin_public, 'monitor_monev_rpd'));
