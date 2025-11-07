@@ -404,7 +404,7 @@ if(!empty($data_program_renja)){
     }
 </style>
 <div class="container-md">
-    <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
+    <div class="cetak" style="padding: 5px; overflow: auto;">
         <div style="margin:0 0 3rem 0;">
             <h1 class="text-center table-title">
                 Konteks Risiko <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
