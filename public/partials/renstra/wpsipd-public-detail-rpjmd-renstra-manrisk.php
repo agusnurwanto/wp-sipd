@@ -131,7 +131,7 @@ if (!empty($id_jadwal)) {
     }
 </style>
 <div class="container-md">
-    <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
+    <div class="cetak" style="padding: 5px; overflow: auto;">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title">

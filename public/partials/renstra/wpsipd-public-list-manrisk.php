@@ -43,7 +43,7 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
         [
             'title' => 'Halaman Detail Manrisk RPJMD | ' . $input['tahun_anggaran'],
             'shortcode' => '[detail_rpjmd_renstra_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
-            'label' => 'RPJMD'
+            'label' => 'RPJMD/RPD RENSTRA'
         ],
         [
             'title' => 'Halaman Detail Manrisk Tujuan Sasaran | ' . $input['tahun_anggaran'],
