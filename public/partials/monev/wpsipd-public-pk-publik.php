@@ -1583,7 +1583,7 @@ if (
 				<th class='atas kanan bawah text_tengah text_blok'>12</th>
 				<th class='atas kanan bawah text_tengah text_blok'>13 = 5+7+9+11</th>
 				<th class='atas kanan bawah text_tengah text_blok'>14 = (13/3)*100</th>
-				<th class='atas kanan bawah text_tengah text_blok'>15 = </th>
+				<th class='atas kanan bawah text_tengah text_blok'>15</th>
 				<th class='atas kanan bawah text_tengah text_blok'>16</th>
 				<th class='atas kanan bawah text_tengah text_blok'>17</th>
 				<th class='atas kanan bawah text_tengah text_blok'>18</th>
