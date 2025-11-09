@@ -751,11 +751,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 					$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 					$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
-					if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
-						$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-0', 0) . '</span>';
-					} else {
-						$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], 0) . '</span>';
-					}
+					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], 0) . '</span>';
+				}
+				if (
+					!empty($v_sub['indikator_lokal']) 
+					&& $v_sub['indikator_lokal'] == 1
+					&& !empty($capaian_prog)
+				) {
+					$capaian_prog[count($capaian_prog)-1] .= button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-0', 0);
 				}
 			} else{
 				$capaian_prog[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-0', 0) . '</span>';
@@ -1934,7 +1937,6 @@ if (
 	$keterangan_skpd_triwulan = '';
 	$keterangan_verifikator_triwulan = 'contenteditable="true"';
 	$aksi_user = 'verifikator';
-	$simpan_indikator = '';
 }
 $monev_triwulan = $wpdb->get_results(
 	"
