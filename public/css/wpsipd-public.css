@@ -189,7 +189,8 @@ tfoot {
 .edit-mapping,
 .edit-monev,
 .edit-monev-file,
-.delete-monev {
+.delete-monev,
+.tambah-monev {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -236,6 +237,21 @@ tfoot {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+
+/* Tambah Button */
+.tambah-monev{
+background-color: #00FFFF;
+color: #333;
+border-color: #00BFFF;
+}
+
+.tambah-monev:hover {
+background-color: #00FFFF;
+color: #fff;
+border-color: #00BFFF;
+transform: translateY(-2px);
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 .list-mapping {
     margin-left: 5px;
     display: inline;

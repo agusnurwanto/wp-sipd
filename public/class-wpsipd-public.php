@@ -30010,4 +30010,84 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		return $data;
 	}
+
+	function save_indikator_monev_renja()
+	{
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil simpan data INDIKATOR MONEV!';
+		$ret['data'] = array();
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$current_user = wp_get_current_user();
+				$ids = explode('-', $_POST['id_unik']);
+				$tahun_anggaran = $ids[0];
+				$id_skpd = $ids[1];
+				$kode = $ids[2];
+				$kode_sbl = $ids[3];
+				$id_indikator = $_POST['id_indikator'];
+				$count_kode_sbl = count(explode('.', $ids[2]));
+				$indikator_teks_value = $_POST['indikator_text'];
+				$target_output_value = $_POST['target_indikator_text'];
+				$satuan_output_value = $_POST['satuan_indikator_text'];
+				// sub kegiatan
+				if ($count_kode_sbl == 6) {
+					$table = "data_sub_keg_indikator"; //table indikator
+					$indikator_teks = "outputteks";
+					$target_output = "targetoutput";
+					$target_output_teks = "targetoutputteks";
+					$satuan_output = "satuanoutput";
+					// kegiatan
+				} else if ($count_kode_sbl == 5) {
+					$table = "data_output_giat_sub_keg"; //table indikator
+					$indikator_teks = "outputteks";
+					$target_output = "targetoutput";
+					$target_output_teks = "targetoutputteks";
+					$satuan_output = "satuanoutput";
+					// program
+				} else if ($count_kode_sbl == 3) {
+					$table = "data_capaian_prog_sub_keg"; //table indikator
+					$indikator_teks = "capaianteks";
+					$target_output = "targetcapaian";
+					$target_output_teks = "targetcapaianteks";
+					$satuan_output = "satuancapaian";
+				}
+            	$target_output_teks_value = $target_output_value . ' ' . $satuan_output_value;
+				$sql = $wpdb->prepare("
+					SELECT 
+						id
+					FROM " . $table . "
+					WHERE tahun_anggaran = %d
+					  AND id = %d
+					  AND active = 1
+				", $tahun_anggaran, $id_indikator);
+				$cek_id = $wpdb->get_var($sql);
+				$opsi = array(
+					$indikator_teks			=> $indikator_teks_value,
+					$target_output			=> $target_output_value,
+					$satuan_output			=> $satuan_output_value,
+					$target_output_teks		=> $target_output_teks_value
+				);
+				if (!empty($cek_id)) {
+					$wpdb->update($table, $opsi, array(
+						'id' => $id_indikator
+					));
+				} else {
+					$opsi['indikator_lokal'] = 1;
+					$opsi['kode_sbl'] = $kode_sbl;
+					$opsi['tahun_anggaran'] = $tahun_anggaran;
+					$opsi['active'] = 1;
+					$wpdb->insert($table, $opsi);
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

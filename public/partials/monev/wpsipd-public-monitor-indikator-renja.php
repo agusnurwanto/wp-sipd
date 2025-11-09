@@ -63,9 +63,14 @@ if ($input['tahun_anggaran'] < $tahun_sekarang) {
 	$batas_bulan_input = 12;
 }
 $api_key = get_option('_crb_api_key_extension');
-function button_edit_monev($class = false, $bobot_kinerja = false)
+function button_edit_monev($class = false, $bobot_kinerja = false, $indikator_lokal = 0, $id_indikator = 0)
 {
-	$ret = ' <span style="display: none;" data-id="' . $class . '" class="edit-monev" title="Edit Monev"><i class="dashicons dashicons-edit"></i></span>';
+	$ret = ' <span style="display: none;" data-id="' . $class . '" data-indikator-lokal="' . $indikator_lokal . '" id-indikator="' . $id_indikator . '" class="edit-monev" title="Edit Monev"><i class="dashicons dashicons-edit"></i></span>';
+	return $ret;
+}
+function button_tambah_monev($class = false)
+{
+	$ret = ' <span style="display: none;" data-id="' . $class . '" class="tambah-monev" title="Tambah Indikator"><i class="dashicons dashicons-plus"></i></span>';
 	return $ret;
 }
 function valid_number($no)
@@ -746,8 +751,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 					$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 					$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
-					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja']) . '</span>';
+					if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
+						$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-0', 0) . '</span>';
+					} else {
+						$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], 0) . '</span>';
+					}
 				}
+			} else{
+				$capaian_prog[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-0', 0) . '</span>';
 			}
 
 			$data_all_js[] = array(
@@ -960,8 +971,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 						$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 						$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
-						$output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub) . '</span>';
+						if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
+						  $output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-0', 0) . '</span>';
+						} else {
+						  $output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub) . '</span>';
+						}
 					}
+				} else{
+					$output_giat[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-0', 0) . '</span>';
 				}
 				$output_giat = implode('<br>', $output_giat);
 				$target_output_giat = implode('<br>', $target_output_giat);
@@ -1150,14 +1167,20 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 									}
 								}
 							}
-							$output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl']) . '</span>';
 							$realisasi_indikator_tw1[$k_sub] = '<span class="realisasi_indikator_tw1-' . $v_sub['idoutputbl'] . '">' . $realisasi_indikator_tw1[$k_sub] . '</span>';
 							$realisasi_indikator_tw2[$k_sub] = '<span class="realisasi_indikator_tw2-' . $v_sub['idoutputbl'] . '">' . $realisasi_indikator_tw2[$k_sub] . '</span>';
 							$realisasi_indikator_tw3[$k_sub] = '<span class="realisasi_indikator_tw3-' . $v_sub['idoutputbl'] . '">' . $realisasi_indikator_tw3[$k_sub] . '</span>';
 							$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $v_sub['idoutputbl'] . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 							$total_tw[$k_sub] = '<span class="total_tw-' . $v_sub['idoutputbl'] . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 							$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $v_sub['idoutputbl'] . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $capaian_realisasi_indikator[$k_sub] . '</span>';
+							if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
+							  $output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl'], $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['kode_sbl'] . '-0', 0) . '</span>';
+							} else {
+							  $output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl']) . '</span>';
+							}
 						}
+					} else{
+						$output_sub_giat[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['kode_sbl'] . '-0', 0) . '</span>';
 					}
 					$output_sub_giat = implode('<br>', $output_sub_giat);
 					$target_output_sub_giat = implode('<br>', $target_output_sub_giat);
@@ -1899,6 +1922,7 @@ $keterangan_verifikator_triwulan = '';
 $aksi_user = 'skpd';
 $upload_monev = '<input type="file" class="upload_monev" style="font-size:12px; width: 100%; overflow: hidden;">';
 $edit_monev = '<button type="button" class="btn btn-success" id="set-monev">Simpan</button>';
+$simpan_indikator = '<button type="button" class="btn btn-success" id="set-indikator">Simpan</button>';
 if (
 	current_user_can('administrator')
 	|| in_array("mitra_bappeda", $current_user->roles)
@@ -1910,6 +1934,7 @@ if (
 	$keterangan_skpd_triwulan = '';
 	$keterangan_verifikator_triwulan = 'contenteditable="true"';
 	$aksi_user = 'verifikator';
+	$simpan_indikator = '';
 }
 $monev_triwulan = $wpdb->get_results(
 	"
@@ -2034,10 +2059,12 @@ foreach ($monev_triwulan as $k => $v) {
 		<div class="modal-content">
 			<div class="modal-header bgpanel-theme">
 				<h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
+				<h4 style="margin: 0;" class="modal-title-tambah" id="">Tambah Monev Indikator</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
 			</div>
 			<div class="modal-body">
 				<form>
+        	<input type="hidden" id="id_indikator">
 					<div class="form-group">
 						<table class="table table-bordered">
 							<tbody>
@@ -2077,10 +2104,13 @@ foreach ($monev_triwulan as $k => $v) {
 											<tbody id="monev-indikator">
 											</tbody>
 										</table>
+										<div style="margin-top: 10px; text-align: right;">
+											<?php echo $simpan_indikator; ?>
+										</div>
 									</td>
 								</tr>
 								<tr>
-									<td colspan="2">
+									<td colspan="2" class="display-rumus-pagu">
 										<table>
 											<thead>
 												<tr>
@@ -2105,7 +2135,7 @@ foreach ($monev_triwulan as $k => $v) {
 									</td>
 								</tr>
 								<tr>
-									<td colspan="2">
+									<td colspan="2" class="display-realisasi">
 										<table>
 											<thead>
 												<tr>
@@ -2160,8 +2190,10 @@ foreach ($monev_triwulan as $k => $v) {
 	function edit_monev_indikator(that) {
 		if (jQuery(that).is(':checked')) {
 			jQuery('.edit-monev').show();
+			jQuery('.tambah-monev').show();
 		} else {
 			jQuery('.edit-monev').hide();
+			jQuery('.tambah-monev').hide();
 		}
 	}
 
@@ -2371,6 +2403,9 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('.edit-monev').on('click', function() {
 			jQuery('#wrap-loading').show();
 			var id_unik = jQuery(this).attr('data-id');
+			var indikator_lokal = jQuery(this).attr('data-indikator-lokal');
+			var id_indikator_lokal = jQuery(this).attr('id-indikator');
+			jQuery('#id_indikator').val(id_indikator_lokal);
 
 			var tr = jQuery(this).closest('tr');
 			var nama = tr.find('td.nama').prev().text() + ' ' + tr.find('td.nama').text();
@@ -2389,11 +2424,14 @@ foreach ($monev_triwulan as $k => $v) {
 			}
 			var pagu_renja = tr.find('td.pagu_renja').attr('data-pagu');
 			var pagu_renja_text = tr.find('td.pagu_renja').text();
+
+			var isEditable = (indikator_lokal == 1) ? 'true' : 'false';
+	
 			var indikator = '' +
 				'<tr>' +
-				'<td>' + indikator_text + '</td>' +
-				'<td class="text_tengah" id="target_indikator_monev">' + target_indikator_text + '</td>' +
-				'<td class="text_tengah">' + satuan_indikator_text + '</td>' +
+				'<td contenteditable="' + isEditable + '">' + indikator_text + '</td>' +
+				'<td class="text_tengah" id="target_indikator_monev" contenteditable="' + isEditable + '">' + target_indikator_text + '</td>' +
+				'<td class="text_tengah" contenteditable="' + isEditable + '">' + satuan_indikator_text + '</td>' +
 				'</tr>';
 			jQuery('#target_indikator_monev_rumus').text(target_indikator_text + ' ' + satuan_indikator_text);
 			jQuery.ajax({
@@ -2408,7 +2446,25 @@ foreach ($monev_triwulan as $k => $v) {
 				dataType: "json",
 				success: function(res) {
 					jQuery('#monev-nama').text(nama);
+					jQuery('#monev-nama').text(nama);
 					jQuery('#monev-indikator').html(indikator);
+
+					jQuery('#monev-pagu').show();
+					jQuery('#monev-body').show();
+					jQuery('.display-rumus-pagu').show();
+					jQuery('.display-realisasi').show();
+					jQuery('#bobotKinerja').show();
+					jQuery('#monev-body-renstra').show();
+					jQuery(".display-indikator-renstra").show();
+					jQuery(".modal-footer").show();
+					jQuery('#set-monev').show();
+					jQuery('.modal-title').show();
+					jQuery('.modal-title-tambah').hide();
+					if (indikator_lokal == 1) {
+              jQuery('#set-indikator').show();
+          } else {
+              jQuery('#set-indikator').hide();
+          }
 					jQuery('#monev-pagu').attr('data-pagu', pagu_renja).text(pagu_renja_text);
 					jQuery('#monev-body').html(res.table);
 					jQuery('#mod-monev').attr('data-id_unik', id_unik);
@@ -2452,6 +2508,66 @@ foreach ($monev_triwulan as $k => $v) {
 					} else {
 						jQuery(".display-indikator-renstra").hide();
 					}
+					jQuery('#mod-monev').modal('show');
+					jQuery('#wrap-loading').hide();
+				}
+			});
+		});
+		jQuery('.tambah-monev').on('click', function() {
+			jQuery('#wrap-loading').show();
+			var id_unik = jQuery(this).attr('data-id');
+
+			var tr = jQuery(this).closest('tr');
+			var nama = tr.find('td.nama').prev().text() + ' ' + tr.find('td.nama').text();
+			var id_indikator = id_unik.split('-').pop();
+			var indikator_text = tr.find('td.indikator span[data-id="' + id_indikator + '"]').text();
+			if (indikator_text == '') {
+				indikator_text = tr.find('td.indikator').text();
+			}
+			var target_indikator_text = tr.find('td.target_indikator span[data-id="' + id_indikator + '"]').text();
+			if (target_indikator_text == '') {
+				target_indikator_text = tr.find('td.target_indikator').text();
+			}
+			var satuan_indikator_text = tr.find('td.satuan_indikator span[data-id="' + id_indikator + '"]').text();
+			if (satuan_indikator_text == '') {
+				satuan_indikator_text = tr.find('td.satuan_indikator').text();
+			}
+			var indikator_text = '';
+			var target_indikator_text = '';
+			var satuan_indikator_text = '';
+			var indikator = '' +
+				'<tr>' +
+				'<td contenteditable="true">' + indikator_text + '</td>' +
+				'<td class="text_tengah" id="target_indikator_monev" contenteditable="true">' + target_indikator_text + '</td>' +
+				'<td class="text_tengah" contenteditable="true">' + satuan_indikator_text + '</td>' +
+				'</tr>';
+			jQuery('#target_indikator_monev_rumus').text(target_indikator_text + ' ' + satuan_indikator_text);
+			jQuery.ajax({
+				url: ajax.url,
+				type: "post",
+				data: {
+					"action": "get_monev",
+					"api_key": "<?php echo $api_key; ?>",
+					"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+					"id_unik": id_unik
+				},
+				dataType: "json",
+				success: function(res) {
+					jQuery('#monev-nama').text(nama);
+					jQuery('#monev-indikator').html(indikator);
+					jQuery('#monev-pagu').hide();
+					jQuery('#monev-body').hide();
+					jQuery('.display-rumus-pagu').hide();
+					jQuery('.display-realisasi').hide();
+					jQuery('#bobotKinerja').hide();
+					jQuery('#monev-body-renstra').hide();
+					jQuery(".display-indikator-renstra").hide();
+					jQuery(".modal-footer").hide();
+					jQuery('#set-monev').hide();
+					jQuery('.modal-title').hide();
+					jQuery('.modal-title-tambah').show();
+					jQuery('#set-monev').hide();
+					jQuery('#mod-monev').attr('data-id_unik', id_unik);
 					jQuery('#mod-monev').modal('show');
 					jQuery('#wrap-loading').hide();
 				}
@@ -2650,6 +2766,38 @@ foreach ($monev_triwulan as $k => $v) {
 				}
 			}
 		});
+		jQuery('#set-indikator').on('click', function() {
+	    var id_unik = jQuery('#mod-monev').attr('data-id_unik');
+			var indikator_text = jQuery('#monev-indikator tr td:eq(0)').text().trim();
+			var target_indikator_text = jQuery('#monev-indikator tr td:eq(1)').text().trim();
+			var satuan_indikator_text = jQuery('#monev-indikator tr td:eq(2)').text().trim();
+			var id_indikator_lokal = jQuery('#id_indikator').val();
+      if (confirm('Apakah anda yakin untuk menyimpan data ini!')) {
+        jQuery('#wrap-loading').show();
+        
+        jQuery.ajax({
+          url: ajax.url,
+          type: "post",
+          data: {
+              "action": "save_indikator_monev_renja",
+              "api_key": "<?php echo $api_key; ?>",
+              "tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+              "id_unik": id_unik,
+              "indikator_text": indikator_text,
+              "id_indikator": id_indikator_lokal,
+              "target_indikator_text": target_indikator_text,
+              "satuan_indikator_text": satuan_indikator_text
+          },
+          dataType: "json",
+          success: function(res) {
+              var tr = jQuery('.tambah-monev[data-id="' + id_unik + '"]').closest('tr');
+              var ids = id_unik.split('-');
+              jQuery('#mod-monev').modal('hide');
+              location.reload();
+          }
+        });
+      }
+		});
 		jQuery('.simpan_monev_triwulan').on('click', function() {
 			if (confirm('Apakah anda yakin untuk menyimpan data ini?')) {
 				jQuery('#wrap-loading').show();
@@ -2734,4 +2882,5 @@ foreach ($monev_triwulan as $k => $v) {
 			}
 		});
 	});
+
 </script>

@@ -1229,6 +1229,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_tabel_pokin_cascading',  $plugin_public, 'get_tabel_pokin_cascading');
 
 		$this->loader->add_action('wp_ajax_get_program_manrisk_anggaran',  $plugin_public, 'get_program_manrisk_anggaran');
+		
+		$this->loader->add_action('wp_ajax_save_indikator_monev_renja',  $plugin_public, 'save_indikator_monev_renja');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
