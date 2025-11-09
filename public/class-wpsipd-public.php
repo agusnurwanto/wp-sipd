@@ -9644,28 +9644,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_page_sd = 'Sumber Dana ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
 						$url_sd = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_sd . '" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_sd, '&1=1') . '" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[3])) {
 						$nama_page_label = 'Label Komponen ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
 						$url_label = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_label . '" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_label, '&1=1') . '" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[4])) {
 						$nama_page_monev_renja = 'MONEV ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
 						$url_monev_renja = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_monev_renja . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_monev_renja, '&1=1') . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[7])) {
 						$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 						$url_menu_ssh = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_menu_ssh . '" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_menu_ssh, '&1=1') . '" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if ($vv['is_skpd'] == 1) {
@@ -9681,7 +9681,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_page = 'Input RENJA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
 						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 						$url_menu = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $url_menu . '" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_menu, '&1=1') . '" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[10])) {
@@ -9689,32 +9689,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$tampil_pilkades = get_option("_bkk_pilkades_" . $tahun);
 
 							$url_skpd = $this->generatePage($vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun, $tahun, '[monitor_keu_pemdes tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]');
-							echo '<li style="display: block;"><a target="_blank" href="' . $url_skpd . '" class="btn btn-info">Keuangan PEMDES</a>';
+							echo '<li style="display: block;"><a target="_blank" href="' . $this->add_param_get($url_skpd, '&1=1') . '" class="btn btn-info">Keuangan PEMDES</a>';
 
 							$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
-							echo '<li><a target="_blank" href="' . $input_pencairan_bkk . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKK Infrastruktur</a></li>';
+							echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bkk, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKK Infrastruktur</a></li>';
 
 							if (!empty($tampil_pilkades)) {
 								$input_pencairan_bkk_pilkades = $this->generatePage('Halaman Input Pencairan BKK Pilkades', false, '[input_pencairan_bkk_pilkades]');
-								echo '<li><a target="_blank" href="' . $input_pencairan_bkk_pilkades . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKK Pilkades</a></li>';
+								echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bkk_pilkades, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKK Pilkades</a></li>';
 							}
 
 							$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
-							echo '<li><a target="_blank" href="' . $input_pencairan_bhpd . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BHPD</a></li>';
+							echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bhpd, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BHPD</a></li>';
 
 							$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
-							echo '<li><a target="_blank" href="' . $input_pencairan_bhrd . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BHRD</a></li>';
+							echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bhrd, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BHRD</a></li>';
 
 							$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
-							echo '<li><a target="_blank" href="' . $input_pencairan_bku_dd . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKU DD</a></li>';
+							echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bku_dd, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKU DD</a></li>';
 
 							$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
-							echo '<li><a target="_blank" href="' . $input_pencairan_bku_add . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKU ADD</a></li>';
+							echo '<li><a target="_blank" href="' . $this->add_param_get($input_pencairan_bku_add, '&1=1') . '&tahun_anggaran=' . $tahun . '&id_skpd=' . $vv['id_skpd'] . '" class="btn btn-info">Pencairan BKU ADD</a></li>';
 						}
 					}
 					if (!empty($daftar_tombol_list[11])) {
 						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
-						echo '<li><a href="' . $url_menu . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">User PPTK</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_menu, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">User PPTK</a></li>';
 					}
 					if (!empty($daftar_tombol_list[12])) {
 						$sppd_page = $this->generatePage(
@@ -9722,11 +9722,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$tahun,
 							'[spt_sppd tahun_anggaran="' . $tahun . '"]'
 						);
-						echo '<li><a href="' . $sppd_page . '" target="_blank" class="btn btn-info">Buat SPT/SPPD</a></li>';
+						echo '<li><a href="' . $this->add_param_get($sppd_page, '&1=1') . '" target="_blank" class="btn btn-info">Buat SPT/SPPD</a></li>';
 					}
 					if (!empty($daftar_tombol_list[13])) {
 						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
-						echo '<li><a href="' . $url_menu . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN USER</a></li>';
+						echo '<li><a href="' . $this->add_param_get($url_menu, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN USER</a></li>';
 					}
 					if (!empty($daftar_tombol_list[14])) {
 						$detail_efisiensi_belanja = $this->generatePage(
@@ -9734,7 +9734,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$tahun,
 							'[detail_efisiensi_belanja tahun_anggaran="' . $tahun . '"]'
 						);
-						echo '<li><a href="' . $detail_efisiensi_belanja . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN EFISIENSI BELANJA</a></li>';
+						echo '<li><a href="' . $this->add_param_get($detail_efisiensi_belanja, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN EFISIENSI BELANJA</a></li>';
 					}
 					if (!empty($daftar_tombol_list[15])) {
 						$manrisk_page = $this->generatePage(
@@ -9742,7 +9742,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$tahun,
 							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
 						);
-						echo '<li><a href="' . $manrisk_page . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
+						echo '<li><a href="' . $this->add_param_get($manrisk_page, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
 					}
 				}
 			}
