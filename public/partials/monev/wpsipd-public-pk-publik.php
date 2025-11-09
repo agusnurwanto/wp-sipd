@@ -742,7 +742,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw2[$k_sub] = '<span class="realisasi_indikator_tw2-' . $k_sub . '">' . $realisasi_indikator_tw2[$k_sub] . '</span>';
 					$realisasi_indikator_tw3[$k_sub] = '<span class="realisasi_indikator_tw3-' . $k_sub . '">' . $realisasi_indikator_tw3[$k_sub] . '</span>';
 					$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
-										
+
 					$capaian_anggaran_tw1[$k_sub] = '<span class="capaian_anggaran_tw1-' . $k_sub . '">' . $capaian_anggaran_tw1[$k_sub] . '</span>';
 					$capaian_anggaran_tw2[$k_sub] = '<span class="capaian_anggaran_tw2-' . $k_sub . '">' . $capaian_anggaran_tw2[$k_sub] . '</span>';
 					$capaian_anggaran_tw3[$k_sub] = '<span class="capaian_anggaran_tw3-' . $k_sub . '">' . $capaian_anggaran_tw3[$k_sub] . '</span>';
@@ -1085,7 +1085,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							$realisasi_indikator[$v_sub['id_indikator']] = $v_sub;
 						}
 						foreach ($sub_giat['indikator'] as $k_sub => $v_sub) {
-							
+
 							$target_output_sub_giat[] = ' <span data-id="' . $v_sub['idoutputbl'] . '">' . $v_sub['targetoutput'] . '</span>';
 							$satuan_output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '">' . $v_sub['satuanoutput'] . '</span>';
 							$target_indikator = $v_sub['targetoutput'];
@@ -1528,7 +1528,31 @@ if (
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit['id_skpd']; ?>" id="id_skpd">
 <h1 class="text-center">Detail Perjanjian Kinerja<br><?php echo $unit['nama_skpd']; ?><br> Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-<div id='aksi-wp-sipd'></div>
+<div class="mb-2 wrap-table" style="max-height: 90vh;">
+	<table id="tableDataOpd" class="table table-bordered table-sticky mb-5" style="width: 2000px;">
+		<thead>
+			<tr>
+				<th scope="col" rowspan="2" class="text-center">Sasaran Strategis</th>
+				<th scope="col" rowspan="2" class="text-center">Indikator Kinerja</th>
+				<th scope="col" rowspan="2" class="text-center">Satuan</th>
+				<th scope="col" rowspan="2" class="text-center">Target</th>
+				<th scope="col" colspan="4" class="text-center">Realisasi</th>
+				<th scope="col" rowspan="2" class="text-center">Capaian Kinerja<br><small>%</small></th>
+				<th scope="col" rowspan="2" class="text-center">Capaian Serapan Anggaran<br><small>%</small></th>
+				<th scope="col" rowspan="2" class="text-center">Capaian Kinerja Program<br><small>%</small></th>
+				<th scope="col" rowspan="2" class="text-center">Capaian Realisasi Fisik<br><small>%</small></th>
+			</tr>
+			<tr>
+				<th scope="col" class="text-center" style="min-width: 65px;">TW 1</th>
+				<th scope="col" class="text-center" style="min-width: 65px;">TW 2</th>
+				<th scope="col" class="text-center" style="min-width: 65px;">TW 3</th>
+				<th scope="col" class="text-center" style="min-width: 65px;">TW 4</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
 <div id="cetak" title="Laporan Perjanjian Kinerja" style="padding: 5px; overflow: auto; max-height: 80vh;">
 	<table id="tabel-monev-renja" cellpadding="2" cellspacing="0" contenteditable="false">
 		<thead>
