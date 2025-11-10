@@ -2569,6 +2569,7 @@ foreach ($monev_triwulan as $k => $v) {
 					jQuery('.modal-title').hide();
 					jQuery('.modal-title-tambah').show();
 					jQuery('#set-monev').hide();
+					jQuery('#set-indikator').show();
 					jQuery('#mod-monev').attr('data-id_unik', id_unik);
 					jQuery('#mod-monev').modal('show');
 					jQuery('#wrap-loading').hide();
