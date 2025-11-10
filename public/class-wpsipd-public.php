@@ -29985,7 +29985,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$url_skpd = $gen_page . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $item['id_jadwal_lokal'];
 			$tahun_akhir_anggaran = $item['tahun_anggaran'] + $item['lama_pelaksanaan'] - 1;
 
-			$item['link'] = $url_skpd;
+			$item['link'] = $this->add_param_get($url_skpd, '?1=1');
 			$item['tahun_anggaran_selesai'] = $tahun_akhir_anggaran;
 			$item['status'] = $this->status_jadwal_lokal[$item['status']];
 		}
