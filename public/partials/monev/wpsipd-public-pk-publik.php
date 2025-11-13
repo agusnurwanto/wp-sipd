@@ -820,7 +820,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						<td class="text_tengah kanan bawah text_blok capaian_renja">' . $total_tw . '</td>
 						<td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
 						<td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
-						<td class="kanan bawah text_blok" data-kode-progkeg="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '"></td>
+						<td class="kanan bawah text_blok" data-kode-progkeg="' . $kd_bidang . '.' . $kd_program . '"></td>
 						<td class="kanan bawah text_blok">' . $pendorong_html . '</td>
 						<td class="kanan bawah text_blok">' . $penghambat_html . '</td>
 					';
@@ -844,7 +844,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						<td class="text_kanan kanan bawah text_blok capaian_renja">' . $total_tw . '</td>
 						<td class="text_tengah kanan bawah text_blok capaian_renja">' . $capaian_realisasi_indikator . '</td>
 						<td class="text_kanan kanan bawah text_blok capaian_renja">' . $capaian . '</td>
-						<td class="kanan bawah text_blok" data-kode-progkeg="' . $kd_urusan . '.' . $kd_bidang . '.' . $kd_program . '"></td>
+						<td class="kanan bawah text_blok" data-kode-progkeg="' . $kd_bidang . '.' . $kd_program . '"></td>
 						<td class="kanan bawah text_blok">' . $pendorong_html . '</td>
 						<td class="kanan bawah text_blok">' . $penghambat_html . '</td>
 					</tr>
