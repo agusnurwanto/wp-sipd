@@ -613,6 +613,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
 
+		$this->loader->add_action('wp_ajax_get_data_capaian_kinerja_publik_baru',  $plugin_public, 'get_data_capaian_kinerja_publik_baru');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_capaian_kinerja_publik_baru',  $plugin_public, 'get_data_capaian_kinerja_publik_baru');
+
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 		
@@ -1041,9 +1044,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_nopriv_get_data_rincian_belanja_rka',  $plugin_public, 'get_data_rincian_belanja_rka');
 		$this->loader->add_action('wp_ajax_monitor_monev_iku',  $plugin_public, 'monitor_monev_iku');
 		$this->loader->add_action('wp_ajax_nopriv_monitor_monev_iku',  $plugin_public, 'monitor_monev_iku');
-		
-		$this->loader->add_action('wp_ajax_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
-		$this->loader->add_action('wp_ajax_nopriv_get_data_capaian_kinerja_publik',  $plugin_public, 'get_data_capaian_kinerja_publik');
 		
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');

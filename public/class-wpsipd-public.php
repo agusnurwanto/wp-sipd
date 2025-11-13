@@ -5520,6 +5520,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-pk-publik.php';
 	}
 
+	public function pk_publik_page_baru($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if (!empty($_GET) && !empty($_GET['post'])) {
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/monev/wpsipd-public-pk-publik-baru.php';
+	}
+
 	public function monitor_monev_renstra_pemda($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -28387,6 +28396,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($ret['status'] == 'success') {
 					ob_start();
 					$this->pk_publik_page(array(
+						'id_skpd' => $_POST['id_skpd'],
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+					));
+					$content = ob_get_contents();
+					ob_end_clean();
+					$ret['html'] = $content;
+				}
+			} else {
+				$ret["status"] = "error";
+				$ret["message"] = "API KEY tidak sesuai";
+			}
+		} else {
+			$ret["status"] = "error";
+			$ret["message"] = "Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_data_capaian_kinerja_publik_baru()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if (empty($_POST['id_skpd'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong';
+				} else if (empty($_POST['tahun_anggaran'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}
+				if ($ret['status'] == 'success') {
+					ob_start();
+					$this->pk_publik_page_baru(array(
 						'id_skpd' => $_POST['id_skpd'],
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 					));
