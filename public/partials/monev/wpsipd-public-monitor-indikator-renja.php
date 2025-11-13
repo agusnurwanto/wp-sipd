@@ -73,6 +73,11 @@ function button_tambah_monev($class = false)
 	$ret = ' <span style="display: none;" data-id="' . $class . '" class="tambah-monev" title="Tambah Indikator"><i class="dashicons dashicons-plus"></i></span>';
 	return $ret;
 }
+function button_hapus_monev($class = false, $id_indikator = 0)
+{
+	$ret = ' <span style="display: none;" data-id="' . $class . '"  id-indikator="' . $id_indikator . '" class="delete-monev" title="Tambah Indikator"><i class="dashicons dashicons-trash"></i></span>';
+	return $ret;
+}
 function valid_number($no)
 {
 	$no = str_replace(array(','), array('.'), $no);
@@ -751,8 +756,15 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 					$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 					$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
-					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], 0) . '</span>';
+					$capaian_prog[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['capaianteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_program_asli . '-' . $program['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], $v_sub['indikator_lokal'], $v_sub['id']);
+				
+					if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
+						$capaian_prog[count($capaian_prog)-1] .= button_hapus_monev($kd_program_asli, $v_sub['id']);
+					}
+					
+					$capaian_prog[count($capaian_prog)-1] .= '</span>';
 				}
+				
 				if (
 					!empty($v_sub['indikator_lokal']) 
 					&& $v_sub['indikator_lokal'] == 1
@@ -974,11 +986,21 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 						$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $k_sub . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 						$total_tw[$k_sub] = '<span class="total_tw-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 						$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $k_sub . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $this->pembulatan($capaian_realisasi_indikator[$k_sub]) . '</span>';
+						$output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub , $v_sub['bobot_kinerja'], $v_sub['indikator_lokal'], $v_sub['id']);
+				
 						if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
-						  $output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub, $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-0', 0) . '</span>';
-						} else {
-						  $output_giat[] = '<span data-id="' . $k_sub . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-' . $k_sub) . '</span>';
+							$output_giat[count($output_giat)-1] .= button_hapus_monev($kd_giat1, $v_sub['id']);
 						}
+						
+						$output_giat[count($output_giat)-1] .= '</span>';
+					}
+					
+					if (
+						!empty($v_sub['indikator_lokal']) 
+						&& $v_sub['indikator_lokal'] == 1
+						&& !empty($output_giat)
+					) {
+						$output_giat[count($output_giat)-1] .= button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-0', 0);
 					}
 				} else{
 					$output_giat[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_giat1 . '-' . $giat['kode_sbl'] . '-0', 0) . '</span>';
@@ -1176,11 +1198,21 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							$realisasi_indikator_tw4[$k_sub] = '<span class="realisasi_indikator_tw4-' . $v_sub['idoutputbl'] . '">' . $realisasi_indikator_tw4[$k_sub] . '</span>';
 							$total_tw[$k_sub] = '<span class="total_tw-' . $v_sub['idoutputbl'] . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $total_tw[$k_sub] . '</span>';
 							$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-' . $v_sub['idoutputbl'] . ' rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $capaian_realisasi_indikator[$k_sub] . '</span>';
+							$output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl'] , $v_sub['bobot_kinerja'], $v_sub['indikator_lokal'], $v_sub['id']);
+					
 							if (!empty($v_sub['indikator_lokal']) && $v_sub['indikator_lokal'] == 1) {
-							  $output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl'], $v_sub['bobot_kinerja'], 1, $v_sub['id']) . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['kode_sbl'] . '-0', 0) . '</span>';
-							} else {
-							  $output_sub_giat[] = '<span data-id="' . $v_sub['idoutputbl'] . '" class="rumus_indikator ' . $class_rumus_target[$k_sub] . '">' . $v_sub['outputteks'] . button_edit_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['data']['kode_sbl'] . '-' . $v_sub['idoutputbl']) . '</span>';
+								$output_sub_giat[count($output_sub_giat)-1] .= button_hapus_monev($kd_sub_giat1, $v_sub['id']);
 							}
+							
+							$output_sub_giat[count($output_sub_giat)-1] .= '</span>';
+						}
+						
+						if (
+							!empty($v_sub['indikator_lokal']) 
+							&& $v_sub['indikator_lokal'] == 1
+							&& !empty($output_sub_giat)
+						) {
+							$output_sub_giat[count($output_sub_giat)-1] .= button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['kode_sbl'] . '-0', 0);
 						}
 					} else{
 						$output_sub_giat[] = '<span data-id="0">' . button_tambah_monev($input['tahun_anggaran'] . '-' . $input['id_skpd'] . '-' . $kd_sub_giat1 . '-' . $sub_giat['kode_sbl'] . '-0', 0) . '</span>';
@@ -2193,8 +2225,10 @@ foreach ($monev_triwulan as $k => $v) {
 		if (jQuery(that).is(':checked')) {
 			jQuery('.edit-monev').show();
 			jQuery('.tambah-monev').show();
+			jQuery('.delete-monev').show();
 		} else {
 			jQuery('.edit-monev').hide();
+			jQuery('.delete-monev').hide();
 			jQuery('.tambah-monev').hide();
 		}
 	}
@@ -2432,7 +2466,7 @@ foreach ($monev_triwulan as $k => $v) {
 			var indikator = '' +
 				'<tr>' +
 				'<td contenteditable="' + isEditable + '">' + indikator_text + '</td>' +
-				'<td class="text_tengah" id="target_indikator_monev" contenteditable="' + isEditable + '">' + target_indikator_text + '</td>' +
+				'<td class="text_tengah" id="target_indikator_monev" contenteditable="' + isEditable + '" onkeypress="onlyNumber(event);">' + target_indikator_text + '</td>' +
 				'<td class="text_tengah" contenteditable="' + isEditable + '">' + satuan_indikator_text + '</td>' +
 				'</tr>';
 			jQuery('#target_indikator_monev_rumus').text(target_indikator_text + ' ' + satuan_indikator_text);
@@ -2540,7 +2574,7 @@ foreach ($monev_triwulan as $k => $v) {
 			var indikator = '' +
 				'<tr>' +
 				'<td contenteditable="true">' + indikator_text + '</td>' +
-				'<td class="text_tengah" id="target_indikator_monev" contenteditable="true">' + target_indikator_text + '</td>' +
+				'<td class="text_tengah" id="target_indikator_monev" contenteditable="true" onkeypress="onlyNumber(event);">' + target_indikator_text + '</td>' +
 				'<td class="text_tengah" contenteditable="true">' + satuan_indikator_text + '</td>' +
 				'</tr>';
 			jQuery('#target_indikator_monev_rumus').text(target_indikator_text + ' ' + satuan_indikator_text);
@@ -2882,6 +2916,30 @@ foreach ($monev_triwulan as $k => $v) {
 						}
 					});
 				}
+			}
+		});
+
+		jQuery('.delete-monev').on('click', function() {
+			if (confirm('Apakah anda yakin untuk menghapus data indikator ini?')) {
+				jQuery('#wrap-loading').show();
+				var id_unik = jQuery(this).attr('data-id');
+				var indikator_lokal = jQuery(this).attr('data-indikator-lokal');
+				var id_indikator_lokal = jQuery(this).attr('id-indikator');
+				jQuery.ajax({
+					url: ajax.url,
+					type: "post",
+					data: {
+						"action": "delete_monev_indikator",
+						"api_key": "<?php echo $api_key; ?>",
+						"id": id_indikator_lokal,
+						"id_unik": id_unik
+					},
+					dataType: "json",
+					success: function(res) {
+						alert(res.message);
+            location.reload();
+					}
+				});
 			}
 		});
 	});

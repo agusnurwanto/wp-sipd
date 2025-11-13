@@ -30091,4 +30091,50 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+
+	function delete_monev_indikator()
+	{
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil hapus indikator monev!',
+			'data'  => array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				if ($ret['status'] != 'error' && empty($_POST['id'])) {
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID indikator tidak boleh kosong!';
+				}
+
+				$count_kode_sbl = count(explode('.', $_POST['id_unik']));
+
+				// sub kegiatan
+				if ($count_kode_sbl == 6) {
+					$table = "data_sub_keg_indikator"; //table indikator
+					// kegiatan
+				} else if ($count_kode_sbl == 5) {
+					$table = "data_output_giat_sub_keg"; //table indikator
+					// program
+				} else if ($count_kode_sbl == 3) {
+					$table = "data_capaian_prog_sub_keg"; //table indikator
+				}
+				$wpdb->update($table, array(
+					'active' => 0
+				), array('id' => $_POST['id']));
+			} else {
+				$ret = array(
+					'status' => 'error',
+					'message'   => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$ret = array(
+				'status' => 'error',
+				'message'   => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
 }
