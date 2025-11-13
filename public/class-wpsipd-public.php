@@ -4631,7 +4631,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$wpdb->update('data_sub_keg_indikator', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'kode_sbl' => $_POST['kode_sbl']
+							'kode_sbl' => $_POST['kode_sbl'],
+							'indikator_lokal' => 0
 						));
 						foreach ($dataOutput as $k => $v) {
 							$cek = $wpdb->get_var($wpdb->prepare("
@@ -4757,7 +4758,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$wpdb->update('data_capaian_prog_sub_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'kode_sbl' => $_POST['kode_sbl']
+							'kode_sbl' => $_POST['kode_sbl'],
+							'indikator_lokal' => 0
 						));
 						foreach ($dataCapaian as $k => $v) {
 							$cek = $wpdb->get_var($wpdb->prepare("
@@ -4799,7 +4801,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$wpdb->update('data_output_giat_sub_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'kode_sbl' => $_POST['kode_sbl']
+							'kode_sbl' => $_POST['kode_sbl'],
+							'indikator_lokal' => 0
 						));
 						foreach ($dataOutputGiat as $k => $v) {
 							$cek = $wpdb->get_var($wpdb->prepare("
