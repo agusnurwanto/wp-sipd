@@ -118,7 +118,7 @@ $subkeg = $wpdb->get_results(
 		FROM data_sub_keg_bl k
 		WHERE k.tahun_anggaran=%d
 		  AND k.active=1
-		  AND k.id_sub_skpd=%d
+		  AND k.id_skpd=%d
 		  AND k.pagu > 0
 	ORDER BY k.kode_sub_giat ASC
 	", $input['tahun_anggaran'], $unit['id_skpd']),
