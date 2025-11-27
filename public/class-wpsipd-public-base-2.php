@@ -7008,11 +7008,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
 					    }
+				    	$data_jadwal = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					            	* 
+					            FROM data_jadwal_lokal 
+					            WHERE id_jadwal_lokal = %d 
+					        ", $_POST['id_jadwal']),
+					        ARRAY_A
+					    );
+
+					    $tabel_tujuan_renstra = ($data_jadwal['status'] == 1) ? 'data_renstra_tujuan_history' : 'data_renstra_tujuan';
+					    $tabel_sasaran_renstra = ($data_jadwal['status'] == 1) ? 'data_renstra_sasaran_history' : 'data_renstra_sasaran';
+
 					    $data_sasaran_renstra = $wpdb->get_results(
 					        $wpdb->prepare("
 					            SELECT DISTINCT s.* 
-					            FROM data_renstra_sasaran AS s
-					            INNER JOIN data_renstra_tujuan AS t
+					            FROM $tabel_sasaran_renstra AS s
+					            INNER JOIN $tabel_tujuan_renstra AS t
 					                    ON s.kode_tujuan = t.id_unik
 					            WHERE t.active = 1
 					              AND s.active = 1
@@ -7024,15 +7037,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    );
 
 					    foreach ($data_sasaran_renstra as &$row) {
-					    	$data_jadwal = $wpdb->get_row(
-						        $wpdb->prepare("
-						            SELECT 
-						            	* 
-						            FROM data_jadwal_lokal 
-						            WHERE id_jadwal_lokal = %d 
-						        ", $_POST['id_jadwal']),
-						        ARRAY_A
-						    );
 
 					        $row['pelaksana_renstra'] = $wpdb->get_results(
 					            $wpdb->prepare("
@@ -7059,6 +7063,39 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            ", $row['id_unik'], $data_jadwal['tahun_anggaran']),
 					            ARRAY_A
 					        );
+
+					        $pokin_level_2 = $wpdb->get_results(
+					            $wpdb->prepare("
+					                SELECT 
+					                    *
+					                FROM data_pokin_renstra
+					                WHERE id_unik = %s
+					                  AND tahun_anggaran = %d
+					                  AND id_skpd = %d
+					                  AND tipe = 2
+					                  AND active = 1
+					            ", $row['id_unik'], $data_jadwal['tahun_anggaran'], $_POST['id_skpd']),
+					            ARRAY_A
+					        );
+					        
+					        foreach ($pokin_level_2 as &$pokin2) {
+					            $pokin2['pokin_level_1'] = $wpdb->get_results(
+					                $wpdb->prepare("
+					                    SELECT 
+					                        *
+					                    FROM data_pokin_renstra
+					                    WHERE id_unik = %s
+					                      AND tahun_anggaran = %d
+					                      AND id_skpd = %d
+					                      AND tipe = 1
+					                      AND active = 1
+					                ", $row['kode_tujuan'], $data_jadwal['tahun_anggaran'], $_POST['id_skpd']),
+					                ARRAY_A
+					            );
+					        }
+					        unset($pokin2);
+					        
+					        $row['get_pokin_renstra'] = $pokin_level_2;
 					    }
 					    unset($row);
 
@@ -7128,47 +7165,107 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    }
 
 					} else if ($jenis == 'program') {
-						if (empty($_POST['tahun_anggaran'])) {
-							throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
-						}
-						$skpd = $wpdb->get_results(
-							$wpdb->prepare('
-								SELECT *
-								FROM data_unit
-								WHERE id_unit = %d
-								  AND active = 1
-								  AND tahun_anggaran = %d
-							', $_POST['id_skpd'], $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
-						$id_skpd = array();
-						foreach ($skpd as $v) {
-							$id_skpd[] = $v['id_skpd'];
-						}
-						$data_program_renstra = $wpdb->get_results(
-							$wpdb->prepare("
-								SELECT 
-									kode_program,
-									nama_program,
-									kode_sub_skpd,
-									nama_sub_skpd,
-									id_sub_skpd,
-									SUM(pagu) as pagu 
-								FROM data_sub_keg_bl 
-								WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
-								  AND active=1 
-								  AND tahun_anggaran=%d 
-								GROUP BY kode_program, id_sub_skpd  
-								ORDER BY kode_program
-							", $_POST['tahun_anggaran']),
-							ARRAY_A
-						);
+					    if (empty($_POST['tahun_anggaran'])) {
+					        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+					    }
+					    $skpd = $wpdb->get_results(
+					        $wpdb->prepare('
+					            SELECT *
+					            FROM data_unit
+					            WHERE id_unit = %d
+					              AND active = 1
+					              AND tahun_anggaran = %d
+					        ', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+					        ARRAY_A
+					    );
+					    $id_skpd = array();
+					    foreach ($skpd as $v) {
+					        $id_skpd[] = $v['id_skpd'];
+					    }
+					    $data_program_renja = $wpdb->get_results(
+					        $wpdb->prepare("
+					            SELECT 
+					                kode_program,
+					                nama_program,
+					                kode_sub_skpd,
+					                nama_sub_skpd,
+					                id_sub_skpd,
+					                SUM(pagu) as pagu 
+					            FROM data_sub_keg_bl 
+					            WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
+					              AND active=1 
+					              AND tahun_anggaran=%d 
+					            GROUP BY kode_program, id_sub_skpd  
+					            ORDER BY kode_program
+					        ", $_POST['tahun_anggaran']),
+					        ARRAY_A
+					    );
+					    
+					    $data_jadwal_renja = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE tahun_anggaran = %d
+					              AND id_tipe = %d
+					        ", $_POST['tahun_anggaran'], 16),
+					        ARRAY_A
+					    );
+					    
+					    $data_jadwal_renstra = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE id_jadwal_lokal = %d
+					        ", $data_jadwal_renja['relasi_perencanaan']),
+					        ARRAY_A
+					    );
 
-						if (!empty($data_program_renstra)) {
-							$ret['data'] = $data_program_renstra;
-							$ret['message'] = 'Berhasil get program renja!';
-							$ret['sql'] = $wpdb->last_query;
-						}
+					    $tabel_renstra = ($data_jadwal_renstra['status'] == 1) ? 'data_renstra_program_history' : 'data_renstra_program';
+					    
+					    foreach ($data_program_renja as &$row) {
+					        $data_program_renstra = $wpdb->get_row(
+					            $wpdb->prepare("
+					                SELECT 
+					                    *
+					                FROM $tabel_renstra
+					                WHERE kode_program = %s
+					                  AND id_unit = %d
+					                  AND id_jadwal = %d
+					                  AND active = 1
+					            ", $row['kode_program'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ARRAY_A
+					        );
+					        // print_r($data_program_renstra); die($wpdb->last_query);
+					        
+					        if (!empty($data_program_renstra)) {
+					            $pokin_level_3 = $wpdb->get_results(
+					                $wpdb->prepare("
+					                    SELECT 
+					                        *
+					                    FROM data_pokin_renstra
+					                    WHERE id_unik = %s
+					                      AND tahun_anggaran = %d
+					                      AND id_skpd = %d
+					                      AND tipe = 3
+					                      AND active = 1
+					                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ARRAY_A
+					            );
+					            
+					            $row['get_pokin_renstra'] = $pokin_level_3;
+					        } else {
+					            $row['get_pokin_renstra'] = array();
+					        }
+					    }
+					    unset($row);
+					    
+					    if (!empty($data_program_renja)) {
+					        $ret['data'] = $data_program_renja;
+					        $ret['message'] = 'Berhasil get program renja!';
+					        $ret['sql'] = $wpdb->last_query;
+					    }
 					} else if ($jenis == 'kegiatan_renstra') {
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
@@ -7258,6 +7355,64 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							", $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']),
 							ARRAY_A
 						);
+                        $data_jadwal_renja = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE tahun_anggaran = %d
+					              AND id_tipe = %d
+					        ", $_POST['tahun_anggaran'], 16),
+					        ARRAY_A
+					    );
+					    
+					    $data_jadwal_renstra = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE id_jadwal_lokal = %d
+					        ", $data_jadwal_renja['relasi_perencanaan']),
+					        ARRAY_A
+					    );
+					    
+					    $tabel_renstra = ($data_jadwal_renstra['status'] == 1) ? 'data_renstra_kegiatan_history' : 'data_renstra_kegiatan';
+
+					    foreach ($data_kegiatan_renja as &$row) {
+					        $data_kegiatan_renstra = $wpdb->get_row(
+					            $wpdb->prepare("
+					                SELECT 
+					                    *
+					                FROM $tabel_renstra
+					                WHERE kode_giat = %s
+					                  AND id_unit = %d
+					                  AND id_jadwal = %d
+					                  AND active = 1
+					            ", $row['kode_giat'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ARRAY_A
+					        );
+					        
+					        if (!empty($data_kegiatan_renstra)) {
+					            $pokin_level_4 = $wpdb->get_results(
+					                $wpdb->prepare("
+					                    SELECT 
+					                        *
+					                    FROM data_pokin_renstra
+					                    WHERE id_unik = %s
+					                      AND tahun_anggaran = %d
+					                      AND id_skpd = %d
+					                      AND tipe = 4
+					                      AND active = 1
+					                ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ARRAY_A
+					            );
+					            
+					            $row['get_pokin_renstra'] = $pokin_level_4;
+					        } else {
+					            $row['get_pokin_renstra'] = array();
+					        }
+					    }
+					    unset($row);
 
 						if (!empty($data_kegiatan_renja)) {
 							$ret['data'] = $data_kegiatan_renja;
@@ -7344,6 +7499,64 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							", $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['parent_cascading']),
 							ARRAY_A
 						);
+                        $data_jadwal_renja = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE tahun_anggaran = %d
+					              AND id_tipe = %d
+					        ", $_POST['tahun_anggaran'], 16),
+					        ARRAY_A
+					    );
+					    
+					    $data_jadwal_renstra = $wpdb->get_row(
+					        $wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM data_jadwal_lokal
+					            WHERE id_jadwal_lokal = %d
+					        ", $data_jadwal_renja['relasi_perencanaan']),
+					        ARRAY_A
+					    );
+					    
+					    $tabel_renstra = ($data_jadwal_renstra['status'] == 1) ? 'data_renstra_sub_kegiatan_history' : 'data_renstra_sub_kegiatan';
+					    
+					    foreach ($data_sub_kegiatan_renja as &$row) {
+					        $data_sub_kegiatan_renstra = $wpdb->get_row(
+					            $wpdb->prepare("
+					                SELECT 
+					                    *
+					                FROM $tabel_renstra
+					                WHERE kode_sub_giat = %s
+					                  AND id_unit = %d
+					                  AND id_jadwal = %d
+					                  AND active = 1
+					            ", $row['kode_sub_giat'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ARRAY_A
+					        );
+					        
+					        if (!empty($data_sub_kegiatan_renstra)) {
+					            $pokin_level_4 = $wpdb->get_results(
+					                $wpdb->prepare("
+					                    SELECT 
+					                        *
+					                    FROM data_pokin_renstra
+					                    WHERE id_unik = %s
+					                      AND tahun_anggaran = %d
+					                      AND id_skpd = %d
+					                      AND tipe = 5
+					                      AND active = 1
+					                ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ARRAY_A
+					            );
+					            
+					            $row['get_pokin_renstra'] = $pokin_level_4;
+					        } else {
+					            $row['get_pokin_renstra'] = array();
+					        }
+					    }
+					    unset($row);
 
 						if (!empty($data_sub_kegiatan_renja)) {
 							$ret['data'] = $data_sub_kegiatan_renja;

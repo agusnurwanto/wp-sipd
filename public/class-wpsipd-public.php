@@ -30031,7 +30031,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$judul[$id_tipe]['shortcode']
 			);
 
-			$add_param_get =  $this->add_param_get($gen_page, '?1=1');
+			$add_param_get =  $this->add_param_get($gen_page, '&1=1');
 			$url_skpd = $add_param_get . '&id_skpd=' . $id_skpd . '&id_jadwal=' . $item['id_jadwal_lokal'];
 			$tahun_akhir_anggaran = $item['tahun_anggaran'] + $item['lama_pelaksanaan'] - 1;
 
