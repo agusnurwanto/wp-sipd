@@ -15387,12 +15387,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						    if (!empty($get_data_program)) {
 						        $nama_program_kegiatan = $get_data_program['nama_program'];
+								$kode_program = $get_data_program['kode_program'];
 						        $kode_bidang = $get_data_program['kode_bidang_urusan'];
 						        $nama_bidang = $get_data_program['nama_bidang_urusan'];
 
 						        $data['indikator'] = $row['capaian_teks'];
-						        $data['label_tipe'] = 'Program OPD : ';
-						        $data['nama_program_kegiatan'] = $nama_program_kegiatan;
+						        $data['label_tipe'] = 'Program OPD :';
+								$data['nama_program_kegiatan'] =
+									 '<br>' .
+									$kode_program . '<br>' .
+									$nama_program_kegiatan;
 						        $data['kode_bidang_urusan'] = $kode_bidang;
 
 						        if (!empty($kode_bidang)) {
@@ -15400,7 +15404,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						            
 						            if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
 						                $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
-						                    'nama_program_kegiatan' => $nama_program_kegiatan,
+						                    'nama_program_kegiatan' => $data['nama_program_kegiatan'],
 						                    'label_tipe' => $data['label_tipe'],
 						                    'tipe' => $data['tipe'],
 						                    'id_program_kegiatan' => $data['id_program_kegiatan'],
@@ -15443,12 +15447,16 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 						    if (!empty($get_data_kegiatan)) {
 						        $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
+								$kode_kegiatan = $get_data_kegiatan['kode_giat'];
 						        $kode_bidang = $get_data_kegiatan['kode_bidang_urusan'];
 						        $nama_bidang = $get_data_kegiatan['nama_bidang_urusan'];
 
 						        $data['indikator'] = $row['capaian_teks'];
 						        $data['label_tipe'] = 'Kegiatan OPD : ';
-						        $data['nama_program_kegiatan'] = $nama_program_kegiatan;
+						        $data['nama_program_kegiatan'] = 
+									'<br>' . 
+									$kode_kegiatan . '<br>' . 
+									$nama_program_kegiatan;
 						        $data['kode_bidang_urusan'] = $kode_bidang;
 
 						        if (!empty($kode_bidang)) {
@@ -15456,7 +15464,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						            
 						            if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
 						                $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
-						                    'nama_program_kegiatan' => $nama_program_kegiatan,
+						                    'nama_program_kegiatan' => $data['nama_program_kegiatan'],
 						                    'label_tipe' => $data['label_tipe'],
 						                    'tipe' => $data['tipe'],
 						                    'id_program_kegiatan' => $data['id_program_kegiatan'],
