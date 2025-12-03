@@ -14785,71 +14785,116 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	}
 
   	public function submit_tujuan_sasaran()
-  	{
-      	global $wpdb;
-      	$ret = array(
-          	'status' => 'success',
-          	'message' => 'Berhasil simpan data!'
-      	);
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'status' => 'success',
+	        'message' => 'Berhasil simpan data!'
+	    );
 
-      	if (!empty($_POST)) {
-          	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	    if (!empty($_POST)) {
+	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
-              	if (!empty($_POST['tahun_anggaran'])) {
-          			$tahun_anggaran = $_POST['tahun_anggaran'];
-        		} else {
-          			$ret['status'] = 'error';
-          			$ret['message'] = 'Tahun Anggaran kosong!';
-        		}
-			    if (!empty($_POST['id_skpd'])) {
-			      $id_skpd = $_POST['id_skpd'];
-			    } else {
-			      $ret['status'] = 'error';
-			      $ret['message'] = 'ID SKPD kosong!';
-			    }
-              	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-              	$skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
-              	$skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
-              	$controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
+	            if (!empty($_POST['tahun_anggaran'])) {
+	                $tahun_anggaran = $_POST['tahun_anggaran'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'Tahun Anggaran kosong!';
+	            }
+	            if (!empty($_POST['id_skpd'])) {
+	                $id_skpd = $_POST['id_skpd'];
+	            } else {
+	                $ret['status'] = 'error';
+	                $ret['message'] = 'ID SKPD kosong!';
+	            }
+	            
+	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	            $skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
+	            $skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
+	            $controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
+	            
+	            $get_data = $wpdb->get_row(
+	                $wpdb->prepare("
+	                    SELECT 
+	                      * 
+	                    FROM data_tujuan_sasaran_manrisk_sebelum
+	                    WHERE id_tujuan_sasaran = %s
+	                      AND id_indikator = %s
+	                      AND id_skpd = %d
+	                      AND tahun_anggaran = %d
+	                      AND tipe = %d
+	                      AND active = 1
+	                    LIMIT 1
+	                ", $_POST['id_tujuan_sasaran'], $_POST['id_indikator'], $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe']),
+	                ARRAY_A
+	            );
+	            
+	            $data_sebelum = array(
+	                'id_tujuan_sasaran'           => $_POST['id_tujuan_sasaran'],
+	                'id_indikator'                  => $_POST['id_indikator'],
+	                'tipe'                          => $_POST['tipe'],
+	                'capaian_teks'                  => !empty($get_data['capaian_teks']) ? $get_data['capaian_teks'] : (isset($_POST['capaian_teks']) ? $_POST['capaian_teks'] : ''),
+	                'satuan_capaian'                => !empty($get_data['satuan_capaian']) ? $get_data['satuan_capaian'] : (isset($_POST['satuan_capaian']) ? $_POST['satuan_capaian'] : ''),
+	                'target_capaian_teks'           => !empty($get_data['target_capaian_teks']) ? $get_data['target_capaian_teks'] : (isset($_POST['target_capaian_teks']) ? $_POST['target_capaian_teks'] : ''),
+	                'target_capaian'                => !empty($get_data['target_capaian']) ? $get_data['target_capaian'] : (isset($_POST['target_capaian']) ? $_POST['target_capaian'] : ''),
+	                'uraian_resiko'                 => $_POST['uraian_resiko'],
+	                'kode_resiko'                   => $_POST['kode_resiko'],
+	                'pemilik_resiko'                => $_POST['pemilik_resiko'],
+	                'uraian_sebab'                  => $_POST['uraian_sebab'],
+	                'sumber_sebab'                  => $_POST['sumber_sebab'],
+	                'controllable'                  => $controllable_status, 
+	                'uraian_dampak'                 => $_POST['uraian_dampak'],
+	                'pihak_terkena'                 => $_POST['pihak_terkena'],
+	                'skala_dampak'                  => $skala_dampak,
+	                'skala_kemungkinan'             => $skala_kemungkinan,
+	                'rencana_tindak_pengendalian'   => $_POST['rencana_tindak_pengendalian'],
+	                'id_skpd'                       => $id_skpd,
+	                'tahun_anggaran'                => $tahun_anggaran,
+	                'active'                        => 1
+	            );
 
-              	$data = array(
-                  	'id_tujuan_sasaran'       		=> $_POST['id_tujuan_sasaran'],
-                  	'id_indikator'          		=> $_POST['id_indikator'],
-                  	'tipe'              			=> $_POST['tipe'],
-                  	'uraian_resiko'         		=> $_POST['uraian_resiko'],
-                  	'kode_resiko'         			=> $_POST['kode_resiko'],
-                  	'pemilik_resiko'        		=> $_POST['pemilik_resiko'],
-                  	'uraian_sebab'          		=> $_POST['uraian_sebab'],
-                  	'sumber_sebab'          		=> $_POST['sumber_sebab'],
-                  	'controllable'          		=> $controllable_status, 
-                  	'uraian_dampak'         		=> $_POST['uraian_dampak'],
-                  	'pihak_terkena'         		=> $_POST['pihak_terkena'],
-                  	'skala_dampak'          		=> $skala_dampak,
-                  	'skala_kemungkinan'      		=> $skala_kemungkinan,
-                  	'rencana_tindak_pengendalian'	=> $_POST['rencana_tindak_pengendalian'],
-                  	'id_skpd'           			=> $id_skpd,
-                  	'tahun_anggaran'        		=> $tahun_anggaran,
-                  	'active'            			=> 1
-              );
-
+	            $id_sebelum = 0;
+	            
 	            if ($id <= 0) {
-	          		$wpdb->insert('data_tujuan_sasaran_manrisk_sebelum',
-	                    $data
-	                );
-	        	} else {
-	          		$wpdb->update('data_tujuan_sasaran_manrisk_sebelum',
-	                    $data, 
-	                    array('id' => $id)
-	                );
-	        	}
+	                $wpdb->insert('data_tujuan_sasaran_manrisk_sebelum', $data_sebelum);
+	                $id_sebelum = $wpdb->insert_id;
+	            } else {
+	                $wpdb->update('data_tujuan_sasaran_manrisk_sebelum', $data_sebelum, array('id' => $id));
+	                $id_sebelum = $id;
+	            }
+
+	            $data_sesudah = array(
+	                'id_sebelum'                    => $id_sebelum,
+	                'id_tujuan_sasaran'           	=> $_POST['id_tujuan_sasaran'],
+	                'id_indikator'                  => $_POST['id_indikator'],
+	                'tipe'                          => $_POST['tipe'],
+	                'uraian_resiko'                 => NULL,
+	                'kode_resiko'                   => NULL,
+	                'pemilik_resiko'                => NULL,
+	                'uraian_sebab'                  => NULL,
+	                'sumber_sebab'                  => NULL,
+	                'controllable'                  => 2,
+	                'uraian_dampak'                 => NULL,
+	                'pihak_terkena'                 => NULL,
+	                'skala_dampak'                  => 0,
+	                'skala_kemungkinan'             => 0,
+	                'nilai_resiko'                  => NULL,
+	                'rencana_tindak_pengendalian'   => NULL,
+	                'id_skpd'                       => $id_skpd,
+	                'tahun_anggaran'                => $tahun_anggaran,
+	                'active'                        => 1,
+	                'status'                        => 0
+	            );
+	            
+	            $wpdb->insert('data_tujuan_sasaran_manrisk_sesudah', $data_sesudah);
 
 	        } else {
 	            $ret['status']  = 'error';
 	            $ret['message'] = 'API key tidak ditemukan!';
 	        }
 	    } else {
-	          $ret['status']  = 'error';
-	          $ret['message'] = 'Format salah!';
+	        $ret['status']  = 'error';
+	        $ret['message'] = 'Format salah!';
 	    }
 
 	    wp_send_json($ret);
@@ -15893,10 +15938,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                $ret['status'] = 'error';
 	                $ret['message'] = 'ID SKPD kosong!';
 	            }
+	            
 	            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 	            $skala_dampak = isset($_POST['skala_dampak']) ? intval($_POST['skala_dampak']) : 0;
 	            $skala_kemungkinan = isset($_POST['skala_kemungkinan']) ? intval($_POST['skala_kemungkinan']) : 0;
 	            $controllable_status = isset($_POST['controllable_status']) ? intval($_POST['controllable_status']) : 2;
+	            
 	            $get_data = $wpdb->get_row(
 	                $wpdb->prepare("
 	                    SELECT 
@@ -15912,14 +15959,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                ", $_POST['id_program_kegiatan'], $_POST['id_indikator'], $_POST['id_skpd'], $_POST['tahun_anggaran'], $_POST['tipe']),
 	                ARRAY_A
 	            );
-	            $data = array(
+	            
+	            $data_sebelum = array(
 	                'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
 	                'id_indikator'                  => $_POST['id_indikator'],
 	                'tipe'                          => $_POST['tipe'],
-	                'capaian_teks'					=> $get_data['capaian_teks'],
-	                'satuan_capaian'				=> $get_data['satuan_capaian'],
-	                'target_capaian_teks'			=> $get_data['target_capaian_teks'],
-	                'target_capaian'				=> $get_data['target_capaian'],
+	                'capaian_teks'                  => !empty($get_data['capaian_teks']) ? $get_data['capaian_teks'] : (isset($_POST['capaian_teks']) ? $_POST['capaian_teks'] : ''),
+	                'satuan_capaian'                => !empty($get_data['satuan_capaian']) ? $get_data['satuan_capaian'] : (isset($_POST['satuan_capaian']) ? $_POST['satuan_capaian'] : ''),
+	                'target_capaian_teks'           => !empty($get_data['target_capaian_teks']) ? $get_data['target_capaian_teks'] : (isset($_POST['target_capaian_teks']) ? $_POST['target_capaian_teks'] : ''),
+	                'target_capaian'                => !empty($get_data['target_capaian']) ? $get_data['target_capaian'] : (isset($_POST['target_capaian']) ? $_POST['target_capaian'] : ''),
 	                'uraian_resiko'                 => $_POST['uraian_resiko'],
 	                'kode_resiko'                   => $_POST['kode_resiko'],
 	                'pemilik_resiko'                => $_POST['pemilik_resiko'],
@@ -15936,16 +15984,46 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'active'                        => 1
 	            );
 
+	            $id_sebelum = 0;
+	            
 	            if ($id <= 0) {
-	                $wpdb->insert('data_program_kegiatan_manrisk_sebelum',
-	                    $data
-	                );
+	                $wpdb->insert('data_program_kegiatan_manrisk_sebelum', $data_sebelum);
+	                $id_sebelum = $wpdb->insert_id;
 	            } else {
-	                $wpdb->update('data_program_kegiatan_manrisk_sebelum',
-	                    $data, 
-	                    array('id' => $id)
-	                );
+	                $wpdb->update('data_program_kegiatan_manrisk_sebelum', $data_sebelum, array('id' => $id));
+	                $id_sebelum = $id;
 	            }
+
+	            $data_sesudah = array(
+	                'id_sebelum'                    => $id_sebelum,
+	                'id_program_kegiatan'           => $_POST['id_program_kegiatan'],
+	                'id_indikator'                  => $_POST['id_indikator'],
+	                'tipe'                          => $_POST['tipe'],
+	                'satuan_capaian'                => !empty($get_data['satuan_capaian']) ? $get_data['satuan_capaian'] : (isset($_POST['satuan_capaian']) ? $_POST['satuan_capaian'] : ''),
+	                'target_capaian_teks'           => !empty($get_data['target_capaian_teks']) ? $get_data['target_capaian_teks'] : (isset($_POST['target_capaian_teks']) ? $_POST['target_capaian_teks'] : ''),
+	                'capaian_teks'                  => !empty($get_data['capaian_teks']) ? $get_data['capaian_teks'] : (isset($_POST['capaian_teks']) ? $_POST['capaian_teks'] : ''),
+	                'target_capaian'                => !empty($get_data['target_capaian']) ? $get_data['target_capaian'] : (isset($_POST['target_capaian']) ? $_POST['target_capaian'] : ''),
+	                'program_kegiatan_teks'         => isset($_POST['program_kegiatan_teks']) ? $_POST['program_kegiatan_teks'] : NULL,
+	                'indikator_teks'                => isset($_POST['indikator_teks']) ? $_POST['indikator_teks'] : NULL,
+	                'uraian_resiko'                 => NULL,
+	                'kode_resiko'                   => NULL,
+	                'pemilik_resiko'                => NULL,
+	                'uraian_sebab'                  => NULL,
+	                'sumber_sebab'                  => NULL,
+	                'controllable'                  => 2,
+	                'uraian_dampak'                 => NULL,
+	                'pihak_terkena'                 => NULL,
+	                'skala_dampak'                  => 0,
+	                'skala_kemungkinan'             => 0,
+	                'nilai_resiko'                  => NULL,
+	                'rencana_tindak_pengendalian'   => NULL,
+	                'id_skpd'                       => $id_skpd,
+	                'tahun_anggaran'                => $tahun_anggaran,
+	                'active'                        => 1,
+	                'status'                        => 0
+	            );
+	            
+	            $wpdb->insert('data_program_kegiatan_manrisk_sesudah', $data_sesudah);
 
 	        } else {
 	            $ret['status']  = 'error';
