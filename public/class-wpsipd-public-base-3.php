@@ -15412,7 +15412,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                    $data = $row;
 
 	                    if (isset($row['tipe']) && $row['tipe'] == 0) {
-						    $program_kegiatan_key = $data['id_program_kegiatan'] . '_' . $data['tipe'];
 
 						    $get_data_program = $wpdb->get_row($wpdb->prepare("
 						        SELECT 
@@ -15433,8 +15432,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						    if (!empty($get_data_program)) {
 						        $nama_program_kegiatan = $get_data_program['nama_program'];
 								$kode_program = $get_data_program['kode_program'];
+						   		$program_kegiatan_key = $kode_program;
 						        $kode_bidang = $get_data_program['kode_bidang_urusan'];
 						        $nama_bidang = $get_data_program['nama_bidang_urusan'];
+								$kode_program_key = $kode_program;
 
 						        $data['indikator'] = $row['capaian_teks'];
 						        $data['label_tipe'] = 'Program OPD :';
@@ -15445,6 +15446,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						        $data['kode_bidang_urusan'] = $kode_bidang;
 
 						        if (!empty($kode_bidang)) {
+									if (!isset($program_kegiatan_groups[$kode_bidang])) {
+										$program_kegiatan_groups[$kode_bidang] = [];
+									}
 						            $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
 						            
 						            if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
@@ -15472,7 +15476,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						        }
 						    }
 						} else if (isset($row['tipe']) && $row['tipe'] == 1) {
-						    $program_kegiatan_key = $data['id_program_kegiatan'] . '_' . $data['tipe'];
 
 						    $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
 						        SELECT 
@@ -15493,8 +15496,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						    if (!empty($get_data_kegiatan)) {
 						        $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
 								$kode_kegiatan = $get_data_kegiatan['kode_giat'];
+						    	$program_kegiatan_key = $kode_kegiatan;
 						        $kode_bidang = $get_data_kegiatan['kode_bidang_urusan'];
 						        $nama_bidang = $get_data_kegiatan['nama_bidang_urusan'];
+								$kode_kegiatan_key = $kode_kegiatan;
 
 						        $data['indikator'] = $row['capaian_teks'];
 						        $data['label_tipe'] = 'Kegiatan OPD : ';
@@ -15505,6 +15510,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						        $data['kode_bidang_urusan'] = $kode_bidang;
 
 						        if (!empty($kode_bidang)) {
+									if (!isset($program_kegiatan_groups[$kode_bidang])) {
+										$program_kegiatan_groups[$kode_bidang] = [];
+									}
 						            $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
 						            
 						            if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
@@ -15551,6 +15559,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						        $nama_program_kegiatan = $get_data_sub_kegiatan['nama_sub_giat'];
 						        $kode_bidang = $get_data_sub_kegiatan['kode_bidang_urusan'];
 						        $nama_bidang = $get_data_sub_kegiatan['nama_bidang_urusan'];
+								$kode_subkegiatan_key = $row['id_program_kegiatan'];
 
 						        $data['indikator'] = $row['capaian_teks'];
 						        $data['label_tipe'] = 'Sub Kegiatan OPD : ';
@@ -15558,9 +15567,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						        $data['kode_bidang_urusan'] = $kode_bidang;
 
 						        if (!empty($kode_bidang)) {
+									if (!isset($program_kegiatan_groups[$kode_bidang])) {
+										$program_kegiatan_groups[$kode_bidang] = [];
+									}
 						            $grouped_data[$kode_bidang]['nama_bidang'] = $nama_bidang;
 						            
-						            $program_kegiatan_key = $data['id_program_kegiatan'] . '_' . $data['tipe'];
+						            $program_kegiatan_key = $row['id_program_kegiatan']; 
 						            
 						            if (!isset($program_kegiatan_groups[$kode_bidang][$program_kegiatan_key])) {
 						                $program_kegiatan_groups[$kode_bidang][$program_kegiatan_key] = array(
@@ -15593,6 +15605,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					// print_r($grouped_data);
 					// echo '</pre>';
 					// die();
+
+					foreach ($program_kegiatan_groups as $kode_bidang => $programs) {
+						ksort($programs);
+						$program_kegiatan_groups[$kode_bidang] = $programs;
+					}
 	                
 	                uksort($grouped_data, function($a, $b) {
 	                    $a_clean = str_replace(',', '.', (string)$a);
@@ -15621,7 +15638,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                    return strcasecmp($a_clean, $b_clean);
 	                });
-
+					foreach ($grouped_data as $bid => &$pk_groups) {
+						if (isset($pk_groups['program_kegiatan_groups'])) {
+							ksort($pk_groups['program_kegiatan_groups']);
+						}
+					}
 	                foreach ($grouped_data as $group) {
 	                    $html .= '
 	                        <tr style="background:#f0f0f0; font-weight:bold;">
@@ -15631,9 +15652,25 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 	                    $no = 1;
 	                    
-	                    uasort($group['program_kegiatan_groups'], function($a, $b) {
-	                        return $a['tipe'] <=> $b['tipe'];
-	                    });
+	                    uksort($group['program_kegiatan_groups'], function($a, $b) {
+							$a_clean = str_replace(',', '.', (string)$a);
+							$b_clean = str_replace(',', '.', (string)$b);
+
+							$a_parts = explode('.', $a_clean);
+							$b_parts = explode('.', $b_clean);
+
+							$len = max(count($a_parts), count($b_parts));
+
+							for ($i = 0; $i < $len; $i++) {
+								$ap = isset($a_parts[$i]) ? intval($a_parts[$i]) : 0;
+								$bp = isset($b_parts[$i]) ? intval($b_parts[$i]) : 0;
+
+								if ($ap === $bp) continue;
+								return ($ap < $bp) ? -1 : 1;
+							}
+
+							return 0;
+						});
 	                    
 	                    foreach ($group['program_kegiatan_groups'] as $program_kegiatan_group) {
 	                        $tampil_data_program_kegiatan = true;
