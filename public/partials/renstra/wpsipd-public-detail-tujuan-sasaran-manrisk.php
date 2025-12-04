@@ -23,6 +23,9 @@ $get_jadwal = $wpdb->get_row(
     ARRAY_A
 );
 $data_jadwal = $this->get_data_jadwal_by_id_jadwal_lokal($get_jadwal);
+if (empty($data_jadwal)) {
+    die('<div class="alert alert-danger">Jadwal kosong!</div>');
+}
 $timezone = get_option('timezone_string');
 $sql_unit = $wpdb->prepare("
     SELECT 

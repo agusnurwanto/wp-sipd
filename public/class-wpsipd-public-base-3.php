@@ -13748,8 +13748,17 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                $tipe_sesudah = 0;
 	                                $id_tujuan_sesudah = 0;
 	                                $id_indikator_sesudah = 0;
+	                                $style_bg = '';
+	                                if (isset($data_sebelum['tipe']) && $data_sebelum['tipe'] == 0) {
+	                                	if ($is_pemda){
+                                    		$style_bg = ' style="background-color: #CAFFBF;"';
 
-	                                $html .= '<tr>';
+	                                	} else {
+	                                		$style_bg = ' style="background-color: #FDFFB6;"';
+	                                	}
+	                                }
+
+	                                $html .= '<tr ' . $style_bg . '>';
 	                                
 	                                if ($tampil_data_tujuan_sasaran) {
 	                                    $html .= '<td class="text-left" rowspan="' . $total_rows . '">' . $no++ . '</td>';
@@ -15734,6 +15743,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                $style_bg = '';
 	                                if (isset($data_sebelum['status']) && $data_sebelum['status'] == 1) {
 	                                    $style_bg = ' style="background-color: #ffcccc;"';
+	                                } elseif (isset($data_sebelum['tipe']) && $data_sebelum['tipe'] == 0) {
+	                                    $style_bg = ' style="background-color: #e5d9f2;"';
+	                                } elseif (isset($data_sebelum['tipe']) && $data_sebelum['tipe'] == 1) {
+	                                    $style_bg = ' style="background-color: #13d0d03d;"';
 	                                }
 
 	                                $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
@@ -15749,7 +15762,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                $id_program_sesudah = 0;
 	                                $id_indikator_sesudah = 0;
 
-	                                $html .= '<tr>';
+	                                $html .= '<tr ' . $style_bg . '>';
 
 	                                if ($tampil_data_program_kegiatan) {
 	                                    $html .= '<td class="text-left" rowspan="' . $total_rows . '">' . $no++ . '</td>';
@@ -15758,23 +15771,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                }
 
 	                                if ($tampil_indikator_sebelum) {
-	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '"' . $style_bg . '>' . $indikator_data['indikator_text'] . '</td>';
+	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '">' . $indikator_data['indikator_text'] . '</td>';
 	                                    $tampil_indikator_sebelum = false;
 	                                }
 
 	                                $html .= '
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_resiko'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['kode_resiko'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $pemilik_resiko . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_sebab'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $sumber_sebab . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $controllable . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['uraian_dampak'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $pihak_terkena . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['skala_dampak'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['skala_kemungkinan'] . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $nilai_resiko . '</td>
-	                                    <td class="text-left"' . $style_bg . '>' . $data_sebelum['rencana_tindak_pengendalian'] . '</td>
+	                                    <td class="text-left">' . $data_sebelum['uraian_resiko'] . '</td>
+	                                    <td class="text-left">' . $data_sebelum['kode_resiko'] . '</td>
+	                                    <td class="text-left">' . $pemilik_resiko . '</td>
+	                                    <td class="text-left">' . $data_sebelum['uraian_sebab'] . '</td>
+	                                    <td class="text-left">' . $sumber_sebab . '</td>
+	                                    <td class="text-left">' . $controllable . '</td>
+	                                    <td class="text-left">' . $data_sebelum['uraian_dampak'] . '</td>
+	                                    <td class="text-left">' . $pihak_terkena . '</td>
+	                                    <td class="text-left">' . $data_sebelum['skala_dampak'] . '</td>
+	                                    <td class="text-left">' . $data_sebelum['skala_kemungkinan'] . '</td>
+	                                    <td class="text-left">' . $nilai_resiko . '</td>
+	                                    <td class="text-left">' . $data_sebelum['rencana_tindak_pengendalian'] . '</td>
 	                                ';
 
 	                                if ($tampil_data_program_kegiatan_sesudah) {
@@ -15783,7 +15796,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                }
 
 	                                if ($tampil_indikator_sesudah) {
-	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '"' . $style_bg . '>' . $indikator_data['indikator_text'] . '</td>';
+	                                    $html .= '<td class="text-left" rowspan="' . $indikator_count . '">' . $indikator_data['indikator_text'] . '</td>';
 	                                    $tampil_indikator_sesudah = false;
 	                                }
 
@@ -15813,36 +15826,36 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                        $nilai_resiko_sesudah = $data_sesudah['skala_dampak']*$data_sesudah['skala_kemungkinan'];
 	                                        
 	                                        $html .= '
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_resiko'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['kode_resiko'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $pemilik_resiko_sesudah . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_sebab'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $sumber_sebab_sesudah . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $controllable_sesudah . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['uraian_dampak'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $pihak_terkena_sesudah . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['skala_dampak'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['skala_kemungkinan'] . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $nilai_resiko_sesudah . '</td>
-	                                            <td class="text-left"' . $style_bg . '>' . $data_sesudah['rencana_tindak_pengendalian'] . '</td>
+	                                            <td class="text-left">' . $data_sesudah['uraian_resiko'] . '</td>
+	                                            <td class="text-left">' . $data_sesudah['kode_resiko'] . '</td>
+	                                            <td class="text-left">' . $pemilik_resiko_sesudah . '</td>
+	                                            <td class="text-left">' . $data_sesudah['uraian_sebab'] . '</td>
+	                                            <td class="text-left">' . $sumber_sebab_sesudah . '</td>
+	                                            <td class="text-left">' . $controllable_sesudah . '</td>
+	                                            <td class="text-left">' . $data_sesudah['uraian_dampak'] . '</td>
+	                                            <td class="text-left">' . $pihak_terkena_sesudah . '</td>
+	                                            <td class="text-left">' . $data_sesudah['skala_dampak'] . '</td>
+	                                            <td class="text-left">' . $data_sesudah['skala_kemungkinan'] . '</td>
+	                                            <td class="text-left">' . $nilai_resiko_sesudah . '</td>
+	                                            <td class="text-left">' . $data_sesudah['rencana_tindak_pengendalian'] . '</td>
 	                                        ';
 	                                        
 	                                        $data_sesudah = true;
 	                                    }
 	                                } else {
 	                                    $html .= '
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '></td>
-	                                        <td class="text-left"' . $style_bg . '>0</td>
-	                                        <td class="text-left"' . $style_bg . '>0</td>
-	                                        <td class="text-left"' . $style_bg . '>0</td>
-	                                        <td class="text-left"' . $style_bg . '></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left"></td>
+	                                        <td class="text-left">0</td>
+	                                        <td class="text-left">0</td>
+	                                        <td class="text-left">0</td>
+	                                        <td class="text-left"></td>
 	                                    ';
 	                                }
 
@@ -18870,8 +18883,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                                    $tipe_sesudah = 0;
 	                                    $id_tujuan_sesudah = 0;
 	                                    $id_indikator_sesudah = 0;
+	                                    $style_bg = '';
+		                                if (isset($data_sebelum['tipe']) && $data_sebelum['tipe'] == 0) {
+		                                    $style_bg = ' style="background-color: #CAFFBF;"';
+		                                }
 
-	                                    $html .= '<tr>';
+	                                    $html .= '<tr ' . $style_bg . '>';
 	                                    
 	                                    if ($tampil_data_tujuan_sasaran) {
 	                                        $html .= '<td class="text-left" rowspan="' . $total_rows . '">' . $no++ . '</td>';
