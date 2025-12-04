@@ -65,8 +65,6 @@ foreach ($data_unit as $unit) {
         }
         
         if (!empty($filter_data)) {
-            $grouped_by_skpd = array();
-            
             foreach ($filter_data as $data) {
                 $tingkat_resiko = $data['skala_dampak'] * $data['skala_kemungkinan'];
                 
@@ -85,37 +83,10 @@ foreach ($data_unit as $unit) {
                     $urut = 1; // Sangat Tinggi
                 }
                 
-                $tujuan_sasaran_key = $data['tipe'] . '_' . $data['id_tujuan_sasaran'];
-                $indikator_key = $data['id_indikator'];
-                
-                $kombinasi_key = $tujuan_sasaran_key . '_resiko_' . $urut;
-                
-                if (!isset($grouped_by_skpd[$kombinasi_key])) {
-                    $grouped_by_skpd[$kombinasi_key] = array(
-                        'tipe' => $data['tipe'],
-                        'id_tujuan_sasaran' => $data['id_tujuan_sasaran'],
-                        'tingkat_resiko_urut' => $urut,
-                        'id_skpd' => $id_skpd,
-                        'nama_skpd' => $nama_skpd,
-                        'indikator' => array()
-                    );
-                }
-                
-                if (!isset($grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key])) {
-                    $grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key] = array(
-                        'id_indikator' => $indikator_key,
-                        'data' => array()
-                    );
-                }
-                
-                $grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key]['data'][] = $data;
-            }
-            
-            foreach ($grouped_by_skpd as $tujuan_sasaran_group) {
                 $nama_tujuan_sasaran = '';
                 $label_tipe = '';
                 
-                if ($tujuan_sasaran_group['tipe'] == 0) {
+                if ($data['tipe'] == 0) {
                     $get_tujuan = $wpdb->get_row($wpdb->prepare("
                         SELECT 
                             tujuan_teks
@@ -124,13 +95,13 @@ foreach ($data_unit as $unit) {
                             AND id_unit = %d
                             AND active = 1
                         LIMIT 1
-                    ", $tujuan_sasaran_group['id_tujuan_sasaran'], $id_skpd), ARRAY_A);
+                    ", $data['id_tujuan_sasaran'], $id_skpd), ARRAY_A);
                     
                     if (!empty($get_tujuan)) {
                         $label_tipe = '<b>Tujuan:</b><br>';
                         $nama_tujuan_sasaran = $get_tujuan['tujuan_teks'];
                     }
-                } elseif ($tujuan_sasaran_group['tipe'] == 1) {
+                } elseif ($data['tipe'] == 1) {
                     $get_sasaran = $wpdb->get_row($wpdb->prepare("
                         SELECT 
                             sasaran_teks
@@ -139,7 +110,7 @@ foreach ($data_unit as $unit) {
                             AND id_unit = %d
                             AND active = 1
                         LIMIT 1
-                    ", $tujuan_sasaran_group['id_tujuan_sasaran'], $id_skpd), ARRAY_A);
+                    ", $data['id_tujuan_sasaran'], $id_skpd), ARRAY_A);
                     
                     if (!empty($get_sasaran)) {
                         $label_tipe = '<b>Sasaran:</b><br>';
@@ -147,98 +118,77 @@ foreach ($data_unit as $unit) {
                     }
                 }
                 
-                $rowspan_tujuan_sasaran = 0;
-                foreach ($tujuan_sasaran_group['indikator'] as $indikator_group) {
-                    $rowspan_tujuan_sasaran += count($indikator_group['data']);
-                }
+                $indikator_text = '';
                 
-                $is_tujuan_sasaran = true;
-                
-                foreach ($tujuan_sasaran_group['indikator'] as $indikator_group) {
-                    $indikator_text = '';
+                if ($data['tipe'] == 0) {
+                    $get_indikator = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            indikator_teks
+                        FROM data_renstra_tujuan
+                        WHERE id_unik = %s
+                            AND id_unik_indikator = %s
+                            AND id_unit = %d
+                            AND active = 1
+                    ", $data['id_tujuan_sasaran'], $data['id_indikator'], $id_skpd), ARRAY_A);
                     
-                    if ($tujuan_sasaran_group['tipe'] == 0) {
-                        $get_indikator = $wpdb->get_row($wpdb->prepare("
-                            SELECT 
-                                indikator_teks
-                            FROM data_renstra_tujuan
-                            WHERE id_unik = %s
-                                AND id_unik_indikator = %s
-                                AND id_unit = %d
-                                AND active = 1
-                        ", $tujuan_sasaran_group['id_tujuan_sasaran'], $indikator_group['id_indikator'], $id_skpd), ARRAY_A);
-                        
-                        if (!empty($get_indikator)) {
-                            $indikator_text = $get_indikator['indikator_teks'];
-                        }
-                    } elseif ($tujuan_sasaran_group['tipe'] == 1) {
-                        $get_indikator = $wpdb->get_row($wpdb->prepare("
-                            SELECT 
-                                indikator_teks
-                            FROM data_renstra_sasaran
-                            WHERE id_unik = %s
-                                AND id_unik_indikator = %s
-                                AND id_unit = %d
-                                AND active = 1
-                        ", $tujuan_sasaran_group['id_tujuan_sasaran'], $indikator_group['id_indikator'], $id_skpd), ARRAY_A);
-                        
-                        if (!empty($get_indikator)) {
-                            $indikator_text = $get_indikator['indikator_teks'];
-                        }
+                    if (!empty($get_indikator)) {
+                        $indikator_text = $get_indikator['indikator_teks'];
                     }
+                } elseif ($data['tipe'] == 1) {
+                    $get_indikator = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            indikator_teks
+                        FROM data_renstra_sasaran
+                        WHERE id_unik = %s
+                            AND id_unik_indikator = %s
+                            AND id_unit = %d
+                            AND active = 1
+                    ", $data['id_tujuan_sasaran'], $data['id_indikator'], $id_skpd), ARRAY_A);
                     
-                    $rowspan_indikator = count($indikator_group['data']);
-                    $is_indikator = true;
-                    
-                    foreach ($indikator_group['data'] as $data) {
-                        $controllable = '';
-                        if ($data['controllable'] == 0) {
-                            $controllable = 'Controllable';
-                        } elseif ($data['controllable'] == 1) {
-                            $controllable = 'Uncontrollable';
-                        }
-                        
-                        $pemilik_resiko = isset($data_pemilik_resiko[$data['pemilik_resiko']]) ? $data_pemilik_resiko[$data['pemilik_resiko']] : '';
-                        $sumber_sebab = isset($data_sumber_sebab[$data['sumber_sebab']]) ? $data_sumber_sebab[$data['sumber_sebab']] : '';
-                        $pihak_terkena = isset($data_pihak_terdampak[$data['pihak_terkena']]) ? $data_pihak_terdampak[$data['pihak_terkena']] : '';
-                        
-                        $tingkat_resiko = $data['skala_dampak'] * $data['skala_kemungkinan'];
-                        
-                        $row = array();
-                        $row['tingkat_resiko_urut'] = $tujuan_sasaran_group['tingkat_resiko_urut'];
-                        $row['html'] = array();
-                        
-                        $row['html'][] = '<tr class="resiko-row" data-tingkat="' . $tujuan_sasaran_group['tingkat_resiko_urut'] . '">';
-                        $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
-                        
-                        if ($is_tujuan_sasaran) {
-                            $row['html'][] = '<td class="text-left" rowspan="' . $rowspan_tujuan_sasaran . '">' . $label_tipe . $nama_tujuan_sasaran . '</td>';
-                            $is_tujuan_sasaran = false;
-                        }
-                        
-                        if ($is_indikator) {
-                            $row['html'][] = '<td class="text-left" rowspan="' . $rowspan_indikator . '">' . $indikator_text . '</td>';
-                            $is_indikator = false;
-                        }
-                        
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_resiko'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['kode_resiko'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $pemilik_resiko . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_sebab'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $sumber_sebab . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $controllable . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_dampak'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $pihak_terkena . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['rencana_tindak_pengendalian'] . '</td>';
-                        $row['html'][] = '<td class="text-center">' . $data['skala_dampak'] . '</td>';
-                        $row['html'][] = '<td class="text-center">' . $data['skala_kemungkinan'] . '</td>';
-                        $row['html'][] = '<td class="text-center nilai-resiko" data-nilai="' . $tingkat_resiko . '">' . $tingkat_resiko . '</td>';
-                        $row['html'][] = '<td class="text-left tingkat-resiko" data-nilai="' . $tingkat_resiko . '"></td>';
-                        $row['html'][] = '</tr>';
-                        
-                        $all_rows[] = $row;
+                    if (!empty($get_indikator)) {
+                        $indikator_text = $get_indikator['indikator_teks'];
                     }
                 }
+                
+                if (empty($indikator_text)) {
+                    $indikator_text = '-';
+                }
+                
+                $controllable = '';
+                if ($data['controllable'] == 0) {
+                    $controllable = 'Controllable';
+                } elseif ($data['controllable'] == 1) {
+                    $controllable = 'Uncontrollable';
+                }
+                
+                $pemilik_resiko = isset($data_pemilik_resiko[$data['pemilik_resiko']]) ? $data_pemilik_resiko[$data['pemilik_resiko']] : '';
+                $sumber_sebab = isset($data_sumber_sebab[$data['sumber_sebab']]) ? $data_sumber_sebab[$data['sumber_sebab']] : '';
+                $pihak_terkena = isset($data_pihak_terdampak[$data['pihak_terkena']]) ? $data_pihak_terdampak[$data['pihak_terkena']] : '';
+                
+                $row = array();
+                $row['tingkat_resiko_urut'] = $urut;
+                $row['html'] = array();
+                
+                $row['html'][] = '<tr class="resiko-row" data-tingkat="' . $urut . '">';
+                $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
+                $row['html'][] = '<td class="text-left">' . $label_tipe . $nama_tujuan_sasaran . '</td>';
+                $row['html'][] = '<td class="text-left">' . $indikator_text . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_resiko'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['kode_resiko'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $pemilik_resiko . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_sebab'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $sumber_sebab . '</td>';
+                $row['html'][] = '<td class="text-left">' . $controllable . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_dampak'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $pihak_terkena . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['rencana_tindak_pengendalian'] . '</td>';
+                $row['html'][] = '<td class="text-center">' . $data['skala_dampak'] . '</td>';
+                $row['html'][] = '<td class="text-center">' . $data['skala_kemungkinan'] . '</td>';
+                $row['html'][] = '<td class="text-center nilai-resiko" data-nilai="' . $tingkat_resiko . '">' . $tingkat_resiko . '</td>';
+                $row['html'][] = '<td class="text-left tingkat-resiko" data-nilai="' . $tingkat_resiko . '"></td>';
+                $row['html'][] = '</tr>';
+                
+                $all_rows[] = $row;
             }
         } else {
             $row = array();
@@ -309,8 +259,6 @@ foreach ($data_unit as $unit) {
         }
         
         if (!empty($filter_data)) {
-            $grouped_by_skpd = array();
-            
             foreach ($filter_data as $data) {
                 $tingkat_resiko = $data['skala_dampak'] * $data['skala_kemungkinan'];
                 
@@ -335,7 +283,8 @@ foreach ($data_unit as $unit) {
                 if ($data['tipe'] == 0) {
                     $get_data_program = $wpdb->get_row($wpdb->prepare("
                         SELECT 
-                            nama_program
+                            nama_program,
+                            kode_program
                         FROM data_sub_keg_bl 
                         WHERE kode_program = %s
                             AND id_sub_skpd = %d
@@ -345,13 +294,14 @@ foreach ($data_unit as $unit) {
                     ", $data['id_program_kegiatan'], $id_skpd, $input['tahun_anggaran']), ARRAY_A);
                     
                     if (!empty($get_data_program)) {
-                        $nama_program_kegiatan = $get_data_program['nama_program'];
+                        $nama_program_kegiatan = $get_data_program['kode_program'] . ' ' . $get_data_program['nama_program'];
                         $label_tipe = '<b>Program OPD:</b><br>';
                     }
                 } elseif ($data['tipe'] == 1) {
                     $get_data_kegiatan = $wpdb->get_row($wpdb->prepare("
                         SELECT 
-                            nama_giat
+                            nama_giat,
+                            kode_giat
                         FROM data_sub_keg_bl 
                         WHERE kode_giat = %s
                             AND id_sub_skpd = %d
@@ -361,7 +311,7 @@ foreach ($data_unit as $unit) {
                     ", $data['id_program_kegiatan'], $id_skpd, $input['tahun_anggaran']), ARRAY_A);
                     
                     if (!empty($get_data_kegiatan)) {
-                        $nama_program_kegiatan = $get_data_kegiatan['nama_giat'];
+                        $nama_program_kegiatan =  $get_data_kegiatan['kode_giat'] . ' ' . $get_data_kegiatan['nama_giat'];
                         $label_tipe = '<b>Kegiatan OPD:</b><br>';
                     }
                 } elseif ($data['tipe'] == 2) {
@@ -382,100 +332,47 @@ foreach ($data_unit as $unit) {
                     }
                 }
                 
-                $program_kegiatan_key = $data['tipe'] . '_' . $data['id_program_kegiatan'];
-                $indikator_key = $data['id_indikator'];
-                
-                $kombinasi_key = $program_kegiatan_key . '_resiko_' . $urut;
-                
-                if (!isset($grouped_by_skpd[$kombinasi_key])) {
-                    $grouped_by_skpd[$kombinasi_key] = array(
-                        'tipe' => $data['tipe'],
-                        'id_program_kegiatan' => $data['id_program_kegiatan'],
-                        'nama_program_kegiatan' => $nama_program_kegiatan,
-                        'label_tipe' => $label_tipe,
-                        'tingkat_resiko_urut' => $urut,
-                        'id_skpd' => $id_skpd,
-                        'nama_skpd' => $nama_skpd,
-                        'indikator' => array()
-                    );
+                $controllable = '';
+                if ($data['controllable'] == 0) {
+                    $controllable = 'Controllable';
+                } elseif ($data['controllable'] == 1) {
+                    $controllable = 'Uncontrollable';
                 }
                 
-                if (!isset($grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key])) {
-                    $grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key] = array(
-                        'id_indikator' => $indikator_key,
-                        'indikator_text' => $data['capaian_teks'],
-                        'data' => array()
-                    );
-                }
+                $pemilik_resiko = isset($data_pemilik_resiko[$data['pemilik_resiko']]) ? $data_pemilik_resiko[$data['pemilik_resiko']] : '';
+                $sumber_sebab = isset($data_sumber_sebab[$data['sumber_sebab']]) ? $data_sumber_sebab[$data['sumber_sebab']] : '';
+                $pihak_terkena = isset($data_pihak_terdampak[$data['pihak_terkena']]) ? $data_pihak_terdampak[$data['pihak_terkena']] : '';
                 
-                $grouped_by_skpd[$kombinasi_key]['indikator'][$indikator_key]['data'][] = $data;
-            }
-            
-            foreach ($grouped_by_skpd as $program_kegiatan_group) {
-                $rowspan_program_kegiatan = 0;
-                foreach ($program_kegiatan_group['indikator'] as $indikator_group) {
-                    $rowspan_program_kegiatan += count($indikator_group['data']);
-                }
+                $indikator_text = !empty($data['capaian_teks']) ? $data['capaian_teks'] : '-';
                 
-                $is_program_kegiatan = true;
+                $row = array();
+                $row['tingkat_resiko_urut'] = $urut;
+                $row['html'] = array();
                 
-                foreach ($program_kegiatan_group['indikator'] as $indikator_group) {
-                    $rowspan_indikator = count($indikator_group['data']);
-                    $is_indikator = true;
-                    
-                    foreach ($indikator_group['data'] as $data) {
-                        $controllable = '';
-                        if ($data['controllable'] == 0) {
-                            $controllable = 'Controllable';
-                        } elseif ($data['controllable'] == 1) {
-                            $controllable = 'Uncontrollable';
-                        }
-                        
-                        $pemilik_resiko = isset($data_pemilik_resiko[$data['pemilik_resiko']]) ? $data_pemilik_resiko[$data['pemilik_resiko']] : '';
-                        $sumber_sebab = isset($data_sumber_sebab[$data['sumber_sebab']]) ? $data_sumber_sebab[$data['sumber_sebab']] : '';
-                        $pihak_terkena = isset($data_pihak_terdampak[$data['pihak_terkena']]) ? $data_pihak_terdampak[$data['pihak_terkena']] : '';
-                        
-                        $tingkat_resiko = $data['skala_dampak'] * $data['skala_kemungkinan'];
-                        
-                        $row = array();
-                        $row['tingkat_resiko_urut'] = $program_kegiatan_group['tingkat_resiko_urut'];
-                        $row['html'] = array();
-                        
-                        $row['html'][] = '<tr class="resiko-row-2" data-tingkat="' . $program_kegiatan_group['tingkat_resiko_urut'] . '">';
-                        $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
-                        
-                        if ($is_program_kegiatan) {
-                            $row['html'][] = '<td class="text-left" rowspan="' . $rowspan_program_kegiatan . '">' . $program_kegiatan_group['label_tipe'] . $program_kegiatan_group['nama_program_kegiatan'] . '</td>';
-                            $is_program_kegiatan = false;
-                        }
-                        
-                        if ($is_indikator) {
-                            $row['html'][] = '<td class="text-left" rowspan="' . $rowspan_indikator . '">' . $indikator_group['indikator_text'] . '</td>';
-                            $is_indikator = false;
-                        }
-                        
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_resiko'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['kode_resiko'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $pemilik_resiko . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_sebab'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $sumber_sebab . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $controllable . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['uraian_dampak'] . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $pihak_terkena . '</td>';
-                        $row['html'][] = '<td class="text-left">' . $data['rencana_tindak_pengendalian'] . '</td>';
-                        $row['html'][] = '<td class="text-center">' . $data['skala_dampak'] . '</td>';
-                        $row['html'][] = '<td class="text-center">' . $data['skala_kemungkinan'] . '</td>';
-                        $row['html'][] = '<td class="text-center nilai-resiko" data-nilai="' . $tingkat_resiko . '">' . $tingkat_resiko . '</td>';
-                        $row['html'][] = '<td class="text-left tingkat-resiko" data-nilai="' . $tingkat_resiko . '"></td>';
-                        $row['html'][] = '</tr>';
-                        
-                        $all_rows_2[] = $row;
-                    }
-                }
+                $row['html'][] = '<tr class="resiko-row-2" data-tingkat="' . $urut . '">';
+                $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
+                $row['html'][] = '<td class="text-left">' . $label_tipe . $nama_program_kegiatan . '</td>';
+                $row['html'][] = '<td class="text-left">' . $indikator_text . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_resiko'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['kode_resiko'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $pemilik_resiko . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_sebab'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $sumber_sebab . '</td>';
+                $row['html'][] = '<td class="text-left">' . $controllable . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['uraian_dampak'] . '</td>';
+                $row['html'][] = '<td class="text-left">' . $pihak_terkena . '</td>';
+                $row['html'][] = '<td class="text-left">' . $data['rencana_tindak_pengendalian'] . '</td>';
+                $row['html'][] = '<td class="text-center">' . $data['skala_dampak'] . '</td>';
+                $row['html'][] = '<td class="text-center">' . $data['skala_kemungkinan'] . '</td>';
+                $row['html'][] = '<td class="text-center nilai-resiko" data-nilai="' . $tingkat_resiko . '">' . $tingkat_resiko . '</td>';
+                $row['html'][] = '<td class="text-left tingkat-resiko" data-nilai="' . $tingkat_resiko . '"></td>';
+                $row['html'][] = '</tr>';
+                
+                $all_rows_2[] = $row;
             }
         } else {
             $row = array();
-            $row['tingkat_resiko_urut'] = 7; // Belum ada data
+            $row['tingkat_resiko_urut'] = 7;
             $row['html'] = array();
             $row['html'][] = '<tr class="resiko-row-2" data-tingkat="6">';
             $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
@@ -485,7 +382,7 @@ foreach ($data_unit as $unit) {
         }
     } else {
         $row = array();
-        $row['tingkat_resiko_urut'] = 7; // Belum ada data
+        $row['tingkat_resiko_urut'] = 7;
         $row['html'] = array();
         $row['html'][] = '<tr class="resiko-row-2" data-tingkat="6">';
         $row['html'][] = '<td class="text-left">' . $nama_skpd . '</td>';
@@ -496,7 +393,6 @@ foreach ($data_unit as $unit) {
 }
 
 // Urutkan semua baris berdasarkan tingkat_resiko_urut
-// 1=Sangat Tinggi, 2=Tinggi, 3=Sedang, 4=Rendah, 5=Sangat Rendah, 6=Kosong, 7=Belum ada data
 usort($all_rows_2, function($a, $b) {
     return $a['tingkat_resiko_urut'] - $b['tingkat_resiko_urut'];
 });
