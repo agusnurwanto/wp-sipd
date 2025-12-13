@@ -572,6 +572,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					->add_fields($this->generate_input_perencanaan_rpjmd_rpd());
 			}
 
+			if (get_option('_crb_show_menu_transformasi_cascading_settings') != true) {
+				Container::make('theme_options', __('Transformasi Cascading'))
+					->set_page_parent($input_perencanaan)
+					->add_fields($this->generate_transformasi_cascading());
+			}
+
 			if (get_option('_crb_show_menu_input_renstra_settings') != true) {
 				Container::make('theme_options', __('Input RENSTRA'))
 					->set_page_parent($input_perencanaan)
@@ -2690,6 +2696,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_input_rpjmd_rpd_settings', 'Input RPJMD / RPD')
 				->set_option_value('true'),
+			Field::make('checkbox', 'crb_show_menu_transformasi_cascading_settings', 'Transformasi Cascading')
+				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_input_renstra_settings', 'Input RENSTRA')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_input_renja_settings', 'Input RENJA')
@@ -3689,6 +3697,95 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 		global $wpdb;
 		$label = $this->get_ajax_field(array('type' => 'input_renja'));
 		return $label;
+	}
+
+	public function generate_transformasi_cascading()
+	{
+		if (empty($_GET) || empty($_GET['page']) || $_GET['page'] != 'crb_carbon_fields_container_transformasi_cascading.php') {
+			return array();
+		}
+
+		global $wpdb;
+		$jadwals = $wpdb->get_results(
+			$wpdb->prepare('
+				SELECT 
+					id_jadwal_lokal,
+					nama,
+					tahun_anggaran,
+					tahun_akhir_anggaran,
+					status,
+					lama_pelaksanaan
+				FROM data_jadwal_lokal 
+				WHERE id_tipe = %d
+			', 4),
+			ARRAY_A
+		);
+
+		$return = '';
+		if (!empty($jadwals)) {
+			foreach ($jadwals as $index => $jadwal) {
+				$units = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							status,
+							tahun_anggaran,
+							nipkepala
+						FROM data_unit 
+						WHERE tahun_anggaran = %d
+						  AND is_skpd = 1
+						ORDER BY kode_skpd ASC
+					", $jadwal['tahun_anggaran']),
+					ARRAY_A
+				);
+
+				$status = ($jadwal['status'] == 0) ? '[TERBUKA]' : '[DIKUNCI]';
+				$tahun_akhir_anggaran = $jadwal['tahun_anggaran'] + $jadwal['lama_pelaksanaan'] - 1;
+
+				$return .= '
+					<h3 class="header-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">' . $jadwal['nama'] . ' | ' . $jadwal['tahun_anggaran'] . ' - ' . $tahun_akhir_anggaran . ' ' . $status . '</h3>
+					<div class="body-tahun" tahun="' . $jadwal['tahun_anggaran'] . '.' . $index . '">
+					<ul style="margin-left : 20px;">
+				';
+
+				if (!empty($units)) {
+					foreach ($units as $unit) {
+						$gen_page = $this->generatePage(
+							'Transformasi Cascading | ' . $jadwal['nama'],
+							null,
+							'[transformasi_cascading id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+						);
+
+						$url_skpd = $gen_page . '&id_skpd=' . $unit['id_skpd'];
+						$return .= '<li>
+							<a target="_blank" href="' . $url_skpd . '" >Halaman Input Transformasi Cascading ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
+						</li>';
+					}
+				} else {
+					$return .= '
+							 <li>Tidak ada data unit ditemukan.</li>
+					';
+				}
+				$return .= '
+							</ul>
+						</div>
+				';
+			}
+		} else {
+			$return = '<h1>Data jadwal Renstra Lokal tidak ditemukan! coba buat jadwal Renstra Lokal terlebih dahulu di Input Perencanaan / Jadwal dan Input Perencanaan.</h1>';
+		}
+		return [
+			Field::make('html', 'crb_hide_sidebar')
+				->set_html('
+				<style>
+					.postbox-container { display: none; }
+					#poststuff #post-body.columns-2 { margin: 0 !important; }
+				</style>
+        	'),
+			Field::make('html', 'crb_transformasi_cascading')->set_html($return)
+		];
 	}
 
 	public function generate_input_perencanaan_renstra()

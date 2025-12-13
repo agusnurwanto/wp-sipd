@@ -1232,6 +1232,12 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_save_indikator_monev_renja',  $plugin_public, 'save_indikator_monev_renja');
 		$this->loader->add_action('wp_ajax_delete_monev_indikator',  $plugin_public, 'delete_monev_indikator');
+		
+		$this->loader->add_action('wp_ajax_handle_get_transformasi_list',  $plugin_public, 'handle_get_transformasi_list');
+		$this->loader->add_action('wp_ajax_handle_get_detail_transformasi_cascading',  $plugin_public, 'handle_get_detail_transformasi_cascading');
+		$this->loader->add_action('wp_ajax_handle_delete_transformasi_cascading',  $plugin_public, 'handle_delete_transformasi_cascading');
+		$this->loader->add_action('wp_ajax_handle_save_transformasi_cascading',  $plugin_public, 'handle_save_transformasi_cascading');
+		$this->loader->add_action('wp_ajax_handle_add_tranformasi_cascading_by_level',  $plugin_public, 'handle_add_tranformasi_cascading_by_level');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -1293,6 +1299,7 @@ class Wpsipd
 		add_shortcode('jadwal_rpjpd', array($plugin_public, 'jadwal_rpjpd'));
 		add_shortcode('jadwal_rpd', array($plugin_public, 'jadwal_rpd'));
 		add_shortcode('monitoring_rup', array($plugin_public, 'monitoring_rup'));
+		add_shortcode('transformasi_cascading', array($plugin_public, 'transformasi_cascading'));
 		add_shortcode('input_renstra', array($plugin_public, 'input_renstra'));
 		add_shortcode('input_renja', array($plugin_public, 'input_renja'));
 		add_shortcode('laporan_konsistensi_rpjm', array($plugin_public, 'laporan_konsistensi_rpjm'));

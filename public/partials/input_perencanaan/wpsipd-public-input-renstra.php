@@ -2643,7 +2643,7 @@ $table .= '
 
 	#table-renstra thead, 
 	#table-renstra-pokin thead,
-	#table-renstra-pokin-existing thead, {
+	#table-renstra-pokin-existing thead {
 		position: sticky;
 		top: -6px;
 		background: #ffc491;
