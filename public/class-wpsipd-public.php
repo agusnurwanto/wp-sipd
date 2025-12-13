@@ -30408,15 +30408,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 
 			// Ambil Data Array (ProgKeg & Indikator)
-			// Pastikan dikirim via AJAX sebagai array
 			$list_id_unik = isset($_POST['id_unik']) ? $_POST['id_unik'] : []; // Array ID Unik dari Select2
-			$list_indikator = isset($_POST['indikator_data']) ? $_POST['indikator_data'] : []; // Array of Object {indikator, satuan}
 
 			if (empty($list_id_unik)) {
 				throw new Exception("Harap pilih minimal satu Program/Kegiatan/Subkegiatan.", 400);
-			}
-			if (empty($list_indikator)) {
-				throw new Exception("Harap isi minimal satu Indikator.", 400);
 			}
 
 			// Mulai Transaksi Database
@@ -30434,6 +30429,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$data_utama = [
 				'parent_id'        => $parent_id,
+				'level'            => $_POST['level'],
 				'uraian_cascading' => sanitize_textarea_field($_POST['uraian_cascading']),
 				'is_pelaksana'     => isset($_POST['is_pelaksana']) && $_POST['is_pelaksana'] == 1 ? 1 : 0,
 				'id_skpd'          => $_POST['id_skpd'],
@@ -30456,9 +30452,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if ($update === false) throw new Exception("Gagal mengupdate data utama.", 500);
 
 				// Jika Edit, Soft Delete data anak (ProgKeg & Indikator) lama terlebih dahulu
-				// Kita set active = 0, nanti insert baru dengan active = 1
 				$wpdb->update('data_progkeg_transformasi_cascading', ['active' => 0], ['id_uraian_cascading' => $id_trans]);
-				$wpdb->update('data_indikator_transformasi_cascading', ['active' => 0], ['id_uraian_cascading' => $id_trans]);
 			}
 
 			// --- LOGIC: INSERT MULTI PROG/KEG/SUBKEG ---
@@ -30466,26 +30460,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$insert_progkeg = $wpdb->insert('data_progkeg_transformasi_cascading', [
 					'id_uraian_cascading' => $id_trans,
 					'id_unik'             => $id_unik,
-					'level'               => $_POST['level'], // Level disimpan disini (3/4/5)
 					'created_at'          => current_time('mysql'),
 					'active'              => 1
 				]);
 				if (!$insert_progkeg) throw new Exception("Gagal menyimpan relasi Program/Kegiatan.", 500);
-			}
-
-			// --- LOGIC: INSERT MULTI INDIKATOR ---
-			foreach ($list_indikator as $ind) {
-				// Validasi item indikator
-				if(empty($ind['indikator']) || empty($ind['satuan'])) continue;
-
-				$insert_ind = $wpdb->insert('data_indikator_transformasi_cascading', [
-					'id_uraian_cascading' => $id_trans,
-					'indikator'           => sanitize_textarea_field($ind['indikator']),
-					'satuan'              => sanitize_text_field($ind['satuan']),
-					'created_at'          => current_time('mysql'),
-					'active'              => 1
-				]);
-				if (!$insert_ind) throw new Exception("Gagal menyimpan indikator.", 500);
 			}
 
 			// Commit Transaksi
@@ -30670,7 +30648,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// Convert array ke string untuk query IN ('..','..')
 				$placeholders = implode(',', array_fill(0, count($programs_renstra), '%s'));
 				
-				// Query Utama: Ambil Data Cascading yang me-link ke program-program tersebut
 				$query = "
 					SELECT DISTINCT t.* 
 					FROM data_transformasi_cascading t
@@ -30678,7 +30655,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					  ON t.id = rel.id_uraian_cascading
 					WHERE t.active = 1 
 					  AND rel.active = 1
-					  AND rel.level = 3
+					  AND t.level = 3
 					  AND rel.id_unik IN ($placeholders)
 					ORDER BY t.id DESC
 				";
@@ -30687,24 +30664,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			} else {
 				// LEVEL 4 & 5 (KEGIATAN & SUB-KEGIATAN CASCADING)
-				// Filter: Sederhana, cari yang parent_id nya sesuai input
 				
 				if (empty($parent_id)) throw new Exception("Parent ID diperlukan.", 400);
 
-				$results = $wpdb->get_results($wpdb->prepare("
-					SELECT * FROM data_transformasi_cascading 
-					WHERE parent_id = %d 
-					  AND active = 1 
-					ORDER BY id DESC
-				", $parent_id), ARRAY_A);
+				$results = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT * 
+						FROM data_transformasi_cascading 
+						WHERE parent_id = %d 
+						AND active = 1 
+						ORDER BY is_pelaksana ASC, updated_at DESC 
+					", $parent_id), ARRAY_A
+				);
 			}
 
 			// --- ENRICH DATA (AMBIL NAMA REFERENSI RENSTRA) ---			
 			$final_data = [];
-			$status_active_map = [
-				1 => 'Aktif',
-				0 => 'Non-Aktif'
-			];
 			foreach ($results as $row) {
 				$refs = $wpdb->get_results(
 					$wpdb->prepare("
@@ -30732,27 +30707,49 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							", $kode
 						));
 
-						if($master) $nama = $master->nama_program;
+						if($master) {
+							if ($master->active == 0) {
+								$nama = $master->nama_program . '<span class="text-danger">(DIHAPUS)</span>';
+							} else {
+								$nama = $master->nama_program;
+							}
+						}
 					} elseif ($level === 4) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
-								SELECT nama_giat 
+								SELECT 
+									nama_giat, 
+									active
 								FROM data_renstra_kegiatan_lokal 
 								WHERE id_unik = %s
 								", $kode)
 							);
 
-						if($master) $nama = $master->nama_giat;
+						if($master) {
+							if ($master->active == 0) {
+								$nama = $master->nama_giat . '<span class="text-danger">(DIHAPUS)</span>';
+							} else {
+								$nama = $master->nama_giat;
+							}
+						}
 					} elseif ($level === 5) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
-								SELECT nama_sub_giat 
+								SELECT 
+									nama_sub_giat, 
+									active
 								FROM data_renstra_sub_kegiatan_lokal 
 								WHERE id_unik = %s
 								", $kode
 							));
-							
-						if($master) $nama = $master->nama_sub_giat;
+
+						if($master) {
+							if ($master->active == 0) {
+								$nama = $master->nama_sub_giat . '<span class="text-danger">(DIHAPUS)</span>';
+							} else {
+								$nama = $master->nama_sub_giat;
+							}
+						}
 					}
 
 					$list_referensi_detail[] = [
@@ -30760,9 +30757,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'nama_ref' => $nama
 					];
 				}
+				$indikators = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							id, 
+							indikator, 
+							satuan 
+						FROM data_indikator_transformasi_cascading 
+						WHERE id_uraian_cascading = %d 
+						  AND active = 1
+						ORDER BY id ASC
+					", $row['id']),
+					ARRAY_A
+				);
 
-				// Gabungkan ke object row
 				$row['referensi'] = $list_referensi_detail;
+				$row['indikator'] = $indikators;
 				$final_data[] = $row;
 			}
 
@@ -30782,4 +30792,442 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
+	function handle_save_indikator() {
+		try {
+			$this->newValidate($_POST, [
+				'api_key' => 'required|string',
+				'id_uraian_cascading' => 'required|numeric',
+				'indikator' => 'required|string',
+				'satuan' => 'required|string',
+			]);
+			
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API Key Invalid", 401);
+			}
+			global $wpdb;
+
+			$data = [
+				'id_uraian_cascading' => $_POST['id_uraian_cascading'],
+				'indikator'           => sanitize_textarea_field($_POST['indikator']),
+				'satuan'              => sanitize_text_field($_POST['satuan']),
+				'updated_at'          => current_time('mysql'),
+				'active'              => 1
+			];
+
+			// Cek apakah Create atau Edit (berdasarkan ada/tidaknya ID)
+			if (!empty($_POST['id'])) {
+				// EDIT
+				$update = $wpdb->update('data_indikator_transformasi_cascading', $data, ['id' => $_POST['id']]);
+				if ($update === false) throw new Exception("Gagal update indikator.", 500);
+				$msg = "Indikator diperbarui.";
+			} else {
+				// CREATE
+				$data['created_at'] = current_time('mysql');
+				$insert = $wpdb->insert('data_indikator_transformasi_cascading', $data);
+				if (!$insert) throw new Exception("Gagal menyimpan indikator.", 500);
+				$msg = "Indikator ditambahkan.";
+			}
+
+			echo json_encode(['status' => true, 'message' => $msg]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
+
+	function handle_delete_indikator() {
+		try {
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) throw new Exception("Auth Error", 401);
+			global $wpdb;
+			
+			$wpdb->update(
+				'data_indikator_transformasi_cascading', 
+				['active' => 0, 'updated_at' => current_time('mysql')], 
+				['id' => $_POST['id']]
+			);
+			
+			echo json_encode(['status' => true, 'message' => "Indikator dihapus."]);
+		} catch (Exception $e) {
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
+
+	function handle_get_view_tabel_cascading()
+	{
+		global $wpdb;
+
+		try {
+			// Validasi input
+			$this->newValidate($_POST, [
+				'api_key'   => 'required|string',
+				'id_jadwal' => 'required|numeric',
+				'id_skpd'   => 'required|numeric'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
+			$query_main = $wpdb->prepare("
+				SELECT * 
+				FROM data_transformasi_cascading 
+				WHERE id_jadwal = %d 
+				  AND id_skpd = %d 
+				  AND active = 1
+				ORDER BY level ASC, id ASC
+			", $_POST['id_jadwal'], $_POST['id_skpd']);
+
+			$cascading_data = $wpdb->get_results($query_main, ARRAY_A);
+
+			if (empty($cascading_data)) {
+				echo json_encode([
+					'status' => true, 
+					'html' => '<tr><td colspan="5" class="text-center text-muted font-italic p-4">Belum ada data transformasi cascading.</td></tr>'
+				]);
+				wp_die();
+			}
+
+			$html_output = "";
+
+			foreach ($cascading_data as $row) {
+				$id_trans = $row['id'];
+				$level = $row['level'];
+				
+				// Tentukan Label Level & Class Warna
+				$level_label = '';
+				$bg_class = '';
+				if ($level == 3) { $level_label = 'PROGRAM'; $bg_class = 'bg-level-3'; }
+				elseif ($level == 4) { $level_label = 'KEGIATAN'; $bg_class = 'bg-level-4'; }
+				elseif ($level == 5) { $level_label = 'SUB KEGIATAN'; $bg_class = 'bg-level-5'; }
+
+				// --- AMBIL INDIKATOR ---
+				$indikators = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							indikator,
+							satuan 
+						FROM data_indikator_transformasi_cascading 
+						WHERE id_uraian_cascading = %d 
+						AND active = 1
+					", $id_trans), ARRAY_A
+				);
+
+				$html_indikator = '<ul class="list-unstyled mb-0">';
+				if($indikators) {
+					foreach($indikators as $ind) {
+						$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator']} <strong>({$ind['satuan']})</strong></li>";
+					}
+				} else {
+					$html_indikator .= "<li>-</li>";
+				}
+				$html_indikator .= '</ul>';
+
+				// --- AMBIL REFERENSI (PROG/KEG/SUBKEG & POKIN) ---
+				$rels = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							id_unik 
+						FROM data_progkeg_transformasi_cascading
+						WHERE id_uraian_cascading = %d 
+						  AND active = 1
+					", $id_trans), ARRAY_A
+				);
+
+				$html_pokin = ''; // Reset string
+            	$html_nomenklatur = ''; // Reset string
+				
+				if ($rels) {
+					$html_pokin .= '<ul class="list-unstyled mb-0">';
+					$html_nomenklatur .= '<ul class="list-unstyled mb-0">';
+
+					foreach ($rels as $k => $rel) {
+						$id_unik = $rel['id_unik'];
+
+						$separator = ($k > 0) ? "<div class='hr-mild'></div>" : "";
+						// Cari Data POKIN (Berdasarkan id_unik)
+						$list_pokin = $wpdb->get_results(
+							$wpdb->prepare("
+								SELECT 
+									label,
+									level 
+								FROM data_pokin_renstra 
+								WHERE id_unik = %s 
+								  AND active = 1
+							", $id_unik), ARRAY_A
+						);
+
+						$html_pokin .= $separator . "<li>";
+						if ($list_pokin) {
+							$html_pokin .= "<ul class='pl-3 mb-0' style='list-style-type: circle;'>";
+							foreach ($list_pokin as $p) {
+								$html_pokin .= "<li class='mb-1'>[Lv. {$p['level']}] {$p['label']}</li>";
+							}
+							$html_pokin .= "</ul>";
+						} else {
+							$html_pokin .= "<span class='text-muted font-italic small'>(Pokin tidak ditemukan)</span>";
+						}
+						$html_pokin .= "</li>";
+						
+						// Cari Nomenklatur Renstra
+						$nama_nomenklatur = $id_unik; // Default tampilkan kode jika nama tidak ketemu
+						
+						if ($level == 3) {
+							$renstra = $wpdb->get_row(
+								$wpdb->prepare("
+									SELECT 
+										nama_program as nama,
+										active 
+									FROM data_renstra_program_lokal 
+									WHERE id_unik = %s
+								", $id_unik)
+							);
+						} elseif ($level == 4) {
+							$renstra = $wpdb->get_row(
+								$wpdb->prepare("
+									SELECT 
+										nama_giat as nama,
+										active
+									FROM data_renstra_kegiatan_lokal 
+									WHERE id_unik = %s
+								", $id_unik)
+							);
+						} elseif ($level == 5) {
+							$renstra = $wpdb->get_row(
+								$wpdb->prepare("
+									SELECT 
+										nama_sub_giat as nama, 
+										active
+									FROM data_renstra_sub_kegiatan_lokal 
+									WHERE id_unik = %s
+								", $id_unik)
+							);
+						}
+
+						if ($renstra) {
+							if ($renstra->active == 0) {
+								$nama_nomenklatur = $renstra->nama . ' <span class="text-danger">(DIHAPUS)</span>';
+							} else {
+								$nama_nomenklatur = $renstra->nama;
+							}
+						}
+						
+						$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}</li>";
+					}
+
+					$html_pokin .= '</ul>';
+               	 	$html_nomenklatur .= '</ul>';
+				} else {
+					$html_pokin .= "<li>-</li>";
+					$html_nomenklatur .= "<li>-</li>";
+				}
+				$html_pokin .= '</ul>';
+				$html_nomenklatur .= '</ul>';
+
+				// --- BUILD ROW ---
+				$html_output .= "
+				<tr class='{$bg_class}'>
+					<td>{$html_pokin}</td>
+					<td class='text-center font-weight-bold small'>{$level_label}</td>
+					<td>
+						<span class='font-weight-bold'>{$row['uraian_cascading']}</span>
+						" . ($row['is_pelaksana'] == 1 ? "<br><span class='badge badge-warning mt-1'>Pelaksana</span>" : "") . "
+					</td>
+					<td>{$html_indikator}</td>
+					<td>{$html_nomenklatur}</td>
+				</tr>
+				";
+			}
+
+			echo json_encode(['status' => true, 'html' => $html_output]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
+
+	function handle_get_unmapped_renstra()
+	{
+		global $wpdb;
+
+		try {
+			$this->newValidate($_POST, [
+				'api_key'   => 'required|string',
+				'id_jadwal' => 'required|numeric',
+				'id_unit'   => 'required|numeric'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
+			// 1. Ambil Tahun Anggaran dari Jadwal
+			$jadwal = $wpdb->get_row(
+				$wpdb->prepare("
+					SELECT tahun_anggaran 
+					FROM data_jadwal_lokal 
+					WHERE id_jadwal_lokal = %d
+				", $_POST['id_jadwal']
+			));
+			
+			if (!$jadwal) throw new Exception("Jadwal tidak ditemukan", 404);
+			
+			$tahun = $jadwal->tahun_anggaran;
+
+			// Query UNION (Program + Kegiatan + SubKegiatan)
+			
+			$sql_program = "
+				SELECT 
+					'Program' AS tipe,
+					3 AS lvl,
+					p.id_unik,
+					p.nama_program AS nama,
+					p.kode_program AS kode,
+					CONCAT(
+						'<ul class=\"m-0\">',
+						GROUP_CONCAT(
+							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
+							ORDER BY pk.level
+							SEPARATOR ''
+						),
+						'</ul>'
+					) AS pokin
+				FROM data_renstra_program_lokal p
+				LEFT JOIN data_pokin_renstra pk 
+					ON pk.id_unik = p.id_unik 
+					AND pk.active = 1
+				WHERE p.id_unit = %d
+				AND p.tahun_anggaran = %d
+				AND p.id_unik_indikator IS NULL
+				AND p.active = 1
+				AND NOT EXISTS (
+						SELECT 1 
+						FROM data_progkeg_transformasi_cascading r
+						WHERE r.id_unik = p.id_unik
+						AND r.active = 1
+				)
+				GROUP BY p.id_unik
+			";
+
+			$sql_kegiatan = "
+				SELECT 
+					'Kegiatan' AS tipe,
+					4 AS lvl,
+					k.id_unik,
+					k.nama_giat AS nama,
+					k.kode_giat AS kode,
+					CONCAT(
+						'<ul class=\"m-0\">',
+						GROUP_CONCAT(
+							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
+							ORDER BY pk.level
+							SEPARATOR ''
+						),
+						'</ul>'
+					) AS pokin
+				FROM data_renstra_kegiatan_lokal k
+				LEFT JOIN data_pokin_renstra pk 
+					ON pk.id_unik = k.id_unik 
+					AND pk.active = 1
+				WHERE k.id_unit = %d
+				  AND k.tahun_anggaran = %d
+				  AND k.id_unik_indikator IS NULL
+				  AND k.active = 1
+				  AND NOT EXISTS (
+						SELECT 1 
+						FROM data_progkeg_transformasi_cascading r
+						WHERE r.id_unik = k.id_unik
+						AND r.active = 1
+					)
+				GROUP BY k.id_unik
+			";
+
+			$sql_subkeg = "
+				SELECT 
+					'Sub Kegiatan' AS tipe,
+					5 AS lvl,
+					s.id_unik,
+					s.nama_sub_giat AS nama,
+					s.kode_sub_giat AS kode,
+					CONCAT(
+						'<ul class=\"m-0\">',
+						GROUP_CONCAT(
+							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
+							ORDER BY pk.level
+							SEPARATOR ''
+						),
+						'</ul>'
+					) AS pokin
+				FROM data_renstra_sub_kegiatan_lokal s
+				LEFT JOIN data_pokin_renstra pk 
+					ON pk.id_unik = s.id_unik 
+					AND pk.active = 1
+				WHERE s.id_unit = %d
+				  AND s.tahun_anggaran = %d
+				  AND s.id_unik_indikator IS NULL
+				  AND s.active = 1
+				  AND NOT EXISTS (
+						SELECT 1 
+						FROM data_progkeg_transformasi_cascading r
+						WHERE r.id_unik = s.id_unik
+						AND r.active = 1
+					)
+				GROUP BY s.id_unik
+			";
+
+			// Gabungkan dengan UNION ALL
+			$final_query = "($sql_program) UNION ALL ($sql_kegiatan) UNION ALL ($sql_subkeg) ORDER BY lvl ASC, kode ASC";
+			
+			// Prepare query dengan argumen berulang (id_unit, tahun, id_unit, tahun, id_unit, tahun)
+			$unmapped_data = $wpdb->get_results($wpdb->prepare($final_query, 
+				$_POST['id_unit'], $tahun, 
+				$_POST['id_unit'], $tahun, 
+				$_POST['id_unit'], $tahun
+			), ARRAY_A);
+
+			// 3. Generate HTML Output
+			$html = "";
+			$has_data = false;
+
+			if (!empty($unmapped_data)) {
+				$has_data = true;
+				$no = 1;
+				foreach ($unmapped_data as $row) {
+					// Warna label tipe
+					$badge_class = 'secondary';
+					if($row['lvl'] == 3) $badge_class = 'primary';
+					if($row['lvl'] == 4) $badge_class = 'success';
+					if($row['lvl'] == 5) $badge_class = 'info';
+
+					$pokin_text = !empty($row['pokin']) ? $row['pokin'] : "<span class='text-muted font-italic small'>(Belum ada Pokin)</span>";
+
+					$html .= "
+					<tr>
+						<td class='text-center'>{$no}</td>
+						<td>{$pokin_text}</td>
+						<td class='text-center'><span class='badge badge-{$badge_class}'>{$row['tipe']}</span></td>
+						<td class='text-monospace small'>{$row['kode']}</td>
+						<td>{$row['nama']}</td>
+					</tr>
+					";
+					$no++;
+				}
+			}
+
+			echo json_encode([
+				'status' => true,
+				'has_data' => $has_data,
+				'html' => $html
+			]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
 }
