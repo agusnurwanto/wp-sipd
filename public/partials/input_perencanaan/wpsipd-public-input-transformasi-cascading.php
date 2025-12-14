@@ -5,11 +5,7 @@ if (! defined('WPINC')) {
 }
 global $wpdb;
 
-$input = shortcode_atts(array(
-    'id_jadwal' => '',
-), $atts);
-
-if (!$input['id_jadwal'] || !$_GET['id_skpd']) {
+if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
     die('<h1 class="text-center">Parameter id_jadwal atau id_skpd tidak ditemukan!</h1>');
 }
 
@@ -19,7 +15,7 @@ $jadwal_renstra_lokal = $wpdb->get_row(
 		FROM data_jadwal_lokal
 		WHERE id_jadwal_lokal = %d
 		 AND status !=2
-	', $input['id_jadwal']),
+	', $_GET['id_jadwal']),
     ARRAY_A
 );
 
@@ -150,16 +146,19 @@ if (!$data_unit) {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div id="info-navigasi" class="alert alert-light border mb-3" style="display:none; background-color: #f8f9fa;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted text-uppercase font-weight-bold" style="font-size: 10px; letter-spacing: 1px;">Posisi Saat Ini:</small>
-                            <div id="breadcrumb-text" class="text-primary font-weight-bold" style="font-size: 1.1em;"></div>
-                        </div>
-                        <button id="btn-add-new" class="btn btn-success btn-sm shadow-sm" onclick="openFormModal()">
-                            <i class="fa fa-plus-circle"></i> Tambah Data Baru
-                        </button>
-                    </div>
+                <div id="info-navigasi" class="alert alert-light border mb-3">
+                    <table class="table-renstra mb-0 table-sm" id="table-navigation">
+                        <thead class="thead-light text-dark">
+                            <tr>
+                                <th style="width: 120px;">Tipe</th>
+                                <th style="width: 280px;">Pohon Kinerja</th>
+                                <th>Uraian Cascading</th>
+                                <th style="width: 200px;">RENSTRA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-body">
                     <nav>
@@ -173,7 +172,11 @@ if (!$data_unit) {
                     </nav>
 
                     <div class="tab-content pt-3">
-                        <div id="content-table-wrapper"></div>
+                        <button id="btn-add-new" class="btn btn-success btn-sm shadow-sm m-2" onclick="openFormModal()">
+                            <i class="dashicons dashicons-plus"></i> Tambah Data Baru
+                        </button>
+                        <div id="content-table-wrapper">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,15 +239,22 @@ if (!$data_unit) {
                         </div>
 
                         <div class="form-group">
+                            <label class="font-weight-bold text-dark">Pohon Kinerja Terpilih</label>
+                            <select class="form-control" id="pokin_list" name="pokin_list[]" multiple disabled>
+                            </select>
+                            <small class="form-text text-muted">Data Pohon Kinerja terkait dengan Data Renstra, Hanya dapat diubah di Input Renstra.</small>
+                        </div>
+
+                        <div class="form-group">
                             <label class="font-weight-bold text-dark">Referensi Renstra <span id="label-ref-level"></span> <span class="text-danger">*</span></label>
-                            <select class="form-control select2-modal" id="input_id_unik" name="id_unik[]" multiple="multiple" style="width: 100%;" required>
+                            <select class="form-control" id="input_id_unik" name="id_unik[]" multiple required>
                             </select>
                             <small class="form-text text-muted">Cari dan pilih referensi (Bisa lebih dari satu).</small>
                         </div>
-                        
+
                         <hr>
 
-                        <div class="form-group bg-light p-2 rounded border-left border-primary">
+                        <div class="form-group bg-light p-2 rounded border-left border-primary pelaksana-section" style="display: none;">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="input_is_pelaksana" name="is_pelaksana" value="1">
                                 <label class="custom-control-label font-weight-bold text-dark" for="input_is_pelaksana">Pelaksana / bukan ketua tim kerja.</label>
@@ -264,32 +274,97 @@ if (!$data_unit) {
 </div>
 <script>
     jQuery(document).ready(() => {
-        window.idJadwal = '<?php echo $input['id_jadwal']; ?>';
+        window.idJadwal = '<?php echo $_GET['id_jadwal']; ?>';
         window.idUnit = '<?php echo $data_unit['id_unit']; ?>';
+        jQuery('#pokin_list').select2({
+            dropdownParent: jQuery('#modal-form-cascading'),
+            multiple: true,
+            placeholder: 'Pohon Kinerja',
+            width: '100%',
+            disabled: true
+        });
+
         loadTabelFull();
         loadTabelUnmapped();
+
+        jQuery('#input_id_unik').on('change', function() {
+            const selectedIds = jQuery(this).val(); // array
+
+            // reset pokin
+            jQuery('#pokin_list').empty().trigger('change');
+
+            if (!selectedIds || selectedIds.length === 0) {
+                return;
+            }
+
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: ajax.url,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'get_pokin_by_id_uniks',
+                    api_key: ajax.api_key,
+                    id_uniks: selectedIds.join(',')
+                },
+                success: function(res) {
+                    if (!res.status) return;
+
+                    const pokinSelect = jQuery('#pokin_list');
+
+                    res.data.forEach(p => {
+                        const option = new Option(
+                            `[Lv. ${p.level}] ${p.label}`,
+                            p.id_unik,
+                            true,
+                            true
+                        );
+                        pokinSelect.append(option);
+                    });
+
+                    pokinSelect.trigger('change');
+                    jQuery('#wrap-loading').hide();
+                }
+            });
+        });
+
     });
 
     // --- STATE MANAGEMENT ---
     const state = {
         currentLevel: 1,
-        breadcrumbs: {},
         parentIds: {
             1: {
                 parent_id: null,
-                parent_cascading: null
+                parent_cascading: null,
+                tipe: 'Tujuan',
+                pokin: null,
+                uraian: null,
+                renstra: null
             },
             2: {
                 parent_id: null,
-                parent_cascading: null
+                parent_cascading: null,
+                tipe: 'Sasaran',
+                pokin: null,
+                uraian: null,
+                renstra: null
             },
             3: {
                 parent_id: null,
-                parent_cascading: null
+                parent_cascading: null,
+                tipe: 'Program',
+                pokin: null,
+                uraian: null,
+                renstra: null
             },
             4: {
                 parent_id: null,
-                parent_cascading: null
+                parent_cascading: null,
+                tipe: 'Kegiatan',
+                pokin: null,
+                uraian: null,
+                renstra: null
             }
         }
     };
@@ -356,7 +431,7 @@ if (!$data_unit) {
     }
 
     // ============================================================
-    // 1. NAVIGATION & VIEW CONTROLLER
+    //  NAVIGATION & VIEW CONTROLLER
     // ============================================================
 
     function handleAdd() {
@@ -367,33 +442,18 @@ if (!$data_unit) {
     function switchLevel(level) {
         state.currentLevel = level;
 
-        // A. Update UI Tab (Active/Disabled state)
         jQuery('.nav-link').removeClass('active');
         jQuery(`#nav-lvl${level}-tab`).addClass('active').removeClass('disabled');
 
-        // B. Update Header (Breadcrumb & Tombol Tambah)
         updateHeaderUI();
-
-        // C. Load Data Tabel
         loadTableData(level);
     }
 
+
     function updateHeaderUI() {
-        // Render Breadcrumbs
-        let texts = [];
-        for (let i = 1; i < state.currentLevel; i++) {
-            if (state.breadcrumbs[i]) texts.push(state.breadcrumbs[i]);
-        }
+        renderNavigationTable();
 
-        let html = texts.length > 0 ?
-            texts.join(' <i class="fa fa-chevron-right mx-1 text-muted"></i> ') :
-            '<span class="text-muted font-italic">Silakan Pilih Level 1</span>';
-
-        jQuery('#breadcrumb-text').html(html);
-        jQuery('#info-navigasi').show();
-
-        // Logika Tombol "Tambah Data Baru"
-        // Hanya muncul di Level 3 (Program), 4 (Kegiatan), 5 (Sub-Kegiatan)
+        // Tombol tambah data
         if (state.currentLevel >= 3) {
             jQuery('#btn-add-new').show();
         } else {
@@ -401,25 +461,57 @@ if (!$data_unit) {
         }
     }
 
-    function handleDrillDown(currentLvl, id, labelEnc, idsString = null) {
-        if (!state.parentIds[currentLvl]) state.parentIds[currentLvl] = {};
+    function handleDrillDown(currentLvl, payload) {
+        const lvlState = state.parentIds[currentLvl];
 
-        state.breadcrumbs[currentLvl] = labelEnc;
+        lvlState.parent_id = payload.id;
+        lvlState.parent_cascading = payload.idsString || null;
 
-        state.parentIds[currentLvl]['parent_id'] = id;
-        state.parentIds[currentLvl]['parent_cascading'] = idsString;
-        console.log(state.parentIds);
+        lvlState.pokin = payload.pokin || null;
+        lvlState.uraian = payload.uraian || null;
+        lvlState.renstra = payload.renstra || '-';
 
-        // 2. Pindah ke Level Berikutnya
-        let nextLvl = currentLvl + 1;
-
-        // Enable tab tujuan
+        const nextLvl = currentLvl + 1;
         jQuery(`#nav-lvl${nextLvl}-tab`).removeClass('disabled');
         switchLevel(nextLvl);
     }
 
+
+    function renderNavigationTable() {
+        let rows = '';
+
+        for (let lvl = 1; lvl <= state.currentLevel; lvl++) {
+            const data = state.parentIds[lvl];
+            if (!data) continue;
+
+            const isActive = lvl === state.currentLevel;
+
+            rows += `
+            <tr class="${isActive ? 'table-active' : ''}">
+                <td class="font-weight-bold text-nowrap text-dark">${data.tipe}</td>
+                <td class="text-dark">${renderPokinList(data.pokin)}</td>
+                <td class="text-dark">${data.uraian ?? '-'}</td>
+                <td class="text-dark">
+                    ${
+                        data.renstra
+                            ? renderCascading(data.renstra)
+                            : isActive
+                                ? `<span class="text-muted font-italic">
+                                    Pilih ${data.tipe} untuk melanjutkan
+                                  </span>`
+                                : '-'
+                    }
+                </td>
+            </tr>
+        `;
+        }
+
+        jQuery('#table-navigation tbody').html(rows);
+    }
+
+
     // ============================================================
-    // 2. DATA LOADING & RENDERING (READ)
+    //  DATA LOADING & RENDERING (READ)
     // ============================================================
 
     function loadTableData(level) {
@@ -456,6 +548,48 @@ if (!$data_unit) {
         });
     }
 
+    function renderPokinList(pokinList) {
+        let html = `<ul class="pl-3 mb-0 small text-muted">`;
+
+        if (!Array.isArray(pokinList) || pokinList.length === 0) {
+            html += `<li><i class="text-muted">-</i></li>`;
+            html += `</ul>`;
+            return html;
+        }
+
+        // ===== CASE 1: LEVEL 1 & 2 (array of object)
+        if (pokinList.length > 0 && !Array.isArray(pokinList[0])) {
+            pokinList.forEach(p => {
+                html += `<li class="mb-1">[Lv. ${p.level}] ${p.label}</li>`;
+            });
+
+            html += `</ul>`;
+            return html;
+        }
+
+        // ===== CASE 2: LEVEL 3+ (array of array)
+        pokinList.forEach((group, groupIndex) => {
+
+            if (groupIndex > 0) {
+                html += `
+                <li class="list-unstyled">
+                    <hr class="my-1">
+                </li>
+            `;
+            }
+
+            if (Array.isArray(group)) {
+                group.forEach(p => {
+                    html += `<li class="mb-1">[Lv. ${p.level}] ${p.label}</li>`;
+                });
+            }
+        });
+
+        html += `</ul>`;
+        return html;
+    }
+
+
     const levelCascading = {
         1: 'Tujuan',
         2: 'Sasaran',
@@ -476,6 +610,7 @@ if (!$data_unit) {
             <thead class="thead-dark">
                 <tr>
                     <th width="5%" class="text-center">No</th>
+                    <th width="20%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">${levelCascading[level]}</th>
                     <th width="15%" class="text-center">Aksi</th>
                 </tr>
@@ -485,6 +620,7 @@ if (!$data_unit) {
             <thead class="thead-dark">
                 <tr>
                     <th width="5%" class="text-center">No</th>
+                    <th width="20%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">Uraian Cascading</th>
                     <th width="30%" class="text-center">${levelCascading[level]}</th>
                     <th width="15%" class="text-center">Aksi</th>
@@ -498,7 +634,7 @@ if (!$data_unit) {
         if (!data || data.length === 0) {
             html += `
             <tr>
-                <td colspan="4" class="text-center text-muted p-4">
+                <td colspan="5" class="text-center text-muted p-4">
                     Data kosong.
                 </td>
             </tr>`;
@@ -507,10 +643,9 @@ if (!$data_unit) {
             data.forEach((item, idx) => {
 
                 // =====================================================
-                // LEVEL 1 & 2 (VIEW MODE)
+                // LEVEL 1 & 2 (filter MODE)
                 // =====================================================
                 if (level <= 2) {
-
                     let label = level == 1 ? item.tujuan_teks : item.sasaran_teks;
                     let labelDrillDown = level == 1 ? "Sasaran" : "Program";
                     let id = item.id_unik;
@@ -518,12 +653,18 @@ if (!$data_unit) {
                     html += `
                     <tr>
                         <td class="text-center">${idx + 1}</td>
+                        <td class="p-1">${renderPokinList(item.pokin_list)}</td>
                         <td>${label}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-info shadow-sm"
-                                onclick="handleDrillDown(${level}, '${id}', '${label}')">
+                                onclick='handleDrillDown(${level}, {
+                                    id: "${id}",
+                                    pokin: ${JSON.stringify(item.pokin_list)},
+                                    uraian: "${label}",
+                                    renstra: "-"
+                                })'>
                                 Lihat ${labelDrillDown}
-                                <i class="fa fa-arrow-right"></i>
+                                <i class="dashicons dashicons-arrow-right-alt2"></i>
                             </button>
                         </td>
                     </tr>`;
@@ -539,19 +680,21 @@ if (!$data_unit) {
                         '<span class="badge badge-warning ml-2">Pelaksana</span>' :
                         '';
 
-                    // ---------- REFERENSI ----------
+                    // ---------- renstra ----------
                     let refIds = [];
                     let listRef = `<ul class="pl-3 mb-0 small text-muted">`;
 
                     if (item.referensi && item.referensi.length > 0) {
                         item.referensi.forEach(r => {
                             refIds.push(r.id_unik);
-                            listRef += `<li>${r.nama_ref}</li>`;
+                            listRef += `<li class="mb-1">${r.nama_ref}</li>`;
                         });
                     } else {
-                        listRef += `<li><i class="text-danger">Tidak ada referensi</i></li>`;
+                        listRef += `<li><i class="text-danger">Tidak ada ${levelCascading[level]}</i></li>`;
                     }
                     listRef += `</ul>`;
+
+                    let listPokin = renderPokinList(item.pohon_kinerja);
 
                     let idsString = refIds.join(',');
 
@@ -560,24 +703,30 @@ if (!$data_unit) {
                     btns += `
                     <button class="btn btn-warning" title="Edit"
                         onclick="openFormModal(${item.id})">
-                        <i class="fa fa-edit"></i>
+                        <i class="dashicons dashicons-edit"></i>
                     </button>`;
                     btns += `
                     <button class="btn btn-danger" title="Hapus"
                         onclick="deleteData(${item.id})">
-                        <i class="fa fa-trash"></i>
+                        <i class="dashicons dashicons-trash"></i>
                     </button>`;
                     btns += `
                     <button class="btn btn-info" title="Tambah Indikator"
                         onclick="openFormAddIndikator(${item.id})">
-                        <i class="fa fa-plus"></i>
+                        <i class="dashicons dashicons-plus"></i>
                     </button>`;
 
                     if (level < 5) {
                         btns += `
                         <button class="btn btn-primary" title="Lihat Level Berikutnya"
-                            onclick="handleDrillDown(${level}, '${item.id}', '${uraian}', '${idsString}')">
-                            <i class="fa fa-arrow-right"></i>
+                            onclick='handleDrillDown(${level}, {
+                                id: "${item.id}",
+                                idsString: "${idsString}",
+                                pokin: ${JSON.stringify(item.pohon_kinerja)},
+                                uraian: "${uraian}",
+                                renstra: ${JSON.stringify(item.referensi)}
+                            })'>
+                            <i class="dashicons dashicons-arrow-right-alt2"></i>
                         </button>`;
                     }
                     btns += `</div>`;
@@ -586,10 +735,11 @@ if (!$data_unit) {
                     html += `
                     <tr class="table-white">
                         <td class="text-center">${idx + 1}</td>
+                        <td class="p-1">${listPokin}</td>
                         <td>
                             <div class="font-weight-bold text-dark">${uraian}${isPelaksana}</div>
                         </td>
-                        <td>${listRef}</td>
+                        <td class="p-1">${listRef}</td>
                         <td class="text-center">${btns}</td>
                     </tr>`;
 
@@ -601,8 +751,8 @@ if (!$data_unit) {
                             html += `
                             <tr class="table-light">
                                 <td></td>
-                                <td colspan="2" class="pl-4">
-                                    <i class="fa fa-angle-right text-muted mr-1"></i>
+                                <td colspan="3" class="pl-4">
+                                    <i class="dashicons dashicons-arrow-right-alt2 text-muted mr-1"></i>
                                     <span class="text-muted">${ind.indikator}</span>
                                     <span class="badge badge-primary ml-2">${ind.satuan}</span>
                                 </td>
@@ -611,12 +761,12 @@ if (!$data_unit) {
                                         <button class="btn btn-warning"
                                             title="Edit Indikator"
                                             onclick="openFormAddIndikator(${item.id}, ${ind.id}, '${safeInd}', '${ind.satuan}')">
-                                            <i class="fa fa-edit"></i>
+                                            <i class="dashicons dashicons-edit"></i>
                                         </button>
                                         <button class="btn btn-danger"
                                             title="Hapus Indikator"
                                             onclick="deleteIndikator(${ind.id})">
-                                            <i class="fa fa-trash"></i>
+                                            <i class="dashicons dashicons-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -643,73 +793,96 @@ if (!$data_unit) {
         jQuery('#content-table-wrapper').html(html);
     }
 
+    function renderCascading(cascadingList) {
+        let html = `<ul class="pl-3 mb-0 small text-muted">`;
 
-    // ============================================================
-    // 3. FORM HANDLING (MODAL KEDUA - INPUT/EDIT)
-    // ============================================================
-
-    function openFormModal(editId = null) {
-        // 1. Reset Form & UI
-        jQuery('#form-cascading')[0].reset();
-        jQuery('#indikator-wrapper').empty();
-        jQuery('#input_id_unik').val(null).trigger('change');
-
-        // Update Label UI
-        let labelMap = {
-            3: 'Program',
-            4: 'Kegiatan',
-            5: 'Sub Kegiatan'
-        };
-        jQuery('#label-ref-level').text(`(${labelMap[state.currentLevel]})`);
-
-        // 2. Init Select2 (Mengambil Data Master Renstra sebagai Pilihan)
-        // Parent ID diambil dari state level sebelumnya
-        let parentCascading = state.parentIds[state.currentLevel - 1]['parent_id'];
-        if (state.currentLevel == 4 || state.currentLevel == 5) {
-            parentCascading = state.parentIds[state.currentLevel - 1]['parent_cascading'];
-        }
-        initSelect2Modal(state.currentLevel, parentCascading);
-
-        if (editId) {
-            // --- MODE EDIT ---
-            jQuery('#form-modal-title').text('Edit Data Cascading');
-            jQuery('#input_action_type').val('edit');
-            jQuery('#input_id').val(editId);
-
-            // Fetch Detail Data
-            jQuery.ajax({
-                url: ajax.url,
-                type: "post",
-                dataType: 'JSON',
-                data: {
-                    action: "handle_get_detail_transformasi_cascading",
-                    api_key: ajax.api_key,
-                    id: editId
-                },
-                success: function(res) {
-                    if (res.status) {
-                        let d = res.data;
-                        jQuery('#input_uraian').val(d.main.uraian_cascading);
-                        jQuery('#input_is_pelaksana').prop('checked', d.main.is_pelaksana == 1);
-
-                        // Set Select2 (Array ID Unik)
-                        jQuery('#input_id_unik').val(d.id_unik).trigger('change');
-
-                        // Tampilkan Modal Kedua (Modal Form)
-                        jQuery('#modal-form-cascading').modal('show');
-                    } else {
-                        alert(res.message);
-                    }
-                }
+        if (Array.isArray(cascadingList) && cascadingList.length > 0) {
+            cascadingList.forEach(r => {
+                html += `<li class="mb-1">${r.nama_ref}</li>`;
             });
-
         } else {
-            // --- MODE CREATE ---
-            jQuery('#form-modal-title').text('Tambah Data Baru');
-            jQuery('#input_action_type').val('create');
+            html += `<li><i class="text-muted">-</i></li>`;
+        }
+
+        html += `</ul>`;
+        return html;
+    }
+
+
+
+    // ============================================================
+    //  FORM HANDLING (MODAL KEDUA - INPUT/EDIT)
+    // ============================================================
+
+    async function openFormModal(editId = null) {
+        try {
+            //  Reset Form & UI
+            jQuery('#form-cascading')[0].reset();
+            jQuery('#indikator-wrapper').empty();
+            jQuery('#input_id_unik').val(null).trigger('change');
+
+            const labelMap = {
+                3: 'Program',
+                4: 'Kegiatan',
+                5: 'Sub Kegiatan'
+            };
+            jQuery('#label-ref-level').text(`(${labelMap[state.currentLevel]})`);
+
+            //  Parent cascading
+            let parentCascading = state.parentIds[state.currentLevel - 1]?.parent_id ?? null;
+
+            if (state.currentLevel === 4 || state.currentLevel === 5) {
+                parentCascading = state.parentIds[state.currentLevel - 1]?.parent_cascading ?? null;
+            }
+
+            jQuery('.pelaksana-section').toggle(state.currentLevel === 5);
+
+            jQuery("#wrap-loading").show();
+
+            await initSelect2Modal(state.currentLevel, parentCascading);
+
+            if (editId) {
+                // ===== EDIT MODE =====
+                jQuery('#form-modal-title').text('Edit Data Cascading');
+                jQuery('#input_action_type').val('edit');
+                jQuery('#input_id').val(editId);
+
+                const res = await jQuery.ajax({
+                    url: ajax.url,
+                    type: "post",
+                    dataType: 'JSON',
+                    data: {
+                        action: "handle_get_detail_transformasi_cascading",
+                        api_key: ajax.api_key,
+                        id: editId
+                    }
+                });
+
+                if (!res.status) throw new Error(res.message);
+
+                const d = res.data;
+                jQuery('#input_uraian').val(d.main.uraian_cascading);
+
+                if (state.currentLevel === 5) {
+                    jQuery('#input_is_pelaksana').prop('checked', d.main.is_pelaksana == 1);
+                }
+
+                jQuery('#input_id_unik').val(d.id_unik).trigger('change');
+            } else {
+                // ===== CREATE MODE =====
+                jQuery('#form-modal-title').text('Tambah Data Baru');
+                jQuery('#input_action_type').val('create');
+            }
+
             jQuery('#modal-form-cascading').modal('show');
+        } catch (err) {
+            console.error(err);
+            alert(err.message || 'Terjadi kesalahan.');
+        } finally {
+            jQuery("#wrap-loading").hide();
         }
     }
+
 
     function openFormAddIndikator(parentId, indId = null, narasi = '', satuan = '') {
         // Reset Form
@@ -742,6 +915,7 @@ if (!$data_unit) {
             return;
         }
 
+        jQuery("#wrap-loading").show();
         jQuery.ajax({
             url: ajax.url,
             type: "post",
@@ -762,11 +936,15 @@ if (!$data_unit) {
                 if (res.status) {
                     jQuery('#modal-form-indikator').modal('hide');
                     loadTableData(state.currentLevel); // Refresh Tabel Utama
+                    loadTabelFull();
+                    loadTabelUnmapped();
                 } else {
                     alert("Error: " + res.message);
                 }
+                jQuery("#wrap-loading").hide();
             },
             error: function() {
+                jQuery("#wrap-loading").hide();
                 jQuery('#modal-form-indikator button').prop('disabled', false);
                 alert("Gagal koneksi server.");
             }
@@ -776,6 +954,7 @@ if (!$data_unit) {
     function deleteIndikator(id) {
         if (!confirm("Yakin hapus indikator ini?")) return;
 
+        jQuery("#wrap-loading").show();
         jQuery.ajax({
             url: ajax.url,
             type: "post",
@@ -788,49 +967,56 @@ if (!$data_unit) {
             success: function(res) {
                 if (res.status) {
                     loadTableData(state.currentLevel); // Refresh tabel
+                    loadTabelFull();
+                    loadTabelUnmapped();
                 } else {
                     alert(res.message);
                 }
+                jQuery("#wrap-loading").hide();
             }
         });
     }
 
-    function initSelect2Modal(level, parentId) {
-        let $select = jQuery('#input_id_unik');
+    async function initSelect2Modal(level, parentId) {
+        const $select = jQuery('#input_id_unik');
 
-        // Logic Source Data Select2:
-        // Jika input di Level 3 (Program Cascading), maka ambil sumber dari Program Renstra (Anak dari Sasaran Renstra)
         let ajaxSourceFunc;
-        if (level === 3) ajaxSourceFunc = get_program_renstra_lokal_by_parent(parentId);
-        else if (level === 4) ajaxSourceFunc = get_kegiatan_renstra_lokal_by_parent(parentId);
-        else if (level === 5) ajaxSourceFunc = get_subkegiatan_renstra_lokal_by_parent(parentId);
+        if (level === 3) ajaxSourceFunc = get_program_renstra_lokal_by_parent;
+        else if (level === 4) ajaxSourceFunc = get_kegiatan_renstra_lokal_by_parent;
+        else if (level === 5) ajaxSourceFunc = get_subkegiatan_renstra_lokal_by_parent;
+        else return;
 
-        // Hancurkan instance lama untuk refresh
-        if ($select.hasClass("select2-hidden-accessible")) {
+        if ($select.data('select2')) {
             $select.select2('destroy');
         }
 
-        ajaxSourceFunc.done(function(res) {
-            $select.empty();
-            if (res.status && res.data.length > 0) {
-                let opts = '';
-                res.data.forEach(item => {
-                    let txt = item.nama_program || item.nama_giat || item.nama_sub_giat; // Sesuaikan nama kolom
-                    let id = item.id_unik;
-                    opts += `<option value="${id}">${txt}</option>`;
-                });
-                $select.append(opts);
-            }
+        $select.empty();
 
-            // Init Select2 dengan dropdownParent agar tidak tertutup modal
-            $select.select2({
-                dropdownParent: jQuery('#modal-form-cascading'),
-                placeholder: "Cari & Pilih Referensi...",
-                allowClear: true,
-                width: '100%'
+        const res = await ajaxSourceFunc(parentId);
+
+        if (res.status && Array.isArray(res.data)) {
+            res.data.forEach(item => {
+                const text =
+                    item.nama_program ||
+                    item.nama_giat ||
+                    item.nama_sub_giat ||
+                    '-';
+
+                $select.append(
+                    `<option value="${item.id_unik}">${text}</option>`
+                );
             });
+        }
+
+        $select.select2({
+            dropdownParent: jQuery('#modal-form-cascading'),
+            placeholder: "Cari...",
+            allowClear: true,
+            multiple: true,
+            width: '100%'
         });
     }
+
 
     function submitForm() {
         let formObj = {
@@ -856,7 +1042,8 @@ if (!$data_unit) {
             return;
         }
 
-        // 4. Kirim
+        // Kirim
+        jQuery("#wrap-loading").show();
         jQuery.ajax({
             url: ajax.url,
             type: "post",
@@ -871,11 +1058,15 @@ if (!$data_unit) {
                     alert(res.message);
                     jQuery('#modal-form-cascading').modal('hide');
                     loadTableData(state.currentLevel); // Refresh Tabel Utama
+                    loadTabelFull();
+                    loadTabelUnmapped();
                 } else {
                     alert("Gagal: " + res.message);
                 }
+                jQuery("#wrap-loading").hide();
             },
             error: function() {
+                jQuery("#wrap-loading").hide();
                 jQuery('#modal-form-cascading button').prop('disabled', false);
                 alert("Terjadi kesalahan jaringan.");
             }
@@ -883,7 +1074,8 @@ if (!$data_unit) {
     }
 
     function deleteData(id) {
-        if (confirm("Yakin hapus data ini? Data anak & indikator terkait akan ikut terhapus.")) {
+        if (confirm("Yakin hapus data ini?")) {
+            jQuery("#wrap-loading").show();
             jQuery.ajax({
                 url: ajax.url,
                 type: "post",
@@ -896,16 +1088,19 @@ if (!$data_unit) {
                 success: function(res) {
                     if (res.status) {
                         loadTableData(state.currentLevel);
+                        loadTabelFull();
+                        loadTabelUnmapped();
                     } else {
                         alert(res.message);
                     }
+                    jQuery("#wrap-loading").hide();
                 }
             });
         }
     }
-    
+
     // ============================================================
-    // 4. AJAX WRAPPERS
+    // AJAX WRAPPERS
     // ============================================================
 
     function get_tujuan_renstra_lokal_by_id_jadwal(idJadwal, idUnit) {

@@ -9697,6 +9697,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						if (!empty($daftar_tombol_list[8])) {
 							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 4)">Input Perencanaan Renstra</button></li>';
 						}
+						if (!empty($daftar_tombol_list[16])) {
+							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 21)">Transformasi Cascading</button></li>';
+						}
 					}
 
 					if (!empty($daftar_tombol_list[9])) {
@@ -9759,6 +9762,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						echo '<li><a href="' . $this->add_param_get($detail_efisiensi_belanja, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN EFISIENSI BELANJA</a></li>';
 					}
 					if (!empty($daftar_tombol_list[15])) {
+						$manrisk_page = $this->generatePage(
+							'Halaman List Manajemen Risiko | ' . $tahun,
+							$tahun,
+							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($manrisk_page, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
+					}
+					if (!empty($daftar_tombol_list[16])) {
 						$manrisk_page = $this->generatePage(
 							'Halaman List Manajemen Risiko | ' . $tahun,
 							$tahun,
@@ -30016,17 +30027,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	function process_get_link_by_tipe_jadwal($id_skpd, $id_tipe)
 	{
+		$id_tipe_asli = $id_tipe;
+		if ($id_tipe == 21) {
+			$id_tipe = 4; // Transformasi Cascading mengacu ke Input Renstra Lokal
+		}
+		
 		$data_jadwal = $this->get_jadwal_by_id_tipe($id_tipe);
-
+		
 		if (empty($data_jadwal)) {
 			throw new Exception("Jadwal tidak ditemukan.", 404);
 		}
+
 
 		$list_page_renstra_lokal = '';
 		$judul = [
 			4 => [
 				'judul' => 'Input RENSTRA Lokal',
 				'shortcode' => '[input_renstra]'
+			],
+			21 => [
+				'judul' => 'Transformasi Cascading',
+				'shortcode' => '[transformasi_cascading]'
 			],
 			15 => [
 				'judul' => 'Monitoring Evaluasi RENSTRA',
@@ -30036,9 +30057,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		foreach ($data_jadwal as &$item) {
 			$gen_page = $this->generatePage(
-				$judul[$id_tipe]['judul'],
+				$judul[$id_tipe_asli]['judul'],
 				null,
-				$judul[$id_tipe]['shortcode']
+				$judul[$id_tipe_asli]['shortcode']
 			);
 
 			$add_param_get =  $this->add_param_get($gen_page, '&1=1');
@@ -30221,6 +30242,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$data = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal['tahun_anggaran'], $_POST['id_unit']);
+					if (!empty($data)) {
+						foreach ($data as &$item) {
+							$item['pokin_list'] = $this->get_pokin_renstra_by_id_unik($item['id_unik']);
+						}
+					}
 				break;
 				case 2:
 					if (empty($_POST['id_unik'])) {
@@ -30228,6 +30254,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$data = $this->get_sasaran_renstra_lokal_by_id_unik_tujuan($_POST['id_unik']);
+					if (!empty($data)) {
+						foreach ($data as &$item) {
+							$item['pokin_list'] = $this->get_pokin_renstra_by_id_unik($item['id_unik']);
+						}
+					}
 				break;
 				case 3:
 					if (empty($_POST['id_unik'])) {
@@ -30270,6 +30301,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
         wp_die();
 	}
 
+	function get_pokin_renstra_by_id_unik($id_unik)
+	{
+		global $wpdb;
+		return $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					label,
+					level 
+				FROM data_pokin_renstra 
+				WHERE id_unik = %s 
+					AND active = 1
+			", $id_unik), ARRAY_A
+		);
+	}
+
 	function get_jadwal_by_id($id_jadwal_lokal)
 	{
 		global $wpdb;
@@ -30294,12 +30340,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		return $wpdb->get_results(
 			$wpdb->prepare("
-				SELECT * 
-				FROM data_renstra_tujuan_lokal 
+				SELECT *
+				FROM data_renstra_tujuan_lokal
 				WHERE tahun_anggaran = %d
 				  AND active = 1
 				  AND id_unik_indikator IS NULL
-				  {$where_id_unit}
+				{$where_id_unit}
 			", $tahun_anggaran_jadwal),
 			ARRAY_A
 		);
@@ -30310,8 +30356,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare("
-				SELECT * 
-				FROM data_renstra_sasaran_lokal 
+				SELECT *
+				FROM data_renstra_sasaran_lokal
 				WHERE kode_tujuan = %s
 				  AND active = 1
 				  AND id_unik_indikator IS NULL
@@ -30440,7 +30486,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if ($action_type === 'create') {
 				$data_utama['created_at'] = current_time('mysql');
 				$insert = $wpdb->insert('data_transformasi_cascading', $data_utama);
-				if (!$insert) throw new Exception("Gagal menyimpan data utama.", 500);
+				if (!$insert) throw new Exception("Gagal menyimpan data transformasi cascading.", 500);
 				
 				$id_trans = $wpdb->insert_id;
 
@@ -30690,6 +30736,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				", $row['id']), ARRAY_A);
 
 				$list_referensi_detail = [];
+				$list_pohon_kinerja = [];
 				
 				foreach ($refs as $ref) {
 					$kode = $ref['id_unik'];
@@ -30752,6 +30799,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
+					$data_pokin_renstra = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT 
+								label,
+								level 
+							FROM data_pokin_renstra 
+							WHERE id_unik = %s 
+								AND active = 1
+						", $kode), ARRAY_A
+					);
+
+					$list_pohon_kinerja[] = $data_pokin_renstra; 
+					
 					$list_referensi_detail[] = [
 						'id_unik' => $kode,
 						'nama_ref' => $nama
@@ -30772,6 +30832,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				);
 
 				$row['referensi'] = $list_referensi_detail;
+				$row['pohon_kinerja'] = $list_pohon_kinerja;
 				$row['indikator'] = $indikators;
 				$final_data[] = $row;
 			}
@@ -30791,6 +30852,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		wp_die();
 	}
+
+	function get_pokin_by_id_uniks()
+	{
+		try {
+			$this->newValidate($_POST, [
+				'api_key'   => 'required|string',
+				'id_uniks'  => 'required|string',
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
+			global $wpdb;
+
+			$id_unik_list = $_POST['id_uniks'];
+			if (empty($id_unik_list)) {
+				return [];
+			}
+
+			$parents = explode(',', $id_unik_list);
+			$placeholders = implode(',', array_fill(0, count($parents), '%s'));
+
+			$query = "
+				SELECT id_unik, label, level 
+				FROM data_pokin_renstra 
+				WHERE id_unik IN ($placeholders)
+				AND active = 1
+				ORDER BY level ASC
+			";
+
+			$sql = $wpdb->prepare($query, ...$parents);
+
+			wp_send_json([
+				'status' => true,
+				'data'   => $wpdb->get_results($sql, ARRAY_A)
+			]);
+		} catch (Exception $e) {
+			wp_send_json([
+				'status' => false,
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+
 
 	function handle_save_indikator() {
 		try {
