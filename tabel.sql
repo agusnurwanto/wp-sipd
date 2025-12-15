@@ -8438,7 +8438,8 @@ CREATE TABLE `data_transformasi_cascading` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `uraian_cascading` TEXT NOT NULL,
   `is_pelaksana` TINYINT(1) NOT NULL DEFAULT 0,
-  `parent_id` INT(11) DEFAULT NULL
+  `parent_id` INT(11) DEFAULT NULL,
+  `level` INT(11) COMMENT '3 = Program, 4 = Kegiatan, 5 = Subkegiatan' NOT NULL,
   `id_skpd` INT(11) NOT NULL,
   `id_jadwal` INT(11) NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -8455,7 +8456,6 @@ CREATE TABLE `data_progkeg_transformasi_cascading` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_uraian_cascading` INT(11) NOT NULL,
   `id_unik` VARCHAR(50) NOT NULL,
-  `level` INT(11) COMMENT '3 = Program, 4 = Kegiatan, 5 = Subkegiatan' NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `active` TINYINT(4) NOT NULL DEFAULT 1,

@@ -2612,7 +2612,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					'12' => __('MENU SPT/SPPD'),
 					'13' => __('MANAJEMEN USER'),
 					'14' => __('MANAJEMEN EFISIENSI BELANJA'),
-					'15' => __('MANAJEMEN RESIKO')
+					'15' => __('MANAJEMEN RESIKO'),
+					'16' => __('TRANSFORMASI CASCADING')
 				))
 				->set_default_value(array('1', '2', '3', '4', '5'))
 				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
@@ -3753,12 +3754,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				if (!empty($units)) {
 					foreach ($units as $unit) {
 						$gen_page = $this->generatePage(
-							'Transformasi Cascading | ' . $jadwal['nama'],
+							'Transformasi Cascading',
 							null,
-							'[transformasi_cascading id_jadwal="' . $jadwal['id_jadwal_lokal'] . '"]'
+							'[transformasi_cascading]'
 						);
 
-						$url_skpd = $gen_page . '&id_skpd=' . $unit['id_skpd'];
+						$url_skpd = $gen_page . '&id_jadwal=' . $jadwal['id_jadwal_lokal'] . '&id_skpd=' . $unit['id_skpd'];
 						$return .= '<li>
 							<a target="_blank" href="' . $url_skpd . '" >Halaman Input Transformasi Cascading ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
 						</li>';
