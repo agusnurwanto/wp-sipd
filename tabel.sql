@@ -8438,7 +8438,7 @@ CREATE TABLE `data_transformasi_cascading` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `uraian_cascading` TEXT NOT NULL,
   `is_pelaksana` TINYINT(1) NOT NULL DEFAULT 0,
-  `parent_id` INT(11) DEFAULT NULL
+  `parent_id` INT(11) DEFAULT NULL,
   `level` INT(11) COMMENT '3 = Program, 4 = Kegiatan, 5 = Subkegiatan' NOT NULL,
   `id_skpd` INT(11) NOT NULL,
   `id_jadwal` INT(11) NOT NULL,
