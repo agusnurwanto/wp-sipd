@@ -38,6 +38,22 @@ $data_unit = $wpdb->get_row(
 if (!$data_unit) {
     die('<h1 class="text-center">Data Unit tidak ditemukan!</h1>');
 }
+
+date_default_timezone_set('Asia/Jakarta');
+$timezone = get_option('timezone_string');
+
+$mulaiJadwal = $jadwal_renstra_lokal['waktu_awal'];
+$selesaiJadwal = $jadwal_renstra_lokal['waktu_akhir'];
+$awal = new DateTime($mulaiJadwal);
+$akhir = new DateTime($selesaiJadwal);
+$now = new DateTime(date('Y-m-d H:i:s'));
+
+if ($now >= $awal && $now <= $akhir) {
+    // Dalam periode jadwal
+    $is_jadwal_expired = false;
+} else {
+    $is_jadwal_expired = true;
+}
 ?>
 <style>
     /* Warna Mild untuk Level Cascading */
@@ -61,81 +77,156 @@ if (!$data_unit) {
         font-size: 0.9rem;
     }
 
-    .list-unstyled {
-        margin-bottom: 0;
-    }
-
     .hr-mild {
         border-top: 1px solid rgba(0, 0, 0, 0.1);
         margin: 5px 0;
-    }
-
-    .table-renstra thead {
-        position: sticky;
-        text-align: center;
-        vertical-align: middle;
-        background: #D3D3D3;
     }
 
     .table-renstra tr th,
     .table-renstra tr td {
         border: 1px solid black;
     }
+
+    .table-scroll {
+        max-height: 500px;
+        overflow-y: auto;
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .table-scroll table {
+        margin-bottom: 0;
+    }
+
+    .table-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        text-align: center;
+        vertical-align: middle;
+        background: #D3D3D3;
+    }
 </style>
-<div style="padding : 5px">
-    <h1 class="text-center">TRANSFORMASI CASCADING <br><?php echo $nama_jadwal; ?><br> <?php echo $data_unit['nama_skpd']; ?></h1>
+<div style="padding : 10px">
+    <h1 class="text-center" style="margin-top : 80px">TRANSFORMASI CASCADING <br><?php echo $nama_jadwal; ?><br> <?php echo $data_unit['nama_skpd']; ?></h1>
 
     <div id="container-unmapped-renstra" class="card shadow-sm mt-4" style="display:none;">
         <div class="card-header">
             <h5 class="mb-0 text-center">Data Renstra Belum Masuk Transformasi Cascading</h5>
         </div>
         <div class="card-body p-0">
-            <table class="table-hover table-renstra mb-0">
-                <thead class="thead-light">
-                    <tr>
-                        <th style="width: 5%;">No</th>
-                        <th style="width: 25%;">Pohon Kinerja</th>
-                        <th style="width: 15%;">Tipe Cascading</th>
-                        <th style="width: 15%;">Kode</th>
-                        <th>Nomenklatur Renstra</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-unmapped-renstra">
-                </tbody>
-            </table>
+            <div class="table-scroll">
+                <table class="table-renstra mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 25%;">Pohon Kinerja</th>
+                            <th style="width: 15%;">Tipe Cascading</th>
+                            <th style="width: 15%;">Kode</th>
+                            <th>Nomenklatur Renstra</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-unmapped-renstra">
+                    </tbody>
+                </table>
+            </div>
             <div class="card-footer bg-light text-danger small font-italic">
                 * Data di atas adalah master Renstra yang belum dipilih/dipetakan ke dalam tabel Transformasi Cascading. Mohon segera lengkapi.
             </div>
         </div>
     </div>
 
-    <div class="text-center m-2">
-        <button class="btn btn-primary" onclick="handleAdd()"><span class="dashicons dashicons-plus"></span> Tambah Data</button>
-    </div>
+    <?php if ($is_jadwal_expired == false) : ?>
+        <div class="text-center m-2">
+            <button class="btn btn-primary" onclick="handleAdd()"><span class="dashicons dashicons-plus"></span> Tambah Data</button>
+        </div>
+    <?php endif; ?>
 
     <div class="card shadow-sm mt-4">
         <div class="card-header bg-white">
             <h5 class="mb-0 text-center">Tabel Transformasi Cascading</h5>
         </div>
         <div class="card-body p-0">
-            <table class="table-renstra mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Pohon Kinerja</th>
-                        <th style="width: 10%;">Tipe</th>
-                        <th style="width: 25%;">Uraian Cascading</th>
-                        <th style="width: 20%;">Indikator & Satuan</th>
-                        <th style="width: 25%;">Nomenklatur (Renstra)</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-cascading-full">
-                    <tr>
-                        <td colspan="5" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-scroll">
+                <table class="table-renstra mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Pohon Kinerja</th>
+                            <th style="width: 10%;">Tipe</th>
+                            <th style="width: 25%;">Uraian Cascading</th>
+                            <th style="width: 20%;">Indikator & Satuan</th>
+                            <th style="width: 25%;">Nomenklatur (Renstra)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-cascading-full">
+                        <tr>
+                            <td colspan="5" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <section class="mt-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 font-weight-bold text-dark">
+                    <i class="fa fa-info-circle mr-1 text-primary"></i>
+                    Panduan Transformasi Cascading Renstra
+                </h6>
+            </div>
+
+            <div class="card-body small text-dark">
+
+                <ul class="pl-3 mb-3">
+                    <li class="mb-2">
+                        <strong>Sumber Data Renstra</strong><br>
+                        Data Transformasi Cascading disusun berdasarkan data Renstra yang telah diinput sebelumnya
+                        melalui menu <em>Input Perencanaan Renstra</em>.
+                    </li>
+
+                    <li class="mb-2">
+                        <strong>Level Input Transformasi Cascading</strong><br>
+                        Data Transformasi Cascading diinput mulai dari
+                        <span class="text-muted">
+                            Level 3 (Program) sampai Level 5 (Sub Kegiatan)
+                        </span>.
+                        Level Tujuan dan Sasaran digunakan sebagai dasar navigasi dan tidak memiliki input langsung.
+                    </li>
+
+                    <li class="mb-2">
+                        <strong>Perubahan Data Renstra</strong><br>
+                        Apabila data Renstra yang sudah digunakan dalam Transformasi Cascading dihapus
+                        melalui menu <em>Input Perencanaan Renstra</em>, maka data terkait di Transformasi Cascading
+                        akan tetap ditampilkan dengan <span class="badge badge-danger">Dihapus</span>
+                        sebagai penanda ketidaksesuaian data dan perlu segera ditindaklanjuti.
+                    </li>
+
+                    <li class="mb-2">
+                        <strong>Pohon Kinerja (Read Only)</strong><br>
+                        Data Pohon Kinerja yang ditampilkan merupakan hasil keterkaitan langsung dengan data Renstra
+                        dan <strong>tidak dapat diubah</strong> melalui fitur ini.
+                        Perubahan hanya dapat dilakukan melalui menu <em>Input Perencanaan Renstra</em>.
+                    </li>
+
+                    <li class="mb-2">
+                        <strong>Data Renstra Belum Masuk Transformasi Cascading</strong><br>
+                        Tabel ini menampilkan data Renstra yang belum dipetakan ke dalam Transformasi Cascading.
+                        <span class="text-danger font-weight-bold">
+                            Mohon segera dilengkapi.
+                        </span>
+                        Tabel akan otomatis hilang apabila seluruh data Renstra telah masuk ke Transformasi Cascading.
+                    </li>
+                </ul>
+
+                <div class="alert alert-info mb-0 py-2 small">
+                    <i class="fa fa-info-circle mr-1"></i>
+                    Pastikan seluruh data Renstra telah disusun dengan benar sebelum melakukan Transformasi Cascading.
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="modal fade" id="modal-monev" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-xl" role="document">
@@ -151,9 +242,9 @@ if (!$data_unit) {
                         <thead class="thead-light text-dark">
                             <tr>
                                 <th style="width: 120px;">Tipe</th>
-                                <th style="width: 280px;">Pohon Kinerja</th>
+                                <th style="width: 350px;">Pohon Kinerja</th>
                                 <th>Uraian Cascading</th>
-                                <th style="width: 200px;">RENSTRA</th>
+                                <th style="width: 350px;">RENSTRA</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -328,6 +419,15 @@ if (!$data_unit) {
             });
         });
 
+        var dataHitungMundur = {
+            'namaJadwal': '<?php echo ucwords($jadwal_renstra_lokal['nama'])  ?>',
+            'mulaiJadwal': '<?php echo $jadwal_renstra_lokal['waktu_awal']  ?>',
+            'selesaiJadwal': '<?php echo $jadwal_renstra_lokal['waktu_akhir']  ?>',
+            'thisTimeZone': '<?php echo $timezone ?>'
+        }
+
+        penjadwalanHitungMundur(dataHitungMundur);
+
     });
 
     // --- STATE MANAGEMENT ---
@@ -440,15 +540,16 @@ if (!$data_unit) {
     }
 
     function switchLevel(level) {
+        resetChildLevels(level);
+
         state.currentLevel = level;
 
         jQuery('.nav-link').removeClass('active');
-        jQuery(`#nav-lvl${level}-tab`).addClass('active').removeClass('disabled');
+        jQuery(`#nav-lvl${level}-tab`).addClass('active');
 
         updateHeaderUI();
         loadTableData(level);
     }
-
 
     function updateHeaderUI() {
         renderNavigationTable();
@@ -464,51 +565,93 @@ if (!$data_unit) {
     function handleDrillDown(currentLvl, payload) {
         const lvlState = state.parentIds[currentLvl];
 
-        lvlState.parent_id = payload.id;
-        lvlState.parent_cascading = payload.idsString || null;
+        resetChildLevels(currentLvl);
 
-        lvlState.pokin = payload.pokin || null;
-        lvlState.uraian = payload.uraian || null;
-        lvlState.renstra = payload.renstra || '-';
+        lvlState.parent_id = payload.id ?? null;
+        lvlState.parent_cascading = payload.idsString ?? null;
+
+        lvlState.pokin = Array.isArray(payload.pokin) ? payload.pokin : [];
+        lvlState.uraian = payload.uraian ?
+            decodeURIComponent(payload.uraian) :
+            '-';
+
+        lvlState.renstra = payload.renstra ?? '-';
 
         const nextLvl = currentLvl + 1;
+
         jQuery(`#nav-lvl${nextLvl}-tab`).removeClass('disabled');
         switchLevel(nextLvl);
     }
 
+    function resetChildLevels(fromLevel) {
+        Object.keys(state.parentIds).forEach(lvl => {
+            lvl = parseInt(lvl);
+            if (lvl > fromLevel) {
+                state.parentIds[lvl] = {
+                    ...state.parentIds[lvl],
+                    parent_id: null,
+                    parent_cascading: null,
+                    pokin: null,
+                    uraian: null,
+                    renstra: null
+                };
+
+                // disable tab child
+                jQuery(`#nav-lvl${lvl}-tab`).addClass('disabled');
+            }
+        });
+    }
 
     function renderNavigationTable() {
         let rows = '';
 
-        for (let lvl = 1; lvl <= state.currentLevel; lvl++) {
+        Object.keys(state.parentIds).forEach(lvl => {
             const data = state.parentIds[lvl];
-            if (!data) continue;
 
-            const isActive = lvl === state.currentLevel;
+            if (!data || !data.parent_id) return;
 
             rows += `
-            <tr class="${isActive ? 'table-active' : ''}">
-                <td class="font-weight-bold text-nowrap text-dark">${data.tipe}</td>
-                <td class="text-dark">${renderPokinList(data.pokin)}</td>
-                <td class="text-dark">${data.uraian ?? '-'}</td>
+            <tr>
+                <td class="font-weight-bold text-nowrap text-dark">
+                    ${data.tipe}
+                </td>
                 <td class="text-dark">
-                    ${
-                        data.renstra
-                            ? renderCascading(data.renstra)
-                            : isActive
-                                ? `<span class="text-muted font-italic">
-                                    Pilih ${data.tipe} untuk melanjutkan
-                                  </span>`
+                    ${renderPokinList(data.pokin)}
+                </td>
+            `;
+            if (lvl > 2) {
+                rows += `
+                    <td class="text-dark">
+                        ${data.uraian ?? '-'}
+                    </td>
+                    <td class="text-dark">
+                        ${
+                            data.renstra && data.renstra.length > 0
+                                ? renderCascading(data.renstra)
                                 : '-'
-                    }
+                        }
+                    </td>
+                </tr>`;
+            } else {
+                rows += `
+                    <td class="text-dark" colspan="2">
+                        ${data.uraian ?? '-'}
+                    </td>
+                </tr>`;
+            }
+
+        });
+
+        jQuery('#table-navigation tbody').html(
+            rows || `
+            <tr>
+                <td colspan="4" class="text-center text-muted font-italic">
+                    Belum ada navigasi yang dipilih
                 </td>
             </tr>
-        `;
-        }
-
-        jQuery('#table-navigation tbody').html(rows);
+        `
+        );
     }
-
 
     // ============================================================
     //  DATA LOADING & RENDERING (READ)
@@ -549,7 +692,7 @@ if (!$data_unit) {
     }
 
     function renderPokinList(pokinList) {
-        let html = `<ul class="pl-3 mb-0 small text-muted">`;
+        let html = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
 
         if (!Array.isArray(pokinList) || pokinList.length === 0) {
             html += `<li><i class="text-muted">-</i></li>`;
@@ -600,8 +743,8 @@ if (!$data_unit) {
 
     function renderTable(level, data) {
         let html = `
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered table-striped custom-table mb-0">
+        <div class="table-scroll">
+            <table class="table table-hover table-bordered table-striped mb-0">
         `;
 
         // ================= HEADER =================
@@ -610,7 +753,7 @@ if (!$data_unit) {
             <thead class="thead-dark">
                 <tr>
                     <th width="5%" class="text-center">No</th>
-                    <th width="20%" class="text-center">Pohon Kinerja</th>
+                    <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">${levelCascading[level]}</th>
                     <th width="15%" class="text-center">Aksi</th>
                 </tr>
@@ -620,9 +763,9 @@ if (!$data_unit) {
             <thead class="thead-dark">
                 <tr>
                     <th width="5%" class="text-center">No</th>
-                    <th width="20%" class="text-center">Pohon Kinerja</th>
+                    <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">Uraian Cascading</th>
-                    <th width="30%" class="text-center">${levelCascading[level]}</th>
+                    <th width="25%" class="text-center">${levelCascading[level]}</th>
                     <th width="15%" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
@@ -654,15 +797,15 @@ if (!$data_unit) {
                     <tr>
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${renderPokinList(item.pokin_list)}</td>
-                        <td>${label}</td>
+                        <td class="font-weight-bold">${label}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-info shadow-sm"
                                 onclick='handleDrillDown(${level}, {
-                                    id: "${id}",
-                                    pokin: ${JSON.stringify(item.pokin_list)},
-                                    uraian: "${label}",
-                                    renstra: "-"
-                                })'>
+                                id: "${id}",
+                                pokin: ${JSON.stringify(item.pokin_list)},
+                                uraian: "${encodeURIComponent(label)}",
+                                renstra: "-"
+                            })'>
                                 Lihat ${labelDrillDown}
                                 <i class="dashicons dashicons-arrow-right-alt2"></i>
                             </button>
@@ -682,7 +825,7 @@ if (!$data_unit) {
 
                     // ---------- renstra ----------
                     let refIds = [];
-                    let listRef = `<ul class="pl-3 mb-0 small text-muted">`;
+                    let listRef = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
 
                     if (item.referensi && item.referensi.length > 0) {
                         item.referensi.forEach(r => {
@@ -723,7 +866,7 @@ if (!$data_unit) {
                                 id: "${item.id}",
                                 idsString: "${idsString}",
                                 pokin: ${JSON.stringify(item.pohon_kinerja)},
-                                uraian: "${uraian}",
+                                uraian: "${encodeURIComponent(uraian)}",
                                 renstra: ${JSON.stringify(item.referensi)}
                             })'>
                             <i class="dashicons dashicons-arrow-right-alt2"></i>
@@ -794,7 +937,7 @@ if (!$data_unit) {
     }
 
     function renderCascading(cascadingList) {
-        let html = `<ul class="pl-3 mb-0 small text-muted">`;
+        let html = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
 
         if (Array.isArray(cascadingList) && cascadingList.length > 0) {
             cascadingList.forEach(r => {
@@ -935,6 +1078,7 @@ if (!$data_unit) {
                 jQuery('#modal-form-indikator button').prop('disabled', false);
                 if (res.status) {
                     jQuery('#modal-form-indikator').modal('hide');
+                    alert(res.message);
                     loadTableData(state.currentLevel); // Refresh Tabel Utama
                     loadTabelFull();
                     loadTabelUnmapped();
@@ -966,6 +1110,7 @@ if (!$data_unit) {
             },
             success: function(res) {
                 if (res.status) {
+                    alert(res.message);
                     loadTableData(state.currentLevel); // Refresh tabel
                     loadTabelFull();
                     loadTabelUnmapped();
@@ -1087,6 +1232,7 @@ if (!$data_unit) {
                 },
                 success: function(res) {
                     if (res.status) {
+                        alert(res.message);
                         loadTableData(state.currentLevel);
                         loadTabelFull();
                         loadTabelUnmapped();

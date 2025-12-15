@@ -30593,7 +30593,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			echo json_encode([
 				'status'  => true,
-				'message' => "Data berhasil dihapus (Soft Delete)."
+				'message' => "Data berhasil dihapus."
 			]);
 
 		} catch (Exception $e) {
@@ -30617,7 +30617,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			// 1. Ambil Data Utama
 			$data_utama = $wpdb->get_row($wpdb->prepare("
-				SELECT * FROM data_transformasi_cascading 
+				SELECT * 
+				FROM data_transformasi_cascading 
 				WHERE id = %d AND active = 1
 			", $id), ARRAY_A);
 
@@ -30625,7 +30626,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			// 2. Ambil List ID Unik (Prog/Keg/Subkeg)
 			$progkeg = $wpdb->get_col($wpdb->prepare("
-				SELECT id_unik FROM data_progkeg_transformasi_cascading 
+				SELECT id_unik 
+				FROM data_progkeg_transformasi_cascading 
 				WHERE id_uraian_cascading = %d AND active = 1
 			", $id));
 
@@ -30756,7 +30758,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_program . '<span class="text-danger">(DIHAPUS)</span>';
+								$nama = $master->nama_program . '<span class="badge badge-danger">Dihapus</span>';
 							} else {
 								$nama = $master->nama_program;
 							}
@@ -30774,7 +30776,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_giat . '<span class="text-danger">(DIHAPUS)</span>';
+								$nama = $master->nama_giat . '<span class="badge badge-danger">Dihapus</span>';
 							} else {
 								$nama = $master->nama_giat;
 							}
@@ -30792,7 +30794,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_sub_giat . '<span class="text-danger">(DIHAPUS)</span>';
+								$nama = $master->nama_sub_giat . '<span class="badge badge-danger">Dihapus</span>';
 							} else {
 								$nama = $master->nama_sub_giat;
 							}
@@ -31114,7 +31116,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if ($renstra) {
 							if ($renstra->active == 0) {
-								$nama_nomenklatur = $renstra->nama . ' <span class="text-danger">(DIHAPUS)</span>';
+								$nama_nomenklatur = $renstra->nama . ' <span class="badge badge-danger">Dihapus</span>';
 							} else {
 								$nama_nomenklatur = $renstra->nama;
 							}
@@ -31171,7 +31173,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("API key tidak valid!", 401);
 			}
 
-			// 1. Ambil Tahun Anggaran dari Jadwal
+			// Ambil Tahun Anggaran dari Jadwal
 			$jadwal = $wpdb->get_row(
 				$wpdb->prepare("
 					SELECT tahun_anggaran 
@@ -31194,7 +31196,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					p.nama_program AS nama,
 					p.kode_program AS kode,
 					CONCAT(
-						'<ul class=\"m-0\">',
+						'<ul class=\"list-unstyled\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
@@ -31227,7 +31229,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					k.nama_giat AS nama,
 					k.kode_giat AS kode,
 					CONCAT(
-						'<ul class=\"m-0\">',
+						'<ul class=\"list-unstyled\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
@@ -31260,7 +31262,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					s.nama_sub_giat AS nama,
 					s.kode_sub_giat AS kode,
 					CONCAT(
-						'<ul class=\"m-0\">',
+						'<ul class=\"list-unstyled\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
