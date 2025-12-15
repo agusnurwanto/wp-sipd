@@ -7165,108 +7165,156 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    }
 
 					} else if ($jenis == 'program') {
-					    if (empty($_POST['tahun_anggaran'])) {
-					        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
-					    }
-					    $skpd = $wpdb->get_results(
-					        $wpdb->prepare('
-					            SELECT *
-					            FROM data_unit
-					            WHERE id_unit = %d
-					              AND active = 1
-					              AND tahun_anggaran = %d
-					        ', $_POST['id_skpd'], $_POST['tahun_anggaran']),
-					        ARRAY_A
-					    );
-					    $id_skpd = array();
-					    foreach ($skpd as $v) {
-					        $id_skpd[] = $v['id_skpd'];
-					    }
-					    $data_program_renja = $wpdb->get_results(
-					        $wpdb->prepare("
-					            SELECT 
-					                kode_program,
-					                nama_program,
-					                kode_sub_skpd,
-					                nama_sub_skpd,
-					                id_sub_skpd,
-					                SUM(pagu) as pagu 
-					            FROM data_sub_keg_bl 
-					            WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
-					              AND active=1 
-					              AND tahun_anggaran=%d 
-					            GROUP BY kode_program, id_sub_skpd  
-					            ORDER BY kode_program
-					        ", $_POST['tahun_anggaran']),
-					        ARRAY_A
-					    );
-					    
-					    $data_jadwal_renja = $wpdb->get_row(
-					        $wpdb->prepare("
-					            SELECT 
-					                * 
-					            FROM data_jadwal_lokal
-					            WHERE tahun_anggaran = %d
-					              AND id_tipe = %d
-					        ", $_POST['tahun_anggaran'], 16),
-					        ARRAY_A
-					    );
-					    
-					    $data_jadwal_renstra = $wpdb->get_row(
-					        $wpdb->prepare("
-					            SELECT 
-					                * 
-					            FROM data_jadwal_lokal
-					            WHERE id_jadwal_lokal = %d
-					        ", $data_jadwal_renja['relasi_perencanaan']),
-					        ARRAY_A
-					    );
+	                    if (empty($_POST['tahun_anggaran'])) {
+	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+	                    }
+	                    
+	                    $skpd = $wpdb->get_results(
+	                        $wpdb->prepare('
+	                            SELECT 
+	                            	*
+	                            FROM data_unit
+	                            WHERE id_unit = %d
+	                              AND active = 1
+	                              AND tahun_anggaran = %d
+	                        ', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+	                        ARRAY_A
+	                    );
+	                    
+	                    $id_skpd = array();
+	                    foreach ($skpd as $v) {
+	                        $id_skpd[] = $v['id_skpd'];
+	                    }
+	                    
+	                    $data_program_renja = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                                kode_program,
+	                                nama_program,
+	                                kode_sub_skpd,
+	                                nama_sub_skpd,
+	                                id_sub_skpd,
+	                                SUM(pagu) as pagu 
+	                            FROM data_sub_keg_bl 
+	                            WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
+	                              AND active=1 
+	                              AND tahun_anggaran=%d 
+	                            GROUP BY kode_program, id_sub_skpd  
+	                            ORDER BY kode_program
+	                        ", $_POST['tahun_anggaran']),
+	                        ARRAY_A
+	                    );
+	                    
+	                    $data_jadwal_renja = $wpdb->get_row(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                            	* 
+	                            FROM data_jadwal_lokal
+	                            WHERE tahun_anggaran = %d
+	                              AND id_tipe = %d
+	                        ", $_POST['tahun_anggaran'], 16),
+	                        ARRAY_A
+	                    );
+	                    
+	                    $data_jadwal_renstra = $wpdb->get_row(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                            	* 
+	                            FROM data_jadwal_lokal
+	                            WHERE id_jadwal_lokal = %d
+	                        ", $data_jadwal_renja['relasi_perencanaan']),
+	                        ARRAY_A
+	                    );
 
-					    $tabel_renstra = ($data_jadwal_renstra['status'] == 1) ? 'data_renstra_program_history' : 'data_renstra_program';
-					    
-					    foreach ($data_program_renja as &$row) {
-					        $data_program_renstra = $wpdb->get_row(
-					            $wpdb->prepare("
-					                SELECT 
-					                    *
-					                FROM $tabel_renstra
-					                WHERE kode_program = %s
-					                  AND id_unit = %d
-					                  AND id_jadwal = %d
-					                  AND active = 1
-					            ", $row['kode_program'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
-					            ARRAY_A
-					        );
-					        // print_r($data_program_renstra); die($wpdb->last_query);
-					        
-					        if (!empty($data_program_renstra)) {
-					            $pokin_level_3 = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_pokin_renstra
-					                    WHERE id_unik = %s
-					                      AND tahun_anggaran = %d
-					                      AND id_skpd = %d
-					                      AND tipe = 3
-					                      AND active = 1
-					                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
-					                ARRAY_A
-					            );
-					            
-					            $row['get_pokin_renstra'] = $pokin_level_3;
-					        } else {
-					            $row['get_pokin_renstra'] = array();
-					        }
-					    }
-					    unset($row);
-					    
-					    if (!empty($data_program_renja)) {
-					        $ret['data'] = $data_program_renja;
-					        $ret['message'] = 'Berhasil get program renja!';
-					        $ret['sql'] = $wpdb->last_query;
-					    }
-					} else if ($jenis == 'kegiatan_renstra') {
+	                    $tabel_renstra = ($data_jadwal_renstra['status'] == 1) 
+	                        ? 'data_renstra_program_history' 
+	                        : 'data_renstra_program';
+	                    
+	                    foreach ($data_program_renja as &$row) {
+	                        $data_program_renstra = $wpdb->get_row(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM $tabel_renstra
+	                                WHERE kode_program = %s
+	                                  AND id_unit = %d
+	                                  AND id_jadwal = %d
+	                                  AND active = 1
+	                            ", $row['kode_program'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+	                            ARRAY_A
+	                        );
+	                        
+	                        if (!empty($data_program_renstra)) {
+	                            $pokin_level_3 = $wpdb->get_results(
+	                                $wpdb->prepare("
+	                                    SELECT 
+	                                    	*
+	                                    FROM data_pokin_renstra
+	                                    WHERE id_unik = %s
+	                                      AND tahun_anggaran = %d
+	                                      AND id_skpd = %d
+	                                      AND tipe = 3
+	                                      AND active = 1
+	                                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+	                                ARRAY_A
+	                            );
+	                            
+	                            $row['get_pokin_renstra'] = $pokin_level_3;
+	                        } else {
+	                            $row['get_pokin_renstra'] = array();
+	                        }
+	                    }
+	                    unset($row);
+	                    
+	                    if (!empty($data_program_renja)) {
+	                        $ret['data'] = $data_program_renja;
+	                        $ret['message'] = 'Berhasil get program renja!';
+	                        $ret['sql'] = $wpdb->last_query;
+	                    }
+
+	                    $data_transformasi_cascading = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                            	*
+	                            FROM data_transformasi_cascading
+	                            WHERE id_jadwal = %d
+	                              AND id_skpd = %d
+	                              AND active = 1
+	                        ", $data_jadwal_renstra['id_jadwal_lokal'], $_POST['id_skpd']),
+	                        ARRAY_A
+	                    );
+	                    foreach ($data_transformasi_cascading as &$cascading) {
+	                        $cascading['program'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_progkeg_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND level = 3
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                        
+	                        $cascading['indikator'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_indikator_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                    }
+	                    unset($cascading);
+
+	                    if (!empty($data_transformasi_cascading)) {
+	                        $ret['data_transformasi_cascading'] = $data_transformasi_cascading;
+	                    } else {
+	                        $ret['data_transformasi_cascading'] = array();
+	                    }
+	                } else if ($jenis == 'kegiatan_renstra') {
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
 					    }
@@ -7418,6 +7466,49 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data'] = $data_kegiatan_renja;
 							$ret['message'] = 'Berhasil get kegiatan renja!';
 						}
+
+						$data_transformasi_cascading = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                            	*
+	                            FROM data_transformasi_cascading
+	                            WHERE id_jadwal = %d
+	                              AND id_skpd = %d
+	                              AND active = 1
+	                        ", $data_jadwal_renstra['id_jadwal_lokal'], $_POST['id_skpd']),
+	                        ARRAY_A
+	                    );
+	                    foreach ($data_transformasi_cascading as &$cascading) {
+	                        $cascading['kegiatan'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_progkeg_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND level = 4
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                        
+	                        $cascading['indikator'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_indikator_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                    }
+	                    unset($cascading);
+
+	                    if (!empty($data_transformasi_cascading)) {
+	                        $ret['data_transformasi_cascading'] = $data_transformasi_cascading;
+	                    } else {
+	                        $ret['data_transformasi_cascading'] = array();
+	                    }
 					} else if ($jenis == 'sub_giat_renstra') {
 					    if (empty($_POST['id_jadwal'])) {
 					        throw new Exception("Parameter Id Jadwal Kosong!", 1);
@@ -7562,6 +7653,49 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data'] = $data_sub_kegiatan_renja;
 							$ret['message'] = 'Berhasil get sub kegiatan renja!';
 						}
+
+						$data_transformasi_cascading = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                            	*
+	                            FROM data_transformasi_cascading
+	                            WHERE id_jadwal = %d
+	                              AND id_skpd = %d
+	                              AND active = 1
+	                        ", $data_jadwal_renstra['id_jadwal_lokal'], $_POST['id_skpd']),
+	                        ARRAY_A
+	                    );
+	                    foreach ($data_transformasi_cascading as &$cascading) {
+	                        $cascading['sub_kegiatan'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_progkeg_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND level = 4
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                        
+	                        $cascading['indikator'] = $wpdb->get_results(
+	                            $wpdb->prepare("
+	                                SELECT 
+	                                	*
+	                                FROM data_indikator_transformasi_cascading
+	                                WHERE id_uraian_cascading = %d
+	                                  AND active = 1
+	                            ", $cascading['id']),
+	                            ARRAY_A
+	                        );
+	                    }
+	                    unset($cascading);
+
+	                    if (!empty($data_transformasi_cascading)) {
+	                        $ret['data_transformasi_cascading'] = $data_transformasi_cascading;
+	                    } else {
+	                        $ret['data_transformasi_cascading'] = array();
+	                    }
 					}
 
 				} else {
