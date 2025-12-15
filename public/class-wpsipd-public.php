@@ -31007,9 +31007,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// Tentukan Label Level & Class Warna
 				$level_label = '';
 				$bg_class = '';
-				if ($level == 3) { $level_label = 'PROGRAM'; $bg_class = 'bg-level-3'; }
-				elseif ($level == 4) { $level_label = 'KEGIATAN'; $bg_class = 'bg-level-4'; }
-				elseif ($level == 5) { $level_label = 'SUB KEGIATAN'; $bg_class = 'bg-level-5'; }
+				if ($level == 3) {
+					$level_label = 'PROGRAM'; 
+					$bg_class = 'bg-level-3'; 
+				} elseif ($level == 4) {
+					$level_label = 'KEGIATAN'; 
+					$bg_class = 'bg-level-4'; 
+				} elseif ($level == 5) {
+					$level_label = 'SUB KEGIATAN'; 
+					$bg_class = 'bg-level-5'; 
+				}
 
 				// --- AMBIL INDIKATOR ---
 				$indikators = $wpdb->get_results(
@@ -31019,7 +31026,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							satuan 
 						FROM data_indikator_transformasi_cascading 
 						WHERE id_uraian_cascading = %d 
-						AND active = 1
+						  AND active = 1
 					", $id_trans), ARRAY_A
 				);
 
@@ -31069,7 +31076,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$html_pokin .= $separator . "<li>";
 						if ($list_pokin) {
-							$html_pokin .= "<ul class='pl-3 mb-0' style='list-style-type: circle;'>";
+							$html_pokin .= "<ul class='pl-3 list-unstyled mb-0'>";
 							foreach ($list_pokin as $p) {
 								$html_pokin .= "<li class='mb-1'>[Lv. {$p['level']}] {$p['label']}</li>";
 							}
