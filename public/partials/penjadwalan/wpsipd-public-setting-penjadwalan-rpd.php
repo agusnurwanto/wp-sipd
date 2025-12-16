@@ -33,7 +33,6 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 		vertical-align: middle;
 	}
 </style>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
@@ -134,8 +133,6 @@ $is_api_ready_esakip = $this->is_api_ready_esakip();
 
 <div class="report"></div>
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
 	jQuery(document).ready(function() {
 		globalThis.tipePerencanaan = 'rpd'

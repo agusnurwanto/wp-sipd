@@ -38,22 +38,9 @@ $data_unit = $wpdb->get_row(
 if (!$data_unit) {
     die('<h1 class="text-center">Data Unit tidak ditemukan!</h1>');
 }
-
 date_default_timezone_set('Asia/Jakarta');
 $timezone = get_option('timezone_string');
-
-$mulaiJadwal = $jadwal_renstra_lokal['waktu_awal'];
-$selesaiJadwal = $jadwal_renstra_lokal['waktu_akhir'];
-$awal = new DateTime($mulaiJadwal);
-$akhir = new DateTime($selesaiJadwal);
-$now = new DateTime(date('Y-m-d H:i:s'));
-
-if ($now >= $awal && $now <= $akhir) {
-    // Dalam periode jadwal
-    $is_jadwal_expired = false;
-} else {
-    $is_jadwal_expired = true;
-}
+$is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 ?>
 <style>
     /* Warna Mild untuk Level Cascading */
@@ -121,8 +108,8 @@ if ($now >= $awal && $now <= $akhir) {
                         <tr>
                             <th style="width: 5%;">No</th>
                             <th style="width: 25%;">Pohon Kinerja</th>
-                            <th style="width: 15%;">Tipe Cascading</th>
-                            <th style="width: 15%;">Kode</th>
+                            <th style="width: 10%;">Tipe Cascading</th>
+                            <th style="width: 10%;">Kode</th>
                             <th>Nomenklatur Renstra</th>
                         </tr>
                     </thead>
@@ -239,12 +226,12 @@ if ($now >= $awal && $now <= $akhir) {
                 </div>
                 <div id="info-navigasi" class="alert alert-light border mb-3">
                     <table class="table-renstra mb-0 table-sm" id="table-navigation">
-                        <thead class="thead-light text-dark">
+                        <thead class="bg-dark text-light">
                             <tr>
-                                <th style="width: 120px;">Tipe</th>
-                                <th style="width: 350px;">Pohon Kinerja</th>
-                                <th>Uraian Cascading</th>
-                                <th style="width: 350px;">RENSTRA</th>
+                                <th class="text-center" style="width: 120px;">Tipe</th>
+                                <th class="text-center" style="width: 350px;">Pohon Kinerja</th>
+                                <th class="text-center">Uraian Cascading</th>
+                                <th class="text-center" style="width: 350px;">RENSTRA</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1069,6 +1056,7 @@ if ($now >= $awal && $now <= $akhir) {
                 id: jQuery('#input_ind_id').val(), // Kosong jika create, ada isi jika edit
                 id_uraian_cascading: jQuery('#input_ind_parent_id').val(),
                 indikator: narasi,
+                id_jadwal: idJadwal,
                 satuan: satuan
             },
             beforeSend: function() {
@@ -1106,6 +1094,7 @@ if ($now >= $awal && $now <= $akhir) {
             data: {
                 action: 'handle_delete_indikator',
                 api_key: ajax.api_key,
+                id_jadwal: idJadwal,
                 id: id
             },
             success: function(res) {

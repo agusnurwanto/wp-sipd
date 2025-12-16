@@ -87,6 +87,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpsipd-public.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'css/bootstrap.min.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name . 'sweetalert2', plugin_dir_url(__FILE__) . 'css/sweetalert2.min.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name . 'daterangepicker', plugin_dir_url(__FILE__) . 'css/daterangepicker.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'css/select2.min.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'css/datatables.min.css', array(), $this->version, 'all');
 
@@ -113,15 +115,91 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		 * class.
 		 */
 
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wpsipd-public.js', array('jquery'), $this->version, false);
-		wp_enqueue_script($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
-		wp_enqueue_script($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'js/select2.min.js', array('jquery'), $this->version, false);
-		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
-		wp_enqueue_script($this->plugin_name . 'chart', plugin_dir_url(__FILE__) . 'js/chart.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script(
+			$this->plugin_name . '-bootstrap',
+			plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js',
+			array('jquery'),
+			$this->version,
+			true
+		);
+
+		// SweetAlert2
+		wp_enqueue_script(
+			$this->plugin_name . '-sweetalert2',
+			plugin_dir_url(__FILE__) . 'js/sweetalert2.min.js',
+			array(),
+			$this->version,
+			true
+		);
+
+		// Moment
+		wp_enqueue_script(
+			$this->plugin_name . '-moment',
+			plugin_dir_url(__FILE__) . 'js/moment.min.js',
+			array(),
+			$this->version,
+			true
+		);
+
+		// daterangepicker
+		wp_enqueue_script(
+			$this->plugin_name . '-daterangepicker',
+			plugin_dir_url(__FILE__) . 'js/daterangepicker.js',
+			array(
+				'jquery',
+				$this->plugin_name . '-moment'
+			),
+			$this->version,
+			true
+		);
+
+		// Select2
+		wp_enqueue_script(
+			$this->plugin_name . '-select2',
+			plugin_dir_url(__FILE__) . 'js/select2.min.js',
+			array('jquery'),
+			$this->version,
+			true
+		);
+
+		// Datatables
+		wp_enqueue_script(
+			$this->plugin_name . '-datatables',
+			plugin_dir_url(__FILE__) . 'js/datatables.min.js',
+			array('jquery'),
+			$this->version,
+			true
+		);
+
+		// Chart
+		wp_enqueue_script(
+			$this->plugin_name . '-chart',
+			plugin_dir_url(__FILE__) . 'js/chart.min.js',
+			array(),
+			$this->version,
+			true
+		);
+
+		wp_enqueue_script(
+			$this->plugin_name,
+			plugin_dir_url(__FILE__) . 'js/wpsipd-public.js',
+			array(
+				'jquery',
+				$this->plugin_name . '-bootstrap',
+				$this->plugin_name . '-sweetalert2',
+				$this->plugin_name . '-moment',
+				$this->plugin_name . '-daterangepicker',
+				$this->plugin_name . '-select2',
+				$this->plugin_name . '-datatables',
+			),
+			$this->version,
+			true
+		);
+
 		wp_localize_script($this->plugin_name, 'ajax', array(
-			'url' 		=> admin_url('admin-ajax.php'),
-			'api_key' 	=> get_option('_crb_api_key_extension'),
-			'site_url' 	=> site_url()
+			'url'      => admin_url('admin-ajax.php'),
+			'api_key'  => get_option('_crb_api_key_extension'),
+			'site_url' => site_url()
 		));
 	}
 
@@ -30453,6 +30531,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("API key tidak valid!", 401);
 			}
 
+			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
+
 			// Ambil Data Array (ProgKeg & Indikator)
 			$list_id_unik = isset($_POST['id_unik']) ? $_POST['id_unik'] : []; // Array ID Unik dari Select2
 
@@ -30495,7 +30575,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				
 				$id_trans = $_POST['id'];
 				$update = $wpdb->update('data_transformasi_cascading', $data_utama, ['id' => $id_trans]);
-				if ($update === false) throw new Exception("Gagal mengupdate data utama.", 500);
+				if ($update === false) throw new Exception("Gagal mengupdate data transformasi cascading.", 500);
 
 				// Jika Edit, Soft Delete data anak (ProgKeg & Indikator) lama terlebih dahulu
 				$wpdb->update('data_progkeg_transformasi_cascading', ['active' => 0], ['id_uraian_cascading' => $id_trans]);
@@ -30907,12 +30987,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'id_uraian_cascading' => 'required|numeric',
 				'indikator' => 'required|string',
 				'satuan' => 'required|string',
+				'id_jadwal' => 'required|numeric',
 			]);
 			
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
 				throw new Exception("API Key Invalid", 401);
 			}
 			global $wpdb;
+
+			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
 
 			$data = [
 				'id_uraian_cascading' => $_POST['id_uraian_cascading'],
@@ -30945,10 +31028,67 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
+	function check_jadwal_is_expired($jadwal_renstra_lokal) {
+		date_default_timezone_set('Asia/Jakarta');
+		$timezone = get_option('timezone_string');
+
+		$mulaiJadwal = $jadwal_renstra_lokal['waktu_awal'];
+		$selesaiJadwal = $jadwal_renstra_lokal['waktu_akhir'];
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		if ($now >= $awal && $now <= $akhir) {
+			// Dalam periode jadwal
+			$is_jadwal_expired = false;
+		} else {
+			$is_jadwal_expired = true;
+		}
+
+		return $is_jadwal_expired;
+	}
+
+	function get_jadwal_and_check_expired($id_jadwal_lokal) {
+		global $wpdb;
+		// Cek Jadwal RENSTRA Lokal
+		$data = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_jadwal_lokal 
+				WHERE id_jadwal_lokal = %d
+			", $id_jadwal_lokal), 
+			ARRAY_A
+		);
+
+		if (!$data) {
+			throw new Exception("Jadwal tidak ditemukan.", 404);
+		}
+
+		// Cek apakah jadwal sudah expired
+		$is_jadwal_expired = $this->check_jadwal_is_expired($data);
+		if ($is_jadwal_expired) {
+			throw new Exception("Jadwal sudah berakhir. Data tidak dapat diubah atau dihapus.", 403);
+		} else {
+			// Jadwal masih aktif
+			return true;
+		}
+	}
+
 	function handle_delete_indikator() {
 		try {
-			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) throw new Exception("Auth Error", 401);
+			$this->newValidate($_POST, [
+				'api_key' => 'required|string',
+				'id' => 'required|numeric',
+				'id_jadwal' => 'required|numeric',
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("Api key tidak sesuai!", 401);
+			}
 			global $wpdb;
+
+			// Cek Jadwal RENSTRA Lokal
+			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
 			
 			$wpdb->update(
 				'data_indikator_transformasi_cascading', 
@@ -31030,7 +31170,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					", $id_trans), ARRAY_A
 				);
 
-				$html_indikator = '<ul class="list-unstyled mb-0">';
+				$html_indikator = '<ul class="list-unstyled m-0 p-0">';
 				if($indikators) {
 					foreach($indikators as $ind) {
 						$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator']} <strong>({$ind['satuan']})</strong></li>";
@@ -31055,8 +31195,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             	$html_nomenklatur = ''; // Reset string
 				
 				if ($rels) {
-					$html_pokin .= '<ul class="list-unstyled mb-0">';
-					$html_nomenklatur .= '<ul class="list-unstyled mb-0">';
+					$html_pokin .= '<ul class="list-unstyled m-0 p-0">';
+					$html_nomenklatur .= '<ul class="list-unstyled m-0 p-0">';
 
 					foreach ($rels as $k => $rel) {
 						$id_unik = $rel['id_unik'];
@@ -31076,7 +31216,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$html_pokin .= $separator . "<li>";
 						if ($list_pokin) {
-							$html_pokin .= "<ul class='pl-3 list-unstyled mb-0'>";
+							$html_pokin .= "<ul class='list-unstyled m-0 p-0'>";
 							foreach ($list_pokin as $p) {
 								$html_pokin .= "<li class='mb-1'>[Lv. {$p['level']}] {$p['label']}</li>";
 							}
@@ -31197,13 +31337,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			
 			$sql_program = "
 				SELECT 
-					'Program' AS tipe,
+					'PROGRAM' AS tipe,
 					3 AS lvl,
 					p.id_unik,
 					p.nama_program AS nama,
 					p.kode_program AS kode,
+					sas.sasaran_teks,
 					CONCAT(
-						'<ul class=\"list-unstyled\">',
+						'<ul class=\"list-unstyled m-0 p-0\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
@@ -31215,11 +31356,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = p.id_unik 
 					AND pk.active = 1
+				LEFT JOIN data_renstra_sasaran_lokal sas 
+					ON sas.id_unik = p.kode_sasaran 
+					AND sas.active = 1
+					AND sas.id_unik_indikator IS NULL
 				WHERE p.id_unit = %d
-				AND p.tahun_anggaran = %d
-				AND p.id_unik_indikator IS NULL
-				AND p.active = 1
-				AND NOT EXISTS (
+				  AND p.tahun_anggaran = %d
+				  AND p.id_unik_indikator IS NULL
+				  AND p.active = 1
+				  AND NOT EXISTS (
 						SELECT 1 
 						FROM data_progkeg_transformasi_cascading r
 						WHERE r.id_unik = p.id_unik
@@ -31230,13 +31375,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_kegiatan = "
 				SELECT 
-					'Kegiatan' AS tipe,
+					'KEGIATAN' AS tipe,
 					4 AS lvl,
 					k.id_unik,
 					k.nama_giat AS nama,
 					k.kode_giat AS kode,
+					sas.sasaran_teks,
 					CONCAT(
-						'<ul class=\"list-unstyled\">',
+						'<ul class=\"list-unstyled m-0 p-0\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
@@ -31248,6 +31394,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = k.id_unik 
 					AND pk.active = 1
+				LEFT JOIN data_renstra_sasaran_lokal sas 
+					ON sas.id_unik = k.kode_sasaran 
+					AND sas.active = 1
+					AND sas.id_unik_indikator IS NULL
 				WHERE k.id_unit = %d
 				  AND k.tahun_anggaran = %d
 				  AND k.id_unik_indikator IS NULL
@@ -31263,13 +31413,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_subkeg = "
 				SELECT 
-					'Sub Kegiatan' AS tipe,
+					'SUB KEGIATAN' AS tipe,
 					5 AS lvl,
 					s.id_unik,
 					s.nama_sub_giat AS nama,
 					s.kode_sub_giat AS kode,
+					sas.sasaran_teks,
 					CONCAT(
-						'<ul class=\"list-unstyled\">',
+						'<ul class=\"list-unstyled m-0 p-0\">',
 						GROUP_CONCAT(
 							CONCAT('<li>', '[Lv. ', pk.level, '] ', pk.label, '</li>')
 							ORDER BY pk.level
@@ -31281,6 +31432,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = s.id_unik 
 					AND pk.active = 1
+				LEFT JOIN data_renstra_sasaran_lokal sas 
+					ON sas.id_unik = s.kode_sasaran 
+					AND sas.active = 1
+					AND sas.id_unik_indikator IS NULL
 				WHERE s.id_unit = %d
 				  AND s.tahun_anggaran = %d
 				  AND s.id_unik_indikator IS NULL
@@ -31313,20 +31468,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$no = 1;
 				foreach ($unmapped_data as $row) {
 					// Warna label tipe
-					$badge_class = 'secondary';
-					if($row['lvl'] == 3) $badge_class = 'primary';
-					if($row['lvl'] == 4) $badge_class = 'success';
-					if($row['lvl'] == 5) $badge_class = 'info';
+					$badge_class = '';
+					if($row['lvl'] == 3) $badge_class = 'bg-level-3';
+					if($row['lvl'] == 4) $badge_class = 'bg-level-4';
+					if($row['lvl'] == 5) $badge_class = 'bg-level-5';
 
 					$pokin_text = !empty($row['pokin']) ? $row['pokin'] : "<span class='text-muted font-italic small'>(Belum ada Pokin)</span>";
 
+					$nama_sasaran = $row['sasaran_teks'] ? $row['sasaran_teks'] : '<span class="text-danger">Sasaran tidak ditemukan</span>';
+					if (!empty($row['nama'])) {
+						$renstra_name_parts = explode(' ', $row['nama'], 2);
+						$nama_renstra = $renstra_name_parts[1];
+					} else {
+						$nama_renstra = '<span class="text-danger">Nomenklatur tidak ditemukan</span>';
+					}
+
 					$html .= "
-					<tr>
+					<tr class='{$badge_class}'>
 						<td class='text-center'>{$no}</td>
 						<td>{$pokin_text}</td>
-						<td class='text-center'><span class='badge badge-{$badge_class}'>{$row['tipe']}</span></td>
+						<td class='text-center'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
-						<td>{$row['nama']}</td>
+						<td>{$nama_renstra}<br><span class='text-muted'>Sasaran : {$nama_sasaran}</span></td>
 					</tr>
 					";
 					$no++;

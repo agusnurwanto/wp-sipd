@@ -224,7 +224,6 @@ foreach($data_skpd_db as $skpd){
 		vertical-align: middle;
 	}
 </style>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
@@ -347,11 +346,6 @@ foreach($data_skpd_db as $skpd){
 </div>
 
 <div class="report"></div>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script>
 	jQuery(document).ready(function() {
 		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;

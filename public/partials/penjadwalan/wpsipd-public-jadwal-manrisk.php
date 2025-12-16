@@ -23,8 +23,6 @@ $cek_jadwal = $wpdb->get_row($wpdb->prepare("
         vertical-align: middle;
     }
 </style>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
@@ -87,11 +85,6 @@ $cek_jadwal = $wpdb->get_row($wpdb->prepare("
 </div>
 
 <div class="report"></div>
-
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
     jQuery(document).ready(function() {
         globalThis.tipePerencanaan = 'manajemen_resiko'
