@@ -183,17 +183,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_enqueue_script(
 			$this->plugin_name,
 			plugin_dir_url(__FILE__) . 'js/wpsipd-public.js',
-			array(
-				'jquery',
-				$this->plugin_name . '-bootstrap',
-				$this->plugin_name . '-sweetalert2',
-				$this->plugin_name . '-moment',
-				$this->plugin_name . '-daterangepicker',
-				$this->plugin_name . '-select2',
-				$this->plugin_name . '-datatables',
-			),
+			array('jquery'),
 			$this->version,
-			true
+			false
 		);
 
 		wp_localize_script($this->plugin_name, 'ajax', array(
