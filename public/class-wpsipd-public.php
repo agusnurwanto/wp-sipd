@@ -31130,9 +31130,42 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				wp_die();
 			}
 
-			$html_output = "";
+			$byParent = [];
 
 			foreach ($cascading_data as $row) {
+				$parentId = (int) ($row['parent_id'] ?? 0);
+				$byParent[$parentId][] = $row;
+			}
+
+			$ordered = [];
+
+			// parent_id = 0 dianggap level 3 (root)
+			$level3List = $byParent[0] ?? [];
+
+			foreach ($level3List as $lvl3) {
+				$ordered[] = $lvl3;
+
+				$lvl3Id = (int) $lvl3['id'];
+				$level4List = $byParent[$lvl3Id] ?? [];
+
+				foreach ($level4List as $lvl4) {
+					$ordered[] = $lvl4;
+
+					$lvl4Id = (int) $lvl4['id'];
+					$level5List = $byParent[$lvl4Id] ?? [];
+
+					foreach ($level5List as $lvl5) {
+						$ordered[] = $lvl5;
+					}
+				}
+			}
+
+			$html_output = "";
+			$last_tujuan_id  = null;
+			$last_sasaran_id = null;
+
+
+			foreach ($ordered as $row) {
 				$id_trans = $row['id'];
 				$level = $row['level'];
 				
@@ -31225,12 +31258,83 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$renstra = $wpdb->get_row(
 								$wpdb->prepare("
 									SELECT 
-										nama_program as nama,
-										active 
-									FROM data_renstra_program_lokal 
-									WHERE id_unik = %s
+										prog.nama_program as nama,
+										prog.active,
+										sas.id_unik AS id_sasaran,
+										sas.sasaran_teks,
+										tuj.id_unik AS id_tujuan,
+										tuj.tujuan_teks
+									FROM data_renstra_program_lokal prog
+									LEFT JOIN data_renstra_sasaran_lokal sas
+										ON prog.kode_sasaran = sas.id_unik
+									LEFT JOIN data_renstra_tujuan_lokal tuj
+										ON sas.kode_tujuan = tuj.id_unik
+									WHERE prog.id_unik = %s
 								", $id_unik)
 							);
+
+							/* ================= TUJUAN ================= */
+							if ($renstra && $renstra->id_tujuan && $renstra->id_tujuan !== $last_tujuan_id) {
+
+								// ambil POKIN TUJUAN
+								$pokin_tujuan = $wpdb->get_results(
+									$wpdb->prepare("
+										SELECT label, level
+										FROM data_pokin_renstra
+										WHERE id_unik = %s AND active = 1
+									", $renstra->id_tujuan),
+									ARRAY_A
+								);
+
+								$html_pokin_tujuan = '<ul class="list-unstyled m-0 p-0">';
+								foreach ($pokin_tujuan as $p) {
+									$html_pokin_tujuan .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
+								}
+								$html_pokin_tujuan .= '</ul>';
+
+								$html_output .= "
+								<tr class='bg-light'>
+									<td>{$html_pokin_tujuan}</td>
+									<td class='text-center font-weight-bold small'>TUJUAN</td>
+									<td colspan='3'>
+										<strong>{$renstra->tujuan_teks}</strong>
+									</td>
+								</tr>";
+
+								$last_tujuan_id  = $renstra->id_tujuan;
+								$last_sasaran_id = null; // reset sasaran saat tujuan berubah
+							}
+
+							/* ================= SASARAN ================= */
+							if ($renstra && $renstra->id_sasaran && $renstra->id_sasaran !== $last_sasaran_id) {
+
+								// ambil POKIN SASARAN
+								$pokin_sasaran = $wpdb->get_results(
+									$wpdb->prepare("
+										SELECT label, level
+										FROM data_pokin_renstra
+										WHERE id_unik = %s AND active = 1
+									", $renstra->id_sasaran),
+									ARRAY_A
+								);
+
+								$html_pokin_sasaran = '<ul class="list-unstyled m-0 p-0">';
+								foreach ($pokin_sasaran as $p) {
+									$html_pokin_sasaran .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
+								}
+								$html_pokin_sasaran .= '</ul>';
+
+								$html_output .= "
+								<tr class='bg-white'>
+									<td>{$html_pokin_sasaran}</td>
+									<td class='text-center font-weight-bold small'>SASARAN</td>
+									<td colspan='3'>
+										<strong>{$renstra->sasaran_teks}</strong>
+									</td>
+								</tr>";
+
+								$last_sasaran_id = $renstra->id_sasaran;
+							}
 						} elseif ($level == 4) {
 							$renstra = $wpdb->get_row(
 								$wpdb->prepare("
@@ -31280,7 +31384,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					<td class='text-center font-weight-bold small'>{$level_label}</td>
 					<td>
 						<span class='font-weight-bold'>{$row['uraian_cascading']}</span>
-						" . ($row['is_pelaksana'] == 1 ? "<br><span class='badge badge-warning mt-1'>Pelaksana</span>" : "") . "
+						" . ($row['is_pelaksana'] == 1 ? "<span class='badge badge-warning mt-1'>Pelaksana</span>" : "") . "
 					</td>
 					<td>{$html_indikator}</td>
 					<td>{$html_nomenklatur}</td>
