@@ -31262,7 +31262,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										prog.active,
 										sas.id_unik AS id_sasaran,
 										sas.sasaran_teks,
+										sas.active AS active_sasaran,
 										tuj.id_unik AS id_tujuan,
+										tuj.active AS active_tujuan,
 										tuj.tujuan_teks
 									FROM data_renstra_program_lokal prog
 									LEFT JOIN data_renstra_sasaran_lokal sas
@@ -31292,6 +31294,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								$html_pokin_tujuan .= '</ul>';
 
+								if ($renstra->active_tujuan == 0) {
+									$renstra->tujuan_teks .= ' <span class="badge badge-danger">Dihapus</span>';
+								}
 								$html_output .= "
 								<tr class='bg-light'>
 									<td>{$html_pokin_tujuan}</td>
@@ -31324,6 +31329,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								$html_pokin_sasaran .= '</ul>';
 
+								if ($renstra->active_sasaran == 0) {
+									$renstra->sasaran_teks .= ' <span class="badge badge-danger">Dihapus</span>';
+								}
 								$html_output .= "
 								<tr class='bg-white'>
 									<td>{$html_pokin_sasaran}</td>
