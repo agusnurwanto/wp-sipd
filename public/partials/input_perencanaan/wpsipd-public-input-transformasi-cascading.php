@@ -44,19 +44,20 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 ?>
 <style>
     /* Warna Mild untuk Level Cascading */
+    .bg-level-1 {
+        background-color: #EAF6EA !important;
+    }
+    .bg-level-2 {
+        background-color: #F8EFE4 !important;
+    }
     .bg-level-3 {
-        background-color: #e3f2fd !important;
-        /* Biru Sangat Muda (Program) */
+        background-color: #EEF6F9 !important;
     }
-
     .bg-level-4 {
-        background-color: #f1f8e9 !important;
-        /* Hijau Sangat Muda (Kegiatan) */
+        background-color: #FBFBEA !important;
     }
-
     .bg-level-5 {
-        background-color: #fff8e1 !important;
-        /* Kuning/Oranye Sangat Muda (Sub-Kegiatan) */
+        background-color: #FFFFFF !important;
     }
 
     .table-renstra td {
@@ -104,7 +105,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         <div class="card-body p-0">
             <div class="table-scroll">
                 <table class="table-renstra mb-0">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th style="width: 5%;">No</th>
                             <th style="width: 25%;">Pohon Kinerja</th>
@@ -467,7 +468,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_get_unmapped_renstra",
                 api_key: ajax.api_key,
-                id_jadwal: window.idJadwal, // Menggunakan variabel global yang sudah ada
+                id_jadwal: window.idJadwal,
                 id_unit: window.idUnit
             },
             success: function(res) {
@@ -807,7 +808,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                     let uraian = item.uraian_cascading;
                     let isPelaksana = item.is_pelaksana == 1 ?
-                        '<span class="badge badge-warning ml-2">Pelaksana</span>' :
+                        '<span class="badge badge-warning ml-2 p-1">Pelaksana</span>' :
                         '';
 
                     // ---------- renstra ----------

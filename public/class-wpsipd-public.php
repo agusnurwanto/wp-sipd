@@ -30830,7 +30830,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_program . '<span class="badge badge-danger">Dihapus</span>';
+								$nama = $master->nama_program . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
 								$nama = $master->nama_program;
 							}
@@ -30848,7 +30848,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_giat . '<span class="badge badge-danger">Dihapus</span>';
+								$nama = $master->nama_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
 								$nama = $master->nama_giat;
 							}
@@ -30866,7 +30866,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_sub_giat . '<span class="badge badge-danger">Dihapus</span>';
+								$nama = $master->nama_sub_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
 								$nama = $master->nama_sub_giat;
 							}
@@ -31095,6 +31095,187 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
+	function generate_list_indikator_transformasi_cascading(int $id_transformasi)
+	{
+		global $wpdb;
+
+		$indikators = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					indikator,
+					satuan 
+				FROM data_indikator_transformasi_cascading 
+				WHERE id_uraian_cascading = %d 
+					AND active = 1
+			", $id_transformasi), ARRAY_A
+		);
+
+		$html_indikator = '<ul class="list-unstyled m-0 p-0">';
+		if($indikators) {
+			foreach($indikators as $ind) {
+				$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator']} <strong>({$ind['satuan']})</strong></li>";
+			}
+		} else {
+			$html_indikator .= "<li>-</li>";
+		}
+		$html_indikator .= '</ul>';
+
+		return $html_indikator;
+	}
+
+	function generate_list_indikator_tujuan_sasaran_transformasi_cascading(string $id_unik, string $type)
+	{
+		global $wpdb;
+
+		switch ($type) {
+			case 'tujuan':
+				$table = 'data_renstra_tujuan_lokal';
+				break;
+			case 'sasaran':
+				$table = 'data_renstra_sasaran_lokal';
+				break;
+			
+			default:
+				throw new Exception("Unknown type!", 401);
+				break;
+		}
+		$indikators = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					id_unik,
+					id_unik_indikator,
+					satuan,
+					indikator_teks 
+				FROM $table 
+				WHERE id_unik = %s
+				  AND id_unik_indikator IS NOT NULL
+				  AND active = 1
+			", $id_unik), ARRAY_A
+		);
+
+		$html_indikator = '<ul class="list-unstyled m-0 p-0">';
+		if($indikators) {
+			foreach($indikators as $ind) {
+				$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator_teks']} <strong>({$ind['satuan']})</strong></li>";
+			}
+		} else {
+			$html_indikator .= "<li>-</li>";
+		}
+		$html_indikator .= '</ul>';
+
+		return $html_indikator;
+	}
+
+	function get_meta_transformasi_cascading(int $id_transformasi, int $level)
+	{
+		global $wpdb;
+		
+		$rels = $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT 
+					id_unik 
+				FROM data_progkeg_transformasi_cascading
+				WHERE id_uraian_cascading = %d 
+					AND active = 1
+			", $id_transformasi), ARRAY_A
+		);
+
+		$html_pokin = ''; // Reset string
+		$html_nomenklatur = ''; // Reset string
+				
+		if ($rels) {
+			$html_pokin .= '<ul class="list-unstyled m-0 p-0">';
+			$html_nomenklatur .= '<ul class="list-unstyled m-0 p-0">';
+
+			foreach ($rels as $k => $rel) {
+				$id_unik = $rel['id_unik'];
+
+				$separator = ($k > 0) ? "<div class='hr-mild'></div>" : "";
+				// Cari Data POKIN (Berdasarkan id_unik)
+				$list_pokin = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							label,
+							level 
+						FROM data_pokin_renstra 
+						WHERE id_unik = %s 
+							AND active = 1
+					", $id_unik), ARRAY_A
+				);
+
+				$html_pokin .= $separator . "<li>";
+				if ($list_pokin) {
+					$html_pokin .= "<ul class='list-unstyled m-0 p-0'>";
+					foreach ($list_pokin as $p) {
+						$html_pokin .= "<li class='mb-1'>[Lv. {$p['level']}] {$p['label']}</li>";
+					}
+					$html_pokin .= "</ul>";
+				} else {
+					$html_pokin .= "<span class='text-muted font-italic small'>(Pokin tidak ditemukan)</span>";
+				}
+				$html_pokin .= "</li>";
+				
+				// Cari Nomenklatur Renstra
+				$nama_nomenklatur = $id_unik; // Default tampilkan kode jika nama tidak ketemu
+				
+				if ($level == 3) {
+					$renstra = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT 
+								nama_program as nama,
+								active
+							FROM data_renstra_program_lokal 
+							WHERE id_unik = %s
+						", $id_unik)
+					);
+				} elseif ($level == 4) {
+					$renstra = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT 
+								nama_giat as nama,
+								active
+							FROM data_renstra_kegiatan_lokal 
+							WHERE id_unik = %s
+						", $id_unik)
+					);
+				} elseif ($level == 5) {
+					$renstra = $wpdb->get_row(
+						$wpdb->prepare("
+							SELECT 
+								nama_sub_giat as nama, 
+								active
+							FROM data_renstra_sub_kegiatan_lokal 
+							WHERE id_unik = %s
+						", $id_unik)
+					);
+				}
+
+				if ($renstra) {
+					if ($renstra->active == 0) {
+						$nama_nomenklatur = $renstra->nama . ' <span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+					} else {
+						$nama_nomenklatur = $renstra->nama;
+					}
+				}
+				
+				$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}</li>";
+			}
+
+			$html_pokin .= '</ul>';
+			$html_nomenklatur .= '</ul>';
+		} else {
+			$html_pokin .= "<li>-</li>";
+			$html_nomenklatur .= "<li>-</li>";
+		}
+		$html_pokin .= '</ul>';
+		$html_nomenklatur .= '</ul>';
+
+		return [
+			'list_pokin_html' => $html_pokin,
+			'list_renstra_html' => $html_nomenklatur
+		];
+	}
+
 	function handle_get_view_tabel_cascading()
 	{
 		global $wpdb;
@@ -31111,16 +31292,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("API key tidak valid!", 401);
 			}
 
+			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
+			if (empty($jadwal)) {
+				throw new Exception("Jadwal tidak ditemukan!", 401);
+			}
+			
 			$query_main = $wpdb->prepare("
-				SELECT * 
+				SELECT id 
 				FROM data_transformasi_cascading 
 				WHERE id_jadwal = %d 
 				  AND id_skpd = %d 
 				  AND active = 1
-				ORDER BY level ASC, id ASC
 			", $_POST['id_jadwal'], $_POST['id_skpd']);
 
-			$cascading_data = $wpdb->get_results($query_main, ARRAY_A);
+			$cascading_data = $wpdb->get_var($query_main);
 
 			if (empty($cascading_data)) {
 				echo json_encode([
@@ -31130,277 +31315,208 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				wp_die();
 			}
 
-			$byParent = [];
-
-			foreach ($cascading_data as $row) {
-				$parentId = (int) ($row['parent_id'] ?? 0);
-				$byParent[$parentId][] = $row;
+			$tujuan = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal['tahun_anggaran'], $_POST['id_skpd']);
+			if (empty($tujuan)) {
+				throw new Exception("Tujuan Renstra Lokal tidak ditemukan untuk tahun anggaran dan SKPD tersebut.", 404);
 			}
-
-			$ordered = [];
-
-			// parent_id = 0 dianggap level 3 (root)
-			$level3List = $byParent[0] ?? [];
-
-			foreach ($level3List as $lvl3) {
-				$ordered[] = $lvl3;
-
-				$lvl3Id = (int) $lvl3['id'];
-				$level4List = $byParent[$lvl3Id] ?? [];
-
-				foreach ($level4List as $lvl4) {
-					$ordered[] = $lvl4;
-
-					$lvl4Id = (int) $lvl4['id'];
-					$level5List = $byParent[$lvl4Id] ?? [];
-
-					foreach ($level5List as $lvl5) {
-						$ordered[] = $lvl5;
-					}
+			
+			$html_output = '';
+			foreach ($tujuan as $t) {
+				$sasaran = $this->get_sasaran_renstra_lokal_by_id_unik_tujuan($t['id_unik']);
+				$html_tujuan = '';
+				if (empty($sasaran)) {
+					continue;
 				}
-			}
+				$indikator_html = $this->generate_list_indikator_tujuan_sasaran_transformasi_cascading($t['id_unik'], 'tujuan');
 
-			$html_output = "";
-			$last_tujuan_id  = null;
-			$last_sasaran_id = null;
-
-
-			foreach ($ordered as $row) {
-				$id_trans = $row['id'];
-				$level = $row['level'];
-				
-				// Tentukan Label Level & Class Warna
-				$level_label = '';
-				$bg_class = '';
-				if ($level == 3) {
-					$level_label = 'PROGRAM'; 
-					$bg_class = 'bg-level-3'; 
-				} elseif ($level == 4) {
-					$level_label = 'KEGIATAN'; 
-					$bg_class = 'bg-level-4'; 
-				} elseif ($level == 5) {
-					$level_label = 'SUB KEGIATAN'; 
-					$bg_class = 'bg-level-5'; 
-				}
-
-				// --- AMBIL INDIKATOR ---
-				$indikators = $wpdb->get_results(
+				// TUJUAN
+				$pokin_tujuan = $wpdb->get_results(
 					$wpdb->prepare("
-						SELECT 
-							indikator,
-							satuan 
-						FROM data_indikator_transformasi_cascading 
-						WHERE id_uraian_cascading = %d 
-						  AND active = 1
-					", $id_trans), ARRAY_A
+						SELECT label, level
+						FROM data_pokin_renstra
+						WHERE id_unik = %s AND active = 1
+					", $t['id_unik']),
+					ARRAY_A
 				);
 
-				$html_indikator = '<ul class="list-unstyled m-0 p-0">';
-				if($indikators) {
-					foreach($indikators as $ind) {
-						$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator']} <strong>({$ind['satuan']})</strong></li>";
-					}
-				} else {
-					$html_indikator .= "<li>-</li>";
+				$html_pokin_tujuan = '<ul class="list-unstyled m-0 p-0">';
+				foreach ($pokin_tujuan as $p) {
+					$html_pokin_tujuan .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
 				}
-				$html_indikator .= '</ul>';
+				$html_pokin_tujuan .= '</ul>';
 
-				// --- AMBIL REFERENSI (PROG/KEG/SUBKEG & POKIN) ---
-				$rels = $wpdb->get_results(
-					$wpdb->prepare("
-						SELECT 
-							id_unik 
-						FROM data_progkeg_transformasi_cascading
-						WHERE id_uraian_cascading = %d 
-						  AND active = 1
-					", $id_trans), ARRAY_A
-				);
+				if ($t['active'] == 0) {
+					$t['tujuan_teks'] .= ' <span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+				}
 
-				$html_pokin = ''; // Reset string
-            	$html_nomenklatur = ''; // Reset string
-				
-				if ($rels) {
-					$html_pokin .= '<ul class="list-unstyled m-0 p-0">';
-					$html_nomenklatur .= '<ul class="list-unstyled m-0 p-0">';
+				$html_tujuan = "
+				<tr class='bg-level-1'>
+					<td>{$html_pokin_tujuan}</td>
+					<td class='text-center font-weight-bold small'>TUJUAN</td>
+					<td>
+						<strong>{$t['tujuan_teks']}</strong>
+					</td>
+					<td>{$indikator_html}</td>
+					<td>{$t['tujuan_teks']}</td>
+				</tr>";
 
-					foreach ($rels as $k => $rel) {
-						$id_unik = $rel['id_unik'];
+				foreach ($sasaran as $s) {
+					$html_sasaran = '';
+					$programs_renstra = $wpdb->get_col(
+						$wpdb->prepare("
+							SELECT id_unik 
+							FROM data_renstra_program_lokal 
+							WHERE kode_sasaran = %s 
+							AND active = 1
+						", $s['id_unik'])
+					);
 
-						$separator = ($k > 0) ? "<div class='hr-mild'></div>" : "";
-						// Cari Data POKIN (Berdasarkan id_unik)
-						$list_pokin = $wpdb->get_results(
+					if (empty($programs_renstra)) {
+						continue;
+					}
+
+					// Convert array ke string untuk query IN ('..','..')
+					$placeholders = implode(',', array_fill(0, count($programs_renstra), '%s'));
+					
+					$query = "
+						SELECT DISTINCT t.* 
+						FROM data_transformasi_cascading t
+						JOIN data_progkeg_transformasi_cascading rel 
+						ON t.id = rel.id_uraian_cascading
+						WHERE t.active = 1 
+						  AND rel.active = 1
+						  AND t.level = 3
+						  AND rel.id_unik IN ($placeholders)
+						ORDER BY t.id DESC
+					";
+					
+					$transformasi_level_3 = $wpdb->get_results($wpdb->prepare($query, $programs_renstra), ARRAY_A);
+
+					if (empty($transformasi_level_3)) {
+						continue;
+					}
+
+					$indikator_html = $this->generate_list_indikator_tujuan_sasaran_transformasi_cascading($s['id_unik'], 'sasaran');
+
+					// SASARAN
+					$pokin_sasaran = $wpdb->get_results(
+						$wpdb->prepare("
+							SELECT label, level
+							FROM data_pokin_renstra
+							WHERE id_unik = %s AND active = 1
+						", $s['id_unik']),
+						ARRAY_A
+					);
+
+					$html_pokin_sasaran = '<ul class="list-unstyled m-0 p-0">';
+					foreach ($pokin_sasaran as $p) {
+						$html_pokin_sasaran .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
+					}
+					$html_pokin_sasaran .= '</ul>';
+
+					if ($s['active'] == 0) {
+						$s['sasaran_teks'] .= ' <span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+					}
+					$html_sasaran = "
+					<tr class='bg-level-2'>
+						<td>{$html_pokin_sasaran}</td>
+						<td class='text-center font-weight-bold small'>SASARAN</td>
+						<td>
+							<strong>{$s['sasaran_teks']}</strong>
+						</td>
+						<td>{$indikator_html}</td>
+						<td>{$s['sasaran_teks']}</td>
+					</tr>";
+
+					$html_output .= $html_tujuan . $html_sasaran;
+					$html_tujuan = '';
+					foreach ($transformasi_level_3 as $level_3) {
+						$indikator_html = $this->generate_list_indikator_transformasi_cascading($level_3['id']);
+						$meta_html = $this->get_meta_transformasi_cascading($level_3['id'], 3);
+
+						$html_output .= "
+						<tr class='bg-level-3'>
+							<td>{$meta_html['list_pokin_html']}</td>
+							<td class='text-center font-weight-bold small'>PROGRAM</td>
+							<td>
+								<span class='font-weight-bold'>{$level_3['uraian_cascading']}</span>
+							</td>
+							<td>{$indikator_html}</td>
+							<td>{$meta_html['list_renstra_html']}</td>
+						</tr>
+						";
+
+						$transformasi_level_4 = $wpdb->get_results(
 							$wpdb->prepare("
-								SELECT 
-									label,
-									level 
-								FROM data_pokin_renstra 
-								WHERE id_unik = %s 
-								  AND active = 1
-							", $id_unik), ARRAY_A
+								SELECT * 
+								FROM data_transformasi_cascading 
+								WHERE parent_id = %d 
+								  AND active = 1 
+								ORDER BY is_pelaksana ASC, updated_at DESC 
+							", $level_3['id']), ARRAY_A
 						);
 
-						$html_pokin .= $separator . "<li>";
-						if ($list_pokin) {
-							$html_pokin .= "<ul class='list-unstyled m-0 p-0'>";
-							foreach ($list_pokin as $p) {
-								$html_pokin .= "<li class='mb-1'>[Lv. {$p['level']}] {$p['label']}</li>";
-							}
-							$html_pokin .= "</ul>";
-						} else {
-							$html_pokin .= "<span class='text-muted font-italic small'>(Pokin tidak ditemukan)</span>";
+						if (empty($transformasi_level_4)) {
+							continue;
 						}
-						$html_pokin .= "</li>";
-						
-						// Cari Nomenklatur Renstra
-						$nama_nomenklatur = $id_unik; // Default tampilkan kode jika nama tidak ketemu
-						
-						if ($level == 3) {
-							$renstra = $wpdb->get_row(
+
+						foreach ($transformasi_level_4 as $level_4) {
+							$indikator_html = $this->generate_list_indikator_transformasi_cascading($level_4['id']);
+							$meta_html = $this->get_meta_transformasi_cascading($level_4['id'], 4);
+
+							$html_output .= "
+							<tr class='bg-level-4'>
+								<td>{$meta_html['list_pokin_html']}</td>
+								<td class='text-center font-weight-bold small'>KEGIATAN</td>
+								<td>
+									<span class='font-weight-bold'>{$level_4['uraian_cascading']}</span>
+								</td>
+								<td>{$indikator_html}</td>
+								<td>{$meta_html['list_renstra_html']}</td>
+							</tr>
+							";
+
+							$transformasi_level_5 = $wpdb->get_results(
 								$wpdb->prepare("
-									SELECT 
-										prog.nama_program as nama,
-										prog.active,
-										sas.id_unik AS id_sasaran,
-										sas.sasaran_teks,
-										sas.active AS active_sasaran,
-										tuj.id_unik AS id_tujuan,
-										tuj.active AS active_tujuan,
-										tuj.tujuan_teks
-									FROM data_renstra_program_lokal prog
-									LEFT JOIN data_renstra_sasaran_lokal sas
-										ON prog.kode_sasaran = sas.id_unik
-									LEFT JOIN data_renstra_tujuan_lokal tuj
-										ON sas.kode_tujuan = tuj.id_unik
-									WHERE prog.id_unik = %s
-								", $id_unik)
+									SELECT * 
+									FROM data_transformasi_cascading 
+									WHERE parent_id = %d 
+									AND active = 1 
+									ORDER BY is_pelaksana ASC, updated_at DESC 
+								", $level_4['id']), ARRAY_A
 							);
 
-							/* ================= TUJUAN ================= */
-							if ($renstra && $renstra->id_tujuan && $renstra->id_tujuan !== $last_tujuan_id) {
+							if (empty($transformasi_level_5)) {
+								continue;
+							}
 
-								// ambil POKIN TUJUAN
-								$pokin_tujuan = $wpdb->get_results(
-									$wpdb->prepare("
-										SELECT label, level
-										FROM data_pokin_renstra
-										WHERE id_unik = %s AND active = 1
-									", $renstra->id_tujuan),
-									ARRAY_A
-								);
+							foreach ($transformasi_level_5 as $level_5) {
+								$indikator_html = $this->generate_list_indikator_transformasi_cascading($level_5['id']);
+								$meta_html = $this->get_meta_transformasi_cascading($level_5['id'], 5);
 
-								$html_pokin_tujuan = '<ul class="list-unstyled m-0 p-0">';
-								foreach ($pokin_tujuan as $p) {
-									$html_pokin_tujuan .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
-								}
-								$html_pokin_tujuan .= '</ul>';
-
-								if ($renstra->active_tujuan == 0) {
-									$renstra->tujuan_teks .= ' <span class="badge badge-danger">Dihapus</span>';
-								}
 								$html_output .= "
-								<tr class='bg-light'>
-									<td>{$html_pokin_tujuan}</td>
-									<td class='text-center font-weight-bold small'>TUJUAN</td>
-									<td colspan='3'>
-										<strong>{$renstra->tujuan_teks}</strong>
+								<tr class='bg-level-5'>
+									<td>{$meta_html['list_pokin_html']}</td>
+									<td class='text-center font-weight-bold small'>SUB KEGIATAN</td>
+									<td>
+										<span class='font-weight-bold'>{$level_5['uraian_cascading']}</span>
+										" . ($level_5['is_pelaksana'] == 1 ? "<span class='badge badge-warning ml-2 p-1'>Pelaksana</span>" : "") . "
 									</td>
-								</tr>";
-
-								$last_tujuan_id  = $renstra->id_tujuan;
-								$last_sasaran_id = null; // reset sasaran saat tujuan berubah
+									<td>{$indikator_html}</td>
+									<td>{$meta_html['list_renstra_html']}</td>
+								</tr>
+								";
 							}
-
-							/* ================= SASARAN ================= */
-							if ($renstra && $renstra->id_sasaran && $renstra->id_sasaran !== $last_sasaran_id) {
-
-								// ambil POKIN SASARAN
-								$pokin_sasaran = $wpdb->get_results(
-									$wpdb->prepare("
-										SELECT label, level
-										FROM data_pokin_renstra
-										WHERE id_unik = %s AND active = 1
-									", $renstra->id_sasaran),
-									ARRAY_A
-								);
-
-								$html_pokin_sasaran = '<ul class="list-unstyled m-0 p-0">';
-								foreach ($pokin_sasaran as $p) {
-									$html_pokin_sasaran .= "<li>[Lv. {$p['level']}] {$p['label']}</li>";
-								}
-								$html_pokin_sasaran .= '</ul>';
-
-								if ($renstra->active_sasaran == 0) {
-									$renstra->sasaran_teks .= ' <span class="badge badge-danger">Dihapus</span>';
-								}
-								$html_output .= "
-								<tr class='bg-white'>
-									<td>{$html_pokin_sasaran}</td>
-									<td class='text-center font-weight-bold small'>SASARAN</td>
-									<td colspan='3'>
-										<strong>{$renstra->sasaran_teks}</strong>
-									</td>
-								</tr>";
-
-								$last_sasaran_id = $renstra->id_sasaran;
-							}
-						} elseif ($level == 4) {
-							$renstra = $wpdb->get_row(
-								$wpdb->prepare("
-									SELECT 
-										nama_giat as nama,
-										active
-									FROM data_renstra_kegiatan_lokal 
-									WHERE id_unik = %s
-								", $id_unik)
-							);
-						} elseif ($level == 5) {
-							$renstra = $wpdb->get_row(
-								$wpdb->prepare("
-									SELECT 
-										nama_sub_giat as nama, 
-										active
-									FROM data_renstra_sub_kegiatan_lokal 
-									WHERE id_unik = %s
-								", $id_unik)
-							);
 						}
 
-						if ($renstra) {
-							if ($renstra->active == 0) {
-								$nama_nomenklatur = $renstra->nama . ' <span class="badge badge-danger">Dihapus</span>';
-							} else {
-								$nama_nomenklatur = $renstra->nama;
-							}
-						}
-						
-						$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}</li>";
 					}
-
-					$html_pokin .= '</ul>';
-               	 	$html_nomenklatur .= '</ul>';
-				} else {
-					$html_pokin .= "<li>-</li>";
-					$html_nomenklatur .= "<li>-</li>";
 				}
-				$html_pokin .= '</ul>';
-				$html_nomenklatur .= '</ul>';
-
-				// --- BUILD ROW ---
-				$html_output .= "
-				<tr class='{$bg_class}'>
-					<td>{$html_pokin}</td>
-					<td class='text-center font-weight-bold small'>{$level_label}</td>
-					<td>
-						<span class='font-weight-bold'>{$row['uraian_cascading']}</span>
-						" . ($row['is_pelaksana'] == 1 ? "<span class='badge badge-warning mt-1'>Pelaksana</span>" : "") . "
-					</td>
-					<td>{$html_indikator}</td>
-					<td>{$html_nomenklatur}</td>
-				</tr>
-				";
+				
 			}
-
-			echo json_encode(['status' => true, 'html' => $html_output]);
+			echo json_encode([
+				'status' => true,
+				'html' => $html_output
+			]);
 
 		} catch (Exception $e) {
 			http_response_code(500);
@@ -31460,7 +31576,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = p.id_unik 
 					AND pk.active = 1
-				LEFT JOIN data_renstra_sasaran_lokal sas 
+				INNER JOIN data_renstra_sasaran_lokal sas 
 					ON sas.id_unik = p.kode_sasaran 
 					AND sas.active = 1
 					AND sas.id_unik_indikator IS NULL
@@ -31498,7 +31614,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = k.id_unik 
 					AND pk.active = 1
-				LEFT JOIN data_renstra_sasaran_lokal sas 
+				INNER JOIN data_renstra_sasaran_lokal sas 
 					ON sas.id_unik = k.kode_sasaran 
 					AND sas.active = 1
 					AND sas.id_unik_indikator IS NULL
@@ -31536,7 +31652,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				LEFT JOIN data_pokin_renstra pk 
 					ON pk.id_unik = s.id_unik 
 					AND pk.active = 1
-				LEFT JOIN data_renstra_sasaran_lokal sas 
+				INNER JOIN data_renstra_sasaran_lokal sas 
 					ON sas.id_unik = s.kode_sasaran 
 					AND sas.active = 1
 					AND sas.id_unik_indikator IS NULL
@@ -31591,9 +31707,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					<tr class='{$badge_class}'>
 						<td class='text-center'>{$no}</td>
 						<td>{$pokin_text}</td>
-						<td class='text-center'>{$row['tipe']}</td>
+						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
-						<td>{$nama_renstra}<br><span class='text-muted'>Sasaran : {$nama_sasaran}</span></td>
+						<td><span class='font-weight-bold text-dark'>{$nama_renstra}</span><br><span class='text-muted'>SASARAN : {$nama_sasaran}</span></td>
 					</tr>
 					";
 					$no++;
