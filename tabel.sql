@@ -3239,7 +3239,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `lama_pelaksanaan` INT(2) NOT NULL DEFAULT '1',
   `id_tipe` INT(11) NOT NULL,
   `relasi_perencanaan` INT(11) DEFAULT NULL,
-  `jenis_jadwal` VARCHAR(20) NOT NULL DEFAULT 'usulan',
+  `jenis_jadwal` VARCHAR(25) NOT NULL DEFAULT 'usulan',
   `id_jadwal_pergeseran` INT(11) DEFAULT NULL,
   `status_jadwal_pergeseran` VARCHAR(64) DEFAULT NULL,
   `data_monev_renstra` INT(11) DEFAULT '2' COMMENT '1 = SIPD, 2 = LOKAL',
@@ -8467,9 +8467,10 @@ CREATE TABLE `data_progkeg_transformasi_cascading` (
 
 CREATE TABLE `data_indikator_transformasi_cascading` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `id_uraian_cascading` INT(11) NOT NULL,
-  `indikator` TEXT NOT NULL,
-  `satuan` VARCHAR(512) NOT NULL,
+  `id_uraian_cascading` INT(11) DEFAULT NULL,
+  `indikator` TEXT DEFAULT NULL,
+  `satuan` VARCHAR(512) DEFAULT NULL,
+  `parent_indikator` INT(11) DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `active` TINYINT(4) NOT NULL DEFAULT 1,

@@ -1233,6 +1233,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_save_indikator_monev_renja',  $plugin_public, 'save_indikator_monev_renja');
 		$this->loader->add_action('wp_ajax_delete_monev_indikator',  $plugin_public, 'delete_monev_indikator');
 		
+		$this->loader->add_action('wp_ajax_handle_get_indikator_detail',  $plugin_public, 'handle_get_indikator_detail');
 		$this->loader->add_action('wp_ajax_get_pokin_by_id_uniks',  $plugin_public, 'get_pokin_by_id_uniks');
 		$this->loader->add_action('wp_ajax_handle_save_indikator',  $plugin_public, 'handle_save_indikator');
 		$this->loader->add_action('wp_ajax_handle_delete_indikator',  $plugin_public, 'handle_delete_indikator');

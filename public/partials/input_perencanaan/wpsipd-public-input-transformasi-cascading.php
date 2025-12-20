@@ -47,15 +47,19 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     .bg-level-1 {
         background-color: #EAF6EA !important;
     }
+
     .bg-level-2 {
         background-color: #F8EFE4 !important;
     }
+
     .bg-level-3 {
         background-color: #EEF6F9 !important;
     }
+
     .bg-level-4 {
         background-color: #FBFBEA !important;
     }
+
     .bg-level-5 {
         background-color: #FFFFFF !important;
     }
@@ -142,13 +146,14 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <th style="width: 20%;">Pohon Kinerja</th>
                             <th style="width: 10%;">Tipe</th>
                             <th style="width: 25%;">Uraian Cascading</th>
-                            <th style="width: 20%;">Indikator & Satuan</th>
-                            <th style="width: 25%;">Nomenklatur (Renstra)</th>
+                            <th style="width: 15%;">Indikator</th>
+                            <th style="width: 15%;">Satuan</th>
+                            <th style="width: 20%;">Nomenklatur (Renstra)</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-cascading-full">
                         <tr>
-                            <td colspan="5" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
+                            <td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -283,8 +288,32 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         </div>
 
                         <div class="form-group">
-                            <label class="font-weight-bold">Satuan <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="input_ind_satuan" name="satuan" placeholder="Contoh: Dokumen, Unit, Persen" required>
+                            <label class="font-weight-bold">
+                                Satuan Indikator <span class="text-danger">*</span>
+                            </label>
+
+                            <div id="wrap-satuan-list">
+                                <div class="input-group mb-2 satuan-item">
+                                    <input type="text"
+                                        class="form-control input-satuan"
+                                        placeholder="Contoh: Dokumen / Unit / Persen">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-danger btn-remove-satuan" type="button">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button"
+                                class="btn btn-sm btn-outline-primary mt-2"
+                                onclick="addSatuanField()">
+                                <i class="fa fa-plus"></i> Tambah Satuan
+                            </button>
+
+                            <small class="form-text text-muted">
+                                Satu indikator dapat memiliki lebih dari satu satuan.
+                            </small>
                         </div>
                     </form>
                 </div>
@@ -418,6 +447,16 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     });
 
+    jQuery(document).on('click', '.btn-remove-satuan', function() {
+        // minimal 1 satuan harus ada
+        if (jQuery('.satuan-item').length > 1) {
+            jQuery(this).closest('.satuan-item').remove();
+        } else {
+            alert('Minimal harus ada satu satuan.');
+        }
+    });
+
+
     // --- STATE MANAGEMENT ---
     const state = {
         currentLevel: 1,
@@ -457,6 +496,24 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     };
 
+    function addSatuanField(value = '') {
+        let html = `
+        <div class="input-group mb-2 satuan-item">
+            <input type="text" 
+                   class="form-control input-satuan" 
+                   value="${value}"
+                   placeholder="Contoh: Dokumen / Unit / Persen">
+            <div class="input-group-append">
+                <button class="btn btn-danger btn-remove-satuan" type="button">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+        jQuery('#wrap-satuan-list').append(html);
+    }
+
+
     function loadTabelUnmapped() {
         const container = jQuery('#container-unmapped-renstra');
         const tbody = jQuery('#tbody-unmapped-renstra');
@@ -490,9 +547,9 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     function loadTabelFull() {
         const tbody = jQuery('#tbody-cascading-full');
 
-        // Loading State (Hanya jika tabel kosong/inisial load agar tidak kedip mengganggu)
+        // Loading State
         if (tbody.children().length === 0 || tbody.find('.fa-spin').length > 0) {
-            tbody.html('<tr><td colspan="5" class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Sedang memuat data...</td></tr>');
+            tbody.html('<tr><td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Sedang memuat data...</td></tr>');
         }
 
         jQuery.ajax({
@@ -507,13 +564,13 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             },
             success: function(res) {
                 if (res.status) {
-                    tbody.html(res.html).hide().fadeIn(300); // Efek fade in halus
+                    tbody.html(res.html).hide().fadeIn(300);
                 } else {
-                    tbody.html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data: ' + res.message + '</td></tr>');
+                    tbody.html('<tr><td colspan=6" class="text-center text-danger">Gagal memuat data: ' + res.message + '</td></tr>');
                 }
             },
             error: function() {
-                tbody.html('<tr><td colspan="5" class="text-center text-danger">Terjadi kesalahan koneksi server.</td></tr>');
+                tbody.html('<tr><td colspan=6" class="text-center text-danger">Terjadi kesalahan koneksi server.</td></tr>');
             }
         });
     }
@@ -680,10 +737,10 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     }
 
     function renderPokinList(pokinList) {
-        let html = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
+        let html = `<ul class="list-unstyled mt-0 mb-0">`;
 
         if (!Array.isArray(pokinList) || pokinList.length === 0) {
-            html += `<li><i class="text-muted">-</i></li>`;
+            html += `<li><i>-</i></li>`;
             html += `</ul>`;
             return html;
         }
@@ -732,7 +789,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     function renderTable(level, data) {
         let html = `
         <div class="table-scroll">
-            <table class="table table-hover table-bordered table-striped mb-0">
+            <table class="table table-hover table-bordered mb-0">
         `;
 
         // ================= HEADER =================
@@ -765,7 +822,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         if (!data || data.length === 0) {
             html += `
             <tr>
-                <td colspan="5" class="text-center text-muted p-4">
+                <td colspan=6" class="text-center text-muted p-4">
                     Data kosong.
                 </td>
             </tr>`;
@@ -813,7 +870,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                     // ---------- renstra ----------
                     let refIds = [];
-                    let listRef = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
+                    let listRef = `<ul class="list-unstyled mt-0 mb-0">`;
 
                     if (item.referensi && item.referensi.length > 0) {
                         item.referensi.forEach(r => {
@@ -864,7 +921,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                     // ---------- BARIS PARENT ----------
                     html += `
-                    <tr class="table-white">
+                    <tr class="table-secondary">
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${listPokin}</td>
                         <td>
@@ -875,23 +932,44 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     </tr>`;
 
                     // ---------- BARIS INDIKATOR ----------
+                    let idxInd = 1;
                     if (item.indikator && item.indikator.length > 0) {
                         item.indikator.forEach(ind => {
+
                             let safeInd = encodeURIComponent(ind.indikator);
 
+                            // Render list satuan
+                            let satuanHtml = '';
+                            if (ind.satuan_list && ind.satuan_list.length > 0) {
+                                satuanHtml += '<ul class="m-0 pl-3">';
+                                ind.satuan_list.forEach(s => {
+                                    satuanHtml += `<li>${s.satuan}</li>`;
+                                });
+                                satuanHtml += '</ul>';
+                            } else {
+                                satuanHtml = '<span class="text-muted font-italic">Belum ada satuan</span>';
+                            }
+
+                            let satuanJson = encodeURIComponent(JSON.stringify(ind.satuan_list ?? []));
+
                             html += `
-                            <tr class="table-light">
-                                <td></td>
-                                <td colspan="3" class="pl-4">
-                                    <i class="dashicons dashicons-arrow-right-alt2 text-muted mr-1"></i>
-                                    <span class="text-muted">${ind.indikator}</span>
-                                    <span class="badge badge-primary ml-2">${ind.satuan}</span>
+                            <tr class="table-light table-sm text-muted">
+                                <td class="align-middle">
+                                    <span class="font-weight-semibold pl-2 m-2">${idx + 1}.${idxInd ++}</span>
                                 </td>
-                                <td class="text-center">
+                                <td class="align-middle" colspan="2">
+                                    <span class="font-weight-semibold">${ind.indikator}</span>
+                                </td>
+
+                                <td class="align-middle">
+                                    ${satuanHtml}
+                                </td>
+
+                                <td class="text-center align-middle">
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-warning"
                                             title="Edit Indikator"
-                                            onclick="openFormAddIndikator(${item.id}, ${ind.id}, '${safeInd}', '${ind.satuan}')">
+                                            onclick="openFormAddIndikator(${item.id}, ${ind.id})">
                                             <i class="dashicons dashicons-edit"></i>
                                         </button>
                                         <button class="btn btn-danger"
@@ -906,12 +984,13 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     } else {
                         html += `
                         <tr class="table-light">
-                            <td colspan="4" class="pl-4 text-muted font-italic">
+                            <td colspan="3" class="text-muted font-italic">
                                 <i class="fa fa-info-circle mr-1"></i>
                                 Belum ada indikator
                             </td>
                         </tr>`;
                     }
+
                 }
             });
         }
@@ -1014,39 +1093,90 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     }
 
+    function openFormAddIndikator(parentId, indId = null) {
 
-    function openFormAddIndikator(parentId, indId = null, narasi = '', satuan = '') {
-        // Reset Form
+        // Reset form
         jQuery('#form-indikator')[0].reset();
-
-        // Set Parent ID (Wajib)
+        jQuery('#wrap-satuan-list').html('');
         jQuery('#input_ind_parent_id').val(parentId);
+        jQuery('#input_ind_id').val('');
 
-        if (indId) {
-            // Mode EDIT
-            jQuery('#title-form-indikator').text('Edit Indikator');
-            jQuery('#input_ind_id').val(indId);
-            jQuery('#input_ind_narasi').val(decodeURIComponent(narasi));
-            jQuery('#input_ind_satuan').val(satuan);
-        } else {
-            // Mode TAMBAH
+        if (!indId) {
+            // ==========================
+            // MODE TAMBAH
+            // ==========================
             jQuery('#title-form-indikator').text('Tambah Indikator Baru');
-            jQuery('#input_ind_id').val(''); // Kosongkan ID
+            addSatuanField();
+            jQuery('#modal-form-indikator').modal('show');
+            return;
         }
 
-        jQuery('#modal-form-indikator').modal('show');
+        // ==========================
+        // MODE EDIT
+        // ==========================
+        jQuery('#title-form-indikator').text('Edit Indikator');
+        jQuery("#wrap-loading").show();
+
+        jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: "json",
+            data: {
+                action: 'handle_get_indikator_detail',
+                api_key: ajax.api_key,
+                id: indId
+            },
+            success(res) {
+                jQuery("#wrap-loading").hide();
+
+                if (!res.status) {
+                    alert(res.message);
+                    return;
+                }
+
+                // Set data indikator
+                jQuery('#input_ind_id').val(res.data.id);
+                jQuery('#input_ind_narasi').val(res.data.indikator);
+
+                // Render satuan
+                if (res.data.satuan_list.length) {
+                    res.data.satuan_list.forEach(s => {
+                        addSatuanField(s.satuan, s.id);
+                    });
+                } else {
+                    addSatuanField();
+                }
+
+                jQuery('#modal-form-indikator').modal('show');
+            },
+            error() {
+                jQuery("#wrap-loading").hide();
+                alert('Gagal mengambil data indikator');
+            }
+        });
     }
 
     function submitIndikator() {
-        // Validasi
-        let narasi = jQuery('#input_ind_narasi').val();
-        let satuan = jQuery('#input_ind_satuan').val();
-        if (!narasi || !satuan) {
-            alert('Harap isi narasi dan satuan indikator!');
+
+        let narasi = jQuery('#input_ind_narasi').val().trim();
+        if (!narasi) {
+            alert('Narasi indikator wajib diisi!');
+            return;
+        }
+
+        let satuanArr = [];
+        jQuery('.input-satuan').each(function() {
+            let val = jQuery(this).val().trim();
+            if (val) satuanArr.push(val);
+        });
+
+        if (satuanArr.length === 0) {
+            alert('Minimal satu satuan indikator harus diisi!');
             return;
         }
 
         jQuery("#wrap-loading").show();
+
         jQuery.ajax({
             url: ajax.url,
             type: "post",
@@ -1054,27 +1184,28 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: 'handle_save_indikator',
                 api_key: ajax.api_key,
-                id: jQuery('#input_ind_id').val(), // Kosong jika create, ada isi jika edit
+                id: jQuery('#input_ind_id').val(),
                 id_uraian_cascading: jQuery('#input_ind_parent_id').val(),
                 indikator: narasi,
-                id_jadwal: idJadwal,
-                satuan: satuan
+                satuan: satuanArr,
+                id_jadwal: idJadwal
             },
             beforeSend: function() {
                 jQuery('#modal-form-indikator button').prop('disabled', true);
             },
             success: function(res) {
                 jQuery('#modal-form-indikator button').prop('disabled', false);
+                jQuery("#wrap-loading").hide();
+
                 if (res.status) {
                     jQuery('#modal-form-indikator').modal('hide');
                     alert(res.message);
-                    loadTableData(state.currentLevel); // Refresh Tabel Utama
+                    loadTableData(state.currentLevel);
                     loadTabelFull();
                     loadTabelUnmapped();
                 } else {
                     alert("Error: " + res.message);
                 }
-                jQuery("#wrap-loading").hide();
             },
             error: function() {
                 jQuery("#wrap-loading").hide();
@@ -1083,6 +1214,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             }
         });
     }
+
 
     function deleteIndikator(id) {
         if (!confirm("Yakin hapus indikator ini?")) return;

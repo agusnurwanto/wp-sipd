@@ -132,7 +132,9 @@ $body = '';
 							<select id="jenis_jadwal" class="form-control">
 								<option value="usulan" selected>Usulan</option>
 								<option value="penetapan">Penetapan</option>
+								<option value="transformasi_cascading">Transformasi Cascading</option>
 							</select>
+							<small class="text-text-muted">Jenis jadwal <strong>Transformasi Cascading</strong> digunakan untuk mengaktifkan jadwal di Input Transformasi Cascading saja.</small>
 						</div>
 						<div class="form-row">
 							<div class="form-group col-md-3">
