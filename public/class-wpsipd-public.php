@@ -30672,11 +30672,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 
 			// 3. Soft Delete Indikator Relations
-			$wpdb->update(
-				'data_indikator_transformasi_cascading', 
-				['active' => 0, 'updated_at' => current_time('mysql')], 
-				['id_uraian_cascading' => $id_trans]
+			$indikator_ids = $wpdb->get_col(
+				$wpdb->prepare("
+					SELECT id
+					FROM data_indikator_transformasi_cascading
+					WHERE id_uraian_cascading = %d
+					AND parent_indikator IS NULL
+					AND active = 1
+				", $id_trans)
 			);
+
+			if ($indikator_ids) {
+				foreach ($indikator_ids as $ind_id) {
+
+					// --- soft delete satuan ---
+					$wpdb->update(
+						'data_indikator_transformasi_cascading',
+						[
+							'active'     => 0,
+							'updated_at'=> current_time('mysql')
+						],
+						[
+							'parent_indikator' => $ind_id
+						]
+					);
+
+					// --- soft delete indikator utama ---
+					$wpdb->update(
+						'data_indikator_transformasi_cascading',
+						[
+							'active'     => 0,
+							'updated_at'=> current_time('mysql')
+						],
+						[
+							'id' => $ind_id
+						]
+					);
+				}
+			}
 
 			$wpdb->query('COMMIT');
 
@@ -31271,6 +31304,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'data_indikator_transformasi_cascading', 
 				['active' => 0, 'updated_at' => current_time('mysql')], 
 				['id' => $_POST['id']]
+			);
+
+			$wpdb->update(
+				'data_indikator_transformasi_cascading', 
+				['active' => 0, 'updated_at' => current_time('mysql')], 
+				['parent_indikator' => $_POST['id']]
 			);
 			
 			echo json_encode(['status' => true, 'message' => "Indikator dihapus."]);
