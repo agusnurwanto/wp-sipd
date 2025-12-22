@@ -30506,7 +30506,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$placeholders = implode(',', array_fill(0, count($parents), '%s'));
 
 		$query = "
-			SELECT id_unik, nama_sub_giat 
+			SELECT id_unik, nama_sub_giat, nama_sub_unit
 			FROM data_renstra_sub_kegiatan_lokal 
 			WHERE kode_kegiatan IN ($placeholders)
 			AND active = 1
@@ -31888,6 +31888,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					p.id_unik,
 					p.nama_program AS nama,
 					p.kode_program AS kode,
+					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
 						'<ul class=\"list-unstyled m-0 p-0\">',
@@ -31926,6 +31927,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					k.id_unik,
 					k.nama_giat AS nama,
 					k.kode_giat AS kode,
+					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
 						'<ul class=\"list-unstyled m-0 p-0\">',
@@ -31964,6 +31966,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					s.id_unik,
 					s.nama_sub_giat AS nama,
 					s.kode_sub_giat AS kode,
+					s.nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
 						'<ul class=\"list-unstyled m-0 p-0\">',
@@ -32017,7 +32020,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$badge_class = '';
 					if($row['lvl'] == 3) $badge_class = 'bg-level-3';
 					if($row['lvl'] == 4) $badge_class = 'bg-level-4';
-					if($row['lvl'] == 5) $badge_class = 'bg-level-5';
+
+					$nama_sub_unit = '';
+					if($row['lvl'] == 5) {
+						$badge_class = 'bg-level-5';
+						$nama_sub_unit = "<span class='text-muted'>OPD Pelaksana : {$row['nama_sub_unit']}</span>";
+					}
 
 					$pokin_text = !empty($row['pokin']) ? $row['pokin'] : "<span class='text-muted font-italic small'>(Belum ada Pokin)</span>";
 
@@ -32035,7 +32043,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>{$pokin_text}</td>
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
-						<td><span class='font-weight-bold text-dark'>{$nama_renstra}</span><br><span class='text-muted'>SASARAN : {$nama_sasaran}</span></td>
+						<td>
+							<span class='font-weight-bold text-dark'>{$nama_renstra}</span><br>
+							<span class='text-muted'>SASARAN : {$nama_sasaran}</span><br>
+							{$nama_sub_unit}
+						</td>
 					</tr>
 					";
 					$no++;

@@ -737,7 +737,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     }
 
     function renderPokinList(pokinList) {
-        let html = `<ul class="list-unstyled mt-0 mb-0">`;
+        let html = `<ul class="list-unstyled p-0 mt-0 mb-0">`;
 
         if (!Array.isArray(pokinList) || pokinList.length === 0) {
             html += `<li><i>-</i></li>`;
@@ -800,7 +800,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="5%" class="text-center">No</th>
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">${levelCascading[level]}</th>
-                    <th width="15%" class="text-center">Aksi</th>
+                    <th width="90" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         } else {
@@ -811,7 +811,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">Uraian Cascading</th>
                     <th width="25%" class="text-center">${levelCascading[level]}</th>
-                    <th width="15%" class="text-center">Aksi</th>
+                    <th width="90" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         }
@@ -846,13 +846,14 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         <td class="text-center">
                             <button class="btn btn-sm btn-info shadow-sm"
                                 onclick='handleDrillDown(${level}, {
-                                id: "${id}",
-                                pokin: ${JSON.stringify(item.pokin_list)},
-                                uraian: "${encodeURIComponent(label)}",
-                                renstra: "-"
-                            })'>
-                                Lihat ${labelDrillDown}
-                                <i class="dashicons dashicons-arrow-right-alt2"></i>
+                                    id: "${id}",
+                                    pokin: ${JSON.stringify(item.pokin_list)},
+                                    uraian: "${encodeURIComponent(label)}",
+                                    renstra: "-"
+                                })'
+                                title='Lihat ${labelDrillDown}'
+                            >
+                            <i class="dashicons dashicons-arrow-right-alt2"></i>
                             </button>
                         </td>
                     </tr>`;
@@ -870,7 +871,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                     // ---------- renstra ----------
                     let refIds = [];
-                    let listRef = `<ul class="list-unstyled mt-0 mb-0">`;
+                    let listRef = `<ul class="list-unstyled p-0 mt-0 mb-0">`;
 
                     if (item.referensi && item.referensi.length > 0) {
                         item.referensi.forEach(r => {
@@ -887,7 +888,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     let idsString = refIds.join(',');
 
                     // ---------- AKSI ----------
-                    let btns = `<div class="btn-group btn-group-sm">`;
+                    let btns = `<div class="btn-group-vertical btn-group-sm w-100">`;
                     btns += `
                     <button class="btn btn-warning" title="Edit"
                         onclick="openFormModal(${item.id})">
@@ -966,7 +967,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                 </td>
 
                                 <td class="text-center align-middle">
-                                    <div class="btn-group btn-group-sm">
+                                    <div class="btn-group-vertical btn-group-sm w-100">
                                         <button class="btn btn-warning"
                                             title="Edit Indikator"
                                             onclick="openFormAddIndikator(${item.id}, ${ind.id})">
@@ -1004,7 +1005,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     }
 
     function renderCascading(cascadingList) {
-        let html = `<ul class="list-unstyled text-muted mt-0 mb-0">`;
+        let html = `<ul class="list-unstyled p-0 text-muted mt-0 mb-0">`;
 
         if (Array.isArray(cascadingList) && cascadingList.length > 0) {
             cascadingList.forEach(r => {
@@ -1247,11 +1248,25 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     async function initSelect2Modal(level, parentId) {
         const $select = jQuery('#input_id_unik');
 
-        let ajaxSourceFunc;
-        if (level === 3) ajaxSourceFunc = get_program_renstra_lokal_by_parent;
-        else if (level === 4) ajaxSourceFunc = get_kegiatan_renstra_lokal_by_parent;
-        else if (level === 5) ajaxSourceFunc = get_subkegiatan_renstra_lokal_by_parent;
-        else return;
+        const ajaxSourceMap = {
+            3: get_program_renstra_lokal_by_parent,
+            4: get_kegiatan_renstra_lokal_by_parent,
+            5: get_subkegiatan_renstra_lokal_by_parent
+        };
+
+        const textBuilderMap = {
+            3: (item) => item.nama_program,
+            4: (item) => item.nama_giat,
+            5: (item) => {
+                let text = item.nama_sub_giat;
+                if (item.nama_sub_unit) {
+                    text += ` ( ${item.nama_sub_unit} )`;
+                }
+                return text;
+            }
+        };
+
+        if (!ajaxSourceMap[level]) return;
 
         if ($select.data('select2')) {
             $select.select2('destroy');
@@ -1259,15 +1274,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         $select.empty();
 
-        const res = await ajaxSourceFunc(parentId);
+        const res = await ajaxSourceMap[level](parentId);
 
         if (res.status && Array.isArray(res.data)) {
             res.data.forEach(item => {
-                const text =
-                    item.nama_program ||
-                    item.nama_giat ||
-                    item.nama_sub_giat ||
-                    '-';
+                const text = textBuilderMap[level](item) || '-';
 
                 $select.append(
                     `<option value="${item.id_unik}">${text}</option>`
@@ -1283,7 +1294,6 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             width: '100%'
         });
     }
-
 
     function submitForm() {
         let formObj = {
