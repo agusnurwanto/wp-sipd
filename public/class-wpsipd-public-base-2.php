@@ -7306,33 +7306,51 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							    );
 							    
 							    foreach ($data_transformasi_cascading as &$cascading) {
-							        $cascading['induk'] = $wpdb->get_row(
-							            $wpdb->prepare("
-							                SELECT 
-							                    *
-							                FROM data_transformasi_cascading
-							                WHERE id = %d
-							                  AND active = 1
-							            ", $cascading['id_uraian_cascading']),
-							            ARRAY_A
-							        );
-							        
-							        if (!empty($cascading['induk'])) {
-							            $cascading['indikator'] = $wpdb->get_results(
-							                $wpdb->prepare("
-							                    SELECT 
-							                        *
-							                    FROM data_indikator_transformasi_cascading
-							                    WHERE id_uraian_cascading = %d
-							                      AND active = 1
-							                ", $cascading['induk']['id']),
-							                ARRAY_A
-							            );
-							        } else {
-							            $cascading['indikator'] = array();
-							        }
-							    }
-							    unset($cascading);
+								    $cascading['induk'] = $wpdb->get_row(
+								        $wpdb->prepare("
+								            SELECT *
+								            FROM data_transformasi_cascading
+								            WHERE id = %d
+								              AND active = 1
+								        ", $cascading['id_uraian_cascading']),
+								        ARRAY_A
+								    );
+
+								    if (!empty($cascading['induk'])) {
+
+								        $cascading['induk']['indikator'] = $wpdb->get_results(
+								            $wpdb->prepare("
+								                SELECT *
+								                FROM data_indikator_transformasi_cascading
+								                WHERE id_uraian_cascading = %d
+								                  AND active = 1
+								            ", $cascading['induk']['id']),
+								            ARRAY_A
+								        );
+
+								        if (!empty($cascading['induk']['indikator'])) {
+								            foreach ($cascading['induk']['indikator'] as &$indikator) {
+								                $indikator['satuan'] = $wpdb->get_results(
+								                    $wpdb->prepare("
+								                        SELECT *
+								                        FROM data_indikator_transformasi_cascading
+								                        WHERE parent_indikator = %d
+								                          AND active = 1
+								                    ", $indikator['id']),
+								                    ARRAY_A
+								                );
+								            }
+								            unset($indikator);
+								        }
+
+								    } else {
+								        $cascading['induk'] = array(
+								            'indikator' => array()
+								        );
+								    }
+								}
+								unset($cascading);
+
 							    
 							    $row['get_transformasi_cascading'] = $data_transformasi_cascading;
 							} else {
@@ -7538,32 +7556,49 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            );
 					            
 					            foreach ($data_transformasi_cascading as &$cascading) {
-					                $cascading['induk'] = $wpdb->get_row(
-					                    $wpdb->prepare("
-					                        SELECT 
-					                            *
-					                        FROM data_transformasi_cascading
-					                        WHERE id = %d
-					                          AND active = 1
-					                    ", $cascading['id_uraian_cascading']),
-					                    ARRAY_A
-					                );
-					                
-					                if (!empty($cascading['induk'])) {
-					                    $cascading['indikator'] = $wpdb->get_results(
-					                        $wpdb->prepare("
-					                            SELECT 
-					                                *
-					                            FROM data_indikator_transformasi_cascading
-					                            WHERE id_uraian_cascading = %d
-					                              AND active = 1
-					                        ", $cascading['induk']['id']),
-					                        ARRAY_A
-					                    );
-					                } else {
-					                    $cascading['indikator'] = array();
-					                }
-					            }
+								    $cascading['induk'] = $wpdb->get_row(
+								        $wpdb->prepare("
+								            SELECT *
+								            FROM data_transformasi_cascading
+								            WHERE id = %d
+								              AND active = 1
+								        ", $cascading['id_uraian_cascading']),
+								        ARRAY_A
+								    );
+
+								    if (!empty($cascading['induk'])) {
+
+								        $cascading['induk']['indikator'] = $wpdb->get_results(
+								            $wpdb->prepare("
+								                SELECT *
+								                FROM data_indikator_transformasi_cascading
+								                WHERE id_uraian_cascading = %d
+								                  AND active = 1
+								            ", $cascading['induk']['id']),
+								            ARRAY_A
+								        );
+
+								        if (!empty($cascading['induk']['indikator'])) {
+								            foreach ($cascading['induk']['indikator'] as &$indikator) {
+								                $indikator['satuan'] = $wpdb->get_results(
+								                    $wpdb->prepare("
+								                        SELECT *
+								                        FROM data_indikator_transformasi_cascading
+								                        WHERE parent_indikator = %d
+								                          AND active = 1
+								                    ", $indikator['id']),
+								                    ARRAY_A
+								                );
+								            }
+								            unset($indikator);
+								        }
+
+								    } else {
+								        $cascading['induk'] = array(
+								            'indikator' => array()
+								        );
+								    }
+								}
 					            unset($cascading);
 					            
 					            $row['get_transformasi_cascading'] = $data_transformasi_cascading;
@@ -7761,32 +7796,49 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            );
 					            
 					            foreach ($data_transformasi_cascading as &$cascading) {
-					                $cascading['induk'] = $wpdb->get_row(
-					                    $wpdb->prepare("
-					                        SELECT 
-					                            *
-					                        FROM data_transformasi_cascading
-					                        WHERE id = %d
-					                          AND active = 1
-					                    ", $cascading['id_uraian_cascading']),
-					                    ARRAY_A
-					                );
-					                
-					                if (!empty($cascading['induk'])) {
-					                    $cascading['indikator'] = $wpdb->get_results(
-					                        $wpdb->prepare("
-					                            SELECT 
-					                                *
-					                            FROM data_indikator_transformasi_cascading
-					                            WHERE id_uraian_cascading = %d
-					                              AND active = 1
-					                        ", $cascading['induk']['id']),
-					                        ARRAY_A
-					                    );
-					                } else {
-					                    $cascading['indikator'] = array();
-					                }
-					            }
+								    $cascading['induk'] = $wpdb->get_row(
+								        $wpdb->prepare("
+								            SELECT *
+								            FROM data_transformasi_cascading
+								            WHERE id = %d
+								              AND active = 1
+								        ", $cascading['id_uraian_cascading']),
+								        ARRAY_A
+								    );
+
+								    if (!empty($cascading['induk'])) {
+
+								        $cascading['induk']['indikator'] = $wpdb->get_results(
+								            $wpdb->prepare("
+								                SELECT *
+								                FROM data_indikator_transformasi_cascading
+								                WHERE id_uraian_cascading = %d
+								                  AND active = 1
+								            ", $cascading['induk']['id']),
+								            ARRAY_A
+								        );
+
+								        if (!empty($cascading['induk']['indikator'])) {
+								            foreach ($cascading['induk']['indikator'] as &$indikator) {
+								                $indikator['satuan'] = $wpdb->get_results(
+								                    $wpdb->prepare("
+								                        SELECT *
+								                        FROM data_indikator_transformasi_cascading
+								                        WHERE parent_indikator = %d
+								                          AND active = 1
+								                    ", $indikator['id']),
+								                    ARRAY_A
+								                );
+								            }
+								            unset($indikator);
+								        }
+
+								    } else {
+								        $cascading['induk'] = array(
+								            'indikator' => array()
+								        );
+								    }
+								}
 					            unset($cascading);
 					            
 					            $row['get_transformasi_cascading'] = $data_transformasi_cascading;
