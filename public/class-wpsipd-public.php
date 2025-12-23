@@ -30908,7 +30908,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$wpdb->prepare("
 								SELECT 
 									nama_sub_giat, 
-									active
+									active,
+									nama_sub_unit
 								FROM data_renstra_sub_kegiatan_lokal 
 								WHERE id_unik = %s
 								", $kode
@@ -30916,9 +30917,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_sub_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+								$nama = $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span><span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
-								$nama = $master->nama_sub_giat;
+								$nama = $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
 							}
 						}
 					}
