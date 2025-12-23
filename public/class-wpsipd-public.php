@@ -31504,7 +31504,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$wpdb->prepare("
 							SELECT 
 								nama_sub_giat as nama, 
-								active
+								active,
+								nama_sub_unit
 							FROM data_renstra_sub_kegiatan_lokal 
 							WHERE id_unik = %s
 						", $id_unik)
@@ -31518,8 +31519,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_nomenklatur = $renstra->nama;
 					}
 				}
+
+				$nama_sub_unit = ''; 
+				if ($level == 5) {
+					$nama_sub_unit = "<br><span class='text-muted'>( $renstra->nama_sub_unit )</span>"; 
+				}
 				
-				$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}</li>";
+				$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}{$nama_sub_unit}</li>";
 			}
 
 			$html_pokin .= '</ul>';
