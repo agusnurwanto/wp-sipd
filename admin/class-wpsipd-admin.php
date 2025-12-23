@@ -3759,7 +3759,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							'[transformasi_cascading]'
 						);
 
-						$url_skpd = $gen_page . '&id_jadwal=' . $jadwal['id_jadwal_lokal'] . '&id_skpd=' . $unit['id_skpd'];
+						$new_url = $this->add_param_get($gen_page, '&1=1');
+
+						$url_skpd = $new_url . '&id_jadwal=' . $jadwal['id_jadwal_lokal'] . '&id_skpd=' . $unit['id_skpd'];
 						$return .= '<li>
 							<a target="_blank" href="' . $url_skpd . '" >Halaman Input Transformasi Cascading ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
 						</li>';
