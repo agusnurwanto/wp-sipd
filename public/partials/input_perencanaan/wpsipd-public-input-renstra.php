@@ -3754,7 +3754,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -3855,7 +3855,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -4326,7 +4326,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -4430,7 +4430,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -4963,7 +4963,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -5082,7 +5082,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {			
+				if (data_pokin.data) {			
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -5586,7 +5586,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
@@ -5749,7 +5749,7 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-				if (data_pokin.length > 0) {
+				if (data_pokin.data) {
 					data_pokin.data.map(function(b, i){
 						var indikator = [];
 						for (var bb in b.indikator){
