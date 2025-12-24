@@ -121,7 +121,17 @@ if ($jadwal_lokal['status'] == 0) {
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
-	}
+	} else if ($jenisJadwal == 'transformasi_cascading') {
+		$mulaiJadwal = $jadwal_lokal['waktu_awal'];
+		$selesaiJadwal = $jadwal_lokal['waktu_akhir'];
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+	
+		if ($now >= $awal && $now <= $akhir) {
+			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
+		}
+	} 
 } else {
 	$prefix_history = '_history';
 }
@@ -2884,9 +2894,13 @@ $table .= '
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
 <script type="text/javascript">
+	jQuery(document).ready(() => {
+		disableCreateIfJadwalTransformasi();
+	})
 	run_download_excel();
 
     window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
+    window.jenisJadwal = '<?php echo $jenisJadwal; ?>';
 
     if (id_jadwal_wp_sakip == 0) {
     	<?php if($is_admin): ?>
@@ -2922,7 +2936,7 @@ $table .= '
 			<a style="margin-left: 10px; display: none;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">
 				Ambil data dari SIPD lokal
 			</a>
-			<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">
+			<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger crud-button">
 				<span class="dashicons dashicons-admin-page"></span> Copy Data Usulan ke Penetapan
 			</a>
 			<a style="margin-left: 10px; display: none;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">
@@ -3017,7 +3031,7 @@ $table .= '
 			const html_input_pokin = `
 				<div class="form-group"> 
 					<label for="pokin-level">Pilih Pohon Kinerja</label> 
-					<select class="form-control" multiple name="pokin-level" id="pokin-level">
+					<select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level">
 						${opsi_pokin}
 					</select>
 					<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -3204,7 +3218,7 @@ $table .= '
 			const html_input_pokin = `
 				<div class="form-group"> 
 					<label for="pokin-level">Pilih Pohon Kinerja</label> 
-					<select class="form-control" multiple name="pokin-level" id="pokin-level">${opsi_pokin}</select>
+					<select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level">${opsi_pokin}</select>
 					<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 				</div>`;
 
@@ -3396,6 +3410,8 @@ $table .= '
 				dropdownParent: jQuery('#sasaran-rpjm').closest('.form-group')
 			});
 
+			disableCreateIfJadwalTransformasi();
+
 			tujuanModal.modal('show');
 
 		} catch (error) {
@@ -3527,7 +3543,7 @@ $table .= '
 				+
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
-				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
@@ -3551,6 +3567,7 @@ $table .= '
 			'</button>');
 		indikatorTujuanModal.find('.modal-dialog').css('maxWidth', '950px');
 		indikatorTujuanModal.find('.modal-dialog').css('width', '100%');
+		disableCreateIfJadwalTransformasi();
 		indikatorTujuanModal.modal('show');
 	});
 
@@ -3662,7 +3679,7 @@ $table .= '
 						+
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
@@ -3737,18 +3754,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin')
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sasaran">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sasaran">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -3834,18 +3855,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin');
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sasaran">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sasaran">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -3930,9 +3955,8 @@ $table .= '
 							'</button>');
 						sasaranModal.find('.modal-dialog').css('maxWidth', '50%');
 						sasaranModal.find('.modal-dialog').css('width', '');
-						sasaranModal.modal('show');
 						jQuery('#wrap-loading').hide();
-
+						
 						if(response.pokin.length >= 1){
 							var val_pokin = [];
 							response.pokin.map(function(b, i){
@@ -3956,6 +3980,8 @@ $table .= '
 							width: "100%",
 							dropdownParent: jQuery('#satker-pelaksana-sasaran').closest('.form-group')
 						});
+						disableCreateIfJadwalTransformasi();
+						sasaranModal.modal('show');
 					}
 				});
 			});
@@ -4088,7 +4114,7 @@ $table .= '
 				+
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
-				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
@@ -4112,6 +4138,7 @@ $table .= '
 			'</button>');
 		indikatorSasaranModal.find('.modal-dialog').css('maxWidth', '950px');
 		indikatorSasaranModal.find('.modal-dialog').css('width', '100%');
+		disableCreateIfJadwalTransformasi();
 		indikatorSasaranModal.modal('show');
 	});
 
@@ -4224,7 +4251,7 @@ $table .= '
 						+
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
@@ -4299,18 +4326,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('data_pokin kosong');
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-program">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-program">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -4399,18 +4430,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin');
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-program">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-program">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -4498,8 +4533,7 @@ $table .= '
 								'</button>');
 							programModal.find('.modal-dialog').css('maxWidth', '50%');
 							programModal.find('.modal-dialog').css('width', '');
-
-							programModal.modal('show');
+							
 							if(res.pokin.length >= 1){
 								var val_pokin = [];
 								res.pokin.map(function(b, i){
@@ -4546,6 +4580,8 @@ $table .= '
 								}
 							}
 							get_program(false, id_program);
+							disableCreateIfJadwalTransformasi();
+							programModal.modal('show');
 						});
 					}
 				});
@@ -4696,7 +4732,7 @@ $table .= '
 					+
 					'<div class="row">' +
 					'<div class="col-md-12 text-center">' +
-					'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+					'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 					'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 					'</button>' +
 					'</div>' +
@@ -4720,6 +4756,7 @@ $table .= '
 				'</button>');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
+			disableCreateIfJadwalTransformasi();
 			jQuery("#modal-crud-renstra").modal('show');
 
 			get_pagu_program({
@@ -4848,7 +4885,7 @@ $table .= '
 						+
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
@@ -4926,18 +4963,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin')
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-kegiatan">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-kegiatan">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -5041,18 +5082,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {			
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin')
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-kegiatan">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-kegiatan">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -5141,7 +5186,7 @@ $table .= '
 							'</button>');
 						kegiatanModal.find('.modal-dialog').css('maxWidth', '50%');
 						kegiatanModal.find('.modal-dialog').css('width', '');
-						kegiatanModal.modal('show');
+						
 						jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
 						jQuery("#id_kegiatan").select2({
 							width: '100%',
@@ -5170,6 +5215,8 @@ $table .= '
 							width: "100%",
 							dropdownParent: jQuery('#satker-pelaksana-kegiatan').closest('.form-group')
 						});
+						disableCreateIfJadwalTransformasi();
+						kegiatanModal.modal('show');
 					}
 				});
 			});
@@ -5314,7 +5361,7 @@ $table .= '
 				+
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
-				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
@@ -5338,6 +5385,7 @@ $table .= '
 			'</button>');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
+		disableCreateIfJadwalTransformasi();
 		jQuery("#modal-crud-renstra").modal('show');
 
 		get_pagu_kegiatan({
@@ -5462,7 +5510,7 @@ $table .= '
 						+
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
@@ -5538,18 +5586,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data pokin')
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -5637,7 +5689,7 @@ $table .= '
 				<?php if ($is_admin): ?>
 						'<div class="row">' +
 							'<div class="col-md-12 text-center">' +
-								'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+								'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 									'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 								'</button>' +
 							'</div>' +
@@ -5697,18 +5749,22 @@ $table .= '
         .then(function(data_pokin) {
             return new Promise(function(resolve, reject) {
             	var opsi_pokin = '';
-            	data_pokin.data.map(function(b, i){
-            		var indikator = [];
-            		for (var bb in b.indikator){
-            			indikator.push(b.indikator[bb].label);
-            		}
-            		var nomor_urut = '';
-            		opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-            	})
+				if (data_pokin.length > 0) {
+					data_pokin.data.map(function(b, i){
+						var indikator = [];
+						for (var bb in b.indikator){
+							indikator.push(b.indikator[bb].label);
+						}
+						var nomor_urut = '';
+						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
+					})
+				} else {
+					console.log('tidak ada data_pokin')
+				}
                 let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
-		                <select class="form-control" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
+		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
                 			${opsi_pokin}
 		                </select>
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
@@ -5814,7 +5870,7 @@ $table .= '
 						<?php if ($is_admin): ?>
 								'<div class="row">' +
 									'<div class="col-md-12 text-center">' +
-										'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+										'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 											'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 										'</button>' +
 									'</div>' +
@@ -5834,7 +5890,6 @@ $table .= '
 							'</button>');
 						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
 						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
-						jQuery("#modal-crud-renstra").modal('show');
 
 						if(response.pokin.length >= 1){
 							var val_pokin = [];
@@ -5881,6 +5936,9 @@ $table .= '
 								jQuery('#wrap-loading').hide();
 							});
 						});
+
+						disableCreateIfJadwalTransformasi();
+						jQuery("#modal-crud-renstra").modal('show');
 					}
 				});
 			});
@@ -6022,7 +6080,7 @@ $table .= '
 				+
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
-				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
@@ -6046,6 +6104,7 @@ $table .= '
 			'</button>');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
+		disableCreateIfJadwalTransformasi();
 		jQuery("#modal-crud-renstra").modal('show');
 
 		get_master_indikator_subgiat({
@@ -6159,7 +6218,7 @@ $table .= '
 						+
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
-						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">' +
+						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
 						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
@@ -6424,6 +6483,21 @@ $table .= '
 		}
 	}
 
+	function disableCreateIfJadwalTransformasi() {
+		const jadwalTypeIsTransformasi = jenisJadwal === 'transformasi_cascading';
+
+		if (jadwalTypeIsTransformasi) {
+			jQuery('.crud-button').addClass('d-none');
+
+			jQuery('.form-control').prop('disabled', true);
+			jQuery('.field-pokin').prop('disabled', false);
+		} else {
+			jQuery('.crud-button').removeClass('d-none');
+			
+			jQuery('.form-control').prop('disabled', false);
+		}
+	}
+
 	function tujuanRenstra() {
 
 		jQuery('#wrap-loading').show();
@@ -6447,7 +6521,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let tujuan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Tujuan</button>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan crud-button"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Tujuan</button>' +
 					'</div>' +
 					'<table class="table">' +
 						'<thead>' +
@@ -6513,7 +6587,7 @@ $table .= '
 								'<a href="javascript:void(0)" data-idtujuan="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-tujuan" title="Lihat Indikator Tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-kodetujuan="' + value.id_unik + '" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-id="' + value.id + '" class="btn btn-success btn-edit-tujuan" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-danger btn-hapus-tujuan" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>' +
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-danger btn-hapus-tujuan crud-button" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>' +
 							'</td>' +
 						'</tr>' +
 						'<tr>'+
@@ -6535,6 +6609,7 @@ $table .= '
 					'</table>';
 
 				jQuery("#nav-tujuan").html(tujuan);
+				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
 				jQuery('#modal-monev').modal('show');
 			}
@@ -6561,7 +6636,7 @@ $table .= '
 
 				let html = "" +
 					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-tujuan\" data-kodetujuan=\"" + params.id_unik + "\">" +
+					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-tujuan crud-button\" data-kodetujuan=\"" + params.id_unik + "\">" +
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
@@ -6581,6 +6656,7 @@ $table .= '
 					'</tr>' +
 					'</thead>' +
 					'</table>' +
+					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
 					"<thead>" +
 					"<tr>" +
@@ -6622,8 +6698,8 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-tujuan' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<a href='#' class='btn btn-success btn-edit-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -6639,12 +6715,13 @@ $table .= '
 						"<td><b>Usulan</b><br>" + value.catatan_usulan + "</td>" +
 						"</tr>";
 				});
-				html += '</tbody></table>';
+				html += '</tbody></table></div>';
 
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Tujuan');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html)
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width', '100%');
+				disableCreateIfJadwalTransformasi();
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		})
@@ -6670,7 +6747,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let sasaran = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="' + params.kode_tujuan + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sasaran</button></div>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran crud-button" data-kodetujuan="' + params.kode_tujuan + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sasaran</button></div>' +
 						'<table class="table">' +
 							'<thead>' +
 								'<tr>' +
@@ -6734,7 +6811,7 @@ $table .= '
 								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-sasaran" title="Lihat Indikator Sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-kodesasaran="' + value.id_unik + '" class="btn btn-primary btn-detail-sasaran" title="Lihat Program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" class="btn btn-success btn-edit-sasaran" title="Edit Sasaran"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" data-kodetujuan="' + value.kode_tujuan + '" class="btn btn-danger btn-hapus-sasaran" title="Hapus Sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
+								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" data-kodetujuan="' + value.kode_tujuan + '" class="btn btn-danger btn-hapus-sasaran crud-button" title="Hapus Sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
 							'</td>' +
 						'</tr>' +
 						'<tr>'+
@@ -6756,6 +6833,7 @@ $table .= '
 					'</table>';
 
 				jQuery("#nav-sasaran").html(sasaran);
+				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
 			}
 		})
@@ -6781,7 +6859,7 @@ $table .= '
 
 				let html = "" +
 					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-sasaran\" data-kodesasaran=\"" + params.id_unik + "\">" +
+					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-sasaran crud-button\" data-kodesasaran=\"" + params.id_unik + "\">" +
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
@@ -6805,6 +6883,7 @@ $table .= '
 					'</tr>' +
 					'</thead>' +
 					'</table>' +
+					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
 					"<thead>" +
 					"<tr>" +
@@ -6846,8 +6925,8 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-sasaran' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator Program'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<a href='#' class='btn btn-success btn-edit-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator Program'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -6863,12 +6942,13 @@ $table .= '
 						"<td><b>Usulan</b><br>" + value.catatan_usulan + "</td>" +
 						"</tr>";
 				});
-				html += '</tbody></table>';
+				html += '</tbody></table></div>';
 
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sasaran');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width', '100%');
+				disableCreateIfJadwalTransformasi();
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		})
@@ -6894,7 +6974,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let program = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-program" data-kodesasaran="' + params.kode_sasaran + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Program</button></div>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-program crud-button" data-kodesasaran="' + params.kode_sasaran + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Program</button></div>' +
 					'<table class="table">' +
 						'<thead>' +
 							'<tr>' +
@@ -6973,7 +7053,7 @@ $table .= '
 								'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-program" title="Lihat Indikator Program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-primary btn-detail-program" title="Lihat Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" class="btn btn-success btn-edit-program" title="Edit Program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" data-kodesasaran="' + value.kode_sasaran + '" class="btn btn-danger btn-hapus-program" title="Hapus Program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'+
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" data-kodesasaran="' + value.kode_sasaran + '" class="btn btn-danger btn-hapus-program crud-button" title="Hapus Program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'+
 							'</td>' +
 						'</tr>' +
 						'<tr>'+
@@ -7007,6 +7087,7 @@ $table .= '
 					'<tbody>' +
 					'</table>';
 				jQuery("#nav-program").html(program);
+				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-program"]').tab('show');
 			}
 		})
@@ -7053,7 +7134,7 @@ $table .= '
 
 				let html = "" +
 					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-program\" data-kodeprogram=\"" + params.kode_program + "\">" +
+					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-program crud-button\" data-kodeprogram=\"" + params.kode_program + "\">" +
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
@@ -7131,6 +7212,7 @@ $table .= '
 					'</tr>' +
 					'</thead>' +
 					'</table>' +
+					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
 					"<thead>" +
 					"<tr>" +
@@ -7174,8 +7256,8 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-program' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<a href='#' class='btn btn-success btn-edit-indikator-program crud-button' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-program crud-button' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -7194,12 +7276,13 @@ $table .= '
 				});
 				html += '' +
 					'</tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Program');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width', '100%');
+				disableCreateIfJadwalTransformasi();
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		});
@@ -7225,7 +7308,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let kegiatan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-kegiatan" data-kodeprogram="' + params.kode_program + '" data-idprogram="' + params.id_program + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Kegiatan</button></div>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-kegiatan crud-button" data-kodeprogram="' + params.kode_program + '" data-idprogram="' + params.id_program + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Kegiatan</button></div>' +
 						'<table class="table">' +
 							'<thead>' +
 								'<tr>' +
@@ -7306,7 +7389,7 @@ $table .= '
 								'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-kegiatan" title="Lihat Indikator Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" data-idkegiatan="' + value.id_giat + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-primary btn-detail-kegiatan" title="Lihat Sub Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-success btn-edit-kegiatan" title="Edit Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-kodeprogram="' + value.kode_program + '" data-idprogram="' + value.id_program + '" class="btn btn-danger btn-hapus-kegiatan" title="Hapus Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-kodeprogram="' + value.kode_program + '" data-idprogram="' + value.id_program + '" class="btn btn-danger btn-hapus-kegiatan crud-button" title="Hapus Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
 							'</td>' +
 						'</tr>' +
 						'<tr>'+
@@ -7340,6 +7423,7 @@ $table .= '
 					'</table>';
 
 				jQuery("#nav-kegiatan").html(kegiatan);
+				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-kegiatan"]').tab('show');
 			}
 		})
@@ -7387,7 +7471,7 @@ $table .= '
 
 				let html = "" +
 					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-kegiatan\" data-kodekegiatan=\"" + params.id_unik + "\">" +
+					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-kegiatan crud-button\" data-kodekegiatan=\"" + params.id_unik + "\">" +
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
@@ -7468,9 +7552,8 @@ $table .= '
 					'</th>' +
 					'</tr>' +
 					'</thead>' +
-					'</table>'
-
-					+
+					'</table>'+
+					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
 					"<thead>" +
 					"<tr>" +
@@ -7514,8 +7597,8 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Edit Indikator Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Edit Indikator Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -7534,12 +7617,13 @@ $table .= '
 				});
 				html += '' +
 					'</tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator kegiatan');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width', '100%');
+				disableCreateIfJadwalTransformasi();
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		});
@@ -7563,7 +7647,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let subKegiatan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sub-kegiatan" data-kodekegiatan="' + params.kode_kegiatan + '" data-kodegiat="' + params.kode_giat + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sub Kegiatan</button></div>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sub-kegiatan crud-button" data-kodekegiatan="' + params.kode_kegiatan + '" data-kodegiat="' + params.kode_giat + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sub Kegiatan</button></div>' +
 						'<table class="table">' +
 							'<thead>' +
 								'<tr>' +
@@ -7639,7 +7723,7 @@ $table .= '
 							'<td class="text-center" rowspan="2">' +
 								'<a href="javascript:void(0)" data-kodesubkegiatan="' + value.id_unik + '" data-idsubgiat="' + value.id_sub_giat + '" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
 								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
+								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan crud-button" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
 							'</td>' +
 						'</tr>' +
 						'<tr>'+
@@ -7661,6 +7745,7 @@ $table .= '
 					'</table>';
 
 				jQuery("#nav-sub-kegiatan").html(subKegiatan);
+				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-sub-kegiatan"]').tab('show');
 			}
 		})
@@ -7686,7 +7771,7 @@ $table .= '
 
 				let html = "" +
 					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-sub-kegiatan\" data-kodesubkegiatan=\"" + params.id_unik + "\" data-idsubgiat=\"" + params.id_sub_giat + "\">" +
+					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-sub-kegiatan crud-button\" data-kodesubkegiatan=\"" + params.id_unik + "\" data-idsubgiat=\"" + params.id_sub_giat + "\">" +
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
@@ -7721,9 +7806,8 @@ $table .= '
 					'<th>' + jQuery('#nav-sub-kegiatan tr[kodesubkegiatan="' + params.id_unik + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'</thead>' +
-					'</table>'
-
-					+
+					'</table>'+
+					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
 					"<thead>" +
 					"<tr>" +
@@ -7765,8 +7849,8 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-sub-kegiatan' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Edit Indikator Sub Kegiatan'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-sub-kegiatan' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Hapus Indikator Sub Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<a href='#' class='btn btn-success btn-edit-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Edit Indikator Sub Kegiatan'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Hapus Indikator Sub Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -7784,13 +7868,14 @@ $table .= '
 				});
 				html += '' +
 					'</tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sub Kegiatan');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width', '100%');
 				jQuery("#modal-indikator-renstra").find('.modal-footer').html('');
+				disableCreateIfJadwalTransformasi();
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		});
@@ -8921,7 +9006,7 @@ $table .= '
 								</form> 
 								<div class="row"> 
 									<div class="col-md-12 text-center"> 
-										<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
+										<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">
 											<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
 										</button> 
 									</div> 

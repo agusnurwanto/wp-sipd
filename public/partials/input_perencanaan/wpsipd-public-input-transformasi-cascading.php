@@ -336,7 +336,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="overflow-y: auto; height: 90vh;">
                     <form id="form-cascading">
                         <input type="hidden" id="input_id" name="id">
                         <input type="hidden" id="input_action_type" name="action_type" value="create">
@@ -737,7 +737,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     }
 
     function renderPokinList(pokinList) {
-        let html = `<ul class="list-unstyled p-0 mt-0 mb-0">`;
+        let html = `<ul class="list-unstyled p-0 m-0">`;
 
         if (!Array.isArray(pokinList) || pokinList.length === 0) {
             html += `<li><i>-</i></li>`;
@@ -871,7 +871,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                     // ---------- renstra ----------
                     let refIds = [];
-                    let listRef = `<ul class="list-unstyled p-0 mt-0 mb-0">`;
+                    let listRef = `<ul class="list-unstyled p-0 m-0">`;
 
                     if (item.referensi && item.referensi.length > 0) {
                         item.referensi.forEach(r => {
