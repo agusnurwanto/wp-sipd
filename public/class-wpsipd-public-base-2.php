@@ -7312,7 +7312,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							            SELECT 
 							                *
 							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik = %d
+							            WHERE id_unik = %s
 							              AND active = 1
 							        ", $data_program_renstra_lokal['id_unik']),
 							        ARRAY_A
@@ -7562,7 +7562,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                    SELECT 
 					                        *
 					                    FROM data_progkeg_transformasi_cascading
-					                    WHERE id_unik = %d
+					                    WHERE id_unik = %s
 					                      AND active = 1
 					                ", $data_kegiatan_renstra_lokal['id_unik']),
 					                ARRAY_A
@@ -7802,7 +7802,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                    SELECT 
 					                        *
 					                    FROM data_progkeg_transformasi_cascading
-					                    WHERE id_unik = %d
+					                    WHERE id_unik = %s
 					                      AND active = 1
 					                ", $data_sub_kegiatan_renstra_lokal['id_unik']),
 					                ARRAY_A
