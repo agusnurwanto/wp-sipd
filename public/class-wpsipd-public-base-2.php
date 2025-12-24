@@ -7038,6 +7038,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 					    foreach ($data_sasaran_renstra as &$row) {
 
+					        $row['indikator'] = $wpdb->get_results(
+					            $wpdb->prepare("
+					                SELECT 
+					                	*
+					                FROM $tabel_sasaran_renstra
+					                WHERE id_unik = %s
+					                  AND id_unik_indikator IS NOT NULL
+					                  AND tahun_anggaran = %d
+					                  AND active = 1
+					            ", $row['id_unik'], $data_jadwal['tahun_anggaran']),
+					            ARRAY_A
+					        );
+
 					        $row['pelaksana_renstra'] = $wpdb->get_results(
 					            $wpdb->prepare("
 					                SELECT 
