@@ -7347,6 +7347,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								                SELECT *
 								                FROM data_indikator_transformasi_cascading
 								                WHERE id_uraian_cascading = %d
+								                  AND indikator IS NOT NULL
 								                  AND active = 1
 								            ", $cascading['induk']['id']),
 								            ARRAY_A
@@ -7607,6 +7608,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								                SELECT *
 								                FROM data_indikator_transformasi_cascading
 								                WHERE id_uraian_cascading = %d
+								                  AND indikator IS NOT NULL
 								                  AND active = 1
 								            ", $cascading['induk']['id']),
 								            ARRAY_A
@@ -7858,6 +7860,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								                SELECT *
 								                FROM data_indikator_transformasi_cascading
 								                WHERE id_uraian_cascading = %d
+								                  AND indikator IS NOT NULL
 								                  AND active = 1
 								            ", $cascading['induk']['id']),
 								            ARRAY_A
@@ -7916,6 +7919,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                            SELECT *
 					                            FROM data_indikator_transformasi_cascading
 					                            WHERE id_uraian_cascading = %d
+								                  AND indikator IS NOT NULL
 					                              AND active = 1
 					                        ", $cascading_pelaksana['induk']['id']),
 					                        ARRAY_A
