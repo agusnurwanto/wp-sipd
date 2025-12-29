@@ -23847,6 +23847,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		try {
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+					if (empty($_POST['id']) || empty($_POST['kode_program'])) {
+						throw new Exception("Parameter tidak lengkap, hubungi admin", 1);
+					}
 
 					$id_cek = $wpdb->get_var($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND id_unik is not null AND id_unik_indikator is not null AND is_locked = 0 AND status=1 AND active=1", $_POST['kode_program']));
 

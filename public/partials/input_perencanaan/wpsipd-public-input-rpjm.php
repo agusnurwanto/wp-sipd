@@ -2117,8 +2117,15 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			jQuery('#wrap-loading').show();
 			
 			let kode_program = jQuery(this).data('kodeprogram');
+			let idprogram = jQuery(this).data('idprogram');
 			let kode_sasaran = jQuery(this).data('kodesasaran');
 
+			if (idprogram === undefined) {
+				alert('ID Program tidak ditemukan!');
+				console.log(jQuery(this).data());
+				jQuery('#wrap-loading').hide();
+				return;
+			}
 			jQuery.ajax({
 				method:'POST',
 				url:ajax.url,
@@ -2127,6 +2134,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 					'action': 'delete_program_rpjm',
 		          	'api_key':  ajax.api_key,
 					'kode_program': kode_program,
+					'id': idprogram,
 				},
 				success:function(response){
 
@@ -2933,7 +2941,7 @@ $is_jadwal_set_integration_esakip = $this->is_jadwal_rpjmd_rpd_set_integration_e
 			          							+'<td>'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+			          								+'<a href="javascript:void(0)" data-idprogram="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
           						})
 
