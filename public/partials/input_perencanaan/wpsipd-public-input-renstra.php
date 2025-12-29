@@ -8093,7 +8093,15 @@ $table .= '
 	}
 
 	function getFormData($form) {
+		// Cari semua field yang disabled, aktifkan, dan tandai
+		let disabled = $form.find(':disabled').prop('disabled', false);
+		
+		// Lakukan proses serialize
 		let unindexed_array = $form.serializeArray();
+		
+		// Matikan kembali field yang tadi diaktifkan
+		disabled.prop('disabled', true);
+
 		let indexed_array = {};
 
 		jQuery.map(unindexed_array, function(n, i) {
