@@ -153,7 +153,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     </thead>
                     <tbody id="tbody-cascading-full">
                         <tr>
-                            <td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
+                            <td colspan="6" class="text-center p-5"><span class="dashicons dashicons-update"></span> Memuat Data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -165,7 +165,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         <div class="card shadow-sm">
             <div class="card-header bg-light">
                 <h6 class="mb-0 font-weight-bold text-dark">
-                    <i class="fa fa-info-circle mr-1 text-primary"></i>
+                    <i class="dashicons dashicons-info mr-1 text-primary"></i>
                     Panduan Transformasi Cascading Renstra
                 </h6>
             </div>
@@ -183,9 +183,9 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         <strong>Level Input Transformasi Cascading</strong><br>
                         Data Transformasi Cascading diinput mulai dari
                         <span class="text-muted">
-                            Level 3 (Program) sampai Level 5 (Sub Kegiatan)
+                            Level 3 (Outcome) sampai Level 5 (Input)
                         </span>.
-                        Level Tujuan dan Sasaran digunakan sebagai dasar navigasi dan tidak memiliki input langsung.
+                        Level Final Outcome dan Intermediate Outcome digunakan sebagai dasar navigasi dan tidak memiliki input langsung.
                     </li>
 
                     <li class="mb-2">
@@ -214,7 +214,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 </ul>
 
                 <div class="alert alert-info mb-0 py-2 small">
-                    <i class="fa fa-info-circle mr-1"></i>
+                    <i class="dashicons dashicons-info mr-1"></i>
                     Pastikan seluruh data Renstra telah disusun dengan benar sebelum melakukan Transformasi Cascading.
                 </div>
             </div>
@@ -247,11 +247,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-body">
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <a class="nav-item nav-link active" id="nav-lvl1-tab" onclick="switchLevel(1)" href="#">Tujuan</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl2-tab" onclick="switchLevel(2)" href="#">Sasaran</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl3-tab" onclick="switchLevel(3)" href="#">Program</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Kegiatan</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl5-tab" onclick="switchLevel(5)" href="#">Sub Kegiatan</a>
+                            <a class="nav-item nav-link active" id="nav-lvl1-tab" onclick="switchLevel(1)" href="#">Final Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl2-tab" onclick="switchLevel(2)" href="#">Intermediate Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl3-tab" onclick="switchLevel(3)" href="#">Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Output</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl5-tab" onclick="switchLevel(5)" href="#">Input</a>
                         </div>
                     </nav>
 
@@ -299,7 +299,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                         placeholder="Contoh: Dokumen / Unit / Persen">
                                     <div class="input-group-append">
                                         <button class="btn btn-danger btn-remove-satuan" type="button">
-                                            <i class="fa fa-times"></i>
+                                            <i class="dashicons dashicons-no"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -308,7 +308,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <button type="button"
                                 class="btn btn-sm btn-outline-primary mt-2"
                                 onclick="addSatuanField()">
-                                <i class="fa fa-plus"></i> Tambah Satuan
+                                <i class="dashicons dashicons-plus"></i> Tambah Satuan
                             </button>
 
                             <small class="form-text text-muted">
@@ -320,7 +320,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-info btn-sm" onclick="submitIndikator()">
-                        <i class="fa fa-save"></i> Simpan Indikator
+                        <i class="dashicons dashicons-yes"></i> Simpan Indikator
                     </button>
                 </div>
             </div>
@@ -373,7 +373,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" onclick="submitForm()">
-                        <i class="fa fa-save"></i> Simpan Data
+                        <i class="dashicons dashicons-yes"></i> Simpan Data
                     </button>
                 </div>
             </div>
@@ -464,7 +464,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             1: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Tujuan',
+                tipe: 'Final Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -472,7 +472,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             2: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Sasaran',
+                tipe: 'Intermediate Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -480,7 +480,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             3: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Program',
+                tipe: 'Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -488,7 +488,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             4: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Kegiatan',
+                tipe: 'Output',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -505,7 +505,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                    placeholder="Contoh: Dokumen / Unit / Persen">
             <div class="input-group-append">
                 <button class="btn btn-danger btn-remove-satuan" type="button">
-                    <i class="fa fa-times"></i>
+                    <i class="dashicons dashicons-no"></i>
                 </button>
             </div>
         </div>
@@ -549,7 +549,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         // Loading State
         if (tbody.children().length === 0 || tbody.find('.fa-spin').length > 0) {
-            tbody.html('<tr><td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Sedang memuat data...</td></tr>');
+            tbody.html('<tr><td colspan="6" class="text-center p-5"><span class="dashicons dashicons-update"></span><br>Sedang memuat data...</td></tr>');
         }
 
         jQuery.ajax({
@@ -704,7 +704,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     function loadTableData(level) {
         const container = jQuery('#content-table-wrapper');
-        container.html('<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x text-muted"></i><br><span class="text-muted mt-2">Memuat Data...</span></div>');
+        container.html('<div class="text-center p-5"><i class="dashicons dashicons-update text-muted"></i><br><span class="text-muted mt-2">Memuat Data...</span></div>');
 
         // Tentukan Parent ID (Level 1 tidak butuh parentId)
         let parentId = (level === 1) ? null : state.parentIds[level - 1]['parent_id'];
@@ -779,11 +779,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
 
     const levelCascading = {
-        1: 'Tujuan',
-        2: 'Sasaran',
-        3: 'Program',
-        4: 'Kegiatan',
-        5: 'Sub Kegiatan'
+        1: 'Final Outcome (Tujuan)',
+        2: 'Intermediate Outcome (Sasaran)',
+        3: 'Outcome',
+        4: 'Output',
+        5: 'Input'
     }
 
     function renderTable(level, data) {
@@ -800,7 +800,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="5%" class="text-center">No</th>
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">${levelCascading[level]}</th>
-                    <th width="90" class="text-center">Aksi</th>
+                    <th width="60" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         } else {
@@ -811,7 +811,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">Uraian Cascading</th>
                     <th width="25%" class="text-center">${levelCascading[level]}</th>
-                    <th width="90" class="text-center">Aksi</th>
+                    <th width="60" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         }
@@ -842,7 +842,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <tr>
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${renderPokinList(item.pokin_list)}</td>
-                        <td class="font-weight-bold">${label}</td>
+                        <td class="font-weight-bold text-justify">${label}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-info shadow-sm"
                                 onclick='handleDrillDown(${level}, {
@@ -925,8 +925,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <tr class="table-secondary">
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${listPokin}</td>
-                        <td>
-                            <div class="font-weight-bold text-dark">${uraian}${isPelaksana}</div>
+                        <td class="font-weight-bold text-justify">
+                           ${uraian}${isPelaksana}
                         </td>
                         <td class="p-1">${listRef}</td>
                         <td class="text-center">${btns}</td>
@@ -967,7 +967,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                 </td>
 
                                 <td class="text-center align-middle">
-                                    <div class="btn-group-vertical btn-group-sm w-100">
+                                    <div class="btn-group-vertical btn-group-sm w-60">
                                         <button class="btn btn-warning"
                                             title="Edit Indikator"
                                             onclick="openFormAddIndikator(${item.id}, ${ind.id})">
@@ -986,7 +986,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         html += `
                         <tr class="table-light">
                             <td colspan="3" class="text-muted font-italic">
-                                <i class="fa fa-info-circle mr-1"></i>
+                                <i class="dashicons dashicons-info mr-1"></i>
                                 Belum ada indikator
                             </td>
                         </tr>`;

@@ -31625,8 +31625,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$html_output .= "
 				<tr class='bg-level-1'>
 					<td rowspan='{$indikator['rowspan']}'>{$html_pokin_tujuan}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>TUJUAN</td>
-					<td rowspan='{$indikator['rowspan']}'><strong>{$t['tujuan_teks']}</strong></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Final Outcome <br> (TUJUAN)</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-justify'><strong>{$t['tujuan_teks']}</strong></td>
 					<td>{$first['indikator_teks']}</td>
 					<td class='text-nowrap'>{$first['satuan']}</td>
 					<td rowspan='{$indikator['rowspan']}'>{$t['tujuan_teks']}</td>
@@ -31706,8 +31706,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$html_output .= "
 					<tr class='bg-level-2'>
 						<td rowspan='{$indikator['rowspan']}'>{$html_pokin_sasaran}</td>
-						<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>SASARAN</td>
-						<td rowspan='{$indikator['rowspan']}'><strong>{$s['sasaran_teks']}</strong></td>
+						<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Outcome <br>( SASARAN )</td>
+						<td rowspan='{$indikator['rowspan']}' class='text-justify'><strong>{$s['sasaran_teks']}</strong></td>
 						<td>{$first['indikator_teks']}</td>
 						<td class='text-nowrap'>{$first['satuan']}</td>
 						<td rowspan='{$indikator['rowspan']}'>{$s['sasaran_teks']}</td>
@@ -31736,8 +31736,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$html_output .= "
 						<tr class='bg-level-3'>
 							<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-							<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>PROGRAM</td>
-							<td rowspan='{$indikator['rowspan']}'>
+							<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Outcome</td>
+							<td rowspan='{$indikator['rowspan']}' class='text-justify'>
 								<span class='font-weight-bold'>{$level_3['uraian_cascading']}</span>
 							</td>
 							<td>{$first['indikator']}</td>
@@ -31779,8 +31779,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$html_output .= "
 							<tr class='bg-level-4'>
 								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>KEGIATAN</td>
-								<td rowspan='{$indikator['rowspan']}'>
+								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Output</td>
+								<td rowspan='{$indikator['rowspan']}' class='text-justify'>
 									<span class='font-weight-bold'>{$level_4['uraian_cascading']}</span>
 								</td>
 								<td>{$first['indikator']}</td>
@@ -31822,8 +31822,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$html_output .= "
 								<tr class='bg-level-5'>
 									<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-									<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>SUB KEGIATAN</td>
-									<td rowspan='{$indikator['rowspan']}'>
+									<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Input</td>
+									<td rowspan='{$indikator['rowspan']}' class='text-justify'>
 										<span class='font-weight-bold'>{$level_5['uraian_cascading']}</span>
 										" . ($level_5['is_pelaksana'] == 1 ? "<span class='badge badge-warning ml-2 p-1'>Pelaksana</span>" : "") . "
 									</td>
