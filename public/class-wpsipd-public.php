@@ -30552,6 +30552,46 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("Harap pilih minimal satu Program/Kegiatan/Subkegiatan.", 400);
 			}
 
+			if ($_POST['level'] == 5 && $_POST['is_pelaksana'] == 1) {
+				// Validasi: Cek apakah ada ketua tim
+				$has_ketua_tim = false;
+				foreach ($list_id_unik as $id_unik) {
+					$count_ketua_tim = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT COUNT(*) 
+							FROM data_progkeg_transformasi_cascading p
+							INNER JOIN data_transformasi_cascading t 
+							   ON p.id_uraian_cascading = t.id 
+							   AND t.active = 1
+							WHERE p.id_unik = %s 
+							  AND t.is_pelaksana = 0 
+							  AND p.active = 1
+						", $id_unik)
+					);
+					
+					if ($count_ketua_tim > 0) {
+						$has_ketua_tim = true;
+						break;
+					} else {
+						$id_unik_subkeg_without_ketua = $id_unik;
+					}
+				}
+
+				if (!$has_ketua_tim) {
+					$nama_subkeg_without_ketua = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT nama_sub_giat 
+							FROM data_renstra_sub_kegiatan_lokal 
+							WHERE id_unik = %s
+							  AND id_unik_indikator IS NULL
+							  AND active = 1
+						", $id_unik_subkeg_without_ketua)
+					);
+
+					throw new Exception("Sub Kegiatan ({$nama_subkeg_without_ketua}) tidak memiliki Ketua Tim, mohon tambahkan transformasi dengan Ketua Tim terlebih dahulu.", 400);
+				}
+			}
+
 			// Mulai Transaksi Database
 			$wpdb->query('START TRANSACTION');
 
@@ -30642,6 +30682,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$id_trans = $_POST['id'];
 
+			$data_utama = $wpdb->get_row(
+				$wpdb->prepare("
+					SELECT * 
+					FROM data_transformasi_cascading 
+					WHERE id = %d 
+					  AND active = 1
+				", $id_trans),
+				ARRAY_A
+			);
+
+			if (!$data_utama) {
+				throw new Exception("Data tidak ditemukan atau sudah dihapus.", 404);
+			}
+
 			// --- CHECK IF HAS PARENT / VALIDATION ---
 			$has_child = $wpdb->get_var(
 				$wpdb->prepare("
@@ -30652,8 +30706,71 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					", $id_trans
 				)
 			);
+			
 			if ($has_child > 0) {
 				throw new Exception("Data tidak dapat dihapus karena punya child aktif! mohon hapus data dibawahnya terlebih dahulu.", 403);
+			}
+
+			if ($data_utama['level'] == 5 && $data_utama['is_pelaksana'] == 0) {
+				
+				// Validasi: Cek apakah dia satu satunya ketua tim untuk sub kegiatan terkait
+				$list_id_unik = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT 
+							t.id_unik,
+							subkeg.nama_sub_giat
+						FROM data_progkeg_transformasi_cascading t
+						INNER JOIN data_renstra_sub_kegiatan_lokal subkeg
+						   ON t.id_unik = subkeg.id_unik
+						   AND subkeg.active = 1
+						WHERE t.id_uraian_cascading = %d 
+						AND t.active = 1
+					", $data_utama['id']),
+					ARRAY_A
+				);
+
+				$is_only_one_ketua_tim = false;
+				foreach ($list_id_unik as $v) {
+					$has_pelaksana = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT count(*) 
+							FROM data_progkeg_transformasi_cascading p
+							INNER JOIN data_transformasi_cascading t
+							   ON t.id = p.id_uraian_cascading
+							   AND t.is_pelaksana = 1
+							   AND t.active = 1
+							WHERE p.id_unik = %s 
+							  AND p.active = 1
+							", $v['id_unik']
+						)
+					);
+
+					if ($has_pelaksana == 0) {
+						continue; // tidak punya pelaksana, skip saja, aman dihapus
+					}
+
+					$count_ketua_tim = $wpdb->get_var(
+						$wpdb->prepare("
+							SELECT COUNT(*) 
+							FROM data_progkeg_transformasi_cascading p
+							INNER JOIN data_transformasi_cascading t 
+							   ON p.id_uraian_cascading = t.id
+							   AND t.active = 1
+							WHERE p.id_unik = %s 
+							  AND t.is_pelaksana = 0 
+							  AND p.active = 1
+						", $v['id_unik'])
+					);
+					
+					if ($count_ketua_tim < 2) {
+						$is_only_one_ketua_tim = true;
+						break;
+					}
+				}
+
+				if ($is_only_one_ketua_tim) {
+					throw new Exception("Tidak dapat menghapus data karena merupakan Satu Satunya ketua tim di Sub kegiatan : " . $v['nama_sub_giat'] , 400);
+				}
 			}
 
 			$wpdb->query('START TRANSACTION');

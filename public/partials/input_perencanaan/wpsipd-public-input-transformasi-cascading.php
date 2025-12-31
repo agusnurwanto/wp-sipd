@@ -985,7 +985,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     } else {
                         html += `
                         <tr class="table-light">
-                            <td colspan="3" class="text-muted font-italic">
+                            <td colspan="5" class="text-muted text-center font-italic">
                                 <i class="dashicons dashicons-info mr-1"></i>
                                 Belum ada indikator
                             </td>
