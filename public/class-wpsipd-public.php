@@ -9762,10 +9762,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if ($vv['is_skpd'] == 1) {
 						if (!empty($daftar_tombol_list[5])) {
-							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 15)">Monev Indikator Renstra</button></li>';
+							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 15)">Monev Indikator RENSTRA</button></li>';
 						}
 						if (!empty($daftar_tombol_list[8])) {
-							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 4)">Input Perencanaan Renstra</button></li>';
+							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 4)">Input Perencanaan RENSTRA</button></li>';
 						}
 						if (!empty($daftar_tombol_list[16])) {
 							echo '<li><button type="button" class="btn btn-primary" onclick="showModalPilihJadwal(' . $id_skpd . ', 21)">Transformasi Cascading</button></li>';
@@ -12786,12 +12786,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$koneksi_tujuan = $this->get_tujuan_renstra_by_kode_sasaran_koneksi($_POST['kode_sasaran'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
 			if (empty($koneksi_tujuan)) {
-				throw new Exception("Data Tujuan Koneksi Renstra tidak ditemukan!", 404);
+				throw new Exception("Data Tujuan Koneksi RENSTRA tidak ditemukan!", 404);
 			}
 
 			$tujuan = $this->get_tujuan_renstra_by_id_unik($koneksi_tujuan['id_unik'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
 			if (empty($tujuan)) {
-				throw new Exception("Data Tujuan Koneksi Renstra tidak ditemukan!", 404);
+				throw new Exception("Data Tujuan Koneksi RENSTRA tidak ditemukan!", 404);
 			}
 
 			$sasaran = $this->get_sasaran_renstra_by_parent($tujuan[0]['id_unik'], $data_jadwal->id_jadwal_lokal, $_POST['id_unit']);
@@ -12807,7 +12807,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
             echo json_encode([
                 'status'  => true,
-                'message' => "Berhasil Get Renstra dari kode Koneksi Sasaran.",
+                'message' => "Berhasil Get RENSTRA dari kode Koneksi Sasaran.",
 				'data'    => $data
             ]);
         } catch (Exception $e) {
@@ -18305,7 +18305,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$id_jadwal_rpjmd_baru = $wpdb->insert_id;
 
 									$data_jadwal_renstra = [
-										'nama'                 => 'Jadwal Renstra' . ' ' . $nama,
+										'nama'                 => 'Jadwal RENSTRA' . ' ' . $nama,
 										'tahun_anggaran'       => $tahun_anggaran,
 										'relasi_perencanaan'   => $id_jadwal_rpjmd_baru,
 										'id_tipe'  			   => 15,
@@ -24639,7 +24639,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<table class='table table-bordered'>
 							<thead>
 								<tr>
-									<th width='50%'>Data Renstra</th>
+									<th width='50%'>Data RENSTRA</th>
 									<th>Total Pagu</th>
 								</tr>
 							</thead>
@@ -30117,7 +30117,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	{
 		$id_tipe_asli = $id_tipe;
 		if ($id_tipe == 21) {
-			$id_tipe = 4; // Transformasi Cascading mengacu ke Input Renstra Lokal
+			$id_tipe = 4; // Transformasi Cascading mengacu ke Input RENSTRA Lokal
 		}
 		
 		$data_jadwal = $this->get_jadwal_by_id_tipe($id_tipe);
@@ -30436,6 +30436,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				{$where_id_unit}
 				ORDER BY urut_tujuan ASC
 			", $tahun_anggaran_jadwal),
+			ARRAY_A
+		);
+	}
+
+	function get_indikator_renstra_lokal_by_id_unik(string $id_unik, int $type)
+	{
+		global $wpdb;
+
+		$table_name = '';
+		switch ($type) {
+			case 1:
+				$table_name = 'data_renstra_tujuan_lokal';
+				break;
+			case 2:
+				$table_name = 'data_renstra_sasaran_lokal';
+				break;
+			case 3:
+				$table_name = 'data_renstra_program_lokal';
+				break;
+			case 4:
+				$table_name = 'data_renstra_kegiatan_lokal';
+				break;
+			case 5:
+				$table_name = 'data_renstra_sub_kegiatan_lokal';
+				break;
+			default:
+				return [];
+		}
+
+		return $wpdb->get_results(
+			$wpdb->prepare("
+				SELECT *
+				FROM {$table_name}
+				WHERE active = 1
+				  AND id_unik_indikator IS NOT NULL
+				  AND id_unik = %s
+			", $id_unik),
 			ARRAY_A
 		);
 	}
@@ -30986,7 +31023,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$kode = $ref['id_unik'];
 					$nama = $kode;
 
-					// Lookup Nama ke Tabel Master Renstra sesuai Level
+					// Lookup Nama ke Tabel Master RENSTRA sesuai Level
 					if ($level === 3) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
@@ -31562,17 +31599,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			", $id_transformasi), ARRAY_A
 		);
 
-		$html_pokin = ''; // Reset string
-		$html_nomenklatur = ''; // Reset string
+		$html_pokin = ''; 
+		$html_nomenklatur = ''; 
+		$html_indikator = ''; 
+		$html_satuan = ''; 
 				
 		if ($rels) {
 			$html_pokin .= '<ul class="list-unstyled m-0 p-0">';
 			$html_nomenklatur .= '<ul class="list-unstyled m-0 p-0">';
+			$html_indikator .= '<ul class="list-unstyled m-0 p-0">';
+			$html_satuan .= '<ul class="list-unstyled m-0 p-0">';
 
 			foreach ($rels as $k => $rel) {
 				$id_unik = $rel['id_unik'];
 
-				$separator = ($k > 0) ? "<div class='hr-mild'></div>" : "";
+				$separator = ($k > 0) ? "<hr>" : "";
 				// Cari Data POKIN (Berdasarkan id_unik)
 				$list_pokin = $wpdb->get_results(
 					$wpdb->prepare("
@@ -31597,7 +31638,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 				$html_pokin .= "</li>";
 				
-				// Cari Nomenklatur Renstra
+				// Cari Nomenklatur RENSTRA
 				$nama_nomenklatur = $id_unik; // Default tampilkan kode jika nama tidak ketemu
 				
 				if ($level == 3) {
@@ -31610,6 +31651,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							WHERE id_unik = %s
 						", $id_unik)
 					);
+					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 3);
 				} elseif ($level == 4) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
@@ -31620,6 +31662,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							WHERE id_unik = %s
 						", $id_unik)
 					);
+					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 4);
 				} elseif ($level == 5) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
@@ -31631,6 +31674,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							WHERE id_unik = %s
 						", $id_unik)
 					);
+					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 5);
 				}
 
 				if ($renstra) {
@@ -31646,21 +31690,46 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$nama_sub_unit = "<br><span class='text-muted'>( $renstra->nama_sub_unit )</span>"; 
 				}
 				
-				$html_nomenklatur .= "{$separator}<li><span class='badge badge-light border mr-1'></span> {$nama_nomenklatur}{$nama_sub_unit}</li>";
+				$html_nomenklatur .= "{$separator}<li>{$nama_nomenklatur}{$nama_sub_unit}</li>";
+
+				// Indikator & Satuan
+				if ($indicators) {
+					$html_indikator .= $separator . "<li><ul class='list-unstyled m-0 p-0'>";
+					$html_satuan .= $separator . "<li><ul class='list-unstyled m-0 p-0'>";
+
+					foreach ($indicators as $ind) {
+						$html_indikator .= "<li class='mb-1'>&bull; {$ind['indikator']}</li>";
+						$html_satuan .= "<li class='mb-1'>&bull; {$ind['satuan']}</li>";
+					}
+
+					$html_indikator .= "</ul></li>";
+					$html_satuan .= "</ul></li>";
+				} else {
+					$html_indikator .= $separator . "<li>-</li>";
+					$html_satuan .= $separator . "<li>-</li>";
+				}
 			}
 
 			$html_pokin .= '</ul>';
 			$html_nomenklatur .= '</ul>';
+			$html_indikator .= '</ul>';
+			$html_satuan .= '</ul>';
 		} else {
 			$html_pokin .= "<li>-</li>";
 			$html_nomenklatur .= "<li>-</li>";
+			$html_indikator .= "<li>-</li>";
+			$html_satuan .= "<li>-</li>";
 		}
 		$html_pokin .= '</ul>';
 		$html_nomenklatur .= '</ul>';
+		$html_indikator .= '</ul>';
+		$html_satuan .= '</ul>';
 
 		return [
 			'list_pokin_html' => $html_pokin,
-			'list_renstra_html' => $html_nomenklatur
+			'list_renstra_html' => $html_nomenklatur,
+			'list_indikator_html' => $html_indikator,
+			'list_satuan_html' => $html_satuan
 		];
 	}
 
@@ -31698,19 +31767,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (empty($cascading_data)) {
 				echo json_encode([
 					'status' => true, 
-					'html' => '<tr><td colspan="6" class="text-center text-muted font-italic p-4">Belum ada data transformasi cascading.</td></tr>'
+					'html' => '<tr><td colspan="8" class="text-center text-muted font-italic p-4">Belum ada data transformasi cascading.</td></tr>'
 				]);
 				wp_die();
 			}
 
 			$tujuan = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal['tahun_anggaran'], $_POST['id_skpd']);
 			if (empty($tujuan)) {
-				throw new Exception("Tujuan Renstra Lokal tidak ditemukan untuk tahun anggaran dan SKPD tersebut.", 404);
+				throw new Exception("Tujuan RENSTRA Lokal tidak ditemukan untuk tahun anggaran dan SKPD tersebut.", 404);
 			}
 			
 			$html_output = '';
 			foreach ($tujuan as $t) {
+				$indikators = $this->get_indikator_renstra_lokal_by_id_unik($t['id_unik'], 1);
+				if (!empty($indikators)) {
+					$html_indikator = '<ul class="list-unstyled m-0 p-0">';
+					$html_satuan = '<ul class="list-unstyled m-0 p-0">';
+					foreach ($indikators as $ind) {
+						$html_indikator .= "<li>&bull; {$ind['indikator_teks']}</li>";
+						$html_satuan .= "<li>&bull; {$ind['satuan']}</li>";
+					}
+					$html_indikator .= '</ul>';
+					$html_satuan .= '</ul>';
+				} else {
+					$html_indikator = '-';
+					$html_satuan = '-';
+				}
+
 				$sasaran = $this->get_sasaran_renstra_lokal_by_id_unik_tujuan($t['id_unik']);
+
 				$html_tujuan = '';
 				if (empty($sasaran)) {
 					continue;
@@ -31722,7 +31807,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$wpdb->prepare("
 						SELECT label, level
 						FROM data_pokin_renstra
-						WHERE id_unik = %s AND active = 1
+						WHERE id_unik = %s 
+						  AND active = 1
 					", $t['id_unik']),
 					ARRAY_A
 				);
@@ -31743,10 +31829,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				<tr class='bg-level-1'>
 					<td rowspan='{$indikator['rowspan']}'>{$html_pokin_tujuan}</td>
 					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Final Outcome <br> (TUJUAN)</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-justify'><strong>{$t['tujuan_teks']}</strong></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$t['tujuan_teks']}</strong></td>
 					<td>{$first['indikator_teks']}</td>
 					<td class='text-nowrap'>{$first['satuan']}</td>
 					<td rowspan='{$indikator['rowspan']}'>{$t['tujuan_teks']}</td>
+					<td rowspan='{$indikator['rowspan']}'>{$html_indikator}</td>
+					<td rowspan='{$indikator['rowspan']}'>{$html_satuan}</td>
 				</tr>
 				";
 
@@ -31763,6 +31851,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				foreach ($sasaran as $s) {
 					$html_sasaran = '';
+					$indikators = $this->get_indikator_renstra_lokal_by_id_unik($s['id_unik'], 2);
+					if (!empty($indikators)) {
+						$html_indikator = '<ul class="list-unstyled m-0 p-0">';
+						$html_satuan = '<ul class="list-unstyled m-0 p-0">';
+						foreach ($indikators as $ind) {
+							$html_indikator .= "<li>&bull; {$ind['indikator_teks']}</li>";
+							$html_satuan .= "<li>&bull; {$ind['satuan']}</li>";
+						}
+						$html_indikator .= '</ul>';
+						$html_satuan .= '</ul>';
+					} else {
+						$html_indikator = '-';
+						$html_satuan = '-';
+					}
+
 					$programs_renstra = $wpdb->get_col(
 						$wpdb->prepare("
 							SELECT id_unik 
@@ -31804,7 +31907,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$wpdb->prepare("
 							SELECT label, level
 							FROM data_pokin_renstra
-							WHERE id_unik = %s AND active = 1
+							WHERE id_unik = %s 
+							  AND active = 1
 						", $s['id_unik']),
 						ARRAY_A
 					);
@@ -31824,10 +31928,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					<tr class='bg-level-2'>
 						<td rowspan='{$indikator['rowspan']}'>{$html_pokin_sasaran}</td>
 						<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Outcome <br>( SASARAN )</td>
-						<td rowspan='{$indikator['rowspan']}' class='text-justify'><strong>{$s['sasaran_teks']}</strong></td>
+						<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$s['sasaran_teks']}</strong></td>
 						<td>{$first['indikator_teks']}</td>
 						<td class='text-nowrap'>{$first['satuan']}</td>
 						<td rowspan='{$indikator['rowspan']}'>{$s['sasaran_teks']}</td>
+						<td rowspan='{$indikator['rowspan']}'>{$html_indikator}</td>
+						<td rowspan='{$indikator['rowspan']}'>{$html_satuan}</td>
 					</tr>
 					";
 
@@ -31854,12 +31960,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<tr class='bg-level-3'>
 							<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
 							<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Outcome</td>
-							<td rowspan='{$indikator['rowspan']}' class='text-justify'>
+							<td rowspan='{$indikator['rowspan']}' class='text-left'>
 								<span class='font-weight-bold'>{$level_3['uraian_cascading']}</span>
 							</td>
 							<td>{$first['indikator']}</td>
 							<td>{$first['satuan']}</td>
 							<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_renstra_html']}</td>
+							<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_indikator_html']}</td>
+							<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_satuan_html']}</td>
 						</tr>
 						";
 
@@ -31896,13 +32004,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$html_output .= "
 							<tr class='bg-level-4'>
 								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Output</td>
-								<td rowspan='{$indikator['rowspan']}' class='text-justify'>
+								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Output / Outcome</td>
+								<td rowspan='{$indikator['rowspan']}' class='text-left'>
 									<span class='font-weight-bold'>{$level_4['uraian_cascading']}</span>
 								</td>
 								<td>{$first['indikator']}</td>
 								<td>{$first['satuan']}</td>
 								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_renstra_html']}</td>
+								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_indikator_html']}</td>
+								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_satuan_html']}</td>
 							</tr>
 							";
 
@@ -31939,14 +32049,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$html_output .= "
 								<tr class='bg-level-5'>
 									<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-									<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Input</td>
-									<td rowspan='{$indikator['rowspan']}' class='text-justify'>
+									<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>" . ($level_5['is_pelaksana'] == 1 ? "Input" : "Output") . "</td>
+									<td rowspan='{$indikator['rowspan']}' class='text-left'>
 										<span class='font-weight-bold'>{$level_5['uraian_cascading']}</span>
 										" . ($level_5['is_pelaksana'] == 1 ? "<span class='badge badge-warning ml-2 p-1'>Pelaksana</span>" : "") . "
 									</td>
 									<td>{$first['indikator']}</td>
 									<td>{$first['satuan']}</td>
 									<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_renstra_html']}</td>
+									<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_indikator_html']}</td>
+									<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_satuan_html']}</td>
 								</tr>
 								";
 
