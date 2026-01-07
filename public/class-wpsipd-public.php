@@ -9727,37 +9727,52 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				) {
 					if (!empty($daftar_tombol_list[1])) {
 						$nama_page = 'RFK ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-						$url_rfk = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_rfk, $url_nilai_dpa) . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+						$page_url =  $this->generatePage(
+							$nama_page,
+							$tahun,
+							'[monitor_rfk tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, $url_nilai_dpa) . '" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[2])) {
 						$nama_page_sd = 'Sumber Dana ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
-						$url_sd = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_sd, '&1=1') . '" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
+						$page_url = $this->generatePage(
+							$nama_page_sd,
+							$tahun,
+							'[monitor_daftar_sumber_dana tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[3])) {
 						$nama_page_label = 'Label Komponen ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
-						$url_label = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_label, '&1=1') . '" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
+						$page_url = $this->generatePage(
+							$nama_page_label,
+							$tahun,
+							'[monitor_daftar_label_komponen tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[4])) {
 						$nama_page_monev_renja = 'MONEV ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
-						$url_monev_renja = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_monev_renja, '&1=1') . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
+						$page_url = $this->generatePage(
+							$nama_page_monev_renja,
+							$tahun,
+							'[monitor_monev_renja tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[7])) {
 						$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-						$url_menu_ssh = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_menu_ssh, '&1=1') . '" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
+						$page_url = $this->generatePage(
+							$nama_page_menu_ssh,
+							$tahun,
+							'[mmonitor_satuan_harga tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if ($vv['is_skpd'] == 1) {
@@ -9774,9 +9789,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if (!empty($daftar_tombol_list[9])) {
 						$nama_page = 'Input RENJA ' . $vv['nama_skpd'] . ' ' . $vv['kode_skpd'] . ' | ' . $tahun;
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-						$url_menu = $this->get_link_post($custom_post);
-						echo '<li><a href="' . $this->add_param_get($url_menu, '&1=1') . '" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
+						$page_url = $this->generatePage(
+							$nama_page,
+							$tahun,
+							'[input_renja tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+						);
+						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
 
 					if (!empty($daftar_tombol_list[10])) {
