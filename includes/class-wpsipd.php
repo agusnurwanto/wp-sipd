@@ -1238,6 +1238,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_handle_save_indikator',  $plugin_public, 'handle_save_indikator');
 		$this->loader->add_action('wp_ajax_handle_delete_indikator',  $plugin_public, 'handle_delete_indikator');
 		$this->loader->add_action('wp_ajax_handle_get_unmapped_renstra',  $plugin_public, 'handle_get_unmapped_renstra');
+		$this->loader->add_action('wp_ajax_handle_get_unmapped_renstra_transformasi',  $plugin_public, 'handle_get_unmapped_renstra_transformasi');
 		$this->loader->add_action('wp_ajax_handle_get_view_tabel_cascading',  $plugin_public, 'handle_get_view_tabel_cascading');
 		$this->loader->add_action('wp_ajax_handle_get_transformasi_list',  $plugin_public, 'handle_get_transformasi_list');
 		$this->loader->add_action('wp_ajax_handle_get_detail_transformasi_cascading',  $plugin_public, 'handle_get_detail_transformasi_cascading');

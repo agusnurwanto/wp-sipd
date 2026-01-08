@@ -301,6 +301,30 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         </div>
     </section>
 
+    <div id="container-unmapped-subkegbl" class="card shadow-sm mt-4" style="display:none;">
+        <div class="card-header">
+            <h5 class="mb-0 text-center">Data APBD <?php echo $jadwal_renstra_lokal['tahun_anggaran']; ?> belum masuk RENSTRA</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-scroll">
+                <table class="table-renstra mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 15%;">Tipe</th>
+                            <th style="width: 15%;">Kode</th>
+                            <th>Nama</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-unmapped-subkegbl">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-light text-danger small font-italic">
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modal-monev" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
@@ -474,6 +498,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         loadTabelFull();
         loadTabelUnmapped();
+        loadTabelUnmappedSubkegbl();
 
         jQuery('#input_id_unik').on('change', function() {
             const selectedIds = jQuery(this).val(); // array
@@ -604,6 +629,36 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             dataType: 'JSON',
             data: {
                 action: "handle_get_unmapped_renstra",
+                api_key: ajax.api_key,
+                id_jadwal: window.idJadwal,
+                id_unit: window.idUnit
+            },
+            success: function(res) {
+                if (res.status) {
+                    if (res.has_data) {
+                        // Jika ada data yang belum dimapping, TAMPILKAN
+                        tbody.html(res.html);
+                        container.slideDown();
+                    } else {
+                        // Jika semua sudah bersih (mapped), SEMBUNYIKAN
+                        container.slideUp();
+                        tbody.empty();
+                    }
+                }
+            }
+        });
+    }
+
+    function loadTabelUnmappedSubkegbl() {
+        const container = jQuery('#container-unmapped-subkegbl');
+        const tbody = jQuery('#tbody-unmapped-subkegbl');
+
+        jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: 'JSON',
+            data: {
+                action: "handle_get_unmapped_renstra_transformasi",
                 api_key: ajax.api_key,
                 id_jadwal: window.idJadwal,
                 id_unit: window.idUnit
@@ -1335,10 +1390,14 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         };
 
         const textBuilderMap = {
-            3: (item) => item.nama_program,
-            4: (item) => item.nama_giat,
+            3: (item) => {
+                return `${item.kode_program} ${item.nama_program}`;
+            },
+            4: (item) => {
+                return `${item.kode_giat} ${item.nama_giat}`;
+            },
             5: (item) => {
-                let text = item.nama_sub_giat;
+                let text = `${item.kode_sub_giat} ${item.nama_sub_giat}`;
                 if (item.nama_sub_unit) {
                     text += ` ( ${item.nama_sub_unit} )`;
                 }

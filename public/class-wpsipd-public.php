@@ -30463,12 +30463,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 
 		$table_name = '';
+		$indikator_field = 'indikator';
 		switch ($type) {
 			case 1:
 				$table_name = 'data_renstra_tujuan_lokal';
+				$indikator_field = 'indikator_teks';
 				break;
 			case 2:
 				$table_name = 'data_renstra_sasaran_lokal';
+				$indikator_field = 'indikator_teks';
 				break;
 			case 3:
 				$table_name = 'data_renstra_program_lokal';
@@ -30485,7 +30488,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		return $wpdb->get_results(
 			$wpdb->prepare("
-				SELECT *
+				SELECT 
+					id_unik,
+					id_unik_indikator,
+					$indikator_field AS indikator,
+					satuan
 				FROM {$table_name}
 				WHERE active = 1
 				  AND id_unik_indikator IS NOT NULL
@@ -30516,7 +30523,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare("
-				SELECT * 
+				SELECT 
+					id_unik,
+					CASE
+						WHEN kode_program LIKE 'X.XX.%'
+							THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						ELSE kode_program
+					END AS kode_program,
+					SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program
 				FROM data_renstra_program_lokal 
 				WHERE kode_sasaran = %s
 				  AND active = 1
@@ -30538,11 +30552,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$placeholders = implode(',', array_fill(0, count($parents), '%s'));
 
 		$query = "
-			SELECT id_unik, nama_giat 
+			SELECT 
+				id_unik,
+				CASE
+					WHEN kode_giat LIKE 'X.XX.%'
+						THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+					ELSE kode_giat
+				END AS kode_giat,
+				SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat
 			FROM data_renstra_kegiatan_lokal 
 			WHERE kode_program IN ($placeholders)
-			AND active = 1
-			AND id_unik_indikator IS NULL
+			  AND active = 1
+			  AND id_unik_indikator IS NULL
 			ORDER BY kode_giat ASC
 		";
 
@@ -30564,17 +30585,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$placeholders = implode(',', array_fill(0, count($parents), '%s'));
 
 		$query = "
-			SELECT id_unik, nama_sub_giat, nama_sub_unit
+			SELECT 
+				id_unik,
+				CASE
+					WHEN kode_sub_giat LIKE 'X.XX.%'
+						THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+					ELSE kode_sub_giat
+				END AS kode_sub_giat,
+				SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat,
+				nama_sub_unit
 			FROM data_renstra_sub_kegiatan_lokal 
 			WHERE kode_kegiatan IN ($placeholders)
-			AND active = 1
-			AND id_unik_indikator IS NULL
+			  AND active = 1
+			  AND id_unik_indikator IS NULL
 			ORDER BY kode_sub_giat ASC
 		";
 
-		
 		$sql = $wpdb->prepare($query, ...$parents);
-		// die(var_dump($sql));
 
 		return $wpdb->get_results($sql, ARRAY_A);
 	}
@@ -31046,7 +31073,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
 								SELECT 
-									nama_program, 
+									CASE
+										WHEN kode_program LIKE 'X.XX.%'
+											THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										ELSE kode_program
+									END AS kode_program,
+									SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program,
 									active
 								FROM data_renstra_program_lokal 
 								WHERE id_unik = %s
@@ -31055,16 +31087,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_program . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+								$nama = $master->kode_program . ' ' . $master->nama_program . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
-								$nama = $master->nama_program;
+								$nama = $master->kode_program . ' ' . $master->nama_program;
 							}
 						}
 					} elseif ($level === 4) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
 								SELECT 
-									nama_giat, 
+									CASE
+										WHEN kode_giat LIKE 'X.XX.%'
+											THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										ELSE kode_giat
+									END AS kode_giat,
+									SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat,
 									active
 								FROM data_renstra_kegiatan_lokal 
 								WHERE id_unik = %s
@@ -31073,16 +31110,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+								$nama = $master->kode_giat . ' ' . $master->nama_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							} else {
-								$nama = $master->nama_giat;
+								$nama = $master->kode_giat . ' ' . $master->nama_giat;
 							}
 						}
 					} elseif ($level === 5) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
 								SELECT 
-									nama_sub_giat, 
+									CASE
+										WHEN kode_sub_giat LIKE 'X.XX.%'
+											THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										ELSE kode_sub_giat
+									END AS kode_sub_giat,
+									SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat, 
 									active,
 									nama_sub_unit
 								FROM data_renstra_sub_kegiatan_lokal 
@@ -31092,9 +31134,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						if($master) {
 							if ($master->active == 0) {
-								$nama = $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span><span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+								$nama = $master->kode_sub_giat . ' ' . $master->nama_sub_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span><br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
 							} else {
-								$nama = $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
+								$nama = $master->kode_sub_giat . ' ' . $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
 							}
 						}
 					}
@@ -31663,29 +31705,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								nama_program as nama,
+								CASE
+									WHEN kode_program LIKE 'X.XX.%'
+										THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+									ELSE kode_program
+								END AS kode,
+								SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama,
 								active
 							FROM data_renstra_program_lokal 
 							WHERE id_unik = %s
-						", $id_unik)
-					);
+						", $id_unik
+					));
 					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 3);
 				} elseif ($level == 4) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								nama_giat as nama,
+								CASE
+									WHEN kode_giat LIKE 'X.XX.%'
+										THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+									ELSE kode_giat
+								END AS kode,
+								SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama,
 								active
 							FROM data_renstra_kegiatan_lokal 
 							WHERE id_unik = %s
-						", $id_unik)
-					);
+						", $id_unik
+					));
 					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 4);
 				} elseif ($level == 5) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								nama_sub_giat as nama, 
+								CASE
+									WHEN kode_sub_giat LIKE 'X.XX.%'
+										THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+									ELSE kode_sub_giat
+								END AS kode,
+								SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama, 
 								active,
 								nama_sub_unit
 							FROM data_renstra_sub_kegiatan_lokal 
@@ -31697,9 +31754,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if ($renstra) {
 					if ($renstra->active == 0) {
-						$nama_nomenklatur = $renstra->nama . ' <span class="badge badge-danger ml-2 p-1">Dihapus</span>';
+						$nama_nomenklatur = $renstra->kode . ' ' . $renstra->nama . ' <span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 					} else {
-						$nama_nomenklatur = $renstra->nama;
+						$nama_nomenklatur = $renstra->kode . ' ' . $renstra->nama;
 					}
 				}
 
@@ -31802,7 +31859,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$html_indikator = '<ul class="list-unstyled m-0 p-0">';
 					$html_satuan = '<ul class="list-unstyled m-0 p-0">';
 					foreach ($indikators as $ind) {
-						$html_indikator .= "<li>&bull; {$ind['indikator_teks']}</li>";
+						$html_indikator .= "<li>&bull; {$ind['indikator']}</li>";
 						$html_satuan .= "<li>&bull; {$ind['satuan']}</li>";
 					}
 					$html_indikator .= '</ul>';
@@ -31874,7 +31931,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$html_indikator = '<ul class="list-unstyled m-0 p-0">';
 						$html_satuan = '<ul class="list-unstyled m-0 p-0">';
 						foreach ($indikators as $ind) {
-							$html_indikator .= "<li>&bull; {$ind['indikator_teks']}</li>";
+							$html_indikator .= "<li>&bull; {$ind['indikator']}</li>";
 							$html_satuan .= "<li>&bull; {$ind['satuan']}</li>";
 						}
 						$html_indikator .= '</ul>';
@@ -32144,7 +32201,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					3 AS lvl,
 					p.id_unik,
 					p.nama_program AS nama,
-					p.kode_program AS kode,
+					CASE
+						WHEN p.kode_program LIKE 'X.XX.%'
+							THEN REPLACE(p.kode_program, 'X.XX.', CONCAT(p.kode_bidang_urusan, '.'))
+						ELSE p.kode_program
+					END AS kode,
 					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32183,7 +32244,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					4 AS lvl,
 					k.id_unik,
 					k.nama_giat AS nama,
-					k.kode_giat AS kode,
+					CASE
+						WHEN k.kode_program LIKE 'X.XX.%'
+							THEN REPLACE(k.kode_giat, 'X.XX.', CONCAT(k.kode_bidang_urusan, '.'))
+						ELSE k.kode_giat
+					END AS kode,
 					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32222,7 +32287,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					5 AS lvl,
 					s.id_unik,
 					s.nama_sub_giat AS nama,
-					s.kode_sub_giat AS kode,
+					CASE
+						WHEN s.kode_sub_giat LIKE 'X.XX.%'
+							THEN REPLACE(s.kode_sub_giat, 'X.XX.', CONCAT(s.kode_bidang_urusan, '.'))
+						ELSE s.kode_sub_giat
+					END AS kode,
 					s.nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32256,7 +32325,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			";
 
 			// Gabungkan dengan UNION ALL
-			$final_query = "($sql_program) UNION ALL ($sql_kegiatan) UNION ALL ($sql_subkeg) ORDER BY lvl ASC, kode ASC";
+			$final_query = "($sql_program) UNION ALL ($sql_kegiatan) UNION ALL ($sql_subkeg) ORDER BY kode ASC";
 			
 			// Prepare query dengan argumen berulang (id_unit, tahun, id_unit, tahun, id_unit, tahun)
 			$unmapped_data = $wpdb->get_results($wpdb->prepare($final_query, 
@@ -32305,6 +32374,245 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<span class='text-muted'>SASARAN : {$nama_sasaran}</span><br>
 							{$nama_sub_unit}
 						</td>
+					</tr>
+					";
+					$no++;
+				}
+			}
+
+			echo json_encode([
+				'status' => true,
+				'has_data' => $has_data,
+				'html' => $html
+			]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
+
+	function handle_get_unmapped_renstra_transformasi()
+	{
+		global $wpdb;
+
+		try {
+			$this->newValidate($_POST, [
+				'api_key'   => 'required|string',
+				'id_jadwal' => 'required|numeric',
+				'id_unit'   => 'required|numeric'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
+			// Ambil Tahun Anggaran dari Jadwal
+			$jadwal = $wpdb->get_row(
+				$wpdb->prepare("
+					SELECT tahun_anggaran 
+					FROM data_jadwal_lokal 
+					WHERE id_jadwal_lokal = %d
+				", $_POST['id_jadwal']
+			));
+			
+			if (!$jadwal) throw new Exception("Jadwal tidak ditemukan", 404);
+			
+			$tahun = $jadwal->tahun_anggaran;
+
+			// Query UNION (Program + Kegiatan + SubKegiatan)
+			
+			$sql_program = "
+				SELECT DISTINCT
+					s.id_program AS id,
+					'PROGRAM' AS tipe,
+					3 AS lvl,
+					s.nama_program AS nama,
+					CASE
+						WHEN s.kode_program LIKE 'X.XX.%'
+							THEN REPLACE(
+								s.kode_program,
+								'X.XX.',
+								CONCAT(s.kode_bidang_urusan, '.')
+							)
+						ELSE s.kode_program
+					END AS kode
+				FROM data_sub_keg_bl s
+				LEFT JOIN data_renstra_program_lokal sb
+					ON (
+						CASE
+							WHEN s.kode_program LIKE 'X.XX.%'
+								THEN REPLACE(
+									s.kode_program,
+									'X.XX.',
+									CONCAT(s.kode_bidang_urusan, '.')
+								)
+							ELSE s.kode_program
+						END
+					) = (
+						CASE
+							WHEN sb.kode_program LIKE 'X.XX.%'
+								THEN REPLACE(
+									sb.kode_program,
+									'X.XX.',
+									CONCAT(sb.kode_bidang_urusan, '.')
+								)
+							ELSE sb.kode_program
+						END
+					)
+					AND sb.active = 1
+					AND sb.id_unik_indikator IS NULL
+					AND sb.tahun_anggaran = %d
+					AND sb.id_unit = %d
+				WHERE s.active = 1
+				  AND s.tahun_anggaran = %d
+				  AND s.id_sub_skpd = %d
+				  AND sb.kode_program IS NULL
+			";
+
+			$sql_kegiatan = "
+				SELECT DISTINCT
+					s.id_giat AS id,
+					'KEGIATAN' AS tipe,
+					4 AS lvl,
+					s.nama_giat AS nama,
+					CASE
+						WHEN s.kode_giat LIKE 'X.XX.%'
+							THEN REPLACE(
+								s.kode_giat,
+								'X.XX.',
+								CONCAT(s.kode_bidang_urusan, '.')
+							)
+						ELSE s.kode_giat
+					END AS kode
+				FROM data_sub_keg_bl s
+				LEFT JOIN data_renstra_kegiatan_lokal sb
+					ON (
+						CASE
+							WHEN s.kode_giat LIKE 'X.XX.%'
+								THEN REPLACE(
+									s.kode_giat,
+									'X.XX.',
+									CONCAT(s.kode_bidang_urusan, '.')
+								)
+							ELSE s.kode_giat
+						END
+					) = (
+						CASE
+							WHEN sb.kode_giat LIKE 'X.XX.%'
+								THEN REPLACE(
+									sb.kode_giat,
+									'X.XX.',
+									CONCAT(sb.kode_bidang_urusan, '.')
+								)
+							ELSE sb.kode_giat
+						END
+					)
+					AND sb.active = 1
+					AND sb.id_unik_indikator IS NULL
+					AND sb.tahun_anggaran = %d
+					AND sb.id_unit = %d
+				WHERE s.active = 1
+				  AND s.tahun_anggaran = %d
+				  AND s.id_sub_skpd = %d
+				  AND sb.kode_giat IS NULL
+			";
+
+			$sql_subkeg = "
+				SELECT
+					s.id_sub_giat AS id,
+					'SUB KEGIATAN' AS tipe,
+					5 AS lvl,
+					s.nama_sub_giat AS nama,
+					CASE
+						WHEN s.kode_sub_giat LIKE 'X.XX.%'
+							THEN REPLACE(
+								s.kode_sub_giat,
+								'X.XX.',
+								CONCAT(s.kode_bidang_urusan, '.')
+							)
+						ELSE s.kode_sub_giat
+					END AS kode
+				FROM data_sub_keg_bl s
+				LEFT JOIN data_renstra_sub_kegiatan_lokal sb
+					ON (
+						CASE
+							WHEN s.kode_sub_giat LIKE 'X.XX.%'
+								THEN REPLACE(
+									s.kode_sub_giat,
+									'X.XX.',
+									CONCAT(s.kode_bidang_urusan, '.')
+								)
+							ELSE s.kode_sub_giat
+						END
+					) = (
+						CASE
+							WHEN sb.kode_sub_giat LIKE 'X.XX.%'
+								THEN REPLACE(
+									sb.kode_sub_giat,
+									'X.XX.',
+									CONCAT(sb.kode_bidang_urusan, '.')
+								)
+							ELSE sb.kode_sub_giat
+						END
+					)
+					AND sb.active = 1
+					AND sb.id_unik_indikator IS NULL
+					AND sb.tahun_anggaran = %d
+					AND sb.id_unit = %d
+				WHERE s.active = 1
+				  AND s.tahun_anggaran = %d
+				  AND s.id_sub_skpd = %d
+				  AND sb.kode_sub_giat IS NULL
+			";
+
+			// Gabungkan dengan UNION ALL
+			$final_query = "($sql_program) UNION ALL ($sql_kegiatan) UNION ALL ($sql_subkeg) ORDER BY kode ASC";
+			
+			$data = $wpdb->get_results(
+				$wpdb->prepare(
+					$final_query,
+					// PROGRAM
+					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit'],
+					// KEGIATAN
+					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit'],
+					// SUB KEGIATAN
+					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit']
+				),
+				ARRAY_A
+			);
+
+			// Generate HTML Output
+			$html = "";
+			$has_data = false;
+
+			if (!empty($data)) {
+				$has_data = true;
+				$no = 1;
+				foreach ($data as $row) {
+					// Warna label tipe
+					$badge_class = '';
+					if($row['lvl'] == 3) $badge_class = 'bg-level-3';
+					if($row['lvl'] == 4) $badge_class = 'bg-level-4';
+
+					$nama_renstra = $row['nama'];
+					if($row['lvl'] == 5) {
+						$badge_class = 'bg-level-5';
+						if (!empty($row['nama'])) {
+							$renstra_name_parts = explode(' ', $row['nama'], 2);
+							$nama_renstra = $renstra_name_parts[1];
+						} else {
+							$nama_renstra = '<span class="text-danger">-</span>';
+						}
+					}
+
+					$html .= "
+					<tr class='{$badge_class}'>
+						<td class='text-center'>{$no}</td>
+						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
+						<td class='text-monospace small'>{$row['kode']}</td>
+						<td class='text-left font-weight-bold'>{$nama_renstra}</td>
 					</tr>
 					";
 					$no++;
