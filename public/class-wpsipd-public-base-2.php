@@ -7579,7 +7579,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							    ),
 							    ARRAY_A
 							);
-							print_r($data_kegiatan_renstra_lokal); die($wpdb->last_query);
 					        
 					        if (!empty($data_kegiatan_renstra_lokal)) {
 					            $data_transformasi_cascading = $wpdb->get_results(
