@@ -7207,6 +7207,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                kode_sub_skpd,
 					                nama_sub_skpd,
 					                id_sub_skpd,
+					                id_skpd,
 					                SUM(pagu) as pagu 
 					            FROM data_sub_keg_bl 
 					            WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
@@ -7310,7 +7311,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_program'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
@@ -7467,6 +7468,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                kode_sub_skpd,
 					                nama_sub_skpd,
 					                id_sub_skpd,
+					                id_skpd,
 					                SUM(pagu) as pagu 
 					            FROM data_sub_keg_bl 
 					            WHERE id_sub_skpd=%d 
@@ -7572,11 +7574,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_giat'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
 							);
+							print_r($data_kegiatan_renstra_lokal); die($wpdb->last_query);
 					        
 					        if (!empty($data_kegiatan_renstra_lokal)) {
 					            $data_transformasi_cascading = $wpdb->get_results(
@@ -7823,7 +7826,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_sub_giat'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
