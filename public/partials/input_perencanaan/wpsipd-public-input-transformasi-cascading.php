@@ -20,7 +20,7 @@ $jadwal_renstra_lokal = $wpdb->get_row(
 );
 
 if (!$jadwal_renstra_lokal) {
-    die('<h1 class="text-center">Jadwal Renstra Lokal tidak ditemukan!</h1>');
+    die('<h1 class="text-center">Jadwal RENSTRA Lokal tidak ditemukan!</h1>');
 }
 $nama_jadwal = $jadwal_renstra_lokal['nama'] . ' ' . '(' . $jadwal_renstra_lokal['tahun_anggaran'] . ' - ' . ($jadwal_renstra_lokal['tahun_anggaran'] + $jadwal_renstra_lokal['lama_pelaksanaan'] - 1) . ')';
 
@@ -69,11 +69,6 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         font-size: 0.9rem;
     }
 
-    .hr-mild {
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        margin: 5px 0;
-    }
-
     .table-renstra tr th,
     .table-renstra tr td {
         border: 1px solid black;
@@ -90,13 +85,24 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         margin-bottom: 0;
     }
 
-    .table-scroll thead th {
+    .table-scroll thead tr th {
         position: sticky;
-        top: 0;
-        z-index: 2;
+        background: #D3D3D3;
         text-align: center;
         vertical-align: middle;
-        background: #D3D3D3;
+    }
+
+    /* Baris pertama */
+    .table-scroll thead tr:first-child th {
+        top: 0;
+        /* tetap di paling atas */
+        z-index: 3;
+    }
+
+    /* Baris kedua */
+    .table-scroll thead tr:nth-child(2) th {
+        top: 48px;
+        z-index: 2;
     }
 </style>
 <div style="padding : 10px">
@@ -104,7 +110,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     <div id="container-unmapped-renstra" class="card shadow-sm mt-4" style="display:none;">
         <div class="card-header">
-            <h5 class="mb-0 text-center">Data Renstra Belum Masuk Transformasi Cascading</h5>
+            <h5 class="mb-0 text-center">Data RENSTRA Belum Masuk Transformasi Cascading</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-scroll">
@@ -115,7 +121,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <th style="width: 25%;">Pohon Kinerja</th>
                             <th style="width: 10%;">Tipe Cascading</th>
                             <th style="width: 10%;">Kode</th>
-                            <th>Nomenklatur Renstra</th>
+                            <th>Nomenklatur RENSTRA</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-unmapped-renstra">
@@ -123,7 +129,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 </table>
             </div>
             <div class="card-footer bg-light text-danger small font-italic">
-                * Data di atas adalah master Renstra yang belum dipilih/dipetakan ke dalam tabel Transformasi Cascading. Mohon segera lengkapi.
+                * Data di atas adalah master RENSTRA yang belum dipilih/dipetakan ke dalam tabel Transformasi Cascading. Mohon segera lengkapi.
             </div>
         </div>
     </div>
@@ -143,17 +149,23 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <table class="table-renstra mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 20%;">Pohon Kinerja</th>
-                            <th style="width: 10%;">Tipe</th>
-                            <th style="width: 25%;">Uraian Cascading</th>
-                            <th style="width: 15%;">Indikator</th>
-                            <th style="width: 15%;">Satuan</th>
-                            <th style="width: 20%;">Nomenklatur (Renstra)</th>
+                            <th rowspan="2" style="width: 20%;">Pohon Kinerja</th>
+                            <th rowspan="2" style="width: 10%;">Tipe</th>
+                            <th colspan="3" style="width: 30%;">Cascading</th>
+                            <th colspan="3" style="width: 20%;">Nomenklatur (RENSTRA)</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 25%;">Uraian</th>
+                            <th style="width: 10%;">Indikator</th>
+                            <th style="width: 10%;">Satuan</th>
+                            <th style="width: 25%;">Uraian</th>
+                            <th style="width: 10%;">Indikator</th>
+                            <th style="width: 10%;">Satuan</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-cascading-full">
                         <tr>
-                            <td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin"></i> Memuat Data...</td>
+                            <td colspan="8" class="text-center p-5"><span class="dashicons dashicons-update"></span> Memuat Data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -165,8 +177,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         <div class="card shadow-sm">
             <div class="card-header bg-light">
                 <h6 class="mb-0 font-weight-bold text-dark">
-                    <i class="fa fa-info-circle mr-1 text-primary"></i>
-                    Panduan Transformasi Cascading Renstra
+                    <i class="dashicons dashicons-info mr-1 text-primary"></i>
+                    Panduan Transformasi Cascading RENSTRA
                 </h6>
             </div>
 
@@ -174,52 +186,144 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                 <ul class="pl-3 mb-3">
                     <li class="mb-2">
-                        <strong>Sumber Data Renstra</strong><br>
-                        Data Transformasi Cascading disusun berdasarkan data Renstra yang telah diinput sebelumnya
-                        melalui menu <em>Input Perencanaan Renstra</em>.
+                        <strong>Sumber Data RENSTRA</strong><br>
+                        Data Transformasi Cascading disusun berdasarkan data RENSTRA yang telah diinput sebelumnya
+                        melalui menu <em>Input Perencanaan RENSTRA</em>.
                     </li>
 
                     <li class="mb-2">
-                        <strong>Level Input Transformasi Cascading</strong><br>
+                        <strong>Input Transformasi Cascading</strong><br>
                         Data Transformasi Cascading diinput mulai dari
                         <span class="text-muted">
-                            Level 3 (Program) sampai Level 5 (Sub Kegiatan)
+                            Outcome sampai Input
                         </span>.
-                        Level Tujuan dan Sasaran digunakan sebagai dasar navigasi dan tidak memiliki input langsung.
+                        Final Outcome dan Intermediate Outcome digunakan sebagai dasar navigasi dan tidak memiliki input langsung.
                     </li>
 
                     <li class="mb-2">
-                        <strong>Perubahan Data Renstra</strong><br>
-                        Apabila data Renstra yang sudah digunakan dalam Transformasi Cascading dihapus
-                        melalui menu <em>Input Perencanaan Renstra</em>, maka data terkait di Transformasi Cascading
+                        <strong>Perubahan Data RENSTRA</strong><br>
+                        Apabila data RENSTRA yang sudah digunakan dalam Transformasi Cascading dihapus
+                        melalui menu <em>Input Perencanaan RENSTRA</em>, maka data terkait di Transformasi Cascading
                         akan tetap ditampilkan dengan <span class="badge badge-danger">Dihapus</span>
                         sebagai penanda ketidaksesuaian data dan perlu segera ditindaklanjuti.
                     </li>
 
                     <li class="mb-2">
                         <strong>Pohon Kinerja (Read Only)</strong><br>
-                        Data Pohon Kinerja yang ditampilkan merupakan hasil keterkaitan langsung dengan data Renstra
+                        Data Pohon Kinerja yang ditampilkan merupakan hasil keterkaitan langsung dengan data RENSTRA
                         dan <strong>tidak dapat diubah</strong> melalui fitur ini.
-                        Perubahan hanya dapat dilakukan melalui menu <em>Input Perencanaan Renstra</em>.
+                        Perubahan hanya dapat dilakukan melalui menu <em>Input Perencanaan RENSTRA</em>.
                     </li>
 
                     <li class="mb-2">
-                        <strong>Data Renstra Belum Masuk Transformasi Cascading</strong><br>
-                        Tabel ini menampilkan data Renstra yang belum dipetakan ke dalam Transformasi Cascading.
+                        <strong>Data RENSTRA Belum Masuk Transformasi Cascading</strong><br>
+                        Tabel ini menampilkan data RENSTRA yang belum dipetakan ke dalam Transformasi Cascading.
                         <span class="text-danger font-weight-bold">
                             Mohon segera dilengkapi.
                         </span>
-                        Tabel akan otomatis hilang apabila seluruh data Renstra telah masuk ke Transformasi Cascading.
+                        Tabel akan otomatis hilang apabila seluruh data RENSTRA telah masuk ke Transformasi Cascading.
                     </li>
                 </ul>
+            </div>
+        </div>
+    </section>
 
-                <div class="alert alert-info mb-0 py-2 small">
-                    <i class="fa fa-info-circle mr-1"></i>
-                    Pastikan seluruh data Renstra telah disusun dengan benar sebelum melakukan Transformasi Cascading.
+    <section class="mt-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 font-weight-bold text-dark">
+                    <i class="dashicons dashicons-info mr-1 text-primary"></i>
+                    Matriks Transformasi Penjenjangan Kinerja
+                </h6>
+            </div>
+
+            <div class="card-body small text-dark">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-3">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Hierarki Kinerja (Logika Pokin)</th>
+                                <th>Nomenklatur Renstra / RKPD</th>
+                                <th>Pemegang Kinerja (Pelaksana)</th>
+                                <th>Jenis Indikator (IKU/IKP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-weight-bold">Final Outcome</td>
+                                <td>Tujuan Renstra</td>
+                                <td>Kepala Daerah / Kepala OPD</td>
+                                <td>Dampak Jangka Panjang</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Intermediate Outcome</td>
+                                <td>Sasaran Renstra</td>
+                                <td>Kepala OPD (Eselon II)</td>
+                                <td>Indikator Kinerja Utama (IKU)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Outcome (Program)</td>
+                                <td>Program</td>
+                                <td>Kabid (Eselon III)</td>
+                                <td>Indikator Kinerja Program</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Intermediate Output / Outcome</td>
+                                <td>Kegiatan</td>
+                                <td>Kabid / Pengawas / Ketua Tim</td>
+                                <td>Indikator Kinerja Kegiatan</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Output</td>
+                                <td>Sub Kegiatan</td>
+                                <td>Ketua Tim / JF Ahli Muda</td>
+                                <td>Indikator Kinerja Sub-Kegiatan</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Input / Aktivitas</td>
+                                <td>Rincian Belanja / Aksi</td>
+                                <td>Pelaksana / Terampil</td>
+                                <td>Output Individu</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-info mb-0 py-2 small d-flex align-items-start">
+                    <div class="align-self-center mr-2">
+                        <i class="dashicons dashicons-info"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        Sesuai dengan <strong>Permenpan RB No. 89 Tahun 2021</strong> tentang Penjenjangan Kinerja Instansi Pemerintah, penyusunan pohon kinerja (cascading) harus memastikan adanya hubungan kausalitas yang logis antara hasil (outcome) pada level strategis hingga ke level operasional. Penyesuaian pada level <strong>Kegiatan</strong> dan <strong>Sub-Kegiatan</strong> ini dilakukan untuk menyelaraskan dengan <strong>Matriks Pembagian Peran dan Hasil (MPH)</strong> dalam sistem kerja penyederhanaan birokrasi, di mana peran pejabat fungsional dan ketua tim menjadi krusial dalam pencapaian output organisasi.
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <div id="container-unmapped-subkegbl" class="card shadow-sm mt-4" style="display:none;">
+        <div class="card-header">
+            <h5 class="mb-0 text-center">Data APBD <?php echo $jadwal_renstra_lokal['tahun_anggaran']; ?> belum masuk RENSTRA</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-scroll">
+                <table class="table-renstra mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 15%;">Tipe</th>
+                            <th style="width: 15%;">Kode</th>
+                            <th>Nama</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-unmapped-subkegbl">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-light text-danger small font-italic">
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="modal-monev" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-xl" role="document">
@@ -247,11 +351,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-body">
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <a class="nav-item nav-link active" id="nav-lvl1-tab" onclick="switchLevel(1)" href="#">Tujuan</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl2-tab" onclick="switchLevel(2)" href="#">Sasaran</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl3-tab" onclick="switchLevel(3)" href="#">Program</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Kegiatan</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl5-tab" onclick="switchLevel(5)" href="#">Sub Kegiatan</a>
+                            <a class="nav-item nav-link active" id="nav-lvl1-tab" onclick="switchLevel(1)" href="#">Final Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl2-tab" onclick="switchLevel(2)" href="#">Intermediate Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl3-tab" onclick="switchLevel(3)" href="#">Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Intermediate Output / Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl5-tab" onclick="switchLevel(5)" href="#">Output</a>
                         </div>
                     </nav>
 
@@ -299,7 +403,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                         placeholder="Contoh: Dokumen / Unit / Persen">
                                     <div class="input-group-append">
                                         <button class="btn btn-danger btn-remove-satuan" type="button">
-                                            <i class="fa fa-times"></i>
+                                            <i class="dashicons dashicons-no"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -308,7 +412,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <button type="button"
                                 class="btn btn-sm btn-outline-primary mt-2"
                                 onclick="addSatuanField()">
-                                <i class="fa fa-plus"></i> Tambah Satuan
+                                <i class="dashicons dashicons-plus"></i> Tambah Satuan
                             </button>
 
                             <small class="form-text text-muted">
@@ -320,7 +424,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-info btn-sm" onclick="submitIndikator()">
-                        <i class="fa fa-save"></i> Simpan Indikator
+                        <i class="dashicons dashicons-yes"></i> Simpan Indikator
                     </button>
                 </div>
             </div>
@@ -350,11 +454,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <label class="font-weight-bold text-dark">Pohon Kinerja Terpilih</label>
                             <select class="form-control" id="pokin_list" name="pokin_list[]" multiple disabled>
                             </select>
-                            <small class="form-text text-muted">Data Pohon Kinerja terkait dengan Data Renstra, Hanya dapat diubah di Input Renstra.</small>
+                            <small class="form-text text-muted">Data Pohon Kinerja terkait dengan Data RENSTRA, Hanya dapat diubah di Input RENSTRA.</small>
                         </div>
 
                         <div class="form-group">
-                            <label class="font-weight-bold text-dark">Referensi Renstra <span id="label-ref-level"></span> <span class="text-danger">*</span></label>
+                            <label class="font-weight-bold text-dark">Referensi RENSTRA <span id="label-ref-level"></span> <span class="text-danger">*</span></label>
                             <select class="form-control" id="input_id_unik" name="id_unik[]" multiple required>
                             </select>
                             <small class="form-text text-muted">Cari dan pilih referensi (Bisa lebih dari satu).</small>
@@ -373,7 +477,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" onclick="submitForm()">
-                        <i class="fa fa-save"></i> Simpan Data
+                        <i class="dashicons dashicons-yes"></i> Simpan Data
                     </button>
                 </div>
             </div>
@@ -394,6 +498,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         loadTabelFull();
         loadTabelUnmapped();
+        loadTabelUnmappedSubkegbl();
 
         jQuery('#input_id_unik').on('change', function() {
             const selectedIds = jQuery(this).val(); // array
@@ -464,7 +569,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             1: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Tujuan',
+                tipe: 'Final Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -472,7 +577,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             2: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Sasaran',
+                tipe: 'Intermediate Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -480,7 +585,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             3: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Program',
+                tipe: 'Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -488,7 +593,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             4: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Kegiatan',
+                tipe: 'Intermediate Output / Outcome',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -505,7 +610,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                    placeholder="Contoh: Dokumen / Unit / Persen">
             <div class="input-group-append">
                 <button class="btn btn-danger btn-remove-satuan" type="button">
-                    <i class="fa fa-times"></i>
+                    <i class="dashicons dashicons-no"></i>
                 </button>
             </div>
         </div>
@@ -544,12 +649,42 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
+    function loadTabelUnmappedSubkegbl() {
+        const container = jQuery('#container-unmapped-subkegbl');
+        const tbody = jQuery('#tbody-unmapped-subkegbl');
+
+        jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: 'JSON',
+            data: {
+                action: "handle_get_unmapped_renstra_transformasi",
+                api_key: ajax.api_key,
+                id_jadwal: window.idJadwal,
+                id_unit: window.idUnit
+            },
+            success: function(res) {
+                if (res.status) {
+                    if (res.has_data) {
+                        // Jika ada data yang belum dimapping, TAMPILKAN
+                        tbody.html(res.html);
+                        container.slideDown();
+                    } else {
+                        // Jika semua sudah bersih (mapped), SEMBUNYIKAN
+                        container.slideUp();
+                        tbody.empty();
+                    }
+                }
+            }
+        });
+    }
+
     function loadTabelFull() {
         const tbody = jQuery('#tbody-cascading-full');
 
         // Loading State
         if (tbody.children().length === 0 || tbody.find('.fa-spin').length > 0) {
-            tbody.html('<tr><td colspan=6" class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Sedang memuat data...</td></tr>');
+            tbody.html('<tr><td colspan="6" class="text-center p-5"><span class="dashicons dashicons-update"></span><br>Sedang memuat data...</td></tr>');
         }
 
         jQuery.ajax({
@@ -566,11 +701,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 if (res.status) {
                     tbody.html(res.html).hide().fadeIn(300);
                 } else {
-                    tbody.html('<tr><td colspan=6" class="text-center text-danger">Gagal memuat data: ' + res.message + '</td></tr>');
+                    tbody.html('<tr><td colspan="8" class="text-center text-danger">Gagal memuat data: ' + res.message + '</td></tr>');
                 }
             },
             error: function() {
-                tbody.html('<tr><td colspan=6" class="text-center text-danger">Terjadi kesalahan koneksi server.</td></tr>');
+                tbody.html('<tr><td colspan="8" class="text-center text-danger">Terjadi kesalahan koneksi server.</td></tr>');
             }
         });
     }
@@ -704,7 +839,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     function loadTableData(level) {
         const container = jQuery('#content-table-wrapper');
-        container.html('<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x text-muted"></i><br><span class="text-muted mt-2">Memuat Data...</span></div>');
+        container.html('<div class="text-center p-5"><i class="dashicons dashicons-update text-muted"></i><br><span class="text-muted mt-2">Memuat Data...</span></div>');
 
         // Tentukan Parent ID (Level 1 tidak butuh parentId)
         let parentId = (level === 1) ? null : state.parentIds[level - 1]['parent_id'];
@@ -728,7 +863,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             if (res.status) {
                 renderTable(level, res.data);
             } else {
-                let msg = level <= 2 ? "Data Renstra tidak ditemukan." : "Belum ada data Cascading. Silakan tambah baru.";
+                let msg = level <= 2 ? "Data RENSTRA tidak ditemukan." : "Belum ada data Cascading. Silakan tambah baru.";
                 container.html(`<div class="alert alert-light border text-center m-4 text-muted font-italic">${msg}</div>`);
             }
         }).fail(() => {
@@ -779,11 +914,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
 
     const levelCascading = {
-        1: 'Tujuan',
-        2: 'Sasaran',
-        3: 'Program',
-        4: 'Kegiatan',
-        5: 'Sub Kegiatan'
+        1: 'Final Outcome (Tujuan)',
+        2: 'Intermediate Outcome (Sasaran)',
+        3: 'Outcome',
+        4: 'Intermediate Output / Outcome',
+        5: 'Output'
     }
 
     function renderTable(level, data) {
@@ -800,7 +935,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="5%" class="text-center">No</th>
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">${levelCascading[level]}</th>
-                    <th width="90" class="text-center">Aksi</th>
+                    <th width="60" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         } else {
@@ -811,7 +946,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <th width="25%" class="text-center">Pohon Kinerja</th>
                     <th class="text-center">Uraian Cascading</th>
                     <th width="25%" class="text-center">${levelCascading[level]}</th>
-                    <th width="90" class="text-center">Aksi</th>
+                    <th width="60" class="text-center">Aksi</th>
                 </tr>
             </thead>`;
         }
@@ -842,7 +977,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <tr>
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${renderPokinList(item.pokin_list)}</td>
-                        <td class="font-weight-bold">${label}</td>
+                        <td class="font-weight-bold text-left">${label}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-info shadow-sm"
                                 onclick='handleDrillDown(${level}, {
@@ -925,8 +1060,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     <tr class="table-secondary">
                         <td class="text-center">${idx + 1}</td>
                         <td class="p-1">${listPokin}</td>
-                        <td>
-                            <div class="font-weight-bold text-dark">${uraian}${isPelaksana}</div>
+                        <td class="font-weight-bold text-left">
+                           ${uraian}${isPelaksana}
                         </td>
                         <td class="p-1">${listRef}</td>
                         <td class="text-center">${btns}</td>
@@ -967,7 +1102,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                 </td>
 
                                 <td class="text-center align-middle">
-                                    <div class="btn-group-vertical btn-group-sm w-100">
+                                    <div class="btn-group-vertical btn-group-sm w-60">
                                         <button class="btn btn-warning"
                                             title="Edit Indikator"
                                             onclick="openFormAddIndikator(${item.id}, ${ind.id})">
@@ -985,8 +1120,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     } else {
                         html += `
                         <tr class="table-light">
-                            <td colspan="3" class="text-muted font-italic">
-                                <i class="fa fa-info-circle mr-1"></i>
+                            <td colspan="5" class="text-muted text-center font-italic">
+                                <i class="dashicons dashicons-info mr-1"></i>
                                 Belum ada indikator
                             </td>
                         </tr>`;
@@ -1255,10 +1390,14 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         };
 
         const textBuilderMap = {
-            3: (item) => item.nama_program,
-            4: (item) => item.nama_giat,
+            3: (item) => {
+                return `${item.kode_program} ${item.nama_program}`;
+            },
+            4: (item) => {
+                return `${item.kode_giat} ${item.nama_giat}`;
+            },
             5: (item) => {
-                let text = item.nama_sub_giat;
+                let text = `${item.kode_sub_giat} ${item.nama_sub_giat}`;
                 if (item.nama_sub_unit) {
                     text += ` ( ${item.nama_sub_unit} )`;
                 }
@@ -1315,7 +1454,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             return;
         }
         if (!formObj.id_unik || formObj.id_unik.length === 0) {
-            alert("Pilih minimal satu Renstra!");
+            alert("Pilih minimal satu RENSTRA!");
             return;
         }
 
