@@ -7207,6 +7207,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                kode_sub_skpd,
 					                nama_sub_skpd,
 					                id_sub_skpd,
+					                id_skpd,
 					                SUM(pagu) as pagu 
 					            FROM data_sub_keg_bl 
 					            WHERE id_sub_skpd IN (" . implode(',', $id_skpd) . ") 
@@ -7265,7 +7266,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                SELECT 
 					                    *
 					                FROM $tabel_renstra
-					                WHERE kode_program = %s
+					                WHERE (
+							                CASE 
+							                    WHEN kode_program LIKE 'X.XX.%'
+							                        THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
+							                    ELSE kode_program
+							                END
+							            ) = %s
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
@@ -7310,7 +7317,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_program'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
@@ -7467,6 +7474,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                kode_sub_skpd,
 					                nama_sub_skpd,
 					                id_sub_skpd,
+					                id_skpd,
 					                SUM(pagu) as pagu 
 					            FROM data_sub_keg_bl 
 					            WHERE id_sub_skpd=%d 
@@ -7527,7 +7535,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                SELECT 
 					                    *
 					                FROM $tabel_renstra
-					                WHERE kode_giat = %s
+					                WHERE (
+							                CASE 
+							                    WHEN kode_giat LIKE 'X.XX.%'
+							                        THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
+							                    ELSE kode_giat
+							                END
+							            ) = %s
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
@@ -7572,7 +7586,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_giat'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
@@ -7778,7 +7792,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                SELECT 
 					                    *
 					                FROM $tabel_renstra
-					                WHERE kode_sub_giat = %s
+					                WHERE (
+							                CASE 
+							                    WHEN kode_sub_giat LIKE 'X.XX.%'
+							                        THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
+							                    ELSE kode_sub_giat
+							                END
+							            ) = %s
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
@@ -7823,7 +7843,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							          AND active = 1
 							    ",
 							    $row['kode_sub_giat'],
-							    $_POST['id_skpd'],
+							    $row['id_skpd'],
 							    $data_jadwal_renstra_lokal['tahun_anggaran']
 							    ),
 							    ARRAY_A
