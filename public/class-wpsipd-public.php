@@ -32079,7 +32079,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$html_output .= "
 							<tr class='bg-level-4'>
 								<td rowspan='{$indikator['rowspan']}'>{$meta_html['list_pokin_html']}</td>
-								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Output / Outcome</td>
+								<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Output</td>
 								<td rowspan='{$indikator['rowspan']}' class='text-left'>
 									<span class='font-weight-bold'>{$level_4['uraian_cascading']}</span>
 								</td>
@@ -32401,31 +32401,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$this->newValidate($_POST, [
 				'api_key'   => 'required|string',
 				'id_jadwal' => 'required|numeric',
-				'id_unit'   => 'required|numeric'
+				'id_unit'   => 'required|numeric',
+				'tahun_anggaran' => 'required|numeric'
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
 				throw new Exception("API key tidak valid!", 401);
 			}
 
-			// Ambil Tahun Anggaran dari Jadwal
-			$jadwal = $wpdb->get_row(
-				$wpdb->prepare("
-					SELECT tahun_anggaran 
-					FROM data_jadwal_lokal 
-					WHERE id_jadwal_lokal = %d
-				", $_POST['id_jadwal']
-			));
-			
-			if (!$jadwal) throw new Exception("Jadwal tidak ditemukan", 404);
-			
-			$tahun = $jadwal->tahun_anggaran;
+			$tahun = $_POST['tahun_anggaran'];
 
 			// Query UNION (Program + Kegiatan + SubKegiatan)
 			
 			$sql_program = "
 				SELECT DISTINCT
 					s.id_program AS id,
+					s.kode_sbl,
 					'PROGRAM' AS tipe,
 					3 AS lvl,
 					s.nama_program AS nama,
@@ -32474,6 +32465,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$sql_kegiatan = "
 				SELECT DISTINCT
 					s.id_giat AS id,
+					s.kode_sbl,
 					'KEGIATAN' AS tipe,
 					4 AS lvl,
 					s.nama_giat AS nama,
@@ -32522,6 +32514,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$sql_subkeg = "
 				SELECT
 					s.id_sub_giat AS id,
+					s.kode_sbl,
 					'SUB KEGIATAN' AS tipe,
 					5 AS lvl,
 					s.nama_sub_giat AS nama,
@@ -32593,12 +32586,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				foreach ($data as $row) {
 					// Warna label tipe
 					$badge_class = '';
-					if($row['lvl'] == 3) $badge_class = 'bg-level-3';
-					if($row['lvl'] == 4) $badge_class = 'bg-level-4';
-
 					$nama_renstra = $row['nama'];
-					if($row['lvl'] == 5) {
+					if($row['lvl'] == 3) {
+						$badge_class = 'bg-level-3';
+						$type = 'program';
+					} else if($row['lvl'] == 4) {
+						$badge_class = 'bg-level-4';
+						$type = 'kegiatan';
+					} else if($row['lvl'] == 5) {
 						$badge_class = 'bg-level-5';
+						$type = 'sub_kegiatan';
 						if (!empty($row['nama'])) {
 							$renstra_name_parts = explode(' ', $row['nama'], 2);
 							$nama_renstra = $renstra_name_parts[1];
@@ -32606,6 +32603,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$nama_renstra = '<span class="text-danger">-</span>';
 						}
 					}
+
+					// $aksi = "
+					// <button 
+					// 	class='btn btn-sm btn-primary btn-assign-renstra-transformasi' 
+					// 	data-id='{$row['id']}'
+					// 	data-type='{$type}'
+					// 	title='Tambahkan ke Transformasi Cascading'
+					// ><span class='dashicons dashicons-plus'></span>
+					// </button>";
 
 					$html .= "
 					<tr class='{$badge_class}'>
@@ -32631,4 +32637,137 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		wp_die();
 	}
+
+	// function get_parent_apbd_by_id()
+	// {
+	// 	try {
+	// 		$this->newValidate($_POST, [
+	// 			'api_key'   => 'required|string',
+	// 			'id' 		=> 'required|numeric',
+	// 			'type' 		=> 'required|string|in:program,kegiatan,sub_kegiatan'
+	// 		]);
+
+	// 		if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+	// 			throw new Exception("API key tidak valid!", 401);
+	// 		}
+
+	// 		global $wpdb;
+
+	// 		switch ($_POST['type']) {
+	// 			case 'program':
+	// 				$data = $this->get_sub_keg_bl_by_id($_POST['id']);
+
+	// 				$kode_program = $data['kode_program'];
+
+	// 				break;
+				
+	// 			case 'kegiatan':
+	// 				# code...
+	// 				break;
+				
+	// 			case 'sub_kegiatan':
+	// 				# code...
+	// 				break;
+				
+	// 			default:
+	// 				throw new Exception("Tipe tidak dikenali.", 400);
+	// 				break;
+	// 		}
+
+	// 		echo json_encode([
+	// 			'status' => true,
+	// 			'data' => 
+	// 		]);
+
+	// 	} catch (Exception $e) {
+	// 		http_response_code(500);
+	// 		echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+	// 	}
+	// 	wp_die();
+	// }
+
+	function get_sub_keg_bl_by_id($id)
+	{
+		global $wpdb;
+
+		$data = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT * 
+				FROM data_sub_keg_bl 
+				WHERE id = %d 
+				  AND active = 1
+			", $id),
+			ARRAY_A
+		);
+
+		return $data;
+	}
+
+	function handle_save_apbd_transformasi() {
+		global $wpdb;
+
+		try {
+			$this->newValidate($_POST, [
+				'api_key'           => 'required|string',
+				'id_jadwal'         => 'required|numeric',
+				'id_skpd'           => 'required|numeric',
+				'id_apbd'           => 'required|numeric',
+				'tahun_apbd'        => 'required|numeric',
+				'type'              => 'required|in:program,kegiatan,sub_kegiatan',
+				'uraian_cascading'  => 'required|string',
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception('API key tidak valid!', 401);
+			}
+
+			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
+
+			$sub_keg_bl = $this->get_sub_keg_bl_by_id($_POST['id_apbd']);
+			if (!$sub_keg_bl) {
+				throw new Exception($_POST['type'] . ' tidak ditemukan.', 400);
+			}
+
+			$levelMap = [
+				'program'       => 3,
+				'kegiatan'      => 4,
+				'sub_kegiatan'  => 5
+			];
+
+			$wpdb->query('START TRANSACTION');
+
+			$wpdb->insert('data_transformasi_cascading', [
+				'level'            => $levelMap[$_POST['type']],
+				'is_apbd'          => 1,
+				'uraian_cascading' => sanitize_textarea_field($_POST['uraian_cascading']),
+				'is_pelaksana'     => !empty($_POST['is_pelaksana']) ? 1 : 0,
+				'id_skpd'          => $_POST['id_skpd'],
+				'id_jadwal'        => $_POST['id_jadwal'],
+			]);
+
+			if (!$wpdb->insert_id) {
+				throw new Exception('Gagal menyimpan data transformasi.', 500);
+			}
+
+			$id_trans = $wpdb->insert_id;
+
+			$wpdb->insert('data_progkeg_transformasi_cascading', [
+				'id_uraian_cascading' => $id_trans,
+				'id_unik'             => $sub_keg_bl['kode_sbl'],
+				'tahun_apbd'          => $_POST['tahun_apbd'],
+			]);
+
+			$wpdb->query('COMMIT');
+
+			wp_send_json_success([
+				'message' => 'Data berhasil ditambahkan.',
+				'id'      => $id_trans
+			]);
+
+		} catch (Exception $e) {
+			$wpdb->query('ROLLBACK');
+			wp_send_json_error($e->getMessage(), $e->getCode() ?: 500);
+		}
+	}
+
 }
