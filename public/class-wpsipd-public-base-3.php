@@ -1380,20 +1380,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_tujuan_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_tujuan_lokal
-						WHERE indikator_teks_usulan=%s
-							AND id_unik=%s
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataTujuan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -1406,6 +1392,21 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_tujuan_lokal
+						WHERE indikator_teks_usulan=%s
+							AND id_unik=%s
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit = %d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran'], $dataTujuan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -1526,21 +1527,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_tujuan_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_tujuan_lokal
-						WHERE indikator_teks_usulan=%s
-							AND id_unik=%s
-							AND id!=%d
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataTujuan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -1553,6 +1539,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_tujuan_lokal
+						WHERE indikator_teks_usulan=%s
+							AND id_unik=%s
+							AND id!=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit = %d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran'], $dataTujuan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -2533,21 +2535,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_sasaran_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_sasaran_lokal
-						WHERE indikator_teks_usulan=%s
-							AND id_unik=%s
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -2561,6 +2548,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sasaran_lokal
+						WHERE indikator_teks_usulan=%s
+							AND id_unik=%s
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran'], $dataSasaran->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -2688,21 +2691,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_sasaran_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_sasaran_lokal
-						WHERE indikator_teks_usulan=%s
-							AND id_unik=%s
-							AND id!=%d
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -2716,6 +2704,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sasaran_lokal
+						WHERE indikator_teks_usulan=%s
+							AND id_unik=%s
+							AND id!=%d
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran'], $dataSasaran->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -3933,21 +3937,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_program_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_program_lokal
-						WHERE indikator_usulan=%s
-							AND id_unik=%s
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['kode_program'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -3960,6 +3949,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_program_lokal
+						WHERE indikator_usulan=%s
+							AND id_unik=%s
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['kode_program'], $_POST['tahun_anggaran'], $dataProgram->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -4107,22 +4112,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_program_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_program_lokal
-						WHERE indikator_usulan=%s
-							AND id!=%d
-							AND id_unik=%s
-							AND id_unik_indikator is not null
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
-					}
-
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -4136,6 +4125,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataProgram)) {
 						throw new Exception('Program yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_program_lokal
+						WHERE indikator_usulan=%s
+							AND id!=%d
+							AND id_unik=%s
+							AND id_unik_indikator is not null
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program'], $_POST['tahun_anggaran'], $dataProgram->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -5377,21 +5383,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_kegiatan_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_kegiatan_lokal
-						WHERE indikator_usulan=%s
-							AND id_unik=%s
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -5404,6 +5395,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_kegiatan_lokal
+						WHERE indikator_usulan=%s
+							AND id_unik=%s
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $_POST['tahun_anggaran'], $dataKegiatan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -5556,22 +5563,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$this->verify_indikator_kegiatan_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_kegiatan_lokal
-						WHERE indikator_usulan=%s
-							AND id_unik=%s
-							AND id!=%d
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
-					}
-
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -5584,6 +5575,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataKegiatan)) {
 						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_kegiatan_lokal
+						WHERE indikator_usulan=%s
+							AND id_unik=%s
+							AND id!=%d
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran'], $dataKegiatan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -9199,21 +9207,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_sub_kegiatan_lokal
-						WHERE id_indikator_usulan=%d
-							AND id_unik=%s
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['id_indikator_usulan'], $data['id_unik'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
-					}
-
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -9226,6 +9219,22 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_indikator_usulan=%d
+							AND id_unik=%s
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['id_indikator_usulan'], $data['id_unik'], $_POST['tahun_anggaran'], $dataSubKegiatan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
 					}
 
 					$inputs = [
@@ -9400,22 +9409,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_sub_kegiatan_lokal
-						WHERE id_indikator_usulan=%d
-							AND id_unik=%s
-							AND id!=%d
-							AND id_unik_indikator IS NOT NULL
-							AND active=1
-							AND tahun_anggaran=%d
-					", $data['id_indikator_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran']));
-
-					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
-					}
-
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -9428,6 +9421,23 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					if (empty($dataSubKegiatan)) {
 						throw new Exception('Sub Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_indikator_usulan=%d
+							AND id_unik=%s
+							AND id!=%d
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+							AND tahun_anggaran=%d
+							AND id_unit=%d
+					", $data['id_indikator_usulan'], $data['id_unik'], $data['id'], $_POST['tahun_anggaran'], $dataSubKegiatan->id_unit));
+
+					if (!empty($id_cek)) {
+						throw new Exception('Indikator : ' . $usulan->indikator . ' sudah ada!');
 					}
 
 					$inputs = [
