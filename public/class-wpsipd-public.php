@@ -30330,11 +30330,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             $this->newValidate($_POST, [
                 'api_key' 			=> 'required|string',
                 'level' 			=> 'required',
+                'id_unit' 			=> 'required'
             ]);
 
             if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
                 throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
             }
+
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
 			switch ($_POST['level']) {
 				case 1:
@@ -30371,21 +30375,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_program_renstra_lokal_by_id_unik_sasaran($_POST['id_unik']);
+					$data = $this->get_program_renstra_lokal_by_id_unik_sasaran($_POST['id_unik'], $bidur_skpd);
 				break;
 				case 4:
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik']);
+					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $bidur_skpd);
 				break;
 				case 5:
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik']);
+					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $bidur_skpd);
 				break;
 				default:
 					throw new Exception("Level tidak dikenali.", 400);
@@ -30518,7 +30522,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 	}
 
-	function get_program_renstra_lokal_by_id_unik_sasaran(string $kode_sasaran)
+	function get_program_renstra_lokal_by_id_unik_sasaran(string $kode_sasaran, string $kode_bidang_urusan)
 	{
 		global $wpdb;
 		return $wpdb->get_results(
@@ -30527,7 +30531,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					id_unik,
 					CASE
 						WHEN kode_program LIKE 'X.XX.%'
-							THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+							THEN REPLACE(kode_program, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 						ELSE kode_program
 					END AS kode_program,
 					SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program
@@ -30541,7 +30545,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 	}
 
-	function get_kegiatan_renstra_lokal_by_parent($parent_id_unik_list) 
+	function get_kegiatan_renstra_lokal_by_parent($parent_id_unik_list, $kode_bidang_urusan) 
 	{
 		global $wpdb;
 
@@ -30556,7 +30560,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				id_unik,
 				CASE
 					WHEN kode_giat LIKE 'X.XX.%'
-						THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						THEN REPLACE(kode_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 					ELSE kode_giat
 				END AS kode_giat,
 				SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat
@@ -30574,7 +30578,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 
-	function get_subkegiatan_renstra_lokal_by_parent($parent_id_unik_list) 
+	function get_subkegiatan_renstra_lokal_by_parent($parent_id_unik_list, $kode_bidang_urusan) 
 	{
 		global $wpdb;
 
@@ -30589,7 +30593,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				id_unik,
 				CASE
 					WHEN kode_sub_giat LIKE 'X.XX.%'
-						THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 					ELSE kode_sub_giat
 				END AS kode_sub_giat,
 				SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat,
@@ -30985,11 +30989,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$this->newValidate($_POST, [
 				'api_key'   => 'required|string',
 				'level'     => 'required|numeric',
+				'id_skpd'   => 'required|numeric',
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
 				throw new Exception("API key tidak valid!", 401);
 			}
+
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
 			$level = (int) $_POST['level'];
 			$parent_id = isset($_POST['parent_id']) ? $_POST['parent_id'] : null;
@@ -31075,7 +31083,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								SELECT 
 									CASE
 										WHEN kode_program LIKE 'X.XX.%'
-											THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+											THEN REPLACE(kode_program, 'X.XX.', CONCAT($bidur_skpd, '.'))
 										ELSE kode_program
 									END AS kode_program,
 									SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program,
@@ -31098,7 +31106,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								SELECT 
 									CASE
 										WHEN kode_giat LIKE 'X.XX.%'
-											THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+											THEN REPLACE(kode_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
 										ELSE kode_giat
 									END AS kode_giat,
 									SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat,
@@ -31121,7 +31129,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								SELECT 
 									CASE
 										WHEN kode_sub_giat LIKE 'X.XX.%'
-											THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+											THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
 										ELSE kode_sub_giat
 									END AS kode_sub_giat,
 									SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat, 
@@ -31645,7 +31653,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 
-	function get_meta_transformasi_cascading(int $id_transformasi, int $level)
+	function get_meta_transformasi_cascading(int $id_transformasi, int $level, string $kode_bidang_urusan)
 	{
 		global $wpdb;
 		
@@ -31707,7 +31715,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT 
 								CASE
 									WHEN kode_program LIKE 'X.XX.%'
-										THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										THEN REPLACE(kode_program, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 									ELSE kode_program
 								END AS kode,
 								SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama,
@@ -31723,7 +31731,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT 
 								CASE
 									WHEN kode_giat LIKE 'X.XX.%'
-										THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										THEN REPLACE(kode_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 									ELSE kode_giat
 								END AS kode,
 								SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama,
@@ -31739,7 +31747,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							SELECT 
 								CASE
 									WHEN kode_sub_giat LIKE 'X.XX.%'
-										THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+										THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
 									ELSE kode_sub_giat
 								END AS kode,
 								SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama, 
@@ -31828,6 +31836,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (empty($jadwal)) {
 				throw new Exception("Jadwal tidak ditemukan!", 401);
 			}
+
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 			
 			$query_main = $wpdb->prepare("
 				SELECT id 
@@ -31903,7 +31914,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$html_output .= "
 				<tr class='bg-level-1'>
 					<td rowspan='{$indikator['rowspan']}'>{$html_pokin_tujuan}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Final Outcome <br> (TUJUAN)</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Final Outcome <br> ( TUJUAN )</td>
 					<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$t['tujuan_teks']}</strong></td>
 					<td>{$first['indikator_teks']}</td>
 					<td class='text-nowrap'>{$first['satuan']}</td>
@@ -32027,7 +32038,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$html_tujuan = '';
 					foreach ($transformasi_level_3 as $level_3) {
 						$indikator = $this->generate_list_indikator_transformasi_cascading($level_3['id']);
-						$meta_html = $this->get_meta_transformasi_cascading($level_3['id'], 3);
+						$meta_html = $this->get_meta_transformasi_cascading($level_3['id'], 3, $bidur_skpd);
 
 						$first = $indikator['rows'][0];
 
@@ -32072,7 +32083,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						foreach ($transformasi_level_4 as $level_4) {
 							$indikator = $this->generate_list_indikator_transformasi_cascading($level_4['id']);
-							$meta_html = $this->get_meta_transformasi_cascading($level_4['id'], 4);
+							$meta_html = $this->get_meta_transformasi_cascading($level_4['id'], 4, $bidur_skpd);
 
 							$first = $indikator['rows'][0];
 							
@@ -32117,7 +32128,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 							foreach ($transformasi_level_5 as $level_5) {
 								$indikator = $this->generate_list_indikator_transformasi_cascading($level_5['id']);
-								$meta_html = $this->get_meta_transformasi_cascading($level_5['id'], 5);
+								$meta_html = $this->get_meta_transformasi_cascading($level_5['id'], 5, $bidur_skpd);
 
 								$first = $indikator['rows'][0];
 
@@ -32193,6 +32204,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			
 			$tahun = $jadwal->tahun_anggaran;
 
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+
 			// Query UNION (Program + Kegiatan + SubKegiatan)
 			
 			$sql_program = "
@@ -32203,7 +32217,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					p.nama_program AS nama,
 					CASE
 						WHEN p.kode_program LIKE 'X.XX.%'
-							THEN REPLACE(p.kode_program, 'X.XX.', CONCAT(p.kode_bidang_urusan, '.'))
+							THEN REPLACE(p.kode_program, 'X.XX.', CONCAT($bidur_skpd, '.'))
 						ELSE p.kode_program
 					END AS kode,
 					NULL AS nama_sub_unit,
@@ -32245,8 +32259,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					k.id_unik,
 					k.nama_giat AS nama,
 					CASE
-						WHEN k.kode_program LIKE 'X.XX.%'
-							THEN REPLACE(k.kode_giat, 'X.XX.', CONCAT(k.kode_bidang_urusan, '.'))
+						WHEN k.kode_giat LIKE 'X.XX.%'
+							THEN REPLACE(k.kode_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
 						ELSE k.kode_giat
 					END AS kode,
 					NULL AS nama_sub_unit,
@@ -32289,7 +32303,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					s.nama_sub_giat AS nama,
 					CASE
 						WHEN s.kode_sub_giat LIKE 'X.XX.%'
-							THEN REPLACE(s.kode_sub_giat, 'X.XX.', CONCAT(s.kode_bidang_urusan, '.'))
+							THEN REPLACE(s.kode_sub_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
 						ELSE s.kode_sub_giat
 					END AS kode,
 					s.nama_sub_unit,
@@ -32411,11 +32425,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$tahun = $_POST['tahun_anggaran'];
 
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+
 			// Query UNION (Program + Kegiatan + SubKegiatan)
 			
 			$sql_program = "
 				SELECT DISTINCT
-					s.id_program AS id,
+					s.id,
 					s.kode_sbl,
 					'PROGRAM' AS tipe,
 					3 AS lvl,
@@ -32425,7 +32442,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							THEN REPLACE(
 								s.kode_program,
 								'X.XX.',
-								CONCAT(s.kode_bidang_urusan, '.')
+								CONCAT($bidur_skpd, '.')
 							)
 						ELSE s.kode_program
 					END AS kode
@@ -32437,7 +32454,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									s.kode_program,
 									'X.XX.',
-									CONCAT(s.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE s.kode_program
 						END
@@ -32447,7 +32464,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									sb.kode_program,
 									'X.XX.',
-									CONCAT(sb.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE sb.kode_program
 						END
@@ -32464,7 +32481,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_kegiatan = "
 				SELECT DISTINCT
-					s.id_giat AS id,
+					s.id,
 					s.kode_sbl,
 					'KEGIATAN' AS tipe,
 					4 AS lvl,
@@ -32474,7 +32491,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							THEN REPLACE(
 								s.kode_giat,
 								'X.XX.',
-								CONCAT(s.kode_bidang_urusan, '.')
+								CONCAT($bidur_skpd, '.')
 							)
 						ELSE s.kode_giat
 					END AS kode
@@ -32486,7 +32503,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									s.kode_giat,
 									'X.XX.',
-									CONCAT(s.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE s.kode_giat
 						END
@@ -32496,7 +32513,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									sb.kode_giat,
 									'X.XX.',
-									CONCAT(sb.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE sb.kode_giat
 						END
@@ -32513,7 +32530,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_subkeg = "
 				SELECT
-					s.id_sub_giat AS id,
+					s.id,
 					s.kode_sbl,
 					'SUB KEGIATAN' AS tipe,
 					5 AS lvl,
@@ -32523,7 +32540,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							THEN REPLACE(
 								s.kode_sub_giat,
 								'X.XX.',
-								CONCAT(s.kode_bidang_urusan, '.')
+								CONCAT($bidur_skpd, '.')
 							)
 						ELSE s.kode_sub_giat
 					END AS kode
@@ -32535,7 +32552,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									s.kode_sub_giat,
 									'X.XX.',
-									CONCAT(s.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE s.kode_sub_giat
 						END
@@ -32545,7 +32562,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								THEN REPLACE(
 									sb.kode_sub_giat,
 									'X.XX.',
-									CONCAT(sb.kode_bidang_urusan, '.')
+									CONCAT($bidur_skpd, '.')
 								)
 							ELSE sb.kode_sub_giat
 						END
@@ -32724,7 +32741,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
 
 			$sub_keg_bl = $this->get_sub_keg_bl_by_id($_POST['id_apbd']);
-			if (!$sub_keg_bl) {
+			if (!$sub_keg_bl) { 
 				throw new Exception($_POST['type'] . ' tidak ditemukan.', 400);
 			}
 
@@ -32759,9 +32776,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$wpdb->query('COMMIT');
 
-			wp_send_json_success([
-				'message' => 'Data berhasil ditambahkan.',
-				'id'      => $id_trans
+			echo json_encode([
+				'status' => true,
+				'message' => 'data berhasil ditambahkan!'
 			]);
 
 		} catch (Exception $e) {

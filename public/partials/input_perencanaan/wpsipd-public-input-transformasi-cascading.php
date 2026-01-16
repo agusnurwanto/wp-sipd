@@ -301,7 +301,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         </div>
     </section>
 
-    <section class="mt-5">
+    <section class="mt-5 mb-5">
         <ul class="nav nav-tabs" id="tab-renstra" role="tablist">
             <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
                 $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
@@ -464,7 +464,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         </div>
     </div>
 
-    <!-- <div class="modal fade" id="modal-assign-apbd-transformasi" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal fade" id="modal-assign-apbd-transformasi" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content shadow">
                 <div class="modal-header">
@@ -496,7 +496,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <div class="modal fade" id="modal-form-cascading" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg" role="document">
@@ -1554,56 +1554,56 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
-    // function assignTransformasi() {
-    //     const uraian = jQuery('#input_uraian_apbd').val().trim();
+    function assignTransformasi() {
+        const uraian = jQuery('#input_uraian_apbd').val().trim();
 
-    //     if (!uraian) {
-    //         alert('Uraian wajib diisi!');
-    //         return;
-    //     }
+        if (!uraian) {
+            alert('Uraian wajib diisi!');
+            return;
+        }
 
-    //     const formObj = {
-    //         action: 'handle_save_apbd_transformasi',
-    //         api_key: ajax.api_key,
+        const formObj = {
+            action: 'handle_save_apbd_transformasi',
+            api_key: ajax.api_key,
 
-    //         id_apbd: jQuery('#id_apbd').val(),
-    //         id_jadwal: window.idJadwal,
-    //         id_skpd: window.idUnit,
-    //         tahun_apbd: window.tahun_apbd_aktif,
-    //         type: window.typeApbd,
+            id_apbd: jQuery('#id_apbd').val(),
+            id_jadwal: window.idJadwal,
+            id_skpd: window.idUnit,
+            tahun_apbd: window.tahun_apbd_aktif,
+            type: window.typeApbd,
 
-    //         uraian_cascading: uraian,
-    //         is_pelaksana: jQuery('#input_is_pelaksana_apbd').is(':checked') ? 1 : 0
-    //     };
+            uraian_cascading: uraian,
+            is_pelaksana: jQuery('#input_is_pelaksana_apbd').is(':checked') ? 1 : 0
+        };
 
-    //     const $btn = jQuery('#btn-simpan-transformasi');
+        const $btn = jQuery('#btn-simpan-transformasi');
 
-    //     jQuery('#wrap-loading').show();
-    //     $btn.prop('disabled', true);
+        jQuery('#wrap-loading').show();
+        $btn.prop('disabled', true);
 
-    //     jQuery.ajax({
-    //         url: ajax.url,
-    //         type: 'POST',
-    //         dataType: 'json',
-    //         data: formObj,
-    //         success(res) {
-    //             if (res.status) {
-    //                 alert(res.message);
-    //                 jQuery('#modal-assign-apbd-transformasi').modal('hide');
-    //                 loadTabelFull();
-    //             } else {
-    //                 alert('Gagal: ' + res.message);
-    //             }
-    //         },
-    //         error() {
-    //             alert('Terjadi kesalahan jaringan.');
-    //         },
-    //         complete() {
-    //             jQuery('#wrap-loading').hide();
-    //             $btn.prop('disabled', false);
-    //         }
-    //     });
-    // }
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            dataType: 'json',
+            data: formObj,
+            success(res) {
+                if (res.status) {
+                    alert(res.message);
+                    jQuery('#modal-assign-apbd-transformasi').modal('hide');
+                    loadTabelFull();
+                } else {
+                    alert('Gagal: ' + res.message);
+                }
+            },
+            error() {
+                alert('Terjadi kesalahan jaringan.');
+            },
+            complete() {
+                jQuery('#wrap-loading').hide();
+                $btn.prop('disabled', false);
+            }
+        });
+    }
 
     function submitForm() {
         let formObj = {
@@ -1714,6 +1714,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeTujuan,
                 level: 2
             }
@@ -1728,6 +1729,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeSasaran,
                 level: 3
             }
@@ -1742,6 +1744,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeProgram,
                 level: 4
             }
@@ -1756,6 +1759,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeKegiatan,
                 level: 5
             }
@@ -1771,6 +1775,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 action: "handle_get_transformasi_list",
                 api_key: ajax.api_key,
                 level: level,
+                id_skpd: window.idUnit,
                 parent_id: parentId
             }
         });
