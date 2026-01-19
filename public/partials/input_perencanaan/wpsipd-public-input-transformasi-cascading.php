@@ -268,7 +268,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                 <td>Indikator Kinerja Program</td>
                             </tr>
                             <tr>
-                                <td class="font-weight-bold">Intermediate Output / Outcome</td>
+                                <td class="font-weight-bold">Intermediate Output</td>
                                 <td>Kegiatan</td>
                                 <td>Kabid / Pengawas / Ketua Tim</td>
                                 <td>Indikator Kinerja Kegiatan</td>
@@ -301,29 +301,62 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         </div>
     </section>
 
-    <div id="container-unmapped-subkegbl" class="card shadow-sm mt-4" style="display:none;">
-        <div class="card-header">
-            <h5 class="mb-0 text-center">Data APBD <?php echo $jadwal_renstra_lokal['tahun_anggaran']; ?> belum masuk RENSTRA</h5>
+    <section class="mt-5 mb-5">
+        <ul class="nav nav-tabs" id="tab-renstra" role="tablist">
+            <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
+                $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
+            ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= $i === 0 ? 'active' : '' ?>"
+                        id="tab-<?= $tahun_tab ?>"
+                        data-toggle="tab"
+                        href="#content-<?= $tahun_tab ?>"
+                        role="tab"
+                        data-tahun="<?= $tahun_tab ?>">
+                        <?= $tahun_tab ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
+                $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
+            ?>
+                <div class="tab-pane fade <?= $i === 0 ? 'show active' : '' ?>"
+                    id="content-<?= $tahun_tab ?>"
+                    role="tabpanel">
+
+                    <!-- container tabel -->
+                    <div id="container-unmapped-subkegbl-<?= $tahun_tab ?>"
+                        class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-2 text-center">
+                                Data APBD <?= $tahun_tab ?> belum masuk RENSTRA
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-scroll">
+                                <table class="table-renstra mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:5%">No</th>
+                                            <th style="width:15%">Tipe</th>
+                                            <th style="width:15%">Kode</th>
+                                            <th>Nama</th>
+                                            <!-- <th style="width:5%">Aksi</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-unmapped-subkegbl-<?= $tahun_tab ?>"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            <?php endfor; ?>
         </div>
-        <div class="card-body p-0">
-            <div class="table-scroll">
-                <table class="table-renstra mb-0">
-                    <thead>
-                        <tr>
-                            <th style="width: 5%;">No</th>
-                            <th style="width: 15%;">Tipe</th>
-                            <th style="width: 15%;">Kode</th>
-                            <th>Nama</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-unmapped-subkegbl">
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer bg-light text-danger small font-italic">
-            </div>
-        </div>
-    </div>
+    </section>
 
     <div class="modal fade" id="modal-monev" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-xl" role="document">
@@ -354,7 +387,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <a class="nav-item nav-link active" id="nav-lvl1-tab" onclick="switchLevel(1)" href="#">Final Outcome</a>
                             <a class="nav-item nav-link disabled" id="nav-lvl2-tab" onclick="switchLevel(2)" href="#">Intermediate Outcome</a>
                             <a class="nav-item nav-link disabled" id="nav-lvl3-tab" onclick="switchLevel(3)" href="#">Outcome</a>
-                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Intermediate Output / Outcome</a>
+                            <a class="nav-item nav-link disabled" id="nav-lvl4-tab" onclick="switchLevel(4)" href="#">Intermediate Output</a>
                             <a class="nav-item nav-link disabled" id="nav-lvl5-tab" onclick="switchLevel(5)" href="#">Output</a>
                         </div>
                     </nav>
@@ -431,6 +464,40 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         </div>
     </div>
 
+    <div class="modal fade" id="modal-assign-apbd-transformasi" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="title-form-indikator">Tambahkan ke transformasi</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-transformasi-assign">
+                        <input type="hidden" id="id_apbd" name="id_apbd">
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">Uraian Cascading <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="input_uraian_apbd" name="uraian_cascading_apbd" rows="3" placeholder="Contoh: Terlaksananya kegiatan..." required style="min-height: 100px;"></textarea>
+                        </div>
+                        <div class="form-group bg-light p-2 rounded border-left border-primary pelaksana-section-apbd" style="display: none;">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="input_is_pelaksana_apbd" name="is_pelaksana_apbd" value="1">
+                                <label class="custom-control-label font-weight-bold text-dark" for="input_is_pelaksana_apbd">Pelaksana / bukan ketua tim kerja.</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-info btn-sm" onclick="assignTransformasi()">
+                        <i class="dashicons dashicons-yes"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modal-form-cascading" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content shadow-lg">
@@ -498,7 +565,16 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         loadTabelFull();
         loadTabelUnmapped();
-        loadTabelUnmappedSubkegbl();
+
+        // load pertama (tab aktif awal)
+        const firstTab = jQuery('#tab-renstra .nav-link.active').data('tahun');
+        loadTabelUnmappedSubkegbl(firstTab);
+
+        // saat tab diganti
+        jQuery('#tab-renstra a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+            const tahun = jQuery(e.target).data('tahun');
+            loadTabelUnmappedSubkegbl(tahun);
+        });
 
         jQuery('#input_id_unik').on('change', function() {
             const selectedIds = jQuery(this).val(); // array
@@ -561,6 +637,23 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     });
 
+    jQuery(document).on('click', '.btn-assign-renstra-transformasi', function() {
+        jQuery('#id_apbd').val(jQuery(this).data('id'));
+
+        window.typeApbd = jQuery(this).data('type'); // program/kegiatan/sub_kegiatan
+
+        if (window.typeApbd === 'sub_kegiatan') {
+            jQuery('.pelaksana-section-apbd').show();
+        } else {
+            jQuery('.pelaksana-section-apbd').hide();
+        }
+
+        jQuery('#input_uraian_apbd').val('');
+        jQuery('#input_is_pelaksana_apbd').prop('checked', false);
+
+        jQuery('#modal-assign-apbd-transformasi').modal('show');
+    });
+
 
     // --- STATE MANAGEMENT ---
     const state = {
@@ -593,7 +686,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             4: {
                 parent_id: null,
                 parent_cascading: null,
-                tipe: 'Intermediate Output / Outcome',
+                tipe: 'Intermediate Output',
                 pokin: null,
                 uraian: null,
                 renstra: null
@@ -618,6 +711,21 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         jQuery('#wrap-satuan-list').append(html);
     }
 
+    // function get_parent_apbd_by_id(id, type)
+    // {
+    //     return jQuery.ajax({
+    //         url: ajax.url,
+    //         type: "post",
+    //         dataType: 'JSON',
+    //         async: false,
+    //         data: {
+    //             action: "get_parent_apbd_by_id",
+    //             api_key: ajax.api_key,
+    //             id_apbd: id,
+    //             type: type
+    //         }
+    //     });
+    // }
 
     function loadTabelUnmapped() {
         const container = jQuery('#container-unmapped-renstra');
@@ -649,35 +757,50 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
-    function loadTabelUnmappedSubkegbl() {
-        const container = jQuery('#container-unmapped-subkegbl');
-        const tbody = jQuery('#tbody-unmapped-subkegbl');
+    function loadTabelUnmappedSubkegbl(tahun) {
+        const container = jQuery(`#container-unmapped-subkegbl-${tahun}`);
+        const tbody = jQuery(`#tbody-unmapped-subkegbl-${tahun}`);
+
+        window.tahun_apbd_aktif = tahun;
+
+        tbody.html(`
+            <tr>
+                <td colspan="5" class="text-center p-4 text-muted font-italic">
+                    Memuat Data... <span class="dashicons dashicons-update"></span>
+                </td>
+            </tr>
+        `);
 
         jQuery.ajax({
             url: ajax.url,
             type: "post",
-            dataType: 'JSON',
+            dataType: "json",
             data: {
                 action: "handle_get_unmapped_renstra_transformasi",
                 api_key: ajax.api_key,
                 id_jadwal: window.idJadwal,
-                id_unit: window.idUnit
+                id_unit: window.idUnit,
+                tahun_anggaran: window.tahun_apbd_aktif
             },
             success: function(res) {
                 if (res.status) {
                     if (res.has_data) {
-                        // Jika ada data yang belum dimapping, TAMPILKAN
                         tbody.html(res.html);
-                        container.slideDown();
                     } else {
-                        // Jika semua sudah bersih (mapped), SEMBUNYIKAN
-                        container.slideUp();
-                        tbody.empty();
+                        tbody.html(`
+                        <tr>
+                            <td colspan="5" class="text-center p-4 text-muted font-italic">
+                                Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
+                            </td>
+                        </tr>
+                    `);
                     }
+                    container.slideDown();
                 }
             }
         });
     }
+
 
     function loadTabelFull() {
         const tbody = jQuery('#tbody-cascading-full');
@@ -917,7 +1040,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         1: 'Final Outcome (Tujuan)',
         2: 'Intermediate Outcome (Sasaran)',
         3: 'Outcome',
-        4: 'Intermediate Output / Outcome',
+        4: 'Intermediate Output',
         5: 'Output'
     }
 
@@ -1140,21 +1263,19 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     }
 
     function renderCascading(cascadingList) {
-        let html = `<ul class="list-unstyled p-0 text-muted mt-0 mb-0">`;
+        let html = `<ul class="list-unstyled p-0 m-0">`;
 
         if (Array.isArray(cascadingList) && cascadingList.length > 0) {
             cascadingList.forEach(r => {
                 html += `<li class="mb-1">${r.nama_ref}</li>`;
             });
         } else {
-            html += `<li><i class="text-muted">-</i></li>`;
+            html += `<li><i>-</i></li>`;
         }
 
         html += `</ul>`;
         return html;
     }
-
-
 
     // ============================================================
     //  FORM HANDLING (MODAL KEDUA - INPUT/EDIT)
@@ -1351,7 +1472,6 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
-
     function deleteIndikator(id) {
         if (!confirm("Yakin hapus indikator ini?")) return;
 
@@ -1431,6 +1551,57 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             allowClear: true,
             multiple: true,
             width: '100%'
+        });
+    }
+
+    function assignTransformasi() {
+        const uraian = jQuery('#input_uraian_apbd').val().trim();
+
+        if (!uraian) {
+            alert('Uraian wajib diisi!');
+            return;
+        }
+
+        const formObj = {
+            action: 'handle_save_apbd_transformasi',
+            api_key: ajax.api_key,
+
+            id_apbd: jQuery('#id_apbd').val(),
+            id_jadwal: window.idJadwal,
+            id_skpd: window.idUnit,
+            tahun_apbd: window.tahun_apbd_aktif,
+            type: window.typeApbd,
+
+            uraian_cascading: uraian,
+            is_pelaksana: jQuery('#input_is_pelaksana_apbd').is(':checked') ? 1 : 0
+        };
+
+        const $btn = jQuery('#btn-simpan-transformasi');
+
+        jQuery('#wrap-loading').show();
+        $btn.prop('disabled', true);
+
+        jQuery.ajax({
+            url: ajax.url,
+            type: 'POST',
+            dataType: 'json',
+            data: formObj,
+            success(res) {
+                if (res.status) {
+                    alert(res.message);
+                    jQuery('#modal-assign-apbd-transformasi').modal('hide');
+                    loadTabelFull();
+                } else {
+                    alert('Gagal: ' + res.message);
+                }
+            },
+            error() {
+                alert('Terjadi kesalahan jaringan.');
+            },
+            complete() {
+                jQuery('#wrap-loading').hide();
+                $btn.prop('disabled', false);
+            }
         });
     }
 
@@ -1543,6 +1714,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeTujuan,
                 level: 2
             }
@@ -1557,6 +1729,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeSasaran,
                 level: 3
             }
@@ -1571,6 +1744,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeProgram,
                 level: 4
             }
@@ -1585,6 +1759,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             data: {
                 action: "handle_add_tranformasi_cascading_by_level",
                 api_key: ajax.api_key,
+                id_unit: window.idUnit,
                 id_unik: kodeKegiatan,
                 level: 5
             }
@@ -1600,6 +1775,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 action: "handle_get_transformasi_list",
                 api_key: ajax.api_key,
                 level: level,
+                id_skpd: window.idUnit,
                 parent_id: parentId
             }
         });
