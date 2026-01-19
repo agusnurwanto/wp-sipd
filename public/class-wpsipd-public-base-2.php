@@ -7024,7 +7024,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    $data_sasaran_renstra = $wpdb->get_results(
 					        $wpdb->prepare("
 					            SELECT DISTINCT s.* 
-					            FROM $tabel_sasaran_renstra AS s
+						            FROM $tabel_sasaran_renstra AS s
 					            INNER JOIN $tabel_tujuan_renstra AS t
 					                    ON s.kode_tujuan = t.id_unik
 					            WHERE t.active = 1
@@ -7037,11 +7037,44 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    );
 
 					    foreach ($data_sasaran_renstra as &$row) {
+					        // Ambil data tujuan LENGKAP dengan indikatornya
+					        $tujuan_data = $wpdb->get_row(
+					            $wpdb->prepare("
+					                SELECT 
+					                    id_unik,
+					                    kode_bidang_urusan,
+					                    tujuan_teks
+					                FROM $tabel_tujuan_renstra
+					                WHERE id_unik = %s
+					                  AND tahun_anggaran = %d
+					                  AND active = 1
+					            ", $row['kode_tujuan'], $data_jadwal['tahun_anggaran']),
+					            ARRAY_A
+					        );
+					        
+					        if ($tujuan_data) {
+					            // Ambil indikator tujuan
+					            $tujuan_data['indikator'] = $wpdb->get_results(
+					                $wpdb->prepare("
+					                    SELECT 
+					                        *
+					                    FROM $tabel_tujuan_renstra
+					                    WHERE id_unik = %s
+					                      AND id_unik_indikator IS NOT NULL
+					                      AND tahun_anggaran = %d
+					                      AND active = 1
+					                ", $tujuan_data['id_unik'], $data_jadwal['tahun_anggaran']),
+					                ARRAY_A
+					            );
+					            
+					            $row['tujuan'] = $tujuan_data;
+					        }
 
+					        // Ambil indikator sasaran (untuk mode normal)
 					        $row['indikator'] = $wpdb->get_results(
 					            $wpdb->prepare("
 					                SELECT 
-					                	*
+					                    *
 					                FROM $tabel_sasaran_renstra
 					                WHERE id_unik = %s
 					                  AND id_unik_indikator IS NOT NULL
@@ -7279,7 +7312,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            ", $row['kode_program'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
 					            ARRAY_A
 					        );
-					        
+
 					        if (!empty($data_program_renstra)) {
 					            $pokin_level_3 = $wpdb->get_results(
 					                $wpdb->prepare("
