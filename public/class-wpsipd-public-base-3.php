@@ -4132,7 +4132,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							id 
 						FROM data_renstra_program_lokal
 						WHERE indikator_usulan=%s
-							AND id!=%d
+							AND id != %d
 							AND id_unik=%s
 							AND id_unik_indikator is not null
 							AND active=1
@@ -4141,7 +4141,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program'], $_POST['tahun_anggaran'], $dataProgram->id_unit));
 
 					if (!empty($id_cek)) {
-						throw new Exception('Indikator : ' . $data['indikator_teks'] . ' sudah ada!');
+						throw new Exception('Indikator : ' . $data['indikator_teks_usulan'] . ' sudah ada!');
 					}
 
 					$inputs = [
