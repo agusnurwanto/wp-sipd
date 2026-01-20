@@ -7901,7 +7901,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								            FROM data_transformasi_cascading
 								            WHERE id = %d
 								              AND active = 1
-								              -- AND is_pelaksana = 0
+								              AND is_pelaksana = 0
 								        ", $cascading['id_uraian_cascading']),
 								        ARRAY_A
 								    );
