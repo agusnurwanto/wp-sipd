@@ -7333,7 +7333,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            $row['get_pokin_renstra'] = array();
 					        }
 					        
-					        $data_program_renstra_lokal = $wpdb->get_row(
+					        $data_program_renstra_lokal = $wpdb->get_results(
 							    $wpdb->prepare("
 							        SELECT *
 							        FROM $tabel_renstra_lokal
@@ -7357,15 +7357,21 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							);
 
 
+							$get_all_id_unik = array();
 							if (!empty($data_program_renstra_lokal)) {
+							    foreach ($data_program_renstra_lokal as $val) {
+							        $get_all_id_unik[] = $val['id_unik'];
+							    }
+							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+
 							    $data_transformasi_cascading = $wpdb->get_results(
 							        $wpdb->prepare("
-							            SELECT 
-							                *
+							            SELECT *
 							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik = %s
+							            WHERE id_unik IN ($id_unik)
 							              AND active = 1
-							        ", $data_program_renstra_lokal['id_unik']),
+							        ", $get_all_id_unik),
 							        ARRAY_A
 							    );
 							    
