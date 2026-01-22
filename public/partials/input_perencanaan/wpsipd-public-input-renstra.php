@@ -66,9 +66,9 @@ if (empty($jadwal_lokal)) {
 	die('<h1 class="text-center">Data Jadwal dengan id_jadwal_lokal=' . $_GET['id_jadwal'] . ' tidak ditemukan!</h1>');
 }
 if (empty($jadwal_lokal['id_jadwal_sakip'])) {
-    $id_jadwal_wp_sakip = 0;
+	$id_jadwal_wp_sakip = 0;
 } else {
-    $id_jadwal_wp_sakip = $jadwal_lokal['id_jadwal_sakip'];
+	$id_jadwal_wp_sakip = $jadwal_lokal['id_jadwal_sakip'];
 }
 $tahun_anggaran = $jadwal_lokal['tahun_anggaran'];
 
@@ -107,7 +107,7 @@ if ($jadwal_lokal['status'] == 0) {
 		$awal = new DateTime($mulaiJadwal);
 		$akhir = new DateTime($selesaiJadwal);
 		$now = new DateTime(date('Y-m-d H:i:s'));
-	
+
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
@@ -117,7 +117,7 @@ if ($jadwal_lokal['status'] == 0) {
 		$awal = new DateTime($mulaiJadwal);
 		$akhir = new DateTime($selesaiJadwal);
 		$now = new DateTime(date('Y-m-d H:i:s'));
-	
+
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
@@ -127,11 +127,11 @@ if ($jadwal_lokal['status'] == 0) {
 		$awal = new DateTime($mulaiJadwal);
 		$akhir = new DateTime($selesaiJadwal);
 		$now = new DateTime(date('Y-m-d H:i:s'));
-	
+
 		if ($now >= $awal && $now <= $akhir) {
 			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success"><span class="dashicons dashicons-plus"></span> Tambah Data RENSTRA</a>';
 		}
-	} 
+	}
 } else {
 	$prefix_history = '_history';
 }
@@ -176,8 +176,11 @@ $akhir_renstra = $awal_renstra + $lama_pelaksanaan - 1;
 $urut = $tahun_anggaran - $awal_renstra;
 
 $where_skpd = '';
+$where_unit = '';
+$option_sub_skpd = '<option value="">-- Pilih SKPD --</option>';
 if (!empty($_GET['id_skpd'])) {
 	$where_skpd = $wpdb->prepare("AND id_skpd=%d", $_GET['id_skpd']);
+	$where_unit = $wpdb->prepare("AND id_unit=%d", $_GET['id_skpd']);
 }
 
 $is_admin = false;
@@ -201,9 +204,28 @@ if (empty($unit)) {
 	die('<h1 class="text-center">Data SKPD dengan id_skpd=' . $_GET['id_skpd'] . ' dan tahun_anggaran=' . $tahun_anggaran . ' tidak ditemukan!</h1>');
 }
 
+$sql = $wpdb->prepare("
+	SELECT * 
+	FROM data_unit 
+	WHERE tahun_anggaran = %d
+	  AND active = 1
+	  {$where_unit}
+	ORDER BY id_skpd ASC
+", $tahun_anggaran);
+$list_skpd = $wpdb->get_results($sql, ARRAY_A);
+
+$map_skpd = [];
+if (!empty($list_skpd)) {
+	foreach ($list_skpd as $v) {
+		$option_sub_skpd .= '<option value="' . $v['id_skpd'] . '">' . $v['kode_skpd'] . ' - ' . $v['nama_skpd'] . '</option>';
+		$map_skpd[$v['id_skpd']] = $v;
+	}
+}
+
+
 $judul_skpd = '';
 if (!empty($_GET['id_skpd'])) {
-	$judul_skpd = $unit['kode_skpd'] . '&nbsp;' . $unit['nama_skpd'] . '<br>';
+	$judul_skpd = $unit['kode_skpd'] . '' . $unit['nama_skpd'] . '<br>';
 }
 $nama_pemda = get_option('_crb_daerah');
 
@@ -250,7 +272,7 @@ $tujuan_all = $wpdb->get_results(
 foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 	if (empty($data_all['data'][$tujuan_value['id_unik']])) {
 
-		$bidur_html = ''; 
+		$bidur_html = '';
 		if (!empty($tujuan_value['kode_bidang_urusan_multiple'])) {
 			$bidur = json_decode($tujuan_value['kode_bidang_urusan_multiple']);
 			$bidur_all = [];
@@ -265,11 +287,11 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 
 				$bidur_all[] = $nama_bidur;
 			}
-			
+
 			if (!empty($bidur_all)) {
 				$bidur_html .= '<ul>';
 				foreach ($bidur_all as $v) {
-					$bidur_html .= "<li>{$v}</li>"; 
+					$bidur_html .= "<li>{$v}</li>";
 				}
 				$bidur_html .= '</ul>';
 			}
@@ -315,8 +337,8 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 					", $s, $tahun_anggaran_relasi)
 				);
 
-				$sasaran_teks[] = $sasaran_rpjm; 
-				$kode_sasaran[] = $s; 
+				$sasaran_teks[] = $sasaran_rpjm;
+				$kode_sasaran[] = $s;
 			}
 			if (!empty($sasaran_rpjm)) {
 				$data_all['data'][$tujuan_value['id_unik']]['status_rpjm'] = true;
@@ -538,7 +560,9 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								'pagu_5_usulan' => $program_value['pagu_5_usulan'],
 								'target_awal_usulan' => $program_value['target_awal_usulan'],
 								'target_akhir_usulan' => $program_value['target_akhir_usulan'],
-								'catatan_indikator_usulan' => $program_value['catatan_usulan']
+								'catatan_indikator_usulan' => $program_value['catatan_usulan'],
+								'id_sub_unit_usulan' => $program_value['id_sub_unit_usulan'],
+								'id_sub_unit' => $program_value['id_sub_unit']
 							];
 						}
 					}
@@ -657,7 +681,9 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										'pagu_5_usulan' => $kegiatan_value['pagu_5_usulan'],
 										'target_awal_usulan' => $kegiatan_value['target_awal_usulan'],
 										'target_akhir_usulan' => $kegiatan_value['target_akhir_usulan'],
-										'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan']
+										'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan'],
+										'id_sub_unit_usulan' => $kegiatan_value['id_sub_unit_usulan'],
+										'id_sub_unit' => $kegiatan_value['id_sub_unit']
 									];
 								}
 							}
@@ -1124,7 +1150,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 						'pagu_5_usulan' => $program_value['pagu_5_usulan'],
 						'target_awal_usulan' => $program_value['target_awal_usulan'],
 						'target_akhir_usulan' => $program_value['target_akhir_usulan'],
-						'catatan_indikator_usulan' => $program_value['catatan_usulan']
+						'catatan_indikator_usulan' => $program_value['catatan_usulan'],
 					];
 				}
 			}
@@ -1239,7 +1265,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 								'pagu_5_usulan' => $kegiatan_value['pagu_5_usulan'],
 								'target_awal_usulan' => $kegiatan_value['target_awal_usulan'],
 								'target_akhir_usulan' => $kegiatan_value['target_akhir_usulan'],
-								'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan']
+								'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan'],
 							];
 						}
 					}
@@ -2027,9 +2053,9 @@ foreach ($data_all['data'] as $tujuan) {
 
 			$sasaran_rpjm_html .= '<li>';
 			$sasaran_rpjm_html .= '<a href="javascript:void(0)" onclick="show_rpjm(\'' . $id_skpd . '\', \'' . $kode_sasaran . '\')">';
-			
+
 			$sasaran_rpjm_html .= $sasaran_text;
-			
+
 			$sasaran_rpjm_html .= '</a>';
 			$sasaran_rpjm_html .= '</li>';
 		}
@@ -2050,6 +2076,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">' . $indikator_tujuan . '</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah text_tengah">' . $target_awal . '</td>';
 	for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 		$body .= "<td class=\"atas kanan bawah text_tengah\">" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\"><b>(" . $this->_number_format($tujuan['pagu_akumulasi_' . ($i + 1)]) . ")</b></td>";
@@ -2069,6 +2096,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah text_tengah td-usulan">' . $satuan_usulan . '</td>
 				<td class="atas kanan bawah td-usulan">' . $tujuan['catatan_usulan'] . '</td>
 				<td class="atas kanan bawah td-usulan">' . $catatan_indikator_usulan . '</td>
+				<td class="atas kanan bawah td-usulan"></td>
 				<td class="atas kanan bawah td-usulan"></td>
 			</tr>
 	';
@@ -2132,6 +2160,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">' . $indikator_sasaran . '</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah text_tengah">' . $target_awal . '</td>';
 		for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 			$body .= "<td class=\"atas kanan bawah text_tengah\">" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\"><b>(" . $this->_number_format($sasaran['pagu_akumulasi_' . ($i + 1)]) . ")</b></td>";
@@ -2150,6 +2179,7 @@ foreach ($data_all['data'] as $tujuan) {
 		$body .= '<td class="atas kanan bawah text_tengah td-usulan">' . $target_akhir_usulan . '</td>
 					<td class="atas kanan bawah td-usulan">' . $satuan_usulan . '</td>
 					<td class="atas kanan bawah td-usulan">' . $sasaran['catatan_usulan'] . '</td>
+					<td class="atas kanan bawah td-usulan"></td>
 					<td class="atas kanan bawah td-usulan">' . $catatan_indikator_usulan . '</td>
 					<td class="atas kanan bawah td-usulan"></td>
 				</tr>
@@ -2198,6 +2228,8 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_akhir_usulan = '';
 			$satuan_usulan = '';
 			$catatan_indikator_usulan = '';
+			$id_sub_unit = '';
+			$id_sub_unit_usulan = '';
 
 			$isMutakhir = '';
 			if (!empty($add_renstra)) {
@@ -2207,6 +2239,13 @@ foreach ($data_all['data'] as $tujuan) {
 			}
 
 			foreach ($program['indikator'] as $key => $indikator) {
+				$nama_skpd_usulan = (isset($indikator['id_sub_unit_usulan']) && isset($map_skpd[$indikator['id_sub_unit_usulan']])) 
+                    ? $map_skpd[$indikator['id_sub_unit_usulan']]['nama_skpd'] 
+                    : '-';
+				$nama_skpd = (isset($indikator['id_sub_unit']) && isset($map_skpd[$indikator['id_sub_unit']])) 
+					? $map_skpd[$indikator['id_sub_unit']]['nama_skpd'] 
+					: '-';
+
 				$indikator_program .= '<div class="indikator">' . $indikator['indikator_teks'] . '</div>';
 				$target_awal .= '<div class="indikator">' . $indikator['target_awal'] . '</div>';
 				$target_1 .= '<div class="indikator">' . $indikator['target_1'] . '</div>';
@@ -2247,6 +2286,8 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_akhir_usulan .= '<div class="indikator">' . $indikator['target_akhir_usulan'] . '</div>';
 				$satuan_usulan .= '<div class="indikator">' . $indikator['satuan_usulan'] . '</div>';
 				$catatan_indikator_usulan .= '<div class="indikator">' . $indikator['catatan_indikator_usulan'] . '</div>';
+				$id_sub_unit_usulan .= '<div class="indikator">' . $nama_skpd_usulan . '</div>';
+				$id_sub_unit .= '<div class="indikator">' . $nama_skpd . '</div>';
 			}
 
 			$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
@@ -2284,6 +2325,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">' . $program['catatan'] . '</td>
 					<td class="atas kanan bawah"><br>' . $catatan_indikator . '</td>
+					<td class="atas kanan bawah"><br>' . $id_sub_unit . '</td>
 					<td class="atas kanan bawah td-usulan"><br>' . $indikator_program_usulan . '</td>
 					<td class="atas kanan bawah text_tengah td-usulan"><br>' . $target_awal_usulan . '</td>';
 			for ($i = 0; $i < $lama_pelaksanaan; $i++) {
@@ -2299,6 +2341,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah td-usulan"><br>' . $satuan_usulan . '</td>
 					<td class="atas kanan bawah td-usulan">' . $program['catatan_usulan'] . '</td>
 					<td class="atas kanan bawah td-usulan"><br>' . $catatan_indikator_usulan . '</td>
+					<td class="atas kanan bawah td-usulan"><br>' . $id_sub_unit_usulan . '</td>
 					<td class="atas kanan bawah td-usulan"></td>
 				</tr>
 			';
@@ -2336,6 +2379,8 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_akhir_usulan = '';
 				$satuan_usulan = '';
 				$catatan_indikator_usulan = '';
+				$id_sub_unit_usulan = '';
+				$id_sub_unit = '';
 
 				$isMutakhir = '';
 				$bgIsMutakhir = '';
@@ -2346,6 +2391,13 @@ foreach ($data_all['data'] as $tujuan) {
 					}
 				}
 				foreach ($kegiatan['indikator'] as $key => $indikator) {
+					$nama_skpd_usulan = (isset($indikator['id_sub_unit_usulan']) && isset($map_skpd[$indikator['id_sub_unit_usulan']])) 
+                    ? $map_skpd[$indikator['id_sub_unit_usulan']]['nama_skpd'] 
+                    : '-';
+					$nama_skpd = (isset($indikator['id_sub_unit']) && isset($map_skpd[$indikator['id_sub_unit']])) 
+                    ? $map_skpd[$indikator['id_sub_unit']]['nama_skpd'] 
+                    : '-';
+
 					$indikator_kegiatan .= '<div class="indikator">' . $indikator['indikator_teks'] . '</div>';
 					$target_awal .= '<div class="indikator">' . $indikator['target_awal'] . '</div>';
 					$target_1 .= '<div class="indikator">' . $indikator['target_1'] . '</div>';
@@ -2376,6 +2428,8 @@ foreach ($data_all['data'] as $tujuan) {
 					$target_akhir_usulan .= '<div class="indikator">' . $indikator['target_akhir_usulan'] . '</div>';
 					$satuan_usulan .= '<div class="indikator">' . $indikator['satuan_usulan'] . '</div>';
 					$catatan_indikator_usulan .= '<div class="indikator">' . $indikator['catatan_indikator_usulan'] . '</div>';
+					$id_sub_unit_usulan .= '<div class="indikator">' . $nama_skpd_usulan . '</div>';
+					$id_sub_unit .= '<div class="indikator">' . $nama_skpd . '</div>';
 				}
 
 				$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
@@ -2412,6 +2466,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">' . $kegiatan['catatan'] . '</td>
 							<td class="atas kanan bawah"><br>' . $catatan_indikator . '</td>
+							<td class="atas kanan bawah"><br>' . $id_sub_unit . '</td>
 							<td class="atas kanan bawah td-usulan"><br>' . $indikator_kegiatan_usulan . '</td>
 							<td class="atas kanan bawah text_tengah td-usulan"><br>' . $target_awal_usulan . '</td>';
 				for ($i = 0; $i < $lama_pelaksanaan; $i++) {
@@ -2426,6 +2481,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah td-usulan"><br>' . $satuan_usulan . '</td>
 							<td class="atas kanan bawah td-usulan"><br>' . $kegiatan['catatan_usulan'] . '</td>
 							<td class="atas kanan bawah td-usulan">' . $catatan_indikator_usulan . '</td>
+							<td class="atas kanan bawah td-usulan">' . $id_sub_unit_usulan . '</td>
 							<td class="atas kanan bawah td-usulan"></td>
 						</tr>
 				';
@@ -2514,6 +2570,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah">' . $sub_kegiatan['sub_kegiatan_teks'] . "" . $isMutakhir . '</td>
 								<td class="atas kanan bawah"><br>' . $indikator_sub_kegiatan . '</td>
+								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah text_tengah"><br>' . $target_awal . '</td>';
 					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 						$body .= "<td class=\"atas kanan bawah text_tengah\"><br>" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\">" . $this->_number_format($sub_kegiatan['pagu_' . ($i + 1)]) . "</td>";
@@ -2535,6 +2592,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah td-usulan"><br>' . $satuan_usulan . '</td>
 								<td class="atas kanan bawah td-usulan"><br>' . $kegiatan['catatan_usulan'] . '</td>
 								<td class="atas kanan bawah td-usulan">' . $catatan_indikator_usulan . '</td>
+								<td class="atas kanan bawah td-usulan"></td>
 								<td class="atas kanan bawah">' . $sub_kegiatan['nama_sub_unit'] . '</td>
 							</tr>
 					';
@@ -2651,7 +2709,12 @@ $table .= '
 		table-layout: fixed;
 	}
 
-	#table-renstra thead, 
+	.table tr th,
+	.table tr td {
+		border: 1px solid black;
+	}
+
+	#table-renstra thead,
 	#table-renstra-pokin thead,
 	#table-renstra-pokin-existing thead {
 		position: sticky;
@@ -2660,32 +2723,32 @@ $table .= '
 	}
 </style>
 <h1 class="text-center">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd . 'Tahun ' . $awal_renstra . ' - ' . $akhir_renstra . ' ' . $nama_pemda; ?></h1>
-<?php if($id_jadwal_wp_sakip != 0): ?>
-<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
-	<table class="table table-bordered" id="table-renstra-pokin" cellpadding="2" cellspacing="0" contenteditable="false">
-		<thead>
-			<tr>
-				<th class="text-center" style="width: 60px;">No</th>
-				<th class="text-center" style="width: 50%">Pohon Kinerja yang belum dicascadingkan</th>
-				<th class="text-center">Indikator</th>
-			</tr>
-		</thead>
-		<tbody></tbody>
-	</table>
-</div>
-<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
-	<table class="table table-bordered" id="table-renstra-pokin-existing" cellpadding="2" cellspacing="0" contenteditable="false">
-		<thead>
-			<tr>
-				<th class="text-center" style="width: 60px;">No</th>
-				<th class="text-center" style="width: 30%">Label Pohon Kinerja tercascading yang tidak ada di master data Pohon Kinerja</th>
-				<th class="text-center">Indikator</th>
-				<th class="text-center">Cascading</th>
-			</tr>
-		</thead>
-		<tbody></tbody>
-	</table>
-</div>
+<?php if ($id_jadwal_wp_sakip != 0): ?>
+	<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
+		<table class="table table-bordered" id="table-renstra-pokin" cellpadding="2" cellspacing="0" contenteditable="false">
+			<thead>
+				<tr>
+					<th class="text-center" style="width: 60px;">No</th>
+					<th class="text-center" style="width: 50%">Pohon Kinerja yang belum dicascadingkan</th>
+					<th class="text-center">Indikator</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<div style="padding: 5px; overflow: auto; max-height: 80vh; margin-bottom: 20px;">
+		<table class="table table-bordered" id="table-renstra-pokin-existing" cellpadding="2" cellspacing="0" contenteditable="false">
+			<thead>
+				<tr>
+					<th class="text-center" style="width: 60px;">No</th>
+					<th class="text-center" style="width: 30%">Label Pohon Kinerja tercascading yang tidak ada di master data Pohon Kinerja</th>
+					<th class="text-center">Indikator</th>
+					<th class="text-center">Cascading</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
 <?php endif; ?>
 </table>
 <?php echo $table; ?>
@@ -2705,25 +2768,27 @@ $table .= '
 				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
 			for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
-				$row_head .= '<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun ' . $i . '</th>';
+				$row_head .= '<th style="width: 350px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun ' . $i . '</th>';
 			}
 			$row_head .= '
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Satuan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Keterangan</th>
-				<th style="width: 50px;" class="row_head_1 atas kanan bawah text_tengah text_blok">No Urut</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">No Urut</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan Indikator</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Satuan Kerja Indikator</th>
 				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Indikator Usulan</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Awal Usulan</th>';
 			for ($i = 1; $i <= $lama_pelaksanaan; $i++) {
-				$row_head .= '<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok td-usulan">Tahun ' . $i . ' Usulan</th>';
+				$row_head .= '<th style="width: 350px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok td-usulan">Tahun ' . $i . ' Usulan</th>';
 			}
 			$row_head .= '
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Akhir Usulan</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Satuan Kerja Indikator Usulan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sub Unit Pelaksana</th>
 			</tr>
 			<tr>';
@@ -2791,6 +2856,8 @@ $table .= '
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp + 3 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp + 4 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp + 5 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp + 6 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp + 7 ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -2884,7 +2951,7 @@ $table .= '
 				<h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold"></h5>
 			</div>
 			<div class="modal-body" id="detail-rpjmd-body">
-    		</div>
+			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
 			</div>
@@ -2899,21 +2966,22 @@ $table .= '
 	})
 	run_download_excel();
 
-    window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
-    window.jenisJadwal = '<?php echo $jenisJadwal; ?>';
+	window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
+	window.jenisJadwal = '<?php echo $jenisJadwal; ?>';
 
-    if (id_jadwal_wp_sakip == 0) {
-    	<?php if($is_admin): ?>
-        	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
-    	<?php else: ?>
-        	alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nHubungi admin!")
-    	<?php endif; ?>
-    }else{
-    	setTimeout(function(){
-    		get_tabel_pokin_cascading();
-    	}, 500);
-    }
+	if (id_jadwal_wp_sakip == 0) {
+		<?php if ($is_admin): ?>
+			alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nSetting di admin dashboard di menu WP-SIPD Settings-> API Setting")
+		<?php else: ?>
+			alert("Jadwal RENSTRA untuk data di WP-EVAL-SAKIP belum disetting.\nHubungi admin!")
+		<?php endif; ?>
+	} else {
+		setTimeout(function() {
+			get_tabel_pokin_cascading();
+		}, 500);
+	}
 	let data_all = <?php echo json_encode($data_all); ?>;
+	let map_skpd = <?php echo json_encode($map_skpd); ?>;
 
 	jQuery("#table-renstra th.row_head_1").attr('rowspan', 2);
 	jQuery("#table-renstra th.row_head_1_tahun").attr('colspan', 2);
@@ -3070,7 +3138,7 @@ $table .= '
 			const addedBidurCodes = new Set(); // Buat Set untuk melacak kode yang sudah ditambahkan
 
 			response.bidur.forEach(b => {
-				const isRelevant = 
+				const isRelevant =
 					bidur_opd.bidur_1 == b.kode_bidang_urusan ||
 					bidur_opd.bidur_2 == b.kode_bidang_urusan ||
 					bidur_opd.bidur_3 == b.kode_bidang_urusan ||
@@ -3078,13 +3146,13 @@ $table .= '
 
 				// Apakah relevan DAN belum pernah ditambahkan sebelumnya
 				if (isRelevant && !addedBidurCodes.has(b.kode_bidang_urusan)) {
-					
+
 					option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
-					
+
 					addedBidurCodes.add(b.kode_bidang_urusan);
 				}
 			});
-			
+
 			const field_input_bidur = `
 				<div class="form-group">
 					<label for="bidang-urusan">Pilih Bidang Urusan</label>
@@ -3112,7 +3180,7 @@ $table .= '
 				</div>
 				${field_input_bidur}`;
 
-			<?php if($id_tipe_relasi != '-'): ?>
+			<?php if ($id_tipe_relasi != '-'): ?>
 				formBodyHTML += `
 					<input type="hidden" name="id_jadwal_wp_sakip" value="${id_jadwal_wp_sakip}">
 					<input type="hidden" name="id_unit" value="<?php echo $_GET['id_skpd']; ?>">
@@ -3148,7 +3216,7 @@ $table .= '
 					<label for="catatan">Catatan Penetapan</label>
 					<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>
 				</div>`;
-				
+
 			const finalFormHTML = `<form id="form-renstra">${formBodyHTML}</form>`;
 
 			const tujuanModal = jQuery("#modal-crud-renstra");
@@ -3158,7 +3226,7 @@ $table .= '
 				<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button>
 				<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_tujuan_renstra" data-view="tujuanRenstra">Simpan</button>
 			`);
-			
+
 			// select2 innitial
 			['#pokin-level', '#satker-pelaksana', '#bidang-urusan', '#sasaran-rpjm'].forEach(id => {
 				if (jQuery(id).length) { // Pastikan elemen ada sebelum inisialisasi
@@ -3204,7 +3272,7 @@ $table .= '
 
 	jQuery(document).on('click', '.btn-edit-tujuan', async function() {
 		jQuery('#wrap-loading').show();
-		
+
 		try {
 			const data_pokin = await get_data_pohon_kinerja();
 
@@ -3236,7 +3304,7 @@ $table .= '
 				</div>`;
 
 			const idtujuan = jQuery(this).data('id');
-			const response = await edit_tujuan_renstra(idtujuan); 
+			const response = await edit_tujuan_renstra(idtujuan);
 
 			if (!response.status) {
 				throw new Error(response.message);
@@ -3247,7 +3315,7 @@ $table .= '
 					response.tujuan[key] = '';
 				}
 			}
-			
+
 			let bidur_opd = {};
 			let html_opd = '<option value="">Pilih Perangkat Daerah</option>';
 			response.skpd.forEach(b => {
@@ -3260,7 +3328,7 @@ $table .= '
 			const addedBidurCodes = new Set(); // Buat Set untuk melacak kode yang sudah ditambahkan
 
 			response.bidur.forEach(b => {
-				const isRelevant = 
+				const isRelevant =
 					bidur_opd.bidur_1 == b.kode_bidang_urusan ||
 					bidur_opd.bidur_2 == b.kode_bidang_urusan ||
 					bidur_opd.bidur_3 == b.kode_bidang_urusan ||
@@ -3268,13 +3336,13 @@ $table .= '
 
 				// Apakah relevan DAN belum pernah ditambahkan sebelumnya
 				if (isRelevant && !addedBidurCodes.has(b.kode_bidang_urusan)) {
-					
+
 					option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
-					
+
 					addedBidurCodes.add(b.kode_bidang_urusan);
 				}
 			});
-			
+
 			const field_input_bidur = `
 				<div class="form-group">
 					<label for="bidang-urusan">Pilih Bidang Urusan</label>
@@ -3309,8 +3377,8 @@ $table .= '
 						<select disabled class="form-control" id="daftar-skpd" name="nama_unit">${html_opd}</select>
 					</div>
 					${field_input_bidur}`;
-			
-			<?php if($id_tipe_relasi != '-'): ?>
+
+			<?php if ($id_tipe_relasi != '-'): ?>
 				formBodyHTML += `
 					${field_input_sasaran}
 					${html_input_pokin}
@@ -3328,7 +3396,7 @@ $table .= '
 						<label>Tujuan Renstra</label>
 				`;
 			<?php endif; ?>
-			
+
 			formBodyHTML += `
 						<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">${response.tujuan.tujuan_teks}</textarea>
 					</div>
@@ -3345,20 +3413,23 @@ $table .= '
 						<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>${response.tujuan.catatan}</textarea>
 					</div>
 				</form>`;
-			
+
 			const tujuanModal = jQuery("#modal-crud-renstra");
 			tujuanModal.find('.modal-title').html('Edit Tujuan');
 			tujuanModal.find('.modal-body').html(formBodyHTML);
 			tujuanModal.find('.modal-footer').html(`
 				<button type="button" class="btn btn-warning" data-dismiss="modal">
-					<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup
+					<i class="dashicons dashicons-no"></i> Tutup
 				</button>
 				<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_tujuan_renstra" data-view="tujuanRenstra">
-					<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan
+					<i class="dashicons dashicons-yes"></i> Simpan
 				</button>`);
-				
-			tujuanModal.find('.modal-dialog').css({ 'maxWidth': '50%', 'width': '' });
-						
+
+			tujuanModal.find('.modal-dialog').css({
+				'maxWidth': '50%',
+				'width': ''
+			});
+
 			if (response.pokin.length > 0) {
 				jQuery('#pokin-level').val(response.pokin.map(b => b.id_pokin));
 			}
@@ -3399,7 +3470,7 @@ $table .= '
 				try {
 					val_sasaran = JSON.parse(sasaran_string);
 				} catch (e) {
-					console.error("Gagal parse JSON untuk sasaran:", sasaran_string, e); 
+					console.error("Gagal parse JSON untuk sasaran:", sasaran_string, e);
 				}
 			}
 			if (val_sasaran.length > 0) {
@@ -3544,7 +3615,7 @@ $table .= '
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
 				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+				'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
 				'</div>'
@@ -3557,13 +3628,13 @@ $table .= '
 		indikatorTujuanModal.find('.modal-body').html(html);
 		indikatorTujuanModal.find('.modal-footer').html('' +
 			'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-			'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+			'<i class="dashicons dashicons-no"></i> Tutup' +
 			'</button>' +
 			'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 			'data-action="submit_indikator_tujuan_renstra" ' +
 			'data-view="indikatorTujuanRenstra"' +
 			'>' +
-			'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+			'<i class="dashicons dashicons-yes"></i> Simpan' +
 			'</button>');
 		indikatorTujuanModal.find('.modal-dialog').css('maxWidth', '950px');
 		indikatorTujuanModal.find('.modal-dialog').css('width', '100%');
@@ -3680,7 +3751,7 @@ $table .= '
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
 						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+						'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
 						'</div>'
@@ -3693,13 +3764,13 @@ $table .= '
 				indikatorTujuanModal.find('.modal-body').html(html);
 				indikatorTujuanModal.find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button>' +
 					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 					'data-action="update_indikator_tujuan_renstra" ' +
 					'data-view="indikatorTujuanRenstra"' +
 					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<i class="dashicons dashicons-yes"></i> Simpan' +
 					'</button>');
 				indikatorTujuanModal.find('.modal-dialog').css('maxWidth', '950px');
 				indikatorTujuanModal.find('.modal-dialog').css('width', '100%');
@@ -3733,7 +3804,7 @@ $table .= '
 						indikatorTujuanRenstra({
 							'id_unik': id_unik
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -3751,22 +3822,22 @@ $table .= '
 	jQuery(document).on('click', '.btn-tambah-sasaran', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin')
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin')
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sasaran">
@@ -3776,11 +3847,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sasaran">
@@ -3789,85 +3860,85 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
-				let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
-				let id_unit = '<?php echo $_GET['id_skpd']; ?>';
+					let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
+					let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
+					let id_unit = '<?php echo $_GET['id_skpd']; ?>';
 
-				let sasaranModal = jQuery("#modal-crud-renstra");
-				let kode_tujuan = jQuery(that).data('kodetujuan');
-				let html = '' +
-					'<form id="form-renstra">' +
+					let sasaranModal = jQuery("#modal-crud-renstra");
+					let kode_tujuan = jQuery(that).data('kodetujuan');
+					let html = '' +
+						'<form id="form-renstra">' +
 						'<input type="hidden" name="kode_tujuan" value="' + kode_tujuan + '">' +
 						'<input type="hidden" name="relasi_perencanaan" value="' + relasi_perencanaan + '">' +
 						'<input type="hidden" name="id_tipe_relasi" value="' + id_tipe_relasi + '">' +
 						'<input type="hidden" name="id_unit" value="' + id_unit + '">' +
 						'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-						html_input_pokin+
-						html_input_satker+
+						html_input_pokin +
+						html_input_satker +
 						'<div class="form-group">' +
-							'<label for="sasaran">Sasaran</label>' +
-							'<textarea class="form-control" name="sasaran_teks"></textarea>' +
+						'<label for="sasaran">Sasaran</label>' +
+						'<textarea class="form-control" name="sasaran_teks"></textarea>' +
 						'</div>' +
 						'<div class="form-group">' +
-							'<label for="urut_sasaran">Urut Sasaran</label>' +
-							'<input type="number" class="form-control" name="urut_sasaran"/>' +
+						'<label for="urut_sasaran">Urut Sasaran</label>' +
+						'<input type="number" class="form-control" name="urut_sasaran"/>' +
 						'</div>' +
 						'<div class="form-group">' +
-							'<label for="catatan_usulan">Catatan Usulan</label>' +
-							'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
+						'<label for="catatan_usulan">Catatan Usulan</label>' +
+						'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
 						'</div>' +
 						'<div class="form-group">' +
-							'<label for="catatan">Catatan Penetapan</label>' +
-							'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
+						'<label for="catatan">Catatan Penetapan</label>' +
+						'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
 						'</div>' +
-					'</form>';
+						'</form>';
 
-				sasaranModal.find('.modal-body').html('');
-				sasaranModal.find('.modal-title').html('Tambah Sasaran');
-				sasaranModal.find('.modal-body').html(html);
-				sasaranModal.find('.modal-footer').html('' +
-					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-						'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-					'</button>' +
-					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_sasaran_renstra" data-view="sasaranRenstra">' +
-						'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-					'</button>');
-				sasaranModal.find('.modal-dialog').css('maxWidth', '50%');
-				sasaranModal.find('.modal-dialog').css('width', '');
-				sasaranModal.modal('show');
-				jQuery('#wrap-loading').hide();
+					sasaranModal.find('.modal-body').html('');
+					sasaranModal.find('.modal-title').html('Tambah Sasaran');
+					sasaranModal.find('.modal-body').html(html);
+					sasaranModal.find('.modal-footer').html('' +
+						'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+						'<i class="dashicons dashicons-no"></i> Tutup' +
+						'</button>' +
+						'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_sasaran_renstra" data-view="sasaranRenstra">' +
+						'<i class="dashicons dashicons-yes"></i> Simpan' +
+						'</button>');
+					sasaranModal.find('.modal-dialog').css('maxWidth', '50%');
+					sasaranModal.find('.modal-dialog').css('width', '');
+					sasaranModal.modal('show');
+					jQuery('#wrap-loading').hide();
 
-				jQuery('#pokin-level-sasaran').select2({
-					width: '100%',
-					dropdownParent: jQuery('#pokin-level-sasaran').closest('.form-group')
-				});
-				jQuery('#satker-pelaksana-sasaran').select2({
-					width: '100%',
-					dropdownParent: jQuery('#satker-pelaksana-sasaran').closest('.form-group')
+					jQuery('#pokin-level-sasaran').select2({
+						width: '100%',
+						dropdownParent: jQuery('#pokin-level-sasaran').closest('.form-group')
+					});
+					jQuery('#satker-pelaksana-sasaran').select2({
+						width: '100%',
+						dropdownParent: jQuery('#satker-pelaksana-sasaran').closest('.form-group')
+					});
 				});
 			});
-        });
 	});
 
 	jQuery(document).on('click', '.btn-edit-sasaran', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin');
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin');
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sasaran">
@@ -3877,11 +3948,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sasaran">
@@ -3890,102 +3961,102 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
-				let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
-				let id_unit = '<?php echo $_GET['id_skpd']; ?>';
-				let id_sasaran = jQuery(that).data('idsasaran');
-				let sasaranModal = jQuery("#modal-crud-renstra");
+					let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
+					let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
+					let id_unit = '<?php echo $_GET['id_skpd']; ?>';
+					let id_sasaran = jQuery(that).data('idsasaran');
+					let sasaranModal = jQuery("#modal-crud-renstra");
 
-				jQuery('#wrap-loading').show();
-				jQuery.ajax({
-					url: ajax.url,
-					type: "post",
-					data: {
-						"action": "edit_sasaran_renstra",
-						"api_key": "<?php echo $api_key; ?>",
-						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-						'id_sasaran': id_sasaran
-					},
-					dataType: "json",
-					success: function(response) {
-						for (var i in response.data) {
-							if (
-								response.data[i] == 'null' ||
-								response.data[i] == null
-							) {
-								response.data[i] = '';
+					jQuery('#wrap-loading').show();
+					jQuery.ajax({
+						url: ajax.url,
+						type: "post",
+						data: {
+							"action": "edit_sasaran_renstra",
+							"api_key": "<?php echo $api_key; ?>",
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+							'id_sasaran': id_sasaran
+						},
+						dataType: "json",
+						success: function(response) {
+							for (var i in response.data) {
+								if (
+									response.data[i] == 'null' ||
+									response.data[i] == null
+								) {
+									response.data[i] = '';
+								}
 							}
-						}
-						let html = '<form id="form-renstra">' +
-							'<input type="hidden" name="relasi_perencanaan" value="' + relasi_perencanaan + '">' +
-							'<input type="hidden" name="id_tipe_relasi" value="' + id_tipe_relasi + '">' +
-							'<input type="hidden" name="id_unit" value="' + id_unit + '">' +
-							'<input type="hidden" name="kode_tujuan" value="' + response.data.kode_tujuan + '" />' +
-							'<input type="hidden" name="kode_sasaran" value="' + response.data.id_unik + '" />' +
-							'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-							html_input_pokin+
-							html_input_satker+
-							'<div class="form-group">' +
+							let html = '<form id="form-renstra">' +
+								'<input type="hidden" name="relasi_perencanaan" value="' + relasi_perencanaan + '">' +
+								'<input type="hidden" name="id_tipe_relasi" value="' + id_tipe_relasi + '">' +
+								'<input type="hidden" name="id_unit" value="' + id_unit + '">' +
+								'<input type="hidden" name="kode_tujuan" value="' + response.data.kode_tujuan + '" />' +
+								'<input type="hidden" name="kode_sasaran" value="' + response.data.id_unik + '" />' +
+								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+								html_input_pokin +
+								html_input_satker +
+								'<div class="form-group">' +
 								'<label for="sasaran">Sasaran</label>' +
 								'<textarea class="form-control" name="sasaran_teks">' + response.data.sasaran_teks + '</textarea>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<label for="urut_sasaran">Urut Sasaran</label>' +
 								'<input type="number" class="form-control" name="urut_sasaran" value="' + response.data.urut_sasaran + '"/>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<label for="catatan_usulan">Catatan Usulan</label>' +
-								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>/>'+response.data.catatan_usulan+'</textarea>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>/>' + response.data.catatan_usulan + '</textarea>' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<label for="catatan">Catatan Penetapan</label>' +
-								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>/>'+response.data.catatan+'</textarea>' +
-							'</div>' +
-						'</form>';
+								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>/>' + response.data.catatan + '</textarea>' +
+								'</div>' +
+								'</form>';
 
-						sasaranModal.find('.modal-title').html('Edit Sasaran');
-						sasaranModal.find('.modal-body').html('');
-						sasaranModal.find('.modal-body').html(html);
-						sasaranModal.find('.modal-footer').html('' +
-							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-							'</button>' +
-							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_sasaran_renstra" data-view="sasaranRenstra">' +
-								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-							'</button>');
-						sasaranModal.find('.modal-dialog').css('maxWidth', '50%');
-						sasaranModal.find('.modal-dialog').css('width', '');
-						jQuery('#wrap-loading').hide();
-						
-						if(response.pokin.length >= 1){
-							var val_pokin = [];
-							response.pokin.map(function(b, i){
-								val_pokin.push(b.id_pokin);
-							});
-							jQuery('#pokin-level-sasaran').val(val_pokin);
-						}
-						jQuery('#pokin-level-sasaran').select2({
-							width: "100%",
-							dropdownParent: jQuery('#pokin-level-sasaran').closest('.form-group')
-						});
+							sasaranModal.find('.modal-title').html('Edit Sasaran');
+							sasaranModal.find('.modal-body').html('');
+							sasaranModal.find('.modal-body').html(html);
+							sasaranModal.find('.modal-footer').html('' +
+								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no"></i> Tutup' +
+								'</button>' +
+								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_sasaran_renstra" data-view="sasaranRenstra">' +
+								'<i class="dashicons dashicons-yes"></i> Simpan' +
+								'</button>');
+							sasaranModal.find('.modal-dialog').css('maxWidth', '50%');
+							sasaranModal.find('.modal-dialog').css('width', '');
+							jQuery('#wrap-loading').hide();
 
-						if(response.satker.length >= 1){
-							var val_satker = [];
-							response.satker.map(function(b, i){
-								val_satker.push(b.id_satker);
+							if (response.pokin.length >= 1) {
+								var val_pokin = [];
+								response.pokin.map(function(b, i) {
+									val_pokin.push(b.id_pokin);
+								});
+								jQuery('#pokin-level-sasaran').val(val_pokin);
+							}
+							jQuery('#pokin-level-sasaran').select2({
+								width: "100%",
+								dropdownParent: jQuery('#pokin-level-sasaran').closest('.form-group')
 							});
-							jQuery('#satker-pelaksana-sasaran').val(val_satker);
+
+							if (response.satker.length >= 1) {
+								var val_satker = [];
+								response.satker.map(function(b, i) {
+									val_satker.push(b.id_satker);
+								});
+								jQuery('#satker-pelaksana-sasaran').val(val_satker);
+							}
+							jQuery('#satker-pelaksana-sasaran').select2({
+								width: "100%",
+								dropdownParent: jQuery('#satker-pelaksana-sasaran').closest('.form-group')
+							});
+							disableCreateIfJadwalTransformasi();
+							sasaranModal.modal('show');
 						}
-						jQuery('#satker-pelaksana-sasaran').select2({
-							width: "100%",
-							dropdownParent: jQuery('#satker-pelaksana-sasaran').closest('.form-group')
-						});
-						disableCreateIfJadwalTransformasi();
-						sasaranModal.modal('show');
-					}
+					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-hapus-sasaran', function() {
@@ -4015,7 +4086,7 @@ $table .= '
 						sasaranRenstra({
 							'kode_tujuan': kode_tujuan
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 				}
@@ -4115,7 +4186,7 @@ $table .= '
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
 				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+				'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
 				'</div>'
@@ -4128,13 +4199,13 @@ $table .= '
 		indikatorSasaranModal.find('.modal-body').html(html);
 		indikatorSasaranModal.find('.modal-footer').html('' +
 			'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-			'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+			'<i class="dashicons dashicons-no"></i> Tutup' +
 			'</button>' +
 			'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 			'data-action="submit_indikator_sasaran_renstra" ' +
 			'data-view="indikatorSasaranRenstra"' +
 			'>' +
-			'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+			'<i class="dashicons dashicons-yes"></i> Simpan' +
 			'</button>');
 		indikatorSasaranModal.find('.modal-dialog').css('maxWidth', '950px');
 		indikatorSasaranModal.find('.modal-dialog').css('width', '100%');
@@ -4252,7 +4323,7 @@ $table .= '
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
 						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+						'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
 						'</div>'
@@ -4265,13 +4336,13 @@ $table .= '
 				indikatorSasaranModal.find('.modal-body').html(html);
 				indikatorSasaranModal.find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button>' +
 					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 					'data-action="update_indikator_sasaran_renstra" ' +
 					'data-view="indikatorSasaranRenstra"' +
 					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<i class="dashicons dashicons-yes"></i> Simpan' +
 					'</button>');
 				indikatorSasaranModal.find('.modal-dialog').css('maxWidth', '950px');
 				indikatorSasaranModal.find('.modal-dialog').css('width', '100%');
@@ -4305,7 +4376,7 @@ $table .= '
 						indikatorSasaranRenstra({
 							'id_unik': id_unik
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -4323,22 +4394,22 @@ $table .= '
 	jQuery(document).on('click', '.btn-tambah-program', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('data_pokin kosong');
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('data_pokin kosong');
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-program">
@@ -4348,11 +4419,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-program">
@@ -4361,88 +4432,88 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				let kode_sasaran = jQuery(that).data('kodesasaran');
-				get_bidang_urusan().then(function() {
-					jQuery('#wrap-loading').hide();
-					let html = '' +
-						'<form id="form-renstra">' +
+					let kode_sasaran = jQuery(that).data('kodesasaran');
+					get_bidang_urusan().then(function() {
+						jQuery('#wrap-loading').hide();
+						let html = '' +
+							'<form id="form-renstra">' +
 							'<input type="hidden" name="kode_sasaran" value="' + kode_sasaran + '"/>' +
 							'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-							html_input_pokin+
-							html_input_satker+
+							html_input_pokin +
+							html_input_satker +
 							'<div class="form-group">' +
-								'<label>Pilih Urusan</label>' +
-								'<select class="form-control" name="id_urusan" id="urusan-teks"></select>' +
+							'<label>Pilih Urusan</label>' +
+							'<select class="form-control" name="id_urusan" id="urusan-teks"></select>' +
 							'</div>' +
 							'<div class="form-group">' +
-								'<label>Pilih Bidang</label>' +
-								'<select class="form-control" name="id_bidang" id="bidang-teks"></select>' +
+							'<label>Pilih Bidang</label>' +
+							'<select class="form-control" name="id_bidang" id="bidang-teks"></select>' +
 							'</div>' +
 							'<div class="form-group">' +
-								'<label>Pilih Program</label>' +
-								'<select class="form-control" name="id_program" id="program-teks"></select>' +
+							'<label>Pilih Program</label>' +
+							'<select class="form-control" name="id_program" id="program-teks"></select>' +
 							'</div>' +
 							'<div class="form-group">' +
-								'<label>Catatan Usulan</label>' +
-								'<textarea  <?php echo $disabled_admin; ?> class="form-control" name="catatan_usulan"></textarea>' +
+							'<label>Catatan Usulan</label>' +
+							'<textarea  <?php echo $disabled_admin; ?> class="form-control" name="catatan_usulan"></textarea>' +
 							'</div>' +
 							'<div class="form-group">' +
-								'<label>Catatan Penetapan</label>' +
-								'<textarea  <?php echo $disabled; ?> class="form-control" name="catatan"></textarea>' +
+							'<label>Catatan Penetapan</label>' +
+							'<textarea  <?php echo $disabled; ?> class="form-control" name="catatan"></textarea>' +
 							'</div>' +
-						'</form>';
+							'</form>';
 
-					jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Program');
-					jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-					jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
-						'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-							'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-						'</button>' +
-						'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_program_renstra" data-view="programRenstra">' +
-							'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-						'</button>');
-					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
-					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
+						jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Program');
+						jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+						jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
+							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+							'<i class="dashicons dashicons-no"></i> Tutup' +
+							'</button>' +
+							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_program_renstra" data-view="programRenstra">' +
+							'<i class="dashicons dashicons-yes"></i> Simpan' +
+							'</button>');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
 
-					jQuery("#modal-crud-renstra").modal('show');
-					get_urusan();
-					get_bidang();
-					get_program();
-					var nm_bidang = jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text();
-					jQuery('#bidang-teks').val(nm_bidang.trim()).trigger('change');
+						jQuery("#modal-crud-renstra").modal('show');
+						get_urusan();
+						get_bidang();
+						get_program();
+						var nm_bidang = jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text();
+						jQuery('#bidang-teks').val(nm_bidang.trim()).trigger('change');
 
-					jQuery('#pokin-level-program').select2({
-						width: "100%",
-						dropdownParent: jQuery('#pokin-level-program').closest('.form-group')
-					});
-					jQuery('#satker-pelaksana-program').select2({
-						width: "100%",
-						dropdownParent: jQuery('#satker-pelaksana-program').closest('.form-group')
+						jQuery('#pokin-level-program').select2({
+							width: "100%",
+							dropdownParent: jQuery('#pokin-level-program').closest('.form-group')
+						});
+						jQuery('#satker-pelaksana-program').select2({
+							width: "100%",
+							dropdownParent: jQuery('#satker-pelaksana-program').closest('.form-group')
+						});
 					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-edit-program', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin');
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin');
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-program">
@@ -4452,11 +4523,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-program">
@@ -4465,128 +4536,128 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				let programModal = jQuery("#modal-crud-renstra");
+					let programModal = jQuery("#modal-crud-renstra");
 
-				jQuery('#wrap-loading').show();
-				jQuery.ajax({
-					url: ajax.url,
-					type: "post",
-					data: {
-						"action": "edit_program_renstra",
-						"api_key": "<?php echo $api_key; ?>",
-						'id_unik': jQuery(that).data('kodeprogram'),
-						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
-					},
-					dataType: "json",
-					success: function(res) {
+					jQuery('#wrap-loading').show();
+					jQuery.ajax({
+						url: ajax.url,
+						type: "post",
+						data: {
+							"action": "edit_program_renstra",
+							"api_key": "<?php echo $api_key; ?>",
+							'id_unik': jQuery(that).data('kodeprogram'),
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+						},
+						dataType: "json",
+						success: function(res) {
 
-						let id_program = res.data.id_program;
+							let id_program = res.data.id_program;
 
-						get_bidang_urusan().then(function() {
+							get_bidang_urusan().then(function() {
 
-							jQuery('#wrap-loading').hide();
-							for (var i in res.data) {
-								if (
-									res.data[i] == 'null' ||
-									res.data[i] == null
-								) {
-									res.data[i] = '';
+								jQuery('#wrap-loading').hide();
+								for (var i in res.data) {
+									if (
+										res.data[i] == 'null' ||
+										res.data[i] == null
+									) {
+										res.data[i] = '';
+									}
 								}
-							}
-							let html = '<form id="form-renstra">' +
-								'<input type="hidden" name="id_unik" value="' + res.data.id_unik + '"/>' +
-								'<input type="hidden" name="kode_sasaran" value="' + res.data.kode_sasaran + '"/>' +
-								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-								html_input_pokin+
-								html_input_satker+
-								'<div class="form-group">' +
+								let html = '<form id="form-renstra">' +
+									'<input type="hidden" name="id_unik" value="' + res.data.id_unik + '"/>' +
+									'<input type="hidden" name="kode_sasaran" value="' + res.data.kode_sasaran + '"/>' +
+									'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+									html_input_pokin +
+									html_input_satker +
+									'<div class="form-group">' +
 									'<label>Pilih Urusan</label>' +
 									'<select class="form-control" name="id_urusan" id="urusan-teks" readonly></select>' +
-								'</div>' +
-								'<div class="form-group">' +
+									'</div>' +
+									'<div class="form-group">' +
 									'<label>Pilih Bidang</label>' +
 									'<select class="form-control" name="id_bidang" id="bidang-teks" readonly></select>' +
-								'</div>' +
-								'<div class="form-group">' +
+									'</div>' +
+									'<div class="form-group">' +
 									'<label>Pilih Program</label>' +
 									'<select class="form-control" name="id_program" id="program-teks"></select>' +
-								'</div>' +
-								'<div class="form-group">' +
+									'</div>' +
+									'<div class="form-group">' +
 									'<label>Catatan Usulan</label>' +
 									'<textarea  <?php echo $disabled_admin; ?> class="form-control" name="catatan_usulan">' + res.data.catatan_usulan + '</textarea>' +
-								'</div>' +
-								'<div class="form-group">' +
+									'</div>' +
+									'<div class="form-group">' +
 									'<label>Catatan Penetapan</label>' +
 									'<textarea  <?php echo $disabled; ?> class="form-control" name="catatan">' + res.data.catatan + '</textarea>' +
-								'</div>' +
-							'</form>';
+									'</div>' +
+									'</form>';
 
-							programModal.find('.modal-title').html('Edit Program');
-							programModal.find('.modal-body').html('');
-							programModal.find('.modal-body').html(html);
-							programModal.find('.modal-footer').html('' +
-								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-									'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-								'</button>' +
-								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_program_renstra" data-view="programRenstra">' +
-									'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-								'</button>');
-							programModal.find('.modal-dialog').css('maxWidth', '50%');
-							programModal.find('.modal-dialog').css('width', '');
-							
-							if(res.pokin.length >= 1){
-								var val_pokin = [];
-								res.pokin.map(function(b, i){
-									val_pokin.push(b.id_pokin);
+								programModal.find('.modal-title').html('Edit Program');
+								programModal.find('.modal-body').html('');
+								programModal.find('.modal-body').html(html);
+								programModal.find('.modal-footer').html('' +
+									'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+									'<i class="dashicons dashicons-no"></i> Tutup' +
+									'</button>' +
+									'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_program_renstra" data-view="programRenstra">' +
+									'<i class="dashicons dashicons-yes"></i> Simpan' +
+									'</button>');
+								programModal.find('.modal-dialog').css('maxWidth', '50%');
+								programModal.find('.modal-dialog').css('width', '');
+
+								if (res.pokin.length >= 1) {
+									var val_pokin = [];
+									res.pokin.map(function(b, i) {
+										val_pokin.push(b.id_pokin);
+									});
+									jQuery('#pokin-level-program').val(val_pokin);
+								}
+								jQuery('#pokin-level-program').select2({
+									width: "100%",
+									dropdownParent: jQuery('#pokin-level-program').closest('.form-group')
 								});
-								jQuery('#pokin-level-program').val(val_pokin);
-							}
-							jQuery('#pokin-level-program').select2({
-								width: "100%",
-								dropdownParent: jQuery('#pokin-level-program').closest('.form-group')
-							});
 
-							if(res.satker.length >= 1){
-								var val_satker = [];
-								res.satker.map(function(b, i){
-									val_satker.push(b.id_satker);
+								if (res.satker.length >= 1) {
+									var val_satker = [];
+									res.satker.map(function(b, i) {
+										val_satker.push(b.id_satker);
+									});
+									jQuery('#satker-pelaksana-program').val(val_satker);
+								}
+								jQuery('#satker-pelaksana-program').select2({
+									width: "100%",
+									dropdownParent: jQuery('#satker-pelaksana-program').closest('.form-group')
 								});
-								jQuery('#satker-pelaksana-program').val(val_satker);
-							}
-							jQuery('#satker-pelaksana-program').select2({
-								width: "100%",
-								dropdownParent: jQuery('#satker-pelaksana-program').closest('.form-group')
-							});
 
-							get_urusan();
-							get_bidang();
-							var val_urusan = jQuery('#urusan-teks').val();
-							var val_bidang = jQuery('#bidang-teks').val();
-							for (var nm_urusan in all_program) {
-								for (var nm_bidang in all_program[nm_urusan]) {
-									for (var nm_program in all_program[nm_urusan][nm_bidang]) {
-										if (
-											id_program &&
-											id_program == all_program[nm_urusan][nm_bidang][nm_program].id_program
-										) {
-											if (val_urusan.trim() != nm_urusan) {
-												jQuery('#urusan-teks').val(nm_urusan).trigger('change');
-											}
-											if (val_bidang.trim() != nm_bidang) {
-												jQuery('#bidang-teks').val(nm_bidang).trigger('change');
+								get_urusan();
+								get_bidang();
+								var val_urusan = jQuery('#urusan-teks').val();
+								var val_bidang = jQuery('#bidang-teks').val();
+								for (var nm_urusan in all_program) {
+									for (var nm_bidang in all_program[nm_urusan]) {
+										for (var nm_program in all_program[nm_urusan][nm_bidang]) {
+											if (
+												id_program &&
+												id_program == all_program[nm_urusan][nm_bidang][nm_program].id_program
+											) {
+												if (val_urusan.trim() != nm_urusan) {
+													jQuery('#urusan-teks').val(nm_urusan).trigger('change');
+												}
+												if (val_bidang.trim() != nm_bidang) {
+													jQuery('#bidang-teks').val(nm_bidang).trigger('change');
+												}
 											}
 										}
 									}
 								}
-							}
-							get_program(false, id_program);
-							disableCreateIfJadwalTransformasi();
-							programModal.modal('show');
-						});
-					}
+								get_program(false, id_program);
+								disableCreateIfJadwalTransformasi();
+								programModal.modal('show');
+							});
+						}
+					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-hapus-program', function() {
@@ -4615,7 +4686,7 @@ $table .= '
 						programRenstra({
 							'kode_sasaran': kode_sasaran
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -4685,6 +4756,10 @@ $table .= '
 				'<label for="catatan_usulan">Catatan</label>' +
 				'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
 				'</div>' +
+				'<div class="form-group">' +
+				'<label for="id_sub_unit_usulan">Pilih SKPD</label>' +
+				'<select class="form-control" name="id_sub_unit_usulan"><?php echo $option_sub_skpd;?></select>' +
+				'</div>' +
 				'</div>' +
 				'</div>' +
 				'</div>' +
@@ -4724,6 +4799,10 @@ $table .= '
 				'<label for="catatan">Catatan</label>' +
 				'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
 				'</div>' +
+				'<div class="form-group">' +
+				'<label for="id_sub_unit">Pilih SKPD</label>' +
+				'<select class="form-control" name="id_sub_unit"><?php echo $option_sub_skpd;?></select>' +
+				'</div>' +
 				'</div>' +
 				'</div>' +
 				'</div>' +
@@ -4733,7 +4812,7 @@ $table .= '
 					'<div class="row">' +
 					'<div class="col-md-12 text-center">' +
 					'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-					'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+					'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 					'</button>' +
 					'</div>' +
 					'</div>'
@@ -4746,13 +4825,13 @@ $table .= '
 			jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 			jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 				'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-				'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+				'<i class="dashicons dashicons-no"></i> Tutup' +
 				'</button>' +
 				'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 				'data-action="submit_indikator_program_renstra" ' +
 				'data-view="indikatorProgramRenstra"' +
 				'>' +
-				'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+				'<i class="dashicons dashicons-yes"></i> Simpan' +
 				'</button>');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -4838,6 +4917,10 @@ $table .= '
 					'<label for="catatan_usulan">Catatan</label>' +
 					'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.data.catatan_usulan + '</textarea>' +
 					'</div>' +
+					'<div class="form-group">' +
+					'<label for="id_sub_unit_usulan">Pilih SKPD</label>' +
+					'<select class="form-control" name="id_sub_unit_usulan"><?php echo $option_sub_skpd;?></select>' +
+					'</div>' +
 					'</div>' +
 					'</div>' +
 					'</div>' +
@@ -4877,6 +4960,10 @@ $table .= '
 					'<label for="catatan">Catatan</label>' +
 					'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.data.catatan + '</textarea>' +
 					'</div>' +
+					'<div class="form-group">' +
+					'<label for="id_sub_unit">Pilih SKPD</label>' +
+					'<select class="form-control" name="id_sub_unit"><?php echo $option_sub_skpd;?></select>' +
+					'</div>' +
 					'</div>' +
 					'</div>' +
 					'</div>' +
@@ -4886,7 +4973,7 @@ $table .= '
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
 						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+						'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
 						'</div>'
@@ -4897,15 +4984,17 @@ $table .= '
 
 				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Program');
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+				jQuery("select[name='id_sub_unit_usulan']").val(response.data.id_sub_unit_usulan);
+				jQuery("select[name='id_sub_unit']").val(response.data.id_sub_unit);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button>' +
 					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 					'data-action="update_indikator_program_renstra" ' +
 					'data-view="indikatorProgramRenstra"' +
 					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<i class="dashicons dashicons-yes"></i> Simpan' +
 					'</button>');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -4941,7 +5030,7 @@ $table .= '
 						indikatorProgramRenstra({
 							'kode_program': kode_program
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -4960,22 +5049,22 @@ $table .= '
 	jQuery(document).on('click', '.btn-tambah-kegiatan', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin')
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin')
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-kegiatan">
@@ -4985,11 +5074,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-kegiatan">
@@ -4998,34 +5087,34 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				jQuery('#wrap-loading').show();
+					jQuery('#wrap-loading').show();
 
-				let kegiatanModal = jQuery("#modal-crud-renstra");
-				let kode_program = jQuery(that).data('kodeprogram');
-				let id_program = jQuery(that).data('idprogram');
+					let kegiatanModal = jQuery("#modal-crud-renstra");
+					let kode_program = jQuery(that).data('kodeprogram');
+					let id_program = jQuery(that).data('idprogram');
 
-				jQuery.ajax({
-					method: 'POST',
-					url: ajax.url,
-					dataType: 'json',
-					data: {
-						'action': 'add_kegiatan_renstra',
-						'api_key': '<?php echo $api_key; ?>',
-						'id_program': id_program,
-						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
-					},
-					success: function(response) {
+					jQuery.ajax({
+						method: 'POST',
+						url: ajax.url,
+						dataType: 'json',
+						data: {
+							'action': 'add_kegiatan_renstra',
+							'api_key': '<?php echo $api_key; ?>',
+							'id_program': id_program,
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+						},
+						success: function(response) {
 
-						jQuery('#wrap-loading').hide();
+							jQuery('#wrap-loading').hide();
 
-						let html = '<form id="form-renstra">' +
-							'<input type="hidden" name="kode_program" value="' + kode_program + '"/>' +
-							'<input type="hidden" name="id_program" value="' + id_program + '"/>' +
-							'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>' +
-							'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-							html_input_pokin+
-							html_input_satker+
-							'<div class="form-group">' +
+							let html = '<form id="form-renstra">' +
+								'<input type="hidden" name="kode_program" value="' + kode_program + '"/>' +
+								'<input type="hidden" name="id_program" value="' + id_program + '"/>' +
+								'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>' +
+								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+								html_input_pokin +
+								html_input_satker +
+								'<div class="form-group">' +
 								'<label for="kegiatan_teks">Kegiatan</label>' +
 								'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="setTeks(this, \'kegiatan_teks\', \'id_kegiatan\')">';
 							html += '<option value="">Pilih Kegiatan</option>';
@@ -5034,67 +5123,67 @@ $table .= '
 							})
 							html += '' +
 								'</select>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<label>Catatan Usulan</label>' +
 								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<label>Catatan Penetapan</label>' +
 								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
-							'</div>' +
-						'</form>';
+								'</div>' +
+								'</form>';
 
-						kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
-						kegiatanModal.find('.modal-body').html(html);
-						kegiatanModal.find('.modal-footer').html('' +
-							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-							'</button>' +
-							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_kegiatan_renstra" data-view="kegiatanRenstra">' +
-								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-							'</button>');
-						kegiatanModal.find('.modal-dialog').css('maxWidth', '50%');
-						kegiatanModal.find('.modal-dialog').css('width', '');
-						kegiatanModal.modal('show');
-						jQuery("#id_kegiatan").select2({
-							width: '100%',
-							dropdownParent: kegiatanModal.find('.modal-body')
-						});
+							kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
+							kegiatanModal.find('.modal-body').html(html);
+							kegiatanModal.find('.modal-footer').html('' +
+								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no"></i> Tutup' +
+								'</button>' +
+								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_kegiatan_renstra" data-view="kegiatanRenstra">' +
+								'<i class="dashicons dashicons-yes"></i> Simpan' +
+								'</button>');
+							kegiatanModal.find('.modal-dialog').css('maxWidth', '50%');
+							kegiatanModal.find('.modal-dialog').css('width', '');
+							kegiatanModal.modal('show');
+							jQuery("#id_kegiatan").select2({
+								width: '100%',
+								dropdownParent: kegiatanModal.find('.modal-body')
+							});
 
-						jQuery('#pokin-level-kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#pokin-level-kegiatan').closest('.form-group')
-						});
-						jQuery('#satker-pelaksana-kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#satker-pelaksana-kegiatan').closest('.form-group')
-						});
-					}
+							jQuery('#pokin-level-kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#pokin-level-kegiatan').closest('.form-group')
+							});
+							jQuery('#satker-pelaksana-kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#satker-pelaksana-kegiatan').closest('.form-group')
+							});
+						}
+					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-edit-kegiatan', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {			
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin')
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin')
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-kegiatan">
@@ -5104,11 +5193,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-kegiatan">
@@ -5117,110 +5206,110 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				jQuery('#wrap-loading').show();
+					jQuery('#wrap-loading').show();
 
-				let kegiatanModal = jQuery("#modal-crud-renstra");
-				let id_program = jQuery(that).data('idprogram');
-				let id_kegiatan = jQuery(that).data('id');
+					let kegiatanModal = jQuery("#modal-crud-renstra");
+					let id_program = jQuery(that).data('idprogram');
+					let id_kegiatan = jQuery(that).data('id');
 
-				jQuery.ajax({
-					method: 'POST',
-					url: ajax.url,
-					dataType: 'json',
-					data: {
-						'action': 'edit_kegiatan_renstra',
-						'api_key': '<?php echo $api_key; ?>',
-						'id_program': id_program,
-						'id_kegiatan': id_kegiatan,
-						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
-					},
-					success: function(response) {
+					jQuery.ajax({
+						method: 'POST',
+						url: ajax.url,
+						dataType: 'json',
+						data: {
+							'action': 'edit_kegiatan_renstra',
+							'api_key': '<?php echo $api_key; ?>',
+							'id_program': id_program,
+							'id_kegiatan': id_kegiatan,
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+						},
+						success: function(response) {
 
-						jQuery('#wrap-loading').hide();
-						for (var i in response.kegiatan) {
-							if (
-								response.kegiatan[i] == 'null' ||
-								response.kegiatan[i] == null
-							) {
-								response.kegiatan[i] = '';
+							jQuery('#wrap-loading').hide();
+							for (var i in response.kegiatan) {
+								if (
+									response.kegiatan[i] == 'null' ||
+									response.kegiatan[i] == null
+								) {
+									response.kegiatan[i] = '';
+								}
 							}
-						}
-						let html = '' +
-							'<form id="form-renstra">' +
+							let html = '' +
+								'<form id="form-renstra">' +
 								'<input type="hidden" name="id" id="id" value="' + response.kegiatan.id + '"/>' +
 								'<input type="hidden" name="id_unik" id="id_unik" value="' + response.kegiatan.id_unik + '"/>' +
 								'<input type="hidden" name="id_program" id="id_program" value="' + response.kegiatan.id_program + '"/>' +
 								'<input type="hidden" name="kode_program" id="kode_program" value="' + response.kegiatan.kode_program + '"/>' +
 								'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>' +
 								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-								html_input_pokin+
-								html_input_satker+
+								html_input_pokin +
+								html_input_satker +
 								'<div class="form-group">' +
-									'<label for="kegiatan_teks">Kegiatan</label>' +
-									'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="setTeks(this, \'kegiatan_teks\', \'id_kegiatan\')">';
-								html += '<option value="">Pilih Kegiatan</option>';
-								response.data.map(function(value, index) {
-									html += '<option value="' + value.id + '">' + value.kegiatan_teks + '</option>';
+								'<label for="kegiatan_teks">Kegiatan</label>' +
+								'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="setTeks(this, \'kegiatan_teks\', \'id_kegiatan\')">';
+							html += '<option value="">Pilih Kegiatan</option>';
+							response.data.map(function(value, index) {
+								html += '<option value="' + value.id + '">' + value.kegiatan_teks + '</option>';
+							});
+							html += '</select>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label>Catatan Usulan</label>' +
+								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.kegiatan.catatan_usulan + '</textarea>' +
+								'</div>' +
+								'<div class="form-group">' +
+								'<label>Catatan Penetapan</label>' +
+								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.kegiatan.catatan + '</textarea>' +
+								'</div>' +
+								'</form>';
+
+							kegiatanModal.find('.modal-title').html('Edit Kegiatan');
+							kegiatanModal.find('.modal-body').html('');
+							kegiatanModal.find('.modal-body').html(html);
+							kegiatanModal.find('.modal-footer').html('' +
+								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no"></i> Tutup' +
+								'</button>' +
+								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_kegiatan_renstra" data-view="kegiatanRenstra">' +
+								'<i class="dashicons dashicons-yes"></i> Simpan' +
+								'</button>');
+							kegiatanModal.find('.modal-dialog').css('maxWidth', '50%');
+							kegiatanModal.find('.modal-dialog').css('width', '');
+
+							jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
+							jQuery("#id_kegiatan").select2({
+								width: '100%',
+								dropdownParent: kegiatanModal.find('.modal-body')
+							});
+							if (response.pokin.length >= 1) {
+								var val_pokin = [];
+								response.pokin.map(function(b, i) {
+									val_pokin.push(b.id_pokin);
 								});
-								html += '</select>' +
-								'</div>' +
-								'<div class="form-group">' +
-									'<label>Catatan Usulan</label>' +
-									'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.kegiatan.catatan_usulan + '</textarea>' +
-								'</div>' +
-								'<div class="form-group">' +
-									'<label>Catatan Penetapan</label>' +
-									'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.kegiatan.catatan + '</textarea>' +
-								'</div>' +
-							'</form>';
-
-						kegiatanModal.find('.modal-title').html('Edit Kegiatan');
-						kegiatanModal.find('.modal-body').html('');
-						kegiatanModal.find('.modal-body').html(html);
-						kegiatanModal.find('.modal-footer').html('' +
-							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-							'</button>' +
-							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_kegiatan_renstra" data-view="kegiatanRenstra">' +
-								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-							'</button>');
-						kegiatanModal.find('.modal-dialog').css('maxWidth', '50%');
-						kegiatanModal.find('.modal-dialog').css('width', '');
-						
-						jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
-						jQuery("#id_kegiatan").select2({
-							width: '100%',
-							dropdownParent: kegiatanModal.find('.modal-body')
-						});
-						if(response.pokin.length >= 1){
-							var val_pokin = [];
-							response.pokin.map(function(b, i){
-								val_pokin.push(b.id_pokin);
+								jQuery('#pokin-level-kegiatan').val(val_pokin);
+							}
+							jQuery('#pokin-level-kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#pokin-level-kegiatan').closest('.form-group')
 							});
-							jQuery('#pokin-level-kegiatan').val(val_pokin);
-						}
-						jQuery('#pokin-level-kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#pokin-level-kegiatan').closest('.form-group')
-						});
 
-						if(response.satker.length >= 1){
-							var val_satker = [];
-							response.satker.map(function(b, i){
-								val_satker.push(b.id_satker);
+							if (response.satker.length >= 1) {
+								var val_satker = [];
+								response.satker.map(function(b, i) {
+									val_satker.push(b.id_satker);
+								});
+								jQuery('#satker-pelaksana-kegiatan').val(val_satker);
+							}
+							jQuery('#satker-pelaksana-kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#satker-pelaksana-kegiatan').closest('.form-group')
 							});
-							jQuery('#satker-pelaksana-kegiatan').val(val_satker);
+							disableCreateIfJadwalTransformasi();
+							kegiatanModal.modal('show');
 						}
-						jQuery('#satker-pelaksana-kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#satker-pelaksana-kegiatan').closest('.form-group')
-						});
-						disableCreateIfJadwalTransformasi();
-						kegiatanModal.modal('show');
-					}
+					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-hapus-kegiatan', function() {
@@ -5253,7 +5342,7 @@ $table .= '
 							'id_program': id_program,
 							'kode_program': kode_program
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -5314,6 +5403,10 @@ $table .= '
 			'<label for="catatan_usulan">Catatan</label>' +
 			'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
 			'</div>' +
+			'<div class="form-group">' +
+			'<label for="id_sub_unit_usulan">Pilih SKPD</label>' +
+			'<select class="form-control" name="id_sub_unit_usulan"><?php echo $option_sub_skpd;?></select>' +
+			'</div>' +
 			'</div>' +
 			'</div>' +
 			'</div>' +
@@ -5352,6 +5445,10 @@ $table .= '
 			'<div class="form-group">' +
 			'<label for="catatan">Catatan</label>' +
 			'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
+			'<div class="form-group">' +
+			'<label for="id_sub_unit">Pilih SKPD</label>' +
+			'<select class="form-control" name="id_sub_unit"><?php echo $option_sub_skpd;?></select>' +
+			'</div>' +
 			'</div>' +
 			'</div>' +
 			'</div>' +
@@ -5362,7 +5459,7 @@ $table .= '
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
 				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+				'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
 				'</div>'
@@ -5375,13 +5472,13 @@ $table .= '
 		jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 		jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 			'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-			'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+			'<i class="dashicons dashicons-no"></i> Tutup' +
 			'</button>' +
 			'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 			'data-action="submit_indikator_kegiatan_renstra" ' +
 			'data-view="indikatorKegiatanRenstra"' +
 			'>' +
-			'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+			'<i class="dashicons dashicons-yes"></i> Simpan' +
 			'</button>');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -5463,6 +5560,10 @@ $table .= '
 					'<label for="catatan_usulan">Catatan</label>' +
 					'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.data.catatan_usulan + '</textarea>' +
 					'</div>' +
+					'<div class="form-group">' +
+					'<label for="id_sub_unit_usulan">Pilih SKPD</label>' +
+					'<select class="form-control" name="id_sub_unit_usulan"><?php echo $option_sub_skpd;?></select>' +
+					'</div>' +
 					'</div>' +
 					'</div>' +
 					'</div>' +
@@ -5502,6 +5603,10 @@ $table .= '
 					'<label for="catatan">Catatan</label>' +
 					'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.data.catatan + '</textarea>' +
 					'</div>' +
+					'<div class="form-group">' +
+					'<label for="id_sub_unit">Pilih SKPD</label>' +
+					'<select class="form-control" name="id_sub_unit"><?php echo $option_sub_skpd;?></select>' +
+					'</div>' +
 					'</div>' +
 					'</div>' +
 					'</div>' +
@@ -5511,7 +5616,7 @@ $table .= '
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
 						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+						'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
 						'</div>'
@@ -5522,14 +5627,16 @@ $table .= '
 
 				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Kegiatan');
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+				jQuery("select[name='id_sub_unit_usulan']").val(response.data.id_sub_unit_usulan);
+				jQuery("select[name='id_sub_unit']").val(response.data.id_sub_unit);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button><button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 					'data-action="update_indikator_kegiatan_renstra" ' +
 					'data-view="indikatorKegiatanRenstra"' +
 					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<i class="dashicons dashicons-yes"></i> Simpan' +
 					'</button>');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -5563,7 +5670,7 @@ $table .= '
 						indikatorKegiatanRenstra({
 							'id_unik': kode_kegiatan
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -5583,22 +5690,22 @@ $table .= '
 	jQuery(document).on('click', '.btn-tambah-sub-kegiatan', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data pokin')
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data pokin')
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
@@ -5608,11 +5715,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
@@ -5621,147 +5728,141 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				jQuery('#wrap-loading').show();
-				let kode_giat = jQuery(that).data('kodegiat');
-				let kode_kegiatan = jQuery(that).data('kodekegiatan');
+					jQuery('#wrap-loading').show();
+					let kode_giat = jQuery(that).data('kodegiat');
+					let kode_kegiatan = jQuery(that).data('kodekegiatan');
 
-				let html = '<form id="form-renstra">' +
-					'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
-					'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
-					'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
-					'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
-					'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-					html_input_pokin+
-					html_input_satker+
-					'<div class="form-group">' +
+					let html = '<form id="form-renstra">' +
+						'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
+						'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
+						'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
+						'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
+						'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+						html_input_pokin +
+						html_input_satker +
+						'<div class="form-group">' +
 						'<div class="row">' +
-							'<div class="col-md-12">' +
-								'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
-								'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
-							'</div>' +
+						'<div class="col-md-12">' +
+						'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
+						'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
 						'</div>' +
-					'</div>' +
-					'<div class="form-group">' +
-						'<div class="row">' +
-							'<div class="col-md-12">' +
-								'<label for="sub_unit">Sub Unit</label>' +
-								'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
-							'</div>' +
 						'</div>' +
-					'</div>' +
-					'<div class="form-group">' +
+						'</div>' +
+						'<div class="form-group">' +
 						'<div class="row">' +
-							'<div class="col-md-6">' +
-								'<div class="card">' +
-									'<div class="card-header">Usulan</div>' +
-									'<div class="card-body">'+
-								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-										'<div class="form-group">' +
-											'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
-											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>' +
-										'</div>'+
-								<?php }; ?>
-										'<div class="form-group">' +
-											'<label>Catatan Usulan</label>' +
-											'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
-										'</div>' +
-									'</div>' +
-								'</div>' +
-							'</div>' +
-							'<div class="col-md-6">' +
-								'<div class="card">' +
-									'<div class="card-header">Penetapan</div>' +
-									'<div class="card-body">'+
-								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-										'<div class="form-group">' +
-											'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
-											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>' +
-										'</div>'+
-								<?php }; ?>
-										'<div class="form-group">' +
-											'<label>Catatan Penetapan</label>' +
-											'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
-										'</div>' +
-									'</div>' +
-								'</div>' +
-							'</div>' +
-						'</div>'+
-				<?php if ($is_admin): ?>
+						'<div class="col-md-12">' +
+						'<label for="sub_unit">Sub Unit</label>' +
+						'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'<div class="form-group">' +
 						'<div class="row">' +
+						'<div class="col-md-6">' +
+						'<div class="card">' +
+						'<div class="card-header">Usulan</div>' +
+						'<div class="card-body">' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<div class="form-group">' +
+							'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
+							'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>' +
+							'</div>' +
+						<?php }; ?> '<div class="form-group">' +
+						'<label>Catatan Usulan</label>' +
+						'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'<div class="col-md-6">' +
+						'<div class="card">' +
+						'<div class="card-header">Penetapan</div>' +
+						'<div class="card-body">' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<div class="form-group">' +
+							'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
+							'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>' +
+							'</div>' +
+						<?php }; ?> '<div class="form-group">' +
+						'<label>Catatan Penetapan</label>' +
+						'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						<?php if ($is_admin): ?> '<div class="row">' +
 							'<div class="col-md-12 text-center">' +
-								'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-									'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
-								'</button>' +
+							'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
+							'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
+							'</button>' +
 							'</div>' +
-						'</div>'+
-				<?php endif; ?>
-					'</div>' +
-				'</form>';
+							'</div>' +
+						<?php endif; ?> '</div>' +
+						'</form>';
 
-				jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Sub Kegiatan');
-				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
-					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-						'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-					'</button>' +
-					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
-						'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-					'</button>');
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
-				jQuery("#modal-crud-renstra").modal('show');
+					jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Sub Kegiatan');
+					jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+					jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
+						'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+						'<i class="dashicons dashicons-no"></i> Tutup' +
+						'</button>' +
+						'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="submit_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
+						'<i class="dashicons dashicons-yes"></i> Simpan' +
+						'</button>');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
+					jQuery("#modal-crud-renstra").modal('show');
 
-				jQuery('#pokin-level-sub_kegiatan').select2({
-					width: "100%",
-					dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
-				});
-				jQuery('#satker-pelaksana-sub_kegiatan').select2({
-					width: "100%",
-					dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
-				});
-
-				get_list_sub_kegiatan({
-					'kode_giat': kode_giat,
-					'id_unit': '<?php echo $unit['id_unit']; ?>',
-					'kode_unit': '<?php echo $unit['kodeunit']; ?>',
-					'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-				}, 'id_sub_kegiatan').then(function() {
-					jQuery("#id_sub_kegiatan").select2({
-						width: '100%'
+					jQuery('#pokin-level-sub_kegiatan').select2({
+						width: "100%",
+						dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
 					});
-					get_list_unit({
-						'id_skpd': '<?php echo $unit['id_skpd']; ?>',
+					jQuery('#satker-pelaksana-sub_kegiatan').select2({
+						width: "100%",
+						dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
+					});
+
+					get_list_sub_kegiatan({
+						'kode_giat': kode_giat,
+						'id_unit': '<?php echo $unit['id_unit']; ?>',
+						'kode_unit': '<?php echo $unit['kodeunit']; ?>',
 						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-					}, 'id_sub_unit').then(function() {
-						jQuery("#id_sub_unit").select2({
+					}, 'id_sub_kegiatan').then(function() {
+						jQuery("#id_sub_kegiatan").select2({
 							width: '100%'
 						});
-						jQuery("#wrap-loading").hide();
+						get_list_unit({
+							'id_skpd': '<?php echo $unit['id_skpd']; ?>',
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+						}, 'id_sub_unit').then(function() {
+							jQuery("#id_sub_unit").select2({
+								width: '100%'
+							});
+							jQuery("#wrap-loading").hide();
+						});
 					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function() {
 		var that = this;
 		return get_data_pohon_kinerja()
-        .then(function(data_pokin) {
-            return new Promise(function(resolve, reject) {
-            	var opsi_pokin = '';
-				if (data_pokin.data) {
-					data_pokin.data.map(function(b, i){
-						var indikator = [];
-						for (var bb in b.indikator){
-							indikator.push(b.indikator[bb].label);
-						}
-						var nomor_urut = '';
-						opsi_pokin += '<option value="'+b.id+'">'+nomor_urut+' Lv. '+b.level+' '+b.label+' ('+indikator.join(', ')+')</option>';
-					})
-				} else {
-					console.log('tidak ada data_pokin')
-				}
-                let html_input_pokin = `
+			.then(function(data_pokin) {
+				return new Promise(function(resolve, reject) {
+					var opsi_pokin = '';
+					if (data_pokin.data) {
+						data_pokin.data.map(function(b, i) {
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							var nomor_urut = '';
+							opsi_pokin += '<option value="' + b.id + '">' + nomor_urut + ' Lv. ' + b.level + ' ' + b.label + ' (' + indikator.join(', ') + ')</option>';
+						})
+					} else {
+						console.log('tidak ada data_pokin')
+					}
+					let html_input_pokin = `
 		            <div class="form-group"> 
 		                <label for="pokin-level">Pilih Pohon Kinerja</label> 
 		                <select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level-sub_kegiatan">
@@ -5771,11 +5872,11 @@ $table .= '
 		            </div>
 		        `;
 
-		        var opsi_satker = '';
-	        	satker_all.data.map(function(b, i){
-	        		opsi_satker += '<option value="'+b.id+'">'+b.nama+'</option>';
-	        	})
-	            let html_input_satker = `
+					var opsi_satker = '';
+					satker_all.data.map(function(b, i) {
+						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
+					})
+					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
 		                <select class="form-control" multiple name="satker-pelaksana" id="satker-pelaksana-sub_kegiatan">
@@ -5784,165 +5885,159 @@ $table .= '
 						<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
 		            </div>
 		        `;
-				jQuery('#wrap-loading').show();
+					jQuery('#wrap-loading').show();
 
-				let id_sub_kegiatan = jQuery(that).data('id');
-				let kode_giat = jQuery(that).data('kodegiat');
-				let kode_kegiatan = jQuery(that).data('kodekegiatan');
+					let id_sub_kegiatan = jQuery(that).data('id');
+					let kode_giat = jQuery(that).data('kodegiat');
+					let kode_kegiatan = jQuery(that).data('kodekegiatan');
 
-				jQuery.ajax({
-					method: 'POST',
-					url: ajax.url,
-					dataType: 'json',
-					data: {
-						'action': 'edit_sub_kegiatan_renstra',
-						'api_key': '<?php echo $api_key; ?>',
-						'id_sub_kegiatan': id_sub_kegiatan,
-						'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
-					},
-					success: function(response) {
-						let html = '<form id="form-renstra">' +
-							'<input type="hidden" name="id" value="' + response.sub_kegiatan.id + '"/>' +
-							'<input type="hidden" name="kode_sub_kegiatan" value="' + response.sub_kegiatan.id_unik + '"/>' +
-							'<input type="hidden" name="id_sub_giat" value="' + response.sub_kegiatan.id_sub_giat + '"/>' +
-							'<input type="hidden" name="kode_sub_giat" value="' + response.sub_kegiatan.kode_sub_giat + '"/>' +
-							'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
-							'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
-							'<input type="hidden" name="id_giat" value="' + response.sub_kegiatan.id_giat + '"/>' +
-							'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
-							'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
-							'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
-							html_input_pokin+
-							html_input_satker+
-							'<div class="form-group">' +
+					jQuery.ajax({
+						method: 'POST',
+						url: ajax.url,
+						dataType: 'json',
+						data: {
+							'action': 'edit_sub_kegiatan_renstra',
+							'api_key': '<?php echo $api_key; ?>',
+							'id_sub_kegiatan': id_sub_kegiatan,
+							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+						},
+						success: function(response) {
+							let html = '<form id="form-renstra">' +
+								'<input type="hidden" name="id" value="' + response.sub_kegiatan.id + '"/>' +
+								'<input type="hidden" name="kode_sub_kegiatan" value="' + response.sub_kegiatan.id_unik + '"/>' +
+								'<input type="hidden" name="id_sub_giat" value="' + response.sub_kegiatan.id_sub_giat + '"/>' +
+								'<input type="hidden" name="kode_sub_giat" value="' + response.sub_kegiatan.kode_sub_giat + '"/>' +
+								'<input type="hidden" name="kode_kegiatan" value="' + kode_kegiatan + '"/>' +
+								'<input type="hidden" name="kode_giat" value="' + kode_giat + '"/>' +
+								'<input type="hidden" name="id_giat" value="' + response.sub_kegiatan.id_giat + '"/>' +
+								'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>"/>' +
+								'<input type="hidden" name="sub_kegiatan_teks" id="sub_kegiatan_teks"/>' +
+								'<input type="hidden" name="id_jadwal_wp_sakip" value="' + id_jadwal_wp_sakip + '">' +
+								html_input_pokin +
+								html_input_satker +
+								'<div class="form-group">' +
 								'<div class="row">' +
-									'<div class="col-md-12">' +
-										'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
-										'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
-									'</div>' +
+								'<div class="col-md-12">' +
+								'<label for="sub_kegiatan_teks">Sub Kegiatan</label>' +
+								'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>' +
 								'</div>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<div class="row">' +
-									'<div class="col-md-12">' +
-										'<label for="sub_unit">Sub Unit</label>' +
-										'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
-									'</div>' +
+								'<div class="col-md-12">' +
+								'<label for="sub_unit">Sub Unit</label>' +
+								'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>' +
 								'</div>' +
-							'</div>' +
-							'<div class="form-group">' +
+								'</div>' +
+								'</div>' +
+								'<div class="form-group">' +
 								'<div class="row">' +
-									'<div class="col-md-6">' +
-										'<div class="card">' +
-										'<div class="card-header">Usulan</div>' +
-										'<div class="card-body">'+
-									<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-											'<div class="form-group">' +
-											'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
-											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan" value="' + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan + '"/>' +
-											'</div>'+
-									<?php }; ?>
-										'<div class="form-group">' +
-											'<label>Catatan Usulan</label>' +
-											'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.sub_kegiatan.catatan_usulan + '</textarea>' +
-										'</div>' +
-									'</div>' +
-								'</div>' +
-							'</div>' +
-							'<div class="col-md-6">' +
+								'<div class="col-md-6">' +
 								'<div class="card">' +
-									'<div class="card-header">Penetapan</div>' +
-									'<div class="card-body">'+
-								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-										'<div class="form-group">' +
-											'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
-											'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?> value="' + response.sub_kegiatan.pagu_<?php echo $i; ?> + '" />' +
-										'</div>'+
-								<?php }; ?>
-										'<div class="form-group">' +
-											'<label>Catatan Penetapan</label>' +
-											'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.sub_kegiatan.catatan + '</textarea>' +
-										'</div>' +
+								'<div class="card-header">Usulan</div>' +
+								'<div class="card-body">' +
+								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<div class="form-group">' +
+									'<label for="pagu_<?php echo $i; ?>_usulan">Pagu Tahun ke-<?php echo $i; ?></label>' +
+									'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan" value="' + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan + '"/>' +
 									'</div>' +
+								<?php }; ?> '<div class="form-group">' +
+								'<label>Catatan Usulan</label>' +
+								'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>' + response.sub_kegiatan.catatan_usulan + '</textarea>' +
 								'</div>' +
-							'</div>' +
-							'</div>'+
-						<?php if ($is_admin): ?>
-								'<div class="row">' +
-									'<div class="col-md-12 text-center">' +
-										'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-											'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
-										'</button>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-md-6">' +
+								'<div class="card">' +
+								'<div class="card-header">Penetapan</div>' +
+								'<div class="card-body">' +
+								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<div class="form-group">' +
+									'<label for="pagu_<?php echo $i; ?>">Pagu Tahun ke-<?php echo $i; ?></label>' +
+									'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?> value="' + response.sub_kegiatan.pagu_<?php echo $i; ?> + '" />' +
 									'</div>' +
-								'</div>'+
-						<?php endif; ?>
-							'</div>' +
-						'</form>';
+								<?php }; ?> '<div class="form-group">' +
+								'<label>Catatan Penetapan</label>' +
+								'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>' + response.sub_kegiatan.catatan + '</textarea>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								<?php if ($is_admin): ?> '<div class="row">' +
+									'<div class="col-md-12 text-center">' +
+									'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
+									'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
+									'</button>' +
+									'</div>' +
+									'</div>' +
+								<?php endif; ?> '</div>' +
+								'</form>';
 
-						jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Sub Kegiatan');
-						jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-						jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
-							'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-								'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
-							'</button>' +
-							'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
-								'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
-							'</button>');
-						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
-						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
+							jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Sub Kegiatan');
+							jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+							jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
+								'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
+								'<i class="dashicons dashicons-no"></i> Tutup' +
+								'</button>' +
+								'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" data-action="update_sub_kegiatan_renstra" data-view="subKegiatanRenstra">' +
+								'<i class="dashicons dashicons-yes"></i> Simpan' +
+								'</button>');
+							jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '50%');
+							jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '');
 
-						if(response.pokin.length >= 1){
-							var val_pokin = [];
-							response.pokin.map(function(b, i){
-								val_pokin.push(b.id_pokin);
+							if (response.pokin.length >= 1) {
+								var val_pokin = [];
+								response.pokin.map(function(b, i) {
+									val_pokin.push(b.id_pokin);
+								});
+								jQuery('#pokin-level-sub_kegiatan').val(val_pokin);
+							}
+							jQuery('#pokin-level-sub_kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
 							});
-							jQuery('#pokin-level-sub_kegiatan').val(val_pokin);
-						}
-						jQuery('#pokin-level-sub_kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#pokin-level-sub_kegiatan').closest('.form-group')
-						});
 
-						if(response.satker.length >= 1){
-							var val_satker = [];
-							response.satker.map(function(b, i){
-								val_satker.push(b.id_satker);
+							if (response.satker.length >= 1) {
+								var val_satker = [];
+								response.satker.map(function(b, i) {
+									val_satker.push(b.id_satker);
+								});
+								jQuery('#satker-pelaksana-sub_kegiatan').val(val_satker);
+							}
+							jQuery('#satker-pelaksana-sub_kegiatan').select2({
+								width: "100%",
+								dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
 							});
-							jQuery('#satker-pelaksana-sub_kegiatan').val(val_satker);
-						}
-						jQuery('#satker-pelaksana-sub_kegiatan').select2({
-							width: "100%",
-							dropdownParent: jQuery('#satker-pelaksana-sub_kegiatan').closest('.form-group')
-						});
 
-						get_list_sub_kegiatan({
-							'kode_giat': kode_giat,
-							'id_unit': '<?php echo $unit['id_unit']; ?>',
-							'kode_unit': '<?php echo $unit['kodeunit']; ?>',
-							'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-						}, 'id_sub_kegiatan').then(function() {
-							jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
-							jQuery("#id_sub_kegiatan").select2({
-								width: '100%'
-							});
-							get_list_unit({
-								'id_skpd': '<?php echo $unit['id_skpd']; ?>',
+							get_list_sub_kegiatan({
+								'kode_giat': kode_giat,
+								'id_unit': '<?php echo $unit['id_unit']; ?>',
+								'kode_unit': '<?php echo $unit['kodeunit']; ?>',
 								'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
-							}, 'id_sub_unit').then(function() {
-								jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
-								jQuery("#id_sub_unit").select2({
+							}, 'id_sub_kegiatan').then(function() {
+								jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
+								jQuery("#id_sub_kegiatan").select2({
 									width: '100%'
 								});
-								jQuery('#wrap-loading').hide();
+								get_list_unit({
+									'id_skpd': '<?php echo $unit['id_skpd']; ?>',
+									'tahun_anggaran': '<?php echo $tahun_anggaran; ?>',
+								}, 'id_sub_unit').then(function() {
+									jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
+									jQuery("#id_sub_unit").select2({
+										width: '100%'
+									});
+									jQuery('#wrap-loading').hide();
+								});
 							});
-						});
 
-						disableCreateIfJadwalTransformasi();
-						jQuery("#modal-crud-renstra").modal('show');
-					}
+							disableCreateIfJadwalTransformasi();
+							jQuery("#modal-crud-renstra").modal('show');
+						}
+					});
 				});
 			});
-		});
 	});
 
 	jQuery(document).on('click', '.btn-hapus-sub-kegiatan', function() {
@@ -5976,7 +6071,7 @@ $table .= '
 							'kode_giat': kode_giat,
 							'kode_kegiatan': kode_kegiatan
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -6081,7 +6176,7 @@ $table .= '
 				'<div class="row">' +
 				'<div class="col-md-12 text-center">' +
 				'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-				'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+				'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 				'</button>' +
 				'</div>' +
 				'</div>'
@@ -6094,13 +6189,13 @@ $table .= '
 		jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 		jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 			'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-			'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+			'<i class="dashicons dashicons-no"></i> Tutup' +
 			'</button>' +
 			'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 			'data-action="submit_indikator_sub_kegiatan_renstra" ' +
 			'data-view="indikatorSubKegiatanRenstra"' +
 			'>' +
-			'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+			'<i class="dashicons dashicons-yes"></i> Simpan' +
 			'</button>');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -6219,7 +6314,7 @@ $table .= '
 						'<div class="row">' +
 						'<div class="col-md-12 text-center">' +
 						'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">' +
-						'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan' +
+						'<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan' +
 						'</button>' +
 						'</div>' +
 						'</div>'
@@ -6232,13 +6327,13 @@ $table .= '
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button>' +
 					'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" ' +
 					'data-action="update_indikator_sub_kegiatan_renstra" ' +
 					'data-view="indikatorSubKegiatanRenstra"' +
 					'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan' +
+					'<i class="dashicons dashicons-yes"></i> Simpan' +
 					'</button>');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth', '950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width', '100%');
@@ -6284,7 +6379,7 @@ $table .= '
 							'id_sub_giat': id_sub_giat,
 							'id_unik': kode_sub_kegiatan
 						});
-					}else{
+					} else {
 						jQuery('#wrap-loading').hide();
 					}
 
@@ -6412,10 +6507,10 @@ $table .= '
 				jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
 				jQuery("#modal-crud-renstra").find('.modal-footer').html('' +
 					'<button type="button" class="btn btn-warning" data-dismiss="modal">' +
-					'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup' +
+					'<i class="dashicons dashicons-no"></i> Tutup' +
 					'</button>' +
 					'<button type="button" class="btn btn-success" onclick=\'exportExcel("' + name + '")\'>' +
-					'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Export Excel' +
+					'<i class="dashicons dashicons-yes"></i> Export Excel' +
 					'</button>');
 				jQuery("#modal-crud-renstra").modal('show');
 			}
@@ -6456,7 +6551,7 @@ $table .= '
 	}
 
 	function get_sasaran_lokal() {
-		return new Promise(function(resolve, reject){
+		return new Promise(function(resolve, reject) {
 			jQuery.ajax({
 				method: 'POST',
 				url: ajax.url,
@@ -6466,7 +6561,7 @@ $table .= '
 					'api_key': '<?php echo $api_key; ?>',
 					'id_jadwal': '<?php echo $relasi_perencanaan; ?>',
 				},
-				success: function(res){
+				success: function(res) {
 					resolve(res);
 				}
 			});
@@ -6493,7 +6588,7 @@ $table .= '
 			jQuery('.field-pokin').prop('disabled', false);
 		} else {
 			jQuery('.crud-button').removeClass('d-none');
-			
+
 			jQuery('.form-control').prop('disabled', false);
 		}
 	}
@@ -6521,31 +6616,33 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let tujuan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan crud-button"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Tujuan</button>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan crud-button"><i class="dashicons dashicons-plus"></i> Tambah Tujuan</button>' +
 					'</div>' +
-					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-								'<th id="nama-skpd">' + res.skpd[0].kode_skpd + ' ' + res.skpd[0].nama_skpd + '</th>' +
-							'</tr>' +
-						'</thead>' +
+					'<table class="borderless-table">' +
+					'<thead>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px">:</th>' +
+					'<th id="nama-skpd">' + res.skpd[0].kode_skpd + ' ' + res.skpd[0].nama_skpd + '</th>' +
+					'</tr>' +
+					'</thead>' +
 					'</table>' +
+					'<div class="table-responsive">' +
 					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width:45px">No</th>' +
-								'<th class="text-center" style="width:20%">Bidang Urusan</th>' +
-								'<th class="text-center">Tujuan</th>'
-							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-									+
-									'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
-							<?php } ?>
-								+
-								'<th class="text-center">Catatan</th>' +
-								'<th class="text-center" style="width:145px">Aksi</th>' +
-							'<tr>' +
-						'</thead>' +
+					'<thead class="bg-dark text-light">' +
+					'<tr>' +
+					'<th class="text-center" style="width:45px">No</th>' +
+					'<th class="text-center" style="width:20%">Bidang Urusan</th>' +
+					'<th class="text-center">Tujuan</th>'
+				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+						+
+						'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
+				<?php } ?>
+					+
+					'<th class="text-center">Catatan</th>' +
+					'<th class="text-center">Aksi</th>' +
+					'<tr>' +
+					'</thead>' +
 					'<tbody>';
 				res.data.map(function(value, index) {
 					for (var i in value) {
@@ -6557,56 +6654,56 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i){
-						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					value.pokin.map(function(b, i) {
+						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i){
-						satker_html.push('<li>'+b.nama_satker+'</li>')
+					value.satker.map(function(b, i) {
+						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					var bidur_html = [];
 					let bidur_teks = '-';
 					if (value.bidur) {
-						value.bidur.map(function(value){
-							bidur_html.push('<li>'+value+'</li>')
+						value.bidur.map(function(value) {
+							bidur_html.push('<li>' + value + '</li>')
 						});
-						bidur_teks = '<ul class="mb-0">' + bidur_html.join('') + '<ul>';
+						bidur_teks = '<ul class="m-0">' + bidur_html.join('') + '<ul>';
 					}
 					tujuan += '' +
 						'<tr kodetujuan="' + value.id_unik + '">' +
-							'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
-							'<td rowspan="2">' + bidur_teks + '</td>' +
-							'<td rowspan="2">' + value.tujuan_teks + '</td>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
-						<?php } ?>
-							+
-							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-							'<td class="text-center" rowspan="2">' +
-								'<a href="javascript:void(0)" data-idtujuan="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-tujuan" title="Lihat Indikator Tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-kodetujuan="' + value.id_unik + '" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" class="btn btn-success btn-edit-tujuan" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-danger btn-hapus-tujuan crud-button" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>' +
-							'</td>' +
-						'</tr>' +
-						'<tr>'+
+						'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
+						'<td rowspan="2">' + bidur_teks + '</td>' +
+						'<td rowspan="2" class="font-weight-bold">' + value.tujuan_teks + '</td>'
 					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>'+
+							+
+							'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
 					<?php } ?>
-							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Pohon Kinerja</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Satuan Kerja Pelaksana</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
+						+
+						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+						'<td class="text-center" rowspan="2">' +
+						'<div class="btn-group-vertical">' +
+						'<a href="javascript:void(0)" data-idtujuan="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-info btn-kelola-indikator-tujuan" title="Lihat Indikator Tujuan"><i class="dashicons dashicons-menu-alt"></i></a>' +
+						'<a href="javascript:void(0)" data-kodetujuan="' + value.id_unik + '" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" class="btn btn-warning btn-edit-tujuan" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-danger btn-hapus-tujuan crud-button" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>' +
+						'</div>' +
+						'</td>' +
+						'</tr>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>' +
+						<?php } ?> '<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Pohon Kinerja</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + pokin_html.join('') + '<ul></td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Satuan Kerja Pelaksana</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + satker_html.join('') + '<ul></td>' +
 						'</tr>';
 				})
 				tujuan += '<tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#nav-tujuan").html(tujuan);
 				disableCreateIfJadwalTransformasi();
@@ -6640,18 +6737,21 @@ $table .= '
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
-					'<table class="table">' +
+					'<table class="borderless-table">' +
 					'<thead>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px">:</th>' +
 					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.id_unik + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.id_unik + '"]').find('td').eq(2).text() + '</th>' +
 					'</tr>' +
 					'</thead>' +
@@ -6698,8 +6798,10 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<div class=\"btn-group-vertical\">" +
+						"<a href='#' class='btn btn-warning btn-edit-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>" +
+						"</div>" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -6747,38 +6849,42 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let sasaran = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran crud-button" data-kodetujuan="' + params.kode_tujuan + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sasaran</button></div>' +
-						'<table class="table">' +
-							'<thead>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-									'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.kode_tujuan + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.kode_tujuan + '"]').find('td').eq(2).text() + '</th>' +
-								'</tr>' +
-							'</thead>' +
-						'</table>'+
-						'<table class="table">' +
-							'<thead>' +
-								'<tr>' +
-									'<th class="text-center" style="width:45px">No</th>' +
-									'<th class="text-center" style="width:190px">Sasaran</th>'
-								<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-										+
-										'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
-								<?php } ?>
-									+
-									'<th class="text-center" style="width:15%">Catatan</th>' +
-									'<th class="text-center" style="width:145px">Aksi</th>' +
-								'<tr>' +
-							'</thead>' +
-							'<tbody>';
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran crud-button" data-kodetujuan="' + params.kode_tujuan + '"><i class="dashicons dashicons-plus"></i> Tambah Sasaran</button></div>' +
+					'<table class="borderless-table">' +
+					'<thead>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px">:</th>' +
+					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.kode_tujuan + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + params.kode_tujuan + '"]').find('td').eq(2).text() + '</th>' +
+					'</tr>' +
+					'</thead>' +
+					'</table>' +
+					'<div class="table-responsive">' +
+					'<table class="table">' +
+					'<thead class="bg-dark text-light">' +
+					'<tr>' +
+					'<th class="text-center" style="width:45px">No</th>' +
+					'<th class="text-center" style="width:190px">Sasaran</th>'
+				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+						+
+						'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
+				<?php } ?>
+					+
+					'<th class="text-center">Catatan</th>' +
+					'<th class="text-center">Aksi</th>' +
+					'<tr>' +
+					'</thead>' +
+					'<tbody>';
 
 				response.data.map(function(value, index) {
 					for (var i in value) {
@@ -6790,47 +6896,47 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i){
-						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					value.pokin.map(function(b, i) {
+						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i){
-						satker_html.push('<li>'+b.nama_satker+'</li>')
+					value.satker.map(function(b, i) {
+						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					sasaran += '' +
 						'<tr kodesasaran="' + value.id_unik + '">' +
-							'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
-							'<td rowspan="2">' + value.sasaran_teks + '</td>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
-						<?php } ?>
-							+
-							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-							'<td class="text-center" rowspan="2">' +
-								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-sasaran" title="Lihat Indikator Sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-kodesasaran="' + value.id_unik + '" class="btn btn-primary btn-detail-sasaran" title="Lihat Program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" class="btn btn-success btn-edit-sasaran" title="Edit Sasaran"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" data-kodetujuan="' + value.kode_tujuan + '" class="btn btn-danger btn-hapus-sasaran crud-button" title="Hapus Sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
-							'</td>' +
-						'</tr>' +
-						'<tr>'+
+						'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
+						'<td rowspan="2" class="font-weight-bold">' + value.sasaran_teks + '</td>'
 					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>'+
+							+
+							'<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
 					<?php } ?>
-							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Pohon Kinerja</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Satuan Kerja Pelaksana</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
+						+
+						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+						'<td class="text-center" rowspan="2">' +
+						'<div class="btn-group-vertical">' +
+						'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" class="btn btn-info btn-kelola-indikator-sasaran" title="Lihat Indikator Sasaran"><i class="dashicons dashicons-menu-alt"></i></a>' +
+						'<a href="javascript:void(0)" data-kodesasaran="' + value.id_unik + '" class="btn btn-primary btn-detail-sasaran" title="Lihat Program"><i class="dashicons dashicons-search"></i></a>' +
+						'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" class="btn btn-warning btn-edit-sasaran" title="Edit Sasaran"><i class="dashicons dashicons-edit"></i></a>' +
+						'<a href="javascript:void(0)" data-idsasaran="' + value.id + '" data-kodesasaran="' + value.id_unik + '" data-kodetujuan="' + value.kode_tujuan + '" class="btn btn-danger btn-hapus-sasaran crud-button" title="Hapus Sasaran"><i class="dashicons dashicons-trash"></i></a>' +
+						'</div>' +
+						'</td>' +
+						'</tr>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>' +
+						<?php } ?> '<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Pohon Kinerja</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + pokin_html.join('') + '<ul></td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Satuan Kerja Pelaksana</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + satker_html.join('') + '<ul></td>' +
 						'</tr>';
 				});
 				sasaran += '<tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#nav-sasaran").html(sasaran);
 				disableCreateIfJadwalTransformasi();
@@ -6863,29 +6969,33 @@ $table .= '
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
-					'<table class="table">' +
+					'<table class="borderless-table">' +
 					'<thead>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px;">:</th>' +
 					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
+					'<th class="text-left">Sasaran</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + params.id_unik + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'</thead>' +
 					'</table>' +
-					'<div style="overflow-x:auto;">' +
+					'<div class="table-responsive">' +
 					"<table class='table'>" +
-					"<thead>" +
+					"<thead class='bg-dark text-light'>" +
 					"<tr>" +
 					"<th class='text-center'>No</th>" +
 					"<th class='text-center'>Indikator</th>" +
@@ -6925,8 +7035,10 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator Program'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<div class=\"btn-group-vertical\">" +
+						"<a href='#' class='btn btn-warning btn-edit-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Edit Indikator Program'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran crud-button' data-id='" + value.id + "' data-idunik='" + value.id_unik + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>" +
+						"</div>" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -6974,43 +7086,46 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let program = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-program crud-button" data-kodesasaran="' + params.kode_sasaran + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Program</button></div>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-program crud-button" data-kodesasaran="' + params.kode_sasaran + '"><i class="dashicons dashicons-plus"></i> Tambah Program</button></div>' +
+					'<table class="borderless-table">' +
+					'<thead>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-left" style="width: 20px;">:</th>' +
+					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Bidang Urusan</th>' +
+					'<th class="text-left">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Tujuan</th>' +
+					'<th class="text-left">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Sasaran</th>' +
+					'<th class="text-left">:</th>' +
+					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + params.kode_sasaran + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'</thead>' +
+					'</table>' +
+					'<div class="table-responsive">' +
 					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-								'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-							'</tr>' +
-							'<tr>' +
-								'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-								'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
-							'</tr>' +
-							'<tr>' +
-								'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-								'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
-							'</tr>' +
-							'<tr>' +
-								'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-								'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + params.kode_sasaran + '"]').find('td').eq(1).text() + '</th>' +
-							'</tr>' +
-						'</thead>' +
-					'</table>'
-
+					'<thead class="bg-dark text-light">' +
+					'<tr>' +
+					'<th class="text-center" style="width:45px">No</th>' +
+					'<th class="text-center">Program</th>'
+				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+						+
+						'<th class="text-center" style="width:12%">Pagu Tahun <?php echo $i; ?></th>'
+				<?php } ?>
 					+
-					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width:45px">No</th>' +
-								'<th class="text-center">Program</th>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<th class="text-center" style="width:12%">Pagu Tahun <?php echo $i; ?></th>'
-						<?php } ?>
-							+
-								'<th class="text-center" style="width:15%">Catatan</th>' +
-								'<th class="text-center" style="width:70px">Aksi</th>' +
-							'<tr>' +
-						'</thead>' +
+					'<th class="text-center">Catatan</th>' +
+					'<th class="text-center" style="width:70px">Aksi</th>' +
+					'<tr>' +
+					'</thead>' +
 					'<tbody>';
 				response.data.map(function(value, index) {
 					for (var i in value) {
@@ -7022,12 +7137,12 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i){
-						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					value.pokin.map(function(b, i) {
+						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i){
-						satker_html.push('<li>'+b.nama_satker+'</li>')
+					value.satker.map(function(b, i) {
+						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					var peringatan = {};
 					var peringatan_usulan = {};
@@ -7041,51 +7156,47 @@ $table .= '
 					<?php } ?>
 					program += '' +
 						'<tr kodeprogram="' + value.id_unik + '">' +
-							'<td class="text-center" rowspan="6">' + (index + 1) + '</td>' +
-							'<td rowspan="4">' + value.nama_program + '</td>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
-						<?php } ?>
+						'<td class="text-center" rowspan="6">' + (index + 1) + '</td>' +
+						'<td rowspan="4" class="font-weight-bold">' + value.nama_program + '</td>'
+					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 							+
-							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-							'<td class="text-center" rowspan="4">' +
-								'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-program" title="Lihat Indikator Program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-primary btn-detail-program" title="Lihat Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" class="btn btn-success btn-edit-program" title="Edit Program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" data-kodesasaran="' + value.kode_sasaran + '" class="btn btn-danger btn-hapus-program crud-button" title="Hapus Program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'+
-							'</td>' +
-						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_program) + '</td>'+
+							'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
 					<?php } ?>
-							'<td>Akumulasi Penetapan Indikator Program</td>' +
+						+
+						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+						'<td class="text-center" rowspan="4">' +
+						'<div class="btn-group-vertical">' +
+						'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" class="btn btn-info btn-kelola-indikator-program" title="Lihat Indikator Program"><i class="dashicons dashicons-menu-alt"></i></a>' +
+						'<a href="javascript:void(0)" data-kodeprogram="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-primary btn-detail-program" title="Lihat Kegiatan"><i class="dashicons dashicons-search"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" class="btn btn-warning btn-edit-program" title="Edit Program"><i class="dashicons dashicons-edit"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodeprogram="' + value.id_unik + '" data-kodesasaran="' + value.kode_sasaran + '" class="btn btn-danger btn-hapus-program crud-button" title="Hapus Program"><i class="dashicons dashicons-trash"></i></a>' +
+						'</div>' +
+						'</td>' +
 						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>'+
-					<?php } ?>
-							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_program) + '</td>' +
+						<?php } ?> '<td>Akumulasi Penetapan Indikator Program</td>' +
 						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_program) + '</td>'+
-					<?php } ?>
-							'<td>Akumulasi Usulan Indikator Program</td>' +
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Pohon Kinerja</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Satuan Kerja Pelaksana</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>' +
+						<?php } ?> '<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_program) + '</td>' +
+						<?php } ?> '<td>Akumulasi Usulan Indikator Program</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Pohon Kinerja</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + pokin_html.join('') + '<ul></td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Satuan Kerja Pelaksana</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + satker_html.join('') + '<ul></td>' +
 						'</tr>';
 				});
 				program += '' +
 					'<tbody>' +
-					'</table>';
+					'</table></div>';
 				jQuery("#nav-program").html(program);
 				disableCreateIfJadwalTransformasi();
 				jQuery('.nav-tabs a[href="#nav-program"]').tab('show');
@@ -7132,152 +7243,159 @@ $table .= '
 					}
 				<?php } ?>
 
-				let html = "" +
-					'<div style="margin-top:10px">' +
-					"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-program crud-button\" data-kodeprogram=\"" + params.kode_program + "\">" +
-					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
-					"</button>" +
-					'</div>' +
-					'<table class="table">' +
-					'<thead>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Program</th>' +
-					'<th>' + jQuery('#nav-program tr[kodeprogram="' + params.kode_program + '"]').find('td').eq(1).text() + '</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<th colspan=2>' +
-					'<table>' +
-					'<thead>' +
-					'<tr>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<th class="text-center">Pagu Tahun <?php echo $i; ?></th>'
-				<?php } ?>
-					+
-					'<th class="text-center" style="width:15%">Catatan</th>' +
-					'</tr>' +
-					'</thead>' +
-					'<tbody style="font-weight: normal;">' +
-					'<tr>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
-				<?php } ?>
-					+
-					'<td><b>Penetapan</b><br>' + response.program.catatan + '</td>' +
-					'</tr>' +
-					'<tr>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_program) + '</td>'
-				<?php } ?>
-					+
-					'<td>Akumulasi Penetapan Indikator Program</td>' +
-					'</tr>' +
-					'<tr>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>'
-				<?php } ?>
-					+
-					'<td><b>Usulan</b> ' + response.program.catatan_usulan + '</td>' +
-					'</tr>' +
-					'<tr>'
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan_program) + '</td>'
-				<?php } ?>
-					+
-					'<td>Akumulasi Usulan Indikator Program</td>' +
-					'</tr>' +
-					'</tbody>' +
-					'</table>' +
-					'</th>' +
-					'</tr>' +
-					'</thead>' +
-					'</table>' +
-					'<div style="overflow-x:auto;">' +
-					"<table class='table'>" +
-					"<thead>" +
-					"<tr>" +
-					"<th class='text-center'>No</th>" +
-					"<th class='text-center'>Indikator</th>" +
-					"<th class='text-center'>Satuan</th>" +
-					"<th class='text-center'>Awal</th>"
-				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-						+
-						"<th class='text-center'>Target Tahun <?php echo $i; ?></th>" +
-						"<th class='text-center'>Pagu Tahun <?php echo $i; ?></th>"
-				<?php }; ?>
-					+
-					"<th class='text-center'>Akhir</th>" +
-					"<th class='text-center'>Catatan</th>" +
-					"<th class='text-center'>Aksi</th>" +
-					"</tr>" +
-					"</thead>" +
-					"<tbody id='indikator_program'>";
+				let html = `
+					<div style="margin-top:10px">
+						<button type="button" class="btn btn-primary mb-2 btn-add-indikator-program crud-button" data-kodeprogram="${params.kode_program}">
+							<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Indikator
+						</button>
+					</div>
+					<table class="borderless-table">
+						<thead>
+							<tr>
+								<th class="text-left" style="width: 200px;">Perangkat Daerah</th>
+								<th class="text-center" style="width: 20px;">:</th>
+								<th>${jQuery('#nama-skpd').text()}</th>
+							</tr>
+							<tr>
+								<th class="text-left">Bidang Urusan</th>
+								<th class="text-center">:</th>
+								<th>${jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text()}</th>
+							</tr>
+							<tr>
+								<th class="text-left">Tujuan</th>
+								<th class="text-center">:</th>
+								<th>${jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text()}</th>
+							</tr>
+							<tr>
+								<th class="text-left">Sasaran</th>
+								<th class="text-center">:</th>
+								<th>${jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text()}</th>
+							</tr>
+							<tr>
+								<th class="text-left">Program</th>
+								<th class="text-center">:</th>
+								<th>${jQuery('#nav-program tr[kodeprogram="' + params.kode_program + '"]').find('td').eq(1).text()}</th>
+							</tr>
+							<tr>
+								<table class="table">
+									<thead class="bg-dark text-light">
+										<tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+												<th class="text-center">Pagu Tahun <?php echo $i; ?></th>
+											<?php } ?>
+											<th class="text-center">Catatan</th>
+										</tr>
+									</thead>
+									<tbody style="font-weight: normal;">
+										<tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+												<td class="text-right ${peringatan[<?php echo $i; ?>]}">${formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>)}</td>
+											<?php } ?>
+											<td><b>Penetapan</b><br>${response.program.catatan}</td>
+										</tr>
+										<tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+												<td class="text-right ${peringatan[<?php echo $i; ?>]}">${formatRupiah(response.program['pagu_akumulasi_<?php echo $i; ?>_program'])}</td>
+											<?php } ?>
+											<td>Akumulasi Penetapan Indikator Program</td>
+										</tr>
+										<tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+												<td class="text-right ${peringatan_usulan[<?php echo $i; ?>]}">${formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan)}</td>
+											<?php } ?>
+											<td><b>Usulan</b> ${response.program.catatan_usulan}</td>
+										</tr>
+										<tr>
+											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+												<td class="text-right ${peringatan_usulan[<?php echo $i; ?>]}">${formatRupiah(response.program['pagu_akumulasi_<?php echo $i; ?>_usulan_program'])}</td>
+											<?php } ?>
+											<td>Akumulasi Usulan Indikator Program</td>
+										</tr>
+									</tbody>
+								</table>
+							</tr>
+						</thead>
+					</table>
+					<div class="table-responsive">
+						<table class="table">
+							<thead class="bg-dark text-light">
+								<tr>
+									<th class="text-center">No</th>
+									<th class="text-center">Indikator</th>
+									<th class="text-center">Satuan</th>
+									<th class="text-center">Awal</th>
+									<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+										<th class="text-center">Target Tahun <?php echo $i; ?></th>
+										<th class="text-center">Pagu Tahun <?php echo $i; ?></th>
+									<?php } ?>
+									<th class="text-center">Akhir</th>
+									<th class="text-center">SKPD</th>
+									<th class="text-center">Catatan</th>
+									<th class="text-center">Aksi</th>
+								</tr>
+							</thead>
+							<tbody id="indikator_program">
+				`;
+
+				// Bagian Map Data
 				response.data.map(function(value, index) {
+					// Pembersihan data null
 					for (var i in value) {
-						if (
-							value[i] == 'null' ||
-							value[i] == null
-						) {
+						if (value[i] == 'null' || value[i] == null) {
 							value[i] = '';
 						}
 					}
-					html += '' +
-						"<tr>" +
-						"<td class='text-center' rowspan='2'>" + (index + 1) + "</td>" +
-						"<td>" + value.indikator + "</td>" +
-						"<td>" + value.satuan + "</td>" +
-						"<td class='text-center'>" + value.target_awal + "</td>"
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							+
-							"<td class='text-center'>" + value.target_<?php echo $i; ?> + "</td>" +
-							"<td class='text-right'>" + formatRupiah(value.pagu_<?php echo $i; ?>) + "</td>"
-					<?php }; ?>
-						+
-						"<td class='text-center'>" + value.target_akhir + "</td>" +
-						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
-						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-program crud-button' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-program crud-button' data-kodeprogram='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
-						"</td>" +
-						"</tr>" +
-						"<tr>" +
-						"<td>" + value.indikator_usulan + "</td>" +
-						"<td>" + value.satuan_usulan + "</td>" +
-						"<td class='text-center'>" + value.target_awal_usulan + "</td>"
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							+
-							"<td class='text-center'>" + value.target_<?php echo $i; ?>_usulan + "</td>" +
-							"<td class='text-right'>" + formatRupiah(value.pagu_<?php echo $i; ?>_usulan) + "</td>"
-					<?php }; ?>
-						+
-						"<td class='text-center'>" + value.target_akhir_usulan + "</td>" +
-						"<td><b>Usulan</b><br>" + value.catatan_usulan + "</td>" +
-						"</tr>";
-				});
-				html += '' +
-					'</tbody>' +
-					'</table></div>';
 
+					var nama_skpd_usulan = (value.id_sub_unit_usulan && map_skpd[value.id_sub_unit_usulan]) 
+						? map_skpd[value.id_sub_unit_usulan].nama_skpd 
+						: '<i class="text-danger">tidak ditemukan</i>';
+
+					var nama_skpd = (value.id_sub_unit && map_skpd[value.id_sub_unit]) 
+						? map_skpd[value.id_sub_unit].nama_skpd 
+						: '<i class="text-danger">tidak ditemukan</i>';
+
+					html += `
+						<tr>
+							<td class="text-center" rowspan="2">${index + 1}</td>
+							<td>${value.indikator}</td>
+							<td>${value.satuan}</td>
+							<td class="text-center">${value.target_awal}</td>
+							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+								<td class="text-center">${value.target_<?php echo $i; ?>}</td>
+								<td class="text-right">${formatRupiah(value.pagu_<?php echo $i; ?>)}</td>
+							<?php } ?>
+							<td class="text-center">${value.target_akhir}</td>
+							<td class="text-left">${nama_skpd}</td>
+							<td><b>Penetapan</b><br>${value.catatan}</td>
+							<td class="text-center" rowspan="2">
+								<div class="btn-group-vertical">
+									<a href="#" class="btn btn-warning btn-edit-indikator-program crud-button" data-kodeprogram="${value.id_unik}" data-id="${value.id}">
+										<i class="dashicons dashicons-edit" style="margin-top: 2px;" title="Edit Indikator Program"></i>
+									</a>
+									<a href="#" class="btn btn-danger btn-delete-indikator-program crud-button" data-kodeprogram="${value.id_unik}" data-id="${value.id}" title="Hapus Indikator Program">
+										<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>
+									</a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>${value.indikator_usulan}</td>
+							<td>${value.satuan_usulan}</td>
+							<td class="text-center">${value.target_awal_usulan}</td>
+							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+								<td class="text-center">${value.target_<?php echo $i; ?>_usulan}</td>
+								<td class="text-right">${formatRupiah(value.pagu_<?php echo $i; ?>_usulan)}</td>
+							<?php } ?>
+							<td class="text-center">${value.target_akhir_usulan}</td>
+							<td class="text-left">${nama_skpd_usulan}</td>
+							<td><b>Usulan</b><br>${value.catatan_usulan}</td>
+						</tr>
+					`;
+				});
+
+				html += `</tbody></table></div>`;
+
+				// Update Modal
 				jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Program');
 				jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 				jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth', '1250px');
@@ -7308,46 +7426,52 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let kegiatan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-kegiatan crud-button" data-kodeprogram="' + params.kode_program + '" data-idprogram="' + params.id_program + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Kegiatan</button></div>' +
-						'<table class="table">' +
-							'<thead>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-									'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-									'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Program</th>' +
-									'<th>' + jQuery('#nav-program tr[kodeprogram="' + params.kode_program + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-							'</thead>' +
-						'</table>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-kegiatan crud-button" data-kodeprogram="' + params.kode_program + '" data-idprogram="' + params.id_program + '"><i class="dashicons dashicons-plus"></i> Tambah Kegiatan</button></div>' +
+					'<table class="borderless-table">' +
+					'<thead>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px;">:</th>' +
+					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th>:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th>:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Sasaran</th>' +
+					'<th>:</th>' +
+					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Program</th>' +
+					'<th>:</th>' +
+					'<th>' + jQuery('#nav-program tr[kodeprogram="' + params.kode_program + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'</thead>' +
+					'</table>' +
+					'<div class="table-responsive">' +
 					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width:45px">No</th>' +
-								'<th class="text-center">Kegiatan</th>'
-							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-									+
-									'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
-							<?php } ?>
-								+
-								'<th class="text-center" style="width:10%">Catatan</th>' +
-								'<th class="text-center" style="width:70px">Aksi</th>' +
-							'<tr>' +
-						'</thead>' +
-						'<tbody>';
+					'<thead class="bg-dark text-light">' +
+					'<tr>' +
+					'<th class="text-center" style="width:45px">No</th>' +
+					'<th class="text-center">Kegiatan</th>'
+				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+						+
+						'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
+				<?php } ?>
+					+
+					'<th class="text-center" style="width:10%">Catatan</th>' +
+					'<th class="text-center" style="width:70px">Aksi</th>' +
+					'<tr>' +
+					'</thead>' +
+					'<tbody>';
 				response.data.map(function(value, index) {
 					for (var i in value) {
 						if (
@@ -7358,12 +7482,12 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i){
-						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					value.pokin.map(function(b, i) {
+						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i){
-						satker_html.push('<li>'+b.nama_satker+'</li>')
+					value.satker.map(function(b, i) {
+						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					var peringatan = {};
 					var peringatan_usulan = {};
@@ -7377,50 +7501,46 @@ $table .= '
 					<?php } ?>
 					kegiatan += '' +
 						'<tr kodekegiatan="' + value.id_unik + '">' +
-							'<td class="text-center" rowspan="6">' + (index + 1) + '</td>' +
-							'<td rowspan="4">' + value.nama_giat + '</td>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_subkegiatan) + '</td>'
-						<?php } ?>
+						'<td class="text-center" rowspan="6">' + (index + 1) + '</td>' +
+						'<td rowspan="4" class="font-weight-bold">' + value.nama_giat + '</td>'
+					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 							+
-							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-							'<td class="text-center" rowspan="4">' +
-								'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" class="btn btn-warning btn-kelola-indikator-kegiatan" title="Lihat Indikator Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" data-idkegiatan="' + value.id_giat + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-primary btn-detail-kegiatan" title="Lihat Sub Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-success btn-edit-kegiatan" title="Edit Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-kodeprogram="' + value.kode_program + '" data-idprogram="' + value.id_program + '" class="btn btn-danger btn-hapus-kegiatan crud-button" title="Hapus Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
-							'</td>' +
-						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'+
+							'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_subkegiatan) + '</td>'
 					<?php } ?>
-							'<td>Akumulasi Penetapan Indikator Kegiatan</td>' +
+						+
+						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+						'<td class="text-center" rowspan="4">' +
+						'<div class="btn-group-vertical">' +
+						'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" class="btn btn-info btn-kelola-indikator-kegiatan" title="Lihat Indikator Kegiatan"><i class="dashicons dashicons-menu-alt"></i></a>' +
+						'<a href="javascript:void(0)" data-kodekegiatan="' + value.id_unik + '" data-idkegiatan="' + value.id_giat + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-primary btn-detail-kegiatan" title="Lihat Sub Kegiatan"><i class="dashicons dashicons-search"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-idprogram="' + value.id_program + '" class="btn btn-warning btn-edit-kegiatan" title="Edit Kegiatan"><i class="dashicons dashicons-edit"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.id_unik + '" data-kodeprogram="' + value.kode_program + '" data-idprogram="' + value.id_program + '" class="btn btn-danger btn-hapus-kegiatan crud-button" title="Hapus Kegiatan"><i class="dashicons dashicons-trash"></i></a>' +
+						'</div>' +
+						'</td>' +
 						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan) + '</td>'+
-					<?php } ?>
-							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>' +
+						<?php } ?> '<td>Akumulasi Penetapan Indikator Kegiatan</td>' +
 						'</tr>' +
-						'<tr>'+
-					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>'+
-					<?php } ?>
-							'<td>Akumulasi Usulan Indikator Kegiatan</td>' +
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Pohon Kinerja</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Satuan Kerja Pelaksana</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan) + '</td>' +
+						<?php } ?> '<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>' +
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right ' + peringatan_usulan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan) + '</td>' +
+						<?php } ?> '<td>Akumulasi Usulan Indikator Kegiatan</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Pohon Kinerja</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + pokin_html.join('') + '<ul></td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Satuan Kerja Pelaksana</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + satker_html.join('') + '<ul></td>' +
 						'</tr>';
 				});
 				kegiatan += '<tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#nav-kegiatan").html(kegiatan);
 				disableCreateIfJadwalTransformasi();
@@ -7475,43 +7595,48 @@ $table .= '
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
-					'<table class="table">' +
+					'<table class="borderless-table">' +
 					'<thead>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px;">:</th>' +
 					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
+					'<th class="text-left">Sasaran</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Program</th>' +
+					'<th class="text-left">Program</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
+					'<th class="text-left">Kegiatan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + params.id_unik + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th colspan=2>' +
-					'<table>' +
-					'<thead>' +
+					'<table class="table">' +
+					'<thead class="bg-dark text-light">' +
 					'<tr>'
 				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 						+
 						'<th class="text-center">Pagu Tahun <?php echo $i; ?></th>'
 				<?php } ?>
 					+
-					'<th class="text-center" style="width:15%">Catatan</th>' +
+					'<th class="text-center">Catatan</th>' +
 					'</tr>' +
 					'</thead>' +
 					'<tbody style="font-weight: normal;">' +
@@ -7549,13 +7674,12 @@ $table .= '
 					'</tr>' +
 					'</tbody>' +
 					'</table>' +
-					'</th>' +
 					'</tr>' +
 					'</thead>' +
-					'</table>'+
-					'<div style="overflow-x:auto;">' +
+					'</table>' +
+					'<div class="table-responsive">' +
 					"<table class='table'>" +
-					"<thead>" +
+					"<thead class='bg-dark text-light'>" +
 					"<tr>" +
 					"<th class='text-center'>No</th>" +
 					"<th class='text-center'>Indikator</th>" +
@@ -7568,11 +7692,13 @@ $table .= '
 				<?php }; ?>
 					+
 					"<th class='text-center'>Target Akhir</th>" +
+					"<th class='text-center'>SKPD</th>" +
 					"<th class='text-center'>Catatan</th>" +
 					"<th class='text-center'>Aksi</th>" +
 					"</tr>" +
 					"</thead>" +
 					"<tbody id='indikator_kegiatan'>";
+					
 				response.data.map(function(value, index) {
 					for (var i in value) {
 						if (
@@ -7582,6 +7708,16 @@ $table .= '
 							value[i] = '';
 						}
 					}
+
+					// Menggunakan Optional Chaining (?.) untuk keamanan ekstra
+					var nama_skpd_usulan = (value.id_sub_unit_usulan && map_skpd[value.id_sub_unit_usulan]) 
+						? map_skpd[value.id_sub_unit_usulan].nama_skpd 
+						: '<i class="text-danger">tidak ditemukan</i>';
+
+					var nama_skpd = (value.id_sub_unit && map_skpd[value.id_sub_unit]) 
+						? map_skpd[value.id_sub_unit].nama_skpd 
+						: '<i class="text-danger">tidak ditemukan</i>';
+
 					html += '' +
 						"<tr>" +
 						"<td class='text-center' rowspan='2'>" + (index + 1) + "</td>" +
@@ -7595,10 +7731,13 @@ $table .= '
 					<?php }; ?>
 						+
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
+						"<td class='text-left'>" + nama_skpd + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Edit Indikator Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<div class=\"btn-group-vertical\">" +
+						"<a href='#' class='btn btn-warning btn-edit-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Edit Indikator Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan crud-button' data-kodekegiatan='" + value.id_unik + "' data-id='" + value.id + "' title='Hapus Indikator Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>" +
+						"</div>" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -7612,6 +7751,7 @@ $table .= '
 					<?php }; ?>
 						+
 						"<td class='text-center'>" + value.target_akhir_usulan + "</td>" +
+						"<td class='text-left'>" + nama_skpd_usulan + "</td>" +
 						"<td><b>Usulan</b><br>" + value.catatan_usulan + "</td>" +
 						"</tr>";
 				});
@@ -7647,51 +7787,58 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 
 				let subKegiatan = '' +
-					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sub-kegiatan crud-button" data-kodekegiatan="' + params.kode_kegiatan + '" data-kodegiat="' + params.kode_giat + '"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sub Kegiatan</button></div>' +
-						'<table class="table">' +
-							'<thead>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
-									'<th>' + jQuery('#nama-skpd').text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Tujuan</th>' +
-									'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Sasaran</th>' +
-									'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Program</th>' +
-									'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-								'<tr>' +
-									'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
-									'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + params.kode_kegiatan + '"]').find('td').eq(1).text() + '</th>' +
-								'</tr>' +
-							'</thead>' +
-						'</table>' +
+					'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sub-kegiatan crud-button" data-kodekegiatan="' + params.kode_kegiatan + '" data-kodegiat="' + params.kode_giat + '"><i class="dashicons dashicons-plus"></i> Tambah Sub Kegiatan</button></div>' +
+					'<table class="borderless-table">' +
+					'<thead>' +
+					'<tr>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 20px;">:</th>' +
+					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Sasaran</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Program</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'<tr>' +
+					'<th class="text-left">Kegiatan</th>' +
+					'<th class="text-center">:</th>' +
+					'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + params.kode_kegiatan + '"]').find('td').eq(1).text() + '</th>' +
+					'</tr>' +
+					'</thead>' +
+					'</table>' +
+					'<div class="table-responsive">' +
 					'<table class="table">' +
-						'<thead>' +
-							'<tr>' +
-								'<th class="text-center" style="width:45px">No</th>' +
-								'<th class="text-center">Sub Kegiatan</th>' +
-								'<th class="text-center">Sub Unit Pelaksana</th>'
-							<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-									+
-									'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
-							<?php } ?>
-								+
-								'<th class="text-center" style="width:10%">Catatan</th>' +
-								'<th class="text-center" style="width:145px">Aksi</th>' +
-							'<tr>' +
-						'</thead>' +
-						'<tbody>';
+					'<thead class="bg-dark text-light">' +
+					'<tr>' +
+					'<th class="text-center" style="width:45px">No</th>' +
+					'<th class="text-center">Sub Kegiatan</th>' +
+					'<th class="text-center">Sub Unit Pelaksana</th>'
+				<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
+						+
+						'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
+				<?php } ?>
+					+
+					'<th class="text-center" style="width:10%">Catatan</th>' +
+					'<th class="text-center">Aksi</th>' +
+					'<tr>' +
+					'</thead>' +
+					'<tbody>';
 				response.data.map(function(value, index) {
 					for (var i in value) {
 						if (
@@ -7702,47 +7849,47 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i){
-						pokin_html.push('<li>Lv. '+b.level+' '+b.label+' ('+b.indikator+')</li>')
+					value.pokin.map(function(b, i) {
+						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i){
-						satker_html.push('<li>'+b.nama_satker+'</li>')
+					value.satker.map(function(b, i) {
+						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					subKegiatan += '' +
 						'<tr kodesubkegiatan="' + value.id_unik + '">' +
-							'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
-							'<td rowspan="2">' + value.nama_sub_giat + '</td>' +
-							'<td rowspan="2">' + value.nama_sub_unit + '</td>'
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-								+
-								'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>) + '</td>'
-						<?php } ?>
+						'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
+						'<td rowspan="2" class="font-weight-bold">' + value.nama_sub_giat + '</td>' +
+						'<td rowspan="2" class="font-weight-bold">' + value.nama_sub_unit + '</td>'
+					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 							+
-							'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
-							'<td class="text-center" rowspan="2">' +
-								'<a href="javascript:void(0)" data-kodesubkegiatan="' + value.id_unik + '" data-idsubgiat="' + value.id_sub_giat + '" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;' +
-								'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan crud-button" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>' +
-							'</td>' +
+							'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>) + '</td>'
+					<?php } ?>
+						+
+						'<td><b>Penetapan</b><br>' + value.catatan + '</td>' +
+						'<td class="text-center" rowspan="2">' +
+						'<div class="btn-group-vertical">' +
+						'<a href="javascript:void(0)" data-kodesubkegiatan="' + value.id_unik + '" data-idsubgiat="' + value.id_sub_giat + '" class="btn btn-info btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-kodegiat="' + value.kode_giat + '" class="btn btn-warning btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit"></i></a>' +
+						'<a href="javascript:void(0)" data-id="' + value.id + '" data-kodesubkegiatan="' + value.id_unik + '" data-kodegiat="' + value.kode_giat + '" data-kodekegiatan="' + value.kode_kegiatan + '" data-idkegiatan="' + value.id_giat + '" class="btn btn-danger btn-hapus-sub-kegiatan crud-button" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash"></i></a>' +
+						'</div>' +
+						'</td>' +
 						'</tr>' +
-						'<tr>'+
-						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
-							'<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>_usulan) + '</td>'+
-						<?php } ?>
-							'<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Pohon Kinerja</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+pokin_html.join('')+'<ul></td>'+
-						'</tr>'+
-						'<tr>'+
-							'<td><b>Satuan Kerja Pelaksana</b></td>'+
-							'<td colspan="8"><ul class="mb-0">'+satker_html.join('')+'<ul></td>'+
+						'<tr>' +
+						<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> '<td class="text-right">' + formatRupiah(value.pagu_<?php echo $i; ?>_usulan) + '</td>' +
+						<?php } ?> '<td><b>Usulan</b> ' + value.catatan_usulan + '</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Pohon Kinerja</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + pokin_html.join('') + '<ul></td>' +
+						'</tr>' +
+						'<tr>' +
+						'<td><b>Satuan Kerja Pelaksana</b></td>' +
+						'<td colspan="8"><ul class="m-0">' + satker_html.join('') + '<ul></td>' +
 						'</tr>';
 				});
 				subKegiatan += '<tbody>' +
-					'</table>';
+					'</table></div>';
 
 				jQuery("#nav-sub-kegiatan").html(subKegiatan);
 				disableCreateIfJadwalTransformasi();
@@ -7775,41 +7922,48 @@ $table .= '
 					"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator" +
 					"</button>" +
 					'</div>' +
-					'<table class="table">' +
+					'<table class="borderless-table">' +
 					'<thead>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>' +
+					'<th class="text-left" style="width: 200px;">Perangkat Daerah</th>' +
+					'<th class="text-center" style="width: 10px;">:</th>' +
 					'<th>' + jQuery('#nama-skpd').text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Bidang Urusan</th>' +
+					'<th class="text-left" style="width: 200px;">Bidang Urusan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Tujuan</th>' +
+					'<th class="text-left" style="width: 200px;">Tujuan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-tujuan tr[kodetujuan="' + jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan") + '"]').find('td').eq(2).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sasaran</th>' +
+					'<th class="text-left" style="width: 200px;">Sasaran</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-sasaran tr[kodesasaran="' + jQuery("#nav-program .btn-tambah-program").data("kodesasaran") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Program</th>' +
+					'<th class="text-left" style="width: 200px;">Program</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-program tr[kodeprogram="' + jQuery("#nav-kegiatan .btn-tambah-kegiatan").data("kodeprogram") + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Kegiatan</th>' +
+					'<th class="text-left" style="width: 200px;">Kegiatan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-kegiatan tr[kodekegiatan="' + jQuery("#nav-sub-kegiatan .btn-tambah-sub-kegiatan").data('kodekegiatan') + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'<tr>' +
-					'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>' +
+					'<th class="text-left" style="width: 200px;">Sub Kegiatan</th>' +
+					'<th class="text-center">:</th>' +
 					'<th>' + jQuery('#nav-sub-kegiatan tr[kodesubkegiatan="' + params.id_unik + '"]').find('td').eq(1).text() + '</th>' +
 					'</tr>' +
 					'</thead>' +
-					'</table>'+
-					'<div style="overflow-x:auto;">' +
+					'</table>' +
+					'<div class="table-responsive">' +
 					"<table class='table'>" +
-					"<thead>" +
+					"<thead class='bg-dark text-light'>" +
 					"<tr>" +
 					"<th class='text-center'>No</th>" +
 					"<th class='text-center'>Indikator</th>" +
@@ -7849,8 +8003,10 @@ $table .= '
 						"<td class='text-center'>" + value.target_akhir + "</td>" +
 						"<td><b>Penetapan</b><br>" + value.catatan + "</td>" +
 						"<td class='text-center' rowspan='2'>" +
-						"<a href='#' class='btn btn-success btn-edit-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Edit Indikator Sub Kegiatan'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp" +
-						"<a href='#' class='btn btn-danger btn-delete-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Hapus Indikator Sub Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;" +
+						"<div class=\"btn-group-vertical\">" +
+						"<a href='#' class='btn btn-warning btn-edit-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Edit Indikator Sub Kegiatan'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>" +
+						"<a href='#' class='btn btn-danger btn-delete-indikator-sub-kegiatan crud-button' data-kodesubkegiatan='" + value.id_unik + "' data-id='" + value.id + "' data-idsubgiat='" + value.id_sub_giat + "' title='Hapus Indikator Sub Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>" +
+						"</div>" +
 						"</td>" +
 						"</tr>" +
 						"<tr>" +
@@ -8095,22 +8251,22 @@ $table .= '
 	function getFormData($form) {
 		// Cari semua field yang disabled, aktifkan, dan tandai
 		let disabled = $form.find(':disabled').prop('disabled', false);
-		
+
 		// Lakukan proses serialize
 		let unindexed_array = $form.serializeArray();
-		
+
 		// Matikan kembali field yang tadi diaktifkan
 		disabled.prop('disabled', true);
 
 		let indexed_array = {};
 
 		jQuery.map(unindexed_array, function(n, i) {
-			if(indexed_array[n['name']]){
-				if(typeof indexed_array[n['name']] != 'object'){
+			if (indexed_array[n['name']]) {
+				if (typeof indexed_array[n['name']] != 'object') {
 					indexed_array[n['name']] = [indexed_array[n['name']]];
 				}
 				indexed_array[n['name']].push(n['value']);
-			}else{
+			} else {
 				indexed_array[n['name']] = n['value'];
 			}
 		});
@@ -8166,6 +8322,8 @@ $table .= '
 		modal.find('input[name="target_akhir"]').val(usulan);
 		var usulan = modal.find('textarea[name="catatan_usulan"]').val();
 		modal.find('textarea[name="catatan"]').val(usulan);
+		var usulan = modal.find('select[name="id_sub_unit_usulan"]').val();
+		modal.find('select[name="id_sub_unit"]').val(usulan);
 	}
 
 	function copy_usulan_all() {
@@ -8406,30 +8564,30 @@ $table .= '
 					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Program');
 					jQuery("#modal-crud-renstra .modal-body").html(`
 						<h4 style="text-align:center"><span>EXISTING</span></h4>
-						<table class="table">
+						<table>
 							<thead>
 								<tr>
-									<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+									<th class="text-center" style="width: 200px;">Perangkat Daerah</th>
 									<td>${response.data.nama_skpd}</td>
 								</tr>
 								<tr>
-									<th class="text-center" style="width: 160px;">Urusan</th>
+									<th class="text-center" style="width: 200px;">Urusan</th>
 									<td><select class="form-control" name="id_urusan" id="urusan-teks"></select></td>
 								</tr>
 								<tr>
-									<th class="text-center" style="width: 160px;">Bidang</th>
+									<th class="text-center" style="width: 200px;">Bidang</th>
 									<td><select class="form-control" name="id_bidang" id="bidang-teks"></select></td>
 								</tr>
 								<tr>
-									<th class="text-center" style="width: 160px;">Tujuan</th>
+									<th class="text-center" style="width: 200px;">Tujuan</th>
 									<td>${response.data.tujuan_teks}</td>
 								</tr>
 								<tr>
-									<th class="text-center" style="width: 160px;">Sasaran</th>
+									<th class="text-center" style="width: 200px;">Sasaran</th>
 									<td>${response.data.sasaran_teks}</td>
 								</tr>
 								<tr>
-									<th class="text-center" style="width: 160px;">Program</th>
+									<th class="text-center" style="width: 200px;">Program</th>
 									<td>${response.data.nama_program}</td>
 								</tr>
 							</thead>
@@ -8438,7 +8596,7 @@ $table .= '
 						<table class="table">
 							<thead>
 								<tr>
-									<th class="text-center" style="width: 160px;">Program</th>
+									<th class="text-center" style="width: 200px;">Program</th>
 									<td><select id="program-teks" name="id_program"></select></td>
 								</tr>
 							</thead>
@@ -8502,7 +8660,7 @@ $table .= '
 				"kode_sasaran": kode_sasaran,
 				"id_jadwal": "<?php echo $relasi_perencanaan; ?>",
 			},
-			dataType: "json", 
+			dataType: "json",
 			success: function(response) {
 				const lama_pelaksanaan = <?php echo $lama_pelaksanaan; ?>;
 				const jenis_jadwal_relasi = '<?php echo $jenis_jadwal_relasi; ?>';
@@ -8519,7 +8677,12 @@ $table .= '
 					const data = response.data;
 
 					const processParentChildArray = (arr, textKey) => {
-						if (!arr || arr.length === 0) return { text: '', indicators: [], visi: null, misi: null };
+						if (!arr || arr.length === 0) return {
+							text: '',
+							indicators: [],
+							visi: null,
+							misi: null
+						};
 						const parent = arr.find(item => !item.id_unik_indikator);
 						const indicators = arr.filter(item => item.id_unik_indikator);
 						return {
@@ -8532,12 +8695,15 @@ $table .= '
 
 					const tujuanData = processParentChildArray(data.tujuan, 'tujuan_teks');
 					const sasaranData = processParentChildArray(data.sasaran, 'sasaran_teks');
-					
+
 					const groupedPrograms = {};
 					if (data.program && data.program.length > 0) {
 						data.program.forEach(p => {
 							if (p.id_unik && !p.id_unik_indikator) {
-								if (!groupedPrograms[p.id_unik]) groupedPrograms[p.id_unik] = { nama_program: p.nama_program, indicators: [] };
+								if (!groupedPrograms[p.id_unik]) groupedPrograms[p.id_unik] = {
+									nama_program: p.nama_program,
+									indicators: []
+								};
 							}
 						});
 						data.program.forEach(p => {
@@ -8581,12 +8747,12 @@ $table .= '
 							<div class="card mb-3">
 								<div class="card-header"><strong>${title}</strong></div>
 								<div class="card-body" style="padding:0;">
-									<table class="table table-bordered mb-0">
+									<table class="table table-bordered m-0">
 										<tbody>
 											<tr>
 												<td colspan="2"><strong>${data.text}</strong></td>
 											</tr>`;
-						
+
 						if (data.indicators.length > 0) {
 							html += `   <tr>
 											<td colspan="2" style="padding: 8px;">
@@ -8595,7 +8761,7 @@ $table .= '
 														<tr>
 															<th class="text-center">Indikator</th>
 															<th class="text-center">Satuan</th>`;
-							for (let i = 1; i <= lama_pelaksanaan; i++) { 
+							for (let i = 1; i <= lama_pelaksanaan; i++) {
 								html += `					<th class="text-center">Target ${i}</th>`;
 							}
 							html += `               	</tr>
@@ -8628,7 +8794,7 @@ $table .= '
 					// program
 					const generateProgramsCardHtml = (programs) => {
 						if (Object.keys(programs).length === 0) return '<p class="text-center">Tidak ada data program untuk ditampilkan.</p>';
-						
+
 						let html = `
 							<div class="card">
 								<div class="card-header"><strong>Program</strong></div>
@@ -8660,7 +8826,7 @@ $table .= '
 															<th class="text-center" style="width:5%;">No</th>
 															<th class="text-center">Indikator</th>
 															<th class="text-center">Satuan</th>`;
-								for (let i = 1; i <= lama_pelaksanaan; i++) { 
+								for (let i = 1; i <= lama_pelaksanaan; i++) {
 									html += `
 															<th class="text-center">Target ${i}</th>
 															<th class="text-center">Pagu ${i}</th>
@@ -8716,7 +8882,7 @@ $table .= '
 				jQuery('#wrap-loading').hide();
 			}
 		});
-		
+
 	}
 
 	function tampilKegiatan(id) {
@@ -8737,26 +8903,26 @@ $table .= '
 				jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Kegiatan');
 				jQuery("#modal-crud-renstra .modal-body").html(`
 					<h4 style="text-align:center"><span>EXISTING</span></h4>
-					<table class="table">
+					<table>
 						<thead>
 							<tr>
-								<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+								<th class="text-center" style="width: 200px;">Perangkat Daerah</th>
 								<td> ${response.kegiatan.nama_skpd} </td>
 							</tr>
 							<tr>
-								<th class="text-center" style="width: 160px;">Bidang Urusan</th>
+								<th class="text-center" style="width: 200px;">Bidang Urusan</th>
 								<td> ${response.kegiatan.nama_bidang_urusan} </td>
 							</tr>
 							<tr>
-								<th class="text-center" style="width: 160px;">Tujuan</th>
+								<th class="text-center" style="width: 200px;">Tujuan</th>
 								<td> ${response.kegiatan.tujuan_teks} </td>
 							</tr>
 							<tr>
-								<th class="text-center" style="width: 160px;">Sasaran</th>
+								<th class="text-center" style="width: 200px;">Sasaran</th>
 								<td> ${response.kegiatan.sasaran_teks} </td>
 							</tr>
 							<tr>
-								<th class="text-center" style="width: 160px;">Program</th>
+								<th class="text-center" style="width: 200px;">Program</th>
 								<td> ${response.kegiatan.nama_program} </td>
 							</tr>
 							<tr>
@@ -8769,7 +8935,7 @@ $table .= '
 					<table class="table">
 					<thead>
 						<tr>
-							<th class="text-center" style="width: 160px;">Kegiatan</th>
+							<th class="text-center" style="width: 200px;">Kegiatan</th>
 							<td><select id="list-kegiatan" name="list-kegiatan"></select></td>
 						</tr>
 					</thead>
@@ -8869,34 +9035,34 @@ $table .= '
 						<div class="tab-content" id="nav-tab-content">
 							<div class="tab-pane fade" id="nav-sub-giat-default" role="tabpanel" aria-labelledby="nav-sub-giat-default">
 								<h4 style="text-align:center"><span>EXISTING</span></h4>
-								<table class="table">
+								<table>
 									<thead>
 										<tr>
-											<th class="text-center" style="width: 160px;">Perangkat Daerah</th>
+											<th class="text-center" style="width: 200px;">Perangkat Daerah</th>
 											<td>${response.sub_kegiatan.nama_sub_unit}</td>
 										</tr>
 										<tr>
-											<th class="text-center" style="width: 160px;">Bidang Urusan</th>
+											<th class="text-center" style="width: 200px;">Bidang Urusan</th>
 											<td>${response.sub_kegiatan.nama_bidang_urusan}</td>
 										</tr>
 										<tr>
-											<th class="text-center" style="width: 160px;">Tujuan</th>
+											<th class="text-center" style="width: 200px;">Tujuan</th>
 											<td>${response.sub_kegiatan.tujuan_teks}</td>
 										</tr>
 										<tr>
-											<th class="text-center" style="width: 160px;">Sasaran</th>
+											<th class="text-center" style="width: 200px;">Sasaran</th>
 											<td>${response.sub_kegiatan.sasaran_teks}</td>
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Program</th> 
+											<th class="text-center" style="width: 200px;">Program</th> 
 											<td>${response.sub_kegiatan.nama_program}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Kegiatan</th> 
+											<th class="text-center" style="width: 200px;">Kegiatan</th> 
 											<td>${response.sub_kegiatan.nama_giat}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<th class="text-center" style="width: 200px;">Sub Kegiatan</th> 
 											<td>${response.sub_kegiatan.nama_sub_giat}</td> 
 										</tr>
 									</thead> 
@@ -8905,11 +9071,11 @@ $table .= '
 								<table class="table"> 
 									<thead> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<th class="text-center" style="width: 200px;">Sub Kegiatan</th> 
 											<td><select id="select-sub-kegiatan" onchange="listIndikatorSubKegiatan()"></select></td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Indikator Sub Kegiatan</th> 
+											<th class="text-center" style="width: 200px;">Indikator Sub Kegiatan</th> 
 											<td><select id="select-indikator-sub-kegiatan" class="select-indikator-sub-kegiatan"></select></td> 
 										</tr> 
 									</thead> 
@@ -8917,34 +9083,34 @@ $table .= '
 							</div> 
 							<div class="tab-pane fade" id="nav-sub-giat-lintas" role="tabpanel" aria-labelledby="nav-sub-giat-lintas"> 
 								<h4 style="text-align:center"><span>EXISTING</span></h4> 
-								<table class="table"> 
+								<table> 
 									<thead> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Perangkat Daerah</th> 
+											<th class="text-center" style="width: 200px;">Perangkat Daerah</th> 
 											<td>${response.sub_kegiatan.nama_sub_unit}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Bidang Urusan</th> 
+											<th class="text-center">Bidang Urusan</th> 
 											<td>${response.sub_kegiatan.nama_bidang_urusan}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Tujuan</th> 
+											<th class="text-center">Tujuan</th> 
 											<td>${response.sub_kegiatan.tujuan_teks}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Sasaran</th> 
+											<th class="text-center">Sasaran</th> 
 											<td>${response.sub_kegiatan.sasaran_teks}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Program</th> 
+											<th class="text-center">Program</th> 
 											<td>${response.sub_kegiatan.nama_program}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Kegiatan</th> 
+											<th class="text-center">Kegiatan</th> 
 											<td>${response.sub_kegiatan.nama_giat}</td> 
 										</tr> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+											<th class="text-center">Sub Kegiatan</th> 
 											<td>${response.sub_kegiatan.nama_sub_giat}</td> 
 										</tr> 
 									</thead> 
@@ -8952,13 +9118,13 @@ $table .= '
 								<table class="table"> 
 									<thead> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Pagu</th> 
+											<th class="text-center" style="width: 200px;">Pagu</th> 
 											<td>Usulan</td> 
 											<td>Penetapan</td> 
 										</tr>
 									<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> 
 										<tr> 
-											<th class="text-center" style="width: 160px;">Tahun <?php echo $i; ?> </th> 
+											<th class="text-center" style="width: 200px;">Tahun <?php echo $i; ?> </th> 
 											<td>` + response.sub_kegiatan.pagu_<?php echo $i; ?>_usulan_temp + `</td> 
 											<td>` + response.sub_kegiatan.pagu_<?php echo $i; ?>_temp + `</td> 
 										</tr>
@@ -8970,23 +9136,23 @@ $table .= '
 									<table class="table"> 
 										<thead> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Urusan</th> 
+												<th class="text-center" style="width: 200px;">Urusan</th> 
 												<td colspan="3"><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td> 
 											</tr> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Bidang</th> 
+												<th class="text-center">Bidang</th> 
 												<td colspan="3"><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td> 
 											</tr> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Program</th> 
+												<th class="text-center">Program</th> 
 												<td><select id="program-teks" name="id_program" onchange="listKegiatanByProgram(this.value);"></select></td> 
 											</tr> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Kegiatan</th> 
+												<th class="text-center">Kegiatan</th> 
 												<td><select id="list-kegiatan" name="kegiatan" onchange="listSubGiat(${response.sub_kegiatan.id_unit}, <?php echo $tahun_anggaran; ?>);"></select></td> 
 											</tr> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Sub Kegiatan</th> 
+												<th class="text-center">Sub Kegiatan</th> 
 												<td><select id="select-sub-kegiatan-2" name="sub_kegiatan_2"></select></td> 
 											</tr> 
 										</thead> 
@@ -8994,7 +9160,7 @@ $table .= '
 									<table class="table"> 
 										<thead> 
 											<tr> 
-												<th class="text-center" style="width: 160px;">Pagu</th> 
+												<th class="text-center" style="width: 200px;">Pagu</th> 
 												<td>Usulan</td> 
 												<td>Penetapan</td> 
 												<td>Usulan Asli</td> 
@@ -9002,7 +9168,7 @@ $table .= '
 											</tr>
 											<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?> 
 												<tr> 
-													<th class="text-center" style="width: 160px;">Tahun <?php echo $i; ?></th> 
+													<th class="text-center" style="width: 200px;">Tahun <?php echo $i; ?></th> 
 													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"></td> 
 													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_temp"></td> 
 													<td><input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan_asli" readonly></td> 
@@ -9015,7 +9181,7 @@ $table .= '
 								<div class="row"> 
 									<div class="col-md-12 text-center"> 
 										<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger crud-button" style="margin-top: 20px;">
-											<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
+											<i class="dashicons dashicons-arrow-right-alt"></i> Copy Data Usulan ke Penetapan
 										</button> 
 									</div> 
 								</div> 
@@ -9240,7 +9406,7 @@ $table .= '
 		return new Promise(function(resolve, reject) {
 			if (typeof pokin_all === 'undefined' || typeof satker_all === 'undefined') {
 				jQuery('#wrap-loading').show();
-				
+
 				jQuery.ajax({
 					url: ajax.url,
 					type: "post",
@@ -9273,9 +9439,9 @@ $table .= '
 								} else {
 									alert("Data satuan kerja tidak ditemukan");
 								}
-								
+
 								jQuery('#wrap-loading').hide();
-								resolve(pokin_all); 
+								resolve(pokin_all);
 							},
 							error: function(err) {
 								jQuery('#wrap-loading').hide();
@@ -9294,46 +9460,46 @@ $table .= '
 		});
 	}
 
-    function get_tabel_pokin_cascading(){
-    	jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            url: ajax.url,
-            type: "post",
-            data: {
-                "action": 'get_tabel_pokin_cascading',
-                "api_key": "<?php echo $api_key; ?>",
-                "id_skpd": <?php echo $_GET['id_skpd']; ?>,
-                "tahun_anggaran": <?php echo $tahun_anggaran; ?>,
-                "id_jadwal_wp_sakip": id_jadwal_wp_sakip
-            },
-            dataType: "json",
-            success: function(response) {
-            	if(response.status == 'success'){
-	            	var html = `<tr><td colspan="3" class="text-center">Semua Pohon Kinerja sudah dicascadingkan!</td></tr>`;
-            		if(response.pokin_all.length >= 1){
-            			html = '';
-            			response.pokin_all.map(function(b, i){
-            				var no = i+1;
-            				var indikator = [];
-            				for(var bb in b.indikator){
-            					indikator.push(b.indikator[bb].label);
-            				}
-		            		html += `
+	function get_tabel_pokin_cascading() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+			type: "post",
+			data: {
+				"action": 'get_tabel_pokin_cascading',
+				"api_key": "<?php echo $api_key; ?>",
+				"id_skpd": <?php echo $_GET['id_skpd']; ?>,
+				"tahun_anggaran": <?php echo $tahun_anggaran; ?>,
+				"id_jadwal_wp_sakip": id_jadwal_wp_sakip
+			},
+			dataType: "json",
+			success: function(response) {
+				if (response.status == 'success') {
+					var html = `<tr><td colspan="3" class="text-center">Semua Pohon Kinerja sudah dicascadingkan!</td></tr>`;
+					if (response.pokin_all.length >= 1) {
+						html = '';
+						response.pokin_all.map(function(b, i) {
+							var no = i + 1;
+							var indikator = [];
+							for (var bb in b.indikator) {
+								indikator.push(b.indikator[bb].label);
+							}
+							html += `
 		            			<tr>
 		            				<td class="text-center">${no}</td>
 		            				<td>Lv. ${b.level} ${b.label}</td>
 		            				<td>${indikator.join(', ')}</td>
 		            			</tr>
 		            		`;
-            			})
-	            	}
-	            	jQuery('#table-renstra-pokin tbody').html(html);
+						})
+					}
+					jQuery('#table-renstra-pokin tbody').html(html);
 
-	            	if(response.unset_pokin_esisting.length >= 1){
-	            		var html = '';
-            			response.unset_pokin_esisting.map(function(b, i){
-            				var no = i+1;
-		            		html += `
+					if (response.unset_pokin_esisting.length >= 1) {
+						var html = '';
+						response.unset_pokin_esisting.map(function(b, i) {
+							var no = i + 1;
+							html += `
 		            			<tr data-id="${b.id}" id-unik="${b.id_unik}">
 		            				<td class="text-center">${no}</td>
 		            				<td>Lv. ${b.level} ${b.label}</td>
@@ -9341,17 +9507,17 @@ $table .= '
 		            				<td>${b.cascading}</td>
 		            			</tr>
 		            		`;
-            			})
-	            		jQuery('#table-renstra-pokin-existing tbody').html(html);
-	            	}else{
-	            		console.log('hapus response.unset_pokin_esisting', response.unset_pokin_esisting);
-	            		jQuery('#table-renstra-pokin-existing').parent().remove();
-	            	}
-	            }else{
-	            	alert(response.message);
-	            }
-            	jQuery('#wrap-loading').hide();
-            }
-        });
-    }
+						})
+						jQuery('#table-renstra-pokin-existing tbody').html(html);
+					} else {
+						console.log('hapus response.unset_pokin_esisting', response.unset_pokin_esisting);
+						jQuery('#table-renstra-pokin-existing').parent().remove();
+					}
+				} else {
+					alert(response.message);
+				}
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	}
 </script>

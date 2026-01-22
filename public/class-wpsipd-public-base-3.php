@@ -4009,6 +4009,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
 					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
 					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['id_sub_unit_usulan'] = $data['id_sub_unit_usulan'];
 					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
 					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
@@ -4029,6 +4030,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal'] == 0 ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir'] == 0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = $data['catatan'];
+						$inputs['id_sub_unit'] = $data['id_sub_unit'];
 					}
 
 					$status = $wpdb->insert('data_renstra_program_lokal', $inputs);
@@ -4178,6 +4180,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
 					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
 					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['id_sub_unit_usulan'] = $data['id_sub_unit_usulan'];
 					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
 					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
@@ -4198,6 +4201,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal'] == 0 ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir'] == 0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = $data['catatan'];
+						$inputs['id_sub_unit'] = $data['id_sub_unit'];
 					}
 
 					$status = $wpdb->update('data_renstra_program_lokal', $inputs, ['id' => $data['id']]);
@@ -5462,6 +5466,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
 					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
 					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['id_sub_unit_usulan'] = $data['id_sub_unit_usulan'];
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if (in_array('administrator', $this->role())) {
@@ -5480,6 +5485,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4'] == 0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
 						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5'] == 0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = $data['catatan'];
+						$inputs['id_sub_unit'] = $data['id_sub_unit'];
 					}
 
 					$status = $wpdb->insert('data_renstra_kegiatan_lokal', $inputs);
@@ -5629,6 +5635,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['target_3_usulan'] = $data['target_3_usulan'];
 					$inputs['target_4_usulan'] = $data['target_4_usulan'];
 					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['id_sub_unit_usulan'] = $data['id_sub_unit_usulan'];
 					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
 					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
 					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
@@ -5654,6 +5661,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4'] == 0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
 						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5'] == 0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = $data['catatan'];
+						$inputs['id_sub_unit'] = $data['id_sub_unit'];
 					}
 
 					$status = $wpdb->update('data_renstra_kegiatan_lokal', $inputs, ['id' => $data['id']]);
