@@ -7037,7 +7037,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					    );
 
 					    foreach ($data_sasaran_renstra as &$row) {
-					        // Ambil data tujuan LENGKAP dengan indikatornya
 					        $tujuan_data = $wpdb->get_row(
 					            $wpdb->prepare("
 					                SELECT 
@@ -7053,7 +7052,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        );
 					        
 					        if ($tujuan_data) {
-					            // Ambil indikator tujuan
 					            $tujuan_data['indikator'] = $wpdb->get_results(
 					                $wpdb->prepare("
 					                    SELECT 
@@ -7070,7 +7068,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            $row['tujuan'] = $tujuan_data;
 					        }
 
-					        // Ambil indikator sasaran (untuk mode normal)
 					        $row['indikator'] = $wpdb->get_results(
 					            $wpdb->prepare("
 					                SELECT 
@@ -7608,7 +7605,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            $row['get_pokin_renstra'] = array();
 					        }
 					        
-					        $data_kegiatan_renstra_lokal = $wpdb->get_row(
+					        $data_kegiatan_renstra_lokal = $wpdb->get_results(
 							    $wpdb->prepare("
 							        SELECT *
 							        FROM $tabel_renstra_lokal
@@ -7631,17 +7628,23 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							    ARRAY_A
 							);
 					        
-					        if (!empty($data_kegiatan_renstra_lokal)) {
-					            $data_transformasi_cascading = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_progkeg_transformasi_cascading
-					                    WHERE id_unik = %s
-					                      AND active = 1
-					                ", $data_kegiatan_renstra_lokal['id_unik']),
-					                ARRAY_A
-					            );
+					        $get_all_id_unik = array();
+							if (!empty($data_kegiatan_renstra_lokal)) {
+							    foreach ($data_kegiatan_renstra_lokal as $val) {
+							        $get_all_id_unik[] = $val['id_unik'];
+							    }
+							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+
+							    $data_transformasi_cascading = $wpdb->get_results(
+							        $wpdb->prepare("
+							            SELECT *
+							            FROM data_progkeg_transformasi_cascading
+							            WHERE id_unik IN ($id_unik)
+							              AND active = 1
+							        ", $get_all_id_unik),
+							        ARRAY_A
+							    );
 					            
 					            foreach ($data_transformasi_cascading as &$cascading) {
 								    $cascading['induk'] = $wpdb->get_row(
@@ -7865,7 +7868,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					            $row['get_pokin_renstra'] = array();
 					        }
 					        
-					        $data_sub_kegiatan_renstra_lokal = $wpdb->get_row(
+					        $data_sub_kegiatan_renstra_lokal = $wpdb->get_results(
 							    $wpdb->prepare("
 							        SELECT *
 							        FROM $tabel_renstra_lokal
@@ -7888,17 +7891,23 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							    ARRAY_A
 							);
 					        
-					        if (!empty($data_sub_kegiatan_renstra_lokal)) {
-					            $data_transformasi_cascading = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_progkeg_transformasi_cascading
-					                    WHERE id_unik = %s
-					                      AND active = 1
-					                ", $data_sub_kegiatan_renstra_lokal['id_unik']),
-					                ARRAY_A
-					            );
+					        $get_all_id_unik = array();
+							if (!empty($data_sub_kegiatan_renstra_lokal)) {
+							    foreach ($data_sub_kegiatan_renstra_lokal as $val) {
+							        $get_all_id_unik[] = $val['id_unik'];
+							    }
+							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+
+							    $data_transformasi_cascading = $wpdb->get_results(
+							        $wpdb->prepare("
+							            SELECT *
+							            FROM data_progkeg_transformasi_cascading
+							            WHERE id_unik IN ($id_unik)
+							              AND active = 1
+							        ", $get_all_id_unik),
+							        ARRAY_A
+							    );
 					            
 					            foreach ($data_transformasi_cascading as &$cascading) {
 								    $cascading['induk'] = $wpdb->get_row(
@@ -7907,7 +7916,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								            FROM data_transformasi_cascading
 								            WHERE id = %d
 								              AND active = 1
-								              AND is_pelaksana = 0
+								              -- AND is_pelaksana = 0
 								        ", $cascading['id_uraian_cascading']),
 								        ARRAY_A
 								    );
@@ -7950,12 +7959,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 					            $data_transformasi_cascading_pelaksana = $wpdb->get_results(
 					                $wpdb->prepare("
-					                    SELECT *
-					                    FROM data_progkeg_transformasi_cascading
-					                    WHERE id_unik = %s
-					                      AND active = 1
-					                ", $data_sub_kegiatan_renstra_lokal['id_unik']),
-					                ARRAY_A
+							            SELECT *
+							            FROM data_progkeg_transformasi_cascading
+							            WHERE id_unik IN ($id_unik)
+							              AND active = 1
+							        ", $get_all_id_unik),
+							        ARRAY_A
 					            );
 
 					            foreach ($data_transformasi_cascading_pelaksana as &$cascading_pelaksana) {
