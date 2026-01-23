@@ -7306,7 +7306,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
-					            ", $row['kode_program'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ", $row['kode_program'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
 					            ARRAY_A
 					        );
 
@@ -7321,7 +7321,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                      AND id_skpd = %d
 					                      AND tipe = 3
 					                      AND active = 1
-					                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
 					                ARRAY_A
 					            );
 					            
@@ -7581,7 +7581,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
-					            ", $row['kode_giat'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ", $row['kode_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
 					            ARRAY_A
 					        );
 					        
@@ -7596,10 +7596,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                      AND id_skpd = %d
 					                      AND tipe = 4
 					                      AND active = 1
-					                ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
 					                ARRAY_A
 					            );
-					            
 					            $row['get_pokin_renstra'] = $pokin_level_4;
 					        } else {
 					            $row['get_pokin_renstra'] = array();
@@ -7844,7 +7843,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
-					            ", $row['kode_sub_giat'], $_POST['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ", $row['kode_sub_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
 					            ARRAY_A
 					        );
 					        
@@ -7859,7 +7858,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                      AND id_skpd = %d
 					                      AND tipe = 5
 					                      AND active = 1
-					                ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $_POST['id_skpd']),
+					                ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
 					                ARRAY_A
 					            );
 					            
