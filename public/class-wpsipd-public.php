@@ -30516,17 +30516,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		} else {
 			$where_clause = $wpdb->prepare(" AND tahun_anggaran = %d AND id_unit = %d", $tahun_anggaran, $id_unit);
 		}
-		return $wpdb->get_results(
-			$wpdb->prepare("
+		$ret = $wpdb->get_results("
 				SELECT *
 				FROM data_renstra_sasaran_lokal
 				WHERE active = 1
 				  {$where_clause}
 				  AND id_unik_indikator IS NULL
 				ORDER BY urut_sasaran ASC
-			", $kode_tujuan),
+			",
 			ARRAY_A
 		);
+		return $ret;
 	}
 
 	function get_program_renstra_lokal_by_id_unik_sasaran(string $kode_sasaran, string $kode_bidang_urusan)

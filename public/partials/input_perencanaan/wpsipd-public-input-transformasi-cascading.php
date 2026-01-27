@@ -45,8 +45,7 @@ if (!$data_unit) {
 $all_tujuan = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal_renstra_lokal['tahun_anggaran'], $data_unit['id_skpd']);
 $all_sasaran = $this->get_sasaran_renstra_lokal_by_id_unik_tujuan(null, $jadwal_renstra_lokal['tahun_anggaran'], $data_unit['id_skpd']);
 
-date_default_timezone_set('Asia/Jakarta');
-$timezone = get_option('timezone_string');
+$timezone = wp_timezone_string();
 $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 ?>
 <style>
