@@ -30506,15 +30506,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 	}
 
-	function get_sasaran_renstra_lokal_by_id_unik_tujuan(string $kode_tujuan)
+	function get_sasaran_renstra_lokal_by_id_unik_tujuan($kode_tujuan = null, $tahun_anggaran = null, $id_unit = null) 
 	{
 		global $wpdb;
+
+		$where_clause = '';
+		if (!empty($kode_tujuan)) {
+			$where_clause = $wpdb->prepare(" AND kode_tujuan = %s ", $kode_tujuan);
+		} else {
+			$where_clause = $wpdb->prepare(" AND tahun_anggaran = %d AND id_unit = %d", $tahun_anggaran, $id_unit);
+		}
 		return $wpdb->get_results(
 			$wpdb->prepare("
 				SELECT *
 				FROM data_renstra_sasaran_lokal
-				WHERE kode_tujuan = %s
-				  AND active = 1
+				WHERE active = 1
+				  {$where_clause}
 				  AND id_unik_indikator IS NULL
 				ORDER BY urut_sasaran ASC
 			", $kode_tujuan),
@@ -30618,7 +30625,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			// 1. Validasi Input Dasar
 			$this->newValidate($_POST, [
 				'api_key'           => 'required|string',
-				'action_type'       => 'required|string', // 'create' atau 'edit'
+				'action_type'       => 'required|string|in:create,edit',
 				'id_jadwal'         => 'required|numeric',
 				'id_skpd'           => 'required|numeric',
 				'level'             => 'required|numeric', // 3, 4, atau 5
@@ -30797,7 +30804,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("Data tidak dapat dihapus karena punya child aktif! mohon hapus data dibawahnya terlebih dahulu.", 403);
 			}
 
-			if ($data_utama['level'] == 5 && $data_utama['is_pelaksana'] == 0) {
+			$is_from_apbd = $data_utama['tahun_apbd'] == NULL ? true : false;
+
+			if ($data_utama['level'] == 5 && $data_utama['is_pelaksana'] == 0 && $is_from_apbd == false) {
 				
 				// Validasi: Cek apakah dia satu satunya ketua tim untuk sub kegiatan terkait
 				$list_id_unik = $wpdb->get_results(
@@ -30888,6 +30897,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				", $id_trans)
 			);
 
+			// 4. Soft Delete pokin Relations
+			if ($is_from_apbd == true) {
+				$wpdb->update(
+					'data_pokin_renstra', 
+					['active' => 0], 
+					['id_unik' => $id_trans]
+				);
+			}
+
 			if ($indikator_ids) {
 				foreach ($indikator_ids as $ind_id) {
 
@@ -30940,14 +30958,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		
 		try {
-			if (empty($_POST['id'])) throw new Exception("ID param required", 400);
+			$this->newValidate($_POST, [
+				'api_key' 		=> 'required|string',
+				'id'      		=> 'required|numeric',
+				'is_apbd'      	=> 'required'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
 			$id = $_POST['id'];
 
 			// 1. Ambil Data Utama
 			$data_utama = $wpdb->get_row($wpdb->prepare("
 				SELECT * 
 				FROM data_transformasi_cascading 
-				WHERE id = %d AND active = 1
+				WHERE id = %d 
+				  AND active = 1
 			", $id), ARRAY_A);
 
 			if (!$data_utama) throw new Exception("Data tidak ditemukan", 404);
@@ -30956,22 +30984,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$progkeg = $wpdb->get_col($wpdb->prepare("
 				SELECT id_unik 
 				FROM data_progkeg_transformasi_cascading 
-				WHERE id_uraian_cascading = %d AND active = 1
+				WHERE id_uraian_cascading = %d 
+				  AND active = 1
 			", $id));
 
 			// 3. Ambil List Indikator
 			$indikator = $wpdb->get_results($wpdb->prepare("
 				SELECT id, indikator, satuan 
 				FROM data_indikator_transformasi_cascading 
-				WHERE id_uraian_cascading = %d AND active = 1
+				WHERE id_uraian_cascading = %d 
+				  AND active = 1
 			", $id), ARRAY_A);
+
+			if ($_POST['is_apbd'] == true) {
+				$pokins = $wpdb->get_col($wpdb->prepare("
+					SELECT id_pokin
+					FROM data_pokin_renstra 
+					WHERE id_unik = %d 
+					AND active = 1
+				", $id));
+			}
 
 			echo json_encode([
 				'status' => true,
 				'data'   => [
 					'main'      => $data_utama,
 					'id_unik'   => $progkeg,   // Array of Strings (untuk val() select2)
-					'indikator' => $indikator  // Array of Objects (untuk loop render row)
+					'indikator' => $indikator, // Array of Objects (untuk loop render row)
+					'pokin'     => $pokins ?? []
 				]
 			]);
 
@@ -31591,6 +31631,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$rows[] = [
+					'id' => $ind['id'],
 					'indikator' => $ind['indikator'],
 					'satuan'    => $html_satuan
 				];
@@ -31600,6 +31641,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		// Fallback jika tidak ada indikator
 		if (empty($rows)) {
 			$rows[] = [
+				'id' => '',
 				'indikator' => '-',
 				'satuan'    => '-'
 			];
@@ -31773,7 +31815,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$nama_sub_unit = "<br><span class='text-muted'>( $renstra->nama_sub_unit )</span>"; 
 				}
 				
-				$html_nomenklatur .= "{$separator}<li>{$nama_nomenklatur}{$nama_sub_unit}</li>";
+				$html_nomenklatur .= "{$separator}<li data-id_unik='{$id_unik}'>{$nama_nomenklatur}{$nama_sub_unit}</li>";
 
 				// Indikator & Satuan
 				if ($indicators) {
@@ -31912,7 +31954,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$first = $indikator['rows'][0];
 
 				$html_output .= "
-				<tr class='bg-level-1'>
+				<tr class='bg-level-1' data-id_unik='{$t['id_unik']}'>
 					<td rowspan='{$indikator['rowspan']}'>{$html_pokin_tujuan}</td>
 					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Final Outcome <br> ( TUJUAN )</td>
 					<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$t['tujuan_teks']}</strong></td>
@@ -32011,7 +32053,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$first = $indikator['rows'][0];
 
 					$html_output .= "
-					<tr class='bg-level-2'>
+					<tr class='bg-level-2' data-id_unik='{$s['id_unik']}'>
 						<td rowspan='{$indikator['rowspan']}'>{$html_pokin_sasaran}</td>
 						<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>Intermediate Outcome <br>( SASARAN )</td>
 						<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$s['sasaran_teks']}</strong></td>
@@ -32164,6 +32206,173 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 				
 			}
+			echo json_encode([
+				'status' => true,
+				'html' => $html_output
+			]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
+		}
+		wp_die();
+	}
+
+	function get_all_apbd_by_tahun_and_id_skpd(int $tahun, int $id_skpd)
+	{
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare('
+				SELECT *
+				FROM data_sub_keg_bl
+				WHERE id_skpd = %d
+				  AND tahun_anggaran = %d
+				  AND active = 1
+			', $id_skpd, $tahun)
+			, ARRAY_A
+		);
+	}
+
+	function handle_get_view_tabel_cascading_apbd()
+	{
+		global $wpdb;
+
+		try {
+			// Validasi input
+			$this->newValidate($_POST, [
+				'api_key'   => 'required|string',
+				'id_jadwal' => 'required|numeric',
+				'tahun_apbd' => 'required|numeric',
+				'id_skpd'   => 'required|numeric'
+			]);
+
+			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
+				throw new Exception("API key tidak valid!", 401);
+			}
+
+			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
+			if (empty($jadwal)) {
+				throw new Exception("Jadwal tidak ditemukan!", 401);
+			}
+
+			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
+			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+			
+			$query_main = $wpdb->prepare("
+				SELECT 
+					t.*,
+					p.id as id_prog,
+					p.id_unik as kode_sbl
+				FROM data_transformasi_cascading t
+				LEFT JOIN data_progkeg_transformasi_cascading p
+					   ON t.id = p.id_uraian_cascading
+					  AND p.active = 1
+				WHERE t.id_jadwal = %d 
+				  AND t.id_skpd = %d 
+				  AND t.tahun_apbd = %d
+				  AND t.active = 1
+			", $_POST['id_jadwal'], $_POST['id_skpd'], $_POST['tahun_apbd']);
+
+			$cascading_data = $wpdb->get_results($query_main, ARRAY_A);
+
+			$data_apbd = $this->get_all_apbd_by_tahun_and_id_skpd($_POST['tahun_apbd'], $_POST['id_skpd']);
+			$mapped_apbd = [];
+			if (!empty($data_apbd)) {
+				foreach ($data_apbd as $v) {
+					$mapped_apbd[$v['kode_sbl']] = $v;
+				}
+			}
+
+			if (empty($cascading_data) || empty($mapped_apbd)) {
+				echo json_encode([
+					'status' => true, 
+					'html' => '<tr><td colspan="7" class="text-center text-muted font-italic p-3">Belum ada data transformasi cascading APBD ' . $_POST['tahun_apbd'] . '.</td></tr>'
+				]);
+				wp_die();
+			}
+
+			$html_output = '';
+			$aksi = '';
+			foreach ($cascading_data as $v) {
+				
+				if($v['level'] == 3) {
+					$badge_class = 'bg-level-3';
+					$tipe = 'Outcome';
+					$key = 'nama_program';
+				} else if($v['level'] == 4) {
+					$badge_class = 'bg-level-4';
+					$tipe = 'Intermediate Output';
+					$key = 'nama_giat';
+				} else if($v['level'] == 5) {
+					$badge_class = 'bg-level-5';
+					$key = 'nama_sub_giat';
+					if ($v['is_pelaksana'] == 1) {
+						$tipe = 'Input';
+					} else {
+						$tipe = 'Output';
+					}
+				}
+
+				$aksi = "
+					<button class='btn btn-info' onclick='openFormAddIndikator({$v['id']}, null, true)' title='Tambah Indikator'><span class='dashicons dashicons-plus'></span></button>
+					<button class='btn btn-warning btn-edit-transformasi-apbd' title='Edit Data' data-id='{$v['id']}' data-type='{$v['level']}' data-id_trans='{$v['id']}'><span class='dashicons dashicons-edit'></span></button>
+					<button class='btn btn-danger' title='Hapus Data' onclick='deleteData({$v['id']})'><span class='dashicons dashicons-trash'></span></button>
+				";
+
+				$pokin_list = $this->get_pokin_renstra_by_id_unik($v['id']);
+
+				$html_pokin = '-';
+				if (!empty($pokin_list)) {
+					$html_pokin = "<ul class='list-unstyled m-0 p-0'>";
+					foreach ($pokin_list as $pokin) {
+						$html_pokin .= "<li>[{$pokin['level']}] {$pokin['label']}</li>";
+						}
+					$html_pokin .= "</ul>";
+				}
+				
+				$indikator = $this->generate_list_indikator_transformasi_cascading($v['id']);
+
+				$first = $indikator['rows'][0];
+
+				$action_indikator = '';
+				if (!empty($first['id'])) {
+					$action_indikator = "
+						<span class='delete-monev ml-2' onclick='deleteIndikator({$first['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
+						<span class='edit-monev'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$first['id']}, true)'></span></span>
+					";
+				}
+				
+				$html_output .= "
+				<tr class='{$badge_class}' data-id='{$v['id']}'>
+					<td rowspan='{$indikator['rowspan']}'>{$html_pokin}</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center font-weight-bold small'>{$tipe}</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-left'><strong>{$v['uraian_cascading']}</strong>" . ($v['is_pelaksana'] == 1 ? "<span class='badge badge-warning ml-2 p-1'>Pelaksana</span>" : "") . "</td>
+					<td>
+						{$first['indikator']} {$action_indikator}
+					</td>
+					<td>{$first['satuan']}</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-left'>{$mapped_apbd[$v['kode_sbl']][$key]}</td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center><div class='btn-group-vertical'>{$aksi}</div></td>
+				</tr>
+				";
+
+				for ($i = 1; $i < $indikator['rowspan']; $i++) {
+					$row = $indikator['rows'][$i];
+
+					$action_indikator = "
+						<span class='delete-monev ml-2' onclick='deleteIndikator({$row['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
+						<span class='edit-monev ml-2'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$row['id']}, true)'></span></span>
+					";
+					$html_output .= "
+					<tr class='{$badge_class}'>
+						<td>{$row['indikator']} {$action_indikator}</td>
+						<td>{$row['satuan']}</td>
+					</tr>
+					";
+				}
+			} 
+			
 			echo json_encode([
 				'status' => true,
 				'html' => $html_output
@@ -32378,7 +32587,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$html .= "
-					<tr class='{$badge_class}'>
+					<tr class='{$badge_class}' data-id_unik='{$row['id_unik']}'>
 						<td class='text-center'>{$no}</td>
 						<td>{$pokin_text}</td>
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
@@ -32606,13 +32815,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$nama_renstra = $row['nama'];
 					if($row['lvl'] == 3) {
 						$badge_class = 'bg-level-3';
-						$type = 'program';
 					} else if($row['lvl'] == 4) {
 						$badge_class = 'bg-level-4';
-						$type = 'kegiatan';
 					} else if($row['lvl'] == 5) {
 						$badge_class = 'bg-level-5';
-						$type = 'sub_kegiatan';
 						if (!empty($row['nama'])) {
 							$renstra_name_parts = explode(' ', $row['nama'], 2);
 							$nama_renstra = $renstra_name_parts[1];
@@ -32621,14 +32827,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					// $aksi = "
-					// <button 
-					// 	class='btn btn-sm btn-primary btn-assign-renstra-transformasi' 
-					// 	data-id='{$row['id']}'
-					// 	data-type='{$type}'
-					// 	title='Tambahkan ke Transformasi Cascading'
-					// ><span class='dashicons dashicons-plus'></span>
-					// </button>";
+					$aksi = "
+						<button 
+							class='btn btn-sm btn-primary btn-assign-renstra-transformasi' 
+							data-id='{$row['id']}'
+							data-type='{$row['lvl']}'
+							title='Tambahkan ke Transformasi Cascading'
+						><span class='dashicons dashicons-plus'></span>
+						</button>
+					";
 
 					$html .= "
 					<tr class='{$badge_class}'>
@@ -32636,6 +32843,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
 						<td class='text-left font-weight-bold'>{$nama_renstra}</td>
+						<td class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 					</tr>
 					";
 					$no++;
@@ -32654,54 +32862,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		wp_die();
 	}
-
-	// function get_parent_apbd_by_id()
-	// {
-	// 	try {
-	// 		$this->newValidate($_POST, [
-	// 			'api_key'   => 'required|string',
-	// 			'id' 		=> 'required|numeric',
-	// 			'type' 		=> 'required|string|in:program,kegiatan,sub_kegiatan'
-	// 		]);
-
-	// 		if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
-	// 			throw new Exception("API key tidak valid!", 401);
-	// 		}
-
-	// 		global $wpdb;
-
-	// 		switch ($_POST['type']) {
-	// 			case 'program':
-	// 				$data = $this->get_sub_keg_bl_by_id($_POST['id']);
-
-	// 				$kode_program = $data['kode_program'];
-
-	// 				break;
-				
-	// 			case 'kegiatan':
-	// 				# code...
-	// 				break;
-				
-	// 			case 'sub_kegiatan':
-	// 				# code...
-	// 				break;
-				
-	// 			default:
-	// 				throw new Exception("Tipe tidak dikenali.", 400);
-	// 				break;
-	// 		}
-
-	// 		echo json_encode([
-	// 			'status' => true,
-	// 			'data' => 
-	// 		]);
-
-	// 	} catch (Exception $e) {
-	// 		http_response_code(500);
-	// 		echo json_encode(['status' => false, 'message' => $e->getMessage()]);
-	// 	}
-	// 	wp_die();
-	// }
 
 	function get_sub_keg_bl_by_id($id)
 	{
@@ -32724,14 +32884,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 
 		try {
+			// =======================
+			// 1. VALIDASI INPUT
+			// =======================
 			$this->newValidate($_POST, [
-				'api_key'           => 'required|string',
-				'id_jadwal'         => 'required|numeric',
-				'id_skpd'           => 'required|numeric',
-				'id_apbd'           => 'required|numeric',
-				'tahun_apbd'        => 'required|numeric',
-				'type'              => 'required|in:program,kegiatan,sub_kegiatan',
-				'uraian_cascading'  => 'required|string',
+				'api_key'           	=> 'required|string',
+				'action_type'       	=> 'required|string|in:create,edit',
+				'id_jadwal'         	=> 'required|numeric',
+				'id_skpd'           	=> 'required|numeric',
+				'tahun_apbd'        	=> 'required|numeric',
+				'type'              	=> 'required|in:3,4,5',
+				'uraian_cascading'  	=> 'required|string',
+				'id_unik_sasaran'  		=> 'required|string',
+				'pohon_kinerja'  		=> 'required',
+				'id_jadwal_wp_sakip'  	=> 'required',
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
@@ -32740,45 +32906,136 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$this->get_jadwal_and_check_expired($_POST['id_jadwal']);
 
-			$sub_keg_bl = $this->get_sub_keg_bl_by_id($_POST['id_apbd']);
-			if (!$sub_keg_bl) { 
-				throw new Exception($_POST['type'] . ' tidak ditemukan.', 400);
-			}
-
 			$levelMap = [
-				'program'       => 3,
-				'kegiatan'      => 4,
-				'sub_kegiatan'  => 5
+				'3' => 3,
+				'4' => 4,
+				'5' => 5
 			];
 
+			$action_type = $_POST['action_type'];
+
+			// =======================
+			// 2. TRANSAKSI
+			// =======================
 			$wpdb->query('START TRANSACTION');
 
-			$wpdb->insert('data_transformasi_cascading', [
+			$data_utama = [
 				'level'            => $levelMap[$_POST['type']],
-				'is_apbd'          => 1,
+				'tahun_apbd'       => $_POST['tahun_apbd'],
 				'uraian_cascading' => sanitize_textarea_field($_POST['uraian_cascading']),
 				'is_pelaksana'     => !empty($_POST['is_pelaksana']) ? 1 : 0,
 				'id_skpd'          => $_POST['id_skpd'],
 				'id_jadwal'        => $_POST['id_jadwal'],
-			]);
+				'sasaran_renstra'  => $_POST['id_unik_sasaran'],
+			];
 
-			if (!$wpdb->insert_id) {
-				throw new Exception('Gagal menyimpan data transformasi.', 500);
+			$id_trans = 0;
+
+			// =======================
+			// 3. CREATE / EDIT DATA UTAMA
+			// =======================
+			if ($action_type === 'create') {
+				if (empty($_POST['id_apbd'])) {
+					throw new Exception('ID APBD tidak ditemukan untuk proses tambah.', 400);
+				}
+
+				$sub_keg_bl = $this->get_sub_keg_bl_by_id($_POST['id_apbd']);
+				if (!$sub_keg_bl) {
+					throw new Exception('Nomenklatur tidak ditemukan.', 400);
+				}
+
+				$insert = $wpdb->insert('data_transformasi_cascading', $data_utama);
+				if (!$insert) {
+					throw new Exception('Gagal menyimpan data transformasi.', 500);
+				}
+
+				$id_trans = $wpdb->insert_id;
+
+				$wpdb->insert('data_progkeg_transformasi_cascading', [
+					'id_uraian_cascading' => $id_trans,
+					'id_unik'             => $sub_keg_bl['kode_sbl'],
+					'active'              => 1
+				]);
+
+			} else { // EDIT
+				if (empty($_POST['id_trans'])) {
+					throw new Exception('ID transformasi tidak ditemukan.', 400);
+				}
+
+				$id_trans = (int) $_POST['id_trans'];
+
+				$update = $wpdb->update(
+					'data_transformasi_cascading',
+					$data_utama,
+					['id' => $id_trans]
+				);
+
+				if ($update === false) {
+					throw new Exception('Gagal mengupdate data transformasi.', 500);
+				}
+
+				// =======================
+				// SOFT DELETE RELASI LAMA
+				// =======================
+				// $wpdb->update(
+				// 	'data_progkeg_transformasi_cascading',
+				// 	['active' => 0],
+				// 	['id_uraian_cascading' => $id_trans]
+				// );
+
+				$wpdb->update(
+					'data_pokin_renstra',
+					['active' => 0],
+					['id_unik' => $id_trans, 'tipe' => 6]
+				);
 			}
 
-			$id_trans = $wpdb->insert_id;
+			// =======================
+			// 5. INSERT POHON KINERJA
+			// =======================
+			$pokin_all = $this->get_data_pohon_kinerja(true);
+			$new_pokin = [];
 
-			$wpdb->insert('data_progkeg_transformasi_cascading', [
-				'id_uraian_cascading' => $id_trans,
-				'id_unik'             => $sub_keg_bl['kode_sbl'],
-				'tahun_apbd'          => $_POST['tahun_apbd'],
-			]);
+			foreach ($pokin_all['data'] as $val) {
+				$new_pokin[$val->id] = $val;
+			}
 
+			if(!is_array($_POST['pohon_kinerja'])){
+				$_POST['pohon_kinerja'] = array($_POST['pohon_kinerja']);
+			}
+			foreach ($_POST['pohon_kinerja'] as $id_pokin) {
+				if (!empty($new_pokin[$id_pokin])) {
+
+					$indikator = [];
+					foreach ($new_pokin[$id_pokin]->indikator as $ind) {
+						$indikator[] = $ind->label;
+					}
+
+					$wpdb->insert('data_pokin_renstra', [
+						'id_pokin' 		 => $id_pokin,
+						'level' 		 => $new_pokin[$id_pokin]->level,
+						'label' 		 => $new_pokin[$id_pokin]->label,
+						'indikator' 	 => implode(', ', $indikator),
+						'tipe' 			 => 6,
+						'id_unik' 		 => $id_trans,
+						'id_skpd' 		 => NULL,
+						'tahun_anggaran' => NULL,
+						'active' 		 => 1,
+						'created_at' 	 => current_time('mysql')
+					]);
+				}
+			}
+
+			// =======================
+			// 6. COMMIT
+			// =======================
 			$wpdb->query('COMMIT');
 
-			echo json_encode([
-				'status' => true,
-				'message' => 'data berhasil ditambahkan!'
+			wp_send_json_success([
+				'message' => ($action_type === 'create')
+					? 'Data berhasil ditambahkan!'
+					: 'Data berhasil diperbarui!',
+				'id' => $id_trans
 			]);
 
 		} catch (Exception $e) {

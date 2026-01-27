@@ -2076,7 +2076,6 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">' . $indikator_tujuan . '</td>
-				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah text_tengah">' . $target_awal . '</td>';
 	for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 		$body .= "<td class=\"atas kanan bawah text_tengah\">" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\"><b>(" . $this->_number_format($tujuan['pagu_akumulasi_' . ($i + 1)]) . ")</b></td>";
@@ -2087,6 +2086,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah text_tengah">' . $tujuan['urut_tujuan'] . '</td>
 				<td class="atas kanan bawah">' . $tujuan['catatan'] . '</td>
 				<td class="atas kanan bawah">' . $catatan_indikator . '</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah td-usulan">' . $indikator_tujuan_usulan . '</td>
 				<td class="atas kanan bawah text_tengah td-usulan">' . $target_awal_usulan . '</td>';
 	for ($i = 0; $i < $lama_pelaksanaan; $i++) {
@@ -2160,7 +2160,6 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">' . $indikator_sasaran . '</td>
-					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah text_tengah">' . $target_awal . '</td>';
 		for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 			$body .= "<td class=\"atas kanan bawah text_tengah\">" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\"><b>(" . $this->_number_format($sasaran['pagu_akumulasi_' . ($i + 1)]) . ")</b></td>";
@@ -2171,6 +2170,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah text_tengah">' . $sasaran['urut_sasaran'] . '</td>
 					<td class="atas kanan bawah">' . $sasaran['catatan'] . '</td>
 					<td class="atas kanan bawah">' . $catatan_indikator . '</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah td-usulan">' . $indikator_sasaran_usulan . '</td>
 					<td class="atas kanan bawah text_tengah td-usulan">' . $target_awal_usulan . '</td>';
 		for ($i = 0; $i < $lama_pelaksanaan; $i++) {
@@ -2567,10 +2567,9 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah">' . $sub_kegiatan['sub_kegiatan_teks'] . "" . $isMutakhir . '</td>
-								<td class="atas kanan bawah"><br>' . $indikator_sub_kegiatan . '</td>
 								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"><br>' . $indikator_sub_kegiatan . '</td>
 								<td class="atas kanan bawah text_tengah"><br>' . $target_awal . '</td>';
 					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
 						$body .= "<td class=\"atas kanan bawah text_tengah\"><br>" . $target_arr[$i] . "</td><td class=\"atas kanan bawah text_kanan\">" . $this->_number_format($sub_kegiatan['pagu_' . ($i + 1)]) . "</td>";
@@ -2582,6 +2581,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah">' . $sub_kegiatan['catatan'] . '</td>
 								<td class="atas kanan bawah"><br>' . $catatan_indikator . '</td>
+								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah td-usulan"><br>' . $indikator_sub_kegiatan_usulan . '</td>
 								<td class="atas kanan bawah text_tengah td-usulan"><br>' . $target_awal_usulan . '</td>';
 					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
@@ -6443,6 +6443,7 @@ $table .= '
 
 	jQuery(document).on('change', '#program-teks', function() {
 		var val = jQuery(this).val();
+		var kode_bidur = jQuery(this).data('kode_bidur');
 		var val_urusan = jQuery('#urusan-teks').val();
 		var val_bidang = jQuery('#bidang-teks').val();
 		for (var nm_urusan in all_program) {
@@ -8071,7 +8072,7 @@ $table .= '
 					if (val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program) {
 						selected = 'selected';
 					}
-					html += '<option ' + selected + ' value="' + all_program[current_nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
+					html += '<option ' + selected + ' data-kode_bidur="' + all_program[current_nm_urusan][nm_bidang][nm_program].kode_bidang_urusan + '" value="' + all_program[current_nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
 				}
 			} else {
 				for (var nm_bidang in all_program[current_nm_urusan]) {
@@ -8080,7 +8081,7 @@ $table .= '
 						if (val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program) {
 							selected = 'selected';
 						}
-						html += '<option ' + selected + ' value="' + all_program[current_nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
+						html += '<option ' + selected + ' data-kode_bidur="' + all_program[current_nm_urusan][nm_bidang][nm_program].kode_bidang_urusan + '" value="' + all_program[current_nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
 					}
 				}
 			}
@@ -8093,7 +8094,7 @@ $table .= '
 							if (val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program) {
 								selected = 'selected';
 							}
-							html += '<option ' + selected + ' value="' + all_program[nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
+							html += '<option ' + selected + ' data-kode_bidur="' + all_program[nm_urusan][nm_bidang][nm_program].kode_bidang_urusan + '" value="' + all_program[nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
 						}
 					}
 				}
@@ -8105,7 +8106,7 @@ $table .= '
 							if (val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program) {
 								selected = 'selected';
 							}
-							html += '<option ' + selected + ' value="' + all_program[nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
+							html += '<option ' + selected + ' data-kode_bidur="' + all_program[nm_urusan][nm_bidang][nm_program].kode_bidang_urusan + '" value="' + all_program[nm_urusan][nm_bidang][nm_program].id_program + '">' + nm_program + '</option>';
 						}
 					}
 				}

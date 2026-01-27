@@ -1241,6 +1241,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_handle_get_unmapped_renstra_transformasi',  $plugin_public, 'handle_get_unmapped_renstra_transformasi');
 		$this->loader->add_action('wp_ajax_handle_save_apbd_transformasi',  $plugin_public, 'handle_save_apbd_transformasi');
 		$this->loader->add_action('wp_ajax_handle_get_view_tabel_cascading',  $plugin_public, 'handle_get_view_tabel_cascading');
+		$this->loader->add_action('wp_ajax_handle_get_view_tabel_cascading_apbd',  $plugin_public, 'handle_get_view_tabel_cascading_apbd');
 		$this->loader->add_action('wp_ajax_handle_get_transformasi_list',  $plugin_public, 'handle_get_transformasi_list');
 		$this->loader->add_action('wp_ajax_handle_get_detail_transformasi_cascading',  $plugin_public, 'handle_get_detail_transformasi_cascading');
 		$this->loader->add_action('wp_ajax_handle_delete_transformasi_cascading',  $plugin_public, 'handle_delete_transformasi_cascading');

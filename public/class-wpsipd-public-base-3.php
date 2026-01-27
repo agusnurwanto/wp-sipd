@@ -5829,13 +5829,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					*/
 				}
 
-				if (!empty($_POST['type']) && $_POST['type'] == 1) {
+				if (!empty($_POST['type']) && $_POST['type'] == 1) { 
 					$data = $wpdb->get_results("
                         SELECT
                             u.nama_urusan,
                             u.nama_bidang_urusan,
                             u.nama_program,
-                            u.id_program
+                            u.id_program,
+                            u.kode_bidang_urusan
                         FROM data_prog_keg as u
                         " . $join . "
                         WHERE u.tahun_anggaran=$tahun_anggaran and 
@@ -5850,6 +5851,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                             s.id_skpd,
                             s.kode_skpd,
                             s.nama_skpd,
+                            u.kode_bidang_urusan,
                             u.nama_urusan,
                             u.nama_program,
                             u.kode_program,
