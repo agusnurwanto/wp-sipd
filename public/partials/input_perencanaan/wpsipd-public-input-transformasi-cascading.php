@@ -22,6 +22,9 @@ $jadwal_renstra_lokal = $wpdb->get_row(
 if (!$jadwal_renstra_lokal) {
     die('<h1 class="text-center">Jadwal RENSTRA Lokal tidak ditemukan!</h1>');
 }
+if (!$jadwal_renstra_lokal['id_jadwal_sakip']) {
+    die('<h1 class="text-center">Jadwal ESAKIP tidak ditemukan, atur di halaman jadwal renstra lokal!</h1>');
+}
 $nama_jadwal = $jadwal_renstra_lokal['nama'] . ' ' . '(' . $jadwal_renstra_lokal['tahun_anggaran'] . ' - ' . ($jadwal_renstra_lokal['tahun_anggaran'] + $jadwal_renstra_lokal['lama_pelaksanaan'] - 1) . ')';
 
 $data_unit = $wpdb->get_row(
@@ -38,8 +41,11 @@ $data_unit = $wpdb->get_row(
 if (!$data_unit) {
     die('<h1 class="text-center">Data Unit tidak ditemukan!</h1>');
 }
-date_default_timezone_set('Asia/Jakarta');
-$timezone = get_option('timezone_string');
+
+$all_tujuan = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal_renstra_lokal['tahun_anggaran'], $data_unit['id_skpd']);
+$all_sasaran = $this->get_sasaran_renstra_lokal_by_id_unik_tujuan(null, $jadwal_renstra_lokal['tahun_anggaran'], $data_unit['id_skpd']);
+
+$timezone = wp_timezone_string();
 $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 ?>
 <style>
@@ -165,7 +171,9 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     </thead>
                     <tbody id="tbody-cascading-full">
                         <tr>
-                            <td colspan="8" class="text-center p-5"><span class="dashicons dashicons-update"></span> Memuat Data...</td>
+                            <td colspan="8" class="text-center p-3 text-muted font-italic">
+                                Memuat Data... <span class="dashicons dashicons-update"></span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -344,7 +352,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                             <th style="width:15%">Tipe</th>
                                             <th style="width:15%">Kode</th>
                                             <th>Nama</th>
-                                            <!-- <th style="width:5%">Aksi</th> -->
+                                            <th style="width:5%">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-unmapped-subkegbl-<?= $tahun_tab ?>"></tbody>
@@ -357,6 +365,39 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             <?php endfor; ?>
         </div>
     </section>
+
+    <div class="card shadow-sm mt-4 mb-5">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 text-center">Tabel Transformasi Cascading APBD <span id="tahun-apbd-title"></h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-scroll">
+                <table class="table-renstra mb-0">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width: 20%;">Pohon Kinerja</th>
+                            <th rowspan="2" style="width: 10%;">Tipe</th>
+                            <th colspan="3">Cascading</th>
+                            <th rowspan="2" style="width: 20%;">Nomenklatur (APBD)</th>
+                            <th rowspan="2" style="width: 10%;">Aksi</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 25%;">Uraian</th>
+                            <th style="width: 20%;">Indikator</th>
+                            <th style="width: 10%;">Satuan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-cascading-apbd">
+                        <tr>
+                            <td colspan="7" class="text-center p-3 text-muted font-italic">
+                                Memuat Data... <span class="dashicons dashicons-update"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="modal-monev" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-xl" role="document">
@@ -419,6 +460,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
                         <input type="hidden" id="input_ind_parent_id" name="id_uraian_cascading">
 
+                        <input type="hidden" id="indikator_apbd" name="indikator_apbd">
+
                         <div class="form-group">
                             <label class="font-weight-bold">Narasi Indikator <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="input_ind_narasi" name="indikator" rows="3" placeholder="Contoh: Jumlah dokumen..." required></textarea>
@@ -465,7 +508,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     </div>
 
     <div class="modal fade" id="modal-assign-apbd-transformasi" role="dialog" aria-hidden="true" data-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content shadow">
                 <div class="modal-header">
                     <h6 class="modal-title" id="title-form-indikator">Tambahkan ke transformasi</h6>
@@ -475,7 +518,38 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 </div>
                 <div class="modal-body">
                     <form id="form-transformasi-assign">
+                        <input type="hidden" id="id_transformasi" name="id_transformasi">
                         <input type="hidden" id="id_apbd" name="id_apbd">
+                        <input type="hidden" id="action_type_apbd" name="action_type_apbd" value="create">
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">
+                                Tujuan
+                            </label>
+                            <select
+                                class="form-control"
+                                id="select_tujuan_apbd"
+                                name="kode_tujuan"
+                                disabled>
+                                <option value="">Tujuan otomatis berdasarkan sasaran</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">
+                                Sasaran <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                class="form-control"
+                                id="select_sasaran_apbd"
+                                name="kode_sasaran"
+                                required>
+                                <option value="">-- Pilih Sasaran --</option>
+                            </select>
+                        </div>
+
+                        <div id="pokin-field"></div>
+
                         <div class="form-group">
                             <label class="font-weight-bold text-dark">Uraian Cascading <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="input_uraian_apbd" name="uraian_cascading_apbd" rows="3" placeholder="Contoh: Terlaksananya kegiatan..." required style="min-height: 100px;"></textarea>
@@ -507,7 +581,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" style="overflow-y: auto; height: 90vh;">
+                <div class="modal-body table-responsive">
                     <form id="form-cascading">
                         <input type="hidden" id="input_id" name="id">
                         <input type="hidden" id="input_action_type" name="action_type" value="create">
@@ -531,8 +605,6 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                             <small class="form-text text-muted">Cari dan pilih referensi (Bisa lebih dari satu).</small>
                         </div>
 
-                        <hr>
-
                         <div class="form-group bg-light p-2 rounded border-left border-primary pelaksana-section" style="display: none;">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="input_is_pelaksana" name="is_pelaksana" value="1">
@@ -555,6 +627,10 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     jQuery(document).ready(() => {
         window.idJadwal = '<?php echo $_GET['id_jadwal']; ?>';
         window.idUnit = '<?php echo $data_unit['id_unit']; ?>';
+
+        window.all_tujuan = <?php echo json_encode($all_tujuan); ?>;
+        window.all_sasaran = <?php echo json_encode($all_sasaran); ?>;
+
         jQuery('#pokin_list').select2({
             dropdownParent: jQuery('#modal-form-cascading'),
             multiple: true,
@@ -565,15 +641,36 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         loadTabelFull();
         loadTabelUnmapped();
+        generate_option_pokin();
+        initSasaranTujuanApbd();
 
-        // load pertama (tab aktif awal)
+        async function loadKeduaTabel(tahun) {
+            try {
+                jQuery('#wrap-loading').show();
+
+                await loadTabelUnmappedSubkegbl(tahun);
+                await loadTabelApbd();
+
+                // muncul setelah dua-duanya selesai
+                jQuery(`#container-unmapped-subkegbl-${tahun}`).fadeIn(200);
+                jQuery('#container-cascading-apbd').fadeIn(200);
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'Gagal memuat data');
+            } finally {
+                jQuery('#wrap-loading').hide();
+            }
+        }
+
+        // load awal
         const firstTab = jQuery('#tab-renstra .nav-link.active').data('tahun');
-        loadTabelUnmappedSubkegbl(firstTab);
+        loadKeduaTabel(firstTab);
 
         // saat tab diganti
         jQuery('#tab-renstra a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
             const tahun = jQuery(e.target).data('tahun');
-            loadTabelUnmappedSubkegbl(tahun);
+            loadKeduaTabel(tahun);
         });
 
         jQuery('#input_id_unik').on('change', function() {
@@ -637,12 +734,42 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     });
 
+    jQuery(document).on('change', '#select_sasaran_apbd', function() {
+        const kodeTujuan = jQuery(this).find(':selected').data('kode-tujuan');
+        const $tujuan = jQuery('#select_tujuan_apbd');
+
+        $tujuan.html('<option value="">Tujuan otomatis berdasarkan sasaran</option>');
+
+        if (!kodeTujuan) {
+            $tujuan.prop('disabled', true);
+            return;
+        }
+
+        const tujuan = (window.all_tujuan || []).find(
+            t => t.id_unik === kodeTujuan
+        );
+
+        if (tujuan) {
+            $tujuan.append(`
+            <option value="${tujuan.id_unik}" selected>
+                ${tujuan.tujuan_teks}
+            </option>
+        `);
+            $tujuan.prop('disabled', true);
+        }
+    });
+
+
     jQuery(document).on('click', '.btn-assign-renstra-transformasi', function() {
+        jQuery('#pokin-level').val('').trigger('change');
+        jQuery('#id_transformasi').val('');
+        jQuery('#select_sasaran_apbd').val('').trigger('change');
         jQuery('#id_apbd').val(jQuery(this).data('id'));
+        jQuery('#action_type_apbd').val('create');
 
-        window.typeApbd = jQuery(this).data('type'); // program/kegiatan/sub_kegiatan
+        window.typeApbd = jQuery(this).data('type');
 
-        if (window.typeApbd === 'sub_kegiatan') {
+        if (window.typeApbd == 5) {
             jQuery('.pelaksana-section-apbd').show();
         } else {
             jQuery('.pelaksana-section-apbd').hide();
@@ -650,6 +777,47 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         jQuery('#input_uraian_apbd').val('');
         jQuery('#input_is_pelaksana_apbd').prop('checked', false);
+
+        jQuery('#modal-assign-apbd-transformasi').modal('show');
+    });
+
+    jQuery(document).on('click', '.btn-edit-transformasi-apbd', async function() {
+        const editId = jQuery(this).data('id_trans');
+        jQuery('#id_transformasi').val(editId);
+        jQuery('#id_apbd').val('');
+        jQuery('#action_type_apbd').val('edit');
+        window.typeApbd = jQuery(this).data('type');
+
+        jQuery('#wrap-loading').show();
+
+        const res = await jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: 'JSON',
+            data: {
+                action: "handle_get_detail_transformasi_cascading",
+                api_key: ajax.api_key,
+                id: editId,
+                is_apbd: true
+            }
+        });
+
+        jQuery('#wrap-loading').hide();
+        if (!res.status) {
+            alert(res.message);
+            throw new Error(res.message);
+        }
+        const d = res.data;
+        jQuery('#input_uraian_apbd').val(d.main.uraian_cascading);
+
+        if (d.main.level == 5) {
+            jQuery('.pelaksana-section-apbd').show();
+            jQuery('#input_is_pelaksana_apbd').prop('checked', d.main.is_pelaksana == 1);
+        } else {
+            jQuery('.pelaksana-section-apbd').hide();
+        }
+        jQuery('#pokin-level').val(d.pokin).trigger('change');
+        jQuery('#select_sasaran_apbd').val(d.main.sasaran_renstra).trigger('change');
 
         jQuery('#modal-assign-apbd-transformasi').modal('show');
     });
@@ -694,6 +862,30 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     };
 
+    function initSasaranTujuanApbd() {
+        const $sasaran = jQuery('#select_sasaran_apbd');
+        const $tujuan = jQuery('#select_tujuan_apbd');
+
+        // reset
+        $sasaran.html('<option value="">-- Pilih Sasaran --</option>');
+        $tujuan.html('<option value="">Tujuan otomatis berdasarkan sasaran</option>');
+
+        // isi sasaran
+        (window.all_sasaran || []).forEach(s => {
+            $sasaran.append(`
+            <option 
+                value="${s.id_unik}" 
+                data-kode-tujuan="${s.kode_tujuan}"
+            >
+                ${s.sasaran_teks}
+            </option>
+        `);
+        });
+
+        $tujuan.prop('disabled', true);
+    }
+
+
     function addSatuanField(value = '') {
         let html = `
         <div class="input-group mb-2 satuan-item">
@@ -710,22 +902,6 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     `;
         jQuery('#wrap-satuan-list').append(html);
     }
-
-    // function get_parent_apbd_by_id(id, type)
-    // {
-    //     return jQuery.ajax({
-    //         url: ajax.url,
-    //         type: "post",
-    //         dataType: 'JSON',
-    //         async: false,
-    //         data: {
-    //             action: "get_parent_apbd_by_id",
-    //             api_key: ajax.api_key,
-    //             id_apbd: id,
-    //             type: type
-    //         }
-    //     });
-    // }
 
     function loadTabelUnmapped() {
         const container = jQuery('#container-unmapped-renstra');
@@ -757,21 +933,21 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
-    function loadTabelUnmappedSubkegbl(tahun) {
+    async function loadTabelUnmappedSubkegbl(tahun) {
         const container = jQuery(`#container-unmapped-subkegbl-${tahun}`);
         const tbody = jQuery(`#tbody-unmapped-subkegbl-${tahun}`);
 
         window.tahun_apbd_aktif = tahun;
 
         tbody.html(`
-            <tr>
-                <td colspan="5" class="text-center p-4 text-muted font-italic">
-                    Memuat Data... <span class="dashicons dashicons-update"></span>
-                </td>
-            </tr>
-        `);
+        <tr>
+            <td colspan="5" class="text-center p-3 text-muted font-italic">
+                Memuat Data... <span class="dashicons dashicons-update"></span>
+            </td>
+        </tr>
+    `);
 
-        jQuery.ajax({
+        const res = await jQuery.ajax({
             url: ajax.url,
             type: "post",
             dataType: "json",
@@ -781,33 +957,34 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 id_jadwal: window.idJadwal,
                 id_unit: window.idUnit,
                 tahun_anggaran: window.tahun_apbd_aktif
-            },
-            success: function(res) {
-                if (res.status) {
-                    if (res.has_data) {
-                        tbody.html(res.html);
-                    } else {
-                        tbody.html(`
-                        <tr>
-                            <td colspan="5" class="text-center p-4 text-muted font-italic">
-                                Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
-                            </td>
-                        </tr>
-                    `);
-                    }
-                    container.slideDown();
-                }
             }
         });
-    }
 
+        if (!res.status) {
+            throw new Error(res.message || 'Gagal memuat Unmapped');
+        }
+
+        if (res.has_data) {
+            tbody.html(res.html);
+        } else {
+            tbody.html(`
+            <tr>
+                <td colspan="5" class="text-center p-3 text-muted font-italic">
+                    Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
+                </td>
+            </tr>
+        `);
+        }
+
+        container.show();
+    }
 
     function loadTabelFull() {
         const tbody = jQuery('#tbody-cascading-full');
 
         // Loading State
         if (tbody.children().length === 0 || tbody.find('.fa-spin').length > 0) {
-            tbody.html('<tr><td colspan="6" class="text-center p-5"><span class="dashicons dashicons-update"></span><br>Sedang memuat data...</td></tr>');
+            tbody.html('<tr><td colspan="6" class="text-center p-3 text-muted font-italic"><span class="dashicons dashicons-update"></span><br>Sedang memuat data...</td></tr>');
         }
 
         jQuery.ajax({
@@ -832,6 +1009,46 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             }
         });
     }
+
+    function editTransformasiApbd(id) {
+        alert(`Halo dek ${id}`);
+    }
+
+    async function loadTabelApbd() {
+        const tbody = jQuery(`#tbody-cascading-apbd`);
+        const title = jQuery(`#tahun-apbd-title`);
+
+        title.html(window.tahun_apbd_aktif);
+
+        tbody.html(`
+        <tr>
+            <td colspan="7" class="text-center p-3 text-muted font-italic">
+                <span class="dashicons dashicons-update"></span><br>
+                Sedang memuat data...
+            </td>
+        </tr>
+    `);
+
+        const res = await jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: 'json',
+            data: {
+                action: "handle_get_view_tabel_cascading_apbd",
+                api_key: ajax.api_key,
+                id_jadwal: window.idJadwal,
+                tahun_apbd: window.tahun_apbd_aktif,
+                id_skpd: window.idUnit
+            }
+        });
+
+        if (!res.status) {
+            throw new Error(res.message || 'Gagal memuat APBD');
+        }
+
+        tbody.html(res.html);
+    }
+
 
     // ============================================================
     //  NAVIGATION & VIEW CONTROLLER
@@ -962,7 +1179,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     function loadTableData(level) {
         const container = jQuery('#content-table-wrapper');
-        container.html('<div class="text-center p-5"><i class="dashicons dashicons-update text-muted"></i><br><span class="text-muted mt-2">Memuat Data...</span></div>');
+        container.html('<div class="text-center p-3"><i class="dashicons dashicons-update text-muted"></i><br><span class="text-center p-3 text-muted font-italic">Memuat Data...</span></div>');
 
         // Tentukan Parent ID (Level 1 tidak butuh parentId)
         let parentId = (level === 1) ? null : state.parentIds[level - 1]['parent_id'];
@@ -1321,7 +1538,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                     data: {
                         action: "handle_get_detail_transformasi_cascading",
                         api_key: ajax.api_key,
-                        id: editId
+                        id: editId,
+                        is_apbd: false
                     }
                 });
 
@@ -1350,13 +1568,14 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         }
     }
 
-    function openFormAddIndikator(parentId, indId = null) {
+    function openFormAddIndikator(parentId, indId = null, indikator_apbd = false) {
 
         // Reset form
         jQuery('#form-indikator')[0].reset();
         jQuery('#wrap-satuan-list').html('');
         jQuery('#input_ind_parent_id').val(parentId);
         jQuery('#input_ind_id').val('');
+        jQuery('#indikator_apbd').val(indikator_apbd);
 
         if (!indId) {
             // ==========================
@@ -1432,6 +1651,8 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             return;
         }
 
+        const fromAPBD = jQuery('#indikator_apbd').val();
+
         jQuery("#wrap-loading").show();
 
         jQuery.ajax({
@@ -1457,9 +1678,12 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 if (res.status) {
                     jQuery('#modal-form-indikator').modal('hide');
                     alert(res.message);
-                    loadTableData(state.currentLevel);
-                    loadTabelFull();
-                    loadTabelUnmapped();
+                    if (fromAPBD) {
+                        loadTabelApbd();
+                    } else {
+                        loadTableData(state.currentLevel);
+                        loadTabelFull();
+                    }
                 } else {
                     alert("Error: " + res.message);
                 }
@@ -1472,7 +1696,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         });
     }
 
-    function deleteIndikator(id) {
+    function deleteIndikator(id, fromAPBD = false) {
         if (!confirm("Yakin hapus indikator ini?")) return;
 
         jQuery("#wrap-loading").show();
@@ -1489,9 +1713,12 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             success: function(res) {
                 if (res.status) {
                     alert(res.message);
-                    loadTableData(state.currentLevel); // Refresh tabel
-                    loadTabelFull();
-                    loadTabelUnmapped();
+                    if (fromAPBD) {
+                        loadTabelApbd();
+                    } else {
+                        loadTableData(state.currentLevel);
+                        loadTabelFull();
+                    }
                 } else {
                     alert(res.message);
                 }
@@ -1556,25 +1783,36 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     function assignTransformasi() {
         const uraian = jQuery('#input_uraian_apbd').val().trim();
+        const action_type = jQuery('#action_type_apbd').val();
+        const id_apbd = jQuery('#id_apbd').val();
+        const select_sasaran_apbd = jQuery('#select_sasaran_apbd').val();
 
         if (!uraian) {
             alert('Uraian wajib diisi!');
             return;
         }
 
+        const selectedPokin = jQuery('#pokin-level').val();
+
         const formObj = {
             action: 'handle_save_apbd_transformasi',
             api_key: ajax.api_key,
 
-            id_apbd: jQuery('#id_apbd').val(),
+            id_trans: jQuery('#id_transformasi').val(),
             id_jadwal: window.idJadwal,
             id_skpd: window.idUnit,
             tahun_apbd: window.tahun_apbd_aktif,
             type: window.typeApbd,
+            action_type: action_type,
+            id_apbd: id_apbd,
+            id_unik_sasaran: select_sasaran_apbd,
 
             uraian_cascading: uraian,
+            pohon_kinerja: selectedPokin,
+            id_jadwal_wp_sakip: <?php echo $jadwal_renstra_lokal['id_jadwal_sakip']; ?>,
             is_pelaksana: jQuery('#input_is_pelaksana_apbd').is(':checked') ? 1 : 0
         };
+
 
         const $btn = jQuery('#btn-simpan-transformasi');
 
@@ -1586,21 +1824,20 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             type: 'POST',
             dataType: 'json',
             data: formObj,
-            success(res) {
-                if (res.status) {
-                    alert(res.message);
+            success: function(res) {
+                if (res.success) {
+                    alert(res.data.message);
                     jQuery('#modal-assign-apbd-transformasi').modal('hide');
-                    loadTabelFull();
+                    loadTabelApbd(window.tahun_apbd_aktif);
                 } else {
-                    alert('Gagal: ' + res.message);
+                    alert('Gagal: ' + res.data.message);
                 }
+                jQuery("#wrap-loading").hide();
             },
-            error() {
-                alert('Terjadi kesalahan jaringan.');
-            },
-            complete() {
-                jQuery('#wrap-loading').hide();
+            error: function() {
+                jQuery("#wrap-loading").hide();
                 $btn.prop('disabled', false);
+                alert("Terjadi kesalahan.");
             }
         });
     }
@@ -1678,12 +1915,49 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                         loadTableData(state.currentLevel);
                         loadTabelFull();
                         loadTabelUnmapped();
+                        loadTabelApbd(window.tahun_apbd_aktif);
                     } else {
                         alert(res.message);
                     }
                     jQuery("#wrap-loading").hide();
                 }
             });
+        }
+    }
+
+    async function generate_option_pokin() {
+        try {
+            if (window.data_all_pokin == undefined) {
+                window.data_all_pokin = await get_data_pokin_sakip();
+            }
+
+            let opsi_pokin = '';
+            if (data_all_pokin && data_all_pokin.data) {
+                data_all_pokin.data.forEach(b => {
+                    const indikator = b.indikator ? Object.values(b.indikator).map(ind => ind.label) : [];
+                    const nomor_urut = '';
+                    opsi_pokin += `<option value="${b.id}">${nomor_urut} Lv. ${b.level} ${b.label} (${indikator.join(', ')})</option>`;
+                });
+            }
+            const html_input_pokin = `
+				<div class="form-group"> 
+					<label for="pokin-level">Pilih Pohon Kinerja</label> 
+					<select class="form-control field-pokin" multiple name="pokin-level" id="pokin-level">
+						${opsi_pokin}
+					</select>
+					<small class="form-text text-muted">Data dapat dipilih lebih dari satu.</small>
+				</div>
+			`;
+
+            jQuery('#pokin-field').html(html_input_pokin);
+
+            jQuery('#pokin-level').select2({
+                width: '100%',
+                dropdownParent: jQuery('#pokin-level').closest('.form-group')
+            });
+        } catch (error) {
+            console.error("Gagal memproses permintaan:", error);
+            alert(error.message);
         }
     }
 
@@ -1778,6 +2052,20 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 id_skpd: window.idUnit,
                 parent_id: parentId
             }
+        });
+    }
+
+    function get_data_pokin_sakip() {
+        return jQuery.ajax({
+            url: ajax.url,
+            type: "post",
+            dataType: "json",
+            data: {
+                action: 'get_data_pohon_kinerja',
+                api_key: ajax.api_key,
+                id_skpd: window.idUnit,
+                id_jadwal_wp_sakip: <?php echo $jadwal_renstra_lokal['id_jadwal_sakip']; ?>
+            },
         });
     }
 </script>
