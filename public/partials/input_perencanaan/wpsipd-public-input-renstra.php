@@ -2567,8 +2567,8 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah">' . $sub_kegiatan['sub_kegiatan_teks'] . "" . $isMutakhir . '</td>
 								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah">' . $sub_kegiatan['sub_kegiatan_teks'] . "" . $isMutakhir . '</td>
 								<td class="atas kanan bawah"><br>' . $indikator_sub_kegiatan . '</td>
 								<td class="atas kanan bawah text_tengah"><br>' . $target_awal . '</td>';
 					for ($i = 0; $i < $lama_pelaksanaan; $i++) {
