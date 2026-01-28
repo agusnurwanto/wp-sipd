@@ -7303,10 +7303,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							                    ELSE kode_program
 							                END
 							            ) = %s
+					                  AND kode_sasaran = %s
 					                  AND id_unit = %d
 					                  AND id_jadwal = %d
 					                  AND active = 1
-					            ", $row['kode_program'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+					            ", $row['kode_program'], $_POST['parent_cascading'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
 					            ARRAY_A
 					        );
 
