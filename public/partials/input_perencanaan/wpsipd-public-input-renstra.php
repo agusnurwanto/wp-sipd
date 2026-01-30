@@ -8,7 +8,6 @@ if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
 }
 global $wpdb;
 
-date_default_timezone_set('Asia/Jakarta');
 $timezone = get_option('timezone_string');
 
 $user_id = um_user('ID');

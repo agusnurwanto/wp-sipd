@@ -31505,14 +31505,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 
 	function check_jadwal_is_expired($jadwal_renstra_lokal) {
-		date_default_timezone_set('Asia/Jakarta');
 		$timezone = get_option('timezone_string');
 
 		$mulaiJadwal = $jadwal_renstra_lokal['waktu_awal'];
 		$selesaiJadwal = $jadwal_renstra_lokal['waktu_akhir'];
-		$awal = new DateTime($mulaiJadwal);
-		$akhir = new DateTime($selesaiJadwal);
-		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		$date = new DateTime($mulaiJadwal, new DateTimeZone($timezone));
+		$awal = $date->format('Y-m-d H:i:s');
+
+		$date = new DateTime($selesaiJadwal, new DateTimeZone($timezone));
+		$akhir = $date->format('Y-m-d H:i:s');
+
+		// You can also specify the timezone
+		$date = new DateTime('now', new DateTimeZone($timezone));
+		$now = $date->format('Y-m-d H:i:s');
 
 		if ($now >= $awal && $now <= $akhir) {
 			// Dalam periode jadwal
@@ -32241,10 +32247,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		try {
 			// Validasi input
 			$this->newValidate($_POST, [
-				'api_key'   => 'required|string',
-				'id_jadwal' => 'required|numeric',
-				'tahun_apbd' => 'required|numeric',
-				'id_skpd'   => 'required|numeric'
+				'api_key'   	=> 'required|string',
+				'id_jadwal' 	=> 'required|numeric',
+				'tahun_apbd' 	=> 'required|numeric',
+				'id_skpd'   	=> 'required|numeric'
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
@@ -32294,6 +32300,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$html_output = '';
 			$aksi = '';
+			$disabled = '';
+
+			$is_jadwal_expired = $this->check_jadwal_is_expired($jadwal);
+			if ($is_jadwal_expired) {
+				$disabled = 'disabled';
+			}
 			foreach ($cascading_data as $v) {
 				
 				if($v['level'] == 3) {
@@ -32315,9 +32327,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$aksi = "
-					<button class='btn btn-info' onclick='openFormAddIndikator({$v['id']}, null, true)' title='Tambah Indikator'><span class='dashicons dashicons-plus'></span></button>
-					<button class='btn btn-warning btn-edit-transformasi-apbd' title='Edit Data' data-id='{$v['id']}' data-type='{$v['level']}' data-id_trans='{$v['id']}'><span class='dashicons dashicons-edit'></span></button>
-					<button class='btn btn-danger' title='Hapus Data' onclick='deleteData({$v['id']})'><span class='dashicons dashicons-trash'></span></button>
+					<button class='btn btn-info' onclick='openFormAddIndikator({$v['id']}, null, true)' title='Tambah Indikator' {$disabled}><span class='dashicons dashicons-plus'></span></button>
+					<button class='btn btn-warning btn-edit-transformasi-apbd' title='Edit Data' data-id='{$v['id']}' data-type='{$v['level']}' data-id_trans='{$v['id']}' {$disabled}><span class='dashicons dashicons-edit'></span></button>
+					<button class='btn btn-danger' title='Hapus Data' onclick='deleteData({$v['id']})' {$disabled}><span class='dashicons dashicons-trash'></span></button>
 				";
 
 				$pokin_list = $this->get_pokin_renstra_by_id_unik($v['id']);
@@ -32336,7 +32348,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$first = $indikator['rows'][0];
 
 				$action_indikator = '';
-				if (!empty($first['id'])) {
+				if (!empty($first['id']) && !$is_jadwal_expired) {
 					$action_indikator = "
 						<span class='delete-monev ml-2' onclick='deleteIndikator({$first['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
 						<span class='edit-monev'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$first['id']}, true)'></span></span>
@@ -32352,18 +32364,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						{$first['indikator']} {$action_indikator}
 					</td>
 					<td>{$first['satuan']}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-left'>{$mapped_apbd[$v['kode_sbl']][$key]}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-center><div class='btn-group-vertical'>{$aksi}</div></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-left'>{$mapped_apbd[$v['kode_sbl']][$key]} <br><span class='text-muted'>( {$mapped_apbd[$v['kode_sbl']]['nama_skpd']} )</span></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 				</tr>
 				";
 
 				for ($i = 1; $i < $indikator['rowspan']; $i++) {
 					$row = $indikator['rows'][$i];
 
-					$action_indikator = "
-						<span class='delete-monev ml-2' onclick='deleteIndikator({$row['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
-						<span class='edit-monev ml-2'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$row['id']}, true)'></span></span>
-					";
+					if (!empty($row['id']) && !$is_jadwal_expired) {
+						$action_indikator = "
+							<span class='delete-monev ml-2' onclick='deleteIndikator({$row['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
+							<span class='edit-monev'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$row['id']}, true)'></span></span>
+						";
+					} else {
+						$action_indikator = '';
+					}
+
 					$html_output .= "
 					<tr class='{$badge_class}'>
 						<td>{$row['indikator']} {$action_indikator}</td>
@@ -32637,6 +32654,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
 			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
+			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
+			if (empty($jadwal)) {
+				throw new Exception("Jadwal tidak ditemukan!", 401);
+			}
+
 			// Query UNION (Program + Kegiatan + SubKegiatan)
 			
 			$sql_program = "
@@ -32646,6 +32668,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'PROGRAM' AS tipe,
 					3 AS lvl,
 					s.nama_program AS nama,
+					s.nama_skpd,
 					CASE
 						WHEN s.kode_program LIKE 'X.XX.%'
 							THEN REPLACE(
@@ -32684,7 +32707,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					AND sb.id_unit = %d
 				WHERE s.active = 1
 				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
+				  AND s.id_skpd = %d
 				  AND sb.kode_program IS NULL
 			";
 
@@ -32695,6 +32718,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'KEGIATAN' AS tipe,
 					4 AS lvl,
 					s.nama_giat AS nama,
+					s.nama_skpd,
 					CASE
 						WHEN s.kode_giat LIKE 'X.XX.%'
 							THEN REPLACE(
@@ -32733,7 +32757,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					AND sb.id_unit = %d
 				WHERE s.active = 1
 				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
+				  AND s.id_skpd = %d
 				  AND sb.kode_giat IS NULL
 			";
 
@@ -32744,6 +32768,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'SUB KEGIATAN' AS tipe,
 					5 AS lvl,
 					s.nama_sub_giat AS nama,
+					s.nama_skpd,
 					CASE
 						WHEN s.kode_sub_giat LIKE 'X.XX.%'
 							THEN REPLACE(
@@ -32782,7 +32807,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					AND sb.id_unit = %d
 				WHERE s.active = 1
 				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
+				  AND s.id_skpd = %d
 				  AND sb.kode_sub_giat IS NULL
 			";
 
@@ -32805,6 +32830,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			// Generate HTML Output
 			$html = "";
 			$has_data = false;
+			$disabled = '';
+
+			$is_jadwal_expired = $this->check_jadwal_is_expired($jadwal);
+			if ($is_jadwal_expired) {
+				$disabled = 'disabled';
+			}
 
 			if (!empty($data)) {
 				$has_data = true;
@@ -32833,6 +32864,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							data-id='{$row['id']}'
 							data-type='{$row['lvl']}'
 							title='Tambahkan ke Transformasi Cascading'
+							{$disabled}
 						><span class='dashicons dashicons-plus'></span>
 						</button>
 					";
@@ -32842,7 +32874,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td class='text-center'>{$no}</td>
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
-						<td class='text-left font-weight-bold'>{$nama_renstra}</td>
+						<td class='text-left font-weight-bold'>{$nama_renstra} <br><span class='text-muted'>( {$row['nama_skpd']} )</span></td>
 						<td class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 					</tr>
 					";

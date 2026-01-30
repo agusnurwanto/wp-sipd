@@ -2,7 +2,6 @@
 global $wpdb;
 $api_key = get_option('_crb_api_key_extension');
 $url = admin_url('admin-ajax.php');
-date_default_timezone_set('Asia/Jakarta');
 
 $input = shortcode_atts(array(
     'id_skpd' => '',
