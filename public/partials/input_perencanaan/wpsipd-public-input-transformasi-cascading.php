@@ -116,9 +116,9 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
     <div id="container-unmapped-renstra" class="card shadow-sm mt-4" style="display:none;">
         <div class="card-header">
-            <h5 class="mb-0 text-center">Data RENSTRA Belum Masuk Transformasi Cascading</h5>
+            <h5 class="mb-0 text-center font-weight-bold">Data RENSTRA Belum Masuk Transformasi Cascading</h5>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-2">
             <div class="table-scroll">
                 <table class="table-renstra mb-0">
                     <thead>
@@ -147,10 +147,10 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     <?php endif; ?>
 
     <div class="card shadow-sm mt-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 text-center">Tabel Transformasi Cascading</h5>
+        <div class="card-header">
+            <h5 class="mb-0 text-center font-weight-bold">Tabel Transformasi Cascading</h5>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-2">
             <div class="table-scroll">
                 <table class="table-renstra mb-0">
                     <thead>
@@ -310,67 +310,77 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
     </section>
 
     <section class="mt-5 mb-5">
-        <ul class="nav nav-tabs" id="tab-renstra" role="tablist">
-            <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
-                $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
-            ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= $i === 0 ? 'active' : '' ?>"
-                        id="tab-<?= $tahun_tab ?>"
-                        data-toggle="tab"
-                        href="#content-<?= $tahun_tab ?>"
-                        role="tab"
-                        data-tahun="<?= $tahun_tab ?>">
-                        <?= $tahun_tab ?>
-                    </a>
-                </li>
-            <?php endfor; ?>
-        </ul>
+        <div class="card shadow-sm">
 
-        <div class="tab-content mt-3">
-            <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
-                $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
-            ?>
-                <div class="tab-pane fade <?= $i === 0 ? 'show active' : '' ?>"
-                    id="content-<?= $tahun_tab ?>"
-                    role="tabpanel">
+            <div class="card-header">
+                <h5 class="mb-0 font-weight-bold text-center">
+                    Data APBD Belum Masuk RENSTRA
+                </h5>
+            </div>
 
-                    <!-- container tabel -->
-                    <div id="container-unmapped-subkegbl-<?= $tahun_tab ?>"
-                        class="card shadow-sm mt-3">
-                        <div class="card-header">
-                            <h5 class="mb-2 text-center">
-                                Data APBD <?= $tahun_tab ?> belum masuk RENSTRA
-                            </h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-scroll">
-                                <table class="table-renstra mb-0">
-                                    <thead>
+            <ul class="nav nav-tabs card-header-tabs" id="tab-renstra" role="tablist">
+                <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
+                    $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
+                ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $i === 0 ? 'active' : '' ?>"
+                            id="tab-<?= $tahun_tab ?>"
+                            data-toggle="tab"
+                            href="#content-<?= $tahun_tab ?>"
+                            role="tab"
+                            aria-controls="content-<?= $tahun_tab ?>"
+                            aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"
+                            data-tahun="<?= $tahun_tab ?>">
+                            Tahun <?= $tahun_tab ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+            
+            <div class="card-body">
+                <div class="tab-content">
+                    <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
+                        $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
+                    ?>
+                        <div class="tab-pane fade <?= $i === 0 ? 'show active' : '' ?>"
+                            id="content-<?= $tahun_tab ?>"
+                            role="tabpanel"
+                            aria-labelledby="tab-<?= $tahun_tab ?>">
+
+                            <div class="table-responsive">
+                                <table id="datatable-<?= $tahun_tab ?>" class="table table-striped table-bordered table-hover w-100">
+                                    <thead class="thead-light">
                                         <tr>
-                                            <th style="width:5%">No</th>
-                                            <th style="width:15%">Tipe</th>
-                                            <th style="width:15%">Kode</th>
-                                            <th>Nama</th>
-                                            <th style="width:5%">Aksi</th>
+                                            <th class="text-center align-middle" style="width:5%">No</th>
+                                            <th class="text-center align-middle" style="width:10%">Tipe</th>
+                                            <th class="text-center align-middle" style="width:15%">Kode</th>
+                                            <th class="text-center align-middle">Nama</th>
+                                            <th class="text-center align-middle" style="width:20%">Satuan Kerja</th>
+                                            <th class="text-center align-middle" style="width:10%">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tbody-unmapped-subkegbl-<?= $tahun_tab ?>"></tbody>
+                                    <tbody id="tbody-unmapped-subkegbl-<?= $tahun_tab ?>">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memuat data...
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
-                        </div>
-                    </div>
 
+                        </div>
+                    <?php endfor; ?>
                 </div>
-            <?php endfor; ?>
+            </div>
         </div>
     </section>
 
     <div class="card shadow-sm mt-4 mb-5">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 text-center">Tabel Transformasi Cascading APBD <span id="tahun-apbd-title"></h5>
+        <div class="card-header">
+            <h5 class="mb-0 text-center font-weight-bold">Tabel Transformasi Cascading APBD Tahun <span id="tahun-apbd-title"></h5>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-2">
             <div class="table-scroll">
                 <table class="table-renstra mb-0">
                     <thead>
@@ -885,6 +895,39 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         $tujuan.prop('disabled', true);
     }
 
+    function initDatatableUnmapped(tahun) {
+        const tableId = `#datatable-${tahun}`;
+
+        // jika sudah pernah di-init, destroy dulu
+        if (jQuery.fn.DataTable.isDataTable(tableId)) {
+            jQuery(tableId).DataTable().destroy();
+        }
+
+        jQuery(tableId).DataTable({
+            paging: true,
+            info: true,
+            searching: true,
+            ordering: true,
+            order: [],
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+            columnDefs: [{
+                targets: [5],
+                orderable: false
+            }],
+            language: {
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ data",
+                info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                zeroRecords: "Data tidak ditemukan",
+                infoEmpty: "Tidak ada data",
+                paginate: {
+                    next: "›",
+                    previous: "‹"
+                }
+            }
+        });
+    }
 
     function addSatuanField(value = '') {
         let html = `
@@ -940,12 +983,12 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         window.tahun_apbd_aktif = tahun;
 
         tbody.html(`
-        <tr>
-            <td colspan="5" class="text-center p-3 text-muted font-italic">
-                Memuat Data... <span class="dashicons dashicons-update"></span>
-            </td>
-        </tr>
-    `);
+            <tr>
+                <td colspan="6" class="text-center p-3 text-muted font-italic">
+                    Memuat Data... <span class="dashicons dashicons-update"></span>
+                </td>
+            </tr>
+        `);
 
         const res = await jQuery.ajax({
             url: ajax.url,
@@ -956,7 +999,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 id_jadwal: window.idJadwal,
                 id_unit: window.idUnit,
-                tahun_anggaran: window.tahun_apbd_aktif
+                tahun_anggaran: tahun
             }
         });
 
@@ -966,14 +1009,17 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         if (res.has_data) {
             tbody.html(res.html);
+
+            initDatatableUnmapped(tahun);
+
         } else {
             tbody.html(`
-            <tr>
-                <td colspan="5" class="text-center p-3 text-muted font-italic">
-                    Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
-                </td>
-            </tr>
-        `);
+                <tr>
+                    <td colspan="6" class="text-center p-3 text-muted font-italic">
+                        Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
+                    </td>
+                </tr>
+            `);
         }
 
         container.show();
