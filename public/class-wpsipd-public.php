@@ -30944,7 +30944,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		} catch (Exception $e) {
 			$wpdb->query('ROLLBACK');
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode([
 				'status'  => false,
 				'message' => $e->getMessage()
@@ -31251,7 +31251,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode([
 				'status' => false,
 				'message' => $e->getMessage()
@@ -31312,7 +31312,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode([
 				'status' => false,
 				'message' => $e->getMessage()
@@ -31494,7 +31494,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode([
 				'status'  => false,
 				'message' => $e->getMessage()
@@ -31505,14 +31505,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 
 	function check_jadwal_is_expired($jadwal_renstra_lokal) {
-		date_default_timezone_set('Asia/Jakarta');
 		$timezone = get_option('timezone_string');
 
 		$mulaiJadwal = $jadwal_renstra_lokal['waktu_awal'];
 		$selesaiJadwal = $jadwal_renstra_lokal['waktu_akhir'];
-		$awal = new DateTime($mulaiJadwal);
-		$akhir = new DateTime($selesaiJadwal);
-		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		$date = new DateTime($mulaiJadwal, new DateTimeZone($timezone));
+		$awal = $date->format('Y-m-d H:i:s');
+
+		$date = new DateTime($selesaiJadwal, new DateTimeZone($timezone));
+		$akhir = $date->format('Y-m-d H:i:s');
+
+		// You can also specify the timezone
+		$date = new DateTime('now', new DateTimeZone($timezone));
+		$now = $date->format('Y-m-d H:i:s');
 
 		if ($now >= $awal && $now <= $akhir) {
 			// Dalam periode jadwal
@@ -32212,7 +32218,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
 		}
 		wp_die();
@@ -32241,10 +32247,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		try {
 			// Validasi input
 			$this->newValidate($_POST, [
-				'api_key'   => 'required|string',
-				'id_jadwal' => 'required|numeric',
-				'tahun_apbd' => 'required|numeric',
-				'id_skpd'   => 'required|numeric'
+				'api_key'   	=> 'required|string',
+				'id_jadwal' 	=> 'required|numeric',
+				'tahun_apbd' 	=> 'required|numeric',
+				'id_skpd'   	=> 'required|numeric'
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
@@ -32294,19 +32300,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$html_output = '';
 			$aksi = '';
+			$disabled = '';
+
+			$is_jadwal_expired = $this->check_jadwal_is_expired($jadwal);
+			if ($is_jadwal_expired) {
+				$disabled = 'disabled';
+			}
 			foreach ($cascading_data as $v) {
 				
 				if($v['level'] == 3) {
 					$badge_class = 'bg-level-3';
 					$tipe = 'Outcome';
+					$key_kode = 'kode_program';
 					$key = 'nama_program';
 				} else if($v['level'] == 4) {
 					$badge_class = 'bg-level-4';
 					$tipe = 'Intermediate Output';
+					$key_kode = 'kode_giat';
 					$key = 'nama_giat';
 				} else if($v['level'] == 5) {
 					$badge_class = 'bg-level-5';
 					$key = 'nama_sub_giat';
+					$key_kode = 'kode_sub_giat';
 					if ($v['is_pelaksana'] == 1) {
 						$tipe = 'Input';
 					} else {
@@ -32315,9 +32330,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				$aksi = "
-					<button class='btn btn-info' onclick='openFormAddIndikator({$v['id']}, null, true)' title='Tambah Indikator'><span class='dashicons dashicons-plus'></span></button>
-					<button class='btn btn-warning btn-edit-transformasi-apbd' title='Edit Data' data-id='{$v['id']}' data-type='{$v['level']}' data-id_trans='{$v['id']}'><span class='dashicons dashicons-edit'></span></button>
-					<button class='btn btn-danger' title='Hapus Data' onclick='deleteData({$v['id']})'><span class='dashicons dashicons-trash'></span></button>
+					<button class='btn btn-info' onclick='openFormAddIndikator({$v['id']}, null, true)' title='Tambah Indikator' {$disabled}><span class='dashicons dashicons-plus'></span></button>
+					<button class='btn btn-warning btn-edit-transformasi-apbd' title='Edit Data' data-id='{$v['id']}' data-type='{$v['level']}' data-id_trans='{$v['id']}' {$disabled}><span class='dashicons dashicons-edit'></span></button>
+					<button class='btn btn-danger' title='Hapus Data' onclick='deleteData({$v['id']})' {$disabled}><span class='dashicons dashicons-trash'></span></button>
 				";
 
 				$pokin_list = $this->get_pokin_renstra_by_id_unik($v['id']);
@@ -32336,13 +32351,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$first = $indikator['rows'][0];
 
 				$action_indikator = '';
-				if (!empty($first['id'])) {
+				if (!empty($first['id']) && !$is_jadwal_expired) {
 					$action_indikator = "
 						<span class='delete-monev ml-2' onclick='deleteIndikator({$first['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
 						<span class='edit-monev'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$first['id']}, true)'></span></span>
 					";
 				}
-				
+
+				$normalize_kode = $this->normalize_kode($mapped_apbd[$v['kode_sbl']][$key_kode], $bidur_skpd);
+				$nama_apbd = $mapped_apbd[$v['kode_sbl']][$key];
+				if ($v['level'] == 5) {
+					$parts = explode(' ', $nama_apbd, 2);
+					if (count($parts) == 2) {
+						$nama_apbd = $parts[1];
+					} else {
+						$nama_apbd = $parts[0];
+					}
+				}
+
 				$html_output .= "
 				<tr class='{$badge_class}' data-id='{$v['id']}'>
 					<td rowspan='{$indikator['rowspan']}'>{$html_pokin}</td>
@@ -32352,18 +32378,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						{$first['indikator']} {$action_indikator}
 					</td>
 					<td>{$first['satuan']}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-left'>{$mapped_apbd[$v['kode_sbl']][$key]}</td>
-					<td rowspan='{$indikator['rowspan']}' class='text-center><div class='btn-group-vertical'>{$aksi}</div></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-left'>{$normalize_kode} {$nama_apbd} <br><span class='text-muted'>( {$mapped_apbd[$v['kode_sbl']]['nama_skpd']} )</span></td>
+					<td rowspan='{$indikator['rowspan']}' class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 				</tr>
 				";
 
 				for ($i = 1; $i < $indikator['rowspan']; $i++) {
 					$row = $indikator['rows'][$i];
 
-					$action_indikator = "
-						<span class='delete-monev ml-2' onclick='deleteIndikator({$row['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
-						<span class='edit-monev ml-2'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$row['id']}, true)'></span></span>
-					";
+					if (!empty($row['id']) && !$is_jadwal_expired) {
+						$action_indikator = "
+							<span class='delete-monev ml-2' onclick='deleteIndikator({$row['id']}, true)' title='Hapus Indikator'><span class='dashicons dashicons-trash'></span></span> 
+							<span class='edit-monev'><span class='dashicons dashicons-edit' title='Edit Indikator' onclick='openFormAddIndikator({$v['id']}, {$row['id']}, true)'></span></span>
+						";
+					} else {
+						$action_indikator = '';
+					}
+
 					$html_output .= "
 					<tr class='{$badge_class}'>
 						<td>{$row['indikator']} {$action_indikator}</td>
@@ -32379,7 +32410,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
 		}
 		wp_die();
@@ -32610,11 +32641,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
 		}
 		wp_die();
 	}
+
+	function normalize_kode($kode, $bidur_skpd) {
+		if (strpos($kode, 'X.XX.') === 0) {
+			return str_replace('X.XX.', $bidur_skpd . '.', $kode);
+		}
+		return $kode;
+	}
+
 
 	function handle_get_unmapped_renstra_transformasi()
 	{
@@ -32622,9 +32661,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		try {
 			$this->newValidate($_POST, [
-				'api_key'   => 'required|string',
-				'id_jadwal' => 'required|numeric',
-				'id_unit'   => 'required|numeric',
+				'api_key'   	 => 'required|string',
+				'id_jadwal' 	 => 'required|numeric',
+				'id_unit'   	 => 'required|numeric',
 				'tahun_anggaran' => 'required|numeric'
 			]);
 
@@ -32632,179 +32671,178 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				throw new Exception("API key tidak valid!", 401);
 			}
 
-			$tahun = $_POST['tahun_anggaran'];
+			$tahun_apbd = $_POST['tahun_anggaran'];
 
 			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
 			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
-			// Query UNION (Program + Kegiatan + SubKegiatan)
-			
-			$sql_program = "
-				SELECT DISTINCT
-					s.id,
-					s.kode_sbl,
-					'PROGRAM' AS tipe,
-					3 AS lvl,
-					s.nama_program AS nama,
-					CASE
-						WHEN s.kode_program LIKE 'X.XX.%'
-							THEN REPLACE(
-								s.kode_program,
-								'X.XX.',
-								CONCAT($bidur_skpd, '.')
-							)
-						ELSE s.kode_program
-					END AS kode
-				FROM data_sub_keg_bl s
-				LEFT JOIN data_renstra_program_lokal sb
-					ON (
-						CASE
-							WHEN s.kode_program LIKE 'X.XX.%'
-								THEN REPLACE(
-									s.kode_program,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE s.kode_program
-						END
-					) = (
-						CASE
-							WHEN sb.kode_program LIKE 'X.XX.%'
-								THEN REPLACE(
-									sb.kode_program,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE sb.kode_program
-						END
-					)
-					AND sb.active = 1
-					AND sb.id_unik_indikator IS NULL
-					AND sb.tahun_anggaran = %d
-					AND sb.id_unit = %d
-				WHERE s.active = 1
-				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
-				  AND sb.kode_program IS NULL
-			";
+			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
+			if (empty($jadwal)) {
+				throw new Exception("Jadwal tidak ditemukan!", 401);
+			}
 
-			$sql_kegiatan = "
-				SELECT DISTINCT
-					s.id,
-					s.kode_sbl,
-					'KEGIATAN' AS tipe,
-					4 AS lvl,
-					s.nama_giat AS nama,
-					CASE
-						WHEN s.kode_giat LIKE 'X.XX.%'
-							THEN REPLACE(
-								s.kode_giat,
-								'X.XX.',
-								CONCAT($bidur_skpd, '.')
-							)
-						ELSE s.kode_giat
-					END AS kode
-				FROM data_sub_keg_bl s
-				LEFT JOIN data_renstra_kegiatan_lokal sb
-					ON (
-						CASE
-							WHEN s.kode_giat LIKE 'X.XX.%'
-								THEN REPLACE(
-									s.kode_giat,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE s.kode_giat
-						END
-					) = (
-						CASE
-							WHEN sb.kode_giat LIKE 'X.XX.%'
-								THEN REPLACE(
-									sb.kode_giat,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE sb.kode_giat
-						END
-					)
-					AND sb.active = 1
-					AND sb.id_unik_indikator IS NULL
-					AND sb.tahun_anggaran = %d
-					AND sb.id_unit = %d
-				WHERE s.active = 1
-				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
-				  AND sb.kode_giat IS NULL
-			";
+			$tahun_jadwal = $jadwal['tahun_anggaran'];
 
-			$sql_subkeg = "
+			$sql_source = "
 				SELECT
 					s.id,
 					s.kode_sbl,
-					'SUB KEGIATAN' AS tipe,
-					5 AS lvl,
-					s.nama_sub_giat AS nama,
-					CASE
-						WHEN s.kode_sub_giat LIKE 'X.XX.%'
-							THEN REPLACE(
-								s.kode_sub_giat,
-								'X.XX.',
-								CONCAT($bidur_skpd, '.')
-							)
-						ELSE s.kode_sub_giat
-					END AS kode
+					s.kode_program,
+					s.kode_giat,
+					s.kode_sub_giat,
+					s.nama_program,
+					s.nama_giat,
+					s.nama_sub_giat,
+					s.id_sub_skpd,
+					s.nama_skpd
 				FROM data_sub_keg_bl s
-				LEFT JOIN data_renstra_sub_kegiatan_lokal sb
-					ON (
-						CASE
-							WHEN s.kode_sub_giat LIKE 'X.XX.%'
-								THEN REPLACE(
-									s.kode_sub_giat,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE s.kode_sub_giat
-						END
-					) = (
-						CASE
-							WHEN sb.kode_sub_giat LIKE 'X.XX.%'
-								THEN REPLACE(
-									sb.kode_sub_giat,
-									'X.XX.',
-									CONCAT($bidur_skpd, '.')
-								)
-							ELSE sb.kode_sub_giat
-						END
-					)
-					AND sb.active = 1
-					AND sb.id_unik_indikator IS NULL
-					AND sb.tahun_anggaran = %d
-					AND sb.id_unit = %d
 				WHERE s.active = 1
-				  AND s.tahun_anggaran = %d
-				  AND s.id_sub_skpd = %d
-				  AND sb.kode_sub_giat IS NULL
+					AND s.tahun_anggaran = %d
+					AND s.id_skpd = %d
 			";
 
-			// Gabungkan dengan UNION ALL
-			$final_query = "($sql_program) UNION ALL ($sql_kegiatan) UNION ALL ($sql_subkeg) ORDER BY kode ASC";
-			
-			$data = $wpdb->get_results(
-				$wpdb->prepare(
-					$final_query,
-					// PROGRAM
-					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit'],
-					// KEGIATAN
-					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit'],
-					// SUB KEGIATAN
-					$tahun, $_POST['id_unit'], $tahun, $_POST['id_unit']
-				),
-				ARRAY_A
-			);
+			$sql_renstra_program = "
+				SELECT 
+					kode_program,
+					id_unit
+				FROM data_renstra_program_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND tahun_anggaran = %d
+					AND id_unit = %d
+			";
+
+			$sql_renstra_kegiatan = "
+				SELECT 
+					kode_giat,
+					id_unit
+				FROM data_renstra_kegiatan_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND tahun_anggaran = %d
+					AND id_unit = %d
+			";
+
+			$sql_renstra_sub = "
+				SELECT 
+					kode_sub_giat,
+					id_sub_unit
+				FROM data_renstra_sub_kegiatan_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND tahun_anggaran = %d
+					AND id_unit = %d
+			";
+
+			// ambil data apbd
+			$source_data = $wpdb->get_results($wpdb->prepare($sql_source, $tahun_apbd, $_POST['id_unit']),ARRAY_A);
+
+			// Ambil renstra
+			$raw_renstra_program = $wpdb->get_results($wpdb->prepare($sql_renstra_program, $tahun_jadwal, $_POST['id_unit']), ARRAY_A);
+        	$raw_renstra_kegiatan = $wpdb->get_results($wpdb->prepare($sql_renstra_kegiatan, $tahun_jadwal, $_POST['id_unit']), ARRAY_A);
+        	$raw_renstra_sub = $wpdb->get_results($wpdb->prepare($sql_renstra_sub, $tahun_jadwal, $_POST['id_unit']), ARRAY_A);
+
+			$map_existing_program = [];
+			foreach ($raw_renstra_program as $row) {
+				$norm_kode = $this->normalize_kode($row['kode_program'], $bidur_skpd);
+				$key = $norm_kode . '|' . $row['id_unit'];
+				$map_existing_program[$key] = true;
+			}
+
+			$map_existing_kegiatan = [];
+			foreach ($raw_renstra_kegiatan as $row) {
+				$norm_kode = $this->normalize_kode($row['kode_giat'], $bidur_skpd);
+				$key = $norm_kode . '|' . $row['id_unit'];
+				$map_existing_kegiatan[$key] = true;
+			}
+
+			$map_existing_sub = [];
+			foreach ($raw_renstra_sub as $row) {
+				$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $bidur_skpd);
+				$key = $norm_kode . '|' . $row['id_sub_unit'];
+				$map_existing_sub[$key] = true;
+			}
+
+			// 4. FILTERING DATA
+			$data = [];
+			$temp_result = []; 
+
+			foreach ($source_data as $row) {
+				$id_sub_skpd = $row['id_sub_skpd'];
+
+				// --- CEK LEVEL PROGRAM ---
+				if (!empty($row['kode_program'])) {
+					$norm_kode = $this->normalize_kode($row['kode_program'], $bidur_skpd);
+					$check_key = $norm_kode . '|' . $id_sub_skpd; // Buat key yang sama untuk dicek
+
+					// Cek apakah key ini ada di map existing
+					if (!isset($map_existing_program[$check_key])) {
+						// Gunakan check_key sebagai index array agar tidak duplikat saat loop
+						$temp_result['PROG_' . $check_key] = [
+							'id' => $row['id'], 
+							'kode_sbl' => $row['kode_sbl'],
+							'tipe' => 'PROGRAM',
+							'lvl' => 3,
+							'nama' => $row['nama_program'],
+							'nama_skpd' => $row['nama_skpd'],
+							'kode' => $norm_kode,
+							'id_sub_skpd' => $id_sub_skpd
+						];
+					}
+				}
+
+				// --- CEK LEVEL KEGIATAN ---
+				if (!empty($row['kode_giat'])) {
+					$norm_kode = $this->normalize_kode($row['kode_giat'], $bidur_skpd);
+					$check_key = $norm_kode . '|' . $id_sub_skpd;
+
+					if (!isset($map_existing_kegiatan[$check_key])) {
+						$temp_result['GIAT_' . $check_key] = [
+							'id' => $row['id'],
+							'kode_sbl' => $row['kode_sbl'],
+							'tipe' => 'KEGIATAN',
+							'lvl' => 4,
+							'nama' => $row['nama_giat'],
+							'nama_skpd' => $row['nama_skpd'],
+							'kode' => $norm_kode,
+							'id_sub_skpd' => $id_sub_skpd
+						];
+					}
+				}
+
+				// --- CEK LEVEL SUB KEGIATAN ---
+				if (!empty($row['kode_sub_giat'])) {
+					$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $bidur_skpd);
+					$check_key = $norm_kode . '|' . $id_sub_skpd;
+
+					if (!isset($map_existing_sub[$check_key])) {
+						$temp_result['SUB_' . $check_key] = [
+							'id' => $row['id'],
+							'kode_sbl' => $row['kode_sbl'],
+							'tipe' => 'SUB KEGIATAN',
+							'lvl' => 5,
+							'nama' => $row['nama_sub_giat'],
+							'nama_skpd' => $row['nama_skpd'],
+							'kode' => $norm_kode,
+							'id_sub_skpd' => $id_sub_skpd
+						];
+					}
+				}
+			}
+
+			// Konversi kembali ke indexed array dan urutkan
+			$data = array_values($temp_result);
+			usort($data, fn($a, $b) => strcmp($a['kode'], $b['kode']));
 
 			// Generate HTML Output
 			$html = "";
 			$has_data = false;
+			$disabled = '';
+
+			$is_jadwal_expired = $this->check_jadwal_is_expired($jadwal);
+			if ($is_jadwal_expired) {
+				$disabled = 'disabled';
+			}
 
 			if (!empty($data)) {
 				$has_data = true;
@@ -32833,6 +32871,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							data-id='{$row['id']}'
 							data-type='{$row['lvl']}'
 							title='Tambahkan ke Transformasi Cascading'
+							{$disabled}
 						><span class='dashicons dashicons-plus'></span>
 						</button>
 					";
@@ -32843,13 +32882,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
 						<td class='text-left font-weight-bold'>{$nama_renstra}</td>
+						<td class='text-left'>{$row['nama_skpd']}</td>
 						<td class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 					</tr>
 					";
 					$no++;
 				}
 			}
-
+				
 			echo json_encode([
 				'status' => true,
 				'has_data' => $has_data,
@@ -32857,7 +32897,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);
 
 		} catch (Exception $e) {
-			http_response_code(500);
+			http_response_code($e->getCode() ?: 500);
 			echo json_encode(['status' => false, 'message' => $e->getMessage()]);
 		}
 		wp_die();
