@@ -30337,9 +30337,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                 throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
             }
 
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
-
 			switch ($_POST['level']) {
 				case 1:
 					if (empty($_POST['id_jadwal']) || empty($_POST['id_unit'])) {
@@ -30375,21 +30372,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_program_renstra_lokal_by_id_unik_sasaran($_POST['id_unik'], $bidur_skpd);
+					$data = $this->get_program_renstra_lokal_by_id_unik_sasaran($_POST['id_unik']);
 				break;
 				case 4:
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $bidur_skpd);
+					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($_POST['id_unik']);
+
+					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
 				break;
 				case 5:
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $bidur_skpd);
+					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($_POST['id_unik']);
+
+					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
 				break;
 				default:
 					throw new Exception("Level tidak dikenali.", 400);
@@ -30409,6 +30410,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             ]);
         }
         wp_die();
+	}
+
+	function get_kode_bidang_urusan_renstra_program($id_unik)
+	{
+		global $wpdb;
+		return $wpdb->get_var(
+			$wpdb->prepare("
+				SELECT kode_bidang_urusan 
+				FROM data_renstra_program_lokal 
+				WHERE id_unik = %s 
+					AND id_unik_indikator IS NULL
+					AND active = 1
+			", $id_unik)
+		);
 	}
 
 	function get_pokin_renstra_by_id_unik($id_unik)
@@ -30529,7 +30544,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $ret;
 	}
 
-	function get_program_renstra_lokal_by_id_unik_sasaran(string $kode_sasaran, string $kode_bidang_urusan)
+	function get_program_renstra_lokal_by_id_unik_sasaran(string $kode_sasaran)
 	{
 		global $wpdb;
 		return $wpdb->get_results(
@@ -30538,7 +30553,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					id_unik,
 					CASE
 						WHEN kode_program LIKE 'X.XX.%'
-							THEN REPLACE(kode_program, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
+							THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
 						ELSE kode_program
 					END AS kode_program,
 					SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program
@@ -31030,14 +31045,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'api_key'   => 'required|string',
 				'level'     => 'required|numeric',
 				'id_skpd'   => 'required|numeric',
+				'tahun_anggaran'   => 'required|numeric',
 			]);
 
 			if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
 				throw new Exception("API key tidak valid!", 401);
 			}
-
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 
 			$level = (int) $_POST['level'];
 			$parent_id = isset($_POST['parent_id']) ? $_POST['parent_id'] : null;
@@ -31098,6 +31111,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				);
 			}
 
+			$program_bidur = [];
+			$rows = $wpdb->get_results(
+				$wpdb->prepare("
+				SELECT 
+					id_unik,
+					kode_bidang_urusan
+				FROM data_renstra_program_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND id_unit = %d
+					AND tahun_anggaran = %d
+			", $_POST['id_skpd'], $_POST['tahun_anggaran']));
+
+			foreach ($rows as $r) {
+				$program_bidur[$r->id_unik] = $r->kode_bidang_urusan;
+			}
+
 			// --- ENRICH DATA (AMBIL NAMA REFERENSI RENSTRA) ---			
 			$final_data = [];
 			foreach ($results as $row) {
@@ -31120,71 +31150,93 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if ($level === 3) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
-								SELECT 
-									CASE
-										WHEN kode_program LIKE 'X.XX.%'
-											THEN REPLACE(kode_program, 'X.XX.', CONCAT($bidur_skpd, '.'))
-										ELSE kode_program
-									END AS kode_program,
+								SELECT kode_program, kode_bidang_urusan,
 									SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama_program,
 									active
-								FROM data_renstra_program_lokal 
+								FROM data_renstra_program_lokal
 								WHERE id_unik = %s
-							", $kode
-						));
+							", $kode)
+						);
 
-						if($master) {
+						if ($master) {
+							$kode_program = $master->kode_program;
+
+							if (strpos($kode_program, 'X.XX.') !== false) {
+								$kode_program = str_replace(
+									'X.XX.',
+									$master->kode_bidang_urusan . '.',
+									$kode_program
+								);
+							}
+
+							$nama = $kode_program . ' ' . $master->nama_program;
+
 							if ($master->active == 0) {
-								$nama = $master->kode_program . ' ' . $master->nama_program . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
-							} else {
-								$nama = $master->kode_program . ' ' . $master->nama_program;
+								$nama .= '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							}
 						}
-					} elseif ($level === 4) {
+					} else if ($level === 4) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
-								SELECT 
-									CASE
-										WHEN kode_giat LIKE 'X.XX.%'
-											THEN REPLACE(kode_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
-										ELSE kode_giat
-									END AS kode_giat,
+								SELECT kode_giat, kode_program,
 									SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat,
 									active
-								FROM data_renstra_kegiatan_lokal 
+								FROM data_renstra_kegiatan_lokal
 								WHERE id_unik = %s
-								", $kode)
-							);
+							", $kode)
+						);
 
-						if($master) {
+						if ($master) {
+							$kode_giat = $master->kode_giat;
+
+							if (
+								strpos($kode_giat, 'X.XX.') !== false &&
+								isset($program_bidur[$master->kode_program])
+							) {
+								$kode_giat = str_replace(
+									'X.XX.',
+									$program_bidur[$master->kode_program] . '.',
+									$kode_giat
+								);
+							}
+
+							$nama = $kode_giat . ' ' . $master->nama_giat;
+
 							if ($master->active == 0) {
-								$nama = $master->kode_giat . ' ' . $master->nama_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
-							} else {
-								$nama = $master->kode_giat . ' ' . $master->nama_giat;
+								$nama .= '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							}
 						}
-					} elseif ($level === 5) {
+					} else if ($level === 5) {
 						$master = $wpdb->get_row(
 							$wpdb->prepare("
-								SELECT 
-									CASE
-										WHEN kode_sub_giat LIKE 'X.XX.%'
-											THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
-										ELSE kode_sub_giat
-									END AS kode_sub_giat,
-									SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat, 
-									active,
-									nama_sub_unit
-								FROM data_renstra_sub_kegiatan_lokal 
+								SELECT kode_sub_giat, kode_program,
+									SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat,
+									nama_sub_unit,
+									active
+								FROM data_renstra_sub_kegiatan_lokal
 								WHERE id_unik = %s
-								", $kode
-							));
+							", $kode)
+						);
 
-						if($master) {
+						if ($master) {
+							$kode_sub = $master->kode_sub_giat;
+
+							if (
+								strpos($kode_sub, 'X.XX.') !== false &&
+								isset($program_bidur[$master->kode_program])
+							) {
+								$kode_sub = str_replace(
+									'X.XX.',
+									$program_bidur[$master->kode_program] . '.',
+									$kode_sub
+								);
+							}
+
+							$nama = $kode_sub . ' ' . $master->nama_sub_giat .
+								'<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
+
 							if ($master->active == 0) {
-								$nama = $master->kode_sub_giat . ' ' . $master->nama_sub_giat . '<span class="badge badge-danger ml-2 p-1">Dihapus</span><br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
-							} else {
-								$nama = $master->kode_sub_giat . ' ' . $master->nama_sub_giat . '<br><span class="text-muted">( ' . $master->nama_sub_unit . ' )</span>';
+								$nama .= '<span class="badge badge-danger ml-2 p-1">Dihapus</span>';
 							}
 						}
 					}
@@ -31701,7 +31753,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 
-	function get_meta_transformasi_cascading(int $id_transformasi, int $level, string $kode_bidang_urusan)
+	function get_meta_transformasi_cascading(int $id_transformasi, int $level, $kode_bidang_urusan)
 	{
 		global $wpdb;
 		
@@ -31761,50 +31813,68 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								CASE
-									WHEN kode_program LIKE 'X.XX.%'
-										THEN REPLACE(kode_program, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
-									ELSE kode_program
-								END AS kode,
+								kode_program AS kode,
+								kode_bidang_urusan,
 								SUBSTRING(nama_program, LOCATE(' ', nama_program) + 1) AS nama,
 								active
 							FROM data_renstra_program_lokal 
 							WHERE id_unik = %s
-						", $id_unik
-					));
+						", $id_unik)
+					);
+
+					if ($renstra && strpos($renstra->kode, 'X.XX.') !== false) {
+						$renstra->kode = str_replace(
+							'X.XX.',
+							$renstra->kode_bidang_urusan . '.',
+							$renstra->kode
+						);
+					}
+
 					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 3);
-				} elseif ($level == 4) {
+				} else if ($level == 4) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								CASE
-									WHEN kode_giat LIKE 'X.XX.%'
-										THEN REPLACE(kode_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
-									ELSE kode_giat
-								END AS kode,
+								kode_giat AS kode,
+								kode_program,
 								SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama,
 								active
 							FROM data_renstra_kegiatan_lokal 
 							WHERE id_unik = %s
-						", $id_unik
-					));
+						", $id_unik)
+					);
+
+					if ($renstra && strpos($renstra->kode, 'X.XX.') !== false) {
+						$renstra->kode = str_replace(
+							'X.XX.',
+							$kode_bidang_urusan[$renstra->kode_program] . '.',
+							$renstra->kode
+						);
+					}
+
 					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 4);
-				} elseif ($level == 5) {
+				} else if ($level == 5) {
 					$renstra = $wpdb->get_row(
 						$wpdb->prepare("
 							SELECT 
-								CASE
-									WHEN kode_sub_giat LIKE 'X.XX.%'
-										THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
-									ELSE kode_sub_giat
-								END AS kode,
-								SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama, 
+								kode_sub_giat AS kode,
+								kode_program,
+								SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama,
 								active,
 								nama_sub_unit
 							FROM data_renstra_sub_kegiatan_lokal 
 							WHERE id_unik = %s
 						", $id_unik)
 					);
+
+					if ($renstra && strpos($renstra->kode, 'X.XX.') !== false) {
+						$renstra->kode = str_replace(
+							'X.XX.',
+							$kode_bidang_urusan[$renstra->kode_program] . '.',
+							$renstra->kode
+						);
+					}
+
 					$indicators = $this->get_indikator_renstra_lokal_by_id_unik($id_unik, 5);
 				}
 
@@ -31884,9 +31954,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (empty($jadwal)) {
 				throw new Exception("Jadwal tidak ditemukan!", 401);
 			}
-
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 			
 			$query_main = $wpdb->prepare("
 				SELECT id 
@@ -31909,6 +31976,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$tujuan = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal['tahun_anggaran'], $_POST['id_skpd']);
 			if (empty($tujuan)) {
 				throw new Exception("Tujuan RENSTRA Lokal tidak ditemukan untuk tahun anggaran dan SKPD tersebut.", 404);
+			}
+
+			$program_bidur = [];
+			$rows = $wpdb->get_results(
+				$wpdb->prepare("
+				SELECT 
+					id_unik,
+					kode_bidang_urusan
+				FROM data_renstra_program_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND id_unit = %d
+					AND tahun_anggaran = %d
+			", $_POST['id_skpd'], $jadwal['tahun_anggaran']));
+
+			foreach ($rows as $r) {
+				$program_bidur[$r->id_unik] = $r->kode_bidang_urusan;
 			}
 			
 			$html_output = '';
@@ -32086,7 +32170,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$html_tujuan = '';
 					foreach ($transformasi_level_3 as $level_3) {
 						$indikator = $this->generate_list_indikator_transformasi_cascading($level_3['id']);
-						$meta_html = $this->get_meta_transformasi_cascading($level_3['id'], 3, $bidur_skpd);
+						$meta_html = $this->get_meta_transformasi_cascading($level_3['id'], 3, $program_bidur); 
 
 						$first = $indikator['rows'][0];
 
@@ -32131,7 +32215,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						foreach ($transformasi_level_4 as $level_4) {
 							$indikator = $this->generate_list_indikator_transformasi_cascading($level_4['id']);
-							$meta_html = $this->get_meta_transformasi_cascading($level_4['id'], 4, $bidur_skpd);
+							$meta_html = $this->get_meta_transformasi_cascading($level_4['id'], 4, $program_bidur);
 
 							$first = $indikator['rows'][0];
 							
@@ -32176,7 +32260,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 							foreach ($transformasi_level_5 as $level_5) {
 								$indikator = $this->generate_list_indikator_transformasi_cascading($level_5['id']);
-								$meta_html = $this->get_meta_transformasi_cascading($level_5['id'], 5, $bidur_skpd);
+								$meta_html = $this->get_meta_transformasi_cascading($level_5['id'], 5, $program_bidur);
 
 								$first = $indikator['rows'][0];
 
@@ -32261,9 +32345,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (empty($jadwal)) {
 				throw new Exception("Jadwal tidak ditemukan!", 401);
 			}
-
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_skpd']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
 			
 			$query_main = $wpdb->prepare("
 				SELECT 
@@ -32358,7 +32439,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					";
 				}
 
-				$normalize_kode = $this->normalize_kode($mapped_apbd[$v['kode_sbl']][$key_kode], $bidur_skpd);
+				$normalize_kode = $this->normalize_kode($mapped_apbd[$v['kode_sbl']][$key_kode], $mapped_apbd[$v['kode_sbl']]['kode_bidang_urusan']);
 				$nama_apbd = $mapped_apbd[$v['kode_sbl']][$key];
 				if ($v['level'] == 5) {
 					$parts = explode(' ', $nama_apbd, 2);
@@ -32444,8 +32525,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			
 			$tahun = $jadwal->tahun_anggaran;
 
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
+			$program_bidur = [];
+			$rows = $wpdb->get_results(
+				$wpdb->prepare("
+				SELECT 
+					id_unik,
+					kode_bidang_urusan
+				FROM data_renstra_program_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND id_unit = %d
+					AND tahun_anggaran = %d
+			", $_POST['id_unit'], $tahun));
+
+			foreach ($rows as $r) {
+				$program_bidur[$r->id_unik] = $r->kode_bidang_urusan;
+			}
 
 			// Query UNION (Program + Kegiatan + SubKegiatan)
 			
@@ -32454,12 +32549,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'PROGRAM' AS tipe,
 					3 AS lvl,
 					p.id_unik,
+					p.id_unik AS kode_program,
 					p.nama_program AS nama,
-					CASE
-						WHEN p.kode_program LIKE 'X.XX.%'
-							THEN REPLACE(p.kode_program, 'X.XX.', CONCAT($bidur_skpd, '.'))
-						ELSE p.kode_program
-					END AS kode,
+					p.kode_program AS kode,
 					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32497,12 +32589,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'KEGIATAN' AS tipe,
 					4 AS lvl,
 					k.id_unik,
+					k.kode_program AS kode_program,
 					k.nama_giat AS nama,
-					CASE
-						WHEN k.kode_giat LIKE 'X.XX.%'
-							THEN REPLACE(k.kode_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
-						ELSE k.kode_giat
-					END AS kode,
+					k.kode_giat AS kode,
 					NULL AS nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32540,12 +32629,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'SUB KEGIATAN' AS tipe,
 					5 AS lvl,
 					s.id_unik,
+					s.kode_program AS kode_program,
 					s.nama_sub_giat AS nama,
-					CASE
-						WHEN s.kode_sub_giat LIKE 'X.XX.%'
-							THEN REPLACE(s.kode_sub_giat, 'X.XX.', CONCAT($bidur_skpd, '.'))
-						ELSE s.kode_sub_giat
-					END AS kode,
+					s.kode_sub_giat AS kode,
 					s.nama_sub_unit,
 					sas.sasaran_teks,
 					CONCAT(
@@ -32617,12 +32703,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$nama_renstra = '<span class="text-danger">Nomenklatur tidak ditemukan</span>';
 					}
 
+					$normalize_kode = $this->normalize_kode($row['kode'], $program_bidur[$row['kode_program']]);
+
 					$html .= "
 					<tr class='{$badge_class}' data-id_unik='{$row['id_unik']}'>
 						<td class='text-center'>{$no}</td>
 						<td>{$pokin_text}</td>
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
-						<td class='text-monospace small'>{$row['kode']}</td>
+						<td class='text-monospace small'>{$normalize_kode}</td>
 						<td>
 							<span class='font-weight-bold text-dark'>{$nama_renstra}</span><br>
 							<span class='text-muted'>SASARAN : {$nama_sasaran}</span><br>
@@ -32647,9 +32735,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		wp_die();
 	}
 
-	function normalize_kode($kode, $bidur_skpd) {
+	function normalize_kode($kode, $kode_bidang_urusan) {
 		if (strpos($kode, 'X.XX.') === 0) {
-			return str_replace('X.XX.', $bidur_skpd . '.', $kode);
+			return str_replace('X.XX.', $kode_bidang_urusan . '.', $kode);
 		}
 		return $kode;
 	}
@@ -32673,9 +32761,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$tahun_apbd = $_POST['tahun_anggaran'];
 
-			$bidur_skpd_db = $this->get_skpd_db($_POST['id_unit']);
-			$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
-
 			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
 			if (empty($jadwal)) {
 				throw new Exception("Jadwal tidak ditemukan!", 401);
@@ -32692,6 +32777,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					s.kode_sub_giat,
 					s.nama_program,
 					s.nama_giat,
+					s.kode_bidang_urusan,
 					s.nama_sub_giat,
 					s.id_sub_skpd,
 					s.nama_skpd
@@ -32703,6 +32789,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_renstra_program = "
 				SELECT 
+					id_unik,
 					kode_program,
 					id_unit
 				FROM data_renstra_program_lokal
@@ -32715,7 +32802,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$sql_renstra_kegiatan = "
 				SELECT 
 					kode_giat,
-					id_unit
+					id_unit,
+					kode_program
 				FROM data_renstra_kegiatan_lokal
 				WHERE active = 1
 					AND id_unik_indikator IS NULL
@@ -32726,13 +32814,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$sql_renstra_sub = "
 				SELECT 
 					kode_sub_giat,
-					id_sub_unit
+					id_sub_unit,
+					kode_program
 				FROM data_renstra_sub_kegiatan_lokal
 				WHERE active = 1
 					AND id_unik_indikator IS NULL
 					AND tahun_anggaran = %d
 					AND id_unit = %d
 			";
+
+			$program_bidur = [];
+			$rows = $wpdb->get_results(
+				$wpdb->prepare("
+				SELECT 
+					id_unik,
+					kode_bidang_urusan
+				FROM data_renstra_program_lokal
+				WHERE active = 1
+					AND id_unik_indikator IS NULL
+					AND id_unit = %d
+					AND tahun_anggaran = %d
+			", $_POST['id_unit'], $tahun_jadwal));
+
+			foreach ($rows as $r) {
+				$program_bidur[$r->id_unik] = $r->kode_bidang_urusan;
+			}
 
 			// ambil data apbd
 			$source_data = $wpdb->get_results($wpdb->prepare($sql_source, $tahun_apbd, $_POST['id_unit']),ARRAY_A);
@@ -32744,21 +32850,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$map_existing_program = [];
 			foreach ($raw_renstra_program as $row) {
-				$norm_kode = $this->normalize_kode($row['kode_program'], $bidur_skpd);
+				$norm_kode = $this->normalize_kode($row['kode_program'], $program_bidur[$row['id_unik']]);
 				$key = $norm_kode . '|' . $row['id_unit'];
 				$map_existing_program[$key] = true;
 			}
 
 			$map_existing_kegiatan = [];
 			foreach ($raw_renstra_kegiatan as $row) {
-				$norm_kode = $this->normalize_kode($row['kode_giat'], $bidur_skpd);
+				$norm_kode = $this->normalize_kode($row['kode_giat'], $program_bidur[$row['kode_program']]);
 				$key = $norm_kode . '|' . $row['id_unit'];
 				$map_existing_kegiatan[$key] = true;
 			}
 
 			$map_existing_sub = [];
 			foreach ($raw_renstra_sub as $row) {
-				$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $bidur_skpd);
+				$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $program_bidur[$row['kode_program']]);
 				$key = $norm_kode . '|' . $row['id_sub_unit'];
 				$map_existing_sub[$key] = true;
 			}
@@ -32772,7 +32878,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				// --- CEK LEVEL PROGRAM ---
 				if (!empty($row['kode_program'])) {
-					$norm_kode = $this->normalize_kode($row['kode_program'], $bidur_skpd);
+					$norm_kode = $this->normalize_kode($row['kode_program'], $row['kode_bidang_urusan']);
 					$check_key = $norm_kode . '|' . $id_sub_skpd; // Buat key yang sama untuk dicek
 
 					// Cek apakah key ini ada di map existing
@@ -32793,7 +32899,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				// --- CEK LEVEL KEGIATAN ---
 				if (!empty($row['kode_giat'])) {
-					$norm_kode = $this->normalize_kode($row['kode_giat'], $bidur_skpd);
+					$norm_kode = $this->normalize_kode($row['kode_giat'], $row['kode_bidang_urusan']);
 					$check_key = $norm_kode . '|' . $id_sub_skpd;
 
 					if (!isset($map_existing_kegiatan[$check_key])) {
@@ -32812,7 +32918,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				// --- CEK LEVEL SUB KEGIATAN ---
 				if (!empty($row['kode_sub_giat'])) {
-					$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $bidur_skpd);
+					$norm_kode = $this->normalize_kode($row['kode_sub_giat'], $row['kode_bidang_urusan']);
 					$check_key = $norm_kode . '|' . $id_sub_skpd;
 
 					if (!isset($map_existing_sub[$check_key])) {

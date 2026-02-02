@@ -2096,6 +2096,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 level: level,
                 id_skpd: window.idUnit,
+                tahun_anggaran: <?php echo $jadwal_renstra_lokal['tahun_anggaran']; ?>,
                 parent_id: parentId
             }
         });

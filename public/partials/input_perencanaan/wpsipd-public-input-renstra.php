@@ -483,6 +483,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
 							'id' => $program_value['id'],
 							'id_unik' => $program_value['id_unik'],
+							'kode_bidang_urusan' => $program_value['kode_bidang_urusan'],
 							'program_teks' => $program_value['nama_program'],
 							'catatan' => $program_value['catatan'],
 							'catatan_usulan' => $program_value['catatan_usulan'],
@@ -1990,9 +1991,6 @@ if (empty($data_all['data']['tujuan_kosong']['data'])) {
 	unset($data_all['data']['tujuan_kosong']);
 }
 
-$bidur_skpd_db = $this->get_skpd_db($_GET['id_skpd']);
-$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
-
 $no_tujuan = 0;
 foreach ($data_all['data'] as $tujuan) {
 	$no_tujuan++;
@@ -2295,7 +2293,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 
 			if (strpos($program['program_teks'], 'X.XX') !== false) {
-				$program['program_teks'] = str_replace('X.XX', $bidur_skpd, $program['program_teks']);
+				$program['program_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $program['program_teks']);
 			}
 			$body .= '
 				<tr class="tr-program" data-id="' . $program['id_unik'] . '">
@@ -2437,7 +2435,7 @@ foreach ($data_all['data'] as $tujuan) {
 				$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 
 				if (strpos($kegiatan['kegiatan_teks'], 'X.XX') !== false) {
-					$kegiatan['kegiatan_teks'] = str_replace('X.XX', $bidur_skpd, $kegiatan['kegiatan_teks']);
+					$kegiatan['kegiatan_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $kegiatan['kegiatan_teks']);
 				}
 				$body .= '
 						<tr class="tr-kegiatan" data-id="' . $kegiatan['id'] . '">
@@ -2556,7 +2554,7 @@ foreach ($data_all['data'] as $tujuan) {
 					$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 
 					if (strpos($sub_kegiatan['sub_kegiatan_teks'], 'X.XX') !== false) {
-						$sub_kegiatan['sub_kegiatan_teks'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['sub_kegiatan_teks']);
+						$sub_kegiatan['sub_kegiatan_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $sub_kegiatan['sub_kegiatan_teks']);
 					}
 					$body .= '
 							<tr class="tr-sub-kegiatan" style="background:' . $bgIsMutakhir . '" data-id="' . $sub_kegiatan['id'] . '">
