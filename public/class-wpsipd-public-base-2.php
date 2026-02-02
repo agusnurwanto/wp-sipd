@@ -7248,6 +7248,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        ", $_POST['tahun_anggaran']),
 					        ARRAY_A
 					    );
+					    
 					    // jadwal untuk monev
 					    $data_jadwal_renja = $wpdb->get_row(
 					        $wpdb->prepare("
@@ -7281,7 +7282,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					                * 
 					            FROM data_jadwal_lokal
 					            WHERE id_jadwal_sakip = %d
-					            	AND id_tipe = %d
+					                AND id_tipe = %d
 					        ", $_POST['id_jadwal_rhk'], 4),
 					        ARRAY_A
 					    );
@@ -7291,141 +7292,190 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_program_lokal';
 
 					    foreach ($data_program_renja as &$row) {
-					        $data_program_renstra = $wpdb->get_row(
-					            $wpdb->prepare("
-					                SELECT 
-					                    *
-					                FROM $tabel_renstra
-					                WHERE (
-							                CASE 
-							                    WHEN kode_program LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_program
-							                END
-							            ) = %s
-					                  AND kode_sasaran = %s
-					                  AND id_unit = %d
-					                  AND id_jadwal = %d
-					                  AND active = 1
-					            ", $row['kode_program'], $_POST['parent_cascading'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
-					            ARRAY_A
-					        );
+						    $data_program_renstra = $wpdb->get_row(
+						        $wpdb->prepare("
+						            SELECT 
+						                *
+						            FROM $tabel_renstra
+						            WHERE (
+						                    CASE 
+						                        WHEN kode_program LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_program
+						                    END
+						                ) = %s
+						              AND kode_sasaran = %s
+						              AND id_unit = %d
+						              AND id_jadwal = %d
+						              AND active = 1
+						        ", $row['kode_program'], $_POST['parent_cascading'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+						        ARRAY_A
+						    );
+						    // Inisialisasi array pokin
+						    $pokin_level_3 = array();
 
-					        if (!empty($data_program_renstra)) {
-					            $pokin_level_3 = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_pokin_renstra
-					                    WHERE id_unik = %s
-					                      AND tahun_anggaran = %d
-					                      AND id_skpd = %d
-					                      AND tipe = 3
-					                      AND active = 1
-					                ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-					                ARRAY_A
-					            );
-					            
-					            $row['get_pokin_renstra'] = $pokin_level_3;
-					        } else {
-					            $row['get_pokin_renstra'] = array();
-					        }
-					        
-					        $data_program_renstra_lokal = $wpdb->get_results(
-							    $wpdb->prepare("
-							        SELECT *
-							        FROM $tabel_renstra_lokal
-							        WHERE
-							            (
-							                CASE 
-							                    WHEN kode_program LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_program
-							                END
-							            ) = %s
-							          AND id_unit = %d
-							          AND tahun_anggaran = %d
-							          AND active = 1
-							    ",
-							    $row['kode_program'],
-							    $row['id_skpd'],
-							    $data_jadwal_renstra_lokal['tahun_anggaran']
-							    ),
-							    ARRAY_A
-							);
+						    // Ambil dari renstra jika ada
+						    if (!empty($data_program_renstra)) {
+						        $pokin_level_3 = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT 
+						                    *
+						                FROM data_pokin_renstra
+						                WHERE id_unik = %s
+						                  AND tahun_anggaran = %d
+						                  AND id_skpd = %d
+						                  AND tipe = 3
+						                  AND active = 1
+						            ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
+						            ARRAY_A
+						        );
+						    }
+						    
+						    // Ambil dari renstra lokal
+						    $data_program_renstra_lokal = $wpdb->get_results(
+						        $wpdb->prepare("
+						            SELECT *
+						            FROM $tabel_renstra_lokal
+						            WHERE
+						                (
+						                    CASE 
+						                        WHEN kode_program LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_program, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_program
+						                    END
+						                ) = %s
+						              AND id_unit = %d
+						              AND tahun_anggaran = %d
+						              AND active = 1
+						        ",
+						        $row['kode_program'],
+						        $row['id_skpd'],
+						        $data_jadwal_renstra_lokal['tahun_anggaran']
+						        ),
+						        ARRAY_A
+						    );
 
+						    $get_all_id_unik = array();
+						    $from_renstra_lokal = false;
+						    
+						    if (!empty($data_program_renstra_lokal)) {
+						        foreach ($data_program_renstra_lokal as $val) {
+						            $get_all_id_unik[] = $val['id_unik'];
+						        }
+						        $from_renstra_lokal = true;
+						    } else {
+						        $data_sub_keg_bl = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT kode_sbl
+						                FROM data_sub_keg_bl
+						                WHERE kode_program = %s
+						                  AND id_sub_skpd = %d
+						                  AND tahun_anggaran = %d
+						                  AND active = 1
+						            ",
+						            $row['kode_program'],
+						            $row['id_sub_skpd'],
+						            $_POST['tahun_anggaran']
+						            ),
+						            ARRAY_A
+						        );
+						        
+						        if (!empty($data_sub_keg_bl)) {
+						            foreach ($data_sub_keg_bl as $val) {
+						                $get_all_id_unik[] = $val['kode_sbl'];
+						            }
+						        }
+						    }
+						    
+						    if (!empty($get_all_id_unik)) {
+						        $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+						        $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
 
-							$get_all_id_unik = array();
-							if (!empty($data_program_renstra_lokal)) {
-							    foreach ($data_program_renstra_lokal as $val) {
-							        $get_all_id_unik[] = $val['id_unik'];
-							    }
-							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
-							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+						        $data_transformasi_cascading = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT *
+						                FROM data_progkeg_transformasi_cascading
+						                WHERE id_unik IN ($id_unik)
+						                  AND active = 1
+						            ", $get_all_id_unik),
+						            ARRAY_A
+						        );
+						        
+						        foreach ($data_transformasi_cascading as &$cascading) {
+						            $cascading['induk'] = $wpdb->get_row(
+						                $wpdb->prepare("
+						                    SELECT *
+						                    FROM data_transformasi_cascading
+						                    WHERE id = %d
+						                      AND active = 1
+						                      AND level = 3
+						                ", $cascading['id_uraian_cascading']),
+						                ARRAY_A
+						            );
 
-							    $data_transformasi_cascading = $wpdb->get_results(
-							        $wpdb->prepare("
-							            SELECT *
-							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik IN ($id_unik)
-							              AND active = 1
-							        ", $get_all_id_unik),
-							        ARRAY_A
-							    );
-							    
-							    foreach ($data_transformasi_cascading as &$cascading) {
-								    $cascading['induk'] = $wpdb->get_row(
-								        $wpdb->prepare("
-								            SELECT *
-								            FROM data_transformasi_cascading
-								            WHERE id = %d
-								              AND active = 1
-								        ", $cascading['id_uraian_cascading']),
-								        ARRAY_A
-								    );
+						            if (!empty($cascading['induk'])) {
 
-								    if (!empty($cascading['induk'])) {
+						                $cascading['induk']['indikator'] = $wpdb->get_results(
+						                    $wpdb->prepare("
+						                        SELECT *
+						                        FROM data_indikator_transformasi_cascading
+						                        WHERE id_uraian_cascading = %d
+						                          AND indikator IS NOT NULL
+						                          AND active = 1
+						                    ", $cascading['induk']['id']),
+						                    ARRAY_A
+						                );
 
-								        $cascading['induk']['indikator'] = $wpdb->get_results(
-								            $wpdb->prepare("
-								                SELECT *
-								                FROM data_indikator_transformasi_cascading
-								                WHERE id_uraian_cascading = %d
-								                  AND indikator IS NOT NULL
-								                  AND active = 1
-								            ", $cascading['induk']['id']),
-								            ARRAY_A
-								        );
+						                if (!empty($cascading['induk']['indikator'])) {
+						                    foreach ($cascading['induk']['indikator'] as &$indikator) {
+						                        $indikator['satuan'] = $wpdb->get_results(
+						                            $wpdb->prepare("
+						                                SELECT *
+						                                FROM data_indikator_transformasi_cascading
+						                                WHERE parent_indikator = %d
+						                                  AND active = 1
+						                            ", $indikator['id']),
+						                            ARRAY_A
+						                        );
+						                    }
+						                    unset($indikator);
+						                }
+						                
+						                if (!$from_renstra_lokal && !empty($cascading['induk']['id'])) {
+						                    $pokin_level_3_cascading = $wpdb->get_results(
+						                        $wpdb->prepare("
+						                            SELECT 
+						                                *
+						                            FROM data_pokin_renstra
+						                            WHERE id_unik = %s
+						                              AND tipe = 6
+						                              AND active = 1
+						                        ", $cascading['induk']['id']),
+						                        ARRAY_A
+						                    );
+						                    $cascading['induk']['get_pokin_renstra'] = $pokin_level_3_cascading;
+						                    
+						                    // Jika pokin utama kosong, ambil dari transformasi
+						                    if (empty($pokin_level_3) && !empty($pokin_level_3_cascading)) {
+						                        $pokin_level_3 = $pokin_level_3_cascading;
+						                    }
+						                }
 
-								        if (!empty($cascading['induk']['indikator'])) {
-								            foreach ($cascading['induk']['indikator'] as &$indikator) {
-								                $indikator['satuan'] = $wpdb->get_results(
-								                    $wpdb->prepare("
-								                        SELECT *
-								                        FROM data_indikator_transformasi_cascading
-								                        WHERE parent_indikator = %d
-								                          AND active = 1
-								                    ", $indikator['id']),
-								                    ARRAY_A
-								                );
-								            }
-								            unset($indikator);
-								        }
-
-								    } else {
-								        $cascading['induk'] = array(
-								            'indikator' => array()
-								        );
-								    }
-								}
-								unset($cascading);
-
-							    
-							    $row['get_transformasi_cascading'] = $data_transformasi_cascading;
-							} else {
-							    $row['get_transformasi_cascading'] = array();
-							}
-					    }
+						            } else {
+						                $cascading['induk'] = array(
+						                    'indikator' => array()
+						                );
+						            }
+						        }
+						        unset($cascading);
+						        
+						        $row['get_transformasi_cascading'] = $data_transformasi_cascading;
+						    } else {
+						        $row['get_transformasi_cascading'] = array();
+						    }
+						    
+						    $row['get_pokin_renstra'] = $pokin_level_3;
+						}
 					    unset($row);
 					    
 					    if (!empty($data_program_renja)) {
@@ -7567,138 +7617,191 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_kegiatan_lokal';
 
 					    foreach ($data_kegiatan_renja as &$row) {
-					        $data_kegiatan_renstra = $wpdb->get_row(
-					            $wpdb->prepare("
-					                SELECT 
-					                    *
-					                FROM $tabel_renstra
-					                WHERE (
-							                CASE 
-							                    WHEN kode_giat LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_giat
-							                END
-							            ) = %s
-					                  AND id_unit = %d
-					                  AND id_jadwal = %d
-					                  AND active = 1
-					            ", $row['kode_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
-					            ARRAY_A
-					        );
-					        
-					        if (!empty($data_kegiatan_renstra)) {
-					            $pokin_level_4 = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_pokin_renstra
-					                    WHERE id_unik = %s
-					                      AND tahun_anggaran = %d
-					                      AND id_skpd = %d
-					                      AND tipe = 4
-					                      AND active = 1
-					                ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-					                ARRAY_A
-					            );
-					            $row['get_pokin_renstra'] = $pokin_level_4;
-					        } else {
-					            $row['get_pokin_renstra'] = array();
-					        }
-					        
-					        $data_kegiatan_renstra_lokal = $wpdb->get_results(
-							    $wpdb->prepare("
-							        SELECT *
-							        FROM $tabel_renstra_lokal
-							        WHERE
-							            (
-							                CASE 
-							                    WHEN kode_giat LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_giat
-							                END
-							            ) = %s
-							          AND id_unit = %d
-							          AND tahun_anggaran = %d
-							          AND active = 1
-							    ",
-							    $row['kode_giat'],
-							    $row['id_skpd'],
-							    $data_jadwal_renstra_lokal['tahun_anggaran']
-							    ),
-							    ARRAY_A
-							);
-					        
-					        $get_all_id_unik = array();
-							if (!empty($data_kegiatan_renstra_lokal)) {
-							    foreach ($data_kegiatan_renstra_lokal as $val) {
-							        $get_all_id_unik[] = $val['id_unik'];
-							    }
-							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
-							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+						    $data_kegiatan_renstra = $wpdb->get_row(
+						        $wpdb->prepare("
+						            SELECT 
+						                *
+						            FROM $tabel_renstra
+						            WHERE (
+						                    CASE 
+						                        WHEN kode_giat LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_giat
+						                    END
+						                ) = %s
+						              AND id_unit = %d
+						              AND id_jadwal = %d
+						              AND active = 1
+						        ", $row['kode_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+						        ARRAY_A
+						    );
+						    
+						    // Inisialisasi array pokin
+						    $pokin_level_4 = array();
+						    
+						    // Ambil dari renstra jika ada
+						    if (!empty($data_kegiatan_renstra)) {
+						        $pokin_level_4 = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT 
+						                    *
+						                FROM data_pokin_renstra
+						                WHERE id_unik = %s
+						                  AND tahun_anggaran = %d
+						                  AND id_skpd = %d
+						                  AND tipe = 4
+						                  AND active = 1
+						            ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
+						            ARRAY_A
+						        );
+						    }
+						    
+						    // Ambil dari renstra lokal
+						    $data_kegiatan_renstra_lokal = $wpdb->get_results(
+						        $wpdb->prepare("
+						            SELECT *
+						            FROM $tabel_renstra_lokal
+						            WHERE
+						                (
+						                    CASE 
+						                        WHEN kode_giat LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_giat
+						                    END
+						                ) = %s
+						              AND id_unit = %d
+						              AND tahun_anggaran = %d
+						              AND active = 1
+						        ",
+						        $row['kode_giat'],
+						        $row['id_skpd'],
+						        $data_jadwal_renstra_lokal['tahun_anggaran']
+						        ),
+						        ARRAY_A
+						    );
+						    
+						    $get_all_id_unik = array();
+						    $from_renstra_lokal = false;
+						    
+						    if (!empty($data_kegiatan_renstra_lokal)) {
+						        foreach ($data_kegiatan_renstra_lokal as $val) {
+						            $get_all_id_unik[] = $val['id_unik'];
+						        }
+						        $from_renstra_lokal = true;
+						    } else {
+						        $data_sub_keg_bl = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT kode_sbl
+						                FROM data_sub_keg_bl
+						                WHERE kode_giat = %s
+						                  AND id_sub_skpd = %d
+						                  AND tahun_anggaran = %d
+						                  AND active = 1
+						            ",
+						            $row['kode_giat'],
+						            $row['id_sub_skpd'],
+						            $_POST['tahun_anggaran']
+						            ),
+						            ARRAY_A
+						        );
+						        
+						        if (!empty($data_sub_keg_bl)) {
+						            foreach ($data_sub_keg_bl as $val) {
+						                $get_all_id_unik[] = $val['kode_sbl'];
+						            }
+						        }
+						    }
+						    
+						    if (!empty($get_all_id_unik)) {
+						        $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+						        $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
 
-							    $data_transformasi_cascading = $wpdb->get_results(
-							        $wpdb->prepare("
-							            SELECT *
-							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik IN ($id_unik)
-							              AND active = 1
-							        ", $get_all_id_unik),
-							        ARRAY_A
-							    );
-					            
-					            foreach ($data_transformasi_cascading as &$cascading) {
-								    $cascading['induk'] = $wpdb->get_row(
-								        $wpdb->prepare("
-								            SELECT *
-								            FROM data_transformasi_cascading
-								            WHERE id = %d
-								              AND active = 1
-								        ", $cascading['id_uraian_cascading']),
-								        ARRAY_A
-								    );
+						        $data_transformasi_cascading = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT *
+						                FROM data_progkeg_transformasi_cascading
+						                WHERE id_unik IN ($id_unik)
+						                  AND active = 1
+						            ", $get_all_id_unik),
+						            ARRAY_A
+						        );
+						        
+						        foreach ($data_transformasi_cascading as &$cascading) {
+						            $cascading['induk'] = $wpdb->get_row(
+						                $wpdb->prepare("
+						                    SELECT *
+						                    FROM data_transformasi_cascading
+						                    WHERE id = %d
+						                      AND active = 1
+						                      AND level = 4
+						                ", $cascading['id_uraian_cascading']),
+						                ARRAY_A
+						            );
 
-								    if (!empty($cascading['induk'])) {
+						            if (!empty($cascading['induk'])) {
 
-								        $cascading['induk']['indikator'] = $wpdb->get_results(
-								            $wpdb->prepare("
-								                SELECT *
-								                FROM data_indikator_transformasi_cascading
-								                WHERE id_uraian_cascading = %d
-								                  AND indikator IS NOT NULL
-								                  AND active = 1
-								            ", $cascading['induk']['id']),
-								            ARRAY_A
-								        );
+						                $cascading['induk']['indikator'] = $wpdb->get_results(
+						                    $wpdb->prepare("
+						                        SELECT *
+						                        FROM data_indikator_transformasi_cascading
+						                        WHERE id_uraian_cascading = %d
+						                          AND indikator IS NOT NULL
+						                          AND active = 1
+						                    ", $cascading['induk']['id']),
+						                    ARRAY_A
+						                );
 
-								        if (!empty($cascading['induk']['indikator'])) {
-								            foreach ($cascading['induk']['indikator'] as &$indikator) {
-								                $indikator['satuan'] = $wpdb->get_results(
-								                    $wpdb->prepare("
-								                        SELECT *
-								                        FROM data_indikator_transformasi_cascading
-								                        WHERE parent_indikator = %d
-								                          AND active = 1
-								                    ", $indikator['id']),
-								                    ARRAY_A
-								                );
-								            }
-								            unset($indikator);
-								        }
+						                if (!empty($cascading['induk']['indikator'])) {
+						                    foreach ($cascading['induk']['indikator'] as &$indikator) {
+						                        $indikator['satuan'] = $wpdb->get_results(
+						                            $wpdb->prepare("
+						                                SELECT *
+						                                FROM data_indikator_transformasi_cascading
+						                                WHERE parent_indikator = %d
+						                                  AND active = 1
+						                            ", $indikator['id']),
+						                            ARRAY_A
+						                        );
+						                    }
+						                    unset($indikator);
+						                }
+						                
+						                if (!$from_renstra_lokal && !empty($cascading['induk']['id'])) {
+						                    $pokin_level_4_cascading = $wpdb->get_results(
+						                        $wpdb->prepare("
+						                            SELECT 
+						                                *
+						                            FROM data_pokin_renstra
+						                            WHERE id_unik = %s
+						                              AND tipe = 6
+						                              AND active = 1
+						                        ", $cascading['induk']['id']),
+						                        ARRAY_A
+						                    );
+						                    $cascading['induk']['get_pokin_renstra'] = $pokin_level_4_cascading;
+						                    
+						                    // Jika pokin utama kosong, ambil dari transformasi
+						                    if (empty($pokin_level_4) && !empty($pokin_level_4_cascading)) {
+						                        $pokin_level_4 = $pokin_level_4_cascading;
+						                    }
+						                }
 
-								    } else {
-								        $cascading['induk'] = array(
-								            'indikator' => array()
-								        );
-								    }
-								}
-					            unset($cascading);
-					            
-					            $row['get_transformasi_cascading'] = $data_transformasi_cascading;
-					        } else {
-					            $row['get_transformasi_cascading'] = array();
-					        }
-					    }
-					    unset($row);
+						            } else {
+						                $cascading['induk'] = array(
+						                    'indikator' => array()
+						                );
+						            }
+						        }
+						        unset($cascading);
+						        
+						        $row['get_transformasi_cascading'] = $data_transformasi_cascading;
+						    } else {
+						        $row['get_transformasi_cascading'] = array();
+						    }
+						    
+						    $row['get_pokin_renstra'] = $pokin_level_4;
+						}
+						unset($row);
 
 					    if (!empty($data_kegiatan_renja)) {
 					        $ret['data'] = $data_kegiatan_renja;
@@ -7829,194 +7932,278 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_sub_kegiatan_lokal';
 
 					    foreach ($data_sub_kegiatan_renja as &$row) {
-					        $data_sub_kegiatan_renstra = $wpdb->get_row(
-					            $wpdb->prepare("
-					                SELECT 
-					                    *
-					                FROM $tabel_renstra
-					                WHERE (
-							                CASE 
-							                    WHEN kode_sub_giat LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_sub_giat
-							                END
-							            ) = %s
-					                  AND id_unit = %d
-					                  AND id_jadwal = %d
-					                  AND active = 1
-					            ", $row['kode_sub_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
-					            ARRAY_A
-					        );
-					        
-					        if (!empty($data_sub_kegiatan_renstra)) {
-					            $pokin_level_5 = $wpdb->get_results(
-					                $wpdb->prepare("
-					                    SELECT 
-					                        *
-					                    FROM data_pokin_renstra
-					                    WHERE id_unik = %s
-					                      AND tahun_anggaran = %d
-					                      AND id_skpd = %d
-					                      AND tipe = 5
-					                      AND active = 1
-					                ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-					                ARRAY_A
-					            );
-					            
-					            $row['get_pokin_renstra'] = $pokin_level_5;
-					        } else {
-					            $row['get_pokin_renstra'] = array();
-					        }
-					        
-					        $data_sub_kegiatan_renstra_lokal = $wpdb->get_results(
-							    $wpdb->prepare("
-							        SELECT *
-							        FROM $tabel_renstra_lokal
-							        WHERE
-							            (
-							                CASE 
-							                    WHEN kode_sub_giat LIKE 'X.XX.%'
-							                        THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.')) -- pakai concat untuk menggabungkan string
-							                    ELSE kode_sub_giat
-							                END
-							            ) = %s
-							          AND id_unit = %d
-							          AND tahun_anggaran = %d
-							          AND active = 1
-							    ",
-							    $row['kode_sub_giat'],
-							    $row['id_skpd'],
-							    $data_jadwal_renstra_lokal['tahun_anggaran']
-							    ),
-							    ARRAY_A
-							);
-					        
-					        $get_all_id_unik = array();
-							if (!empty($data_sub_kegiatan_renstra_lokal)) {
-							    foreach ($data_sub_kegiatan_renstra_lokal as $val) {
-							        $get_all_id_unik[] = $val['id_unik'];
-							    }
-							    $get_all_id_unik = array_values(array_unique($get_all_id_unik));
-							    $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
+						    $data_sub_kegiatan_renstra = $wpdb->get_row(
+						        $wpdb->prepare("
+						            SELECT 
+						                *
+						            FROM $tabel_renstra
+						            WHERE (
+						                    CASE 
+						                        WHEN kode_sub_giat LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_sub_giat
+						                    END
+						                ) = %s
+						              AND id_unit = %d
+						              AND id_jadwal = %d
+						              AND active = 1
+						        ", $row['kode_sub_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+						        ARRAY_A
+						    );
+						    
+						    // Inisialisasi array pokin
+						    $pokin_level_5 = array();
+						    
+						    // Ambil dari renstra jika ada
+						    if (!empty($data_sub_kegiatan_renstra)) {
+						        $pokin_level_5 = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT 
+						                    *
+						                FROM data_pokin_renstra
+						                WHERE id_unik = %s
+						                  AND tahun_anggaran = %d
+						                  AND id_skpd = %d
+						                  AND tipe = 5
+						                  AND active = 1
+						            ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
+						            ARRAY_A
+						        );
+						    }
+						    
+						    // Ambil dari renstra lokal
+						    $data_sub_kegiatan_renstra_lokal = $wpdb->get_results(
+						        $wpdb->prepare("
+						            SELECT *
+						            FROM $tabel_renstra_lokal
+						            WHERE
+						                (
+						                    CASE 
+						                        WHEN kode_sub_giat LIKE 'X.XX.%'
+						                            THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+						                        ELSE kode_sub_giat
+						                    END
+						                ) = %s
+						              AND id_unit = %d
+						              AND tahun_anggaran = %d
+						              AND active = 1
+						        ",
+						        $row['kode_sub_giat'],
+						        $row['id_skpd'],
+						        $data_jadwal_renstra_lokal['tahun_anggaran']
+						        ),
+						        ARRAY_A
+						    );
+						    
+						    $get_all_id_unik = array();
+						    $from_renstra_lokal = false;
+						    
+						    if (!empty($data_sub_kegiatan_renstra_lokal)) {
+						        foreach ($data_sub_kegiatan_renstra_lokal as $val) {
+						            $get_all_id_unik[] = $val['id_unik'];
+						        }
+						        $from_renstra_lokal = true;
+						    } else {
+						        $data_sub_keg_bl = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT kode_sbl
+						                FROM data_sub_keg_bl
+						                WHERE kode_sub_giat = %s
+						                  AND id_sub_skpd = %d
+						                  AND tahun_anggaran = %d
+						                  AND active = 1
+						            ",
+						            $row['kode_sub_giat'],
+						            $row['id_sub_skpd'],
+						            $_POST['tahun_anggaran']
+						            ),
+						            ARRAY_A
+						        );
+						        
+						        if (!empty($data_sub_keg_bl)) {
+						            foreach ($data_sub_keg_bl as $val) {
+						                $get_all_id_unik[] = $val['kode_sbl'];
+						            }
+						        }
+						    }
+						    
+						    if (!empty($get_all_id_unik)) {
+						        $get_all_id_unik = array_values(array_unique($get_all_id_unik));
+						        $id_unik = implode(',', array_fill(0, count($get_all_id_unik), '%s'));
 
-							    $data_transformasi_cascading = $wpdb->get_results(
-							        $wpdb->prepare("
-							            SELECT *
-							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik IN ($id_unik)
-							              AND active = 1
-							        ", $get_all_id_unik),
-							        ARRAY_A
-							    );
-					            
-					            foreach ($data_transformasi_cascading as &$cascading) {
-								    $cascading['induk'] = $wpdb->get_row(
-								        $wpdb->prepare("
-								            SELECT *
-								            FROM data_transformasi_cascading
-								            WHERE id = %d
-								              AND active = 1
-								              -- AND is_pelaksana = 0
-								        ", $cascading['id_uraian_cascading']),
-								        ARRAY_A
-								    );
+						        // TRANSFORMASI CASCADING (BUKAN PELAKSANA)
+						        $data_transformasi_cascading = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT *
+						                FROM data_progkeg_transformasi_cascading
+						                WHERE id_unik IN ($id_unik)
+						                  AND active = 1
+						            ", $get_all_id_unik),
+						            ARRAY_A
+						        );
+						        
+						        foreach ($data_transformasi_cascading as &$cascading) {
+						            $cascading['induk'] = $wpdb->get_row(
+						                $wpdb->prepare("
+						                    SELECT *
+						                    FROM data_transformasi_cascading
+						                    WHERE id = %d
+						                      AND active = 1
+						                      AND level = 5
+						                ", $cascading['id_uraian_cascading']),
+						                ARRAY_A
+						            );
 
-								    if (!empty($cascading['induk'])) {
+						            if (!empty($cascading['induk'])) {
 
-								        $cascading['induk']['indikator'] = $wpdb->get_results(
-								            $wpdb->prepare("
-								                SELECT *
-								                FROM data_indikator_transformasi_cascading
-								                WHERE id_uraian_cascading = %d
-								                  AND indikator IS NOT NULL
-								                  AND active = 1
-								            ", $cascading['induk']['id']),
-								            ARRAY_A
-								        );
+						                $cascading['induk']['indikator'] = $wpdb->get_results(
+						                    $wpdb->prepare("
+						                        SELECT *
+						                        FROM data_indikator_transformasi_cascading
+						                        WHERE id_uraian_cascading = %d
+						                          AND indikator IS NOT NULL
+						                          AND active = 1
+						                    ", $cascading['induk']['id']),
+						                    ARRAY_A
+						                );
 
-								        if (!empty($cascading['induk']['indikator'])) {
-								            foreach ($cascading['induk']['indikator'] as &$indikator) {
-								                $indikator['satuan'] = $wpdb->get_results(
-								                    $wpdb->prepare("
-								                        SELECT *
-								                        FROM data_indikator_transformasi_cascading
-								                        WHERE parent_indikator = %d
-								                          AND active = 1
-								                    ", $indikator['id']),
-								                    ARRAY_A
-								                );
-								            }
-								            unset($indikator);
-								        }
+						                if (!empty($cascading['induk']['indikator'])) {
+						                    foreach ($cascading['induk']['indikator'] as &$indikator) {
+						                        $indikator['satuan'] = $wpdb->get_results(
+						                            $wpdb->prepare("
+						                                SELECT *
+						                                FROM data_indikator_transformasi_cascading
+						                                WHERE parent_indikator = %d
+						                                  AND active = 1
+						                            ", $indikator['id']),
+						                            ARRAY_A
+						                        );
+						                    }
+						                    unset($indikator);
+						                }
+						                
+						                if (!$from_renstra_lokal && !empty($cascading['induk']['id'])) {
+						                    $pokin_level_5_cascading = $wpdb->get_results(
+						                        $wpdb->prepare("
+						                            SELECT 
+						                                *
+						                            FROM data_pokin_renstra
+						                            WHERE id_unik = %s
+						                              AND tipe = 6
+						                              AND active = 1
+						                        ", $cascading['induk']['id']),
+						                        ARRAY_A
+						                    );
+						                    $cascading['induk']['get_pokin_renstra'] = $pokin_level_5_cascading;
+						                    
+						                    // Jika pokin utama kosong, ambil dari transformasi
+						                    if (empty($pokin_level_5) && !empty($pokin_level_5_cascading)) {
+						                        $pokin_level_5 = $pokin_level_5_cascading;
+						                    }
+						                }
 
-								    } else {
-								        $cascading['induk'] = array(
-								            'indikator' => array()
-								        );
-								    }
-								}
-					            unset($cascading);
+						            } else {
+						                $cascading['induk'] = array(
+						                    'indikator' => array()
+						                );
+						            }
+						        }
+						        unset($cascading);
 
-					            $data_transformasi_cascading_pelaksana = $wpdb->get_results(
-					                $wpdb->prepare("
-							            SELECT *
-							            FROM data_progkeg_transformasi_cascading
-							            WHERE id_unik IN ($id_unik)
-							              AND active = 1
-							        ", $get_all_id_unik),
-							        ARRAY_A
-					            );
+						        // TRANSFORMASI CASCADING PELAKSANA
+						        $data_transformasi_cascading_pelaksana = $wpdb->get_results(
+						            $wpdb->prepare("
+						                SELECT *
+						                FROM data_progkeg_transformasi_cascading
+						                WHERE id_unik IN ($id_unik)
+						                  AND active = 1
+						            ", $get_all_id_unik),
+						            ARRAY_A
+						        );
 
-					            foreach ($data_transformasi_cascading_pelaksana as &$cascading_pelaksana) {
+						        foreach ($data_transformasi_cascading_pelaksana as &$cascading_pelaksana) {
 
-					                $cascading_pelaksana['induk'] = $wpdb->get_row(
-					                    $wpdb->prepare("
-					                        SELECT *
-					                        FROM data_transformasi_cascading
-					                        WHERE id = %d
-					                          AND active = 1
-					                          AND is_pelaksana = 1
-					                    ", $cascading_pelaksana['id_uraian_cascading']),
-					                    ARRAY_A
-					                );
+						            $cascading_pelaksana['induk'] = $wpdb->get_row(
+						                $wpdb->prepare("
+						                    SELECT *
+						                    FROM data_transformasi_cascading
+						                    WHERE id = %d
+						                      AND active = 1
+						                      AND level = 5
+						                      AND is_pelaksana = 1
+						                ", $cascading_pelaksana['id_uraian_cascading']),
+						                ARRAY_A
+						            );
 
-					                if (!empty($cascading_pelaksana['induk'])) {
+						            if (!empty($cascading_pelaksana['induk'])) {
 
-					                    $cascading_pelaksana['induk']['indikator'] = $wpdb->get_results(
-					                        $wpdb->prepare("
-					                            SELECT *
-					                            FROM data_indikator_transformasi_cascading
-					                            WHERE id_uraian_cascading = %d
-								                  AND indikator IS NOT NULL
-					                              AND active = 1
-					                        ", $cascading_pelaksana['induk']['id']),
-					                        ARRAY_A
-					                    );
+						                $cascading_pelaksana['induk']['indikator'] = $wpdb->get_results(
+						                    $wpdb->prepare("
+						                        SELECT *
+						                        FROM data_indikator_transformasi_cascading
+						                        WHERE id_uraian_cascading = %d
+						                          AND indikator IS NOT NULL
+						                          AND active = 1
+						                    ", $cascading_pelaksana['induk']['id']),
+						                    ARRAY_A
+						                );
 
-					                    foreach ($cascading_pelaksana['induk']['indikator'] as &$indikator) {
-					                        $indikator['satuan'] = $wpdb->get_results(
-					                            $wpdb->prepare("
-					                                SELECT *
-					                                FROM data_indikator_transformasi_cascading
-					                                WHERE parent_indikator = %d
-					                                  AND active = 1
-					                            ", $indikator['id']),
-					                            ARRAY_A
-					                        );
-					                    }
-					                    unset($indikator);
-					                }
-					            }
-					            unset($cascading_pelaksana);
+						                if (!empty($cascading_pelaksana['induk']['indikator'])) {
+						                    foreach ($cascading_pelaksana['induk']['indikator'] as &$indikator) {
+						                        $indikator['satuan'] = $wpdb->get_results(
+						                            $wpdb->prepare("
+						                                SELECT *
+						                                FROM data_indikator_transformasi_cascading
+						                                WHERE parent_indikator = %d
+						                                  AND active = 1
+						                            ", $indikator['id']),
+						                            ARRAY_A
+						                        );
+						                    }
+						                    unset($indikator);
+						                }
+						                
+						                // Ambil pokin dari transformasi cascading pelaksana
+						                if (!$from_renstra_lokal && !empty($cascading_pelaksana['induk']['id'])) {
+						                    $pokin_level_5_pelaksana = $wpdb->get_results(
+						                        $wpdb->prepare("
+						                            SELECT 
+						                                *
+						                            FROM data_pokin_renstra
+						                            WHERE id_unik = %s
+						                              AND tipe = 6
+						                              AND active = 1
+						                        ", $cascading_pelaksana['induk']['id']),
+						                        ARRAY_A
+						                    );
+						                    $cascading_pelaksana['induk']['get_pokin_renstra'] = $pokin_level_5_pelaksana;
+						                    
+						                    // Jika pokin utama masih kosong, ambil dari pelaksana
+						                    if (empty($pokin_level_5) && !empty($pokin_level_5_pelaksana)) {
+						                        $pokin_level_5 = $pokin_level_5_pelaksana;
+						                    }
+						                } else {
+						                    $cascading_pelaksana['induk']['get_pokin_renstra'] = array();
+						                }
+						            } else {
+						                $cascading_pelaksana['induk'] = array(
+						                    'indikator' => array(),
+						                    'get_pokin_renstra' => array()
+						                );
+						            }
+						        }
+						        unset($cascading_pelaksana);
 
-					            $row['get_transformasi_cascading'] = $data_transformasi_cascading;
-					            $row['get_transformasi_cascading_pelaksana'] = $data_transformasi_cascading_pelaksana;
+						        $row['get_transformasi_cascading'] = $data_transformasi_cascading;
+						        $row['get_transformasi_cascading_pelaksana'] = $data_transformasi_cascading_pelaksana;
 
-					        } else {
-					            $row['get_transformasi_cascading'] = array();
-					            $row['get_transformasi_cascading_pelaksana'] = array();
-					        }
-					    }
+						    } else {
+						        $row['get_transformasi_cascading'] = array();
+						        $row['get_transformasi_cascading_pelaksana'] = array();
+						    }
+						    
+						    $row['get_pokin_renstra'] = $pokin_level_5;
+						}
 					    unset($row);
 
 					    if (!empty($data_sub_kegiatan_renja)) {
