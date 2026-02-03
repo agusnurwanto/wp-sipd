@@ -5,7 +5,7 @@ if (! defined('WPINC')) {
 }
 global $wpdb;
 
-if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
+if (!empty($_GET) && (!isset($_GET['id_jadwal']) || !isset($_GET['id_skpd']))) {
     die('<h1 class="text-center">Parameter id_jadwal atau id_skpd tidak ditemukan!</h1>');
 }
 

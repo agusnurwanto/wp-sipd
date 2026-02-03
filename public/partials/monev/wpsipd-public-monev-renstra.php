@@ -341,7 +341,7 @@ if (!empty($tujuan)) {
 										'kode_tujuan' => $p_value['kode_tujuan'],
 										'urut_tujuan' => $p_value['urut_tujuan'],
 										// 'id_bidang_urusan' => $p_value['id_bidang_urusan'],
-										// 'kode_bidang_urusan' => $p_value['kode_bidang_urusan'],
+										'kode_bidang_urusan' => $p_value['kode_bidang_urusan'],
 										'nama_bidang_urusan' => $bidur_html,
 										'nama_bidang_urusan_teks' => $bidur_html,
 										'id_misi' => $p_value['id_misi'],
@@ -756,9 +756,6 @@ if (!empty($tujuan)) {
 	}
 }
 
-$bidur_skpd_db = $this->get_skpd_db($_GET['id_skpd']);
-$bidur_skpd = $bidur_skpd_db['skpd'][0]['bidur_1'];
-
 // echo '<pre>';print_r($data_all['data']);echo '</pre>'; die();
 $no_tujuan = 0;
 $no_sasaran = 0;
@@ -1113,8 +1110,8 @@ foreach ($data_all['data'] as $key => $tujuan) {
 				$program['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $program['nama_bidang_urusan']);
 			}
 			if (strpos($program['nama'], 'X.XX') !== false) {
-				$program['nama'] = str_replace('X.XX', $bidur_skpd, $program['nama']);
-				$program['nama_teks'] = str_replace('X.XX', $bidur_skpd, $program['nama_teks']);
+				$program['nama'] = str_replace('X.XX', $program['kode_bidang_urusan'], $program['nama']);
+				$program['nama_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $program['nama_teks']);
 			}
 			$body_monev .= '
 				<tr class="program tr-program" data-kode="' . $_GET['id_jadwal'] . '-' . $_GET['id_skpd'] . '-' . $program['kode_tujuan'] . '-' . $program['kode_sasaran'] . '-' . $program['kode_program'] . '" style="background-color:' . $backgroundColor . '">
@@ -1249,8 +1246,8 @@ foreach ($data_all['data'] as $key => $tujuan) {
 					$kegiatan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $kegiatan['nama_bidang_urusan']);
 				}
 				if (strpos($kegiatan['nama'], 'X.XX') !== false) {
-					$kegiatan['nama'] = str_replace('X.XX', $bidur_skpd, $kegiatan['nama']);
-					$kegiatan['nama_teks'] = str_replace('X.XX', $bidur_skpd, $kegiatan['nama_teks']);
+					$kegiatan['nama'] = str_replace('X.XX', $program['kode_bidang_urusan'], $kegiatan['nama']);
+					$kegiatan['nama_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $kegiatan['nama_teks']);
 				}
 				$body_monev .= '
 					<tr class="kegiatan tr-kegiatan" data-kode="" style="background-color:' . $backgroundColor . '">
@@ -1376,8 +1373,8 @@ foreach ($data_all['data'] as $key => $tujuan) {
 						$sub_kegiatan['nama_bidang_urusan'] = str_replace('X.XX', 'Bidang Urusan Penunjang', $sub_kegiatan['nama_bidang_urusan']);
 					}
 					if (strpos($sub_kegiatan['nama'], 'X.XX') !== false) {
-						$sub_kegiatan['nama'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['nama']);
-						$sub_kegiatan['nama_teks'] = str_replace('X.XX', $bidur_skpd, $sub_kegiatan['nama_teks']);
+						$sub_kegiatan['nama'] = str_replace('X.XX', $program['kode_bidang_urusan'], $sub_kegiatan['nama']);
+						$sub_kegiatan['nama_teks'] = str_replace('X.XX', $program['kode_bidang_urusan'], $sub_kegiatan['nama_teks']);
 					}
 					$body_monev .= '
 						<tr class="sub-kegiatan tr-sub-kegiatan" data-kode="" style="background-color:' . $backgroundColor . '">
