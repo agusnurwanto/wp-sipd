@@ -30388,7 +30388,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($_POST['id_unik']);
+					$kegiatan_data = $this->get_kegiatan_renstra_lokal_by_id_unik($_POST['id_unik']);
+					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($kegiatan_data->kode_program);
 
 					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
 				break;
@@ -30410,6 +30411,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             ]);
         }
         wp_die();
+	}
+
+	function get_kegiatan_renstra_lokal_by_id_unik($id_unik)
+	{
+		global $wpdb;
+		return $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT *
+				FROM data_renstra_kegiatan_lokal 
+				WHERE id_unik = %s 
+					AND id_unik_indikator IS NULL
+					AND active = 1
+			", $id_unik)
+		);
 	}
 
 	function get_kode_bidang_urusan_renstra_program($id_unik)
