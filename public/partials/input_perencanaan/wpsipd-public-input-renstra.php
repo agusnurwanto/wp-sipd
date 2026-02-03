@@ -6676,7 +6676,9 @@ $table .= '
 						});
 						bidur_teks = '<ul class="m-0">' + bidur_html.join('') + '<ul>';
 					}
+
 					let selected_bidur = JSON.parse(value.kode_bidang_urusan_multiple);
+					
 					tujuan += '' +
 						'<tr kodetujuan="' + value.id_unik + '">' +
 						'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +

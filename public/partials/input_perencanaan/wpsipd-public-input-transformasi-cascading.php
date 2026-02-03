@@ -2036,6 +2036,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 id_unit: window.idUnit,
                 id_unik: kodeTujuan,
+                id_jadwal: window.idJadwal,
                 level: 2
             }
         });
@@ -2051,6 +2052,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 id_unit: window.idUnit,
                 id_unik: kodeSasaran,
+                id_jadwal: window.idJadwal,
                 level: 3
             }
         });
@@ -2066,6 +2068,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 id_unit: window.idUnit,
                 id_unik: kodeProgram,
+                id_jadwal: window.idJadwal,
                 level: 4
             }
         });
@@ -2081,6 +2084,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 api_key: ajax.api_key,
                 id_unit: window.idUnit,
                 id_unik: kodeKegiatan,
+                id_jadwal: window.idJadwal,
                 level: 5
             }
         });

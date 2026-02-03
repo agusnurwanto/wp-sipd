@@ -30323,6 +30323,30 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+	
+	function get_bidur_program($id_skpd, $tahun_anggaran)
+	{
+		global $wpdb;
+
+		$program_bidur = [];
+		$datas = $wpdb->get_results(
+			$wpdb->prepare("
+			SELECT 
+				id_unik,
+				kode_bidang_urusan
+			FROM data_renstra_program_lokal
+			WHERE active = 1
+			  AND id_unik_indikator IS NULL
+			  AND id_unit = %d
+			  AND tahun_anggaran = %d
+		", $id_skpd, $tahun_anggaran));
+
+		foreach ($datas as $r) {
+			$program_bidur[$r->id_unik] = $r->kode_bidang_urusan;
+		}
+	
+		return $program_bidur;
+	}
 
 	function handle_add_tranformasi_cascading_by_level()
 	{
@@ -30330,25 +30354,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
             $this->newValidate($_POST, [
                 'api_key' 			=> 'required|string',
                 'level' 			=> 'required',
-                'id_unit' 			=> 'required'
+                'id_unit' 			=> 'required',
+                'id_jadwal' 		=> 'required',
             ]);
 
             if ($_POST['api_key'] !== get_option(WPSIPD_API_KEY)) {
                 throw new Exception("API key tidak valid atau tidak ditemukan!", 401);
             }
 
+			$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
+
+			if (empty($jadwal) || $jadwal['status'] == 2 || $jadwal['id_tipe'] != 4) {
+				throw new Exception("Jadwal RENSTRA Lokal tidak valid.", 404);
+			}
+
 			switch ($_POST['level']) {
 				case 1:
-					if (empty($_POST['id_jadwal']) || empty($_POST['id_unit'])) {
-						throw new Exception("id_jadwal dan id_unit tidak boleh kosong.", 400);
-					}
-
-					$jadwal = $this->get_jadwal_by_id($_POST['id_jadwal']);
-					if (empty($jadwal) || $jadwal['status'] == 2 || $jadwal['id_tipe'] != 4) {
-						throw new Exception("Jadwal RENSTRA Lokal tidak valid.", 404);
-					}
-
 					$data = $this->get_tujuan_renstra_lokal_by_tahun_anggaran_jadwal($jadwal['tahun_anggaran'], $_POST['id_unit']);
+
 					if (!empty($data)) {
 						foreach ($data as &$item) {
 							$item['pokin_list'] = $this->get_pokin_renstra_by_id_unik($item['id_unik']);
@@ -30378,26 +30401,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
+					$get_bidur_program = $this->get_bidur_program($_POST['id_unit'], $jadwal['tahun_anggaran']);
 
-					$id_uniks = $_POST['id_unik'];
-					$parts = explode(',', $id_uniks);
-
-					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($parts[0]);
-
-					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
+					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $get_bidur_program);
 				break;
 				case 5:
 					if (empty($_POST['id_unik'])) {
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
+					$get_bidur_program = $this->get_bidur_program($_POST['id_unit'], $jadwal['tahun_anggaran']);
 
-					$id_uniks = $_POST['id_unik'];
-					$parts = explode(',', $id_uniks);
-
-					$kegiatan_data = $this->get_kegiatan_renstra_lokal_by_id_unik($parts[0]);
-					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($kegiatan_data->kode_program);
-
-					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
+					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $get_bidur_program);
 				break;
 				default:
 					throw new Exception("Level tidak dikenali.", 400);
@@ -30601,11 +30615,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$query = "
 			SELECT 
 				id_unik,
-				CASE
-					WHEN kode_giat LIKE 'X.XX.%'
-						THEN REPLACE(kode_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
-					ELSE kode_giat
-				END AS kode_giat,
+				kode_program,
+				kode_giat,
 				SUBSTRING(nama_giat, LOCATE(' ', nama_giat) + 1) AS nama_giat
 			FROM data_renstra_kegiatan_lokal 
 			WHERE kode_program IN ($placeholders)
@@ -30613,13 +30624,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			  AND id_unik_indikator IS NULL
 			ORDER BY kode_giat ASC
 		";
-
 		
 		$sql = $wpdb->prepare($query, ...$parents);
 
-		return $wpdb->get_results($sql, ARRAY_A);
-	}
+		$datas = $wpdb->get_results($sql, ARRAY_A);
 
+		if (!empty($datas) && !empty($kode_bidang_urusan)) {
+			foreach ($datas as $k => $v) {
+				$datas[$k]['kode_giat'] = $this->normalize_kode($v['kode_giat'], $kode_bidang_urusan[$v['kode_program']]);
+			}
+		}
+
+		return $datas;
+	}
 
 	function get_subkegiatan_renstra_lokal_by_parent($parent_id_unik_list, $kode_bidang_urusan) 
 	{
@@ -30634,11 +30651,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$query = "
 			SELECT 
 				id_unik,
-				CASE
-					WHEN kode_sub_giat LIKE 'X.XX.%'
-						THEN REPLACE(kode_sub_giat, 'X.XX.', CONCAT($kode_bidang_urusan, '.'))
-					ELSE kode_sub_giat
-				END AS kode_sub_giat,
+				kode_sub_giat,
+				kode_program,
 				SUBSTRING(nama_sub_giat, LOCATE(' ', nama_sub_giat) + 1) AS nama_sub_giat,
 				nama_sub_unit
 			FROM data_renstra_sub_kegiatan_lokal 
@@ -30650,7 +30664,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		$sql = $wpdb->prepare($query, ...$parents);
 
-		return $wpdb->get_results($sql, ARRAY_A);
+		$datas = $wpdb->get_results($sql, ARRAY_A);
+
+		if (!empty($datas) && !empty($kode_bidang_urusan)) {
+			foreach ($datas as $k => $v) {
+				$datas[$k]['kode_sub_giat'] = $this->normalize_kode($v['kode_sub_giat'], $kode_bidang_urusan[$v['kode_program']]);
+			}
+		}
+
+		return $datas;
 	}
 
 	function handle_save_transformasi_cascading()
