@@ -3144,7 +3144,9 @@ $table .= '
 				// Apakah relevan DAN belum pernah ditambahkan sebelumnya
 				if (isRelevant && !addedBidurCodes.has(b.kode_bidang_urusan)) {
 
-					option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
+					if (b.kode_bidang_urusan != 'X.XX') {
+						option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
+					}
 
 					addedBidurCodes.add(b.kode_bidang_urusan);
 				}
@@ -3334,7 +3336,9 @@ $table .= '
 				// Apakah relevan DAN belum pernah ditambahkan sebelumnya
 				if (isRelevant && !addedBidurCodes.has(b.kode_bidang_urusan)) {
 
-					option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
+					if (b.kode_bidang_urusan != 'X.XX') {
+						option_bidur += `<option value="${b.kode_bidang_urusan}" data='${JSON.stringify(b)}'>${b.nama_bidang_urusan}</option>`;
+					}
 
 					addedBidurCodes.add(b.kode_bidang_urusan);
 				}
@@ -3811,6 +3815,7 @@ $table .= '
 	});
 
 	jQuery(document).on('click', '.btn-detail-tujuan', function() {
+		window.selected_bidur = jQuery(this).data('selected_bidur');
 		sasaranRenstra({
 			'kode_tujuan': jQuery(this).data('kodetujuan')
 		});
@@ -4449,6 +4454,10 @@ $table .= '
 							'<div class="form-group">' +
 							'<label>Pilih Program</label>' +
 							'<select class="form-control" name="id_program" id="program-teks"></select>' +
+							'</div>' +
+							'<div class="form-group select_bidur_field d-none">' +
+							'<label>Pilih Bidang Urusan</label>' +
+							'<select class="form-control" name="selected_bidang_urusan" id="selected_bidang_urusan"></select>' +
 							'</div>' +
 							'<div class="form-group">' +
 							'<label>Catatan Usulan</label>' +
@@ -6667,6 +6676,7 @@ $table .= '
 						});
 						bidur_teks = '<ul class="m-0">' + bidur_html.join('') + '<ul>';
 					}
+					let selected_bidur = JSON.parse(value.kode_bidang_urusan_multiple);
 					tujuan += '' +
 						'<tr kodetujuan="' + value.id_unik + '">' +
 						'<td class="text-center" rowspan="4">' + (index + 1) + '</td>' +
@@ -6681,7 +6691,7 @@ $table .= '
 						'<td class="text-center" rowspan="2">' +
 						'<div class="btn-group-vertical">' +
 						'<a href="javascript:void(0)" data-idtujuan="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-info btn-kelola-indikator-tujuan" title="Lihat Indikator Tujuan"><i class="dashicons dashicons-menu-alt"></i></a>' +
-						'<a href="javascript:void(0)" data-kodetujuan="' + value.id_unik + '" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>' +
+						'<a href="javascript:void(0)" data-kodetujuan="' + value.id_unik + '" data-selected_bidur="' + selected_bidur + '" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>' +
 						'<a href="javascript:void(0)" data-id="' + value.id + '" class="btn btn-warning btn-edit-tujuan" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></a>' +
 						'<a href="javascript:void(0)" data-id="' + value.id + '" data-idunik="' + value.id_unik + '" class="btn btn-danger btn-hapus-tujuan crud-button" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>' +
 						'</div>' +

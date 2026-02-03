@@ -30379,7 +30379,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($_POST['id_unik']);
+					$id_uniks = $_POST['id_unik'];
+					$parts = explode(',', $id_uniks);
+
+					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($parts[0]);
 
 					$data = $this->get_kegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
 				break;
@@ -30388,7 +30391,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception("id_unik tidak boleh kosong.", 400);
 					}
 
-					$kegiatan_data = $this->get_kegiatan_renstra_lokal_by_id_unik($_POST['id_unik']);
+					$id_uniks = $_POST['id_unik'];
+					$parts = explode(',', $id_uniks);
+
+					$kegiatan_data = $this->get_kegiatan_renstra_lokal_by_id_unik($parts[0]);
 					$kode_bidang_urusan = $this->get_kode_bidang_urusan_renstra_program($kegiatan_data->kode_program);
 
 					$data = $this->get_subkegiatan_renstra_lokal_by_parent($_POST['id_unik'], $kode_bidang_urusan);
