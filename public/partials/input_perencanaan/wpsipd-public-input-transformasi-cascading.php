@@ -5,7 +5,7 @@ if (! defined('WPINC')) {
 }
 global $wpdb;
 
-if (!$_GET['id_jadwal'] || !$_GET['id_skpd']) {
+if (!empty($_GET) && (!isset($_GET['id_jadwal']) || !isset($_GET['id_skpd']))) {
     die('<h1 class="text-center">Parameter id_jadwal atau id_skpd tidak ditemukan!</h1>');
 }
 
@@ -318,7 +318,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                 </h5>
             </div>
 
-            <ul class="nav nav-tabs card-header-tabs" id="tab-renstra" role="tablist">
+            <ul class="nav nav-tabs card-header-tabs p-2" id="tab-renstra" role="tablist">
                 <?php for ($i = 0; $i < $jadwal_renstra_lokal['lama_pelaksanaan']; $i++):
                     $tahun_tab = $jadwal_renstra_lokal['tahun_anggaran'] + $i;
                 ?>
