@@ -7292,7 +7292,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_program_lokal';
 
 					    foreach ($data_program_renja as &$row) {
-						    $data_program_renstra = $wpdb->get_row(
+						    $data_program_renstra = $wpdb->get_results(
 						        $wpdb->prepare("
 						            SELECT 
 						                *
@@ -7313,23 +7313,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						    );
 						    // Inisialisasi array pokin
 						    $pokin_level_3 = array();
+							if (!empty($data_program_renstra)) {
+							    foreach ($data_program_renstra as $renstra) {
+							        $pokin = $wpdb->get_results(
+							            $wpdb->prepare("
+							                SELECT *
+							                FROM data_pokin_renstra
+							                WHERE id_unik = %s
+							                  AND tahun_anggaran = %d
+							                  AND id_skpd = %d
+							                  AND tipe = 3
+							                  AND active = 1
+							            ",$renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'],$row['id_skpd']),
+							            ARRAY_A
+							        );
 
-						    // Ambil dari renstra jika ada
-						    if (!empty($data_program_renstra)) {
-						        $pokin_level_3 = $wpdb->get_results(
-						            $wpdb->prepare("
-						                SELECT 
-						                    *
-						                FROM data_pokin_renstra
-						                WHERE id_unik = %s
-						                  AND tahun_anggaran = %d
-						                  AND id_skpd = %d
-						                  AND tipe = 3
-						                  AND active = 1
-						            ", $data_program_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-						            ARRAY_A
-						        );
-						    }
+							        if (!empty($pokin)) {
+							            $pokin_level_3 = array_merge($pokin_level_3, $pokin);
+							        }
+							    }
+							}
+
 						    
 						    // Ambil dari renstra lokal
 						    $data_program_renstra_lokal = $wpdb->get_results(
@@ -7617,45 +7621,47 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_kegiatan_lokal';
 
 					    foreach ($data_kegiatan_renja as &$row) {
-						    $data_kegiatan_renstra = $wpdb->get_row(
-						        $wpdb->prepare("
-						            SELECT 
-						                *
-						            FROM $tabel_renstra
-						            WHERE (
-						                    CASE 
-						                        WHEN kode_giat LIKE 'X.XX.%'
-						                            THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
-						                        ELSE kode_giat
-						                    END
-						                ) = %s
-						              AND id_unit = %d
-						              AND id_jadwal = %d
-						              AND active = 1
-						        ", $row['kode_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
-						        ARRAY_A
-						    );
-						    
+						    $data_kegiatan_renstra = $wpdb->get_results(
+							    $wpdb->prepare("
+							        SELECT *
+							        FROM $tabel_renstra
+							        WHERE (
+							                CASE 
+							                    WHEN kode_giat LIKE 'X.XX.%'
+							                        THEN REPLACE(kode_giat, 'X.XX.', CONCAT(kode_bidang_urusan, '.'))
+							                    ELSE kode_giat
+							                END
+							            ) = %s
+							          AND id_unit = %d
+							          AND id_jadwal = %d
+							          AND active = 1
+							    ", $row['kode_giat'], $row['id_skpd'], $data_jadwal_renstra['id_jadwal_lokal']),
+							    ARRAY_A
+							);
+				    
 						    // Inisialisasi array pokin
 						    $pokin_level_4 = array();
-						    
-						    // Ambil dari renstra jika ada
-						    if (!empty($data_kegiatan_renstra)) {
-						        $pokin_level_4 = $wpdb->get_results(
-						            $wpdb->prepare("
-						                SELECT 
-						                    *
-						                FROM data_pokin_renstra
-						                WHERE id_unik = %s
-						                  AND tahun_anggaran = %d
-						                  AND id_skpd = %d
-						                  AND tipe = 4
-						                  AND active = 1
-						            ", $data_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-						            ARRAY_A
-						        );
-						    }
-						    
+							if (!empty($data_kegiatan_renstra)) {
+							    foreach ($data_kegiatan_renstra as $renstra) {
+							        $pokin = $wpdb->get_results(
+							            $wpdb->prepare("
+							                SELECT *
+							                FROM data_pokin_renstra
+							                WHERE id_unik = %s
+							                  AND tahun_anggaran = %d
+							                  AND id_skpd = %d
+							                  AND tipe = 4
+							                  AND active = 1
+							            ", $renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
+							            ARRAY_A
+							        );
+
+							        if (!empty($pokin)) {
+							            $pokin_level_4 = array_merge($pokin_level_4, $pokin);
+							        }
+							    }
+							}
+
 						    // Ambil dari renstra lokal
 						    $data_kegiatan_renstra_lokal = $wpdb->get_results(
 						        $wpdb->prepare("
@@ -7932,7 +7938,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					        : 'data_renstra_sub_kegiatan_lokal';
 
 					    foreach ($data_sub_kegiatan_renja as &$row) {
-						    $data_sub_kegiatan_renstra = $wpdb->get_row(
+						    $data_sub_kegiatan_renstra = $wpdb->get_results(
 						        $wpdb->prepare("
 						            SELECT 
 						                *
@@ -7953,23 +7959,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						    
 						    // Inisialisasi array pokin
 						    $pokin_level_5 = array();
-						    
-						    // Ambil dari renstra jika ada
-						    if (!empty($data_sub_kegiatan_renstra)) {
-						        $pokin_level_5 = $wpdb->get_results(
-						            $wpdb->prepare("
-						                SELECT 
-						                    *
-						                FROM data_pokin_renstra
-						                WHERE id_unik = %s
-						                  AND tahun_anggaran = %d
-						                  AND id_skpd = %d
-						                  AND tipe = 5
-						                  AND active = 1
-						            ", $data_sub_kegiatan_renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
-						            ARRAY_A
-						        );
-						    }
+							if (!empty($data_sub_kegiatan_renstra)) {
+							    foreach ($data_sub_kegiatan_renstra as $renstra) {
+							        $pokin = $wpdb->get_results(
+							            $wpdb->prepare("
+							                SELECT *
+							                FROM data_pokin_renstra
+							                WHERE id_unik = %s
+							                  AND tahun_anggaran = %d
+							                  AND id_skpd = %d
+							                  AND tipe = 5
+							                  AND active = 1
+							            ", $renstra['id_unik'], $data_jadwal_renstra['tahun_anggaran'], $row['id_skpd']),
+							            ARRAY_A
+							        );
+
+							        if (!empty($pokin)) {
+							            $pokin_level_5 = array_merge($pokin_level_5, $pokin);
+							        }
+							    }
+							}
+
 						    
 						    // Ambil dari renstra lokal
 						    $data_sub_kegiatan_renstra_lokal = $wpdb->get_results(
