@@ -6800,7 +6800,7 @@ $table .= '
 					'</table>' +
 					'<div style="overflow-x:auto;">' +
 					"<table class='table'>" +
-					"<thead>" +
+					"<thead class='bg-dark text-light'>" +
 					"<tr>" +
 					"<th class='text-center'>No</th>" +
 					"<th class='text-center'>Indikator</th>" +
