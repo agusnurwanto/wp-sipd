@@ -2960,8 +2960,19 @@ $table .= '
 <script type="text/javascript">
 	jQuery(document).ready(() => {
 		disableCreateIfJadwalTransformasi();
+
+		jQuery(document).on('change', '#program-teks', function () {
+			const kodeBidur = jQuery(this).find('option:selected').data('kode_bidur');
+
+			if (kodeBidur === 'X.XX') {
+				jQuery('.select_bidur_field').removeClass('d-none');
+			} else {
+				jQuery('.select_bidur_field').addClass('d-none');
+			}
+		});
 	})
 	run_download_excel();
+	addTujuanRenstra();
 
 	window.id_jadwal_wp_sakip = '<?php echo $id_jadwal_wp_sakip; ?>';
 	window.jenisJadwal = '<?php echo $jenisJadwal; ?>';
@@ -3068,6 +3079,7 @@ $table .= '
 				success: function(response) {
 					if (response.status) {
 						resolve(response);
+						window.bidur_all = response.bidur;
 					} else {
 						reject(new Error(response.message || 'Terjadi kesalahan pada server.'));
 					}
@@ -4435,6 +4447,7 @@ $table .= '
 		            </div>
 		        `;
 					let kode_sasaran = jQuery(that).data('kodesasaran');
+					let bidur_options = getBidurOptions();
 					get_bidang_urusan().then(function() {
 						jQuery('#wrap-loading').hide();
 						let html = '' +
@@ -4457,7 +4470,8 @@ $table .= '
 							'</div>' +
 							'<div class="form-group select_bidur_field d-none">' +
 							'<label>Pilih Bidang Urusan</label>' +
-							'<select class="form-control" name="selected_bidang_urusan" id="selected_bidang_urusan"></select>' +
+							'<select class="form-control" name="selected_bidang_urusan" id="selected_bidang_urusan">' + bidur_options + '</select>' +
+							'<small class="form-text text-muted">Non urusan wajib pilih bidang urusan.</small>' +
 							'</div>' +
 							'<div class="form-group">' +
 							'<label>Catatan Usulan</label>' +
@@ -4570,6 +4584,19 @@ $table .= '
 										res.data[i] = '';
 									}
 								}
+
+								let namaProgram = res.data.nama_program;
+
+								let bidur_options = '';
+								let display = '';
+								if (namaProgram && namaProgram.includes('X.XX')) {
+									bidur_options = getBidurOptions(res.data.kode_bidang_urusan);
+									display = '';
+								} else {
+									bidur_options = getBidurOptions();
+									display = 'd-none';
+								}
+
 								let html = '<form id="form-renstra">' +
 									'<input type="hidden" name="id_unik" value="' + res.data.id_unik + '"/>' +
 									'<input type="hidden" name="kode_sasaran" value="' + res.data.kode_sasaran + '"/>' +
@@ -4587,6 +4614,11 @@ $table .= '
 									'<div class="form-group">' +
 									'<label>Pilih Program</label>' +
 									'<select class="form-control" name="id_program" id="program-teks"></select>' +
+									'</div>' +
+									'<div class="form-group select_bidur_field ' + display + '">' +
+									'<label>Pilih Bidang Urusan</label>' +
+									'<select class="form-control" name="selected_bidang_urusan" id="selected_bidang_urusan">' + bidur_options + '</select>' +
+									'<small class="form-text text-muted">Non urusan wajib pilih bidang urusan.</small>' +
 									'</div>' +
 									'<div class="form-group">' +
 									'<label>Catatan Usulan</label>' +
@@ -7164,10 +7196,17 @@ $table .= '
 							peringatan_usulan[<?php echo $i; ?>] = 'peringatan';
 						}
 					<?php } ?>
+
+					let namaProgram = value.nama_program;
+
+					if (namaProgram && namaProgram.includes('X.XX')) {
+						namaProgram = namaProgram.replace('X.XX', value.kode_bidang_urusan);
+					}
+
 					program += '' +
 						'<tr kodeprogram="' + value.id_unik + '">' +
 						'<td class="text-center" rowspan="6">' + (index + 1) + '</td>' +
-						'<td rowspan="4" class="font-weight-bold">' + value.nama_program + '</td>'
+						'<td rowspan="4" class="font-weight-bold">' + namaProgram + '</td>'
 					<?php for ($i = 1; $i <= $lama_pelaksanaan; $i++) { ?>
 							+
 							'<td class="text-right ' + peringatan[<?php echo $i; ?>] + '">' + formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>) + '</td>'
@@ -7414,6 +7453,37 @@ $table .= '
 				jQuery("#modal-indikator-renstra").modal('show');
 			}
 		});
+	}
+
+	function getBidurOptions(selected = null) {
+		if (!Array.isArray(window.bidur_all)) return '';
+		if (!window.selected_bidur) return '';
+
+		const allowed = window.selected_bidur
+			.split(',')
+			.map(kode => kode.trim());
+
+		return window.bidur_all
+			.filter(item =>
+				allowed.includes(item.kode_bidang_urusan) &&
+				item.kode_bidang_urusan !== 'X.XX'
+			)
+			.map(item => {
+				const isSelected = selected === item.kode_bidang_urusan
+					? 'selected'
+					: '';
+
+				return `
+					<option 
+						value="${item.kode_bidang_urusan}"
+						data-id-urusan="${item.id_urusan}"
+						data-kode-urusan="${item.kode_urusan}"
+						${isSelected}>
+						${item.nama_bidang_urusan}
+					</option>
+				`;
+			})
+			.join('');
 	}
 
 	function kegiatanRenstra(params) {

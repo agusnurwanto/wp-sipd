@@ -3097,6 +3097,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Program tidak ditemukan!');
 					}
 
+					$kode_bidang_urusan = $dataSasaran->kode_bidang_urusan;
+					if (!empty($data['selected_bidang_urusan'])) {
+						$kode_bidang_urusan = $data['selected_bidang_urusan'];
+					}
+
 					try {
 						$data_program = array(
 							'bidur_lock' => 0,
@@ -3108,7 +3113,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_visi' => $dataSasaran->id_visi,
 							'is_locked' => 0,
 							'is_locked_indikator' => 0,
-							'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
+							'kode_bidang_urusan' => $kode_bidang_urusan,
 							'kode_program' => $dataProgram->kode_program,
 							'kode_sasaran' => $dataSasaran->id_unik,
 							'kode_skpd' => $dataSasaran->kode_skpd,
@@ -3394,6 +3399,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception('Program tidak ditemukan!');
 					}
 
+					$kode_bidang_urusan = $dataSasaran->kode_bidang_urusan;
+					if (!empty($data['selected_bidang_urusan'])) {
+						$kode_bidang_urusan = $data['selected_bidang_urusan'];
+					}
+
 					try {
 
 						add_filter('query', array($this, 'wpsipd_query'));
@@ -3405,7 +3415,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_program' => $dataProgram->id_program,
 							'id_unit' => $dataSasaran->id_unit,
 							'id_visi' => $dataSasaran->id_visi,
-							'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
+							'kode_bidang_urusan' => $kode_bidang_urusan,
 							'kode_program' => $dataProgram->kode_program,
 							'kode_sasaran' => $dataSasaran->id_unik,
 							'kode_skpd' => $dataSasaran->kode_skpd,
