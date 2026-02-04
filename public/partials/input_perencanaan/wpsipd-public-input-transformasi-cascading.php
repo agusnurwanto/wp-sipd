@@ -351,11 +351,10 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
                                 <table id="datatable-<?= $tahun_tab ?>" class="table table-striped table-bordered table-hover w-100">
                                     <thead class="thead-light">
                                         <tr>
-                                            <th class="text-center align-middle" style="width:5%">No</th>
+                                            <th class="text-center align-middle" style="width:20%">Satuan Kerja</th>
                                             <th class="text-center align-middle" style="width:10%">Tipe</th>
                                             <th class="text-center align-middle" style="width:15%">Kode</th>
                                             <th class="text-center align-middle">Nama</th>
-                                            <th class="text-center align-middle" style="width:20%">Satuan Kerja</th>
                                             <th class="text-center align-middle" style="width:10%">Aksi</th>
                                         </tr>
                                     </thead>
@@ -908,11 +907,11 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
             info: true,
             searching: true,
             ordering: true,
-            order: [],
+            order: [[0, 'asc'], [2, 'asc']],
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
             columnDefs: [{
-                targets: [5],
+                targets: [4],
                 orderable: false
             }],
             language: {
@@ -984,7 +983,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
 
         tbody.html(`
             <tr>
-                <td colspan="6" class="text-center p-3 text-muted font-italic">
+                <td colspan="5" class="text-center p-3 text-muted font-italic">
                     Memuat Data... <span class="dashicons dashicons-update"></span>
                 </td>
             </tr>
@@ -1015,7 +1014,7 @@ $is_jadwal_expired = $this->check_jadwal_is_expired($jadwal_renstra_lokal)
         } else {
             tbody.html(`
                 <tr>
-                    <td colspan="6" class="text-center p-3 text-muted font-italic">
+                    <td colspan="5" class="text-center p-3 text-muted font-italic">
                         Semua data APBD tahun ${tahun} sudah masuk RENSTRA.
                     </td>
                 </tr>

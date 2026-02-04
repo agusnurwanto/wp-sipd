@@ -32816,6 +32816,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					s.id,
 					s.kode_sbl,
 					s.kode_program,
+					s.kode_sub_skpd,
 					s.kode_giat,
 					s.kode_sub_giat,
 					s.nama_program,
@@ -32894,14 +32895,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$map_existing_program = [];
 			foreach ($raw_renstra_program as $row) {
 				$norm_kode = $this->normalize_kode($row['kode_program'], $program_bidur[$row['id_unik']]);
-				$key = $norm_kode . '|' . $row['id_unit'];
+				$key = $norm_kode;
 				$map_existing_program[$key] = true;
 			}
 
 			$map_existing_kegiatan = [];
 			foreach ($raw_renstra_kegiatan as $row) {
 				$norm_kode = $this->normalize_kode($row['kode_giat'], $program_bidur[$row['kode_program']]);
-				$key = $norm_kode . '|' . $row['id_unit'];
+				$key = $norm_kode;
 				$map_existing_kegiatan[$key] = true;
 			}
 
@@ -32922,7 +32923,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// --- CEK LEVEL PROGRAM ---
 				if (!empty($row['kode_program'])) {
 					$norm_kode = $this->normalize_kode($row['kode_program'], $row['kode_bidang_urusan']);
-					$check_key = $norm_kode . '|' . $id_sub_skpd; // Buat key yang sama untuk dicek
+					$check_key = $norm_kode; // Buat key yang sama untuk dicek
 
 					// Cek apakah key ini ada di map existing
 					if (!isset($map_existing_program[$check_key])) {
@@ -32933,6 +32934,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tipe' => 'PROGRAM',
 							'lvl' => 3,
 							'nama' => $row['nama_program'],
+							'kode_sub_skpd' => $row['kode_sub_skpd'],
 							'nama_skpd' => $row['nama_skpd'],
 							'kode' => $norm_kode,
 							'id_sub_skpd' => $id_sub_skpd
@@ -32943,7 +32945,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				// --- CEK LEVEL KEGIATAN ---
 				if (!empty($row['kode_giat'])) {
 					$norm_kode = $this->normalize_kode($row['kode_giat'], $row['kode_bidang_urusan']);
-					$check_key = $norm_kode . '|' . $id_sub_skpd;
+					$check_key = $norm_kode;
 
 					if (!isset($map_existing_kegiatan[$check_key])) {
 						$temp_result['GIAT_' . $check_key] = [
@@ -32952,6 +32954,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tipe' => 'KEGIATAN',
 							'lvl' => 4,
 							'nama' => $row['nama_giat'],
+							'kode_sub_skpd' => $row['kode_sub_skpd'],
 							'nama_skpd' => $row['nama_skpd'],
 							'kode' => $norm_kode,
 							'id_sub_skpd' => $id_sub_skpd
@@ -32971,6 +32974,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tipe' => 'SUB KEGIATAN',
 							'lvl' => 5,
 							'nama' => $row['nama_sub_giat'],
+							'kode_sub_skpd' => $row['kode_sub_skpd'],
 							'nama_skpd' => $row['nama_skpd'],
 							'kode' => $norm_kode,
 							'id_sub_skpd' => $id_sub_skpd
@@ -33027,11 +33031,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$html .= "
 					<tr class='{$badge_class}'>
-						<td class='text-center'>{$no}</td>
+						<td class='text-left'>{$row['kode_sub_skpd']} {$row['nama_skpd']}</td>
 						<td class='text-center font-weight-bold'>{$row['tipe']}</td>
 						<td class='text-monospace small'>{$row['kode']}</td>
 						<td class='text-left font-weight-bold'>{$nama_renstra}</td>
-						<td class='text-left'>{$row['nama_skpd']}</td>
 						<td class='text-center'><div class='btn-group-vertical'>{$aksi}</div></td>
 					</tr>
 					";
