@@ -151,7 +151,7 @@ if ($id_jadwal != 0) {
     }
 </style>
 <div class="container-md">
-    <div class="cetak" style="padding: 5px; overflow: auto; height: 80vh;">
+    <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
@@ -185,7 +185,7 @@ if ($id_jadwal != 0) {
                     <td><strong><?php echo $nama_bidang_urusan; ?></strong></td>
                 </tr>
             </table>
-            <div class="wrap-table">
+            <div class="wrap-table" style="height: 90vh;">
                 <table id="cetak" title="Manajemen Risiko Kecurangan MCP SKPD" class="table_manrisk_kecurangan_mcp table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>

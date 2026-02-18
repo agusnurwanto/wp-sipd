@@ -2612,7 +2612,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 					'12' => __('MENU SPT/SPPD'),
 					'13' => __('MANAJEMEN USER'),
 					'14' => __('MANAJEMEN EFISIENSI BELANJA'),
-					'15' => __('MANAJEMEN RESIKO'),
+					'15' => __('MANAJEMEN RISIKO'),
 					'16' => __('TRANSFORMASI CASCADING')
 				))
 				->set_default_value(array('1', '2', '3', '4', '5'))

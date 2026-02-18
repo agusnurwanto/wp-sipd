@@ -9851,19 +9851,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 					if (!empty($daftar_tombol_list[15])) {
 						$manrisk_page = $this->generatePage(
-							'Halaman List Manajemen Risiko | ' . $tahun,
+							'List Manajemen Risiko | ' . $tahun,
 							$tahun,
-							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
+							'[manrisk_list tahun_anggaran="' . $tahun . '"]'
 						);
-						echo '<li><a href="' . $this->add_param_get($manrisk_page, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
-					}
-					if (!empty($daftar_tombol_list[16])) {
-						$manrisk_page = $this->generatePage(
-							'Halaman List Manajemen Risiko | ' . $tahun,
-							$tahun,
-							'[manrisk_list id_skpd="' . $vv['id_skpd'] . '" tahun_anggaran="' . $tahun . '"]'
-						);
-						echo '<li><a href="' . $this->add_param_get($manrisk_page, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RESIKO</a></li>';
+						echo '<li><a href="' . $this->add_param_get($manrisk_page, '&1=1') . '&id_skpd=' . $vv['id_skpd'] . '" target="_blank" class="btn btn-info">MANAJEMEN RISIKO</a></li>';
 					}
 				}
 			}

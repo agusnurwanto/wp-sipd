@@ -29,6 +29,7 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     $shortcode = '[detail_manrisk_anggaran tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
     $update = false;
     $url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
+    $final_url = $this->add_param_get($url_skpd, "&id_skpd=" . $unit['id_skpd']);
 
     $margin_left = 0;
     if ($unit['is_skpd'] != 1) {
@@ -46,7 +47,7 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     $tbody .= "
     <tr>
         <td style='text-transform: uppercase;' class='text-center'>" . $no++ . "</td>
-        <td style='text-transform: uppercase;'><a target='_blank' style='margin-left: " . $margin_left . "px;' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a><small class='text-muted font-weight-bold'> ( " . $unit['nipkepala'] . " " . $unit['namakepala'] .  ")</small></td>
+        <td style='text-transform: uppercase;'><a target='_blank' style='margin-left: " . $margin_left . "px;' href='" . $final_url . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a><small class='text-muted font-weight-bold'> ( " . $unit['nipkepala'] . " " . $unit['namakepala'] .  ")</small></td>
         <td class='text-right'>{$this->_number_format($pagu_total_skpd)}</td>
     </tr>";
 

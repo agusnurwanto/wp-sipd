@@ -6,11 +6,10 @@ if (!defined('WPINC')) {
 global $wpdb;
 
 $input = shortcode_atts(array(
-    'tahun_anggaran' => '2023',
-    'id_skpd' => 0
+    'tahun_anggaran' => '2023'
 ), $atts);
 
-if (empty($input['id_skpd'])) {
+if (empty($_GET['id_skpd'])) {
     die('<div class="alert alert-warning">Parameter ID SKPD tidak ditemukan. Silakan akses melalui tautan yang disediakan pada halaman sebelumnya.</div>');
 }
 $data_unit = $wpdb->get_results(
@@ -22,7 +21,7 @@ $data_unit = $wpdb->get_results(
       AND tahun_anggaran=%d
       AND id_skpd=%d
     ORDER BY kode_skpd ASC
-    ", $input['tahun_anggaran'], $input['id_skpd']),
+    ", $input['tahun_anggaran'], $_GET['id_skpd']),
     ARRAY_A
 );
 $tbody = '';
@@ -70,9 +69,10 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
         $update_page = false;
         $url_page = $this->generatePage($page['title'], $input['tahun_anggaran'], $page['shortcode'], $update_page);
         
+        $final_url = $this->add_param_get($url_page, '&id_skpd=' . $unit['id_skpd']);
         $tbody .= "<tr>";
         $tbody .= "<td style='text-transform: uppercase;'>";
-        $tbody .= "<a target='_blank' href='" . $url_page . "&id_skpd=" . $unit['id_skpd'] . "'>";
+        $tbody .= "<a target='_blank' href='" . $final_url . "'>";
         $tbody .= "" . $page['label'];
         $tbody .= "</a>";
         $tbody .= "</td>";

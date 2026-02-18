@@ -28,9 +28,10 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     $shortcode = '[detail_resiko_kecurangan_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]';
     $update = false;
     $url_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, $update);
+    $final_url = $this->add_param_get($url_skpd, "&id_skpd=" . $unit['id_skpd']);
     $tbody .= "<tr>";
     $tbody .= "<td style='text-transform: uppercase;' class='text-center'>". $no++ ."</td>";
-    $tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $url_skpd . "&id_skpd=" . $unit['id_skpd'] . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a></td>";
+    $tbody .= "<td style='text-transform: uppercase;'><a target='_blank' href='" . $final_url . "'>" . $unit['kode_skpd'] . " " . $unit['nama_skpd'] . "</a></td>";
     $tbody .= "</tr>";
 }
 
