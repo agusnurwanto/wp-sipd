@@ -1125,6 +1125,9 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_cascading_renstra',  $plugin_public, 'get_cascading_renstra');
 		$this->loader->add_action('wp_ajax_nopriv_get_cascading_renstra',  $plugin_public, 'get_cascading_renstra');
+		
+		$this->loader->add_action('wp_ajax_get_api_renja',  $plugin_public, 'get_api_renja');
+		$this->loader->add_action('wp_ajax_nopriv_get_api_renja',  $plugin_public, 'get_api_renja');
 
 		$this->loader->add_action('wp_ajax_copy_data_renstra_lokal',  $plugin_public, 'copy_data_renstra_lokal');
 
