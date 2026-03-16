@@ -6,10 +6,11 @@ if (!defined('WPINC')) {
 global $wpdb;
 
 $input = shortcode_atts(array(
-    'tahun_anggaran' => '2023'
+    'tahun_anggaran' => '2023',
+    'id_skpd' => 0
 ), $atts);
 
-if (empty($_GET['id_skpd'])) {
+if (empty($input['id_skpd'])) {
     die('<div class="alert alert-warning">Parameter ID SKPD tidak ditemukan. Silakan akses melalui tautan yang disediakan pada halaman sebelumnya.</div>');
 }
 $data_unit = $wpdb->get_results(
@@ -21,7 +22,7 @@ $data_unit = $wpdb->get_results(
       AND tahun_anggaran=%d
       AND id_skpd=%d
     ORDER BY kode_skpd ASC
-    ", $input['tahun_anggaran'], $_GET['id_skpd']),
+    ", $input['tahun_anggaran'], $input['id_skpd']),
     ARRAY_A
 );
 $tbody = '';

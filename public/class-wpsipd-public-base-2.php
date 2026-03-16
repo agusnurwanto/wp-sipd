@@ -8235,4 +8235,198 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			exit();
 		}
 	}
+
+	public function get_api_renja()
+	{
+	    global $wpdb;
+	    $ret = array(
+	        'action'  => $_POST['action'],
+	        'status'  => 'success',
+	        'message' => 'Berhasil get data renja!'
+	    );
+	    try {
+	        if (!empty($_POST)) {
+	            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+	                if (empty($_POST['tipe']) || empty($_POST['id_skpd'])) {
+	                    throw new Exception("Ada Parameter Post Yang Kosong!", 1);
+	                }
+
+	                $tipe = $_POST['tipe'];
+
+	                if ($tipe == 'program') {
+	                    if (empty($_POST['tahun_anggaran'])) {
+	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+	                    }
+
+	                    $skpd = $wpdb->get_results(
+	                        $wpdb->prepare('
+	                            SELECT *
+	                            FROM data_unit
+	                            WHERE id_unit = %d
+	                              AND active = 1
+	                              AND tahun_anggaran = %d
+	                        ', $_POST['id_skpd'], $_POST['tahun_anggaran']),
+	                        ARRAY_A
+	                    );
+
+	                    $id_skpd = array();
+	                    foreach ($skpd as $v) {
+	                        $id_skpd[] = $v['id_skpd'];
+	                    }
+
+	                    if (empty($id_skpd)) {
+	                        $ret['data'] = [];
+	                        $ret['message'] = 'Tidak ada data unit ditemukan!';
+	                        die(json_encode($ret));
+	                    }
+
+	                    $placeholders = implode(',', array_fill(0, count($id_skpd), '%d'));
+	                    $query_params = array_merge($id_skpd, [$_POST['tahun_anggaran']]);
+
+	                    $data_program_renja = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                                kode_program,
+	                                nama_program,
+	                                kode_sub_skpd,
+	                                nama_sub_skpd,
+	                                id_sub_skpd,
+	                                id_skpd,
+	                                tahun_anggaran,
+	                                kode_sbl,
+	                                SUM(pagu) as pagu 
+	                            FROM data_sub_keg_bl 
+	                            WHERE id_sub_skpd IN ({$placeholders})
+	                              AND active = 1 
+	                              AND tahun_anggaran = %d 
+	                            GROUP BY kode_program, id_sub_skpd  
+	                            ORDER BY kode_program
+	                        ", $query_params),
+	                        ARRAY_A
+	                    );
+
+	                    foreach ($data_program_renja as &$row) {
+	                        $kode_sbl_3 = implode('.', array_slice(explode('.', $row['kode_sbl']), 0, 3));
+	                        $row['indikator'] = $wpdb->get_results($wpdb->prepare("
+	                            SELECT  
+	                                SUBSTRING_INDEX(kode_sbl, '.', 3) AS kode_sbl,
+	                                satuancapaian,
+	                                targetcapaianteks,
+	                                capaianteks,
+	                                targetcapaian 
+	                            FROM data_capaian_prog_sub_keg 
+	                            WHERE tahun_anggaran = %d  
+	                              AND active = 1  
+	                              AND capaianteks != ''  
+	                              AND kode_sbl LIKE %s 
+	                            ORDER BY id ASC
+	                        ", $row['tahun_anggaran'], $kode_sbl_3 . '%'), ARRAY_A);
+	                    }
+	                    unset($row);
+
+	                    $ret['data'] = !empty($data_program_renja) ? $data_program_renja : [];
+	                    $ret['message'] = 'Berhasil get program renja!';
+
+	                } else if ($tipe == 'kegiatan') {
+	                    if (empty($_POST['tahun_anggaran'])) {
+	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+	                    }
+
+	                    $data_kegiatan_renja = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT 
+	                                kode_giat,
+	                                nama_giat,
+	                                kode_sub_skpd,
+	                                nama_sub_skpd,
+	                                id_sub_skpd,
+	                                id_skpd,
+	                                tahun_anggaran,
+	                                kode_sbl,
+	                                SUM(pagu) as pagu 
+	                            FROM data_sub_keg_bl 
+	                            WHERE id_sub_skpd = %d 
+	                              AND active = 1 
+	                              AND tahun_anggaran = %d
+	                            GROUP BY kode_giat, id_sub_skpd 
+	                            ORDER BY kode_giat
+	                        ", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+	                        ARRAY_A
+	                    );
+
+	                    foreach ($data_kegiatan_renja as &$row) {
+	                        $kode_sbl_4 = implode('.', array_slice(explode('.', $row['kode_sbl']), 0, 4));
+	                        $row['indikator'] = $wpdb->get_results($wpdb->prepare("
+	                            SELECT  
+	                                SUBSTRING_INDEX(kode_sbl, '.', 4) AS kode_sbl,
+	                                outputteks as capaianteks,
+	                                satuanoutput as satuancapaian,
+	                                targetoutput as targetcapaian,
+	                                targetoutputteks as targetcapaianteks 
+	                            FROM data_output_giat_sub_keg 
+	                            WHERE tahun_anggaran = %d  
+	                              AND active = 1  
+	                              AND outputteks != ''  
+	                              AND kode_sbl LIKE %s 
+	                            ORDER BY id ASC
+	                        ", $row['tahun_anggaran'], $kode_sbl_4 . '%'), ARRAY_A);
+	                    }
+	                    unset($row);
+
+	                    $ret['data'] = !empty($data_kegiatan_renja) ? $data_kegiatan_renja : [];
+	                    $ret['message'] = 'Berhasil get kegiatan renja!';
+
+	                } else if ($tipe == 'sub_kegiatan') {
+	                    if (empty($_POST['tahun_anggaran'])) {
+	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
+	                    }
+
+	                    $data_sub_kegiatan_renja = $wpdb->get_results(
+	                        $wpdb->prepare("
+	                            SELECT * 
+	                            FROM data_sub_keg_bl 
+	                            WHERE id_sub_skpd = %d 
+	                              AND active = 1 
+	                              AND tahun_anggaran = %d
+	                            ORDER BY kode_sbl
+	                        ", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+	                        ARRAY_A
+	                    );
+
+	                    foreach ($data_sub_kegiatan_renja as &$row) {
+	                        $kode_sbl_5 = implode('.', array_slice(explode('.', $row['kode_sbl']), 0, 5));
+	                        $row['indikator'] = $wpdb->get_results($wpdb->prepare("
+	                            SELECT  
+	                                SUBSTRING_INDEX(kode_sbl, '.', 5) AS kode_sbl,
+	                                outputteks as capaianteks,
+	                                targetoutput as targetcapaian,
+	                                satuanoutput as satuancapaian,
+	                                targetoutputteks as targetcapaianteks
+	                            FROM data_sub_keg_indikator 
+	                            WHERE tahun_anggaran = %d  
+	                              AND active = 1  
+	                              AND outputteks != ''  
+	                              AND kode_sbl LIKE %s 
+	                            ORDER BY id ASC
+	                        ", $row['tahun_anggaran'], $kode_sbl_5 . '%'), ARRAY_A);
+	                    }
+	                    unset($row);
+
+	                    $ret['data'] = !empty($data_sub_kegiatan_renja) ? $data_sub_kegiatan_renja : [];
+	                    $ret['message'] = 'Berhasil get sub kegiatan renja!';
+	                }
+
+	            } else {
+	                throw new Exception("APIKEY tidak sesuai!", 1);
+	            }
+	        }
+	        die(json_encode($ret));
+	    } catch (Exception $e) {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => $e->getMessage()
+	        ]);
+	        exit();
+	    }
+	}
 }
