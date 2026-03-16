@@ -3849,7 +3849,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 							'[input_renstra]'
 						);
 
-						$url_skpd = $gen_page . '&id_skpd=' . $unit['id_skpd'] . '&id_jadwal=' . $jadwal['id_jadwal_lokal'];
+						$new_url = $this->add_param_get($gen_page, '1=1');
+						$url_skpd = $new_url . '&id_skpd=' . $unit['id_skpd'] . '&id_jadwal=' . $jadwal['id_jadwal_lokal'];
 						$return .= '<li>
 							<a target="_blank" href="' . $url_skpd . '" >Halaman Input RENSTRA ' . $unit['kode_skpd'] . ' ' . $unit['nama_skpd'] . '</a> (NIP: ' . $unit['nipkepala'] . ')
 						</li>';
@@ -6135,8 +6136,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 								ARRAY_A
 							);
 							if(!empty($data)){
-								$url_baru = $this->generatePage('Input RENSTRA Lokal', false, '[input_renstra]');
-								$url_baru .=  '&id_skpd=' . $all_skpd[0] . '&id_jadwal=' . $data['id_jadwal_lokal'];
+								$page = $this->generatePage('Input RENSTRA Lokal', false, '[input_renstra]');
+								$params =  '&id_skpd=' . $all_skpd[0] . '&id_jadwal=' . $data['id_jadwal_lokal'];
+								$url_baru = $this->add_param_get($page, $params);
 							}
 						}else if($tahun[0] == 'renstra'){
 							$data = $wpdb->get_row(
