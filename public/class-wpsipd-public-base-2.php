@@ -8247,17 +8247,85 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	    try {
 	        if (!empty($_POST)) {
 	            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-	                if (empty($_POST['tipe']) || empty($_POST['id_skpd'])) {
+	                if (empty($_POST['tipe']) || empty($_POST['id_skpd']) || empty($_POST['tahun_anggaran'])) {
 	                    throw new Exception("Ada Parameter Post Yang Kosong!", 1);
 	                }
 
 	                $tipe = $_POST['tipe'];
 
-	                if ($tipe == 'program') {
-	                    if (empty($_POST['tahun_anggaran'])) {
-	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
-	                    }
+	                $cek_jadwal_renja = $wpdb->get_results(
+					    $wpdb->prepare('
+					        SELECT 
+					            *
+					        FROM data_jadwal_lokal
+					        WHERE status = %d
+					          AND id_tipe = %d
+					          AND tahun_anggaran = %d
+					    ', 0, 16, $_POST['tahun_anggaran']),
+					    ARRAY_A
+					);
 
+					$id_jadwal = 0;
+					if (!empty($cek_jadwal_renja)) {
+					    foreach ($cek_jadwal_renja as $jadwal_renja) {
+					        $id_jadwal = $jadwal_renja['relasi_perencanaan'];
+					    }
+					}
+
+	                if ($tipe == 'tujuan'){
+					    $tabel_tujuan_renstra = (!empty($cek_jadwal_renja) && $cek_jadwal_renja[0]['status'] == 1) ? 'data_renstra_tujuan_history' : 'data_renstra_tujuan';
+
+					    $data_tujuan = $wpdb->get_results($wpdb->prepare("
+					        SELECT 
+					            *
+					        FROM $tabel_tujuan_renstra 
+					        WHERE id_unik_indikator IS NULL 
+					            AND id_jadwal = %d 
+					            AND id_unit = %d 
+					    ", $id_jadwal, $_POST['id_skpd']), ARRAY_A);
+
+					    foreach ($data_tujuan as &$row) {
+					        $row['indikator'] = $wpdb->get_results($wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM $tabel_tujuan_renstra
+					            WHERE id_unik = %s 
+					                AND id_unik_indikator IS NOT NULL 
+					                AND active = 1
+					        ", $row['id_unik']), ARRAY_A);
+					    }
+					    unset($row);
+
+					    $ret['data'] = !empty($data_tujuan) ? $data_tujuan : [];
+					    $ret['message'] = 'Berhasil get tujuan renstra!';
+
+					} else if ($tipe == 'sasaran'){
+					    $tabel_sasaran_renstra = (!empty($cek_jadwal_renja) && $cek_jadwal_renja[0]['status'] == 1) ? 'data_renstra_sasaran_history' : 'data_renstra_sasaran';
+
+					    $data_sasaran = $wpdb->get_results($wpdb->prepare("
+					        SELECT 
+					            *
+					        FROM $tabel_sasaran_renstra 
+					        WHERE id_unik_indikator IS NULL 
+					            AND id_jadwal = %d 
+					            AND id_unit = %d 
+					    ", $id_jadwal, $_POST['id_skpd']), ARRAY_A);
+
+					    foreach ($data_sasaran as &$row) {
+					        $row['indikator'] = $wpdb->get_results($wpdb->prepare("
+					            SELECT 
+					                * 
+					            FROM $tabel_sasaran_renstra
+					            WHERE id_unik = %s 
+					                AND id_unik_indikator IS NOT NULL 
+					                AND active = 1
+					        ", $row['id_unik']), ARRAY_A);
+					    }
+					    unset($row);
+
+					    $ret['data'] = !empty($data_sasaran) ? $data_sasaran : [];
+					    $ret['message'] = 'Berhasil get sasaran renstra!';
+					} else if ($tipe == 'program') {
 	                    $skpd = $wpdb->get_results(
 	                        $wpdb->prepare('
 	                            SELECT *
@@ -8328,10 +8396,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	                    $ret['message'] = 'Berhasil get program renja!';
 
 	                } else if ($tipe == 'kegiatan') {
-	                    if (empty($_POST['tahun_anggaran'])) {
-	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
-	                    }
-
 	                    $data_kegiatan_renja = $wpdb->get_results(
 	                        $wpdb->prepare("
 	                            SELECT 
@@ -8377,10 +8441,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	                    $ret['message'] = 'Berhasil get kegiatan renja!';
 
 	                } else if ($tipe == 'sub_kegiatan') {
-	                    if (empty($_POST['tahun_anggaran'])) {
-	                        throw new Exception("Parameter Tahun Anggaran Kosong!", 1);
-	                    }
-
 	                    $data_sub_kegiatan_renja = $wpdb->get_results(
 	                        $wpdb->prepare("
 	                            SELECT * 
