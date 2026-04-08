@@ -289,16 +289,53 @@ if (!empty($data_label_shorted['data'])) {
     foreach ($data_label_shorted['data'] as $kode_skpd => $skpd) {
         $skpd_total = 0;
         foreach ($skpd['data'] as $kode_sbl => $sub_keg) {
-            $keterangan = $wpdb->get_var($wpdb->prepare('
+            $get_label_komponen = $wpdb->get_row($wpdb->prepare('
                 SELECT
-                    keterangan
+                    keterangan,
+                    is_pokir
                 FROM data_label_komponen_sub_giat
                 WHERE tahun_anggaran=%d
                     AND kode_sbl=%s
                     AND id_label_komponen=%d
             ', $input['tahun_anggaran'], $kode_sbl, $input['id_label']));
+
+            $keterangan = $get_label_komponen->keterangan ?? '';
+            $is_pokir = isset($get_label_komponen->is_pokir) && $get_label_komponen->is_pokir == 1 ? 'Iya' : 'Tidak';
             $parts = explode(" ", $sub_keg['nama_sub_giat'], 2);
             $nama_sub_giat = isset($parts[1]) ? $parts[1] : $sub_keg['nama_sub_giat'];
+
+            $get_sumber_dana = $wpdb->get_results(
+                $wpdb->prepare("
+                    SELECT DISTINCT
+                        sub_keg.*,
+                        sumber_dana.kode_dana AS kode_dana_sumber_dana
+                    FROM data_dana_sub_keg AS sub_keg
+                    LEFT JOIN data_sumber_dana AS sumber_dana 
+                        ON sumber_dana.id_dana = sub_keg.iddana
+                       AND sumber_dana.active = sub_keg.active
+                       AND sumber_dana.tahun_anggaran = sub_keg.tahun_anggaran
+                    WHERE sub_keg.tahun_anggaran = %d
+                      AND sub_keg.active = 1
+                      AND sub_keg.kode_sbl = %s
+                    ORDER BY sub_keg.id ASC
+                ", $input['tahun_anggaran'], $kode_sbl),
+                ARRAY_A
+            );
+
+            $nama_sumber_dana = [];
+            if (!empty($get_sumber_dana)) {
+                foreach ($get_sumber_dana as $v_sumber_dana) {
+                    $get_nama_sumber_dana = '';
+                    if (!empty($v_sumber_dana['namadana'])) {
+                        $parts = explode('] - ', $v_sumber_dana['namadana']);
+                        $get_nama_sumber_dana = !empty($parts[1]) ? $parts[1] : $v_sumber_dana['namadana'];
+                    }
+                    if (!empty($get_nama_sumber_dana) && !in_array($get_nama_sumber_dana, $nama_sumber_dana)) {
+                        $nama_sumber_dana[] = $get_nama_sumber_dana;
+                    }
+                }
+            }
+            $sumber_dana = !empty($nama_sumber_dana) ? implode(', ', $nama_sumber_dana) : '';
 
             $tbody .= '<tr>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($skpd['nama']) . '</td>';
@@ -318,6 +355,8 @@ if (!empty($data_label_shorted['data'])) {
             $tbody .= '<td class="kiri kanan bawah text_tengah">' . htmlspecialchars($sub_keg['satuan_sub_keg']) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($nama_sub_giat) . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kanan">' . number_format($sub_keg['total'], 0, ',', '.') . '</td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">' . htmlspecialchars($sumber_dana) . '</td>';
+            $tbody .= '<td class="kiri kanan bawah text_kiri">' . $is_pokir . '</td>';
             $tbody .= '<td class="kiri kanan bawah text_kiri">' . $keterangan . '</td>';
             $tbody .= '</tr>';
 
@@ -328,7 +367,7 @@ if (!empty($data_label_shorted['data'])) {
 
         $tbody .= '<tr>';
         $tbody .= '<td class="kiri kanan bawah text_kanan" colspan="16"><strong>Total pada SKPD</strong></td>';
-        $tbody .= '<td class="kiri kanan bawah text_kiri text_kanan" colspan="2"><strong>' . number_format($skpd_total, 0, ',', '.') . '</strong></td>';
+        $tbody .= '<td class="kiri kanan bawah text_kiri text_kanan" colspan="4"><strong>' . number_format($skpd_total, 0, ',', '.') . '</strong></td>';
         $tbody .= '</tr>';
 
 
@@ -437,6 +476,8 @@ if (!empty($data_label_shorted['data'])) {
                         <th class="kiri kanan atas bawah text_tengah v-align-middle">Satuan</th>
                         <th class="kiri kanan atas bawah text_tengah v-align-middle">Nama dan Narasi Sub Kegiatan</th>
                         <th class="kiri kanan atas bawah text_tengah v-align-middle">Anggaran (Rp)</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Sumber Dana</th>
+                        <th class="kiri kanan atas bawah text_tengah v-align-middle">Pokir DPRD</th>
                         <th class="kiri kanan atas bawah text_tengah v-align-middle">Keterangan</th>
                     </tr>
                     <tr>
@@ -458,6 +499,8 @@ if (!empty($data_label_shorted['data'])) {
                         <td class="kiri kanan bawah text_tengah">16</td>
                         <td class="kiri kanan bawah text_tengah">17</td>
                         <td class="kiri kanan bawah text_tengah">18</td>
+                        <td class="kiri kanan bawah text_tengah">19</td>
+                        <td class="kiri kanan bawah text_tengah">20</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -467,7 +510,7 @@ if (!empty($data_label_shorted['data'])) {
                     <tr>
                         <td class="kiri kanan bawah" colspan="15"></td>
                         <td class="kiri kanan bawah text_tengah font-weight-bold">Total</td>
-                        <td class="kiri kanan bawah text_kanan" colspan="2"><?php echo number_format($total_rincian ?? 0, 0, ",", "."); ?></td>
+                        <td class="kiri kanan bawah text_kanan" colspan="4"><?php echo number_format($total_rincian ?? 0, 0, ",", "."); ?></td>
                     </tr>
                 </tfoot>
             </table>

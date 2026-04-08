@@ -957,6 +957,15 @@ $cetak_laporan_page = $this->generatePage(
                             </button>
                         </div>
 
+                        <div class="form-row" id="pokirSubKegiatan">
+                            <div class="form-group col-md-12">
+                                <label>Pokok Pikiran (Pokir)</label>
+                                <div class="form-check ml-2">
+                                    <input class="form-check-input" type="checkbox" id="is_pokir" name="is_pokir" value="1">
+                                    <label class="form-check-label" for="is_pokir">Iya</label>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="ket_subKegiatan">Keterangan / Ringkasan Kegiatan</label>
@@ -1148,10 +1157,12 @@ $cetak_laporan_page = $this->generatePage(
                             const tableBody = jQuery("#tableRincian tbody");
                             tableBody.empty();
                             if (response.ket_label_sub_keg != null) {
+                                jQuery("#is_pokir").prop('checked', response.ket_label_sub_keg.is_pokir == 1);
                                 jQuery("#ket_subKegiatan").val(response.ket_label_sub_keg.keterangan);
                             } else {
                                 jQuery("#ket_subKegiatan").val('');
                             }
+                            jQuery("#pokirSubKegiatan").show();
                             jQuery("#ket_subKegiatan").closest('.form-row').show();
 
                             if (!data || data.length === 0) {
@@ -1419,6 +1430,7 @@ $cetak_laporan_page = $this->generatePage(
                             });
 
                             jQuery("#tableRincian").show();
+                            jQuery("#pokirSubKegiatan").show();
                             jQuery("#ket_subKegiatan").closest('.form-row').show();
 
                             // Handle Checkbox Rinci
@@ -1469,6 +1481,8 @@ $cetak_laporan_page = $this->generatePage(
         jQuery('#subKegiatan').empty('').prop("disabled", true);
         jQuery('#rincianBelanja').val('');
         jQuery("#tableRincian").hide();
+        jQuery("#is_pokir").prop('checked', false);
+        jQuery("#pokirSubKegiatan").hide(); 
         jQuery("#ket_subKegiatan").val('');
         jQuery("#ket_subKegiatan").closest('.form-row').hide();
         jQuery("#title-label").text('Tambah Tagging / Label Rincian Belanja');
@@ -1497,6 +1511,7 @@ $cetak_laporan_page = $this->generatePage(
         tempData.append("id_label", id_label);
         tempData.append("tahun_anggaran", tahun_anggaran);
         tempData.append("kode_sbl", kode_sbl);
+        tempData.append("is_pokir", jQuery('#is_pokir').is(':checked') ? 1 : 0);
         tempData.append("ket_sub_kegiatan", jQuery('#ket_subKegiatan').val());
 
         jQuery("#wrap-loading").show();
@@ -1761,6 +1776,8 @@ $cetak_laporan_page = $this->generatePage(
             jQuery("#program").val('');
             jQuery("#kegiatan").val('');
             jQuery("#tableRincian").hide();
+            jQuery("#is_pokir").prop('checked', false);
+            jQuery("#pokirSubKegiatan").hide(); 
             jQuery("#ket_subKegiatan").val('');
             jQuery("#ket_subKegiatan").closest('.form-row').hide();
 
@@ -1831,6 +1848,7 @@ $cetak_laporan_page = $this->generatePage(
             const kegiatan = selectedOption.data("kegiatan");
 
             jQuery("#tableRincian").hide();
+            jQuery("#pokirSubKegiatan").hide();
             jQuery("#ket_subKegiatan").closest('.form-row').hide();
             jQuery("#program").val(program || "");
             jQuery("#kegiatan").val(kegiatan || "");

@@ -4375,6 +4375,7 @@ class Wpsipd_Public_RKA extends Wpsipd_Public_Base_4_Konsistensi
                 }
 
                 $data = array(
+                    'is_pokir' => !empty($_POST['is_pokir']) ? 1 : 0,
                     'keterangan'   => $_POST['ket_sub_kegiatan'],
                     'kode_sbl'   => $_POST['kode_sbl'],
                     'id_label_komponen' => $postData['id_label'],

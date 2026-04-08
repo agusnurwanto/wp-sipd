@@ -2308,6 +2308,7 @@ CREATE TABLE `data_label_komponen` (
 CREATE TABLE `data_label_komponen_sub_giat` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_label_komponen` INT(11) not NULL,
+  `is_pokir` INT(11) DEFAULT 0,
   `keterangan` TEXT DEFAULT NULL,
   `kode_sbl` VARCHAR(512) DEFAULT NULL,
   `user` TEXT DEFAULT NULL,
