@@ -10,9 +10,16 @@ $input = shortcode_atts(array(
     'id_skpd' => 0
 ), $atts);
 
-if (empty($input['id_skpd'])) {
-    die('<div class="alert alert-warning">Parameter ID SKPD tidak ditemukan. Silakan akses melalui tautan yang disediakan pada halaman sebelumnya.</div>');
+if (empty($input['id_skpd']) && !empty($_GET['id_skpd'])) {
+    $input['id_skpd'] = intval($_GET['id_skpd']);
 }
+
+if (empty($input['id_skpd'])) {
+    die('<div class="alert alert-warning">
+        Parameter ID SKPD tidak ditemukan. Silakan akses melalui tautan yang disediakan pada halaman sebelumnya.
+    </div>');
+}
+
 $data_unit = $wpdb->get_results(
     $wpdb->prepare("
     SELECT 
