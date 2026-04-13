@@ -14872,10 +14872,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'id_tujuan_sasaran'           => $_POST['id_tujuan_sasaran'],
 	                'id_indikator'                  => $_POST['id_indikator'],
 	                'tipe'                          => $_POST['tipe'],
-	                'capaian_teks'                  => !empty($get_data['capaian_teks']) ? $get_data['capaian_teks'] : (isset($_POST['capaian_teks']) ? $_POST['capaian_teks'] : ''),
-	                'satuan_capaian'                => !empty($get_data['satuan_capaian']) ? $get_data['satuan_capaian'] : (isset($_POST['satuan_capaian']) ? $_POST['satuan_capaian'] : ''),
-	                'target_capaian_teks'           => !empty($get_data['target_capaian_teks']) ? $get_data['target_capaian_teks'] : (isset($_POST['target_capaian_teks']) ? $_POST['target_capaian_teks'] : ''),
-	                'target_capaian'                => !empty($get_data['target_capaian']) ? $get_data['target_capaian'] : (isset($_POST['target_capaian']) ? $_POST['target_capaian'] : ''),
 	                'uraian_resiko'                 => $_POST['uraian_resiko'],
 	                'kode_resiko'                   => $_POST['kode_resiko'],
 	                'pemilik_resiko'                => $_POST['pemilik_resiko'],
@@ -14921,11 +14917,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'rencana_tindak_pengendalian'   => NULL,
 	                'id_skpd'                       => $id_skpd,
 	                'tahun_anggaran'                => $tahun_anggaran,
-	                'active'                        => 1,
-	                'status'                        => 0
+	                'active'                        => 1
 	            );
 	            
-	            $wpdb->insert('data_tujuan_sasaran_manrisk_sesudah', $data_sesudah);
+	            if ($id_sebelum <= 0) {
+	                $wpdb->insert('data_tujuan_sasaran_manrisk_sesudah', $data_sesudah);
+	            } else {
+	                $wpdb->update('data_tujuan_sasaran_manrisk_sesudah', $data_sesudah, array('id_sebelum' => $id_sebelum));
+	            }
 
 	        } else {
 	            $ret['status']  = 'error';
@@ -16102,8 +16101,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	                'active'                        => 1,
 	                'status'                        => 0
 	            );
-	            
-	            $wpdb->insert('data_program_kegiatan_manrisk_sesudah', $data_sesudah);
+	            	            	            
+	            if ($id_sebelum <= 0) {
+	                $wpdb->insert('data_program_kegiatan_manrisk_sesudah', $data_sesudah);
+	            } else {
+	                $wpdb->update('data_program_kegiatan_manrisk_sesudah', $data_sesudah, array('id_sebelum' => $id_sebelum));
+	            }
 
 	        } else {
 	            $ret['status']  = 'error';
