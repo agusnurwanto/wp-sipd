@@ -204,14 +204,16 @@ if ($id_jadwal != 0) {
                         <tr>
                             <th rowspan="2">Tahapan Proses Bisnis</th>
                             <th>Deskripsi Risiko Kecurangan</th>
-                            <th>Pihak Terkait</th>
+                            <th class="vertical" style="min-width: 138px; width: 100px;">
+                                Pihak Terkait (Pihak yang terkait proses bisnis)
+                            </th>
                             <th rowspan="2">Jenis Risiko Kecurangan</th>
                             <th>Pemilik Risko</th>
                             <th rowspan="2">Penyebab</th>
                             <th rowspan="2">Dampak</th>
                             <th rowspan="2">Kemungkinan </th>
                             <th rowspan="2">Dampak </th>
-                            <th rowspan="2">Status Risiko (Nilai) (10x11) </th>
+                            <th rowspan="2">Status Risiko (Nilai) (9x10) </th>
                         </tr>
                         <tr>
                         </tr>
@@ -269,7 +271,7 @@ if ($id_jadwal != 0) {
                         <textarea type="text" class="form-control" id="deskripsi_resiko" name="deskripsi_resiko" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="pihak_terkait">Pihak Terkait</label>
+                        <label for="pihak_terkait">Pihak Terkait (Pihak yang terkait proses bisnis)</label>
                         <input type="text" class="form-control" id="pihak_terkait" name="pihak_terkait" required>
                     </div>
                     <div class="form-group">

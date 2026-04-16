@@ -57,12 +57,40 @@ $data_sasaran = $wpdb->get_results(
         font-weight: bold;
     }
 
-    .table_sasaran th {
-        background-color: #a8f5b4ff; 
-        text-align: center;
-        padding: 8px;
+    .table_sasaran {
+        width: 100%;
+        font-size: 15px;
+        border-collapse: collapse;
+    }
+
+    .table_sasaran th,
+    .table_sasaran td {
+        padding: 6px 8px;
         border: 1px solid #989898ff;
+        vertical-align: middle;
+    }
+
+    .table_sasaran th {
+        background-color: #a8f5b4ff;
+        font-size: 13px;
         font-weight: bold;
+    }
+
+    .table_sasaran td:nth-child(1) {
+        width: 60px;
+        text-align: center;
+    }
+
+    .table_sasaran td:nth-child(3),
+    .table_sasaran th:nth-child(3) {
+        width: 118px !important;
+        text-align: center;
+    }
+
+    .table_sasaran .btn {
+        padding: 4px 8px;
+        font-size: 12px;
+        line-height: 1;
     }
     
     .td-sangat-tinggi { 
@@ -398,20 +426,19 @@ $data_sasaran = $wpdb->get_results(
                 <?php if ( current_user_can('administrator') ) : ?>
                     <button type="button" class="btn btn-success" onclick="tambah_sasaran()">
                         <span class="dashicons dashicons-insert"></span>
-                            Tambah Sasaran MCP     
+                            Tambah Tahapan     
                     </button>
                 <?php endif; ?>
             </div>
             <table class="table_sasaran" cellpadding="2" cellspacing="0" style="width:100%; overflow-wrap: break-word;">
                 <thead>    
                     <tr>    
-                        <th class="text-center" colspan="4">Tabel Data Master Sasaran Dan Tahapan Risiko Kecurangan MCP</th>     
+                        <th class="text-center" colspan="4">Tabel Data Master Tahapan Proses Bisnis Pada Risiko Kecurangan </th>     
                     </tr>              
                     <tr>    
                         <th style="width:70px;" class="text-center">No</th>
-                        <th class="text-center">Sasaran</th>
                         <th class="text-center">Tahapan</th>
-                        <th style="width:15%;" class="text-center">Aksi</th>
+                        <th style="width:118px;" class="text-center">Aksi</th>
                     </tr>
                 </thead>                
                 <tbody>
@@ -421,10 +448,10 @@ $data_sasaran = $wpdb->get_results(
                         foreach ($data_sasaran as $row) {
                             if ( current_user_can('administrator') ) {
                                 $aksi = '
-                                    <button class="btn btn-warning" onclick="edit_sasaran(' . $row['id'] . ')">
+                                    <button class="btn btn-warning btn-sm" onclick="edit_sasaran(' . $row['id'] . ')">
                                         <span class="dashicons dashicons-edit"></span>
                                     </button>
-                                    <button class="btn btn-danger" onclick="hapus_sasaran(' . $row['id'] . ')">
+                                    <button class="btn btn-danger btn-sm" onclick="hapus_sasaran(' . $row['id'] . ')">
                                         <span class="dashicons dashicons-trash"></span>
                                     </button>
                                 ';
@@ -434,7 +461,6 @@ $data_sasaran = $wpdb->get_results(
                             echo '
                             <tr>
                                 <td class="text-center">' . $no++ . '</td>
-                                <td id="sasaran_'.$row['id'].'">' . esc_html($row['sasaran']) . '</td>
                                 <td id="tahapan_'.$row['id'].'">' . esc_html($row['tahapan']) . '</td>
                                 <td class="text-center">' . $aksi . '</td>
                             </tr>';
@@ -442,7 +468,7 @@ $data_sasaran = $wpdb->get_results(
                     } else {
                         echo '
                         <tr>
-                            <td colspan="4" class="text-center">Belum ada data sasaran tahapan</td>
+                            <td colspan="4" class="text-center">Belum ada data tahapan proses bisnis</td>
                         </tr>';
                     }
                     ?>
@@ -483,18 +509,13 @@ $data_sasaran = $wpdb->get_results(
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modalSasaranTitle">Tambah Sasaran dan Tahapan Kecurangan MCP</h5>
+        <h5 class="modalSasaranTitle">Tambah Tahapan Proses Bisnis Pada Risiko Kecurangan</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
         </div>
             <div class="modal-body">
                 <input type="hidden" id="id" value="">
-
-            <div class="mb-3">
-            <label class="form-label">Sasaran</label>
-            <input type="text" id="sasaran" class="form-control"/>
-            </div>
 
             <div class="mb-3">
             <label class="form-label">Tahapan</label>
@@ -665,20 +686,13 @@ $data_sasaran = $wpdb->get_results(
     function tambah_sasaran() {
         jQuery('#nama_sasaran').val('');
         jQuery('#keterangan_sasaran').val('');
-         jQuery('.modalSasaranTitle').text('Tambah Sasaran dan Tahapan Kecurangan MCP');
+        jQuery('.modalSasaranTitle').text('Tambah Tahapan Proses Bisnis Risiko Kecurangan');
         jQuery('#modalTambahSasaran').modal('show');
     }
 
     function simpan_sasaran() {
         let id =  jQuery('#id').val();
-        let sasaran = jQuery('#sasaran').val();
         let tahapan = jQuery('#tahapan').val();
-
-        if (sasaran === '') {
-            alert('Sasaran belum diisi!');
-            jQuery('#sasaran').focus();
-            return false;
-        }
 
         if (tahapan === '') {
             alert('Tahapan belum diisi!');
@@ -695,7 +709,6 @@ $data_sasaran = $wpdb->get_results(
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id: id,
-                sasaran: sasaran,
                 tahapan: tahapan,
             },
             success: function(response) {
@@ -705,7 +718,6 @@ $data_sasaran = $wpdb->get_results(
                     alert(response.message);
                     location.reload();
                     
-                    jQuery('#sasaran').val('sasaran');
                     jQuery('#tahapan').val('tahapan');
                     jQuery('#modalTambahSasaran').modal('hide');
                 } else {
@@ -753,12 +765,10 @@ $data_sasaran = $wpdb->get_results(
     }
 
     function edit_sasaran(id){
-        let sasaran = jQuery('#sasaran_' + id).text().trim();
         let tahapan = jQuery('#tahapan_' + id).text().trim();
         jQuery('#id').val(id);
-        jQuery('#sasaran').val(sasaran);
         jQuery('#tahapan').val(tahapan);
-        jQuery('.modalSasaranTitle').text('Edit Sasaran dan Tahapan Kecurangan MCP');
+        jQuery('.modalSasaranTitle').text('Edit Tahapan Proses Bisnis Risiko Kecurangan');
         jQuery('#modalTambahSasaran').modal('show');
     }
 
