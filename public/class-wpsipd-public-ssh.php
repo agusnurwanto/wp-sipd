@@ -1594,6 +1594,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							AND tahun_anggaran=%d
 					", $ssh['id'], $tahun_anggaran), ARRAY_A);
 				}
+
 				$return['data'] = $data_ssh;
 				$return['surat'] = $data_surat;
 				$return['sql'] = $wpdb->last_query;
@@ -1744,11 +1745,17 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 
 					// hapus database
-					$wpdb->delete('data_surat_usulan_ssh', array(
-						'id' => $_POST['id'],
-						'nomor_surat' => $_POST['nomor_surat'],
-						'tahun_anggaran' => $_POST['tahun_anggaran']
+					$deleted_data = $wpdb->delete('data_surat_usulan_ssh', array(
+						'id' => $_POST['id']
 					), array('%d'));
+
+					$return['deleted_data'] = $deleted_data;
+					$title = 'Surat Usulan Standar Harga Nomor ' . $_POST['nomor_surat'] . ' Tahun ' . $_POST['tahun_anggaran'] . ' - ' . $_POST['id'];
+					$page = get_page_by_title($title);
+					$id_page = $page->ID;
+					$is_deleted = wp_delete_post($id_page, true);
+
+					$return['is_deleted_page'] = $is_deleted;
 				}
 			} else {
 				$return = array(
@@ -1903,7 +1910,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						WHERE id_skpd=%d
 					", $val['idskpd']));
 					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
-					$title = 'Surat Usulan Standar Harga Nomor ' . $val['nomor_surat'] . ' Tahun ' . $tahun_anggaran;
+					$title = 'Surat Usulan Standar Harga Nomor ' . $val['nomor_surat'] . ' Tahun ' . $tahun_anggaran . ' - ' . $val['id'];
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="' . $val['id'] . '"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="' . $url_surat . "&idskpd=" . $val['idskpd'] . '" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
@@ -2169,6 +2176,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					25 => 'lampiran_2',
 					26 => 'lampiran_3',
 					27 => 'no_nota_dinas',
+					27 => 'id_sub_skpd',
 					28 => 'id'
 				);
 				$where = $sqlTot = $sqlRec = "";
@@ -2193,7 +2201,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					} else if ($_POST['filter'] == 'sudah_upload_sipd') {
 						$where .= " AND status_upload_sipd = '1' ";
 					} else if ($_POST['filter'] == 'belum_upload_sipd') {
-						$where .= " AND status_upload_sipd != '1' OR status_upload_sipd IS NULL ";
+						$where .= " AND (status_upload_sipd != '1' OR status_upload_sipd IS NULL) ";
 					} else if ($_POST['filter'] == 'diterima_admin') {
 						$where .= " AND status_by_admin = 'approved' ";
 					} else if ($_POST['filter'] == 'ditolak_admin') {
@@ -2206,7 +2214,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 
 				if (!empty($_POST['filter_opd'])) {
-					$where .= " AND id_sub_skpd = " . $wpdb->prepare('%d', $_POST['filter_opd']);
+					$filter_opd_id = intval($_POST['filter_opd']);
+					$sub_skpd_ids = $wpdb->get_col($wpdb->prepare("
+						SELECT id_skpd FROM data_unit
+						WHERE id_unit = %d
+						AND tahun_anggaran = %d
+						AND is_skpd = 0
+					", $filter_opd_id, $params['tahun_anggaran']));
+					$all_filter_skpd = array($filter_opd_id);
+					if (!empty($sub_skpd_ids)) {
+						$all_filter_skpd = array_merge($all_filter_skpd, array_map('intval', $sub_skpd_ids));
+					}
+					$where .= " AND id_sub_skpd IN (" . implode(',', $all_filter_skpd) . ")";
 				}
 
 				if (!empty($_POST['filter_surat'])) {
@@ -2523,6 +2542,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
 					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
 					$queryRecords[$recKey]['verify_admin'] = $status_verif_admin;
+					$queryRecords[$recKey]['id_sub_skpd'] = $recVal['id_sub_skpd'];
 					$queryRecords[$recKey]['verify_tapdkeu'] = $status_verif_tapdkeu;
 					$queryRecords[$recKey]['show_status'] = $show_status;
 					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">' . $created_at . $created_user . $keterangan_status . $keterangan_lampiran . '</table>';
