@@ -1877,9 +1877,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						group by id_skpd", $nipkepala[0], $params['tahun_anggaran']), ARRAY_A);
 					/** cari data user berdasarkan nama skpd */
 					if (!empty($skpd_db)) {
+						$id_skpd_arr = array();
 						foreach ($skpd_db as $skpd) {
-							$where .= " AND idskpd = '" . $skpd['id_skpd'] . "' ";
+							$id_skpd_arr[] = "'" . esc_sql($skpd['id_skpd']) . "'";
 						}
+						$where .= " AND idskpd IN (" . implode(",", $id_skpd_arr) . ") ";
 					} else {
 						$where .= " AND idskpd = '-' ";
 					}
