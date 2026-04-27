@@ -8160,6 +8160,24 @@ CREATE TABLE `data_efisiensi_belanja_history` (
   KEY `id_skpd` (`id_skpd`)
 );
 
+CREATE TABLE `data_keterangan_verifikator` (
+  `id` int NOT NULL auto_increment,
+  `id_manrisk` int DEFAULT NULL,
+  `status_verifikasi` tinyint DEFAULT NULL COMMENT '0=Ditolak 1=Draft. 2=Menunggu, 3=Disetujui',
+  `keterangan_verifikasi` text,
+  `tipe` TINYINT(4) DEFAULT NULL COMMENT '0=Tujuan, 1=Sasaran 2=Program',
+  `active` tinyint DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `id_skpd` int DEFAULT NULL,
+  `tahun_anggaran` year DEFAULT NULL,
+  PRIMARY KEY(id),
+  KEY `id_skpd` (`id_skpd`),
+  KEY `tahun_anggaran` (`tahun_anggaran`),
+  KEY `id_manrisk` (`id_manrisk`),
+  KEY `active` (`active`)
+);
+
 CREATE TABLE `data_tujuan_sasaran_manrisk_sebelum` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_tujuan_sasaran` VARCHAR(512) DEFAULT NULL,

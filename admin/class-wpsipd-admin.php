@@ -1107,7 +1107,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				}
 
 				if (get_option('_crb_show_menu_program_kegiatan_settings') != true) {
-					Container::make('theme_options', __('Program / Kegiatan'))
+					Container::make('theme_options', __('Program'))
 						->set_page_parent($manrisk)
 						->add_fields($this->get_ajax_field(array('type' => 'program_kegiatan')));
 				}
@@ -1741,8 +1741,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 						$body_all .= '<a return false;" target="_blank" href="' . $url_tujuan_sasaran . '">Halaman Risiko Tujuan / Sasaran Perangkat Daerah Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'program_kegiatan') {
-						$url_program_kegiatan = $this->generatePage('Program / Kegiatan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
-						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Risiko Program / Kegiatan Tahun ' . $v['tahun_anggaran'] . '</a>';
+						$url_program_kegiatan = $this->generatePage('Program | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[program_kegiatan_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
+						$body_all .= '<a return false;" target="_blank" href="' . $url_program_kegiatan . '">Halaman Risiko Program Tahun ' . $v['tahun_anggaran'] . '</a>';
 						$body_all .= $body_pemda;
 					} else if ($_POST['type'] == 'kecurangan_mcp') {
 						$url_kecurangan_mcp = $this->generatePage('Risiko Kecurangan | ' . $v['tahun_anggaran'], $v['tahun_anggaran'], '[kecurangan_resiko_manrisk tahun_anggaran="' . $v['tahun_anggaran'] . '"]');
@@ -2763,7 +2763,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_tujuan_sasaran_settings', 'Tujuan / Sasaran Perangkat Daerah')
 				->set_option_value('true'),
-			Field::make('checkbox', 'crb_show_menu_program_kegiatan_settings', 'Program / Kegiatan')
+			Field::make('checkbox', 'crb_show_menu_program_kegiatan_settings', 'Program')
 				->set_option_value('true'),
 			Field::make('checkbox', 'crb_show_menu_kecurangan_mcp_settings', 'Kecurangan MCP')
 				->set_option_value('true'),

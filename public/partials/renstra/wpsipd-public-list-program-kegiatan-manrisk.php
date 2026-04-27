@@ -131,7 +131,7 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
     <div class="cetak">
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-            <h1 class="text-center table-title">Manajemen Risiko Program / Kegiatan Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+            <h1 class="text-center table-title">Manajemen Risiko Program Tahun <?php echo $input['tahun_anggaran']; ?></h1>
             <div class="wrap-table">
                 <table id="cetak" title="Manajemen Risiko Program / Kegiatan SKPD" class="table table-bordered table_dokumen_skpd">
                     <thead style="background: #ffc491;">

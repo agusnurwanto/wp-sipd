@@ -245,7 +245,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         <div style="padding: 10px;margin:0 0 3rem 0;">
             <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
             <h1 class="text-center table-title" style="padding-top: 80px">
-                Manajemen Risiko Program / Kegiatan <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
+                Manajemen Risiko Program <br><?php echo $nama_skpd; ?><br>Tahun <?php echo $input['tahun_anggaran']; ?>
             </h1>
             <div id='aksi-wpsipd'></div>
             <table class="borderless-table">
@@ -276,7 +276,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 </tr>
             </table>
             <div class="wrap-table">
-                <table id="cetak" title="Manajemen Risiko Program / Kegiatan SKPD" class="table_manrisk_program_kegiatan table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
+                <table id="cetak" title="Manajemen Risiko Program SKPD" class="table_manrisk_program_kegiatan table-bordered" cellpadding="2" cellspacing="0" contenteditable="false">
                     <thead style="background: #ffc491; text-align:center;">
                         <tr>
                             <th rowspan="3">No</th>
@@ -284,13 +284,14 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th colspan="13">SEBELUM EVALUASI</th>
                             <th rowspan="3">Rencana Tindak Pengendalian</th>
                             <!-- setelah evaluasi -->
-                            <th colspan="13" class="kolom-sesudah" style="<?php echo empty($get_data_sesudah) ? 'display:none' : ''; ?>">SETELAH EVALUASI</th>
-                            <th rowspan="3" class="kolom-sesudah" style="<?php echo empty($get_data_sesudah) ? 'display:none' : ''; ?>">Rencana Tindak Pengendalian</th>
+                            <th colspan="13" class="kolom-sesudah" style="display:none;">SETELAH EVALUASI</th>
+                            <th rowspan="3" class="kolom-sesudah" style="display:none;">Rencana Tindak Pengendalian</th>
+                            <th rowspan="3" style="min-width:120px; width:120px;">Status</th>
                             <th rowspan="3">Aksi</th>
                         </tr>
                         <tr>
                             <!-- sebelum evaluasi -->
-                            <th rowspan="2">Program / Kegiatan Pemda OPD</th>
+                            <th rowspan="2">Program Pemda OPD</th>
                             <th rowspan="2">Indikator Kinerja</th>
                             <th colspan="3">Risiko</th>
                             <th colspan="2">Sebab</th>
@@ -300,7 +301,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th rowspan="2">Skala Kemungkinan</th>
                             <th rowspan="2">Nilai Risiko (12x13)</th>
                             <!-- setelah evaluasi -->
-                            <th rowspan="2" class="kolom-sesudah">Program / Kegiatan Pemda OPD</th>
+                            <th rowspan="2" class="kolom-sesudah">Program Pemda OPD</th>
                             <th rowspan="2" class="kolom-sesudah">Indikator Kinerja</th>
                             <th colspan="3" class="kolom-sesudah">Risiko</th>
                             <th colspan="2" class="kolom-sesudah">Sebab</th>
@@ -346,7 +347,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th>(15)</th>
                             <th>(16)</th>
                             <!-- setelah evaluasi -->
-                            <th class="kolom-sesudah">(17)</th>
+                            <th>(17)</th>
                             <th class="kolom-sesudah">(18)</th>
                             <th class="kolom-sesudah">(19)</th>
                             <th class="kolom-sesudah">(20)</th>
@@ -360,6 +361,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th class="kolom-sesudah">(28)</th>
                             <th class="kolom-sesudah">(29)</th>
                             <th class="kolom-sesudah">(30)</th>
+                            <th class="kolom-sesudah">(31)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -373,8 +375,8 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
     <div class="modal-dialog" style="max-width: 60%; margin-top: 50px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="TambahProgramKegiatanModalLabel">Tambah Program / Kegiatan</h5>
-                <h5 class="modal-title" id="editProgramKegiatanModalLabel">Edit Program / Kegiatan</h5>
+                <h5 class="modal-title" id="TambahProgramKegiatanModalLabel">Tambah Program</h5>
+                <h5 class="modal-title" id="editProgramKegiatanModalLabel">Edit Program</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -386,7 +388,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <input type="hidden" value="" id="id_indikator">
                     <input type="hidden" value="" id="tipe_sebelum">
                     <div class="form-group">
-                        <label for="nama_program_kegiatan">Nama Program / Kegiatan</label>
+                        <label for="nama_program_kegiatan">Nama Program</label>
                         <input type="text" class="form-control" id="nama_program_kegiatan" name="nama_program_kegiatan" disabled required>
                     </div>
                     <div class="form-group">
@@ -466,12 +468,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         </div>
     </div>
 </div>
-<!-- Modal verif program kegiatan sesudah-->
-<div class="modal fade" id="VerifikasiModal" tabindex="-1" role="dialog" aria-labelledby="VerifikasiModalLabel" aria-hidden="true">
+<!-- Modal penetapan program kegiatan sesudah-->
+<div class="modal fade" id="EditPenetapanModal" tabindex="-1" role="dialog" aria-labelledby="EditPenetapanModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 80%; margin-top: 50px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="VerifikasiModalLabel">Verifikasi Program / Kegiatan</h5>
+                <h5 class="modal-title" id="EditPenetapanModalLabel">EditPenetapan Program</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -484,7 +486,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                     <input type="hidden" value="" id="id_indikator_sesudah">
                     <input type="hidden" value="" id="tipe_sesudah">
                     <div class="form-group">
-                        <label for="nama_program_kegiatan_sesudah">Program / Kegiatan</label>
+                        <label for="nama_program_kegiatan_sesudah">Program</label>
                         <input type="text" class="form-control" id="nama_program_kegiatan_sesudah" name="nama_program_kegiatan_sesudah" disabled required>
                     </div>
                     <div class="form-group">
@@ -628,7 +630,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_verif_program_kegiatan(); return false">Simpan</button>
+                <button type="button" class="btn btn-primary" onclick="submit_program_kegiatan_penetapan(); return false">Simpan</button>
             </div>
         </div>
     </div>
@@ -665,6 +667,46 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         </div>
     </div>
 </div>
+<!-- Modal Verifikasi -->
+<div class="modal fade" id="verifikasiModal" tabindex="-1" role="dialog" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifikasiModalLabel">Verifikasi Usulan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" value="<?php echo $id_skpd; ?>" id="idSkpd">
+                    <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahunAnggaran">
+                    <input type="hidden" value="" id="idManrisk">
+                    <input type="hidden" value="" id="tipe_usulan">
+                    <tr>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="verifikasi_usulan" id="verifikasi_usulan_terima" value="terima">
+                                <label class="form-check-label" for="verifikasi_usulan_terima">Terima</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="verifikasi_usulan" id="verifikasi_usulan_tolak" value="tolak">
+                                <label class="form-check-label" for="verifikasi_usulan_tolak">Tolak</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <div class="form-group">
+                        <label for="keterangan_verifikasi">Catatan</label>
+                        <textarea class="form-control" id="keterangan_verifikasi" name="keterangan_verifikasi" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="submit_verifikasi_usulan(this); return false">Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -675,19 +717,19 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
 
         jQuery(document).on('change', '#get_program_kegiatan', function() {
-            get_indikator_verifikasi();
+            get_indikator_penetapan();
         });
 
         jQuery('#editProgramKegiatanModal').on('hidden.bs.modal', function() {
             reset_form_tambah();
         });
 
-        jQuery('#VerifikasiModal').on('hidden.bs.modal', function() {
-            reset_form_verifikasi();
+        jQuery('#EditPenetapanModal').on('hidden.bs.modal', function() {
+            reset_form_penetapan();
         });
 
         options_manrisk();
-        options_verif_manrisk();
+        options_manrisk_penetapan();
     });
     var dataHitungMundur = {
         'namaJadwal': '<?php echo ucwords($data_jadwal->nama); ?>',
@@ -718,7 +760,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     jQuery('.table_manrisk_program_kegiatan tbody').html(response.data);
 
-                    if (response.data_sesudah) {
+                    if (response.is_admin && response.data_sesudah) {
                         jQuery('.kolom-sesudah').show();
                     } else {
                         jQuery('.kolom-sesudah').hide();
@@ -860,6 +902,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 id_program_kegiatan: id_program_kegiatan,
                 id_indikator: id_indikator,
                 tipe: tipe_sebelum,
+                jenis: 3,
                 uraian_resiko: uraian_resiko,
                 kode_resiko: kode_resiko,
                 pemilik_resiko: pemilik_resiko,
@@ -932,13 +975,13 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function verif_program_kegiatan_manrisk(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah, kode_bidang) {
+    function edit_program_kegiatan_manrisk_penetapan(id, id_sebelum, id_program_kegiatan, id_indikator, tipe_sesudah, kode_bidang) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
             data: {
-                action: 'verif_program_kegiatan_manrisk',
+                action: 'edit_program_kegiatan_manrisk_penetapan',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
@@ -1014,13 +1057,13 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         jQuery("#rencana_tindak_pengendalian_sesudah").val(data.rencana_tindak_pengendalian);
                     } else {
 
-                        reset_form_verifikasi(kode_resiko);
+                        reset_form_penetapan(kode_resiko);
                     }
 
                     jQuery('#id_sebelum').val(id_sebelum);
-                    jQuery('#VerifikasiModal').hide();
-                    jQuery('#VerifikasiModalLabel').show();
-                    jQuery('#VerifikasiModal').modal('show');
+                    jQuery('#EditPenetapanModal').hide();
+                    jQuery('#EditPenetapanModalLabel').show();
+                    jQuery('#EditPenetapanModal').modal('show');
                 } else {
                     alert(response.message);
                 }
@@ -1109,7 +1152,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         }
     }
 
-    function reset_form_verifikasi(kode_resiko) {
+    function reset_form_penetapan(kode_resiko) {
         jQuery("#id_data_sesudah").val('');
 
         jQuery('#nama_program_kegiatan_sesudah').val('');
@@ -1152,7 +1195,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("#rencana_tindak_pengendalian").val('');
     }
 
-    function submit_verif_program_kegiatan() {
+    function submit_program_kegiatan_penetapan() {
         let id = jQuery('#id_data_sesudah').val();
         let id_sebelum = jQuery('#id_sebelum').val();
         let id_program_kegiatan = jQuery("#id_program_kegiatan_sesudah").val();
@@ -1195,7 +1238,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             dataType: 'json',
             data: {
-                action: 'submit_verif_program_kegiatan',
+                action: 'submit_program_kegiatan_penetapan',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
@@ -1220,7 +1263,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 alert(response.message);
                 if (response.status === 'success') {
-                    jQuery('#VerifikasiModal').modal('hide');
+                    jQuery('#EditPenetapanModal').modal('hide');
                     get_table_program_kegiatan();
                 }
             },
@@ -1368,7 +1411,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function options_verif_manrisk() {
+    function options_manrisk_penetapan() {
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
@@ -1402,6 +1445,140 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 console.error(xhr.responseText);
                 alert('Terjadi kesalahan!');
+            }
+        });
+    }
+
+    function usulkan_manrisk(id_manrisk, tipe) {
+        if (!confirm('Apakah Anda Yakin Akan Mengusulkan Data Ini?')) {
+            return;
+        }
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'usulkan_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id_manrisk: id_manrisk,
+                id_skpd: <?php echo $id_skpd; ?>,
+                tahun_anggaran: '<?php echo $input['tahun_anggaran'] ?>',
+                tipe: 3
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                get_table_program_kegiatan();
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat kirim data!');
+                get_table_program_kegiatan();
+            }
+        });
+    }
+
+    function verifikasi_program_kegiatan_manrisk(id, tipe_usulan) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'get_verifikasi_usulan_by_id',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: id,
+                tipe_usulan: tipe_usulan,
+                jenis: 'program'
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                jQuery("#idManrisk").val(0);
+                jQuery("#tipe_usulan").val(tipe_usulan);
+                jQuery("input[name=verifikasi_usulan][value='terima']").prop("checked", true);
+                jQuery("#keterangan_verifikasi").val("");
+                if (response.status === 'success') {
+                    let data = response.data;
+                    if (data.length !== 0 || data.status_verifikasi != null) {
+                        let verifikasi = (data.status_verifikasi == 0) ? "tolak" : "terima";
+                        jQuery("input[name=verifikasi_usulan][value='" + verifikasi + "']").prop("checked", true);
+                        jQuery("#keterangan_verifikasi").val(data.keterangan_verifikasi);
+                    }
+                    jQuery("#idManrisk").val(id);
+                    jQuery("#verifikasiModal").modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data!');
+            }
+        });
+    }
+
+    function submit_verifikasi_usulan() {
+        let id_usulan = jQuery("#idManrisk").val();
+        if (id_usulan == '') {
+            return alert('Id Usulan tidak boleh kosong');
+        }
+
+        let tipe_usulan = jQuery("#tipe_usulan").val();
+        if (tipe_usulan == '') {
+            return alert('Tipe tidak boleh kosong');
+        }
+
+        let idSkpd = jQuery("#idSkpd").val();
+        if (idSkpd == '') {
+            return alert('Id Skpd tidak boleh kosong');
+        }
+
+        let keterangan = jQuery("#keterangan_verifikasi").val();
+        if (keterangan == '') {
+            return alert('Keterangan tidak boleh kosong');
+        }
+        let tahunAnggaran = jQuery("#tahunAnggaran").val();
+        if (tahunAnggaran == '') {
+            return alert('Tahun Anggaran tidak boleh kosong');
+        }
+        let verifikasi_usulan = jQuery("input[name='verifikasi_usulan']:checked").val();
+
+        if (verifikasi_usulan == '' || verifikasi_usulan == undefined) {
+            return alert('Verifikasi tidak boleh kosong');
+        }
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'submit_verifikasi_usulan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id_usulan:id_usulan,
+                idSkpd: idSkpd,
+                keterangan: keterangan,  
+                tahunAnggaran: tahunAnggaran, 
+                verifikasi_usulan: verifikasi_usulan,
+                tipe_usulan: tipe_usulan,
+                jenis: 'program'
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status === 'success') {
+                    jQuery('#verifikasiModal').modal('hide');
+                    get_table_program_kegiatan();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat mengirim data!');
             }
         });
     }

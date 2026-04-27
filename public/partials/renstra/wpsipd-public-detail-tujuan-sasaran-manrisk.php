@@ -232,8 +232,9 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th colspan="13">SEBELUM EVALUASI</th>
                             <th rowspan="3">Rencana Tindak Pengendalian</th>
                             <!-- setelah evaluasi -->
-                            <th colspan="13" class="kolom-sesudah" style="<?php echo empty($get_data_sesudah) ? 'display:none' : ''; ?>">SETELAH EVALUASI</th>
-                            <th rowspan="3" class="kolom-sesudah" style="<?php echo empty($get_data_sesudah) ? 'display:none' : ''; ?>">Rencana Tindak Pengendalian</th>
+                            <th colspan="13" class="kolom-sesudah" style="display:none;">SETELAH EVALUASI</th>
+                            <th rowspan="3" class="kolom-sesudah" style="display:none;">Rencana Tindak Pengendalian</th>
+                            <th rowspan="3" style="min-width:200px; width:200px;">Status</th>
                             <th rowspan="3">Aksi</th>
                         </tr>
                         <tr>
@@ -294,7 +295,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th>(15)</th>
                             <th>(16)</th>
                             <!-- setelah evaluasi -->
-                            <th class="kolom-sesudah">(17)</th>
+                            <th>(17)</th>
                             <th class="kolom-sesudah">(18)</th>
                             <th class="kolom-sesudah">(19)</th>
                             <th class="kolom-sesudah">(20)</th>
@@ -308,6 +309,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                             <th class="kolom-sesudah">(28)</th>
                             <th class="kolom-sesudah">(29)</th>
                             <th class="kolom-sesudah">(30)</th>
+                            <th class="kolom-sesudah">(31)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -414,12 +416,12 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         </div>
     </div>
 </div>
-<!-- Modal verif tujuan sasaran sesudah-->
-<div class="modal fade" id="VerifikasiModal" tabindex="-1" role="dialog" aria-labelledby="VerifikasiModalLabel" aria-hidden="true">
+<!-- Modal tujuan sasaran sesudah-->
+<div class="modal fade" id="EditPenetapanModal" tabindex="-1" role="dialog" aria-labelledby="EditPenetapanModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 80%; margin-top: 50px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="VerifikasiModalLabel">Verifikasi Tujuan / Sasaran</h5>
+                <h5 class="modal-title" id="EditPenetapanModalLabel">Edit Tujuan / Sasaran Penetapan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -576,7 +578,47 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_verif_tujuan_sasaran(); return false">Simpan</button>
+                <button type="button" class="btn btn-primary" onclick="submit_tujuan_sasaran_penetapan(); return false">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Verifikasi -->
+<div class="modal fade" id="verifikasiModal" tabindex="-1" role="dialog" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifikasiModalLabel">Verifikasi Usulan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" value="<?php echo $id_skpd; ?>" id="idSkpd">
+                    <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahunAnggaran">
+                    <input type="hidden" value="" id="idManrisk">
+                    <input type="hidden" value="" id="tipe_usulan">
+                    <tr>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="verifikasi_usulan" id="verifikasi_usulan_terima" value="terima">
+                                <label class="form-check-label" for="verifikasi_usulan_terima">Terima</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="verifikasi_usulan" id="verifikasi_usulan_tolak" value="tolak">
+                                <label class="form-check-label" for="verifikasi_usulan_tolak">Tolak</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <div class="form-group">
+                        <label for="keterangan_verifikasi">Catatan</label>
+                        <textarea class="form-control" id="keterangan_verifikasi" name="keterangan_verifikasi" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="submit_verifikasi_usulan(this); return false">Simpan</button>
+                </form>
             </div>
         </div>
     </div>
@@ -591,19 +633,19 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
         
         jQuery(document).on('change', '#get_tujuan_sasaran', function() {
-            get_indikator_verifikasi();
+            get_indikator_penetapan();
         });
         
         jQuery('#editTujuanSasaranModal').on('hidden.bs.modal', function () {
             reset_form_tambah();
         });
         
-        jQuery('#VerifikasiModal').on('hidden.bs.modal', function () {
-            reset_form_verifikasi();
+        jQuery('#EditPenetapanModal').on('hidden.bs.modal', function () {
+            reset_form_penetapan();
         });
 
         options_manrisk();
-        options_verif_manrisk();
+        options_manrisk_penetapan();
     });
     var dataHitungMundur = {
         'namaJadwal' : '<?php echo ucwords($data_jadwal->nama); ?>',
@@ -634,7 +676,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 if (response.status === 'success') {
                     jQuery('.table_manrisk_tujuan_sasaran tbody').html(response.data);
 
-                    if (response.data_sesudah) {
+                    if (response.is_admin && response.data_sesudah) {
                         jQuery('.kolom-sesudah').show();
                     } else {
                         jQuery('.kolom-sesudah').hide();
@@ -778,6 +820,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 id_tujuan_sasaran: id_tujuan_sasaran,
                 id_indikator: id_indikator,
                 tipe: tipe_sebelum,
+                jenis: tipe_sebelum,
                 uraian_resiko: uraian_resiko,
                 kode_resiko: kode_resiko,
                 pemilik_resiko: pemilik_resiko,
@@ -838,13 +881,13 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         });
     }
 
-    function verif_tujuan_sasaran_manrisk(id, id_sebelum, id_tujuan_sasaran, id_indikator, tipe_sesudah, kode_bidang) {
+    function edit_tujuan_sasaran_manrisk_penetapan(id, id_sebelum, id_tujuan_sasaran, id_indikator, tipe_sesudah, kode_bidang) {
         jQuery('#wrap-loading').show();
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
             data: {
-                action: 'verif_tujuan_sasaran_manrisk',
+                action: 'edit_tujuan_sasaran_manrisk_penetapan',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
@@ -920,13 +963,13 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                         jQuery("#rencana_tindak_pengendalian_sesudah").val(data.rencana_tindak_pengendalian);
                     } else {
 
-                        reset_form_verifikasi(kode_resiko);
+                        reset_form_penetapan(kode_resiko);
                     }
 
                     jQuery('#id_sebelum').val(id_sebelum);
-                    jQuery('#VerifikasiModal').hide();
-                    jQuery('#VerifikasiModalLabel').show();
-                    jQuery('#VerifikasiModal').modal('show');
+                    jQuery('#EditPenetapanModal').hide();
+                    jQuery('#EditPenetapanModalLabel').show();
+                    jQuery('#EditPenetapanModal').modal('show');
                 } else {
                     alert(response.message);
                 }
@@ -1015,7 +1058,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         }
     }
 
-    function reset_form_verifikasi(kode_resiko) {
+    function reset_form_penetapan(kode_resiko) {
         jQuery("#id_data_sesudah").val('');
         
         jQuery('#nama_tujuan_sasaran_sesudah').val('');
@@ -1058,7 +1101,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
         jQuery("#rencana_tindak_pengendalian").val('');
     }
 
-    function submit_verif_tujuan_sasaran() {
+    function submit_tujuan_sasaran_penetapan() {
         let id = jQuery('#id_data_sesudah').val();
         let id_sebelum = jQuery('#id_sebelum').val();
         let id_tujuan_sasaran = jQuery("#id_tujuan_sasaran_sesudah").val();
@@ -1101,7 +1144,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             dataType: 'json',
             data: {
-                action: 'submit_verif_tujuan_sasaran',
+                action: 'submit_tujuan_sasaran_penetapan',
                 api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
                 tahun_anggaran: <?php echo $input['tahun_anggaran']; ?>,
                 id_skpd: <?php echo $id_skpd; ?>,
@@ -1126,7 +1169,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 alert(response.message);
                 if (response.status === 'success') {
-                    jQuery('#VerifikasiModal').modal('hide');
+                    jQuery('#EditPenetapanModal').modal('hide');
                     get_table_tujuan_sasaran();
                 }
             },
@@ -1176,7 +1219,7 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
             }
         });
     }
-    function options_verif_manrisk() {
+    function options_manrisk_penetapan() {
         jQuery.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
@@ -1210,6 +1253,140 @@ $get_data_sesudah = $wpdb->get_results($wpdb->prepare("
                 jQuery('#wrap-loading').hide();
                 console.error(xhr.responseText);
                 alert('Terjadi kesalahan!');
+            }
+        });
+    }
+
+    function usulkan_manrisk(id_manrisk, tipe) {
+        if (!confirm('Apakah Anda Yakin Akan Mengusulkan Data Ini?')) {
+            return;
+        }
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'usulkan_manrisk',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id_manrisk: id_manrisk,
+                id_skpd: <?php echo $id_skpd; ?>,
+                tahun_anggaran: '<?php echo $input['tahun_anggaran'] ?>',
+                tipe: tipe
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                get_table_tujuan_sasaran();
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                alert('Terjadi kesalahan saat kirim data!');
+                get_table_tujuan_sasaran();
+            }
+        });
+    }
+
+    function verifikasi_tujuan_sasaran_manrisk(id, tipe_usulan) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: {
+                action: 'get_verifikasi_usulan_by_id',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id: id,
+                tipe_usulan: tipe_usulan,
+                jenis: 'tujuan_sasaran'
+            },
+            dataType: 'json',
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                console.log(response);
+                jQuery("#idManrisk").val(0);
+                jQuery("#tipe_usulan").val(tipe_usulan);
+                jQuery("input[name=verifikasi_usulan][value='terima']").prop("checked", true);
+                jQuery("#keterangan_verifikasi").val("");
+                if (response.status === 'success') {
+                    let data = response.data;
+                    if (data.length !== 0 || data.status_verifikasi != null) {
+                        let verifikasi = (data.status_verifikasi == 0) ? "tolak" : "terima";
+                        jQuery("input[name=verifikasi_usulan][value='" + verifikasi + "']").prop("checked", true);
+                        jQuery("#keterangan_verifikasi").val(data.keterangan_verifikasi);
+                    }
+                    jQuery("#idManrisk").val(id);
+                    jQuery("#verifikasiModal").modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data!');
+            }
+        });
+    }
+
+    function submit_verifikasi_usulan() {
+        let id_usulan = jQuery("#idManrisk").val();
+        if (id_usulan == '') {
+            return alert('Id Usulan tidak boleh kosong');
+        }
+
+        let tipe_usulan = jQuery("#tipe_usulan").val();
+        if (tipe_usulan == '') {
+            return alert('Tipe tidak boleh kosong');
+        }
+
+        let idSkpd = jQuery("#idSkpd").val();
+        if (idSkpd == '') {
+            return alert('Id Skpd tidak boleh kosong');
+        }
+
+        let keterangan = jQuery("#keterangan_verifikasi").val();
+        if (keterangan == '') {
+            return alert('Keterangan tidak boleh kosong');
+        }
+        let tahunAnggaran = jQuery("#tahunAnggaran").val();
+        if (tahunAnggaran == '') {
+            return alert('Tahun Anggaran tidak boleh kosong');
+        }
+        let verifikasi_usulan = jQuery("input[name='verifikasi_usulan']:checked").val();
+
+        if (verifikasi_usulan == '' || verifikasi_usulan == undefined) {
+            return alert('Verifikasi tidak boleh kosong');
+        }
+
+        jQuery('#wrap-loading').show();
+
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                action: 'submit_verifikasi_usulan',
+                api_key: '<?php echo get_option('_crb_api_key_extension'); ?>',
+                id_usulan:id_usulan,
+                idSkpd: idSkpd,
+                keterangan: keterangan,  
+                tahunAnggaran: tahunAnggaran, 
+                verifikasi_usulan: verifikasi_usulan,
+                tipe_usulan: tipe_usulan,
+                jenis: 'tujuan_sasaran'
+            },
+            success: function(response) {
+                jQuery('#wrap-loading').hide();
+                alert(response.message);
+                if (response.status === 'success') {
+                    jQuery('#verifikasiModal').modal('hide');
+                    get_table_tujuan_sasaran();
+                }
+            },
+            error: function(xhr) {
+                jQuery('#wrap-loading').hide();
+                console.error(xhr.responseText);
+                alert('Terjadi kesalahan saat mengirim data!');
             }
         });
     }

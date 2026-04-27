@@ -1191,6 +1191,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_options_tahapan',  $plugin_public, 'options_tahapan');
 		$this->loader->add_action('wp_ajax_hapus_resiko',  $plugin_public, 'hapus_resiko');
 		$this->loader->add_action('wp_ajax_edit_resiko',  $plugin_public, 'edit_resiko');
+		$this->loader->add_action('wp_ajax_edit_tujuan_sasaran_manrisk_penetapan',  $plugin_public, 'edit_tujuan_sasaran_manrisk_penetapan');
+		$this->loader->add_action('wp_ajax_submit_tujuan_sasaran_penetapan',  $plugin_public, 'submit_tujuan_sasaran_penetapan');
+		$this->loader->add_action('wp_ajax_get_verifikasi_usulan_by_id',  $plugin_public, 'get_verifikasi_usulan_by_id');
+		$this->loader->add_action('wp_ajax_submit_verifikasi_usulan',  $plugin_public, 'submit_verifikasi_usulan');
 		
 		$this->loader->add_action('wp_ajax_get_data_jadwal_manrisk',  $plugin_public, 'get_data_jadwal_manrisk');
 		$this->loader->add_action('wp_ajax_get_table_program_kegiatan',  $plugin_public, 'get_table_program_kegiatan');
@@ -1203,6 +1207,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_verif_program_kegiatan_manrisk',  $plugin_public, 'submit_verif_program_kegiatan_manrisk');
 		$this->loader->add_action('wp_ajax_mapping_program_kegiatan_manrisk',  $plugin_public, 'mapping_program_kegiatan_manrisk');
 		$this->loader->add_action('wp_ajax_submit_mapping_program_kegiatan',  $plugin_public, 'submit_mapping_program_kegiatan');
+		$this->loader->add_action('wp_ajax_edit_program_kegiatan_manrisk_penetapan',  $plugin_public, 'edit_program_kegiatan_manrisk_penetapan');
+		$this->loader->add_action('wp_ajax_submit_program_kegiatan_penetapan',  $plugin_public, 'submit_program_kegiatan_penetapan');
 		
 		$this->loader->add_action('wp_ajax_pemilik_resiko_manrisk',  $plugin_public, 'pemilik_resiko_manrisk');
 		$this->loader->add_action('wp_ajax_sumber_sebab_manrisk',  $plugin_public, 'sumber_sebab_manrisk');
@@ -1232,6 +1238,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_tabel_pokin_cascading',  $plugin_public, 'get_tabel_pokin_cascading');
 
 		$this->loader->add_action('wp_ajax_get_program_manrisk_anggaran',  $plugin_public, 'get_program_manrisk_anggaran');
+		$this->loader->add_action('wp_ajax_usulkan_manrisk',  $plugin_public, 'usulkan_manrisk');
 		
 		$this->loader->add_action('wp_ajax_save_indikator_monev_renja',  $plugin_public, 'save_indikator_monev_renja');
 		$this->loader->add_action('wp_ajax_delete_monev_indikator',  $plugin_public, 'delete_monev_indikator');

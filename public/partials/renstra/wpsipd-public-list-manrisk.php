@@ -58,9 +58,9 @@ foreach ($data_unit as $id_sub_skpd => $unit) {
             'label' => 'Tujuan Sasaran'
         ],
         [
-            'title' => 'Halaman Detail Manrisk Program Kegiatan | ' . $input['tahun_anggaran'],
+            'title' => 'Halaman Detail Manrisk Program | ' . $input['tahun_anggaran'],
             'shortcode' => '[detail_program_kegiatan_manrisk tahun_anggaran="' . $input['tahun_anggaran'] . '"]',
-            'label' => 'Program Kegiatan'
+            'label' => 'Program'
         ],
         [
             'title' => 'Halaman Detail Manrisk Risiko Kecurangan | ' . $input['tahun_anggaran'],
