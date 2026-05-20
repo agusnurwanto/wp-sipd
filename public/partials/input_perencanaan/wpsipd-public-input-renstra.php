@@ -3862,9 +3862,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -3963,9 +3965,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -4434,9 +4438,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -4544,9 +4550,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -5113,9 +5121,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -5232,9 +5242,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -5754,9 +5766,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -5911,9 +5925,11 @@ $table .= '
 		        `;
 
 					var opsi_satker = '';
-					satker_all.data.map(function(b, i) {
-						opsi_satker += '<option value="' + b.id + '">' + b.nama + '</option>';
-					})
+					if (satker_all && satker_all.data) {
+						satker_all.data.forEach(b => {
+							opsi_satker += `<option value="${b.id}">${b.nama}</option>`;
+						});
+					}
 					let html_input_satker = `
 		            <div class="form-group"> 
 		                <label for="satker-pelaksana">Pilih Satuan Kerja Pelaksana</label> 
@@ -6938,11 +6954,11 @@ $table .= '
 						}
 					}
 					var pokin_html = [];
-					value.pokin.map(function(b, i) {
+					(value.pokin || []).map(function(b, i) {
 						pokin_html.push('<li>Lv. ' + b.level + ' ' + b.label + ' (' + b.indikator + ')</li>')
 					});
 					var satker_html = [];
-					value.satker.map(function(b, i) {
+					(value.satker || []).map(function(b, i) {
 						satker_html.push('<li>' + b.nama_satker + '</li>')
 					});
 					sasaran += '' +
@@ -7459,10 +7475,15 @@ $table .= '
 		if (!Array.isArray(window.bidur_all)) return '';
 		if (!window.selected_bidur) return '';
 
-		const allowed = window.selected_bidur
-			.split(',')
-			.map(kode => kode.trim());
+		let allowed = [];
 
+		if (Array.isArray(window.selected_bidur)) {
+			allowed = window.selected_bidur;
+		} else if (typeof window.selected_bidur === 'string') {
+			allowed = window.selected_bidur
+				.split(',')
+				.map(kode => kode.trim());
+		}
 		return window.bidur_all
 			.filter(item =>
 				allowed.includes(item.kode_bidang_urusan) &&
@@ -9501,7 +9522,12 @@ $table .= '
 						if (response_pokin.status) {
 							window.pokin_all = response_pokin;
 						} else {
-							alert("Data pohon kinerja tidak ditemukan");
+							window.pokin_all = {
+								status: false,
+								data: []
+							};
+
+							console.warn("Data pohon kinerja tidak ditemukan");
 						}
 
 						jQuery.ajax({
@@ -9521,7 +9547,10 @@ $table .= '
 								}
 
 								jQuery('#wrap-loading').hide();
-								resolve(pokin_all);
+								resolve(window.pokin_all || {
+									status: false,
+									data: []
+								});
 							},
 							error: function(err) {
 								jQuery('#wrap-loading').hide();
@@ -9535,7 +9564,10 @@ $table .= '
 					}
 				});
 			} else {
-				resolve(pokin_all);
+				resolve(window.pokin_all || {
+					status: false,
+					data: []
+				});
 			}
 		});
 	}

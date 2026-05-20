@@ -177,6 +177,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					WHERE tahun_anggaran = %d
 					  AND active = 1
 					  AND id_unik_indikator IS NULL
+					GROUP BY id_unik
 				", $tahun_anggaran)
 			);
         
