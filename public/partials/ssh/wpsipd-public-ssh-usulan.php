@@ -2205,46 +2205,138 @@ echo $this->menu_ssh($input);
 		//verify akun ssh usulan
 		function verify_ssh_usulan(id) {
 			jQuery('#tambahUsulanSsh').modal('show');
-			jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
-			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
-			jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-sm");
-			jQuery("#tambahUsulanSsh .modal-body").html("" +
-				"<div class='akun-ssh-verify'><table>" +
-				"<tr>" +
-				"<td><input class='verify-ssh' id='verify-ssh-yes' name='verify_ssh' value='1' type='radio' checked><label for='verify-ssh-yes'>Terima</label></td>" +
-				"<td><input class='verify-ssh' id='verify-ssh-no' name='verify_ssh' value='0' type='radio'><label for='verify-ssh-no'>Tolak</label></td>" +
-				"</tr>" +
-				"<tr class='add-desc-verify-ssh' style='display:none;'>" +
-				"<td colspan='2'><label for='alasan_verify_ssh' style='display:inline-block;'>Alasan</label><textarea id='alasan_verify_ssh'></textarea></td>" +
-				"</tr>" +
-				"<tr class='add-nota-dinas-verify-ssh' style='display:none;'>" +
-				"<td colspan='2'>" +
-				"<label for='pilih-nota-dinas' style='display:inline-block;'>Nota Dinas</label>" +
-				"<select id='pilih-nota-dinas' class='form-control'>" +
-				html_surat_usulan_nota_dinas +
-				"</select>" +
-				"</td>" +
-				"</tr>" +
-				"</div>");
-			jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh(" + id + ")\'>Simpan</button>");
-			jQuery("#verify-ssh-no").on("click", function() {
-				var check = jQuery(this).is(':checked');
-				if (check) {
-					jQuery(".add-desc-verify-ssh").show();
-					jQuery(".catatan-verify-ssh").show();
-					jQuery(".add-nota-dinas-verify-ssh").hide();
+			jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH &mdash; <?php
+				if (in_array('administrator', $user_meta->roles)) {
+					echo esc_js(get_option('_crb_nama_verifikator_admin') ?: 'Verifikator Administrator');
+				} else {
+					echo esc_js(get_option('_crb_nama_verifikator_tapdkeu') ?: 'Verifikator TAPD Keuangan');
 				}
-			});
-			jQuery("#verify-ssh-yes").on("click", function() {
-				var check = jQuery(this).is(':checked');
-				if (check) {
-					jQuery(".add-desc-verify-ssh").hide();
-					jQuery(".catatan-verify-ssh").hide();
-					<?php
-					if (in_array("administrator", $user_meta->roles)) {
-						echo 'jQuery(".add-nota-dinas-verify-ssh").show();';
+			?>");
+			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-sm modal-lg modal-xl");
+			jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
+
+			// Skeleton sementara selagi fetch checklist
+			jQuery("#tambahUsulanSsh .modal-body").html(
+				"<div class='akun-ssh-verify'>" +
+				"<p><em>Memuat daftar checklist...</em></p>" +
+				"</div>"
+			);
+			jQuery("#tambahUsulanSsh .modal-footer").html(
+				"<button style='margin: 0 0 2rem 0.5rem;border-radius:0.2rem;' class='btn_submit_verify_ssh' onclick='submit_verify_ssh(" + id + ")' disabled>Simpan</button>"
+			);
+
+			// Fetch checklist items untuk role user ini
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: 'post',
+				data: {
+					'action': 'get_ssh_checklist_items_for_verify',
+					'api_key': jQuery("#api_key").val(),
+					'tahun_anggaran': window.tahun
+				},
+				dataType: 'json',
+				success: function(res) {
+					var checklistHtml = '';
+					if (res.status === 'success' && res.data && res.data.length > 0) {
+						checklistHtml += "<div class='ssh-checklist-section' style='margin-bottom:1rem;padding:0.75rem 1rem;background:#f8f9fa;border:1px solid #dee2e6;border-radius:4px;'>";
+						checklistHtml += "<strong style='display:block;margin-bottom:0.5rem;'>Daftar Checklist Verifikasi</strong>";
+						checklistHtml += "<small style='display:block;margin-bottom:0.75rem;color:#6c757d;'>Centang semua item di bawah ini sebelum memilih <strong>Terima</strong>.</small>";
+						checklistHtml += "<table class='table table-bordered'>";
+						jQuery.each(res.data, function(i, item) {
+							checklistHtml += "<tr>" +
+								"<td style='width:30px;'>" +
+								"<input type='checkbox' class='ssh-verify-checklist-cb' id='vcb_" + item.id + "' data-item-id='" + item.id + "'>" +
+								"</td>" +
+								"<td>" +
+								"<label for='vcb_" + item.id + "' style='margin:0;cursor:pointer;'>" + item.nama_item + "</label>" +
+								"</td>" +
+								"</tr>";
+						});
+						checklistHtml += "</table>";
+						checklistHtml += "</div>";
 					}
-					?>
+
+					checklistHtml +=
+						"<div class='akun-ssh-verify'><table>" +
+						"<tr>" +
+						"<td><input class='verify-ssh' id='verify-ssh-yes' name='verify_ssh' value='1' type='radio' disabled><label for='verify-ssh-yes' style='color:#aaa;'>Terima</label></td>" +
+						"<td><input class='verify-ssh' id='verify-ssh-no' name='verify_ssh' value='0' type='radio' checked><label for='verify-ssh-no'>Tolak</label></td>" +
+						"</tr>" +
+						"<tr class='add-desc-verify-ssh'>" +
+						"<td colspan='2'><label for='alasan_verify_ssh' style='display:inline-block;'>Alasan</label><textarea id='alasan_verify_ssh' class='form-control' style='width:100%;'></textarea></td>" +
+						"</tr>" +
+						"<tr class='add-nota-dinas-verify-ssh' style='display:none;'>" +
+						"<td colspan='2'>" +
+						"<label for='pilih-nota-dinas' style='display:inline-block;'>Nota Dinas</label>" +
+						"<select id='pilih-nota-dinas' class='form-control'>" +
+						html_surat_usulan_nota_dinas +
+						"</select>" +
+						"</td>" +
+						"</tr>" +
+						"</table></div>";
+
+					jQuery("#tambahUsulanSsh .modal-body").html(checklistHtml);
+
+					// Aktifkan tombol simpan
+					jQuery('.btn_submit_verify_ssh').removeAttr('disabled');
+
+					// Fungsi periksa apakah semua checklist sudah dicentang
+					function updateChecklistState() {
+						var total = jQuery('.ssh-verify-checklist-cb').length;
+						if (total === 0) {
+							// Tidak ada checklist: biarkan user bebas memilih
+							jQuery('#verify-ssh-yes').removeAttr('disabled');
+							jQuery('#verify-ssh-yes').closest('td').find('label').css('color', '');
+							return;
+						}
+						var checked = jQuery('.ssh-verify-checklist-cb:checked').length;
+						if (checked === total) {
+							// Semua dicentang: enable Terima
+							jQuery('#verify-ssh-yes').removeAttr('disabled');
+							jQuery('#verify-ssh-yes').closest('td').find('label').css('color', '');
+						} else {
+							// Belum semua: disable Terima, paksa Tolak
+							jQuery('#verify-ssh-yes').attr('disabled', 'disabled');
+							jQuery('#verify-ssh-yes').closest('td').find('label').css('color', '#aaa');
+							if (jQuery('#verify-ssh-yes').is(':checked')) {
+								jQuery('#verify-ssh-yes').prop('checked', false);
+								jQuery('#verify-ssh-no').prop('checked', true);
+								jQuery('.add-desc-verify-ssh').show();
+								jQuery('.catatan-verify-ssh').show();
+								jQuery('.add-nota-dinas-verify-ssh').hide();
+							}
+						}
+					}
+
+					// Event listener pada setiap checkbox checklist
+					jQuery(document).on('change', '.ssh-verify-checklist-cb', function() {
+						updateChecklistState();
+					});
+
+					// Event listener radio Tolak
+					jQuery('#verify-ssh-no').on('click', function() {
+						if (jQuery(this).is(':checked')) {
+							jQuery('.add-desc-verify-ssh').show();
+							jQuery('.catatan-verify-ssh').show();
+							jQuery('.add-nota-dinas-verify-ssh').hide();
+						}
+					});
+
+					// Event listener radio Terima
+					jQuery('#verify-ssh-yes').on('click', function() {
+						if (jQuery(this).is(':checked')) {
+							jQuery('.add-desc-verify-ssh').hide();
+							jQuery('.catatan-verify-ssh').hide();
+							<?php
+							if (in_array("administrator", $user_meta->roles)) {
+								echo 'jQuery(".add-nota-dinas-verify-ssh").show();';
+							}
+							?>
+						}
+					});
+
+					// Periksa state awal
+					updateChecklistState();
 				}
 			});
 
@@ -2254,8 +2346,17 @@ echo $this->menu_ssh($input);
 		/** submit verifikasi usulan ssh */
 		function submit_verify_ssh(id_standar_ssh) {
 			var verify_ssh = jQuery("input[name=\'verify_ssh\']:checked").val();
-			var reason_verify_ssh = jQuery("#alasan_verify_ssh").val();
+			var reason_verify_ssh = jQuery("#alasan_verify_ssh").val() || '';
 			var nota_dinas = jQuery('#pilih-nota-dinas').val();
+
+			// Kumpulkan checklist items yang dicentang
+			var checklist_items = [];
+			jQuery('.ssh-verify-checklist-cb:checked').each(function() {
+				checklist_items.push(jQuery(this).data('item-id'));
+			});
+			var total_checklist = jQuery('.ssh-verify-checklist-cb').length;
+			var checklist_complete = (total_checklist === 0 || checklist_items.length === total_checklist) ? 1 : 0;
+
 			if (verify_ssh == 0 && reason_verify_ssh.trim() == '') {
 				alert('Alasan ditolak tidak boleh kosong.');
 				return false;
@@ -2275,7 +2376,9 @@ echo $this->menu_ssh($input);
 						'verify_ssh': verify_ssh,
 						'reason_verify_ssh': reason_verify_ssh,
 						'id_ssh_verify_ssh': id_standar_ssh,
-						'nota_dinas': nota_dinas
+						'nota_dinas': nota_dinas,
+						'checklist_complete': checklist_complete,
+						'checklist_items': JSON.stringify(checklist_items)
 					},
 					dataType: 'json',
 					beforeSend: function() {

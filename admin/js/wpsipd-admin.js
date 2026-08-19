@@ -778,6 +778,38 @@ function filePickedWpsipd(oEvent) {
 	reader.readAsBinaryString(oFile);
 }
 
+function loadItems() {
+	var tahun = jQuery("#ssh-filter-tahun").val();
+	var role  = jQuery("#ssh-filter-role").val();
+	var tbody = jQuery("#ssh-checklist-tbody");
+	tbody.html('<tr><td colspan="4" style="text-align:center;">Memuat...</td></tr>');
+	jQuery.post(ajaxurl, {
+		action: "get_ssh_checklist_items",
+		api_key: wpsipd.api_key,
+		tahun_anggaran: tahun,
+		role_verifikator: role
+	}, function(resp) {
+		if (resp.status === "success") {
+			if (resp.data.length === 0) {
+				tbody.html('<tr><td colspan="4" style="text-align:center;">Belum ada item untuk filter ini</td></tr>');
+				return;
+			}
+			var rows = "";
+			jQuery.each(resp.data, function(i, item) {
+				rows += "<tr>";
+				rows += "<td>" + (i + 1) + "</td>";
+				rows += "<td>" + jQuery("<div>").text(item.nama_item).html() + "</td>";
+				rows += "<td>" + item.urutan + "</td>";
+				rows += "<td><button type='button' class='button ssh-hapus-btn' data-id='" + item.id + "'>Hapus</button></td>";
+				rows += "</tr>";
+			});
+			tbody.html(rows);
+		} else {
+			tbody.html('<tr><td colspan="4" style="text-align:center;color:red;">' + resp.message + '</td></tr>');
+		}
+	}, "json");
+}
+
 jQuery(document).ready(function () {
 	window.analisa_komponen = []
 	window.options_skpd = {};
@@ -1166,5 +1198,89 @@ jQuery(document).ready(function () {
 	});
 	jQuery('body').on('click', '.select-all', function () {
 		jQuery(this).closest('.body-tahun').find('input[type="checkbox"]').prop('checked', jQuery(this).is(':checked'));
+	});
+
+	if(jQuery('#ssh-checklist-save-btn').length >= 1){
+		loadItems();
+	}
+
+	jQuery(document).on("click", "#ssh-checklist-show-add-btn", function() {
+		jQuery("#ssh-checklist-add-form").slideDown();
+		jQuery("#ssh-new-nama-item").focus();
+	});
+
+	jQuery(document).on("click", "#ssh-checklist-cancel-btn", function() {
+		jQuery("#ssh-checklist-add-form").slideUp();
+		jQuery("#ssh-new-nama-item").val("");
+		jQuery("#ssh-new-urutan").val("0");
+	});
+
+	jQuery(document).on("click", "#ssh-checklist-save-btn", function() {
+		var nama  = jQuery.trim(jQuery("#ssh-new-nama-item").val());
+		var urutan = parseInt(jQuery("#ssh-new-urutan").val()) || 0;
+		var tahun = jQuery("#ssh-filter-tahun").val();
+		var role  = jQuery("#ssh-filter-role").val();
+		var msgDiv = jQuery("#ssh-checklist-msg");
+
+		if (!nama) {
+			msgDiv.html('<span style="color:red;">Nama item tidak boleh kosong!</span>');
+			return;
+		}
+		jQuery.post(ajaxurl, {
+			action: "save_ssh_checklist_item",
+			api_key: wpsipd.api_key,
+			nama_item: nama,
+			role_verifikator: role,
+			tahun_anggaran: tahun,
+			urutan: urutan
+		}, function(resp) {
+			if (resp.status === "success") {
+				msgDiv.html('<span style="color:green;">' + resp.message + '</span>');
+				jQuery("#ssh-new-nama-item").val("");
+				jQuery("#ssh-new-urutan").val("0");
+				jQuery("#ssh-checklist-add-form").slideUp();
+				loadItems();
+			} else {
+				msgDiv.html('<span style="color:red;">' + resp.message + '</span>');
+			}
+		}, "json");
+	});
+
+	jQuery(document).on("click", "#ssh-checklist-init-btn", function() {
+		var tahun = jQuery("#ssh-filter-tahun").val();
+		var msgDiv = jQuery("#ssh-checklist-msg");
+		if (!confirm("Inisialisasi item checklist default untuk tahun " + tahun + "?\n\nItem yang sudah ada tidak akan digandakan.")) return;
+		var jQuerybtn = jQuery(this).prop("disabled", true).text("Memproses...");
+		jQuery.post(ajaxurl, {
+			action: "init_default_ssh_checklist_items",
+			api_key: wpsipd.api_key,
+			tahun_anggaran: tahun
+		}, function(resp) {
+			jQuerybtn.prop("disabled", false).text("↺ Inisialisasi Default");
+			if (resp.status === "success") {
+				msgDiv.html('<span style="color:green;">' + resp.message + '</span>');
+				loadItems();
+			} else {
+				msgDiv.html('<span style="color:red;">' + resp.message + '</span>');
+			}
+		}, "json");
+	});
+
+	jQuery(document).on("click", ".ssh-hapus-btn", function() {
+		var id = jQuery(this).data("id");
+		if (!confirm("Yakin hapus item ini?")) return;
+		var msgDiv = jQuery("#ssh-checklist-msg");
+		jQuery.post(ajaxurl, {
+			action: "delete_ssh_checklist_item",
+			api_key: wpsipd.api_key,
+			id: id
+		}, function(resp) {
+			if (resp.status === "success") {
+				msgDiv.html('<span style="color:green;">' + resp.message + '</span>');
+				loadItems();
+			} else {
+				msgDiv.html('<span style="color:red;">' + resp.message + '</span>');
+			}
+		}, "json");
 	});
 });

@@ -9770,7 +9770,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$page_url = $this->generatePage(
 							$nama_page_menu_ssh,
 							$tahun,
-							'[mmonitor_satuan_harga tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
+							'[monitor_satuan_harga tahun_anggaran="' . $tahun . '" id_skpd="' . $vv['id_skpd'] . '"]'
 						);
 						echo '<li><a href="' . $this->add_param_get($page_url, '&1=1') . '" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}

@@ -8514,3 +8514,29 @@ CREATE TABLE `data_indikator_transformasi_cascading` (
   KEY `id_uraian_cascading` (`id_uraian_cascading`),
   KEY `active` (`active`)
 );
+
+CREATE TABLE `data_ssh_checklist_items` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `nama_item` VARCHAR(255) NOT NULL,
+  `role_verifikator` VARCHAR(30) NOT NULL,
+  `tahun_anggaran` YEAR(4) NOT NULL,
+  `urutan` INT DEFAULT 0,
+  `created_at` DATETIME DEFAULT NULL,
+  `is_deleted` TINYINT(4) DEFAULT 0,
+  PRIMARY KEY (id),
+  KEY `role_verifikator` (`role_verifikator`),
+  KEY `tahun_anggaran` (`tahun_anggaran`)
+);
+
+CREATE TABLE `data_ssh_verify_checklist` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_ssh_usulan` INT(11) NOT NULL,
+  `id_checklist_item` INT(11) NOT NULL,
+  `is_checked` TINYINT(4) DEFAULT 0,
+  `verified_by` INT(11) DEFAULT NULL,
+  `verified_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY `unique_verify` (`id_ssh_usulan`,`id_checklist_item`,`verified_by`),
+  KEY `id_ssh_usulan` (`id_ssh_usulan`),
+  KEY `id_checklist_item` (`id_checklist_item`)
+);

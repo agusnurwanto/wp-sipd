@@ -1018,13 +1018,20 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'status' => 'error',
 								'message'	=> 'Alasan ditolak tidak boleh kosong!'
 							);
-
+	
 							die(json_encode($return));
 						}
-
+	
 						$verify_ssh = trim(htmlspecialchars($_POST['verify_ssh']));
 						$reason_verify_ssh = trim(htmlspecialchars($_POST['reason_verify_ssh']));
 						$id_ssh_verify_ssh = trim(htmlspecialchars($_POST['id_ssh_verify_ssh']));
+	
+						// Validasi checklist: jika checklist belum lengkap tapi verifikator pilih Terima, force reject
+						$checklist_complete = isset($_POST['checklist_complete']) ? intval($_POST['checklist_complete']) : 0;
+						if ($verify_ssh == 1 && $checklist_complete == 0) {
+							$verify_ssh = '0';
+							$reason_verify_ssh = 'Checklist verifikasi belum lengkap.';
+						}
 
 						$data_ssh = $wpdb->get_results($wpdb->prepare("
 							SELECT 
@@ -1076,7 +1083,28 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							);
 
 							$wpdb->update('data_ssh_usulan', $opsi_ssh, $where_ssh);
-
+	
+							// Simpan audit trail checklist ke data_ssh_verify_checklist
+							$checklist_items_raw = isset($_POST['checklist_items']) ? $_POST['checklist_items'] : '[]';
+							$checklist_items = json_decode(stripslashes($checklist_items_raw), true);
+							if (!empty($checklist_items) && is_array($checklist_items)) {
+								$now = current_datetime()->format('Y-m-d H:i:s');
+								$verified_by = um_user('ID');
+								foreach ($checklist_items as $item_id) {
+									$item_id = intval($item_id);
+									if ($item_id > 0) {
+										$wpdb->query($wpdb->prepare(
+											"INSERT INTO data_ssh_verify_checklist
+												(id_ssh_usulan, id_checklist_item, is_checked, verified_by, verified_at)
+											VALUES (%d, %d, 1, %d, %s)
+											ON DUPLICATE KEY UPDATE is_checked=1, verified_at=%s, verified_by=%d",
+											$id_ssh_verify_ssh, $item_id, $verified_by, $now,
+											$now, $verified_by
+										));
+									}
+								}
+							}
+	
 							$return = array(
 								'status' => 'success',
 								'message'	=> 'Berhasil!',
@@ -1113,6 +1141,66 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	public function get_ssh_checklist_items_for_verify()
+	{
+		global $wpdb;
+
+		$return = array(
+			'status' => 'error',
+			'data'	=> array()
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$user_id = um_user('ID');
+				$user_meta = get_userdata($user_id);
+
+				if (
+					in_array("administrator", $user_meta->roles) ||
+					in_array("tapd_keu", $user_meta->roles)
+				) {
+					$role = $user_meta->roles[0];
+					$tahun_anggaran = intval($_POST['tahun_anggaran']);
+
+					$items = $wpdb->get_results($wpdb->prepare(
+						"SELECT id, nama_item, urutan
+						FROM data_ssh_checklist_items
+						WHERE role_verifikator = %s
+							AND tahun_anggaran = %d
+							AND is_deleted = 0
+						ORDER BY urutan ASC",
+						$role,
+						$tahun_anggaran
+					), ARRAY_A);
+
+					$return = array(
+						'status' => 'success',
+						'role'   => $role,
+						'data'   => $items,
+					);
+				} else {
+					$return = array(
+						'status' => 'error',
+						'message' => 'User tidak diijinkan!'
+					);
+				}
+			} else {
+				$return = array(
+					'status' => 'error',
+					'message' => 'Api Key tidak sesuai!'
+				);
+			}
+		} else {
+			$return = array(
+				'status' => 'error',
+				'message' => 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+
 
 	public function data_halaman_menu_ssh($atts)
 	{

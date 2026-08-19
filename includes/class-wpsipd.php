@@ -208,6 +208,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
 		$this->loader->add_action('wp_ajax_coba_auto_login',  $plugin_admin, 'coba_auto_login');
 		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
+		$this->loader->add_action('wp_ajax_get_ssh_checklist_items',          $plugin_admin, 'get_ssh_checklist_items');
+		$this->loader->add_action('wp_ajax_save_ssh_checklist_item',          $plugin_admin, 'save_ssh_checklist_item');
+		$this->loader->add_action('wp_ajax_delete_ssh_checklist_item',        $plugin_admin, 'delete_ssh_checklist_item');
+		$this->loader->add_action('wp_ajax_init_default_ssh_checklist_items', $plugin_admin, 'init_default_ssh_checklist_items');
 		$this->loader->add_action('template_redirect', $plugin_admin, 'handle_sso_login', 0);
 
 		// https://github.com/wp-cli/wp-cli/issues/5623 error deprecated function di php 8.1
@@ -652,6 +656,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tambah_tkdn_ssh',  $plugin_public, 'submit_tambah_tkdn_ssh');
 		$this->loader->add_action('wp_ajax_submit_edit_tambah_tkdn_ssh',  $plugin_public, 'submit_edit_tambah_tkdn_ssh');
 		$this->loader->add_action('wp_ajax_submit_verify_ssh',  $plugin_public, 'submit_verify_ssh');
+		$this->loader->add_action('wp_ajax_get_ssh_checklist_items_for_verify',  $plugin_public, 'get_ssh_checklist_items_for_verify');
 		$this->loader->add_action('wp_ajax_get_data_ssh_usulan_by_id',  $plugin_public, 'get_data_ssh_usulan_by_id');
 		$this->loader->add_action('wp_ajax_submit_add_new_akun_ssh_usulan',  $plugin_public, 'submit_add_new_akun_ssh_usulan');
 		$this->loader->add_action('wp_ajax_get_data_ssh_analisis',  $plugin_public, 'get_data_ssh_analisis');

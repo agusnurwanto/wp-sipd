@@ -304,6 +304,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			->set_page_parent($basic_options_container)
 			->add_fields($this->get_wpsipd_menu_setting());
 
+		Container::make('theme_options', __('SSH Verifikasi Setting'))
+			->set_page_parent($basic_options_container)
+			->add_fields($this->get_ssh_verifikasi_settings());
+
 		$this->generatePage('SSO Login', false, '[sso_login]', false, 'publish');
 		Container::make('theme_options', __('Auto Login'))
 			->set_page_parent($basic_options_container)
@@ -6197,5 +6201,282 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			wp_redirect(site_url());
 		}
 		exit;
+	}
+
+	public function get_ssh_verifikasi_settings()
+	{
+		global $wpdb;
+		$api_key = get_option('_crb_api_key_extension');
+		$ajax_url = admin_url('admin-ajax.php');
+		$tahun_skpd = get_option('_crb_tahun_anggaran_sipd');
+
+		$tahun_all = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+		$tahun_options = '';
+		foreach ($tahun_all as $k => $v) {
+			$selected = '';
+			if($v['tahun_anggaran'] == $tahun_skpd){
+				$selected = 'selected';
+			}
+			$tahun_options .= '<option '.$selected.' value="' . $v['tahun_anggaran'] . '">' . $v['tahun_anggaran'] . '</option>';
+		}
+
+		$html = '
+<style>
+#ssh-checklist-manager { font-family: sans-serif; }
+#ssh-checklist-manager table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+#ssh-checklist-manager th, #ssh-checklist-manager td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+#ssh-checklist-manager th { background: #f0f0f0; }
+#ssh-checklist-add-form { display: none; margin-top: 10px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; }
+#ssh-checklist-add-form label { display: inline-block; width: 120px; }
+#ssh-checklist-add-form input[type="text"], #ssh-checklist-add-form input[type="number"] { width: 250px; padding: 4px; }
+#ssh-checklist-msg { margin-top: 8px; }
+</style>
+<div id="ssh-checklist-manager">
+	<h3>Manajemen Item Checklist Verifikasi SSH</h3>
+	<div style="margin-bottom:10px;">
+		<label>Tahun Anggaran:&nbsp;</label>
+		<select id="ssh-filter-tahun" onchange="loadItems();">' . $tahun_options . '</select>
+		&nbsp;&nbsp;
+		<label>Role:&nbsp;</label>
+		<select id="ssh-filter-role" onchange="loadItems();">
+			<option value="administrator">Administrator</option>
+			<option value="tapd_keu">TAPD Keuangan</option>
+		</select>
+		&nbsp;&nbsp;
+		<button type="button" class="button button-primary" id="ssh-checklist-show-add-btn">+ Tambah Item</button>
+		&nbsp;
+		<button type="button" class="button button-secondary" id="ssh-checklist-init-btn" title="Isi item default untuk tahun yang dipilih (hanya menambah jika belum ada)">↺ Inisialisasi Default</button>
+	</div>
+
+	<div id="ssh-checklist-add-form">
+		<p>
+			<label>Nama Item:</label>
+			<input type="text" id="ssh-new-nama-item" placeholder="Nama item checklist" />
+		</p>
+		<p>
+			<label>Urutan:</label>
+			<input type="number" id="ssh-new-urutan" value="0" min="0" />
+		</p>
+		<button type="button" class="button button-primary" id="ssh-checklist-save-btn">Simpan</button>
+		&nbsp;
+		<button type="button" class="button" id="ssh-checklist-cancel-btn">Batal</button>
+	</div>
+
+	<div id="ssh-checklist-msg"></div>
+
+	<table id="ssh-checklist-table">
+		<thead>
+			<tr>
+				<th style="width:40px;">No</th>
+				<th>Nama Item</th>
+				<th style="width:70px;">Urutan</th>
+				<th style="width:80px;">Aksi</th>
+			</tr>
+		</thead>
+		<tbody id="ssh-checklist-tbody">
+			<tr><td colspan="4" style="text-align:center;">Pilih filter lalu klik Tampilkan</td></tr>
+		</tbody>
+	</table>
+</div>
+';
+
+		return array(
+			Field::make('text', 'crb_nama_verifikator_admin', 'Nama Verifikator Administrator')
+				->set_help_text('Nama yang akan ditampilkan sebagai verifikator Administrator di form SSH.'),
+			Field::make('text', 'crb_nama_verifikator_tapdkeu', 'Nama Verifikator TAPD Keuangan')
+				->set_help_text('Nama yang akan ditampilkan sebagai verifikator TAPD Keuangan di form SSH.'),
+			Field::make('html', 'crb_ssh_checklist_manager')
+				->set_html($html),
+		);
+	}
+
+	function get_ssh_checklist_items()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'  => 'success',
+			'message' => 'Berhasil get data checklist items.',
+			'data'    => array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$data = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT id, nama_item, urutan FROM data_ssh_checklist_items WHERE role_verifikator=%s AND tahun_anggaran=%d AND is_deleted=0 ORDER BY urutan ASC",
+						$_POST['role_verifikator'],
+						$_POST['tahun_anggaran']
+					),
+					ARRAY_A
+				);
+				$ret['data'] = $data;
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function save_ssh_checklist_item()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'  => 'success',
+			'message' => 'Berhasil simpan item checklist!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$current_user = wp_get_current_user();
+				if (!in_array('administrator', (array) $current_user->roles)) {
+					$ret['status']  = 'error';
+					$ret['message'] = 'Hanya administrator yang dapat menambah item checklist!';
+					die(json_encode($ret));
+				}
+				$wpdb->insert(
+					'data_ssh_checklist_items',
+					array(
+						'nama_item'       => sanitize_text_field($_POST['nama_item']),
+						'role_verifikator'=> sanitize_text_field($_POST['role_verifikator']),
+						'tahun_anggaran'  => intval($_POST['tahun_anggaran']),
+						'urutan'          => intval($_POST['urutan']),
+						'created_at'      => current_time('mysql'),
+						'is_deleted'      => 0,
+					)
+				);
+				if ($wpdb->last_error) {
+					$ret['status']  = 'error';
+					$ret['message'] = 'Gagal simpan: ' . $wpdb->last_error;
+				}
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function init_default_ssh_checklist_items()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'  => 'success',
+			'message' => ''
+		);
+
+		if (empty($_POST)) {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format tidak sesuai!';
+			die(json_encode($ret));
+		}
+
+		if (empty($_POST['api_key']) || $_POST['api_key'] != get_option('_crb_api_key_extension')) {
+			$ret['status']  = 'error';
+			$ret['message'] = 'APIKEY tidak sesuai!';
+			die(json_encode($ret));
+		}
+
+		$current_user = wp_get_current_user();
+		if (!in_array('administrator', (array) $current_user->roles)) {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Hanya administrator yang dapat melakukan inisialisasi!';
+			die(json_encode($ret));
+		}
+
+		$tahun = intval($_POST['tahun_anggaran']);
+
+		// Daftar item default per role
+		$defaults = array(
+			'administrator' => array(
+				array('nama_item' => 'Kode Rekening',           'urutan' => 1),
+				array('nama_item' => 'Nomenklatur Belanja',     'urutan' => 2),
+				array('nama_item' => 'Kesesuaian Standar Harga','urutan' => 3),
+			),
+			'tapd_keu' => array(
+				array('nama_item' => 'Nama Barang',             'urutan' => 1),
+				array('nama_item' => 'Kode Barang/Kategori',   'urutan' => 2),
+				array('nama_item' => 'Spesifikasi',             'urutan' => 3),
+				array('nama_item' => 'Satuan',                  'urutan' => 4),
+				array('nama_item' => 'Kode Barang',             'urutan' => 5),
+			),
+		);
+
+		$inserted = 0;
+		$skipped  = 0;
+		$now      = current_time('mysql');
+
+		foreach ($defaults as $role => $items) {
+			foreach ($items as $item) {
+				// Cek apakah sudah ada (berdasarkan nama + role + tahun, tidak deleted)
+				$exists = $wpdb->get_var($wpdb->prepare(
+					"SELECT COUNT(*) FROM data_ssh_checklist_items
+					WHERE nama_item = %s AND role_verifikator = %s AND tahun_anggaran = %d AND is_deleted = 0",
+					$item['nama_item'], $role, $tahun
+				));
+
+				if ($exists > 0) {
+					$skipped++;
+					continue;
+				}
+
+				$wpdb->insert(
+					'data_ssh_checklist_items',
+					array(
+						'nama_item'        => $item['nama_item'],
+						'role_verifikator' => $role,
+						'tahun_anggaran'   => $tahun,
+						'urutan'           => $item['urutan'],
+						'created_at'       => $now,
+						'is_deleted'       => 0,
+					)
+				);
+
+				if ($wpdb->last_error) {
+					$ret['status']  = 'error';
+					$ret['message'] = 'Gagal insert: ' . $wpdb->last_error;
+					die(json_encode($ret));
+				}
+
+				$inserted++;
+			}
+		}
+
+		$ret['message'] = $inserted . ' item berhasil ditambahkan' .
+			($skipped > 0 ? ', ' . $skipped . ' item dilewati (sudah ada).' : '.');
+		die(json_encode($ret));
+	}
+
+	function delete_ssh_checklist_item()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'  => 'success',
+			'message' => 'Berhasil hapus item checklist!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+				$current_user = wp_get_current_user();
+				if (!in_array('administrator', (array) $current_user->roles)) {
+					$ret['status']  = 'error';
+					$ret['message'] = 'Hanya administrator yang dapat menghapus item checklist!';
+					die(json_encode($ret));
+				}
+				$wpdb->update(
+					'data_ssh_checklist_items',
+					array('is_deleted' => 1),
+					array('id' => intval($_POST['id']))
+				);
+				if ($wpdb->last_error) {
+					$ret['status']  = 'error';
+					$ret['message'] = 'Gagal hapus: ' . $wpdb->last_error;
+				}
+			} else {
+				$ret['status']  = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status']  = 'error';
+			$ret['message'] = 'Format tidak sesuai!';
+		}
+		die(json_encode($ret));
 	}
 }
