@@ -5391,23 +5391,33 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 				'domain' => site_url(),
 			);
 			$req = http_build_query($api_params);
-			$curl = curl_init();
-			curl_setopt_array($curl, array(
-				CURLOPT_URL => $url,
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POSTFIELDS => $req,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_SSL_VERIFYHOST => false,
-				CURLOPT_CONNECTTIMEOUT => 0,
-				CURLOPT_TIMEOUT => 10000
-			));
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
-			curl_close($curl);
+
+			$ch = curl_init();
+			$cookie_file = tempnam(sys_get_temp_dir(), 'cookie_cURL');
+
+			// Tahap A: Mengunjungi halaman target untuk memicu dan menangkap cookie/token gate secara otomatis
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_file);  // Menyimpan cookie dari server
+			curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_file); // Mengirim cookie kembali jika ada
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);
+			
+			// Eksekusi tahap pertama (melewati pemeriksaan JS gate awal)
+			curl_exec($ch);
+
+			// Tahap B: Melakukan POST request dengan membawa cookie yang baru saja didapatkan
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $req);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+
+			// Eksekusi tahap kedua (mengirim data utama)
+			$response = curl_exec($ch);
+			
+			$err = curl_error($ch);
+			curl_close($ch);
 			if ($err) {
 				$ret = array(
 					'status' => 'error',
