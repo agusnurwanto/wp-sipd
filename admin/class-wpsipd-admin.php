@@ -5404,19 +5404,36 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);
 			
-			// Eksekusi tahap pertama (melewati pemeriksaan JS gate awal)
-			curl_exec($ch);
-
-			// Tahap B: Melakukan POST request dengan membawa cookie yang baru saja didapatkan
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_POST, true);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $req);
-			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
-
-			// Eksekusi tahap kedua (mengirim data utama)
-			$response = curl_exec($ch);
-			
+			// Ambil challenge awal. cURL tidak menjalankan JavaScript yang biasanya
+			// memasang cookie hc_js_gate, jadi kirim cookie tersebut secara eksplisit.
+			$landing_response = curl_exec($ch);
 			$err = curl_error($ch);
+			if (!$err && is_string($landing_response) && strpos($landing_response, 'hc_js_gate=1') !== false) {
+				curl_setopt($ch, CURLOPT_COOKIE, 'hc_js_gate=1');
+				curl_setopt($ch, CURLOPT_HTTPGET, true);
+				curl_setopt($ch, CURLOPT_POST, false);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, null);
+				$landing_response = curl_exec($ch);
+				$err = curl_error($ch);
+			}
+
+			if (!$err && is_string($landing_response) && strpos($landing_response, 'Checking your browser') !== false) {
+				$err = 'Server lisensi masih menolak verifikasi browser (hc_js_gate).';
+			}
+
+			// Tahap B: POST data lisensi setelah cookie gate berhasil diterima.
+			if (!$err) {
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $req);
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+
+				$response = curl_exec($ch);
+				$err = curl_error($ch);
+			} else {
+				$response = $landing_response;
+			}
+			
 			curl_close($ch);
 			if ($err) {
 				$ret = array(
